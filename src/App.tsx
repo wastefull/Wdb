@@ -3,6 +3,9 @@ import svgPaths from "./imports/svg-qhqftidoeu";
 import { Plus, Edit2, Trash2, Search, ArrowLeft, Upload, Image as ImageIcon, ChevronDown, Copy, Check } from 'lucide-react';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from './components/ui/collapsible';
 import { RadialBarChart, RadialBar, ResponsiveContainer, Legend, Tooltip, PolarAngleAxis, Cell, Text } from 'recharts';
+import ReactMarkdown from 'react-markdown';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 
 interface ArticleSection {
   image?: string; // base64 encoded image
@@ -25,6 +28,7 @@ interface Article {
 interface Material {
   id: string;
   name: string;
+  category: 'Plastics' | 'Metals' | 'Glass' | 'Paper & Cardboard' | 'Fabrics & Textiles' | 'Electronics & Batteries' | 'Building Materials' | 'Organic/Natural Waste';
   compostability: number;
   recyclability: number;
   reusability: number;
@@ -100,6 +104,13 @@ function SearchIcon() {
 }
 
 function SearchBar({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // Prevent Figma from intercepting text editing shortcuts
+    if (e.metaKey || e.ctrlKey) {
+      e.stopPropagation();
+    }
+  };
+
   return (
     <div 
       className="relative rounded-[11.46px] shrink-0 w-full bg-white"
@@ -112,6 +123,7 @@ function SearchBar({ value, onChange }: { value: string; onChange: (value: strin
             type="text"
             value={value}
             onChange={(e) => onChange(e.target.value)}
+            onKeyDownCapture={handleKeyDown}
             placeholder="Search materials..."
             className="font-['Sniglet:Regular',_sans-serif] bg-transparent border-none outline-none text-[15px] text-black placeholder:text-black/50 flex-1"
           />
@@ -196,17 +208,29 @@ function MaterialCard({
   material, 
   onEdit, 
   onDelete,
-  onViewArticles 
+  onViewArticles,
+  onViewMaterial
 }: { 
   material: Material; 
   onEdit: () => void; 
   onDelete: () => void;
   onViewArticles: (category: CategoryType) => void;
+  onViewMaterial: () => void;
 }) {
   return (
     <div className="bg-white relative rounded-[11.464px] p-4 shadow-[3px_4px_0px_-1px_#000000] border-[1.5px] border-[#211f1c]">
       <div className="flex justify-between items-start mb-3">
-        <h3 className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black flex-1">{material.name}</h3>
+        <div className="flex-1">
+          <button
+            onClick={onViewMaterial}
+            className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black mb-1 hover:underline cursor-pointer text-left block"
+          >
+            {material.name}
+          </button>
+          <span className="inline-block px-2 py-0.5 bg-[#b8c8cb] rounded-md border border-[#211f1c] font-['Sniglet:Regular',_sans-serif] text-[9px] text-black">
+            {material.category}
+          </span>
+        </div>
         <div className="flex gap-2">
           <button
             onClick={onEdit}
@@ -257,11 +281,19 @@ function MaterialCard({
 function MaterialForm({ material, onSave, onCancel }: { material?: Material; onSave: (material: Omit<Material, 'id'>) => void; onCancel: () => void }) {
   const [formData, setFormData] = useState({
     name: material?.name || '',
+    category: material?.category || 'Plastics' as 'Plastics' | 'Metals' | 'Glass' | 'Paper & Cardboard' | 'Fabrics & Textiles' | 'Electronics & Batteries' | 'Building Materials' | 'Organic/Natural Waste',
     compostability: material?.compostability || 0,
     recyclability: material?.recyclability || 0,
     reusability: material?.reusability || 0,
     description: material?.description || '',
   });
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    // Prevent Figma from intercepting text editing shortcuts
+    if (e.metaKey || e.ctrlKey) {
+      e.stopPropagation();
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -284,9 +316,28 @@ function MaterialForm({ material, onSave, onCancel }: { material?: Material; onS
             type="text"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            onKeyDownCapture={handleKeyDown}
             required
             className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[14px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all"
           />
+        </div>
+
+        <div>
+          <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black block mb-1">Category</label>
+          <select
+            value={formData.category}
+            onChange={(e) => setFormData({ ...formData, category: e.target.value as typeof formData.category })}
+            className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[14px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all"
+          >
+            <option value="Plastics">Plastics</option>
+            <option value="Metals">Metals</option>
+            <option value="Glass">Glass</option>
+            <option value="Paper & Cardboard">Paper & Cardboard</option>
+            <option value="Fabrics & Textiles">Fabrics & Textiles</option>
+            <option value="Electronics & Batteries">Electronics & Batteries</option>
+            <option value="Building Materials">Building Materials</option>
+            <option value="Organic/Natural Waste">Organic/Natural Waste</option>
+          </select>
         </div>
 
         <div>
@@ -294,6 +345,7 @@ function MaterialForm({ material, onSave, onCancel }: { material?: Material; onS
           <textarea
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            onKeyDownCapture={handleKeyDown}
             rows={3}
             className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[12px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all resize-none"
           />
@@ -451,171 +503,119 @@ function ArticleCard({
   article, 
   onEdit, 
   onDelete,
-  hideActions = false
+  hideActions = false,
+  sustainabilityCategory,
+  onReadMore
 }: { 
   article: Article; 
   onEdit: () => void; 
   onDelete: () => void;
   hideActions?: boolean;
+  sustainabilityCategory?: { label: string; color: string };
+  onReadMore?: () => void;
 }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
-
-  const permalink = `${window.location.origin}${window.location.pathname}?article=${article.id}`;
-
-  const copyPermalink = () => {
-    navigator.clipboard.writeText(permalink);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  // Check if this article should be opened from URL parameter
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const articleId = urlParams.get('article');
-    if (articleId === article.id) {
-      setIsOpen(true);
-      // Clear the URL parameter after opening
-      window.history.replaceState({}, '', window.location.pathname);
-    }
-  }, [article.id]);
-
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <div className="bg-white relative rounded-[11.464px] p-4 shadow-[3px_4px_0px_-1px_#000000] border-[1.5px] border-[#211f1c]">
-        <div className="flex justify-between items-start mb-3">
-          <CollapsibleTrigger className="flex-1 text-left group">
-            <div className="flex items-center gap-2">
-              <h4 className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black group-hover:underline">
-                {article.title}
-              </h4>
-              <ChevronDown 
-                size={16} 
-                className={`text-black/60 transition-transform ${isOpen ? 'rotate-180' : ''}`}
-              />
-            </div>
-            <span className="inline-block mt-1 px-2 py-0.5 bg-[#e4e3ac] rounded-md border border-[#211f1c] font-['Sniglet:Regular',_sans-serif] text-[9px] text-black">
+    <div className="bg-white relative rounded-[11.464px] p-4 shadow-[3px_4px_0px_-1px_#000000] border-[1.5px] border-[#211f1c]">
+      <div className="flex justify-between items-start mb-3">
+        <div className="flex-1">
+          {onReadMore ? (
+            <button
+              onClick={onReadMore}
+              className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black hover:underline cursor-pointer text-left block"
+            >
+              {article.title}
+            </button>
+          ) : (
+            <h4 className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black">
+              {article.title}
+            </h4>
+          )}
+          <div className="flex items-center gap-2 mt-1">
+            <span className="inline-block px-2 py-0.5 bg-[#e4e3ac] rounded-md border border-[#211f1c] font-['Sniglet:Regular',_sans-serif] text-[9px] text-black">
               {article.category}
             </span>
-          </CollapsibleTrigger>
-          {!hideActions && (
-            <div className="flex gap-2">
-              <button
-                onClick={onEdit}
-                className="p-1.5 bg-[#e4e3ac] rounded-md border border-[#211f1c] hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
+            {sustainabilityCategory && (
+              <span 
+                className="inline-block px-2 py-0.5 rounded-md border border-[#211f1c] font-['Sniglet:Regular',_sans-serif] text-[9px] text-black"
+                style={{ backgroundColor: sustainabilityCategory.color }}
               >
-                <Edit2 size={12} />
-              </button>
-              <button
-                onClick={onDelete}
-                className="p-1.5 bg-[#e6beb5] rounded-md border border-[#211f1c] hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
-              >
-                <Trash2 size={12} />
-              </button>
-            </div>
-          )}
-        </div>
-        
-        {!isOpen && (
-          <>
-            {article.overview.image && (
-              <img 
-                src={article.overview.image} 
-                alt={article.title}
-                className="w-full h-32 object-cover rounded-[4px] border border-[#211f1c] mb-2"
-              />
+                {sustainabilityCategory.label}
+              </span>
             )}
-            
-            <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/70 mb-2 line-clamp-2">
-              {article.introduction.content.substring(0, 100)}...
-            </p>
-            
-            <p className="font-['Sniglet:Regular',_sans-serif] text-[9px] text-black/50">
-              Added: {new Date(article.dateAdded).toLocaleDateString()}
-            </p>
-          </>
+          </div>
+        </div>
+        {!hideActions && (
+          <div className="flex gap-2">
+            <button
+              onClick={onEdit}
+              className="p-1.5 bg-[#e4e3ac] rounded-md border border-[#211f1c] hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
+            >
+              <Edit2 size={12} />
+            </button>
+            <button
+              onClick={onDelete}
+              className="p-1.5 bg-[#e6beb5] rounded-md border border-[#211f1c] hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
+            >
+              <Trash2 size={12} />
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div className="space-y-3">
+        {/* Overview Section */}
+        {article.overview.image && (
+          <div>
+            <h5 className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black mb-1">Overview</h5>
+            <img 
+              src={article.overview.image} 
+              alt="Overview"
+              className="w-full h-auto rounded-[4px] border border-[#211f1c]"
+            />
+          </div>
         )}
 
-        <CollapsibleContent>
-          <div className="mt-4 space-y-4">
-            {/* Overview Section */}
-            <div>
-              <h5 className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black mb-2">Overview</h5>
-              {article.overview.image && (
-                <img 
-                  src={article.overview.image} 
-                  alt="Overview"
-                  className="w-full h-auto rounded-[4px] border border-[#211f1c] mb-2"
-                />
-              )}
-            </div>
+        {/* Introduction Section */}
+        <div>
+          <h5 className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black mb-1">Introduction</h5>
+          {article.introduction.image && (
+            <img 
+              src={article.introduction.image} 
+              alt="Introduction"
+              className="w-full h-auto rounded-[4px] border border-[#211f1c] mb-2"
+            />
+          )}
+          <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/70 whitespace-pre-wrap">
+            {article.introduction.content}
+          </p>
+        </div>
 
-            {/* Introduction Section */}
-            <div>
-              <h5 className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black mb-2">Introduction</h5>
-              {article.introduction.image && (
-                <img 
-                  src={article.introduction.image} 
-                  alt="Introduction"
-                  className="w-full h-auto rounded-[4px] border border-[#211f1c] mb-2"
-                />
-              )}
-              <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/70 whitespace-pre-wrap">
-                {article.introduction.content}
-              </p>
-            </div>
+        {/* Supplies Section */}
+        <div>
+          <h5 className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black mb-1">Supplies</h5>
+          {article.supplies.image && (
+            <img 
+              src={article.supplies.image} 
+              alt="Supplies"
+              className="w-full h-auto rounded-[4px] border border-[#211f1c] mb-2"
+            />
+          )}
+          <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/70 whitespace-pre-wrap">
+            {article.supplies.content}
+          </p>
+        </div>
 
-            {/* Supplies Section */}
-            <div>
-              <h5 className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black mb-2">Supplies</h5>
-              {article.supplies.image && (
-                <img 
-                  src={article.supplies.image} 
-                  alt="Supplies"
-                  className="w-full h-auto rounded-[4px] border border-[#211f1c] mb-2"
-                />
-              )}
-              <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/70 whitespace-pre-wrap">
-                {article.supplies.content}
-              </p>
-            </div>
-
-            {/* Step 1 Section */}
-            <div>
-              <h5 className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black mb-2">Step 1</h5>
-              {article.step1.image && (
-                <img 
-                  src={article.step1.image} 
-                  alt="Step 1"
-                  className="w-full h-auto rounded-[4px] border border-[#211f1c] mb-2"
-                />
-              )}
-              <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/70 whitespace-pre-wrap">
-                {article.step1.content}
-              </p>
-            </div>
-
-            <div className="pt-2 border-t border-[#211f1c]/20 space-y-1">
-              <p className="font-['Sniglet:Regular',_sans-serif] text-[9px] text-black/50">
-                Added: {new Date(article.dateAdded).toLocaleDateString()}
-              </p>
-              <div className="flex items-center gap-2">
-                <p className="font-['Sniglet:Regular',_sans-serif] text-[9px] text-black/50 truncate flex-1">
-                  Permalink: {permalink}
-                </p>
-                <button
-                  onClick={copyPermalink}
-                  className="p-1 bg-[#e4e3ac] rounded-md border border-[#211f1c] hover:shadow-[2px_2px_0px_0px_#000000] transition-all shrink-0"
-                  title="Copy permalink"
-                >
-                  {copied ? <Check size={10} /> : <Copy size={10} />}
-                </button>
-              </div>
-            </div>
-          </div>
-        </CollapsibleContent>
+        {/* Read more link */}
+        {onReadMore && (
+          <button
+            onClick={onReadMore}
+            className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black hover:underline"
+          >
+            Read more...
+          </button>
+        )}
       </div>
-    </Collapsible>
+    </div>
   );
 }
 
@@ -648,6 +648,13 @@ function ArticleForm({
     },
   });
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    // Prevent Figma from intercepting text editing shortcuts
+    if (e.metaKey || e.ctrlKey) {
+      e.stopPropagation();
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave(formData);
@@ -676,6 +683,7 @@ function ArticleForm({
                   type="text"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  onKeyDownCapture={handleKeyDown}
                   required
                   className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[14px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all"
                 />
@@ -715,6 +723,7 @@ function ArticleForm({
                   ...formData,
                   introduction: { ...formData.introduction, content: e.target.value }
                 })}
+                onKeyDownCapture={handleKeyDown}
                 required
                 rows={6}
                 className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[12px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all resize-none"
@@ -743,6 +752,7 @@ function ArticleForm({
                   ...formData,
                   supplies: { ...formData.supplies, content: e.target.value }
                 })}
+                onKeyDownCapture={handleKeyDown}
                 required
                 rows={6}
                 className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[12px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all resize-none"
@@ -771,6 +781,7 @@ function ArticleForm({
                   ...formData,
                   step1: { ...formData.step1, content: e.target.value }
                 })}
+                onKeyDownCapture={handleKeyDown}
                 required
                 rows={6}
                 className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[12px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all resize-none"
@@ -804,12 +815,14 @@ function ArticlesView({
   material, 
   category, 
   onBack,
-  onUpdateMaterial
+  onUpdateMaterial,
+  onViewArticleStandalone
 }: { 
   material: Material; 
   category: CategoryType;
   onBack: () => void;
   onUpdateMaterial: (material: Material) => void;
+  onViewArticleStandalone: (articleId: string) => void;
 }) {
   const [showForm, setShowForm] = useState(false);
   const [editingArticle, setEditingArticle] = useState<Article | null>(null);
@@ -934,6 +947,7 @@ function ArticlesView({
               setShowForm(true);
             }}
             onDelete={() => handleDeleteArticle(article.id)}
+            onReadMore={() => onViewArticleStandalone(article.id)}
           />
         ))}
       </div>
@@ -949,14 +963,188 @@ function ArticlesView({
   );
 }
 
+function MaterialDetailView({
+  material,
+  onBack,
+  onViewArticles,
+  onUpdateMaterial,
+  onViewArticleStandalone
+}: {
+  material: Material;
+  onBack: () => void;
+  onViewArticles: (category: CategoryType) => void;
+  onUpdateMaterial: (material: Material) => void;
+  onViewArticleStandalone: (articleId: string, category: CategoryType) => void;
+}) {
+  const categoryLabels = {
+    compostability: 'Compostability',
+    recyclability: 'Recyclability',
+    reusability: 'Reusability',
+  };
+
+  const categoryColors = {
+    compostability: '#e6beb5',
+    recyclability: '#e4e3ac',
+    reusability: '#b8c8cb',
+  };
+
+  const allArticles = [
+    ...material.articles.compostability.map(a => ({ article: a, category: 'compostability' as CategoryType })),
+    ...material.articles.recyclability.map(a => ({ article: a, category: 'recyclability' as CategoryType })),
+    ...material.articles.reusability.map(a => ({ article: a, category: 'reusability' as CategoryType })),
+  ].sort((a, b) => new Date(b.article.dateAdded).getTime() - new Date(a.article.dateAdded).getTime());
+
+  const totalArticles = allArticles.length;
+
+  const handleDeleteArticle = (articleId: string, category: CategoryType) => {
+    if (confirm('Are you sure you want to delete this article?')) {
+      const updatedMaterial = {
+        ...material,
+        articles: {
+          ...material.articles,
+          [category]: material.articles[category].filter(a => a.id !== articleId)
+        }
+      };
+      onUpdateMaterial(updatedMaterial);
+    }
+  };
+
+  const [editingArticle, setEditingArticle] = useState<{ article: Article; category: CategoryType } | null>(null);
+  const [showForm, setShowForm] = useState(false);
+
+  const handleUpdateArticle = (articleData: Omit<Article, 'id' | 'dateAdded'>) => {
+    if (!editingArticle) return;
+    
+    const updatedArticles = material.articles[editingArticle.category].map(a => 
+      a.id === editingArticle.article.id 
+        ? { ...articleData, id: a.id, dateAdded: a.dateAdded } 
+        : a
+    );
+    
+    const updatedMaterial = {
+      ...material,
+      articles: {
+        ...material.articles,
+        [editingArticle.category]: updatedArticles
+      }
+    };
+    
+    onUpdateMaterial(updatedMaterial);
+    setEditingArticle(null);
+    setShowForm(false);
+  };
+
+  return (
+    <div className="p-6">
+      <div className="flex items-center gap-4 mb-6">
+        <button
+          onClick={onBack}
+          className="p-2 bg-[#b8c8cb] rounded-md border border-[#211f1c] hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
+        >
+          <ArrowLeft size={16} />
+        </button>
+        <div className="flex-1">
+          <h2 className="font-['Sniglet:Regular',_sans-serif] text-[20px] text-black">
+            {material.name}
+          </h2>
+          <div className="flex items-center gap-2 mt-1">
+            <span className="inline-block px-2 py-0.5 bg-[#b8c8cb] rounded-md border border-[#211f1c] font-['Sniglet:Regular',_sans-serif] text-[9px] text-black">
+              {material.category}
+            </span>
+            <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/60">
+              {totalArticles} article{totalArticles !== 1 ? 's' : ''}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {material.description && (
+        <div className="bg-white rounded-[11.464px] border-[1.5px] border-[#211f1c] p-4 mb-6">
+          <p className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black/80">{material.description}</p>
+        </div>
+      )}
+
+      <div className="bg-white rounded-[11.464px] border-[1.5px] border-[#211f1c] p-4 mb-6">
+        <h3 className="font-['Sniglet:Regular',_sans-serif] text-[15px] text-black mb-4">Sustainability Scores</h3>
+        <div className="flex flex-col gap-3">
+          <ScoreBar 
+            score={material.compostability} 
+            label="Compostability" 
+            color="#e6beb5" 
+            articleCount={material.articles.compostability.length}
+            onClick={() => onViewArticles('compostability')}
+          />
+          <ScoreBar 
+            score={material.recyclability} 
+            label="Recyclability" 
+            color="#e4e3ac" 
+            articleCount={material.articles.recyclability.length}
+            onClick={() => onViewArticles('recyclability')}
+          />
+          <ScoreBar 
+            score={material.reusability} 
+            label="Reusability" 
+            color="#b8c8cb" 
+            articleCount={material.articles.reusability.length}
+            onClick={() => onViewArticles('reusability')}
+          />
+        </div>
+      </div>
+
+      {showForm && editingArticle && (
+        <ArticleForm
+          article={editingArticle.article}
+          onSave={handleUpdateArticle}
+          onCancel={() => {
+            setShowForm(false);
+            setEditingArticle(null);
+          }}
+        />
+      )}
+
+      {totalArticles > 0 ? (
+        <div>
+          <h3 className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black mb-4">All Articles</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {allArticles.map(({ article, category }) => (
+              <ArticleCard
+                key={`${category}-${article.id}`}
+                article={article}
+                onEdit={() => {
+                  setEditingArticle({ article, category });
+                  setShowForm(true);
+                }}
+                onDelete={() => handleDeleteArticle(article.id, category)}
+                sustainabilityCategory={{
+                  label: categoryLabels[category],
+                  color: categoryColors[category]
+                }}
+                onReadMore={() => onViewArticleStandalone(article.id, category)}
+              />
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="text-center py-12">
+          <p className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black/50">
+            No articles yet. Click on a category score above to add one!
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function AllArticlesView({ 
   category, 
   materials, 
-  onBack 
+  onBack,
+  onViewArticleStandalone
 }: { 
   category: CategoryType; 
   materials: Material[]; 
   onBack: () => void;
+  onViewArticleStandalone: (articleId: string, materialId: string) => void;
 }) {
   const categoryLabels = {
     compostability: 'Compost',
@@ -1006,6 +1194,7 @@ function AllArticlesView({
               onEdit={() => {}}
               onDelete={() => {}}
               hideActions
+              onReadMore={() => onViewArticleStandalone(article.id, material.id)}
             />
           </div>
         ))}
@@ -1022,12 +1211,307 @@ function AllArticlesView({
   );
 }
 
+function RecyclabilityCalculationView({ onBack }: { onBack: () => void }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [markdownContent, setMarkdownContent] = useState('');
+
+  useEffect(() => {
+    // Add KaTeX CSS to document head
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css';
+    link.integrity = 'sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV';
+    link.crossOrigin = 'anonymous';
+    document.head.appendChild(link);
+
+    // Load markdown content from localStorage or use default
+    const storedContent = localStorage.getItem('recyclabilityMarkdown');
+    if (storedContent) {
+      setMarkdownContent(storedContent);
+    } else {
+      const defaultContent = `# How is recyclability calculated?
+
+1234
+
+The recyclability category score is calculated using the following formula:
+
+$
+R_{category} = \\frac{\\sum_i R_{s,i} \\times \\text{Market Share}_i}{\\sum_i \\text{Market Share}_i}
+$
+
+Where:
+- $R_{category}$ is the recyclability score for the category
+- $R_{s,i}$ is the recyclability score for each subcategory $i$
+- $\\text{Market Share}_i$ is the market share of subcategory $i$
+`;
+      setMarkdownContent(defaultContent);
+    }
+
+    return () => {
+      // Cleanup: remove the link when component unmounts
+      document.head.removeChild(link);
+    };
+  }, []);
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // Prevent Figma from intercepting text editing shortcuts
+    if (e.metaKey || e.ctrlKey) {
+      e.stopPropagation();
+    }
+  };
+
+  const handleSave = () => {
+    localStorage.setItem('recyclabilityMarkdown', markdownContent);
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    // Reload from localStorage
+    const storedContent = localStorage.getItem('recyclabilityMarkdown');
+    if (storedContent) {
+      setMarkdownContent(storedContent);
+    }
+    setIsEditing(false);
+  };
+
+  return (
+    <div className="p-6">
+      <div className="flex items-center gap-4 mb-6">
+        <button
+          onClick={onBack}
+          className="p-2 bg-[#b8c8cb] rounded-md border border-[#211f1c] hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
+        >
+          <ArrowLeft size={16} />
+        </button>
+        <h2 className="font-['Sniglet:Regular',_sans-serif] text-[18px] text-black flex-1">
+          Recyclability Calculation
+        </h2>
+        {!isEditing ? (
+          <button
+            onClick={() => setIsEditing(true)}
+            className="p-2 bg-[#e4e3ac] rounded-md border border-[#211f1c] hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
+          >
+            <Edit2 size={14} />
+          </button>
+        ) : (
+          <div className="flex gap-2">
+            <button
+              onClick={handleSave}
+              className="bg-[#e4e3ac] h-[36px] px-6 rounded-[6px] border border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] font-['Sniglet:Regular',_sans-serif] text-[13px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] transition-all"
+            >
+              Save
+            </button>
+            <button
+              onClick={handleCancel}
+              className="bg-[#e6beb5] h-[36px] px-6 rounded-[6px] border border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] font-['Sniglet:Regular',_sans-serif] text-[13px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] transition-all"
+            >
+              Cancel
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div className="bg-white rounded-[11.464px] border-[1.5px] border-[#211f1c] p-6 max-w-3xl mx-auto">
+        {isEditing ? (
+          <div>
+            <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black block mb-2">
+              Markdown Content (use $...$ for inline math, $...$ for block math)
+            </label>
+            <textarea
+              value={markdownContent}
+              onChange={(e) => setMarkdownContent(e.target.value)}
+              onKeyDownCapture={handleKeyDown}
+              rows={20}
+              className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-[8px] font-mono text-[12px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all resize-y"
+              placeholder="Enter markdown content..."
+            />
+          </div>
+        ) : (
+          <div className="prose prose-sm max-w-none">
+            <ReactMarkdown
+              remarkPlugins={[remarkMath]}
+              rehypePlugins={[rehypeKatex]}
+              components={{
+                h1: ({node, ...props}) => <h1 className="font-['Sniglet:Regular',_sans-serif] text-[20px] text-black mb-4" {...props} />,
+                h2: ({node, ...props}) => <h2 className="font-['Sniglet:Regular',_sans-serif] text-[18px] text-black mb-3" {...props} />,
+                h3: ({node, ...props}) => <h3 className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black mb-2" {...props} />,
+                p: ({node, ...props}) => <p className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black/80 mb-4 leading-relaxed" {...props} />,
+                ul: ({node, ...props}) => <ul className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black/80 mb-4 list-disc pl-6" {...props} />,
+                li: ({node, ...props}) => <li className="mb-1" {...props} />,
+              }}
+            >
+              {markdownContent}
+            </ReactMarkdown>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function StandaloneArticleView({
+  article,
+  sustainabilityCategory,
+  materialName,
+  onBack,
+  onEdit,
+  onDelete
+}: {
+  article: Article;
+  sustainabilityCategory?: { label: string; color: string };
+  materialName?: string;
+  onBack: () => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
+}) {
+  const [copied, setCopied] = useState(false);
+
+  const permalink = `${window.location.origin}${window.location.pathname}?article=${article.id}`;
+
+  const copyPermalink = () => {
+    navigator.clipboard.writeText(permalink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="p-6">
+      <div className="flex items-center gap-4 mb-6">
+        <button
+          onClick={onBack}
+          className="p-2 bg-[#b8c8cb] rounded-md border border-[#211f1c] hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
+        >
+          <ArrowLeft size={16} />
+        </button>
+        <div className="flex-1">
+          <h2 className="font-['Sniglet:Regular',_sans-serif] text-[18px] text-black">
+            {article.title}
+          </h2>
+          <div className="flex items-center gap-2 mt-1">
+            <span className="inline-block px-2 py-0.5 bg-[#e4e3ac] rounded-md border border-[#211f1c] font-['Sniglet:Regular',_sans-serif] text-[9px] text-black">
+              {article.category}
+            </span>
+            {sustainabilityCategory && (
+              <span 
+                className="inline-block px-2 py-0.5 rounded-md border border-[#211f1c] font-['Sniglet:Regular',_sans-serif] text-[9px] text-black"
+                style={{ backgroundColor: sustainabilityCategory.color }}
+              >
+                {sustainabilityCategory.label}
+              </span>
+            )}
+            {materialName && (
+              <span className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/60">
+                from {materialName}
+              </span>
+            )}
+          </div>
+        </div>
+        {onEdit && onDelete && (
+          <div className="flex gap-2">
+            <button
+              onClick={onEdit}
+              className="p-2 bg-[#e4e3ac] rounded-md border border-[#211f1c] hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
+            >
+              <Edit2 size={14} />
+            </button>
+            <button
+              onClick={onDelete}
+              className="p-2 bg-[#e6beb5] rounded-md border border-[#211f1c] hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
+            >
+              <Trash2 size={14} />
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div className="bg-white rounded-[11.464px] border-[1.5px] border-[#211f1c] p-6 max-w-3xl mx-auto">
+        <div className="space-y-6">
+          {/* Overview Section */}
+          {article.overview.image && (
+            <div>
+              <h3 className="font-['Sniglet:Regular',_sans-serif] text-[15px] text-black mb-3">Overview</h3>
+              <img 
+                src={article.overview.image} 
+                alt="Overview"
+                className="w-full h-auto rounded-[4px] border border-[#211f1c]"
+              />
+            </div>
+          )}
+
+          {/* Introduction Section */}
+          <div>
+            <h3 className="font-['Sniglet:Regular',_sans-serif] text-[15px] text-black mb-3">Introduction</h3>
+            {article.introduction.image && (
+              <img 
+                src={article.introduction.image} 
+                alt="Introduction"
+                className="w-full h-auto rounded-[4px] border border-[#211f1c] mb-3"
+              />
+            )}
+            <p className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black/80 whitespace-pre-wrap leading-relaxed">
+              {article.introduction.content}
+            </p>
+          </div>
+
+          {/* Supplies Section */}
+          <div>
+            <h3 className="font-['Sniglet:Regular',_sans-serif] text-[15px] text-black mb-3">Supplies</h3>
+            {article.supplies.image && (
+              <img 
+                src={article.supplies.image} 
+                alt="Supplies"
+                className="w-full h-auto rounded-[4px] border border-[#211f1c] mb-3"
+              />
+            )}
+            <p className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black/80 whitespace-pre-wrap leading-relaxed">
+              {article.supplies.content}
+            </p>
+          </div>
+
+          {/* Step 1 Section */}
+          <div>
+            <h3 className="font-['Sniglet:Regular',_sans-serif] text-[15px] text-black mb-3">Step 1</h3>
+            {article.step1.image && (
+              <img 
+                src={article.step1.image} 
+                alt="Step 1"
+                className="w-full h-auto rounded-[4px] border border-[#211f1c] mb-3"
+              />
+            )}
+            <p className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black/80 whitespace-pre-wrap leading-relaxed">
+              {article.step1.content}
+            </p>
+          </div>
+
+          <div className="pt-4 border-t border-[#211f1c]/20 space-y-2">
+            <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/50">
+              Added: {new Date(article.dateAdded).toLocaleDateString()}
+            </p>
+            <div className="flex items-center gap-2">
+              <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/50 truncate flex-1">
+                Permalink: {permalink}
+              </p>
+              <button
+                onClick={copyPermalink}
+                className="p-1.5 bg-[#e4e3ac] rounded-md border border-[#211f1c] hover:shadow-[2px_2px_0px_0px_#000000] transition-all shrink-0"
+                title="Copy permalink"
+              >
+                {copied ? <Check size={12} /> : <Copy size={12} />}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [materials, setMaterials] = useState<Material[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [editingMaterial, setEditingMaterial] = useState<Material | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const [currentView, setCurrentView] = useState<{ type: 'materials' } | { type: 'articles'; materialId: string; category: CategoryType } | { type: 'all-articles'; category: CategoryType }>({ type: 'materials' });
+  const [currentView, setCurrentView] = useState<{ type: 'materials' } | { type: 'articles'; materialId: string; category: CategoryType } | { type: 'all-articles'; category: CategoryType } | { type: 'material-detail'; materialId: string } | { type: 'article-standalone'; articleId: string; materialId: string; category: CategoryType } | { type: 'recyclability-calculation' }>({ type: 'materials' });
   const [articleToOpen, setArticleToOpen] = useState<string | null>(null);
 
   useEffect(() => {
@@ -1035,9 +1519,10 @@ export default function App() {
     if (stored) {
       try {
         const parsedMaterials = JSON.parse(stored);
-        // Ensure all materials have articles structure
+        // Ensure all materials have articles structure and category
         const materialsWithArticles = parsedMaterials.map((m: any) => ({
           ...m,
+          category: m.category || 'Plastics', // Default category for backward compatibility
           articles: m.articles || {
             compostability: [],
             recyclability: [],
@@ -1069,8 +1554,10 @@ export default function App() {
         for (const category of ['compostability', 'recyclability', 'reusability'] as CategoryType[]) {
           const article = material.articles[category].find(a => a.id === articleToOpen);
           if (article) {
-            setCurrentView({ type: 'articles', materialId: material.id, category });
+            setCurrentView({ type: 'article-standalone', articleId: articleToOpen, materialId: material.id, category });
             setArticleToOpen(null);
+            // Clear the URL parameter
+            window.history.replaceState({}, '', window.location.pathname);
             return;
           }
         }
@@ -1083,6 +1570,7 @@ export default function App() {
       {
         id: '1',
         name: 'Cardboard',
+        category: 'Paper & Cardboard',
         compostability: 85,
         recyclability: 95,
         reusability: 70,
@@ -1113,6 +1601,7 @@ export default function App() {
       {
         id: '2',
         name: 'Glass',
+        category: 'Glass',
         compostability: 0,
         recyclability: 100,
         reusability: 95,
@@ -1143,6 +1632,7 @@ export default function App() {
       {
         id: '3',
         name: 'Plastic (PET)',
+        category: 'Plastics',
         compostability: 0,
         recyclability: 75,
         reusability: 60,
@@ -1201,12 +1691,20 @@ export default function App() {
     setCurrentView({ type: 'articles', materialId, category });
   };
 
+  const handleViewMaterial = (materialId: string) => {
+    setCurrentView({ type: 'material-detail', materialId });
+  };
+
+  const handleViewArticleStandalone = (materialId: string, articleId: string, category: CategoryType) => {
+    setCurrentView({ type: 'article-standalone', articleId, materialId, category });
+  };
+
   const filteredMaterials = materials.filter(m =>
     m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     m.description?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const currentMaterial = currentView.type === 'articles' 
+  const currentMaterial = (currentView.type === 'articles' || currentView.type === 'material-detail' || currentView.type === 'article-standalone')
     ? materials.find(m => m.id === currentView.materialId) 
     : null;
 
@@ -1285,7 +1783,15 @@ export default function App() {
                 return (
                   <div className="bg-white rounded-[11.464px] border-[1.5px] border-[#211f1c] p-6 mb-6 shadow-sm">
                     <div className="grid grid-cols-1 md:grid-cols-[1fr_1.5fr] gap-6 items-center">
-                      <h3 className="font-['Sniglet:Regular',_sans-serif] text-black">What options do I have for my waste?</h3>
+                      <div>
+                        <h3 className="font-['Sniglet:Regular',_sans-serif] text-[20px] text-black mb-2">What options do I have for my waste?</h3>
+                        <button
+                          onClick={() => setCurrentView({ type: 'recyclability-calculation' })}
+                          className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/70 hover:underline"
+                        >
+                          How is recyclability calculated?
+                        </button>
+                      </div>
                       <ResponsiveContainer width="100%" height={280}>
                         <RadialBarChart 
                           cx="50%" 
@@ -1393,6 +1899,7 @@ export default function App() {
                     }}
                     onDelete={() => handleDeleteMaterial(material.id)}
                     onViewArticles={(category) => handleViewArticles(material.id, category)}
+                    onViewMaterial={() => handleViewMaterial(material.id)}
                   />
                 ))}
               </div>
@@ -1411,11 +1918,52 @@ export default function App() {
               category={currentView.category}
               onBack={() => setCurrentView({ type: 'materials' })}
               onUpdateMaterial={handleUpdateMaterial}
+              onViewArticleStandalone={(articleId) => handleViewArticleStandalone(currentMaterial.id, articleId, currentView.category)}
             />
           ) : currentView.type === 'all-articles' ? (
             <AllArticlesView
               category={currentView.category}
               materials={materials}
+              onBack={() => setCurrentView({ type: 'materials' })}
+              onViewArticleStandalone={(articleId, materialId) => handleViewArticleStandalone(materialId, articleId, currentView.category)}
+            />
+          ) : currentMaterial && currentView.type === 'material-detail' ? (
+            <MaterialDetailView
+              material={currentMaterial}
+              onBack={() => setCurrentView({ type: 'materials' })}
+              onViewArticles={(category) => handleViewArticles(currentMaterial.id, category)}
+              onUpdateMaterial={handleUpdateMaterial}
+              onViewArticleStandalone={(articleId, category) => handleViewArticleStandalone(currentMaterial.id, articleId, category)}
+            />
+          ) : currentMaterial && currentView.type === 'article-standalone' ? (
+            <StandaloneArticleView
+              article={currentMaterial.articles[currentView.category].find(a => a.id === currentView.articleId)!}
+              sustainabilityCategory={{
+                label: currentView.category === 'compostability' ? 'Compostability' : currentView.category === 'recyclability' ? 'Recyclability' : 'Reusability',
+                color: currentView.category === 'compostability' ? '#e6beb5' : currentView.category === 'recyclability' ? '#e4e3ac' : '#b8c8cb'
+              }}
+              materialName={currentMaterial.name}
+              onBack={() => setCurrentView({ type: 'material-detail', materialId: currentMaterial.id })}
+              onEdit={() => {
+                // Navigate back to material detail with edit form open
+                setCurrentView({ type: 'material-detail', materialId: currentMaterial.id });
+              }}
+              onDelete={() => {
+                if (confirm('Are you sure you want to delete this article?')) {
+                  const updatedMaterial = {
+                    ...currentMaterial,
+                    articles: {
+                      ...currentMaterial.articles,
+                      [currentView.category]: currentMaterial.articles[currentView.category].filter(a => a.id !== currentView.articleId)
+                    }
+                  };
+                  handleUpdateMaterial(updatedMaterial);
+                  setCurrentView({ type: 'material-detail', materialId: currentMaterial.id });
+                }
+              }}
+            />
+          ) : currentView.type === 'recyclability-calculation' ? (
+            <RecyclabilityCalculationView
               onBack={() => setCurrentView({ type: 'materials' })}
             />
           ) : null}
