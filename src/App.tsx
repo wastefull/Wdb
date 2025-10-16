@@ -101,7 +101,9 @@ function SearchIcon() {
 
 function SearchBar({ value, onChange }: { value: string; onChange: (value: string) => void }) {
   return (
-    <div className="relative rounded-[11.46px] shrink-0 w-full">
+    <div 
+      className="relative rounded-[11.46px] shrink-0 w-full bg-white"
+    >
       <div aria-hidden="true" className="absolute border-[#211f1c] border-[1.5px] border-solid inset-[-0.75px] pointer-events-none rounded-[12.21px]" />
       <div className="flex flex-row items-center justify-center size-full">
         <div className="box-border content-stretch flex gap-[15px] items-center justify-start px-[12px] py-[8px] relative w-full">
@@ -1209,7 +1211,13 @@ export default function App() {
     : null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#faf7f2] via-[#f5f0e8] to-[#ebe4d8] p-8">
+    <div 
+      className="min-h-screen p-8"
+      style={{
+        backgroundImage: `url("https://www.transparenttextures.com/patterns/3px-tile.png"), linear-gradient(to bottom right, #faf7f2, #f5f0e8, #ebe4d8)`,
+        backgroundSize: '3px 3px, auto'
+      }}
+    >
       <div className="max-w-6xl mx-auto">
         <div className="bg-[#faf7f2] rounded-[11.464px] border-[1.5px] border-[#211f1c] overflow-hidden mb-6">
           <StatusBar title="WasteDB" />
@@ -1276,107 +1284,100 @@ export default function App() {
 
                 return (
                   <div className="bg-white rounded-[11.464px] border-[1.5px] border-[#211f1c] p-6 mb-6 shadow-sm">
-                    <h3 className="font-['Sniglet:Regular',_sans-serif] text-black mb-4">What options do I have for my waste?</h3>
-                    <ResponsiveContainer width="100%" height={320}>
-                      <RadialBarChart 
-                        cx="50%" 
-                        cy="50%" 
-                        innerRadius="20%" 
-                        outerRadius="90%"
-                        data={chartData}
-                        startAngle={90}
-                        endAngle={-270}
-                      >
-                        <defs>
-                          <filter id="contrastFilter">
-                            <feColorMatrix
-                              type="matrix"
-                              values="3 0 0 0 -1
-                                      0 3 0 0 -1
-                                      0 0 3 0 -1
-                                      0 0 0 1 0"
-                            />
-                          </filter>
-                          <pattern id="grayTexture" patternUnits="userSpaceOnUse" width="3" height="3">
-                            <rect width="3" height="3" fill="#fff" />
-                            <image href="https://www.transparenttextures.com/patterns/3px-tile.png" x="0" y="0" width="3" height="3" filter="url(#contrastFilter)" />
-                          </pattern>
-                        </defs>
-                        <PolarAngleAxis 
-                          type="number" 
-                          domain={[0, 100]} 
-                          angleAxisId={0} 
-                          tick={false}
-                          stroke="none"
-                        />
-                        <RadialBar
-                          background={{ fill: 'url(#grayTexture)' }}
-                          dataKey="value"
-                          cornerRadius={10}
-                          stroke="#211f1c"
-                          strokeWidth={0.5}
-                          strokeOpacity={0.2}
-                          animationDuration={2000}
-                          animationEasing="ease-in-out"
-                          onClick={(data) => {
-                            if (data && data.categoryKey) {
-                              setCurrentView({ type: 'all-articles', category: data.categoryKey as CategoryType });
-                            }
-                          }}
-                          style={{ cursor: 'pointer' }}
-                          label={{
-                            position: 'insideStart',
-                            fill: '#211f1c',
-                            fontFamily: 'Sniglet:Regular, sans-serif',
-                            fontSize: '13px',
-                            formatter: (value: number) => {
-                              // Find the matching data entry by value
-                              const dataEntry = chartData.find(d => d.value === value);
-                              return dataEntry ? `${value}% is ${dataEntry.shortName}` : `${value}% is`;
-                            }
-                          }}
-                        />
-                        <Tooltip 
-                          cursor={false}
-                          content={({ active, payload }) => {
-                            if (active && payload && payload.length) {
-                              const data = payload[0].payload;
-                              const articleCount = data.articleCount;
-                              const articleText = articleCount === 1 ? 'article' : 'articles';
-                              const categoryMap: { [key: string]: string } = {
-                                'Compostable': 'compost',
-                                'Recyclable': 'recycling',
-                                'Reusable': 'reuse'
-                              };
-                              const categoryLabel = categoryMap[data.name] || data.name.toLowerCase();
-                              return (
-                                <div style={{
-                                  backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                                  borderRadius: '8px',
-                                  fontFamily: 'Sniglet:Regular, sans-serif',
-                                  fontSize: '12px',
-                                  boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-                                  padding: '8px 12px',
-                                  color: '#211f1c'
-                                }}>
-                                  {articleCount} {categoryLabel} {articleText}
-                                </div>
-                              );
-                            }
-                            return null;
-                          }}
-                        />
-                        <Legend 
-                          wrapperStyle={{
-                            fontFamily: 'Sniglet:Regular, sans-serif',
-                            fontSize: '13px',
-                            paddingTop: '10px'
-                          }}
-                          iconType="circle"
-                          formatter={(value) => <span style={{ color: '#211f1c' }}>{value}</span>}
-                        />
-                      </RadialBarChart>
-                    </ResponsiveContainer>
+                    <div className="grid grid-cols-1 md:grid-cols-[1fr_1.5fr] gap-6 items-center">
+                      <h3 className="font-['Sniglet:Regular',_sans-serif] text-black">What options do I have for my waste?</h3>
+                      <ResponsiveContainer width="100%" height={280}>
+                        <RadialBarChart 
+                          cx="50%" 
+                          cy="50%" 
+                          innerRadius="20%" 
+                          outerRadius="90%"
+                          data={chartData}
+                          startAngle={90}
+                          endAngle={-270}
+                        >
+                          <defs>
+                            <filter id="contrastFilter">
+                              <feColorMatrix
+                                type="matrix"
+                                values="3 0 0 0 -1
+                                        0 3 0 0 -1
+                                        0 0 3 0 -1
+                                        0 0 0 1 0"
+                              />
+                            </filter>
+                            <pattern id="grayTexture" patternUnits="userSpaceOnUse" width="3" height="3">
+                              <rect width="3" height="3" fill="#fff" />
+                              <image href="https://www.transparenttextures.com/patterns/3px-tile.png" x="0" y="0" width="3" height="3" filter="url(#contrastFilter)" />
+                            </pattern>
+                          </defs>
+                          <PolarAngleAxis 
+                            type="number" 
+                            domain={[0, 100]} 
+                            angleAxisId={0} 
+                            tick={false}
+                            stroke="none"
+                          />
+                          <RadialBar
+                            background={{ fill: 'url(#grayTexture)' }}
+                            dataKey="value"
+                            cornerRadius={10}
+                            stroke="#211f1c"
+                            strokeWidth={0.5}
+                            strokeOpacity={0.2}
+                            animationDuration={2000}
+                            animationEasing="ease-in-out"
+                            onClick={(data) => {
+                              if (data && data.categoryKey) {
+                                setCurrentView({ type: 'all-articles', category: data.categoryKey as CategoryType });
+                              }
+                            }}
+                            style={{ cursor: 'pointer' }}
+                            label={{
+                              position: 'insideStart',
+                              fill: '#211f1c',
+                              fontFamily: 'Sniglet:Regular, sans-serif',
+                              fontSize: '13px',
+                              formatter: (value: number) => {
+                                // Find the matching data entry by value
+                                const dataEntry = chartData.find(d => d.value === value);
+                                return dataEntry ? `${value}% is ${dataEntry.shortName}` : `${value}% is`;
+                              }
+                            }}
+                          />
+                          <Tooltip 
+                            cursor={false}
+                            content={({ active, payload }) => {
+                              if (active && payload && payload.length) {
+                                const data = payload[0].payload;
+                                const articleCount = data.articleCount;
+                                const articleText = articleCount === 1 ? 'article' : 'articles';
+                                const categoryMap: { [key: string]: string } = {
+                                  'Compostable': 'compost',
+                                  'Recyclable': 'recycling',
+                                  'Reusable': 'reuse'
+                                };
+                                const categoryLabel = categoryMap[data.name] || data.name.toLowerCase();
+                                return (
+                                  <div style={{
+                                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                                    borderRadius: '8px',
+                                    fontFamily: 'Sniglet:Regular, sans-serif',
+                                    fontSize: '12px',
+                                    boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                                    padding: '8px 12px',
+                                    color: '#211f1c'
+                                  }}>
+                                    {articleCount} {categoryLabel} {articleText}
+                                  </div>
+                                );
+                              }
+                              return null;
+                            }}
+                          />
+                        </RadialBarChart>
+                      </ResponsiveContainer>
+                    </div>
                   </div>
                 );
               })()}
