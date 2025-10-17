@@ -1,12 +1,26 @@
 import { useState, useEffect } from 'react';
 import svgPaths from "./imports/svg-qhqftidoeu";
-import { Plus, Edit2, Trash2, Search, ArrowLeft, Upload, Image as ImageIcon, ChevronDown, Copy, Check } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, ArrowLeft, Upload, Image as ImageIcon, ChevronDown, Copy, Check, Type, Eye, RotateCcw, Moon, Save, X, Download, FileUp } from 'lucide-react';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from './components/ui/collapsible';
 import { RadialBarChart, RadialBar, ResponsiveContainer, Legend, Tooltip, PolarAngleAxis, Cell, Text } from 'recharts';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import remarkGfm from 'remark-gfm';
 import rehypeKatex from 'rehype-katex';
+import { MethodologyListView, WhitepaperView } from './components/WhitepaperViews';
+import { AnimatedWasteChart } from './components/AnimatedWasteChart';
+import { AccessibilityProvider, useAccessibility } from './components/AccessibilityContext';
+import { Popover, PopoverContent, PopoverTrigger } from './components/ui/popover';
+import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './components/ui/tooltip';
+import { Switch } from './components/ui/switch';
+import { motion } from 'motion/react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './components/ui/table';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './components/ui/alert-dialog';
+import { Input } from './components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './components/ui/select';
+import { toast } from 'sonner@2.0.3';
+import { Toaster } from './components/ui/sonner';
+import { Textarea } from './components/ui/textarea';
 
 interface ArticleSection {
   image?: string; // base64 encoded image
@@ -43,46 +57,222 @@ interface Material {
 
 type CategoryType = 'compostability' | 'recyclability' | 'reusability';
 
-function RetroButtons({ title }: { title: string }) {
+function RetroButtons({ title, currentView, onViewChange }: { title: string; currentView: any; onViewChange: (view: any) => void }) {
+  const { settings, setFontSize, toggleHighContrast, toggleNoPastel, toggleReduceMotion, toggleDarkMode, toggleAdminMode, resetSettings } = useAccessibility();
+  const [redOpen, setRedOpen] = useState(false);
+  const [yellowOpen, setYellowOpen] = useState(false);
+  const [blueOpen, setBlueOpen] = useState(false);
+  
+  const handleAdminToggle = () => {
+    // If turning off admin mode and currently on data-management page, go back to materials
+    if (settings.adminMode && currentView.type === 'data-management') {
+      onViewChange({ type: 'materials' });
+    }
+    toggleAdminMode();
+  };
+
   return (
     <div className="basis-0 grow h-full min-h-px min-w-px relative shrink-0">
       <div className="flex flex-row items-center size-full">
-        <div className="box-border content-stretch flex gap-[10px] items-center px-[7px] py-[2px] relative size-full">
-          <div className="relative shrink-0 size-[12px]">
-            <div className="absolute inset-[-8.333%]" style={{ "--fill-0": "rgba(230, 188, 181, 1)", "--stroke-0": "rgba(33, 31, 28, 1)" } as React.CSSProperties}>
-              <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 14 14">
-                <circle cx="7" cy="7" fill="var(--fill-0, #E6BCB5)" r="6.5" stroke="var(--stroke-0, #211F1C)" />
-              </svg>
-            </div>
-          </div>
-          <div className="relative shrink-0 size-[12px]">
-            <div className="absolute inset-[-8.333%]" style={{ "--fill-0": "rgba(228, 227, 172, 1)", "--stroke-0": "rgba(33, 31, 28, 1)" } as React.CSSProperties}>
-              <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 14 14">
-                <circle cx="7" cy="7" fill="var(--fill-0, #E4E3AC)" r="6.5" stroke="var(--stroke-0, #211F1C)" />
-              </svg>
-            </div>
-          </div>
-          <div className="relative shrink-0 size-[12px]">
-            <div className="absolute inset-[-8.333%]" style={{ "--fill-0": "rgba(184, 200, 203, 1)", "--stroke-0": "rgba(33, 31, 28, 1)" } as React.CSSProperties}>
-              <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 14 14">
-                <circle cx="7" cy="7" fill="var(--fill-0, #B8C8CB)" r="6.5" stroke="var(--stroke-0, #211F1C)" />
-              </svg>
-            </div>
-          </div>
-          <p className="basis-0 font-['Sniglet:Regular',_sans-serif] grow leading-[25px] min-h-px min-w-px not-italic relative shrink-0 text-[20px] text-black text-center uppercase">{title}</p>
+        <div className="box-border content-stretch flex gap-[10px] items-center px-[7px] py-[2px] relative shrink-0">
+          <TooltipProvider delayDuration={300}>
+            {/* Red Button - Reset Settings */}
+            <UITooltip>
+              <TooltipTrigger asChild>
+                <div className="relative shrink-0 size-[12px]">
+                  <Popover open={redOpen} onOpenChange={setRedOpen}>
+                    <PopoverTrigger className="relative size-full hover:scale-110 transition-transform cursor-pointer">
+                      <div className="absolute inset-[-8.333%]" style={{ "--fill-0": "rgba(230, 188, 181, 1)", "--stroke-0": "rgba(33, 31, 28, 1)" } as React.CSSProperties}>
+                        <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 14 14">
+                          <circle cx="7" cy="7" fill="var(--fill-0, #E6BCB5)" r="6.5" stroke="var(--stroke-0, #211F1C)" />
+                        </svg>
+                      </div>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-64 p-4 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] rounded-[11.464px] shadow-[3px_4px_0px_-1px_#000000]">
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <RotateCcw size={16} />
+                          <h3 className="font-['Sniglet:Regular',_sans-serif] text-[14px]">Reset Settings</h3>
+                        </div>
+                        <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/70 dark:text-white/70">
+                          Reset all accessibility settings to default
+                        </p>
+                        <button
+                          onClick={() => {
+                            resetSettings();
+                            setRedOpen(false);
+                          }}
+                          className="w-full bg-[#e6beb5] h-[36px] rounded-[6px] border border-[#211f1c] shadow-[2px_2px_0px_0px_#000000] font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] transition-all flex items-center justify-center"
+                        >
+                          Reset All
+                        </button>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="bg-black text-white border-black">
+                <p className="font-['Sniglet:Regular',_sans-serif] text-[11px]">Reset accessibility</p>
+              </TooltipContent>
+            </UITooltip>
+
+            {/* Yellow Button - Font Size */}
+            <UITooltip>
+              <TooltipTrigger asChild>
+                <div className="relative shrink-0 size-[12px]">
+                  <Popover open={yellowOpen} onOpenChange={setYellowOpen}>
+                    <PopoverTrigger className="relative size-full hover:scale-110 transition-transform cursor-pointer">
+                      <div className="absolute inset-[-8.333%]" style={{ "--fill-0": "rgba(228, 227, 172, 1)", "--stroke-0": "rgba(33, 31, 28, 1)" } as React.CSSProperties}>
+                        <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 14 14">
+                          <circle cx="7" cy="7" fill="var(--fill-0, #E4E3AC)" r="6.5" stroke="var(--stroke-0, #211F1C)" />
+                        </svg>
+                      </div>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-64 p-4 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] rounded-[11.464px] shadow-[3px_4px_0px_-1px_#000000]">
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <Type size={16} />
+                          <h3 className="font-['Sniglet:Regular',_sans-serif] text-[14px]">Font Size</h3>
+                        </div>
+                        <div className="space-y-2">
+                          <button
+                            onClick={() => setFontSize('normal')}
+                            className={`w-full h-[36px] rounded-[6px] border border-[#211f1c] font-['Sniglet:Regular',_sans-serif] text-[12px] dark:text-white transition-all flex items-center justify-center ${
+                              settings.fontSize === 'normal' 
+                                ? 'bg-[#e4e3ac] text-black shadow-[2px_2px_0px_0px_#000000]' 
+                                : 'bg-white dark:bg-[#2a2825] hover:bg-[#e4e3ac]/20'
+                            }`}
+                          >
+                            Normal
+                          </button>
+                          <button
+                            onClick={() => setFontSize('large')}
+                            className={`w-full h-[36px] rounded-[6px] border border-[#211f1c] font-['Sniglet:Regular',_sans-serif] text-[13px] dark:text-white transition-all flex items-center justify-center ${
+                              settings.fontSize === 'large' 
+                                ? 'bg-[#e4e3ac] text-black shadow-[2px_2px_0px_0px_#000000]' 
+                                : 'bg-white dark:bg-[#2a2825] hover:bg-[#e4e3ac]/20'
+                            }`}
+                          >
+                            Large
+                          </button>
+                          <button
+                            onClick={() => setFontSize('xlarge')}
+                            className={`w-full h-[36px] rounded-[6px] border border-[#211f1c] font-['Sniglet:Regular',_sans-serif] text-[14px] dark:text-white transition-all flex items-center justify-center ${
+                              settings.fontSize === 'xlarge' 
+                                ? 'bg-[#e4e3ac] text-black shadow-[2px_2px_0px_0px_#000000]' 
+                                : 'bg-white dark:bg-[#2a2825] hover:bg-[#e4e3ac]/20'
+                            }`}
+                          >
+                            Extra Large
+                          </button>
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="bg-black text-white border-black">
+                <p className="font-['Sniglet:Regular',_sans-serif] text-[11px]">Font size</p>
+              </TooltipContent>
+            </UITooltip>
+
+            {/* Blue Button - Display Controls */}
+            <UITooltip>
+              <TooltipTrigger asChild>
+                <div className="relative shrink-0 size-[12px]">
+                  <Popover open={blueOpen} onOpenChange={setBlueOpen}>
+                    <PopoverTrigger className="relative size-full hover:scale-110 transition-transform cursor-pointer">
+                      <div className="absolute inset-[-8.333%]" style={{ "--fill-0": "rgba(184, 200, 203, 1)", "--stroke-0": "rgba(33, 31, 28, 1)" } as React.CSSProperties}>
+                        <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 14 14">
+                          <circle cx="7" cy="7" fill="var(--fill-0, #B8C8CB)" r="6.5" stroke="var(--stroke-0, #211F1C)" />
+                        </svg>
+                      </div>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-64 p-4 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] rounded-[11.464px] shadow-[3px_4px_0px_-1px_#000000]">
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <Eye size={16} />
+                          <h3 className="font-['Sniglet:Regular',_sans-serif] text-[14px]">Display</h3>
+                        </div>
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <label className="font-['Sniglet:Regular',_sans-serif] text-[12px] flex items-center gap-2">
+                              <Moon size={14} />
+                              Dark Mode
+                            </label>
+                            <Switch 
+                              checked={settings.darkMode} 
+                              onCheckedChange={toggleDarkMode}
+                            />
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <label className="font-['Sniglet:Regular',_sans-serif] text-[12px]">
+                              High Contrast
+                            </label>
+                            <Switch 
+                              checked={settings.highContrast} 
+                              onCheckedChange={toggleHighContrast}
+                            />
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <label className="font-['Sniglet:Regular',_sans-serif] text-[12px]">
+                              No Pastel
+                            </label>
+                            <Switch 
+                              checked={settings.noPastel} 
+                              onCheckedChange={toggleNoPastel}
+                              disabled={settings.highContrast}
+                            />
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <label className="font-['Sniglet:Regular',_sans-serif] text-[12px]">
+                              Reduce Motion
+                            </label>
+                            <Switch 
+                              checked={settings.reduceMotion} 
+                              onCheckedChange={toggleReduceMotion}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="bg-black text-white border-black">
+                <p className="font-['Sniglet:Regular',_sans-serif] text-[11px]">Display options</p>
+              </TooltipContent>
+            </UITooltip>
+          </TooltipProvider>
+        </div>
+
+        <p className="basis-0 font-['Sniglet:Regular',_sans-serif] grow leading-[25px] min-h-px min-w-px not-italic relative shrink-0 text-[20px] text-black dark:text-white text-center uppercase">{title}</p>
+
+        {/* ADMIN button - far right */}
+        <div className="box-border content-stretch flex items-center px-[7px] py-[2px] relative shrink-0">
+          <button
+            onClick={handleAdminToggle}
+            className={`px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[11px] text-black uppercase ${
+              settings.adminMode 
+                ? 'bg-[#e4e3ac] shadow-[2px_2px_0px_0px_#000000]' 
+                : 'bg-[#e6beb5]'
+            }`}
+          >
+            Admin
+          </button>
         </div>
       </div>
     </div>
   );
 }
 
-function StatusBar({ title }: { title: string }) {
+function StatusBar({ title, currentView, onViewChange }: { title: string; currentView: any; onViewChange: (view: any) => void }) {
   return (
     <div className="h-[42px] min-w-[400px] relative shrink-0 w-full">
       <div aria-hidden="true" className="absolute border-[#211f1c] border-[0px_0px_1.5px] border-solid inset-0 pointer-events-none" />
       <div className="min-w-inherit size-full">
         <div className="box-border content-stretch flex h-[42px] items-start justify-between min-w-inherit px-[5px] py-0 relative w-full">
-          <RetroButtons title={title} />
+          <RetroButtons title={title} currentView={currentView} onViewChange={onViewChange} />
         </div>
       </div>
     </div>
@@ -114,9 +304,9 @@ function SearchBar({ value, onChange }: { value: string; onChange: (value: strin
 
   return (
     <div 
-      className="relative rounded-[11.46px] shrink-0 w-full bg-white"
+      className="relative rounded-[11.46px] shrink-0 w-full bg-white dark:bg-[#2a2825]"
     >
-      <div aria-hidden="true" className="absolute border-[#211f1c] border-[1.5px] border-solid inset-[-0.75px] pointer-events-none rounded-[12.21px]" />
+      <div aria-hidden="true" className="absolute border-[#211f1c] dark:border-white/20 border-[1.5px] border-solid inset-[-0.75px] pointer-events-none rounded-[12.21px]" />
       <div className="flex flex-row items-center justify-center size-full">
         <div className="box-border content-stretch flex gap-[15px] items-center justify-start px-[12px] py-[8px] relative w-full">
           <SearchIcon />
@@ -126,7 +316,7 @@ function SearchBar({ value, onChange }: { value: string; onChange: (value: strin
             onChange={(e) => onChange(e.target.value)}
             onKeyDownCapture={handleKeyDown}
             placeholder="Search materials..."
-            className="font-['Sniglet:Regular',_sans-serif] bg-transparent border-none outline-none text-[15px] text-black placeholder:text-black/50 flex-1"
+            className="font-['Sniglet:Regular',_sans-serif] bg-transparent border-none outline-none text-[15px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50 flex-1"
           />
         </div>
       </div>
@@ -147,24 +337,47 @@ function ScoreBar({
   articleCount?: number;
   onClick?: () => void;
 }) {
+  const { settings } = useAccessibility();
+
+  // Map pastel colors to high-contrast colors
+  const getHighContrastColor = (originalColor: string): string => {
+    const isDark = settings.darkMode;
+    const colorMap: { [key: string]: { light: string; dark: string } } = {
+      '#e6beb5': { light: '#c74444', dark: '#ff6b6b' }, // Compostability
+      '#e4e3ac': { light: '#d4b400', dark: '#ffd700' }, // Recyclability
+      '#b8c8cb': { light: '#4a90a4', dark: '#6bb6d0' }, // Reusability
+    };
+    
+    const mapping = colorMap[originalColor.toLowerCase()];
+    if (mapping) {
+      return isDark ? mapping.dark : mapping.light;
+    }
+    return originalColor;
+  };
+
+  // Use high-contrast color if high contrast or no pastel mode is enabled
+  const displayColor = (settings.highContrast || settings.noPastel) 
+    ? getHighContrastColor(color) 
+    : color;
+
   return (
     <div className="flex flex-col gap-1 w-full">
       <div className="flex justify-between items-center">
         <button
           onClick={onClick}
-          className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black hover:underline cursor-pointer text-left flex items-center gap-1"
+          className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white hover:underline cursor-pointer text-left flex items-center gap-1"
         >
-          <span className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black">{label}</span>
+          <span className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white">{label}</span>
           {articleCount !== undefined && articleCount > 0 && (
-            <span className="font-['Sniglet:Regular',_sans-serif] text-[9px] text-black/60">({articleCount})</span>
+            <span className="font-['Sniglet:Regular',_sans-serif] text-[9px] text-black/60 dark:text-white/60">({articleCount})</span>
           )}
         </button>
-        <span className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black">{score}</span>
+        <span className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white">{score}</span>
       </div>
-      <div className="h-[8px] bg-[#211f1c]/10 rounded-full overflow-hidden border border-[#211f1c]">
+      <div className="h-[8px] bg-[#211f1c]/10 dark:bg-white/10 rounded-full overflow-hidden border border-[#211f1c] dark:border-white/20">
         <div
           className="h-full rounded-full transition-all duration-300"
-          style={{ width: `${score}%`, backgroundColor: color }}
+          style={{ width: `${score}%`, backgroundColor: displayColor }}
         />
       </div>
     </div>
@@ -218,38 +431,42 @@ function MaterialCard({
   onViewArticles: (category: CategoryType) => void;
   onViewMaterial: () => void;
 }) {
+  const { settings } = useAccessibility();
+
   return (
-    <div className="bg-white relative rounded-[11.464px] p-4 shadow-[3px_4px_0px_-1px_#000000] border-[1.5px] border-[#211f1c]">
+    <div className="bg-white dark:bg-[#2a2825] relative rounded-[11.464px] p-4 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] border-[1.5px] border-[#211f1c] dark:border-white/20">
       <div className="flex justify-between items-start mb-3">
         <div className="flex-1">
           <button
             onClick={onViewMaterial}
-            className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black mb-1 hover:underline cursor-pointer text-left block"
+            className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black dark:text-white mb-1 hover:underline cursor-pointer text-left block"
           >
             {material.name}
           </button>
-          <span className="inline-block px-2 py-0.5 bg-[#b8c8cb] rounded-md border border-[#211f1c] font-['Sniglet:Regular',_sans-serif] text-[9px] text-black">
+          <span className="inline-block px-2 py-0.5 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[9px] text-black">
             {material.category}
           </span>
         </div>
-        <div className="flex gap-2">
-          <button
-            onClick={onEdit}
-            className="p-1.5 bg-[#e4e3ac] rounded-md border border-[#211f1c] hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
-          >
-            <Edit2 size={14} />
-          </button>
-          <button
-            onClick={onDelete}
-            className="p-1.5 bg-[#e6beb5] rounded-md border border-[#211f1c] hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
-          >
-            <Trash2 size={14} />
-          </button>
-        </div>
+        {settings.adminMode && (
+          <div className="flex gap-2">
+            <button
+              onClick={onEdit}
+              className="p-1.5 bg-[#e4e3ac] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+            >
+              <Edit2 size={14} className="text-black" />
+            </button>
+            <button
+              onClick={onDelete}
+              className="p-1.5 bg-[#e6beb5] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+            >
+              <Trash2 size={14} className="text-black" />
+            </button>
+          </div>
+        )}
       </div>
       
       {material.description && (
-        <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/70 mb-3 line-clamp-2">{material.description}</p>
+        <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/70 dark:text-white/70 mb-3 line-clamp-2">{material.description}</p>
       )}
       
       <div className="flex flex-col gap-2">
@@ -515,6 +732,8 @@ function ArticleCard({
   sustainabilityCategory?: { label: string; color: string };
   onReadMore?: () => void;
 }) {
+  const { settings } = useAccessibility();
+
   return (
     <div className="bg-white relative rounded-[11.464px] p-4 shadow-[3px_4px_0px_-1px_#000000] border-[1.5px] border-[#211f1c]">
       <div className="flex justify-between items-start mb-3">
@@ -545,7 +764,7 @@ function ArticleCard({
             )}
           </div>
         </div>
-        {!hideActions && (
+        {!hideActions && settings.adminMode && (
           <div className="flex gap-2">
             <button
               onClick={onEdit}
@@ -825,6 +1044,7 @@ function ArticlesView({
   onUpdateMaterial: (material: Material) => void;
   onViewArticleStandalone: (articleId: string) => void;
 }) {
+  const { settings } = useAccessibility();
   const [showForm, setShowForm] = useState(false);
   const [editingArticle, setEditingArticle] = useState<Article | null>(null);
 
@@ -902,29 +1122,31 @@ function ArticlesView({
       <div className="flex items-center gap-4 mb-6">
         <button
           onClick={onBack}
-          className="p-2 bg-[#b8c8cb] rounded-md border border-[#211f1c] hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
+          className="p-2 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
         >
-          <ArrowLeft size={16} />
+          <ArrowLeft size={16} className="text-black" />
         </button>
         <div className="flex-1">
-          <h2 className="font-['Sniglet:Regular',_sans-serif] text-[18px] text-black">
+          <h2 className="font-['Sniglet:Regular',_sans-serif] text-[18px] text-black dark:text-white">
             {material.name} - {categoryLabels[category]}
           </h2>
-          <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/60">
+          <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/60 dark:text-white/60">
             {articles.length} article{articles.length !== 1 ? 's' : ''}
           </p>
         </div>
-        <button
-          onClick={() => {
-            setShowForm(true);
-            setEditingArticle(null);
-          }}
-          className="bg-[#b8c8cb] h-[40px] px-6 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] font-['Sniglet:Regular',_sans-serif] text-[14px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] transition-all flex items-center gap-2"
-          style={{ backgroundColor: categoryColors[category] }}
-        >
-          <Plus size={16} />
-          Add Article
-        </button>
+        {settings.adminMode && (
+          <button
+            onClick={() => {
+              setShowForm(true);
+              setEditingArticle(null);
+            }}
+            className="bg-[#b8c8cb] h-[40px] px-6 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[14px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-2"
+            style={{ backgroundColor: categoryColors[category] }}
+          >
+            <Plus size={16} className="text-black" />
+            Add Article
+          </button>
+        )}
       </div>
 
       {showForm && (
@@ -1040,19 +1262,19 @@ function MaterialDetailView({
       <div className="flex items-center gap-4 mb-6">
         <button
           onClick={onBack}
-          className="p-2 bg-[#b8c8cb] rounded-md border border-[#211f1c] hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
+          className="p-2 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
         >
-          <ArrowLeft size={16} />
+          <ArrowLeft size={16} className="text-black" />
         </button>
         <div className="flex-1">
-          <h2 className="font-['Sniglet:Regular',_sans-serif] text-[20px] text-black">
+          <h2 className="font-['Sniglet:Regular',_sans-serif] text-[20px] text-black dark:text-white">
             {material.name}
           </h2>
           <div className="flex items-center gap-2 mt-1">
-            <span className="inline-block px-2 py-0.5 bg-[#b8c8cb] rounded-md border border-[#211f1c] font-['Sniglet:Regular',_sans-serif] text-[9px] text-black">
+            <span className="inline-block px-2 py-0.5 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[9px] text-black">
               {material.category}
             </span>
-            <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/60">
+            <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/60 dark:text-white/60">
               {totalArticles} article{totalArticles !== 1 ? 's' : ''}
             </p>
           </div>
@@ -1384,6 +1606,7 @@ function StandaloneArticleView({
   onEdit?: () => void;
   onDelete?: () => void;
 }) {
+  const { settings } = useAccessibility();
   const [copied, setCopied] = useState(false);
 
   const permalink = `${window.location.origin}${window.location.pathname}?article=${article.id}`;
@@ -1399,46 +1622,46 @@ function StandaloneArticleView({
       <div className="flex items-center gap-4 mb-6">
         <button
           onClick={onBack}
-          className="p-2 bg-[#b8c8cb] rounded-md border border-[#211f1c] hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
+          className="p-2 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
         >
-          <ArrowLeft size={16} />
+          <ArrowLeft size={16} className="text-black" />
         </button>
         <div className="flex-1">
-          <h2 className="font-['Sniglet:Regular',_sans-serif] text-[18px] text-black">
+          <h2 className="font-['Sniglet:Regular',_sans-serif] text-[18px] text-black dark:text-white">
             {article.title}
           </h2>
           <div className="flex items-center gap-2 mt-1">
-            <span className="inline-block px-2 py-0.5 bg-[#e4e3ac] rounded-md border border-[#211f1c] font-['Sniglet:Regular',_sans-serif] text-[9px] text-black">
+            <span className="inline-block px-2 py-0.5 bg-[#e4e3ac] rounded-md border border-[#211f1c] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[9px] text-black">
               {article.category}
             </span>
             {sustainabilityCategory && (
               <span 
-                className="inline-block px-2 py-0.5 rounded-md border border-[#211f1c] font-['Sniglet:Regular',_sans-serif] text-[9px] text-black"
+                className="inline-block px-2 py-0.5 rounded-md border border-[#211f1c] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[9px] text-black"
                 style={{ backgroundColor: sustainabilityCategory.color }}
               >
                 {sustainabilityCategory.label}
               </span>
             )}
             {materialName && (
-              <span className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/60">
+              <span className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/60 dark:text-white/60">
                 from {materialName}
               </span>
             )}
           </div>
         </div>
-        {onEdit && onDelete && (
+        {onEdit && onDelete && settings.adminMode && (
           <div className="flex gap-2">
             <button
               onClick={onEdit}
-              className="p-2 bg-[#e4e3ac] rounded-md border border-[#211f1c] hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
+              className="p-2 bg-[#e4e3ac] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
             >
-              <Edit2 size={14} />
+              <Edit2 size={14} className="text-black" />
             </button>
             <button
               onClick={onDelete}
-              className="p-2 bg-[#e6beb5] rounded-md border border-[#211f1c] hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
+              className="p-2 bg-[#e6beb5] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
             >
-              <Trash2 size={14} />
+              <Trash2 size={14} className="text-black" />
             </button>
           </div>
         )}
@@ -1526,12 +1749,494 @@ function StandaloneArticleView({
   );
 }
 
-export default function App() {
+function DataManagementView({
+  materials,
+  onBack,
+  onUpdateMaterial,
+  onBulkImport,
+  onDeleteAllData
+}: {
+  materials: Material[];
+  onBack: () => void;
+  onUpdateMaterial: (material: Material) => void;
+  onBulkImport: (materials: Material[]) => void;
+  onDeleteAllData: () => void;
+}) {
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editData, setEditData] = useState<Partial<Material>>({});
+  const [showImportOptions, setShowImportOptions] = useState(false);
+  const [pasteData, setPasteData] = useState('');
+
+  const categoryOptions = [
+    'Plastics',
+    'Metals',
+    'Glass',
+    'Paper & Cardboard',
+    'Fabrics & Textiles',
+    'Electronics & Batteries',
+    'Building Materials',
+    'Organic/Natural Waste'
+  ];
+
+  const handleEdit = (material: Material) => {
+    setEditingId(material.id);
+    setEditData({
+      name: material.name,
+      category: material.category,
+      description: material.description,
+      compostability: material.compostability,
+      recyclability: material.recyclability,
+      reusability: material.reusability
+    });
+  };
+
+  const handleSave = () => {
+    if (!editingId) return;
+    const material = materials.find(m => m.id === editingId);
+    if (!material) return;
+
+    const updatedMaterial = {
+      ...material,
+      ...editData
+    };
+    onUpdateMaterial(updatedMaterial);
+    setEditingId(null);
+    setEditData({});
+    toast.success('Material updated successfully');
+  };
+
+  const handleCancel = () => {
+    setEditingId(null);
+    setEditData({});
+  };
+
+  const processCSVText = (text: string) => {
+    try {
+      const lines = text.split('\n').filter(line => line.trim());
+        
+      if (lines.length < 2) {
+        toast.error('CSV must have headers and at least one row');
+        return;
+      }
+
+      const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+      const requiredHeaders = ['name', 'category', 'compostability', 'recyclability', 'reusability'];
+      const hasRequired = requiredHeaders.every(h => headers.includes(h));
+
+      if (!hasRequired) {
+        toast.error('CSV must include: name, category, compostability, recyclability, reusability');
+        return;
+      }
+
+      const newMaterials: Material[] = [];
+      for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(',').map(v => v.trim());
+        const row: any = {};
+        headers.forEach((header, index) => {
+          row[header] = values[index] || '';
+        });
+
+        if (!row.name || !row.category) continue;
+
+        const newMaterial: Material = {
+          id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+          name: row.name,
+          category: row.category,
+          description: row.description || '',
+          compostability: Math.min(100, Math.max(0, parseInt(row.compostability) || 0)),
+          recyclability: Math.min(100, Math.max(0, parseInt(row.recyclability) || 0)),
+          reusability: Math.min(100, Math.max(0, parseInt(row.reusability) || 0)),
+          articles: {
+            compostability: [],
+            recyclability: [],
+            reusability: []
+          }
+        };
+
+        newMaterials.push(newMaterial);
+      }
+
+      // Import all materials at once
+      if (newMaterials.length > 0) {
+        onBulkImport(newMaterials);
+        toast.success(`Imported ${newMaterials.length} material${newMaterials.length !== 1 ? 's' : ''}`);
+      } else {
+        toast.error('No valid materials found in CSV');
+      }
+    } catch (error) {
+      toast.error('Failed to parse CSV data');
+    }
+  };
+
+  const handlePasteImport = () => {
+    if (!pasteData.trim()) {
+      toast.error('Please paste CSV data first');
+      return;
+    }
+    processCSVText(pasteData);
+    setPasteData('');
+    setShowImportOptions(false);
+  };
+
+  const handleBulkImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target?.result as string;
+      processCSVText(text);
+      event.target.value = ''; // Reset file input
+      setShowImportOptions(false);
+    };
+    reader.readAsText(file);
+  };
+
+  const handleExportCSV = () => {
+    const headers = ['name', 'category', 'description', 'compostability', 'recyclability', 'reusability'];
+    const csvContent = [
+      headers.join(','),
+      ...materials.map(m => [
+        m.name,
+        m.category,
+        m.description || '',
+        m.compostability,
+        m.recyclability,
+        m.reusability
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `wastedb-export-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('Data exported successfully');
+  };
+
+  return (
+    <div className="p-6">
+      <div className="flex items-center gap-4 mb-6">
+        <button
+          onClick={onBack}
+          className="p-2 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+        >
+          <ArrowLeft size={16} className="text-black" />
+        </button>
+        <div className="flex-1">
+          <h2 className="font-['Sniglet:Regular',_sans-serif] text-[18px] text-black dark:text-white">
+            Data Management
+          </h2>
+          <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/60 dark:text-white/60">
+            {materials.length} material{materials.length !== 1 ? 's' : ''} total
+          </p>
+        </div>
+        
+        <div className="flex gap-2">
+          <button
+            onClick={handleExportCSV}
+            className="bg-[#b8c8cb] h-[36px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-2"
+          >
+            <Download size={14} className="text-black" />
+            Export CSV
+          </button>
+          
+          <button
+            onClick={() => setShowImportOptions(!showImportOptions)}
+            className={`bg-[#e4e3ac] h-[36px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-2 ${
+              showImportOptions ? 'translate-y-[1px] shadow-[1px_2px_0px_-1px_#000000]' : ''
+            }`}
+          >
+            <FileUp size={14} className="text-black" />
+            Import CSV
+            <ChevronDown size={14} className={`text-black transition-transform ${showImportOptions ? 'rotate-180' : ''}`} />
+          </button>
+
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <button className="bg-[#e6beb5] h-[36px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-2">
+                <Trash2 size={14} className="text-black" />
+                Delete All
+              </button>
+            </AlertDialogTrigger>
+            <AlertDialogContent className="bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20">
+              <AlertDialogHeader>
+                <AlertDialogTitle className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">
+                  Delete All Data?
+                </AlertDialogTitle>
+                <AlertDialogDescription className="font-['Sniglet:Regular',_sans-serif] text-black/70 dark:text-white/70">
+                  This will permanently delete all {materials.length} material{materials.length !== 1 ? 's' : ''} and their associated articles. This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel className="font-['Sniglet:Regular',_sans-serif] bg-[#b8c8cb] border-[#211f1c] dark:border-white/20">
+                  Cancel
+                </AlertDialogCancel>
+                <AlertDialogAction 
+                  onClick={onDeleteAllData}
+                  className="font-['Sniglet:Regular',_sans-serif] bg-[#e6beb5] text-black border-[1.5px] border-[#211f1c] dark:border-white/20 hover:bg-[#e6beb5]/80"
+                >
+                  Delete All
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      </div>
+
+      {/* Import Options */}
+      {showImportOptions && (
+        <div className="mb-4 bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 p-4">
+          <h3 className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white mb-4">
+            Import CSV Data
+          </h3>
+          
+          <div className="space-y-4">
+            {/* Paste CSV Option */}
+            <div className="space-y-2">
+              <label className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
+                Paste CSV Data
+              </label>
+              <Textarea
+                value={pasteData}
+                onChange={(e) => setPasteData(e.target.value)}
+                placeholder="name,category,description,compostability,recyclability,reusability&#10;PET Plastic,Plastics,Clear plastic bottles,0,85,40&#10;Aluminum Can,Metals,Beverage container,0,95,75"
+                className="font-['Sniglet:Regular',_sans-serif] text-[11px] min-h-[120px] border-[#211f1c] dark:border-white/20 dark:bg-[#1a1917] dark:text-white"
+              />
+              <button
+                onClick={handlePasteImport}
+                className="w-full bg-[#b8c8cb] h-[36px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
+              >
+                Import from Paste
+              </button>
+            </div>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-[#211f1c]/20 dark:border-white/20"></div>
+              </div>
+              <div className="relative flex justify-center">
+                <span className="bg-white dark:bg-[#2a2825] px-2 font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/60 dark:text-white/60">
+                  OR
+                </span>
+              </div>
+            </div>
+
+            {/* Upload File Option */}
+            <div className="space-y-2">
+              <label className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
+                Upload CSV File
+              </label>
+              <label className="w-full bg-[#e4e3ac] h-[36px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center justify-center gap-2 cursor-pointer">
+                <Upload size={14} className="text-black" />
+                Choose File
+                <input
+                  type="file"
+                  accept=".csv"
+                  onChange={handleBulkImport}
+                  className="hidden"
+                />
+              </label>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 overflow-hidden">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-b border-[#211f1c] dark:border-white/20 bg-[#e4e3ac]">
+                <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black">Name</TableHead>
+                <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black">Category</TableHead>
+                <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black">Description</TableHead>
+                <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black text-center">Compostability</TableHead>
+                <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black text-center">Recyclability</TableHead>
+                <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black text-center">Reusability</TableHead>
+                <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black text-center">Articles</TableHead>
+                <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black text-center">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {materials.map((material) => {
+                const isEditing = editingId === material.id;
+                return (
+                  <TableRow key={material.id} className="border-b border-[#211f1c]/20 dark:border-white/10 hover:bg-[#211f1c]/5 dark:hover:bg-white/5">
+                    <TableCell className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white">
+                      {isEditing ? (
+                        <Input
+                          value={editData.name || ''}
+                          onChange={(e) => setEditData({ ...editData, name: e.target.value })}
+                          className="h-7 text-[11px] font-['Sniglet:Regular',_sans-serif] border-[#211f1c] dark:border-white/20"
+                        />
+                      ) : (
+                        material.name
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {isEditing ? (
+                        <Select
+                          value={editData.category || material.category}
+                          onValueChange={(value) => setEditData({ ...editData, category: value })}
+                        >
+                          <SelectTrigger className="h-7 text-[9px] font-['Sniglet:Regular',_sans-serif] border-[#211f1c] dark:border-white/20">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="font-['Sniglet:Regular',_sans-serif] bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
+                            {categoryOptions.map(cat => (
+                              <SelectItem key={cat} value={cat} className="text-[9px]">
+                                {cat}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <span className="inline-block px-2 py-0.5 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[9px] text-black">
+                          {material.category}
+                        </span>
+                      )}
+                    </TableCell>
+                    <TableCell className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/70 dark:text-white/70 max-w-xs">
+                      {isEditing ? (
+                        <Input
+                          value={editData.description || ''}
+                          onChange={(e) => setEditData({ ...editData, description: e.target.value })}
+                          className="h-7 text-[11px] font-['Sniglet:Regular',_sans-serif] border-[#211f1c] dark:border-white/20"
+                        />
+                      ) : (
+                        <span className="truncate block">{material.description || '-'}</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {isEditing ? (
+                        <Input
+                          type="number"
+                          min="0"
+                          max="100"
+                          value={editData.compostability ?? material.compostability}
+                          onChange={(e) => setEditData({ ...editData, compostability: Math.min(100, Math.max(0, parseInt(e.target.value) || 0)) })}
+                          className="h-7 w-16 text-[11px] font-['Sniglet:Regular',_sans-serif] border-[#211f1c] dark:border-white/20 text-center"
+                        />
+                      ) : (
+                        <div className="inline-flex items-center gap-1">
+                          <span className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white">
+                            {material.compostability}
+                          </span>
+                          <div className="w-12 h-1.5 bg-[#211f1c]/10 dark:bg-white/10 rounded-full overflow-hidden">
+                            <div 
+                              className="h-full bg-[#e6beb5] rounded-full"
+                              style={{ width: `${material.compostability}%` }}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {isEditing ? (
+                        <Input
+                          type="number"
+                          min="0"
+                          max="100"
+                          value={editData.recyclability ?? material.recyclability}
+                          onChange={(e) => setEditData({ ...editData, recyclability: Math.min(100, Math.max(0, parseInt(e.target.value) || 0)) })}
+                          className="h-7 w-16 text-[11px] font-['Sniglet:Regular',_sans-serif] border-[#211f1c] dark:border-white/20 text-center"
+                        />
+                      ) : (
+                        <div className="inline-flex items-center gap-1">
+                          <span className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white">
+                            {material.recyclability}
+                          </span>
+                          <div className="w-12 h-1.5 bg-[#211f1c]/10 dark:bg-white/10 rounded-full overflow-hidden">
+                            <div 
+                              className="h-full bg-[#e4e3ac] rounded-full"
+                              style={{ width: `${material.recyclability}%` }}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {isEditing ? (
+                        <Input
+                          type="number"
+                          min="0"
+                          max="100"
+                          value={editData.reusability ?? material.reusability}
+                          onChange={(e) => setEditData({ ...editData, reusability: Math.min(100, Math.max(0, parseInt(e.target.value) || 0)) })}
+                          className="h-7 w-16 text-[11px] font-['Sniglet:Regular',_sans-serif] border-[#211f1c] dark:border-white/20 text-center"
+                        />
+                      ) : (
+                        <div className="inline-flex items-center gap-1">
+                          <span className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white">
+                            {material.reusability}
+                          </span>
+                          <div className="w-12 h-1.5 bg-[#211f1c]/10 dark:bg-white/10 rounded-full overflow-hidden">
+                            <div 
+                              className="h-full bg-[#b8c8cb] rounded-full"
+                              style={{ width: `${material.reusability}%` }}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <span className="font-['Sniglet:Regular',_sans-serif] text-[9px] text-black dark:text-white">
+                        {material.articles.compostability.length} / {material.articles.recyclability.length} / {material.articles.reusability.length}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {isEditing ? (
+                        <div className="flex gap-1 justify-center">
+                          <button
+                            onClick={handleSave}
+                            className="p-1.5 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                          >
+                            <Save size={12} className="text-black" />
+                          </button>
+                          <button
+                            onClick={handleCancel}
+                            className="p-1.5 bg-[#e6beb5] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                          >
+                            <X size={12} className="text-black" />
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => handleEdit(material)}
+                          className="p-1.5 bg-[#e4e3ac] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                        >
+                          <Edit2 size={12} className="text-black" />
+                        </button>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </div>
+
+        {materials.length === 0 && (
+          <div className="text-center py-12">
+            <p className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black/50 dark:text-white/50">
+              No materials in database yet.
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function AppContent() {
+  const { settings } = useAccessibility();
   const [materials, setMaterials] = useState<Material[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [editingMaterial, setEditingMaterial] = useState<Material | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const [currentView, setCurrentView] = useState<{ type: 'materials' } | { type: 'articles'; materialId: string; category: CategoryType } | { type: 'all-articles'; category: CategoryType } | { type: 'material-detail'; materialId: string } | { type: 'article-standalone'; articleId: string; materialId: string; category: CategoryType } | { type: 'recyclability-calculation' }>({ type: 'materials' });
+  const [currentView, setCurrentView] = useState<{ type: 'materials' } | { type: 'articles'; materialId: string; category: CategoryType } | { type: 'all-articles'; category: CategoryType } | { type: 'material-detail'; materialId: string } | { type: 'article-standalone'; articleId: string; materialId: string; category: CategoryType } | { type: 'recyclability-calculation' } | { type: 'methodology-list' } | { type: 'whitepaper'; whitepaperId: string } | { type: 'data-management' }>({ type: 'materials' });
   const [articleToOpen, setArticleToOpen] = useState<string | null>(null);
 
   useEffect(() => {
@@ -1684,9 +2389,16 @@ export default function App() {
 
   const handleUpdateMaterial = (materialData: Omit<Material, 'id'> | Material) => {
     if ('id' in materialData) {
-      // Direct update with full material (from ArticlesView)
-      const updated = materials.map(m => m.id === materialData.id ? materialData : m);
-      saveMaterials(updated);
+      // Direct update with full material (from ArticlesView or CSV import)
+      const existingIndex = materials.findIndex(m => m.id === materialData.id);
+      if (existingIndex >= 0) {
+        // Update existing material
+        const updated = materials.map(m => m.id === materialData.id ? materialData : m);
+        saveMaterials(updated);
+      } else {
+        // Add new material (e.g., from CSV import)
+        saveMaterials([...materials, materialData]);
+      }
     } else {
       // Update from form (preserves id and articles)
       if (!editingMaterial) return;
@@ -1705,6 +2417,10 @@ export default function App() {
     if (confirm('Are you sure you want to delete this material?')) {
       saveMaterials(materials.filter(m => m.id !== id));
     }
+  };
+
+  const handleBulkImport = (newMaterials: Material[]) => {
+    saveMaterials([...materials, ...newMaterials]);
   };
 
   const handleViewArticles = (materialId: string, category: CategoryType) => {
@@ -1730,32 +2446,93 @@ export default function App() {
 
   return (
     <div 
-      className="min-h-screen p-8"
+      className="min-h-screen p-8 bg-[#faf7f2] dark:bg-[#1a1917]"
       style={{
-        backgroundImage: `url("https://www.transparenttextures.com/patterns/3px-tile.png"), linear-gradient(to bottom right, #faf7f2, #f5f0e8, #ebe4d8)`,
-        backgroundSize: '3px 3px, auto'
+        backgroundImage: `url("https://www.transparenttextures.com/patterns/3px-tile.png")`,
+        backgroundSize: '3px 3px'
       }}
     >
       <div className="max-w-6xl mx-auto">
-        <div className="bg-[#faf7f2] rounded-[11.464px] border-[1.5px] border-[#211f1c] overflow-hidden mb-6">
-          <StatusBar title="WasteDB" />
+        <div className="bg-[#faf7f2] dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 overflow-hidden mb-6">
+          <StatusBar title="WasteDB" currentView={currentView} onViewChange={setCurrentView} />
           
           {currentView.type === 'materials' ? (
             <div className="p-6">
-              <div className="flex gap-4 mb-6">
-                <div className="flex-1">
+              {/* Search bar and chart on same line for wide screens */}
+              <div className="flex flex-col lg:flex-row gap-4 lg:justify-between mb-6">
+                {/* Left column: Search bar, Add Material button, and Methodology link (vertically centered) */}
+                <div className="w-full lg:w-96 flex flex-col justify-center gap-4">
                   <SearchBar value={searchQuery} onChange={setSearchQuery} />
+                  {settings.adminMode && (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => {
+                          setShowForm(true);
+                          setEditingMaterial(null);
+                        }}
+                        className="bg-[#b8c8cb] h-[40px] px-6 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[14px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-2"
+                      >
+                        <Plus size={16} className="text-black" />
+                        Add Material
+                      </button>
+                      <button
+                        onClick={() => setCurrentView({ type: 'data-management' })}
+                        className="bg-[#e4e3ac] h-[40px] px-6 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[14px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
+                      >
+                        Manage Data
+                      </button>
+                    </div>
+                  )}
+                  <motion.button
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.3 }}
+                    onClick={() => setCurrentView({ type: 'methodology-list' })}
+                    className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:underline transition-colors text-left"
+                  >
+                    Methodology & Whitepapers
+                  </motion.button>
                 </div>
-                <button
-                  onClick={() => {
-                    setShowForm(true);
-                    setEditingMaterial(null);
-                  }}
-                  className="bg-[#b8c8cb] h-[40px] px-6 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] font-['Sniglet:Regular',_sans-serif] text-[14px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] transition-all flex items-center gap-2"
-                >
-                  <Plus size={16} />
-                  Add Material
-                </button>
+
+                {/* Chart on right side for wide screens - max 50% width */}
+                {!searchQuery && materials.length > 0 && currentView.type === 'materials' && (() => {
+                  // Compute chart data once so we can reference it in the label
+                  const chartData = [
+                    {
+                      name: 'Compostable',
+                      shortName: 'compostable',
+                      categoryKey: 'compostability',
+                      value: Math.round(materials.reduce((sum, m) => sum + m.compostability, 0) / materials.length),
+                      articleCount: materials.reduce((sum, m) => sum + m.articles.compostability.length, 0),
+                      fill: '#e6beb5'
+                    },
+                    {
+                      name: 'Recyclable',
+                      shortName: 'recyclable',
+                      categoryKey: 'recyclability',
+                      value: Math.round(materials.reduce((sum, m) => sum + m.recyclability, 0) / materials.length),
+                      articleCount: materials.reduce((sum, m) => sum + m.articles.recyclability.length, 0),
+                      fill: '#e4e3ac'
+                    },
+                    {
+                      name: 'Reusable',
+                      shortName: 'reusable',
+                      categoryKey: 'reusability',
+                      value: Math.round(materials.reduce((sum, m) => sum + m.reusability, 0) / materials.length),
+                      articleCount: materials.reduce((sum, m) => sum + m.articles.reusability.length, 0),
+                      fill: '#b8c8cb'
+                    }
+                  ];
+
+                  return (
+                    <div className="w-full lg:w-[50%]">
+                      <AnimatedWasteChart
+                        chartData={chartData}
+                        onCategoryClick={(categoryKey) => setCurrentView({ type: 'all-articles', category: categoryKey as CategoryType })}
+                      />
+                    </div>
+                  );
+                })()}
               </div>
 
               {showForm && (
@@ -1770,143 +2547,6 @@ export default function App() {
                   />
                 </div>
               )}
-
-              {!searchQuery && materials.length > 0 && currentView.type === 'materials' && (() => {
-                // Compute chart data once so we can reference it in the label
-                const chartData = [
-                  {
-                    name: 'Compostable',
-                    shortName: 'compostable',
-                    categoryKey: 'compostability',
-                    value: Math.round(materials.reduce((sum, m) => sum + m.compostability, 0) / materials.length),
-                    articleCount: materials.reduce((sum, m) => sum + m.articles.compostability.length, 0),
-                    fill: '#e6beb5'
-                  },
-                  {
-                    name: 'Recyclable',
-                    shortName: 'recyclable',
-                    categoryKey: 'recyclability',
-                    value: Math.round(materials.reduce((sum, m) => sum + m.recyclability, 0) / materials.length),
-                    articleCount: materials.reduce((sum, m) => sum + m.articles.recyclability.length, 0),
-                    fill: '#e4e3ac'
-                  },
-                  {
-                    name: 'Reusable',
-                    shortName: 'reusable',
-                    categoryKey: 'reusability',
-                    value: Math.round(materials.reduce((sum, m) => sum + m.reusability, 0) / materials.length),
-                    articleCount: materials.reduce((sum, m) => sum + m.articles.reusability.length, 0),
-                    fill: '#b8c8cb'
-                  }
-                ];
-
-                return (
-                  <div className="bg-white rounded-[11.464px] border-[1.5px] border-[#211f1c] p-6 mb-6 shadow-sm">
-                    <div className="grid grid-cols-1 md:grid-cols-[1fr_1.5fr] gap-6 items-center">
-                      <div>
-                        <h3 className="font-['Sniglet:Regular',_sans-serif] text-[20px] text-black mb-2">What options do I have for my waste?</h3>
-                        <button
-                          onClick={() => setCurrentView({ type: 'recyclability-calculation' })}
-                          className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/70 hover:underline"
-                        >
-                          How is recyclability calculated?
-                        </button>
-                      </div>
-                      <ResponsiveContainer width="100%" height={280}>
-                        <RadialBarChart 
-                          cx="50%" 
-                          cy="50%" 
-                          innerRadius="20%" 
-                          outerRadius="90%"
-                          data={chartData}
-                          startAngle={90}
-                          endAngle={-270}
-                        >
-                          <defs>
-                            <filter id="contrastFilter">
-                              <feColorMatrix
-                                type="matrix"
-                                values="3 0 0 0 -1
-                                        0 3 0 0 -1
-                                        0 0 3 0 -1
-                                        0 0 0 1 0"
-                              />
-                            </filter>
-                            <pattern id="grayTexture" patternUnits="userSpaceOnUse" width="3" height="3">
-                              <rect width="3" height="3" fill="#fff" />
-                              <image href="https://www.transparenttextures.com/patterns/3px-tile.png" x="0" y="0" width="3" height="3" filter="url(#contrastFilter)" />
-                            </pattern>
-                          </defs>
-                          <PolarAngleAxis 
-                            type="number" 
-                            domain={[0, 100]} 
-                            angleAxisId={0} 
-                            tick={false}
-                            stroke="none"
-                          />
-                          <RadialBar
-                            background={{ fill: 'url(#grayTexture)' }}
-                            dataKey="value"
-                            cornerRadius={10}
-                            stroke="#211f1c"
-                            strokeWidth={0.5}
-                            strokeOpacity={0.2}
-                            animationDuration={2000}
-                            animationEasing="ease-in-out"
-                            onClick={(data) => {
-                              if (data && data.categoryKey) {
-                                setCurrentView({ type: 'all-articles', category: data.categoryKey as CategoryType });
-                              }
-                            }}
-                            style={{ cursor: 'pointer' }}
-                            label={{
-                              position: 'insideStart',
-                              fill: '#211f1c',
-                              fontFamily: 'Sniglet:Regular, sans-serif',
-                              fontSize: '13px',
-                              formatter: (value: number) => {
-                                // Find the matching data entry by value
-                                const dataEntry = chartData.find(d => d.value === value);
-                                return dataEntry ? `${value}% is ${dataEntry.shortName}` : `${value}% is`;
-                              }
-                            }}
-                          />
-                          <Tooltip 
-                            cursor={false}
-                            content={({ active, payload }) => {
-                              if (active && payload && payload.length) {
-                                const data = payload[0].payload;
-                                const articleCount = data.articleCount;
-                                const articleText = articleCount === 1 ? 'article' : 'articles';
-                                const categoryMap: { [key: string]: string } = {
-                                  'Compostable': 'compost',
-                                  'Recyclable': 'recycling',
-                                  'Reusable': 'reuse'
-                                };
-                                const categoryLabel = categoryMap[data.name] || data.name.toLowerCase();
-                                return (
-                                  <div style={{
-                                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                                    borderRadius: '8px',
-                                    fontFamily: 'Sniglet:Regular, sans-serif',
-                                    fontSize: '12px',
-                                    boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-                                    padding: '8px 12px',
-                                    color: '#211f1c'
-                                  }}>
-                                    {articleCount} {categoryLabel} {articleText}
-                                  </div>
-                                );
-                              }
-                              return null;
-                            }}
-                          />
-                        </RadialBarChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </div>
-                );
-              })()}
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredMaterials.map(material => (
@@ -1982,13 +2622,41 @@ export default function App() {
                 }
               }}
             />
-          ) : currentView.type === 'recyclability-calculation' ? (
-            <RecyclabilityCalculationView
+          ) : currentView.type === 'methodology-list' ? (
+            <MethodologyListView
               onBack={() => setCurrentView({ type: 'materials' })}
+              onSelectWhitepaper={(whitepaperId) => setCurrentView({ type: 'whitepaper', whitepaperId })}
+            />
+          ) : currentView.type === 'whitepaper' ? (
+            <WhitepaperView
+              whitepaperId={currentView.whitepaperId}
+              onBack={() => setCurrentView({ type: 'methodology-list' })}
+            />
+          ) : currentView.type === 'data-management' ? (
+            <DataManagementView
+              materials={materials}
+              onBack={() => setCurrentView({ type: 'materials' })}
+              onUpdateMaterial={handleUpdateMaterial}
+              onBulkImport={handleBulkImport}
+              onDeleteAllData={() => {
+                setMaterials([]);
+                localStorage.removeItem('wastedb-materials');
+                setCurrentView({ type: 'materials' });
+                toast.success('All data deleted');
+              }}
             />
           ) : null}
         </div>
       </div>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <AccessibilityProvider>
+      <Toaster />
+      <AppContent />
+    </AccessibilityProvider>
   );
 }

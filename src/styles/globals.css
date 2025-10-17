@@ -5,6 +5,7 @@
 
 :root {
   --font-size: 16px;
+  --a11y-font-scale: 1;
   --default-mono-font-family: 'DaddyTimeMono Nerd Font Mono', 'Press Start 2P', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   --background: #ffffff;
   --foreground: oklch(0.145 0 0);
@@ -190,4 +191,152 @@
 
 html {
   font-size: var(--font-size);
+}
+
+body {
+  transform-origin: top left;
+  transform: scale(var(--a11y-font-scale));
+  width: calc(100% / var(--a11y-font-scale));
+  height: calc(100% / var(--a11y-font-scale));
+}
+
+/* Apply dark mode colors globally to common hardcoded colors */
+/* Don't convert text-black to white if it's on a light background (pastel colors) */
+.dark .text-black:not(
+  .dark\\:text-white, 
+  .dark\\:text-black,
+  .bg-\\[#b8c8cb\\] .text-black,
+  .bg-\\[#e4e3ac\\] .text-black,
+  .bg-\\[#e6beb5\\] .text-black,
+  .bg-\\[#b8c8cb\\] *,
+  .bg-\\[#e4e3ac\\] *,
+  .bg-\\[#e6beb5\\] *
+) {
+  color: white !important;
+}
+
+.dark .bg-white:not(.dark\\:bg-\\[#2a2825\\], .dark\\:bg-\\[#1a1917\\]) {
+  background-color: #2a2825 !important;
+}
+
+.dark .border-\\[#211f1c\\]:not(.dark\\:border-white\\/20) {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Accessibility: High Contrast Mode */
+.high-contrast {
+  --border: rgba(0, 0, 0, 0.8);
+}
+
+.high-contrast * {
+  border-color: #000000 !important;
+}
+
+.high-contrast.dark * {
+  border-color: #ffffff !important;
+}
+
+.high-contrast button,
+.high-contrast input,
+.high-contrast select,
+.high-contrast textarea,
+.high-contrast [class*="border"] {
+  border-width: 2px !important;
+}
+
+.high-contrast .shadow-sm,
+.high-contrast [class*="shadow-"] {
+  box-shadow: 3px 3px 0px 0px #000000 !important;
+}
+
+.high-contrast.dark .shadow-sm,
+.high-contrast.dark [class*="shadow-"] {
+  box-shadow: 3px 3px 0px 0px #ffffff !important;
+}
+
+/* High contrast mode: Replace pastel colors with high-contrast equivalents */
+/* Compostability: #e6beb5 (pastel pink/red) -> darker red */
+.high-contrast .bg-\[#e6beb5\],
+.high-contrast [class*="bg-[#e6beb5]"],
+.no-pastel .bg-\[#e6beb5\],
+.no-pastel [class*="bg-[#e6beb5]"] {
+  background-color: #c74444 !important;
+}
+
+.high-contrast.dark .bg-\[#e6beb5\],
+.high-contrast.dark [class*="bg-[#e6beb5]"],
+.no-pastel.dark .bg-\[#e6beb5\],
+.no-pastel.dark [class*="bg-[#e6beb5]"] {
+  background-color: #ff6b6b !important;
+}
+
+/* Recyclability: #e4e3ac (pastel yellow) -> darker yellow/gold */
+.high-contrast .bg-\[#e4e3ac\],
+.high-contrast [class*="bg-[#e4e3ac]"],
+.no-pastel .bg-\[#e4e3ac\],
+.no-pastel [class*="bg-[#e4e3ac]"] {
+  background-color: #d4b400 !important;
+}
+
+.high-contrast.dark .bg-\[#e4e3ac\],
+.high-contrast.dark [class*="bg-[#e4e3ac]"],
+.no-pastel.dark .bg-\[#e4e3ac\],
+.no-pastel.dark [class*="bg-[#e4e3ac]"] {
+  background-color: #ffd700 !important;
+}
+
+/* Reusability: #b8c8cb (pastel blue) -> darker blue */
+.high-contrast .bg-\[#b8c8cb\],
+.high-contrast [class*="bg-[#b8c8cb]"],
+.no-pastel .bg-\[#b8c8cb\],
+.no-pastel [class*="bg-[#b8c8cb]"] {
+  background-color: #4a90a4 !important;
+}
+
+.high-contrast.dark .bg-\[#b8c8cb\],
+.high-contrast.dark [class*="bg-[#b8c8cb]"],
+.no-pastel.dark .bg-\[#b8c8cb\],
+.no-pastel.dark [class*="bg-[#b8c8cb]"] {
+  background-color: #6bb6d0 !important;
+}
+
+/* High contrast mode: Update CSS custom properties for window buttons */
+.high-contrast [style*="--fill-0: rgba(230, 188, 181, 1)"],
+.no-pastel [style*="--fill-0: rgba(230, 188, 181, 1)"] {
+  --fill-0: rgba(199, 68, 68, 1) !important;
+}
+
+.high-contrast.dark [style*="--fill-0: rgba(230, 188, 181, 1)"],
+.no-pastel.dark [style*="--fill-0: rgba(230, 188, 181, 1)"] {
+  --fill-0: rgba(255, 107, 107, 1) !important;
+}
+
+.high-contrast [style*="--fill-0: rgba(228, 227, 172, 1)"],
+.no-pastel [style*="--fill-0: rgba(228, 227, 172, 1)"] {
+  --fill-0: rgba(212, 180, 0, 1) !important;
+}
+
+.high-contrast.dark [style*="--fill-0: rgba(228, 227, 172, 1)"],
+.no-pastel.dark [style*="--fill-0: rgba(228, 227, 172, 1)"] {
+  --fill-0: rgba(255, 215, 0, 1) !important;
+}
+
+.high-contrast [style*="--fill-0: rgba(184, 200, 203, 1)"],
+.no-pastel [style*="--fill-0: rgba(184, 200, 203, 1)"] {
+  --fill-0: rgba(74, 144, 164, 1) !important;
+}
+
+.high-contrast.dark [style*="--fill-0: rgba(184, 200, 203, 1)"],
+.no-pastel.dark [style*="--fill-0: rgba(184, 200, 203, 1)"] {
+  --fill-0: rgba(107, 182, 208, 1) !important;
+}
+
+/* Accessibility: Reduced Motion */
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
 }
