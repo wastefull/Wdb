@@ -75,6 +75,7 @@
     --font-weight-semibold: 600;
     --leading-relaxed: 1.625;
     --ease-in-out: cubic-bezier(.4, 0, .2, 1);
+    --animate-pulse: pulse 2s cubic-bezier(.4, 0, .6, 1) infinite;
     --default-transition-duration: .15s;
     --default-transition-timing-function: cubic-bezier(.4, 0, .2, 1);
     --default-font-family: var(--font-sans);
@@ -872,6 +873,10 @@
     animation: enter var(--tw-duration, .15s) var(--tw-ease, ease);
   }
 
+  .animate-pulse {
+    animation: var(--animate-pulse);
+  }
+
   .cursor-default {
     cursor: default;
   }
@@ -1485,6 +1490,18 @@
 
   .whitespace-pre-wrap {
     white-space: pre-wrap;
+  }
+
+  .text-\[\#4a90a4\] {
+    color: #4a90a4;
+  }
+
+  .text-\[\#c74444\] {
+    color: #c74444;
+  }
+
+  .text-\[\#d4b400\] {
+    color: #d4b400;
   }
 
   .text-black {
@@ -2264,8 +2281,30 @@
     fill: var(--color-white);
   }
 
+  .dark\:text-\[\#6bb6d0\]:is(.dark *) {
+    color: #6bb6d0;
+  }
+
+  .dark\:text-\[\#ff6b6b\]:is(.dark *) {
+    color: #ff6b6b;
+  }
+
+  .dark\:text-\[\#ffd700\]:is(.dark *) {
+    color: gold;
+  }
+
   .dark\:text-white:is(.dark *) {
     color: var(--color-white);
+  }
+
+  .dark\:text-white\/40:is(.dark *) {
+    color: #fff6;
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .dark\:text-white\/40:is(.dark *) {
+      color: color-mix(in oklab, var(--color-white) 40%, transparent);
+    }
   }
 
   .dark\:text-white\/50:is(.dark *) {
@@ -2887,6 +2926,12 @@ body {
   syntax: "*";
   inherits: false;
   initial-value: 1;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: .5;
+  }
 }
 
 @keyframes enter {

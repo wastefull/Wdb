@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import svgPaths from "./imports/svg-qhqftidoeu";
-import { Plus, Edit2, Trash2, Search, ArrowLeft, Upload, Image as ImageIcon, ChevronDown, Copy, Check, Type, Eye, RotateCcw, Moon, Save, X, Download, FileUp } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, ArrowLeft, Upload, Image as ImageIcon, ChevronDown, Copy, Check, Type, Eye, RotateCcw, Moon, Save, X, Download, FileUp, Cloud, CloudOff } from 'lucide-react';
+import * as api from './utils/api';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from './components/ui/collapsible';
 import { RadialBarChart, RadialBar, ResponsiveContainer, Legend, Tooltip, PolarAngleAxis, Cell, Text } from 'recharts';
 import ReactMarkdown from 'react-markdown';
@@ -266,13 +267,35 @@ function RetroButtons({ title, currentView, onViewChange }: { title: string; cur
   );
 }
 
-function StatusBar({ title, currentView, onViewChange }: { title: string; currentView: any; onViewChange: (view: any) => void }) {
+function StatusBar({ title, currentView, onViewChange, syncStatus }: { title: string; currentView: any; onViewChange: (view: any) => void; syncStatus?: 'synced' | 'syncing' | 'offline' | 'error' }) {
   return (
     <div className="h-[42px] min-w-[400px] relative shrink-0 w-full">
-      <div aria-hidden="true" className="absolute border-[#211f1c] border-[0px_0px_1.5px] border-solid inset-0 pointer-events-none" />
+      <div aria-hidden="true" className="absolute border-[#211f1c] dark:border-white/20 border-[0px_0px_1.5px] border-solid inset-0 pointer-events-none" />
       <div className="min-w-inherit size-full">
         <div className="box-border content-stretch flex h-[42px] items-start justify-between min-w-inherit px-[5px] py-0 relative w-full">
           <RetroButtons title={title} currentView={currentView} onViewChange={onViewChange} />
+          {syncStatus && (
+            <div className="flex items-center gap-2 px-3">
+              <TooltipProvider delayDuration={300}>
+                <UITooltip>
+                  <TooltipTrigger>
+                    {syncStatus === 'synced' && <Cloud size={14} className="text-[#4a90a4] dark:text-[#6bb6d0]" />}
+                    {syncStatus === 'syncing' && <Cloud size={14} className="text-[#d4b400] dark:text-[#ffd700] animate-pulse" />}
+                    {syncStatus === 'offline' && <CloudOff size={14} className="text-black/40 dark:text-white/40" />}
+                    {syncStatus === 'error' && <CloudOff size={14} className="text-[#c74444] dark:text-[#ff6b6b]" />}
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="bg-black text-white border-black">
+                    <p className="font-['Sniglet:Regular',_sans-serif] text-[11px]">
+                      {syncStatus === 'synced' && 'Synced to cloud'}
+                      {syncStatus === 'syncing' && 'Syncing...'}
+                      {syncStatus === 'offline' && 'Working offline'}
+                      {syncStatus === 'error' && 'Sync error - saved locally'}
+                    </p>
+                  </TooltipContent>
+                </UITooltip>
+              </TooltipProvider>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -2238,30 +2261,73 @@ function AppContent() {
   const [showForm, setShowForm] = useState(false);
   const [currentView, setCurrentView] = useState<{ type: 'materials' } | { type: 'articles'; materialId: string; category: CategoryType } | { type: 'all-articles'; category: CategoryType } | { type: 'material-detail'; materialId: string } | { type: 'article-standalone'; articleId: string; materialId: string; category: CategoryType } | { type: 'recyclability-calculation' } | { type: 'methodology-list' } | { type: 'whitepaper'; whitepaperId: string } | { type: 'data-management' }>({ type: 'materials' });
   const [articleToOpen, setArticleToOpen] = useState<string | null>(null);
+  const [syncStatus, setSyncStatus] = useState<'synced' | 'syncing' | 'offline' | 'error'>('offline');
+  const [supabaseAvailable, setSupabaseAvailable] = useState(true);
 
   useEffect(() => {
-    const stored = localStorage.getItem('materials');
-    if (stored) {
+    // Load materials from Supabase, fallback to localStorage
+    const loadMaterials = async () => {
+      setSyncStatus('syncing');
       try {
-        const parsedMaterials = JSON.parse(stored);
-        // Ensure all materials have articles structure and category
-        const materialsWithArticles = parsedMaterials.map((m: any) => ({
-          ...m,
-          category: m.category || 'Plastics', // Default category for backward compatibility
-          articles: m.articles || {
-            compostability: [],
-            recyclability: [],
-            reusability: []
-          }
-        }));
-        setMaterials(materialsWithArticles);
-      } catch (e) {
-        console.error('Error parsing stored materials:', e);
+        // Try to load from Supabase first
+        const supabaseMaterials = await api.getAllMaterials();
+        if (supabaseMaterials.length > 0) {
+          // Ensure all materials have articles structure and category
+          const materialsWithArticles = supabaseMaterials.map((m: any) => ({
+            ...m,
+            category: m.category || 'Plastics',
+            articles: m.articles || {
+              compostability: [],
+              recyclability: [],
+              reusability: []
+            }
+          }));
+          setMaterials(materialsWithArticles);
+          // Sync to localStorage as cache
+          localStorage.setItem('materials', JSON.stringify(materialsWithArticles));
+          setSyncStatus('synced');
+          setSupabaseAvailable(true);
+          console.log('Materials loaded from Supabase');
+        } else {
+          // If Supabase is empty, load from localStorage or initialize sample data
+          loadFromLocalStorage();
+          setSyncStatus('synced');
+          setSupabaseAvailable(true);
+        }
+      } catch (error) {
+        console.warn('Supabase unavailable, loading from localStorage:', error);
+        setSupabaseAvailable(false);
+        loadFromLocalStorage();
+        setSyncStatus('offline');
+        toast.warning('Working offline - data stored locally only');
+      }
+    };
+
+    const loadFromLocalStorage = () => {
+      const stored = localStorage.getItem('materials');
+      if (stored) {
+        try {
+          const parsedMaterials = JSON.parse(stored);
+          const materialsWithArticles = parsedMaterials.map((m: any) => ({
+            ...m,
+            category: m.category || 'Plastics',
+            articles: m.articles || {
+              compostability: [],
+              recyclability: [],
+              reusability: []
+            }
+          }));
+          setMaterials(materialsWithArticles);
+        } catch (e) {
+          console.error('Error parsing stored materials:', e);
+          initializeSampleData();
+        }
+      } else {
         initializeSampleData();
       }
-    } else {
-      initializeSampleData();
-    }
+    };
+
+    loadMaterials();
 
     // Check for article permalink in URL
     const urlParams = new URLSearchParams(window.location.search);
@@ -2369,13 +2435,46 @@ function AppContent() {
         }
       },
     ];
-    setMaterials(sampleMaterials);
-    localStorage.setItem('materials', JSON.stringify(sampleMaterials));
+    saveMaterials(sampleMaterials);
   };
 
-  const saveMaterials = (newMaterials: Material[]) => {
+  const saveMaterials = async (newMaterials: Material[]) => {
     setMaterials(newMaterials);
     localStorage.setItem('materials', JSON.stringify(newMaterials));
+    
+    // Sync to Supabase if available
+    if (supabaseAvailable) {
+      try {
+        setSyncStatus('syncing');
+        await api.batchSaveMaterials(newMaterials);
+        setSyncStatus('synced');
+      } catch (error) {
+        console.error('Failed to sync to Supabase:', error);
+        setSyncStatus('error');
+        setSupabaseAvailable(false);
+        toast.error('Failed to sync to cloud - saved locally');
+      }
+    }
+  };
+
+  const retrySync = async () => {
+    if (materials.length === 0) {
+      toast.info('No data to sync');
+      return;
+    }
+    
+    setSyncStatus('syncing');
+    try {
+      await api.batchSaveMaterials(materials);
+      setSyncStatus('synced');
+      setSupabaseAvailable(true);
+      toast.success('Successfully synced to cloud');
+    } catch (error) {
+      console.error('Failed to retry sync:', error);
+      setSyncStatus('error');
+      setSupabaseAvailable(false);
+      toast.error('Sync failed - check your connection');
+    }
   };
 
   const handleAddMaterial = (materialData: Omit<Material, 'id'>) => {
@@ -2454,10 +2553,28 @@ function AppContent() {
     >
       <div className="max-w-6xl mx-auto">
         <div className="bg-[#faf7f2] dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 overflow-hidden mb-6">
-          <StatusBar title="WasteDB" currentView={currentView} onViewChange={setCurrentView} />
+          <StatusBar title="WasteDB" currentView={currentView} onViewChange={setCurrentView} syncStatus={syncStatus} />
           
           {currentView.type === 'materials' ? (
             <div className="p-6">
+              {/* Sync error/offline banner */}
+              {(syncStatus === 'error' || syncStatus === 'offline') && (
+                <div className="mb-4 p-3 bg-[#e6beb5] dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px] flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <CloudOff size={16} className="text-black dark:text-white" />
+                    <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
+                      {syncStatus === 'offline' ? 'Working offline - data saved locally only' : 'Failed to sync to cloud'}
+                    </p>
+                  </div>
+                  <button
+                    onClick={retrySync}
+                    className="px-3 py-1.5 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[11px] text-black flex items-center gap-1"
+                  >
+                    <Cloud size={12} />
+                    Retry Sync
+                  </button>
+                </div>
+              )}
               {/* Search bar and chart on same line for wide screens */}
               <div className="flex flex-col lg:flex-row gap-4 lg:justify-between mb-6">
                 {/* Left column: Search bar, Add Material button, and Methodology link (vertically centered) */}
@@ -2638,11 +2755,21 @@ function AppContent() {
               onBack={() => setCurrentView({ type: 'materials' })}
               onUpdateMaterial={handleUpdateMaterial}
               onBulkImport={handleBulkImport}
-              onDeleteAllData={() => {
+              onDeleteAllData={async () => {
                 setMaterials([]);
-                localStorage.removeItem('wastedb-materials');
+                localStorage.removeItem('materials');
+                if (supabaseAvailable) {
+                  try {
+                    await api.deleteAllMaterials();
+                    toast.success('All data deleted from cloud and locally');
+                  } catch (error) {
+                    console.error('Failed to delete from Supabase:', error);
+                    toast.success('All data deleted locally');
+                  }
+                } else {
+                  toast.success('All data deleted locally');
+                }
                 setCurrentView({ type: 'materials' });
-                toast.success('All data deleted');
               }}
             />
           ) : null}
