@@ -45,6 +45,7 @@
           "react-resizable-panels": "^2.1.7",
           "recharts": "^2.15.2",
           "rehype-katex": "*",
+          "remark-gfm": "*",
           "remark-math": "*",
           "sonner": "^2.0.3",
           "tailwind-merge": "*",

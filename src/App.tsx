@@ -5,6 +5,7 @@ import { Collapsible, CollapsibleTrigger, CollapsibleContent } from './component
 import { RadialBarChart, RadialBar, ResponsiveContainer, Legend, Tooltip, PolarAngleAxis, Cell, Text } from 'recharts';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
+import remarkGfm from 'remark-gfm';
 import rehypeKatex from 'rehype-katex';
 
 interface ArticleSection {
@@ -1329,7 +1330,7 @@ Where:
         ) : (
           <div className="prose prose-sm max-w-none">
             <ReactMarkdown
-              remarkPlugins={[remarkMath]}
+              remarkPlugins={[remarkMath, remarkGfm]}
               rehypePlugins={[rehypeKatex]}
               components={{
                 h1: ({node, ...props}) => <h1 className="font-['Sniglet:Regular',_sans-serif] text-[20px] text-black mb-4" {...props} />,
@@ -1338,6 +1339,25 @@ Where:
                 p: ({node, ...props}) => <p className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black/80 mb-4 leading-relaxed" {...props} />,
                 ul: ({node, ...props}) => <ul className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black/80 mb-4 list-disc pl-6" {...props} />,
                 li: ({node, ...props}) => <li className="mb-1" {...props} />,
+                table: ({node, ...props}) => (
+                  <div className="overflow-x-auto mb-6">
+                    <table className="w-full border-[1.5px] border-[#211f1c] rounded-[8px]" {...props} />
+                  </div>
+                ),
+                thead: ({node, ...props}) => <thead className="bg-[#e4e3ac] border-b-[1.5px] border-[#211f1c]" {...props} />,
+                tbody: ({node, ...props}) => <tbody {...props} />,
+                tr: ({node, ...props}) => <tr className="border-b border-[#211f1c]/20" {...props} />,
+                th: ({node, ...props}) => <th className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black px-3 py-2 text-left border-r border-[#211f1c]/20 last:border-r-0" {...props} />,
+                td: ({node, ...props}) => <td className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/80 px-3 py-2 border-r border-[#211f1c]/20 last:border-r-0" {...props} />,
+                code: ({node, inline, ...props}) => 
+                  inline ? (
+                    <code className="bg-[#211f1c]/5 px-1.5 py-0.5 rounded border border-[#211f1c]/20 text-black" style={{ fontSize: '14px', fontFamily: 'DaddyTimeMono Nerd Font Mono, Press Start 2P, monospace' }} {...props} />
+                  ) : (
+                    <code className="text-black block" style={{ fontSize: '12px', fontFamily: 'DaddyTimeMono Nerd Font Mono, Press Start 2P, monospace' }} {...props} />
+                  ),
+                pre: ({node, ...props}) => (
+                  <pre className="bg-[#211f1c]/5 border-[1.5px] border-[#211f1c] rounded-[8px] p-4 mb-4 overflow-x-auto" style={{ fontFamily: 'DaddyTimeMono Nerd Font Mono, Press Start 2P, monospace' }} {...props} />
+                ),
               }}
             >
               {markdownContent}
