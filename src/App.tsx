@@ -2313,7 +2313,7 @@ function AppContent() {
   const [searchQuery, setSearchQuery] = useState('');
   const [editingMaterial, setEditingMaterial] = useState<Material | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const [currentView, setCurrentView] = useState<{ type: 'materials' } | { type: 'articles'; materialId: string; category: CategoryType } | { type: 'all-articles'; category: CategoryType } | { type: 'material-detail'; materialId: string } | { type: 'article-standalone'; articleId: string; materialId: string; category: CategoryType } | { type: 'recyclability-calculation' } | { type: 'methodology-list' } | { type: 'whitepaper'; whitepaperId: string } | { type: 'data-management' } | { type: 'user-management' }>({ type: 'materials' });
+  const [currentView, setCurrentView] = useState<{ type: 'materials' } | { type: 'articles'; materialId: string; category: CategoryType } | { type: 'all-articles'; category: CategoryType } | { type: 'material-detail'; materialId: string } | { type: 'article-standalone'; articleId: string; materialId: string; category: CategoryType } | { type: 'recyclability-calculation' } | { type: 'methodology-list' } | { type: 'whitepaper'; whitepaperSlug: string } | { type: 'data-management' } | { type: 'user-management' }>({ type: 'materials' });
   const [articleToOpen, setArticleToOpen] = useState<string | null>(null);
   const [syncStatus, setSyncStatus] = useState<'synced' | 'syncing' | 'offline' | 'error'>('syncing');
   const [supabaseAvailable, setSupabaseAvailable] = useState(true);
@@ -2934,11 +2934,11 @@ function AppContent() {
           ) : currentView.type === 'methodology-list' ? (
             <MethodologyListView
               onBack={() => setCurrentView({ type: 'materials' })}
-              onSelectWhitepaper={(whitepaperId) => setCurrentView({ type: 'whitepaper', whitepaperId })}
+              onSelectWhitepaper={(whitepaperSlug) => setCurrentView({ type: 'whitepaper', whitepaperSlug })}
             />
           ) : currentView.type === 'whitepaper' ? (
             <WhitepaperView
-              whitepaperId={currentView.whitepaperId}
+              whitepaperSlug={currentView.whitepaperSlug}
               onBack={() => setCurrentView({ type: 'methodology-list' })}
             />
           ) : currentView.type === 'data-management' ? (

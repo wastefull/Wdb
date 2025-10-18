@@ -1,8 +1,8 @@
 ---
 
-# **WasteDB: Statistical and Accessibility Methodology**
+# WasteDB: Statistical and Accessibility Methodology
 
-## **Organization Overview**
+## Organization Overview
 
 **Organization:** Wastefull
 **Location:** San Jose, California
@@ -14,7 +14,7 @@ Wastefull develops open scientific infrastructure to measure, understand, and im
 
 ---
 
-## **1. Purpose and Philosophy**
+## 1. Purpose and Philosophy
 
 WasteDB balances *scientific optimism* with *practical realism*.
 We assume that, with sufficient progress, any material can ultimately be recycled.
@@ -29,7 +29,7 @@ Every data point and score is traceable to at least three independent sources.
 
 ---
 
-## **2. Core Parameters**
+## 2. Core Parameters
 
 | Symbol | Parameter               | Definition                                                                      | Empirical Basis                                             |
 | :----: | ----------------------- | ------------------------------------------------------------------------------- | ----------------------------------------------------------- |
@@ -44,7 +44,7 @@ Every data point and score is traceable to at least three independent sources.
 
 ---
 
-## **3. Data Collection Standards**
+## 3. Data Collection Standards
 
 Each data point must meet the following requirements:
 
@@ -53,7 +53,7 @@ Each data point must meet the following requirements:
 * **Standardized units** (MJ kg⁻¹, %, g CO₂e kg⁻¹).
 * **Source weighting** recorded in metadata for transparency.
 
-### **3.1 Source Weight Parameters**
+### 3.1 Source Weight Parameters
 
 | Source Type                       | Weight ($w_i$) | Rationale                     |
 | --------------------------------- | :------------: | ----------------------------- |
@@ -79,7 +79,7 @@ $$
 
 ---
 
-## **4. Statistical Handling**
+## 4. Statistical Handling
 
 * **Aggregation:** Weighted mean and SD across sources.
 * **Confidence Intervals:** Computed with weighted $SE_w$.
@@ -87,7 +87,7 @@ $$
 
 ---
 
-## **5. Dual Recyclability Scoring**
+## 5. Dual Recyclability Scoring
 
 WasteDB reports two composite indices for each material:
 
@@ -113,7 +113,7 @@ WasteDB's interface defaults to `CR_practical_label` for public display, with op
 
 ---
 
-## **6. Accessibility and Visual Design**
+## 6. Accessibility and Visual Design
 
 All numeric confidence values are accompanied by accessible visual cues.
 
@@ -129,7 +129,7 @@ All numeric confidence values are accompanied by accessible visual cues.
 
 ---
 
-## **7. Transparency and Version Control**
+## 7. Transparency and Version Control
 
 All WasteDB datasets and derived values are:
 
@@ -141,7 +141,7 @@ All statistical methods and weight configurations are stored in `/methods`, with
 
 ---
 
-## **8. Future Work**
+## 8. Future Work
 
 1. Develop covariance models for $Y$, $D$, $C$, and $E$.
 2. Automate source weight calibration via metadata quality scoring.
@@ -151,14 +151,14 @@ All statistical methods and weight configurations are stored in `/methods`, with
 
 ---
 
-## **Appendix A: Metadata Schema and Representation**
+## Appendix A: Metadata Schema and Representation
 
-### **A.1 Overview**
+### A.1 Overview
 
 Each WasteDB material record contains empirical recyclability data and metadata for traceability, confidence assessment, and accessibility.
 The schema is compatible with **JSON-LD**, **CSV**, and **SQL**.
 
-### **A.2 Core Schema (with dual-score support)**
+### A.2 Core Schema (with dual-score support)
 
 | Field                  | Type                | Description                                 |
 | ---------------------- | ------------------- | ------------------------------------------- |
@@ -190,7 +190,7 @@ The schema is compatible with **JSON-LD**, **CSV**, and **SQL**.
 
 ---
 
-## **Appendix B: Composite Recyclability Index (CR)**
+## Appendix B: Composite Recyclability Index (CR)
 
 Formulas, uncertainty propagation, and worked examples are provided for both $CR_{theo}$ and $CR_{prac}$, including weighting defaults, behavioral cleanliness factors, and energy treatment.
 See Appendix B in the technical documentation for implementation details.

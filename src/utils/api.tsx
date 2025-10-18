@@ -181,3 +181,72 @@ export async function updateUser(userId: string, updates: { name?: string; email
     body: JSON.stringify(updates),
   });
 }
+
+// ==================== WHITEPAPER API ====================
+
+interface Whitepaper {
+  slug: string;
+  title: string;
+  content: string;
+  updatedAt: string;
+}
+
+// Get all whitepapers (public, no auth required)
+export async function getAllWhitepapers(): Promise<Whitepaper[]> {
+  console.log('Fetching whitepapers from:', `${API_BASE_URL}/whitepapers`);
+  const response = await fetch(`${API_BASE_URL}/whitepapers`, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${publicAnonKey}`, // Required for Supabase edge functions
+    },
+  });
+  
+  console.log('Whitepaper response status:', response.status);
+  
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Whitepaper fetch failed:', errorText);
+    throw new Error('Failed to fetch whitepapers');
+  }
+  
+  const data = await response.json();
+  console.log('Whitepapers data:', data);
+  return data.whitepapers || [];
+}
+
+// Get a single whitepaper by slug (public, no auth required)
+export async function getWhitepaper(slug: string): Promise<Whitepaper | null> {
+  const response = await fetch(`${API_BASE_URL}/whitepapers/${slug}`, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${publicAnonKey}`, // Required for Supabase edge functions
+    },
+  });
+  
+  if (response.status === 404) {
+    return null;
+  }
+  
+  if (!response.ok) {
+    throw new Error('Failed to fetch whitepaper');
+  }
+  
+  const data = await response.json();
+  return data.whitepaper;
+}
+
+// Save/update a whitepaper (admin only)
+export async function saveWhitepaper(whitepaper: { slug: string; title: string; content: string }): Promise<Whitepaper> {
+  const data = await apiCall('/whitepapers', {
+    method: 'POST',
+    body: JSON.stringify(whitepaper),
+  });
+  return data.whitepaper;
+}
+
+// Delete a whitepaper (admin only)
+export async function deleteWhitepaper(slug: string): Promise<void> {
+  await apiCall(`/whitepapers/${slug}`, {
+    method: 'DELETE',
+  });
+}
