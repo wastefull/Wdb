@@ -76,13 +76,14 @@ function RetroButtons({ title, currentView, onViewChange, user, userRole, onLogo
 
   return (
     <div className="basis-0 grow h-full min-h-px min-w-px relative shrink-0">
-      <div className="flex flex-row items-center size-full">
-        <div className="box-border content-stretch flex gap-[10px] items-center px-[7px] py-[2px] relative shrink-0">
+      <div className="flex flex-row items-center justify-center size-full">
+        <div className="box-border content-stretch flex gap-[10px] items-center justify-center px-[7px] relative shrink-0 overflow-visible h-full">
           <TooltipProvider delayDuration={300}>
-            {/* Red Button - Reset Settings */}
-            <UITooltip>
+            <div className="flex flex-row gap-[10px] items-center h-full">
+              {/* Red Button - Reset Settings */}
+              <UITooltip>
               <TooltipTrigger asChild>
-                <div className="relative shrink-0 size-[12px]">
+                <div className="relative shrink-0 size-[12px] overflow-visible">
                   <Popover open={redOpen} onOpenChange={setRedOpen}>
                     <PopoverTrigger className="relative size-full hover:scale-110 transition-transform cursor-pointer">
                       <div className="absolute inset-[-8.333%]" style={{ "--fill-0": "rgba(230, 188, 181, 1)", "--stroke-0": "rgba(33, 31, 28, 1)" } as React.CSSProperties}>
@@ -122,7 +123,7 @@ function RetroButtons({ title, currentView, onViewChange, user, userRole, onLogo
             {/* Yellow Button - Font Size */}
             <UITooltip>
               <TooltipTrigger asChild>
-                <div className="relative shrink-0 size-[12px]">
+                <div className="relative shrink-0 size-[12px] overflow-visible">
                   <Popover open={yellowOpen} onOpenChange={setYellowOpen}>
                     <PopoverTrigger className="relative size-full hover:scale-110 transition-transform cursor-pointer">
                       <div className="absolute inset-[-8.333%]" style={{ "--fill-0": "rgba(228, 227, 172, 1)", "--stroke-0": "rgba(33, 31, 28, 1)" } as React.CSSProperties}>
@@ -182,7 +183,7 @@ function RetroButtons({ title, currentView, onViewChange, user, userRole, onLogo
             {/* Blue Button - Display Controls */}
             <UITooltip>
               <TooltipTrigger asChild>
-                <div className="relative shrink-0 size-[12px]">
+                <div className="relative shrink-0 size-[12px] overflow-visible">
                   <Popover open={blueOpen} onOpenChange={setBlueOpen}>
                     <PopoverTrigger className="relative size-full hover:scale-110 transition-transform cursor-pointer">
                       <div className="absolute inset-[-8.333%]" style={{ "--fill-0": "rgba(184, 200, 203, 1)", "--stroke-0": "rgba(33, 31, 28, 1)" } as React.CSSProperties}>
@@ -246,6 +247,7 @@ function RetroButtons({ title, currentView, onViewChange, user, userRole, onLogo
                 <p className="font-['Sniglet:Regular',_sans-serif] text-[11px]">Display options</p>
               </TooltipContent>
             </UITooltip>
+            </div>
           </TooltipProvider>
         </div>
 
@@ -318,7 +320,7 @@ function StatusBar({ title, currentView, onViewChange, syncStatus, user, userRol
     <div className="h-[42px] min-w-[400px] relative shrink-0 w-full">
       <div aria-hidden="true" className="absolute border-[#211f1c] dark:border-white/20 border-[0px_0px_1.5px] border-solid inset-0 pointer-events-none" />
       <div className="min-w-inherit size-full">
-        <div className="box-border content-stretch flex h-[42px] items-start justify-between min-w-inherit px-[5px] py-0 relative w-full">
+        <div className="box-border content-stretch flex h-[42px] items-center justify-between min-w-inherit px-[5px] py-0 relative w-full">
           <RetroButtons title={title} currentView={currentView} onViewChange={onViewChange} user={user} userRole={userRole} onLogout={onLogout} onSignIn={onSignIn} />
           {user && syncStatus && (
             <div className="flex items-center justify-center gap-2 px-3 h-full">
