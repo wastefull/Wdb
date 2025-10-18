@@ -671,11 +671,6 @@
     height: calc(var(--spacing) * 9);
   }
 
-  .size-\[12px\] {
-    width: 12px;
-    height: 12px;
-  }
-
   .size-full {
     width: 100%;
     height: 100%;
@@ -711,6 +706,10 @@
 
   .h-\[8px\] {
     height: 8px;
+  }
+
+  .h-\[13px\] {
+    height: 13px;
   }
 
   .h-\[16px\] {
@@ -791,6 +790,10 @@
 
   .w-72 {
     width: calc(var(--spacing) * 72);
+  }
+
+  .w-\[12px\] {
+    width: 12px;
   }
 
   .w-\[18px\] {

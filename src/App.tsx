@@ -100,7 +100,7 @@ function RetroButtons({ title }: { title: string }) {
               {/* Red Button - Reset Settings */}
               <UITooltip>
               <TooltipTrigger asChild>
-                <div className="relative shrink-0 size-[12px] overflow-visible">
+                <div className="relative shrink-0 w-[12px] h-[13px] overflow-visible flex items-center justify-center">
                   <Popover open={redOpen} onOpenChange={setRedOpen}>
                     <PopoverTrigger className="relative size-full hover:scale-110 transition-transform cursor-pointer">
                       <div className="absolute inset-[-8.333%]" style={{ "--fill-0": "rgba(230, 188, 181, 1)", "--stroke-0": "rgba(33, 31, 28, 1)" } as React.CSSProperties}>
@@ -140,7 +140,7 @@ function RetroButtons({ title }: { title: string }) {
             {/* Yellow Button - Font Size */}
             <UITooltip>
               <TooltipTrigger asChild>
-                <div className="relative shrink-0 size-[12px] overflow-visible">
+                <div className="relative shrink-0 w-[12px] h-[13px] overflow-visible flex items-center justify-center">
                   <Popover open={yellowOpen} onOpenChange={setYellowOpen}>
                     <PopoverTrigger className="relative size-full hover:scale-110 transition-transform cursor-pointer">
                       <div className="absolute inset-[-8.333%]" style={{ "--fill-0": "rgba(228, 227, 172, 1)", "--stroke-0": "rgba(33, 31, 28, 1)" } as React.CSSProperties}>
@@ -200,7 +200,7 @@ function RetroButtons({ title }: { title: string }) {
             {/* Blue Button - Display Controls */}
             <UITooltip>
               <TooltipTrigger asChild>
-                <div className="relative shrink-0 size-[12px] overflow-visible">
+                <div className="relative shrink-0 w-[12px] h-[13px] overflow-visible flex items-center justify-center">
                   <Popover open={blueOpen} onOpenChange={setBlueOpen}>
                     <PopoverTrigger className="relative size-full hover:scale-110 transition-transform cursor-pointer">
                       <div className="absolute inset-[-8.333%]" style={{ "--fill-0": "rgba(184, 200, 203, 1)", "--stroke-0": "rgba(33, 31, 28, 1)" } as React.CSSProperties}>
