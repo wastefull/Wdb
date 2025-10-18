@@ -60,11 +60,8 @@ interface Material {
 
 type CategoryType = 'compostability' | 'recyclability' | 'reusability';
 
-function RetroButtons({ title, currentView, onViewChange, user, userRole, onLogout, onSignIn }: { title: string; currentView: any; onViewChange: (view: any) => void; user?: { id: string; email: string; name?: string }; userRole?: 'user' | 'admin'; onLogout?: () => void; onSignIn?: () => void }) {
-  const { settings, setFontSize, toggleHighContrast, toggleNoPastel, toggleReduceMotion, toggleDarkMode, toggleAdminMode, resetSettings } = useAccessibility();
-  const [redOpen, setRedOpen] = useState(false);
-  const [yellowOpen, setYellowOpen] = useState(false);
-  const [blueOpen, setBlueOpen] = useState(false);
+function AdminModeButton({ currentView, onViewChange }: { currentView: any; onViewChange: (view: any) => void }) {
+  const { settings, toggleAdminMode } = useAccessibility();
   
   const handleAdminToggle = () => {
     // If turning off admin mode and currently on data-management or user-management page, go back to materials
@@ -75,9 +72,29 @@ function RetroButtons({ title, currentView, onViewChange, user, userRole, onLogo
   };
 
   return (
+    <button
+      onClick={handleAdminToggle}
+      className={`px-2 py-1 rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[10px] text-black dark:text-white uppercase ${
+        settings.adminMode 
+          ? 'bg-[#e4e3ac] shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]' 
+          : 'bg-[#e6beb5]'
+      }`}
+    >
+      Admin
+    </button>
+  );
+}
+
+function RetroButtons({ title }: { title: string }) {
+  const { settings, setFontSize, toggleHighContrast, toggleNoPastel, toggleReduceMotion, toggleDarkMode, resetSettings } = useAccessibility();
+  const [redOpen, setRedOpen] = useState(false);
+  const [yellowOpen, setYellowOpen] = useState(false);
+  const [blueOpen, setBlueOpen] = useState(false);
+
+  return (
     <div className="basis-0 grow h-full min-h-px min-w-px relative shrink-0">
       <div className="flex flex-row items-center justify-center size-full">
-        <div className="box-border content-stretch flex gap-[10px] items-center justify-center px-[7px] relative shrink-0 overflow-visible h-full">
+        <div className="box-border content-stretch flex gap-[10px] items-center justify-center px-[7px] py-[2px] relative size-full">
           <TooltipProvider delayDuration={300}>
             <div className="flex flex-row gap-[10px] items-center h-full">
               {/* Red Button - Reset Settings */}
@@ -249,66 +266,8 @@ function RetroButtons({ title, currentView, onViewChange, user, userRole, onLogo
             </UITooltip>
             </div>
           </TooltipProvider>
-        </div>
 
-        <p className="basis-0 font-['Sniglet:Regular',_sans-serif] grow leading-[25px] min-h-px min-w-px not-italic relative shrink-0 text-[20px] text-black dark:text-white text-center uppercase">{title}</p>
-
-        {/* User info and buttons - far right */}
-        <div className="box-border content-stretch flex items-center gap-2 px-[7px] py-[2px] relative shrink-0">
-          {!user && onSignIn && (
-            <button
-              onClick={onSignIn}
-              className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#b8c8cb] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[11px] text-black"
-            >
-              Sign In
-            </button>
-          )}
-          {user && (
-            <TooltipProvider delayDuration={300}>
-              <UITooltip>
-                <TooltipTrigger asChild>
-                  <div className="flex items-center gap-1 px-2 py-1 bg-white/50 dark:bg-black/20 rounded-md border border-[#211f1c]/20 dark:border-white/20">
-                    <User size={12} className="text-black dark:text-white" />
-                    <span className="font-['Sniglet:Regular',_sans-serif] text-[10px] text-black dark:text-white max-w-[100px] truncate">
-                      {user.name || user.email.split('@')[0]}
-                    </span>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent side="bottom" className="bg-black text-white border-black">
-                  <p className="font-['Sniglet:Regular',_sans-serif] text-[11px]">{user.email}</p>
-                </TooltipContent>
-              </UITooltip>
-            </TooltipProvider>
-          )}
-          {user && userRole === 'admin' && (
-            <button
-              onClick={handleAdminToggle}
-              className={`px-2 py-1 rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[10px] text-black dark:text-white uppercase ${
-                settings.adminMode 
-                  ? 'bg-[#e4e3ac] shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]' 
-                  : 'bg-[#e6beb5]'
-              }`}
-            >
-              Admin
-            </button>
-          )}
-          {user && onLogout && (
-            <TooltipProvider delayDuration={300}>
-              <UITooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={onLogout}
-                    className="p-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#e6beb5] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
-                  >
-                    <LogOut size={12} className="text-black" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom" className="bg-black text-white border-black">
-                  <p className="font-['Sniglet:Regular',_sans-serif] text-[11px]">Sign out</p>
-                </TooltipContent>
-              </UITooltip>
-            </TooltipProvider>
-          )}
+          <p className="basis-0 font-['Sniglet:Regular',_sans-serif] grow leading-[25px] min-h-px min-w-px not-italic relative shrink-0 text-[20px] text-black dark:text-white text-center uppercase">{title}</p>
         </div>
       </div>
     </div>
@@ -321,7 +280,56 @@ function StatusBar({ title, currentView, onViewChange, syncStatus, user, userRol
       <div aria-hidden="true" className="absolute border-[#211f1c] dark:border-white/20 border-[0px_0px_1.5px] border-solid inset-0 pointer-events-none" />
       <div className="min-w-inherit size-full">
         <div className="box-border content-stretch flex h-[42px] items-center justify-between min-w-inherit px-[5px] py-0 relative w-full">
-          <RetroButtons title={title} currentView={currentView} onViewChange={onViewChange} user={user} userRole={userRole} onLogout={onLogout} onSignIn={onSignIn} />
+          <RetroButtons title={title} />
+          
+          <div className="flex items-center gap-2">
+            {/* User Controls */}
+            {!user && onSignIn && (
+              <button
+                onClick={onSignIn}
+                className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#b8c8cb] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[11px] text-black"
+              >
+                Sign In
+              </button>
+            )}
+            {user && (
+              <>
+                <TooltipProvider delayDuration={300}>
+                  <UITooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center gap-1 px-2 py-1 bg-white/50 dark:bg-black/20 rounded-md border border-[#211f1c]/20 dark:border-white/20">
+                        <User size={12} className="text-black dark:text-white" />
+                        <span className="font-['Sniglet:Regular',_sans-serif] text-[10px] text-black dark:text-white max-w-[100px] truncate">
+                          {user.name || user.email.split('@')[0]}
+                        </span>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="bg-black text-white border-black">
+                      <p className="font-['Sniglet:Regular',_sans-serif] text-[11px]">{user.email}</p>
+                    </TooltipContent>
+                  </UITooltip>
+                </TooltipProvider>
+                {userRole === 'admin' && <AdminModeButton currentView={currentView} onViewChange={onViewChange} />}
+                {onLogout && (
+                  <TooltipProvider delayDuration={300}>
+                    <UITooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={onLogout}
+                          className="p-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#e6beb5] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                        >
+                          <LogOut size={12} className="text-black" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="bg-black text-white border-black">
+                        <p className="font-['Sniglet:Regular',_sans-serif] text-[11px]">Sign out</p>
+                      </TooltipContent>
+                    </UITooltip>
+                  </TooltipProvider>
+                )}
+              </>
+            )}
+          </div>
           {user && syncStatus && (
             <div className="flex items-center justify-center gap-2 px-3 h-full">
               <TooltipProvider delayDuration={300}>
