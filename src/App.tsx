@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import svgPaths from "./imports/svg-qhqftidoeu";
-import { Plus, Edit2, Trash2, Search, ArrowLeft, Upload, Image as ImageIcon, ChevronDown, Copy, Check, Type, Eye, RotateCcw, Moon, Save, X, Download, FileUp, Cloud, CloudOff } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, ArrowLeft, Upload, Image as ImageIcon, ChevronDown, Copy, Check, Type, Eye, RotateCcw, Moon, Save, X, Download, FileUp, Cloud, CloudOff, LogOut, User } from 'lucide-react';
 import * as api from './utils/api';
+import { AuthView } from './components/AuthView';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from './components/ui/collapsible';
 import { RadialBarChart, RadialBar, ResponsiveContainer, Legend, Tooltip, PolarAngleAxis, Cell, Text } from 'recharts';
 import ReactMarkdown from 'react-markdown';
@@ -11,6 +12,7 @@ import rehypeKatex from 'rehype-katex';
 import { MethodologyListView, WhitepaperView } from './components/WhitepaperViews';
 import { AnimatedWasteChart } from './components/AnimatedWasteChart';
 import { AccessibilityProvider, useAccessibility } from './components/AccessibilityContext';
+import { UserManagementView } from './components/UserManagementView';
 import { Popover, PopoverContent, PopoverTrigger } from './components/ui/popover';
 import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './components/ui/tooltip';
 import { Switch } from './components/ui/switch';
@@ -58,15 +60,15 @@ interface Material {
 
 type CategoryType = 'compostability' | 'recyclability' | 'reusability';
 
-function RetroButtons({ title, currentView, onViewChange }: { title: string; currentView: any; onViewChange: (view: any) => void }) {
+function RetroButtons({ title, currentView, onViewChange, user, userRole, onLogout, onSignIn }: { title: string; currentView: any; onViewChange: (view: any) => void; user?: { id: string; email: string; name?: string }; userRole?: 'user' | 'admin'; onLogout?: () => void; onSignIn?: () => void }) {
   const { settings, setFontSize, toggleHighContrast, toggleNoPastel, toggleReduceMotion, toggleDarkMode, toggleAdminMode, resetSettings } = useAccessibility();
   const [redOpen, setRedOpen] = useState(false);
   const [yellowOpen, setYellowOpen] = useState(false);
   const [blueOpen, setBlueOpen] = useState(false);
   
   const handleAdminToggle = () => {
-    // If turning off admin mode and currently on data-management page, go back to materials
-    if (settings.adminMode && currentView.type === 'data-management') {
+    // If turning off admin mode and currently on data-management or user-management page, go back to materials
+    if (settings.adminMode && (currentView.type === 'data-management' || currentView.type === 'user-management')) {
       onViewChange({ type: 'materials' });
     }
     toggleAdminMode();
@@ -249,33 +251,77 @@ function RetroButtons({ title, currentView, onViewChange }: { title: string; cur
 
         <p className="basis-0 font-['Sniglet:Regular',_sans-serif] grow leading-[25px] min-h-px min-w-px not-italic relative shrink-0 text-[20px] text-black dark:text-white text-center uppercase">{title}</p>
 
-        {/* ADMIN button - far right */}
-        <div className="box-border content-stretch flex items-center px-[7px] py-[2px] relative shrink-0">
-          <button
-            onClick={handleAdminToggle}
-            className={`px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[11px] text-black uppercase ${
-              settings.adminMode 
-                ? 'bg-[#e4e3ac] shadow-[2px_2px_0px_0px_#000000]' 
-                : 'bg-[#e6beb5]'
-            }`}
-          >
-            Admin
-          </button>
+        {/* User info and buttons - far right */}
+        <div className="box-border content-stretch flex items-center gap-2 px-[7px] py-[2px] relative shrink-0">
+          {!user && onSignIn && (
+            <button
+              onClick={onSignIn}
+              className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#b8c8cb] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[11px] text-black"
+            >
+              Sign In
+            </button>
+          )}
+          {user && (
+            <TooltipProvider delayDuration={300}>
+              <UITooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center gap-1 px-2 py-1 bg-white/50 dark:bg-black/20 rounded-md border border-[#211f1c]/20 dark:border-white/20">
+                    <User size={12} className="text-black dark:text-white" />
+                    <span className="font-['Sniglet:Regular',_sans-serif] text-[10px] text-black dark:text-white max-w-[100px] truncate">
+                      {user.name || user.email.split('@')[0]}
+                    </span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="bg-black text-white border-black">
+                  <p className="font-['Sniglet:Regular',_sans-serif] text-[11px]">{user.email}</p>
+                </TooltipContent>
+              </UITooltip>
+            </TooltipProvider>
+          )}
+          {user && userRole === 'admin' && (
+            <button
+              onClick={handleAdminToggle}
+              className={`px-2 py-1 rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[10px] text-black dark:text-white uppercase ${
+                settings.adminMode 
+                  ? 'bg-[#e4e3ac] shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]' 
+                  : 'bg-[#e6beb5]'
+              }`}
+            >
+              Admin
+            </button>
+          )}
+          {user && onLogout && (
+            <TooltipProvider delayDuration={300}>
+              <UITooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={onLogout}
+                    className="p-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#e6beb5] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                  >
+                    <LogOut size={12} className="text-black" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="bg-black text-white border-black">
+                  <p className="font-['Sniglet:Regular',_sans-serif] text-[11px]">Sign out</p>
+                </TooltipContent>
+              </UITooltip>
+            </TooltipProvider>
+          )}
         </div>
       </div>
     </div>
   );
 }
 
-function StatusBar({ title, currentView, onViewChange, syncStatus }: { title: string; currentView: any; onViewChange: (view: any) => void; syncStatus?: 'synced' | 'syncing' | 'offline' | 'error' }) {
+function StatusBar({ title, currentView, onViewChange, syncStatus, user, userRole, onLogout, onSignIn }: { title: string; currentView: any; onViewChange: (view: any) => void; syncStatus?: 'synced' | 'syncing' | 'offline' | 'error'; user?: { id: string; email: string; name?: string }; userRole?: 'user' | 'admin'; onLogout?: () => void; onSignIn?: () => void }) {
   return (
     <div className="h-[42px] min-w-[400px] relative shrink-0 w-full">
       <div aria-hidden="true" className="absolute border-[#211f1c] dark:border-white/20 border-[0px_0px_1.5px] border-solid inset-0 pointer-events-none" />
       <div className="min-w-inherit size-full">
         <div className="box-border content-stretch flex h-[42px] items-start justify-between min-w-inherit px-[5px] py-0 relative w-full">
-          <RetroButtons title={title} currentView={currentView} onViewChange={onViewChange} />
-          {syncStatus && (
-            <div className="flex items-center gap-2 px-3">
+          <RetroButtons title={title} currentView={currentView} onViewChange={onViewChange} user={user} userRole={userRole} onLogout={onLogout} onSignIn={onSignIn} />
+          {user && syncStatus && (
+            <div className="flex items-center justify-center gap-2 px-3 h-full">
               <TooltipProvider delayDuration={300}>
                 <UITooltip>
                   <TooltipTrigger>
@@ -446,16 +492,16 @@ function MaterialCard({
   onEdit, 
   onDelete,
   onViewArticles,
-  onViewMaterial
+  onViewMaterial,
+  isAdminModeActive
 }: { 
   material: Material; 
   onEdit: () => void; 
   onDelete: () => void;
   onViewArticles: (category: CategoryType) => void;
   onViewMaterial: () => void;
+  isAdminModeActive?: boolean;
 }) {
-  const { settings } = useAccessibility();
-
   return (
     <div className="bg-white dark:bg-[#2a2825] relative rounded-[11.464px] p-4 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] border-[1.5px] border-[#211f1c] dark:border-white/20">
       <div className="flex justify-between items-start mb-3">
@@ -470,7 +516,7 @@ function MaterialCard({
             {material.category}
           </span>
         </div>
-        {settings.adminMode && (
+        {isAdminModeActive && (
           <div className="flex gap-2">
             <button
               onClick={onEdit}
@@ -746,7 +792,8 @@ function ArticleCard({
   onDelete,
   hideActions = false,
   sustainabilityCategory,
-  onReadMore
+  onReadMore,
+  isAdminModeActive
 }: { 
   article: Article; 
   onEdit: () => void; 
@@ -754,9 +801,8 @@ function ArticleCard({
   hideActions?: boolean;
   sustainabilityCategory?: { label: string; color: string };
   onReadMore?: () => void;
+  isAdminModeActive?: boolean;
 }) {
-  const { settings } = useAccessibility();
-
   return (
     <div className="bg-white relative rounded-[11.464px] p-4 shadow-[3px_4px_0px_-1px_#000000] border-[1.5px] border-[#211f1c]">
       <div className="flex justify-between items-start mb-3">
@@ -787,7 +833,7 @@ function ArticleCard({
             )}
           </div>
         </div>
-        {!hideActions && settings.adminMode && (
+        {!hideActions && isAdminModeActive && (
           <div className="flex gap-2">
             <button
               onClick={onEdit}
@@ -1059,15 +1105,16 @@ function ArticlesView({
   category, 
   onBack,
   onUpdateMaterial,
-  onViewArticleStandalone
+  onViewArticleStandalone,
+  isAdminModeActive
 }: { 
   material: Material; 
   category: CategoryType;
   onBack: () => void;
   onUpdateMaterial: (material: Material) => void;
   onViewArticleStandalone: (articleId: string) => void;
+  isAdminModeActive?: boolean;
 }) {
-  const { settings } = useAccessibility();
   const [showForm, setShowForm] = useState(false);
   const [editingArticle, setEditingArticle] = useState<Article | null>(null);
 
@@ -1157,7 +1204,7 @@ function ArticlesView({
             {articles.length} article{articles.length !== 1 ? 's' : ''}
           </p>
         </div>
-        {settings.adminMode && (
+        {isAdminModeActive && (
           <button
             onClick={() => {
               setShowForm(true);
@@ -1194,6 +1241,7 @@ function ArticlesView({
             }}
             onDelete={() => handleDeleteArticle(article.id)}
             onReadMore={() => onViewArticleStandalone(article.id)}
+            isAdminModeActive={isAdminModeActive}
           />
         ))}
       </div>
@@ -1214,13 +1262,15 @@ function MaterialDetailView({
   onBack,
   onViewArticles,
   onUpdateMaterial,
-  onViewArticleStandalone
+  onViewArticleStandalone,
+  isAdminModeActive
 }: {
   material: Material;
   onBack: () => void;
   onViewArticles: (category: CategoryType) => void;
   onUpdateMaterial: (material: Material) => void;
   onViewArticleStandalone: (articleId: string, category: CategoryType) => void;
+  isAdminModeActive?: boolean;
 }) {
   const categoryLabels = {
     compostability: 'Compostability',
@@ -1366,6 +1416,7 @@ function MaterialDetailView({
                   color: categoryColors[category]
                 }}
                 onReadMore={() => onViewArticleStandalone(article.id, category)}
+                isAdminModeActive={isAdminModeActive}
               />
             ))}
           </div>
@@ -1620,7 +1671,8 @@ function StandaloneArticleView({
   materialName,
   onBack,
   onEdit,
-  onDelete
+  onDelete,
+  isAdminModeActive
 }: {
   article: Article;
   sustainabilityCategory?: { label: string; color: string };
@@ -1628,8 +1680,8 @@ function StandaloneArticleView({
   onBack: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
+  isAdminModeActive?: boolean;
 }) {
-  const { settings } = useAccessibility();
   const [copied, setCopied] = useState(false);
 
   const permalink = `${window.location.origin}${window.location.pathname}?article=${article.id}`;
@@ -1672,7 +1724,7 @@ function StandaloneArticleView({
             )}
           </div>
         </div>
-        {onEdit && onDelete && settings.adminMode && (
+        {onEdit && onDelete && isAdminModeActive && (
           <div className="flex gap-2">
             <button
               onClick={onEdit}
@@ -2254,23 +2306,61 @@ function DataManagementView({
 }
 
 function AppContent() {
-  const { settings } = useAccessibility();
+  const { settings, toggleAdminMode } = useAccessibility();
+  const [user, setUser] = useState<{ id: string; email: string; name?: string } | null>(null);
+  const [userRole, setUserRole] = useState<'user' | 'admin'>('user');
   const [materials, setMaterials] = useState<Material[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [editingMaterial, setEditingMaterial] = useState<Material | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const [currentView, setCurrentView] = useState<{ type: 'materials' } | { type: 'articles'; materialId: string; category: CategoryType } | { type: 'all-articles'; category: CategoryType } | { type: 'material-detail'; materialId: string } | { type: 'article-standalone'; articleId: string; materialId: string; category: CategoryType } | { type: 'recyclability-calculation' } | { type: 'methodology-list' } | { type: 'whitepaper'; whitepaperId: string } | { type: 'data-management' }>({ type: 'materials' });
+  const [currentView, setCurrentView] = useState<{ type: 'materials' } | { type: 'articles'; materialId: string; category: CategoryType } | { type: 'all-articles'; category: CategoryType } | { type: 'material-detail'; materialId: string } | { type: 'article-standalone'; articleId: string; materialId: string; category: CategoryType } | { type: 'recyclability-calculation' } | { type: 'methodology-list' } | { type: 'whitepaper'; whitepaperId: string } | { type: 'data-management' } | { type: 'user-management' }>({ type: 'materials' });
   const [articleToOpen, setArticleToOpen] = useState<string | null>(null);
-  const [syncStatus, setSyncStatus] = useState<'synced' | 'syncing' | 'offline' | 'error'>('offline');
+  const [syncStatus, setSyncStatus] = useState<'synced' | 'syncing' | 'offline' | 'error'>('syncing');
   const [supabaseAvailable, setSupabaseAvailable] = useState(true);
-
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  
+  // Check if user is authenticated on mount and fetch their role
   useEffect(() => {
-    // Load materials from Supabase, fallback to localStorage
+    const loadUserAndRole = async () => {
+      const isAuth = api.isAuthenticated();
+      if (isAuth) {
+        // Get user info from sessionStorage if available
+        const userInfo = sessionStorage.getItem('wastedb_user');
+        if (userInfo) {
+          setUser(JSON.parse(userInfo));
+          
+          // Fetch user role
+          try {
+            const role = await api.getUserRole();
+            setUserRole(role);
+          } catch (error) {
+            console.error('Error fetching user role:', error);
+            setUserRole('user'); // Default to user role on error
+          }
+        }
+      } else {
+        // Not authenticated - ensure admin mode is off
+        if (settings.adminMode) {
+          toggleAdminMode();
+        }
+      }
+    };
+    
+    loadUserAndRole();
+  }, []);
+
+  // Load materials from Supabase (if authenticated), fallback to localStorage
+  useEffect(() => {
     const loadMaterials = async () => {
-      setSyncStatus('syncing');
+      console.log('📂 Starting material load process, user:', user ? user.email : 'not logged in');
+      // Try to load from Supabase first (works for both authenticated and unauthenticated users)
       try {
-        // Try to load from Supabase first
+        console.log('📡 Fetching materials from Supabase...');
+        const startTime = Date.now();
         const supabaseMaterials = await api.getAllMaterials();
+        const endTime = Date.now();
+        console.log(`📡 Supabase fetch completed in ${endTime - startTime}ms, got ${supabaseMaterials.length} materials`);
+        
         if (supabaseMaterials.length > 0) {
           // Ensure all materials have articles structure and category
           const materialsWithArticles = supabaseMaterials.map((m: any) => ({
@@ -2285,21 +2375,31 @@ function AppContent() {
           setMaterials(materialsWithArticles);
           // Sync to localStorage as cache
           localStorage.setItem('materials', JSON.stringify(materialsWithArticles));
-          setSyncStatus('synced');
+          if (user) {
+            console.log('✅ Setting sync status to "synced" (user authenticated)');
+            setSyncStatus('synced');
+          }
           setSupabaseAvailable(true);
-          console.log('Materials loaded from Supabase');
+          console.log('✅ Materials loaded from Supabase successfully');
         } else {
+          console.log('⚠️ Supabase returned 0 materials, loading from localStorage');
           // If Supabase is empty, load from localStorage or initialize sample data
           loadFromLocalStorage();
-          setSyncStatus('synced');
+          if (user) {
+            console.log('✅ Setting sync status to "synced" (empty Supabase but user authenticated)');
+            setSyncStatus('synced');
+          }
           setSupabaseAvailable(true);
         }
       } catch (error) {
-        console.warn('Supabase unavailable, loading from localStorage:', error);
+        console.warn('❌ Supabase unavailable during load, loading from localStorage:', error);
         setSupabaseAvailable(false);
         loadFromLocalStorage();
-        setSyncStatus('offline');
-        toast.warning('Working offline - data stored locally only');
+        if (user) {
+          console.log('⚠️ Setting sync status to "offline" and showing toast');
+          setSyncStatus('offline');
+          toast.warning('Working offline - data stored locally only');
+        }
       }
     };
 
@@ -2335,7 +2435,7 @@ function AppContent() {
     if (articleId) {
       setArticleToOpen(articleId);
     }
-  }, []);
+  }, [user]);
 
   // Navigate to article when articleToOpen is set and materials are loaded
   useEffect(() => {
@@ -2355,6 +2455,35 @@ function AppContent() {
       }
     }
   }, [articleToOpen, materials]);
+
+  const handleAuthSuccess = async (userData: { id: string; email: string; name?: string }) => {
+    setUser(userData);
+    sessionStorage.setItem('wastedb_user', JSON.stringify(userData));
+    
+    // Fetch user role after successful auth
+    try {
+      const role = await api.getUserRole();
+      setUserRole(role);
+    } catch (error) {
+      console.error('Error fetching user role:', error);
+      setUserRole('user'); // Default to user role on error
+    }
+  };
+
+  const handleLogout = () => {
+    api.signOut();
+    setUser(null);
+    setUserRole('user');
+    sessionStorage.removeItem('wastedb_user');
+    setMaterials([]);
+    
+    // Turn off admin mode when logging out
+    if (settings.adminMode) {
+      toggleAdminMode();
+    }
+    
+    toast.success('Signed out successfully');
+  };
 
   const initializeSampleData = () => {
     const sampleMaterials: Material[] = [
@@ -2442,22 +2571,56 @@ function AppContent() {
     setMaterials(newMaterials);
     localStorage.setItem('materials', JSON.stringify(newMaterials));
     
-    // Sync to Supabase if available
-    if (supabaseAvailable) {
-      try {
-        setSyncStatus('syncing');
-        await api.batchSaveMaterials(newMaterials);
-        setSyncStatus('synced');
-      } catch (error) {
-        console.error('Failed to sync to Supabase:', error);
-        setSyncStatus('error');
-        setSupabaseAvailable(false);
-        toast.error('Failed to sync to cloud - saved locally');
+    // Sync to Supabase only if user is authenticated, has admin role, and supabase is available
+    if (user && userRole === 'admin' && supabaseAvailable) {
+      setSyncStatus('syncing');
+      console.log('🔄 Starting sync process...');
+      
+      // Try syncing with retry logic
+      let lastError: any = null;
+      const maxRetries = 2;
+      const retryDelay = 1000; // 1 second
+      
+      for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+          console.log(`🔄 Sync attempt ${attempt + 1}/${maxRetries + 1} starting...`);
+          const startTime = Date.now();
+          await api.batchSaveMaterials(newMaterials);
+          const endTime = Date.now();
+          console.log(`✅ Sync succeeded on attempt ${attempt + 1} (took ${endTime - startTime}ms)`);
+          setSyncStatus('synced');
+          return; // Success, exit early
+        } catch (error) {
+          lastError = error;
+          console.warn(`❌ Sync attempt ${attempt + 1}/${maxRetries + 1} failed:`, error);
+          
+          // If not the last attempt, wait before retrying
+          if (attempt < maxRetries) {
+            console.log(`⏳ Waiting ${retryDelay}ms before retry...`);
+            await new Promise(resolve => setTimeout(resolve, retryDelay));
+          }
+        }
       }
+      
+      // All retries failed
+      console.error('💥 Failed to sync to Supabase after all retries:', lastError);
+      setSyncStatus('error');
+      setSupabaseAvailable(false);
+      toast.error('Failed to sync to cloud - saved locally');
     }
   };
 
   const retrySync = async () => {
+    if (!user) {
+      toast.info('Please sign in to sync to cloud');
+      return;
+    }
+    
+    if (userRole !== 'admin') {
+      toast.info('Only admins can sync data to cloud');
+      return;
+    }
+    
     if (materials.length === 0) {
       toast.info('No data to sync');
       return;
@@ -2484,6 +2647,7 @@ function AppContent() {
     };
     saveMaterials([...materials, newMaterial]);
     setShowForm(false);
+    toast.success(`Added ${materialData.name} successfully`);
   };
 
   const handleUpdateMaterial = (materialData: Omit<Material, 'id'> | Material) => {
@@ -2494,9 +2658,11 @@ function AppContent() {
         // Update existing material
         const updated = materials.map(m => m.id === materialData.id ? materialData : m);
         saveMaterials(updated);
+        toast.success(`Updated ${materialData.name} successfully`);
       } else {
         // Add new material (e.g., from CSV import)
         saveMaterials([...materials, materialData]);
+        toast.success(`Added ${materialData.name} successfully`);
       }
     } else {
       // Update from form (preserves id and articles)
@@ -2509,12 +2675,17 @@ function AppContent() {
       saveMaterials(updated);
       setEditingMaterial(null);
       setShowForm(false);
+      toast.success(`Updated ${materialData.name} successfully`);
     }
   };
 
   const handleDeleteMaterial = (id: string) => {
+    const material = materials.find(m => m.id === id);
     if (confirm('Are you sure you want to delete this material?')) {
       saveMaterials(materials.filter(m => m.id !== id));
+      if (material) {
+        toast.success(`Deleted ${material.name} successfully`);
+      }
     }
   };
 
@@ -2543,22 +2714,44 @@ function AppContent() {
     ? materials.find(m => m.id === currentView.materialId) 
     : null;
 
+  // Admin mode is only active if user is authenticated, has admin role, AND has toggled admin mode on
+  const isAdminModeActive = user && userRole === 'admin' && settings.adminMode;
+
   return (
-    <div 
-      className="min-h-screen p-8 bg-[#faf7f2] dark:bg-[#1a1917]"
-      style={{
-        backgroundImage: `url("https://www.transparenttextures.com/patterns/3px-tile.png")`,
-        backgroundSize: '3px 3px'
-      }}
-    >
-      <div className="max-w-6xl mx-auto">
-        <div className="bg-[#faf7f2] dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 overflow-hidden mb-6">
-          <StatusBar title="WasteDB" currentView={currentView} onViewChange={setCurrentView} syncStatus={syncStatus} />
+    <>
+      {/* Auth Modal */}
+      {showAuthModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="relative max-w-md w-full">
+            <button
+              onClick={() => setShowAuthModal(false)}
+              className="absolute -top-2 -right-2 z-10 p-2 rounded-full bg-[#e6beb5] border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+            >
+              <X size={16} className="text-black" />
+            </button>
+            <AuthView onAuthSuccess={(userData) => {
+              handleAuthSuccess(userData);
+              setShowAuthModal(false);
+            }} />
+          </div>
+        </div>
+      )}
+      
+      <div 
+        className="min-h-screen p-8 bg-[#faf7f2] dark:bg-[#1a1917]"
+        style={{
+          backgroundImage: `url("https://www.transparenttextures.com/patterns/3px-tile.png")`,
+          backgroundSize: '3px 3px'
+        }}
+      >
+        <div className="max-w-6xl mx-auto">
+          <div className="bg-[#faf7f2] dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 overflow-hidden mb-6">
+            <StatusBar title="WasteDB" currentView={currentView} onViewChange={setCurrentView} syncStatus={syncStatus} user={user} userRole={userRole} onLogout={handleLogout} onSignIn={() => setShowAuthModal(true)} />
           
           {currentView.type === 'materials' ? (
             <div className="p-6">
-              {/* Sync error/offline banner */}
-              {(syncStatus === 'error' || syncStatus === 'offline') && (
+              {/* Sync error/offline banner - only show for authenticated users */}
+              {user && (syncStatus === 'error' || syncStatus === 'offline') && (
                 <div className="mb-4 p-3 bg-[#e6beb5] dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px] flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <CloudOff size={16} className="text-black dark:text-white" />
@@ -2580,23 +2773,29 @@ function AppContent() {
                 {/* Left column: Search bar, Add Material button, and Methodology link (vertically centered) */}
                 <div className="w-full lg:w-96 flex flex-col justify-center gap-4">
                   <SearchBar value={searchQuery} onChange={setSearchQuery} />
-                  {settings.adminMode && (
+                  {isAdminModeActive && (
                     <div className="flex gap-2">
                       <button
                         onClick={() => {
                           setShowForm(true);
                           setEditingMaterial(null);
                         }}
-                        className="bg-[#b8c8cb] h-[40px] px-6 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[14px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-2"
+                        className="bg-[#b8c8cb] h-[40px] px-3 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-2"
                       >
-                        <Plus size={16} className="text-black" />
+                        <Plus size={14} className="text-black" />
                         Add Material
                       </button>
                       <button
                         onClick={() => setCurrentView({ type: 'data-management' })}
-                        className="bg-[#e4e3ac] h-[40px] px-6 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[14px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
+                        className="bg-[#e4e3ac] h-[40px] px-3 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
                       >
                         Manage Data
+                      </button>
+                      <button
+                        onClick={() => setCurrentView({ type: 'user-management' })}
+                        className="bg-[#e6beb5] h-[40px] px-3 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
+                      >
+                        User Admin
                       </button>
                     </div>
                   )}
@@ -2677,6 +2876,7 @@ function AppContent() {
                     onDelete={() => handleDeleteMaterial(material.id)}
                     onViewArticles={(category) => handleViewArticles(material.id, category)}
                     onViewMaterial={() => handleViewMaterial(material.id)}
+                    isAdminModeActive={isAdminModeActive}
                   />
                 ))}
               </div>
@@ -2696,6 +2896,7 @@ function AppContent() {
               onBack={() => setCurrentView({ type: 'materials' })}
               onUpdateMaterial={handleUpdateMaterial}
               onViewArticleStandalone={(articleId) => handleViewArticleStandalone(currentMaterial.id, articleId, currentView.category)}
+              isAdminModeActive={isAdminModeActive}
             />
           ) : currentView.type === 'all-articles' ? (
             <AllArticlesView
@@ -2711,6 +2912,7 @@ function AppContent() {
               onViewArticles={(category) => handleViewArticles(currentMaterial.id, category)}
               onUpdateMaterial={handleUpdateMaterial}
               onViewArticleStandalone={(articleId, category) => handleViewArticleStandalone(currentMaterial.id, articleId, category)}
+              isAdminModeActive={isAdminModeActive}
             />
           ) : currentMaterial && currentView.type === 'article-standalone' ? (
             <StandaloneArticleView
@@ -2738,6 +2940,7 @@ function AppContent() {
                   setCurrentView({ type: 'material-detail', materialId: currentMaterial.id });
                 }
               }}
+              isAdminModeActive={isAdminModeActive}
             />
           ) : currentView.type === 'methodology-list' ? (
             <MethodologyListView
@@ -2772,10 +2975,16 @@ function AppContent() {
                 setCurrentView({ type: 'materials' });
               }}
             />
+          ) : currentView.type === 'user-management' ? (
+            <UserManagementView
+              onBack={() => setCurrentView({ type: 'materials' })}
+              currentUserId={user?.id || ''}
+            />
           ) : null}
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
 
