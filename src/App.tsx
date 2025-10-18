@@ -2335,7 +2335,16 @@ function AppContent() {
             setUserRole(role);
           } catch (error) {
             console.error('Error fetching user role:', error);
-            setUserRole('user'); // Default to user role on error
+            // If role fetch fails (likely expired session), clear user state
+            if (!api.isAuthenticated()) {
+              setUser(null);
+              setUserRole('user');
+              if (settings.adminMode) {
+                toggleAdminMode();
+              }
+            } else {
+              setUserRole('user'); // Default to user role on error
+            }
           }
         }
       } else {
@@ -2352,14 +2361,9 @@ function AppContent() {
   // Load materials from Supabase (if authenticated), fallback to localStorage
   useEffect(() => {
     const loadMaterials = async () => {
-      console.log('📂 Starting material load process, user:', user ? user.email : 'not logged in');
       // Try to load from Supabase first (works for both authenticated and unauthenticated users)
       try {
-        console.log('📡 Fetching materials from Supabase...');
-        const startTime = Date.now();
         const supabaseMaterials = await api.getAllMaterials();
-        const endTime = Date.now();
-        console.log(`📡 Supabase fetch completed in ${endTime - startTime}ms, got ${supabaseMaterials.length} materials`);
         
         if (supabaseMaterials.length > 0) {
           // Ensure all materials have articles structure and category
@@ -2376,27 +2380,21 @@ function AppContent() {
           // Sync to localStorage as cache
           localStorage.setItem('materials', JSON.stringify(materialsWithArticles));
           if (user) {
-            console.log('✅ Setting sync status to "synced" (user authenticated)');
             setSyncStatus('synced');
           }
           setSupabaseAvailable(true);
-          console.log('✅ Materials loaded from Supabase successfully');
         } else {
-          console.log('⚠️ Supabase returned 0 materials, loading from localStorage');
           // If Supabase is empty, load from localStorage or initialize sample data
           loadFromLocalStorage();
           if (user) {
-            console.log('✅ Setting sync status to "synced" (empty Supabase but user authenticated)');
             setSyncStatus('synced');
           }
           setSupabaseAvailable(true);
         }
       } catch (error) {
-        console.warn('❌ Supabase unavailable during load, loading from localStorage:', error);
         setSupabaseAvailable(false);
         loadFromLocalStorage();
         if (user) {
-          console.log('⚠️ Setting sync status to "offline" and showing toast');
           setSyncStatus('offline');
           toast.warning('Working offline - data stored locally only');
         }
@@ -2574,7 +2572,6 @@ function AppContent() {
     // Sync to Supabase only if user is authenticated, has admin role, and supabase is available
     if (user && userRole === 'admin' && supabaseAvailable) {
       setSyncStatus('syncing');
-      console.log('🔄 Starting sync process...');
       
       // Try syncing with retry logic
       let lastError: any = null;
@@ -2583,27 +2580,20 @@ function AppContent() {
       
       for (let attempt = 0; attempt <= maxRetries; attempt++) {
         try {
-          console.log(`🔄 Sync attempt ${attempt + 1}/${maxRetries + 1} starting...`);
-          const startTime = Date.now();
           await api.batchSaveMaterials(newMaterials);
-          const endTime = Date.now();
-          console.log(`✅ Sync succeeded on attempt ${attempt + 1} (took ${endTime - startTime}ms)`);
           setSyncStatus('synced');
           return; // Success, exit early
         } catch (error) {
           lastError = error;
-          console.warn(`❌ Sync attempt ${attempt + 1}/${maxRetries + 1} failed:`, error);
           
           // If not the last attempt, wait before retrying
           if (attempt < maxRetries) {
-            console.log(`⏳ Waiting ${retryDelay}ms before retry...`);
             await new Promise(resolve => setTimeout(resolve, retryDelay));
           }
         }
       }
       
       // All retries failed
-      console.error('💥 Failed to sync to Supabase after all retries:', lastError);
       setSyncStatus('error');
       setSupabaseAvailable(false);
       toast.error('Failed to sync to cloud - saved locally');
@@ -2633,7 +2623,6 @@ function AppContent() {
       setSupabaseAvailable(true);
       toast.success('Successfully synced to cloud');
     } catch (error) {
-      console.error('Failed to retry sync:', error);
       setSyncStatus('error');
       setSupabaseAvailable(false);
       toast.error('Sync failed - check your connection');
@@ -2966,7 +2955,6 @@ function AppContent() {
                     await api.deleteAllMaterials();
                     toast.success('All data deleted from cloud and locally');
                   } catch (error) {
-                    console.error('Failed to delete from Supabase:', error);
                     toast.success('All data deleted locally');
                   }
                 } else {

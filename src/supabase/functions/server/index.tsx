@@ -1,12 +1,8 @@
 import { Hono } from "npm:hono";
 import { cors } from "npm:hono/cors";
-import { logger } from "npm:hono/logger";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import * as kv from "./kv_store.tsx";
 const app = new Hono();
-
-// Enable logger
-app.use('*', logger(console.log));
 
 // Enable CORS for all routes and methods
 app.use(
@@ -440,5 +436,38 @@ app.put("/make-server-17cae920/users/:id", verifyAuth, verifyAdmin, async (c) =>
     return c.json({ error: "Failed to update user", details: String(error) }, 500);
   }
 });
+
+// Initialize admin user on startup
+async function initializeAdminUser() {
+  try {
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+    );
+
+    // Check if admin user exists
+    const { data: users } = await supabase.auth.admin.listUsers();
+    const adminExists = users?.users?.some(u => u.email === 'natto@wastefull.org');
+
+    if (!adminExists) {
+      const { data, error } = await supabase.auth.admin.createUser({
+        email: 'natto@wastefull.org',
+        password: 'admin123',
+        user_metadata: { name: 'Nao' },
+        email_confirm: true,
+      });
+
+      if (!error && data) {
+        // Set admin role in KV store
+        await kv.set(`user_role:${data.user.id}`, 'admin');
+      }
+    }
+  } catch (error) {
+    // Silently fail - admin can be created manually if needed
+  }
+}
+
+// Run initialization
+initializeAdminUser();
 
 Deno.serve(app.fetch);
