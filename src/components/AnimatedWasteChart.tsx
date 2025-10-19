@@ -20,6 +20,11 @@ interface AnimatedWasteChartProps {
 export function AnimatedWasteChart({ chartData, onCategoryClick }: AnimatedWasteChartProps) {
   const { settings } = useAccessibility();
   const [hasAnimated, setHasAnimated] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  
+  // Calculate font scale based on accessibility settings
+  const fontScale = settings.fontSize === 'large' ? 1.15 : 
+                    settings.fontSize === 'xlarge' ? 1.3 : 1;
 
   useEffect(() => {
     // Only animate once when component first mounts
@@ -28,6 +33,18 @@ export function AnimatedWasteChart({ chartData, onCategoryClick }: AnimatedWaste
     return () => {
       clearTimeout(timer);
     };
+  }, []);
+
+  useEffect(() => {
+    // Detect mobile screen size
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   // Hide component if user has reduced motion enabled
@@ -63,6 +80,11 @@ export function AnimatedWasteChart({ chartData, onCategoryClick }: AnimatedWaste
   const centerY = 120;
   const initialRadius = 180;
   const finalRadius = 250; // Much tighter final curve to hug the donut (higher value = tighter curve)
+  // On mobile, use a deeper curve to prevent text cutoff
+  const mobileCurveOffset = isMobile ? 50 : 80;
+  // On mobile, increase padding to prevent side cutoff
+  const pathStart = isMobile ? 70 : 50;
+  const pathEnd = isMobile ? 430 : 450;
 
   return (
     <div className="bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 p-3 lg:p-4 shadow-sm overflow-hidden">
@@ -74,21 +96,21 @@ export function AnimatedWasteChart({ chartData, onCategoryClick }: AnimatedWaste
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 1.2, ease: "easeOut" }}
         >
-          <svg width="500" height="140" viewBox="0 0 500 140" className="overflow-visible">
+          <svg width="500" height="140" viewBox="0 0 500 140" className="overflow-visible w-full max-w-[500px]">
             <defs>
               {/* Define the curve path for the text */}
               <motion.path
                 id="textCurve"
                 initial={{
-                  d: `M 50 70 L 450 70` // Start as straight line
+                  d: `M ${pathStart} 70 L ${pathEnd} 70` // Start as straight line
                 }}
                 animate={{
                   d: hasAnimated 
                     ? [
-                        `M 50 ${centerY} Q ${centerX} ${centerY - initialRadius + 60} 450 ${centerY}`, // Gentle curve
-                        `M 50 ${centerY} Q ${centerX} ${centerY - finalRadius + 80} 450 ${centerY}`   // Very tight curve
+                        `M ${pathStart} ${centerY} Q ${centerX} ${centerY - initialRadius + 60} ${pathEnd} ${centerY}`, // Gentle curve
+                        `M ${pathStart} ${centerY} Q ${centerX} ${centerY - finalRadius + mobileCurveOffset} ${pathEnd} ${centerY}`   // Very tight curve
                       ]
-                    : `M 50 70 L 450 70`
+                    : `M ${pathStart} 70 L ${pathEnd} 70`
                 }}
                 transition={{ 
                   duration: hasAnimated ? 1.5 : 1.2, 
@@ -102,7 +124,7 @@ export function AnimatedWasteChart({ chartData, onCategoryClick }: AnimatedWaste
             
             <text
               className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white fill-black dark:fill-white"
-              fontSize="22"
+              fontSize={isMobile ? `${16 * fontScale}` : "22"}
               textAnchor="middle"
             >
               <textPath href="#textCurve" startOffset="50%">
@@ -115,7 +137,7 @@ export function AnimatedWasteChart({ chartData, onCategoryClick }: AnimatedWaste
         {/* Animated donut chart with rolling effect */}
         <motion.div
           className="absolute"
-          style={{ width: '100%', height: '280px', marginTop: '60px' }}
+          style={{ width: '100%', height: '280px', marginTop: isMobile ? '40px' : '60px' }}
           initial={{ x: 600, opacity: 0 }}
           animate={{ 
             x: 0, 

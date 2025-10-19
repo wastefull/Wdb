@@ -507,3 +507,76 @@ body {
   margin: 1.5rem 0;
   font-style: italic;
 }
+
+/* Table scroll wrapper for horizontal scrolling on mobile */
+.table-scroll-wrapper {
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  border-radius: 8px;
+  /* Custom scrollbar styling for retro look */
+  scrollbar-width: thin;
+  scrollbar-color: #b8c8cb #f5f5f5;
+}
+
+.dark .table-scroll-wrapper {
+  scrollbar-color: #4a5861 #1a1917;
+}
+
+/* Webkit scrollbar styling for Chrome, Safari, Edge */
+.table-scroll-wrapper::-webkit-scrollbar {
+  height: 10px;
+}
+
+.table-scroll-wrapper::-webkit-scrollbar-track {
+  background: #f5f5f5;
+  border: 1px solid #211f1c;
+  border-radius: 5px;
+}
+
+.dark .table-scroll-wrapper::-webkit-scrollbar-track {
+  background: #1a1917;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.table-scroll-wrapper::-webkit-scrollbar-thumb {
+  background: #b8c8cb;
+  border: 1px solid #211f1c;
+  border-radius: 5px;
+}
+
+.dark .table-scroll-wrapper::-webkit-scrollbar-thumb {
+  background: #4a5861;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.table-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #a0b5b8;
+}
+
+.dark .table-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #5a6871;
+}
+
+/* High contrast mode scrollbar */
+.high-contrast .table-scroll-wrapper::-webkit-scrollbar-thumb {
+  background: #4a90a4;
+  border-width: 2px;
+}
+
+.high-contrast.dark .table-scroll-wrapper::-webkit-scrollbar-thumb {
+  background: #6bb6d0;
+  border-width: 2px;
+}
+
+.high-contrast .table-scroll-wrapper::-webkit-scrollbar-track {
+  border-width: 2px;
+}
+
+/* No pastel mode scrollbar */
+.no-pastel .table-scroll-wrapper::-webkit-scrollbar-thumb {
+  background: #4a90a4;
+}
+
+.no-pastel.dark .table-scroll-wrapper::-webkit-scrollbar-thumb {
+  background: #6bb6d0;
+}

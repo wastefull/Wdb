@@ -225,6 +225,13 @@ export function WhitepaperView({
           <ReactMarkdown
             remarkPlugins={[remarkMath, remarkGfm, remarkBreaks]}
             rehypePlugins={[rehypeKatex]}
+            components={{
+              table: ({node, ...props}) => (
+                <div className="table-scroll-wrapper">
+                  <table {...props} />
+                </div>
+              ),
+            }}
           >
             {whitepaper.content}
           </ReactMarkdown>

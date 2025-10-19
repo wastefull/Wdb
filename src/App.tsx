@@ -13,6 +13,7 @@ import { MethodologyListView, WhitepaperView } from './components/WhitepaperView
 import { AnimatedWasteChart } from './components/AnimatedWasteChart';
 import { AccessibilityProvider, useAccessibility } from './components/AccessibilityContext';
 import { UserManagementView } from './components/UserManagementView';
+import { LoadingPlaceholder } from './components/LoadingPlaceholder';
 import { Popover, PopoverContent, PopoverTrigger } from './components/ui/popover';
 import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './components/ui/tooltip';
 import { Switch } from './components/ui/switch';
@@ -93,16 +94,19 @@ function RetroButtons({ title }: { title: string }) {
 
   return (
     <div className="basis-0 grow h-full min-h-px min-w-px relative shrink-0">
-      <div className="flex flex-row items-center justify-center size-full">
-        <div className="box-border content-stretch flex gap-[10px] items-center justify-center px-[7px] py-[2px] relative size-full">
+      <div className="flex flex-row items-center justify-start md:justify-center size-full">
+        <div className="box-border content-stretch flex gap-[6px] md:gap-[10px] items-center justify-start md:justify-center px-[3px] md:px-[7px] py-[2px] relative size-full">
           <TooltipProvider delayDuration={300}>
-            <div className="flex flex-row gap-[10px] items-center h-full">
+            <div className="flex flex-row gap-[6px] md:gap-[10px] items-center h-full">
               {/* Red Button - Reset Settings */}
               <UITooltip>
               <TooltipTrigger asChild>
-                <div className="relative shrink-0 w-[12px] h-[13px] overflow-visible flex items-center justify-center">
+                <div className="relative shrink-0 w-[13px] h-[13px] overflow-visible flex items-center justify-center">
                   <Popover open={redOpen} onOpenChange={setRedOpen}>
-                    <PopoverTrigger className="relative size-full hover:scale-110 transition-transform cursor-pointer">
+                    <PopoverTrigger 
+                      className="relative size-full hover:scale-110 transition-transform cursor-pointer"
+                      aria-label="Reset accessibility settings"
+                    >
                       <div className="absolute inset-[-8.333%]" style={{ "--fill-0": "rgba(230, 188, 181, 1)", "--stroke-0": "rgba(33, 31, 28, 1)" } as React.CSSProperties}>
                         <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 14 14">
                           <circle cx="7" cy="7" fill="var(--fill-0, #E6BCB5)" r="6.5" stroke="var(--stroke-0, #211F1C)" />
@@ -140,9 +144,12 @@ function RetroButtons({ title }: { title: string }) {
             {/* Yellow Button - Font Size */}
             <UITooltip>
               <TooltipTrigger asChild>
-                <div className="relative shrink-0 w-[12px] h-[13px] overflow-visible flex items-center justify-center">
+                <div className="relative shrink-0 w-[13px] h-[13px] overflow-visible flex items-center justify-center">
                   <Popover open={yellowOpen} onOpenChange={setYellowOpen}>
-                    <PopoverTrigger className="relative size-full hover:scale-110 transition-transform cursor-pointer">
+                    <PopoverTrigger 
+                      className="relative size-full hover:scale-110 transition-transform cursor-pointer"
+                      aria-label="Font size settings"
+                    >
                       <div className="absolute inset-[-8.333%]" style={{ "--fill-0": "rgba(228, 227, 172, 1)", "--stroke-0": "rgba(33, 31, 28, 1)" } as React.CSSProperties}>
                         <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 14 14">
                           <circle cx="7" cy="7" fill="var(--fill-0, #E4E3AC)" r="6.5" stroke="var(--stroke-0, #211F1C)" />
@@ -200,9 +207,12 @@ function RetroButtons({ title }: { title: string }) {
             {/* Blue Button - Display Controls */}
             <UITooltip>
               <TooltipTrigger asChild>
-                <div className="relative shrink-0 w-[12px] h-[13px] overflow-visible flex items-center justify-center">
+                <div className="relative shrink-0 w-[13px] h-[13px] overflow-visible flex items-center justify-center">
                   <Popover open={blueOpen} onOpenChange={setBlueOpen}>
-                    <PopoverTrigger className="relative size-full hover:scale-110 transition-transform cursor-pointer">
+                    <PopoverTrigger 
+                      className="relative size-full hover:scale-110 transition-transform cursor-pointer"
+                      aria-label="Display settings"
+                    >
                       <div className="absolute inset-[-8.333%]" style={{ "--fill-0": "rgba(184, 200, 203, 1)", "--stroke-0": "rgba(33, 31, 28, 1)" } as React.CSSProperties}>
                         <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 14 14">
                           <circle cx="7" cy="7" fill="var(--fill-0, #B8C8CB)" r="6.5" stroke="var(--stroke-0, #211F1C)" />
@@ -267,7 +277,7 @@ function RetroButtons({ title }: { title: string }) {
             </div>
           </TooltipProvider>
 
-          <p className="basis-0 font-['Sniglet:Regular',_sans-serif] grow leading-[25px] min-h-px min-w-px not-italic relative shrink-0 text-[20px] text-black dark:text-white text-center uppercase">{title}</p>
+          <h1 className="basis-0 font-['Sniglet:Regular',_sans-serif] grow leading-[25px] min-h-px min-w-px not-italic relative shrink-0 text-[14px] md:text-[20px] text-black dark:text-white text-left md:text-center uppercase">{title}</h1>
         </div>
       </div>
     </div>
@@ -276,10 +286,10 @@ function RetroButtons({ title }: { title: string }) {
 
 function StatusBar({ title, currentView, onViewChange, syncStatus, user, userRole, onLogout, onSignIn }: { title: string; currentView: any; onViewChange: (view: any) => void; syncStatus?: 'synced' | 'syncing' | 'offline' | 'error'; user?: { id: string; email: string; name?: string }; userRole?: 'user' | 'admin'; onLogout?: () => void; onSignIn?: () => void }) {
   return (
-    <div className="h-[42px] min-w-[400px] relative shrink-0 w-full">
+    <header className="h-[42px] md:min-w-[400px] relative shrink-0 w-full" role="banner">
       <div aria-hidden="true" className="absolute border-[#211f1c] dark:border-white/20 border-[0px_0px_1.5px] border-solid inset-0 pointer-events-none" />
-      <div className="min-w-inherit size-full">
-        <div className="box-border content-stretch flex h-[42px] items-center justify-between min-w-inherit px-[5px] py-0 relative w-full">
+      <div className="size-full">
+        <div className="box-border content-stretch flex h-[42px] items-center justify-between px-[5px] py-0 relative w-full">
           <RetroButtons title={title} />
           
           <div className="flex items-center gap-2">
@@ -309,7 +319,11 @@ function StatusBar({ title, currentView, onViewChange, syncStatus, user, userRol
                     </TooltipContent>
                   </UITooltip>
                 </TooltipProvider>
-                {userRole === 'admin' && <AdminModeButton currentView={currentView} onViewChange={onViewChange} />}
+                {userRole === 'admin' && (
+                  <div className="hidden md:block">
+                    <AdminModeButton currentView={currentView} onViewChange={onViewChange} />
+                  </div>
+                )}
                 {onLogout && (
                   <TooltipProvider delayDuration={300}>
                     <UITooltip>
@@ -317,6 +331,7 @@ function StatusBar({ title, currentView, onViewChange, syncStatus, user, userRol
                         <button
                           onClick={onLogout}
                           className="p-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#e6beb5] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                          aria-label="Sign out"
                         >
                           <LogOut size={12} className="text-black" />
                         </button>
@@ -334,11 +349,13 @@ function StatusBar({ title, currentView, onViewChange, syncStatus, user, userRol
             <div className="flex items-center justify-center gap-2 px-3 h-full">
               <TooltipProvider delayDuration={300}>
                 <UITooltip>
-                  <TooltipTrigger>
-                    {syncStatus === 'synced' && <Cloud size={14} className="text-[#4a90a4] dark:text-[#6bb6d0]" />}
-                    {syncStatus === 'syncing' && <Cloud size={14} className="text-[#d4b400] dark:text-[#ffd700] animate-pulse" />}
-                    {syncStatus === 'offline' && <CloudOff size={14} className="text-black/40 dark:text-white/40" />}
-                    {syncStatus === 'error' && <CloudOff size={14} className="text-[#c74444] dark:text-[#ff6b6b]" />}
+                  <TooltipTrigger 
+                    aria-label={`Sync status: ${syncStatus === 'synced' ? 'Synced to cloud' : syncStatus === 'syncing' ? 'Syncing' : syncStatus === 'offline' ? 'Working offline' : 'Sync error'}`}
+                  >
+                    {syncStatus === 'synced' && <Cloud size={14} className="text-[#4a90a4] dark:text-[#6bb6d0]" aria-hidden="true" />}
+                    {syncStatus === 'syncing' && <Cloud size={14} className="text-[#d4b400] dark:text-[#ffd700] animate-pulse" aria-hidden="true" />}
+                    {syncStatus === 'offline' && <CloudOff size={14} className="text-black/40 dark:text-white/40" aria-hidden="true" />}
+                    {syncStatus === 'error' && <CloudOff size={14} className="text-[#c74444] dark:text-[#ff6b6b]" aria-hidden="true" />}
                   </TooltipTrigger>
                   <TooltipContent side="bottom" className="bg-black text-white border-black">
                     <p className="font-['Sniglet:Regular',_sans-serif] text-[11px]">
@@ -354,7 +371,7 @@ function StatusBar({ title, currentView, onViewChange, syncStatus, user, userRol
           )}
         </div>
       </div>
-    </div>
+    </header>
   );
 }
 
@@ -396,6 +413,7 @@ function SearchBar({ value, onChange }: { value: string; onChange: (value: strin
             onKeyDownCapture={handleKeyDown}
             placeholder="Search materials..."
             className="font-['Sniglet:Regular',_sans-serif] bg-transparent border-none outline-none text-[15px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50 flex-1"
+            aria-label="Search materials"
           />
         </div>
       </div>
@@ -445,6 +463,7 @@ function ScoreBar({
         <button
           onClick={onClick}
           className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white hover:underline cursor-pointer text-left flex items-center gap-1"
+          aria-label={`View ${label.toLowerCase()} articles (${articleCount || 0} articles, score: ${score})`}
         >
           <span className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white">{label}</span>
           {articleCount !== undefined && articleCount > 0 && (
@@ -453,7 +472,14 @@ function ScoreBar({
         </button>
         <span className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white">{score}</span>
       </div>
-      <div className="h-[8px] bg-[#211f1c]/10 dark:bg-white/10 rounded-full overflow-hidden border border-[#211f1c] dark:border-white/20">
+      <div 
+        className="h-[8px] bg-[#211f1c]/10 dark:bg-white/10 rounded-full overflow-hidden border border-[#211f1c] dark:border-white/20"
+        role="progressbar"
+        aria-valuenow={score}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label={`${label} score: ${score} out of 100`}
+      >
         <div
           className="h-full rounded-full transition-all duration-300"
           style={{ width: `${score}%`, backgroundColor: displayColor }}
@@ -519,6 +545,7 @@ function MaterialCard({
           <button
             onClick={onViewMaterial}
             className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black dark:text-white mb-1 hover:underline cursor-pointer text-left block"
+            aria-label={`View details for ${material.name}`}
           >
             {material.name}
           </button>
@@ -531,14 +558,16 @@ function MaterialCard({
             <button
               onClick={onEdit}
               className="p-1.5 bg-[#e4e3ac] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+              aria-label={`Edit ${material.name}`}
             >
-              <Edit2 size={14} className="text-black" />
+              <Edit2 size={14} className="text-black" aria-hidden="true" />
             </button>
             <button
               onClick={onDelete}
               className="p-1.5 bg-[#e6beb5] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+              aria-label={`Delete ${material.name}`}
             >
-              <Trash2 size={14} className="text-black" />
+              <Trash2 size={14} className="text-black" aria-hidden="true" />
             </button>
           </div>
         )}
@@ -1653,7 +1682,7 @@ Where:
                 thead: ({node, ...props}) => <thead className="bg-[#e4e3ac] border-b-[1.5px] border-[#211f1c]" {...props} />,
                 tbody: ({node, ...props}) => <tbody {...props} />,
                 tr: ({node, ...props}) => <tr className="border-b border-[#211f1c]/20" {...props} />,
-                th: ({node, ...props}) => <th className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black px-3 py-2 text-left border-r border-[#211f1c]/20 last:border-r-0" {...props} />,
+                th: ({node, ...props}) => <th className="font-['Fredoka_One',_sans-serif] text-[12px] text-black px-3 py-2 text-left border-r border-[#211f1c]/20 last:border-r-0" {...props} />,
                 td: ({node, ...props}) => <td className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/80 px-3 py-2 border-r border-[#211f1c]/20 last:border-r-0" {...props} />,
                 code: ({node, inline, ...props}) => 
                   inline ? (
@@ -2328,6 +2357,7 @@ function AppContent() {
   const [syncStatus, setSyncStatus] = useState<'synced' | 'syncing' | 'offline' | 'error'>('syncing');
   const [supabaseAvailable, setSupabaseAvailable] = useState(true);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [isLoadingMaterials, setIsLoadingMaterials] = useState(true);
   
   // Check if user is authenticated on mount and fetch their role
   useEffect(() => {
@@ -2408,6 +2438,8 @@ function AppContent() {
           setSyncStatus('offline');
           toast.warning('Working offline - data stored locally only');
         }
+      } finally {
+        setIsLoadingMaterials(false);
       }
     };
 
@@ -2737,7 +2769,7 @@ function AppContent() {
       )}
       
       <div 
-        className="min-h-screen p-8 bg-[#faf7f2] dark:bg-[#1a1917]"
+        className="min-h-screen p-3 md:p-8 bg-[#faf7f2] dark:bg-[#1a1917]"
         style={{
           backgroundImage: `url("https://www.transparenttextures.com/patterns/3px-tile.png")`,
           backgroundSize: '3px 3px'
@@ -2798,15 +2830,22 @@ function AppContent() {
                       </button>
                     </div>
                   )}
-                  <motion.button
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.3 }}
-                    onClick={() => setCurrentView({ type: 'methodology-list' })}
-                    className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:underline transition-colors text-left"
-                  >
-                    Methodology & Whitepapers
-                  </motion.button>
+                  <div className="flex items-center gap-2">
+                    <motion.button
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: 0.3 }}
+                      onClick={() => setCurrentView({ type: 'methodology-list' })}
+                      className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:underline transition-colors text-left"
+                    >
+                      Methodology & Whitepapers
+                    </motion.button>
+                    {userRole === 'admin' && (
+                      <div className="md:hidden">
+                        <AdminModeButton currentView={currentView} onViewChange={setCurrentView} />
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Chart on right side for wide screens - max 50% width */}
@@ -2880,13 +2919,15 @@ function AppContent() {
                 ))}
               </div>
 
-              {filteredMaterials.length === 0 && (
+              {isLoadingMaterials ? (
+                <LoadingPlaceholder />
+              ) : filteredMaterials.length === 0 ? (
                 <div className="text-center py-12">
-                  <p className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black/50">
+                  <p className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black/50 dark:text-white/50">
                     {searchQuery ? 'No materials found matching your search.' : 'No materials yet. Add your first one!'}
                   </p>
                 </div>
-              )}
+              ) : null}
             </div>
           ) : currentMaterial && currentView.type === 'articles' ? (
             <ArticlesView
