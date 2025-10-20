@@ -15,6 +15,41 @@ interface Material {
     recyclability: any[];
     reusability: any[];
   };
+  
+  // Scientific parameters (normalized 0-1)
+  Y_value?: number;  // Yield (recovery rate)
+  D_value?: number;  // Degradation (quality loss)
+  C_value?: number;  // Contamination tolerance
+  M_value?: number;  // Maturity (infrastructure availability)
+  E_value?: number;  // Energy demand (normalized)
+  
+  // Calculated composite recyclability scores
+  CR_practical_mean?: number;      // Practical recyclability (0-1)
+  CR_theoretical_mean?: number;    // Theoretical recyclability (0-1)
+  CR_practical_CI95?: {            // 95% confidence interval
+    lower: number;
+    upper: number;
+  };
+  CR_theoretical_CI95?: {
+    lower: number;
+    upper: number;
+  };
+  
+  // Confidence and provenance
+  confidence_level?: 'High' | 'Medium' | 'Low';  // Based on data quality
+  sources?: Array<{                               // Citation metadata
+    title: string;
+    authors?: string;
+    year?: number;
+    doi?: string;
+    url?: string;
+    weight?: number;  // Source weight in aggregation
+  }>;
+  
+  // Versioning and audit trail
+  whitepaper_version?: string;      // e.g., "2025.1"
+  calculation_timestamp?: string;   // ISO 8601 timestamp
+  method_version?: string;           // e.g., "CR-v1"
 }
 
 interface AuthResponse {

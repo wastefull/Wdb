@@ -1,7 +1,7 @@
 import { Hono } from "npm:hono@4";
 import { cors } from "npm:hono/cors";
 import { logger } from "npm:hono/logger";
-import { createClient } from "npm:@supabase/supabase-js@2";
+import { createClient } from "jsr:@supabase/supabase-js@2";
 import * as kv from "./kv_store.tsx";
 
 // WasteDB Server - v1.0.2
@@ -755,10 +755,358 @@ See Appendix B in the technical documentation for implementation details.
         updatedAt: new Date().toISOString()
       });
     }
+    
+    // Check if Calculation Methodology whitepaper already exists
+    const calcMethodology = await kv.get('whitepaper:calculation-methodology');
+    
+    if (!calcMethodology) {
+      const calculationContent = `# WasteDB Calculation Methodology
+
+## Overview
+
+This document describes the scientific methodology used to calculate the Composite Recyclability Index (CR) in WasteDB.
+
+## Composite Recyclability Index (CR)
+
+The Composite Recyclability Index provides a quantitative measure of how recyclable a material is, based on multiple factors.
+
+### Formula
+
+The CR is calculated using the following formula:
+
+$
+CR = Y \\times D \\times C \\times M \\times U_{clean}
+$
+
+Where each parameter is normalized to a 0-1 scale:
+
+- **Y (Yield)**: Material recovery rate - fraction successfully recovered in the recycling process
+- **D (Degradability)**: Quality retention - higher values indicate better quality preservation through recycling cycles
+- **C (Contamination)**: Contamination tolerance - how well the material handles impurities
+- **M (Maturity)**: Infrastructure maturity - availability and readiness of recycling infrastructure
+- **$U_{clean}$**: Cleanliness factor - input material quality
+
+### Operating Modes
+
+The methodology supports two operating modes:
+
+#### Theoretical Mode (Ideal Conditions)
+- $U_{clean} = 1.0$ (perfectly clean input)
+- Represents the maximum theoretical recyclability
+- Used for research and best-case scenario analysis
+
+#### Practical Mode (Realistic Conditions) 
+- $U_{clean} = 0.6$ (realistic contamination levels)
+- Reflects real-world recycling conditions
+- Used for public-facing scores and practical applications
+
+### Score Interpretation
+
+The calculated CR value (0-1 scale) is converted to a percentage (0-100) for display:
+
+- **High (>70%)**: Excellent recyclability with established infrastructure
+- **Medium (30-70%)**: Moderate recyclability with some limitations
+- **Low (<30%)**: Poor recyclability or limited infrastructure
+
+## Confidence Intervals
+
+To account for measurement uncertainty and data quality:
+
+- **95% Confidence Intervals** are calculated around the mean CR value
+- Default margin: ±10% of the calculated value
+- Adjusted based on source quality and data completeness
+
+## Data Quality Levels
+
+Materials are assigned confidence levels based on supporting evidence:
+
+- **High Confidence**: 3+ peer-reviewed sources, complete parameter data
+- **Medium Confidence**: 2+ credible sources, partial parameter data
+- **Low Confidence**: 0-1 sources, preliminary or estimated data
+
+## Parameter Estimation
+
+When specific parameter data is not available, estimates are derived from:
+
+1. Category-level averages from published literature
+2. Expert assessments based on material properties
+3. Comparative analysis with similar materials
+
+### Default Parameter Values by Category
+
+| Category | Y (Yield) | D (Quality) | C (Contamination) | M (Infrastructure) |
+|----------|-----------|-------------|-------------------|-------------------|
+| Glass | 0.95 | 1.00 | 0.85 | 0.95 |
+| Metals | 0.90 | 0.95 | 0.80 | 0.90 |
+| Paper & Cardboard | 0.70 | 0.60 | 0.65 | 0.85 |
+| Plastics | 0.60 | 0.50 | 0.40 | 0.70 |
+| Electronics & Batteries | 0.50 | 0.40 | 0.30 | 0.50 |
+| Fabrics & Textiles | 0.40 | 0.45 | 0.35 | 0.40 |
+| Building Materials | 0.65 | 0.70 | 0.60 | 0.60 |
+| Organic/Natural Waste | 0.20 | 0.30 | 0.25 | 0.30 |
+
+## Citation and Sources
+
+All scientific data should be supported by citations from peer-reviewed literature, industry reports, or authoritative sources. Sources are tracked with:
+
+- Title and authors
+- Publication year
+- DOI (when available)
+- Source weight (for aggregating multiple studies)
+
+## Versioning
+
+The methodology is versioned to track changes over time:
+
+- **Methodology Version**: Current version identifier (e.g., "CR-v1")
+- **Whitepaper Version**: Reference to methodology whitepaper version (e.g., "2025.1")
+- **Calculation Timestamp**: ISO 8601 timestamp of when scores were calculated
+
+## References
+
+For a complete description of the methodology and validation studies, see:
+- Recyclability.md - Full technical whitepaper
+- DATA_PIPELINE.md - Data processing pipeline documentation
+- ROADMAP.md - Future enhancements and methodology updates
+
+---
+
+**Last Updated**: January 2025  
+**Methodology Version**: CR-v1  
+**Whitepaper Version**: 2025.1
+`;
+      
+      await kv.set('whitepaper:calculation-methodology', {
+        slug: 'calculation-methodology',
+        title: 'Calculation Methodology Reference',
+        content: calculationContent,
+        updatedAt: new Date().toISOString()
+      });
+    }
   } catch (error) {
     // Silently fail - whitepapers can be uploaded manually if needed
   }
 }
+
+// ==================== EXPORT ROUTES (PUBLIC) ====================
+
+// Helper function to convert scientific data to public format (0-100 scale)
+function convertToPublicFormat(material: any) {
+  return {
+    id: material.id,
+    name: material.name,
+    category: material.category,
+    description: material.description || '',
+    
+    // Public scores (0-100 scale)
+    compostability: material.compostability || 0,
+    recyclability: material.recyclability || 0,
+    reusability: material.reusability || 0,
+    
+    // Add estimation flag for low confidence
+    isEstimated: material.confidence_level === 'Low',
+    confidenceLevel: material.confidence_level || 'Medium',
+    
+    // Metadata
+    lastUpdated: material.calculation_timestamp || new Date().toISOString(),
+    whitepaperVersion: material.whitepaper_version || 'N/A',
+  };
+}
+
+// Helper function to format CSV
+function arrayToCSV(headers: string[], rows: any[][]): string {
+  const csvRows = [
+    headers.join(','),
+    ...rows.map(row => row.map(cell => {
+      // Escape quotes and wrap in quotes if contains comma or quote
+      const cellStr = String(cell ?? '');
+      if (cellStr.includes(',') || cellStr.includes('"') || cellStr.includes('\n')) {
+        return `"${cellStr.replace(/"/g, '""')}"`;
+      }
+      return cellStr;
+    }).join(','))
+  ];
+  return csvRows.join('\n');
+}
+
+// Public export endpoint - lay-friendly data (0-100 scale)
+app.get('/make-server-17cae920/export/public', async (c) => {
+  try {
+    const format = c.req.query('format') || 'json'; // 'json' or 'csv'
+    
+    // Get all materials
+    const materials = await kv.getByPrefix('material:');
+    
+    if (!materials || materials.length === 0) {
+      if (format === 'csv') {
+        return c.text('', 200, { 'Content-Type': 'text/csv' });
+      }
+      return c.json({ materials: [] });
+    }
+    
+    // Convert to public format
+    const publicData = materials.map(convertToPublicFormat);
+    
+    if (format === 'csv') {
+      const headers = [
+        'ID', 'Name', 'Category', 'Description',
+        'Compostability', 'Recyclability', 'Reusability',
+        'Is Estimated', 'Confidence Level', 'Last Updated', 'Whitepaper Version'
+      ];
+      
+      const rows = publicData.map(m => [
+        m.id,
+        m.name,
+        m.category,
+        m.description,
+        m.compostability,
+        m.recyclability,
+        m.reusability,
+        m.isEstimated ? 'Yes' : 'No',
+        m.confidenceLevel,
+        m.lastUpdated,
+        m.whitepaperVersion
+      ]);
+      
+      const csv = arrayToCSV(headers, rows);
+      
+      return c.text(csv, 200, {
+        'Content-Type': 'text/csv',
+        'Content-Disposition': `attachment; filename="wastedb-public-${new Date().toISOString().split('T')[0]}.csv"`
+      });
+    }
+    
+    // Return JSON by default
+    return c.json({
+      exportDate: new Date().toISOString(),
+      format: 'public',
+      scale: '0-100',
+      count: publicData.length,
+      materials: publicData
+    });
+  } catch (error) {
+    console.error('Error exporting public data:', error);
+    return c.json({ error: 'Failed to export data', details: String(error) }, 500);
+  }
+});
+
+// Full research export endpoint - raw scientific data
+app.get('/make-server-17cae920/export/full', async (c) => {
+  try {
+    const format = c.req.query('format') || 'json'; // 'json' or 'csv'
+    
+    // Get all materials
+    const materials = await kv.getByPrefix('material:');
+    
+    if (!materials || materials.length === 0) {
+      if (format === 'csv') {
+        return c.text('', 200, { 'Content-Type': 'text/csv' });
+      }
+      return c.json({ materials: [] });
+    }
+    
+    if (format === 'csv') {
+      const headers = [
+        'ID', 'Name', 'Category', 'Description',
+        'Y (Yield)', 'D (Degradability)', 'C (Contamination)', 'M (Maturity)', 'E (Energy)',
+        'CR Practical Mean', 'CR Practical CI Lower', 'CR Practical CI Upper',
+        'CR Theoretical Mean', 'CR Theoretical CI Lower', 'CR Theoretical CI Upper',
+        'Compostability (0-100)', 'Recyclability (0-100)', 'Reusability (0-100)',
+        'Confidence Level', 'Source Count', 'Whitepaper Version', 'Method Version',
+        'Calculation Timestamp'
+      ];
+      
+      const rows = materials.map(m => [
+        m.id,
+        m.name,
+        m.category,
+        m.description || '',
+        m.Y_value?.toFixed(4) || '',
+        m.D_value?.toFixed(4) || '',
+        m.C_value?.toFixed(4) || '',
+        m.M_value?.toFixed(4) || '',
+        m.E_value?.toFixed(4) || '',
+        m.CR_practical_mean?.toFixed(4) || '',
+        m.CR_practical_CI95?.lower?.toFixed(4) || '',
+        m.CR_practical_CI95?.upper?.toFixed(4) || '',
+        m.CR_theoretical_mean?.toFixed(4) || '',
+        m.CR_theoretical_CI95?.lower?.toFixed(4) || '',
+        m.CR_theoretical_CI95?.upper?.toFixed(4) || '',
+        m.compostability || '',
+        m.recyclability || '',
+        m.reusability || '',
+        m.confidence_level || '',
+        m.sources?.length || '0',
+        m.whitepaper_version || '',
+        m.method_version || '',
+        m.calculation_timestamp || ''
+      ]);
+      
+      const csv = arrayToCSV(headers, rows);
+      
+      return c.text(csv, 200, {
+        'Content-Type': 'text/csv',
+        'Content-Disposition': `attachment; filename="wastedb-research-${new Date().toISOString().split('T')[0]}.csv"`
+      });
+    }
+    
+    // Return full JSON with all scientific metadata
+    const fullData = materials.map(m => ({
+      // Basic info
+      id: m.id,
+      name: m.name,
+      category: m.category,
+      description: m.description,
+      
+      // Public scores
+      compostability: m.compostability,
+      recyclability: m.recyclability,
+      reusability: m.reusability,
+      
+      // Raw parameters
+      Y_value: m.Y_value,
+      D_value: m.D_value,
+      C_value: m.C_value,
+      M_value: m.M_value,
+      E_value: m.E_value,
+      
+      // Composite scores
+      CR_practical_mean: m.CR_practical_mean,
+      CR_theoretical_mean: m.CR_theoretical_mean,
+      CR_practical_CI95: m.CR_practical_CI95,
+      CR_theoretical_CI95: m.CR_theoretical_CI95,
+      
+      // Metadata
+      confidence_level: m.confidence_level,
+      sources: m.sources,
+      whitepaper_version: m.whitepaper_version,
+      method_version: m.method_version,
+      calculation_timestamp: m.calculation_timestamp,
+    }));
+    
+    return c.json({
+      exportDate: new Date().toISOString(),
+      format: 'research',
+      scale: '0-1 normalized + 0-100 public',
+      count: fullData.length,
+      materials: fullData,
+      metadata: {
+        note: 'CR values are normalized 0-1. Public scores (compostability, recyclability, reusability) are 0-100.',
+        confidenceLevels: ['High', 'Medium', 'Low'],
+        parameters: {
+          Y: 'Yield - Fraction of material successfully recovered',
+          D: 'Degradability - Quality retention per cycle',
+          C: 'Contamination Tolerance - Sensitivity to contaminants',
+          M: 'Maturity - Infrastructure availability',
+          E: 'Energy - Net energy input (normalized)'
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Error exporting research data:', error);
+    return c.json({ error: 'Failed to export data', details: String(error) }, 500);
+  }
+});
 
 // Run initialization
 initializeAdminUser();

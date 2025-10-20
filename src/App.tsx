@@ -14,6 +14,12 @@ import { AnimatedWasteChart } from './components/AnimatedWasteChart';
 import { AccessibilityProvider, useAccessibility } from './components/AccessibilityContext';
 import { UserManagementView } from './components/UserManagementView';
 import { LoadingPlaceholder } from './components/LoadingPlaceholder';
+import { ScientificMetadataView } from './components/ScientificMetadataView';
+import { ScientificDataEditor } from './components/ScientificDataEditor';
+import { BatchScientificOperations } from './components/BatchScientificOperations';
+import { PublicExportView } from './components/PublicExportView';
+import { DataMigrationTool } from './components/DataMigrationTool';
+import { SOURCE_LIBRARY, getSourcesByTag } from './data/sources';
 import { Popover, PopoverContent, PopoverTrigger } from './components/ui/popover';
 import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './components/ui/tooltip';
 import { Switch } from './components/ui/switch';
@@ -57,6 +63,41 @@ interface Material {
     recyclability: Article[];
     reusability: Article[];
   };
+  
+  // Scientific parameters (normalized 0-1)
+  Y_value?: number;  // Yield (recovery rate)
+  D_value?: number;  // Degradation (quality loss)
+  C_value?: number;  // Contamination tolerance
+  M_value?: number;  // Maturity (infrastructure availability)
+  E_value?: number;  // Energy demand (normalized)
+  
+  // Calculated composite recyclability scores
+  CR_practical_mean?: number;      // Practical recyclability (0-1)
+  CR_theoretical_mean?: number;    // Theoretical recyclability (0-1)
+  CR_practical_CI95?: {            // 95% confidence interval
+    lower: number;
+    upper: number;
+  };
+  CR_theoretical_CI95?: {
+    lower: number;
+    upper: number;
+  };
+  
+  // Confidence and provenance
+  confidence_level?: 'High' | 'Medium' | 'Low';  // Based on data quality
+  sources?: Array<{                               // Citation metadata
+    title: string;
+    authors?: string;
+    year?: number;
+    doi?: string;
+    url?: string;
+    weight?: number;  // Source weight in aggregation
+  }>;
+  
+  // Versioning and audit trail
+  whitepaper_version?: string;      // e.g., "2025.1"
+  calculation_timestamp?: string;   // ISO 8601 timestamp
+  method_version?: string;           // e.g., "CR-v1"
 }
 
 type CategoryType = 'compostability' | 'recyclability' | 'reusability';
@@ -65,8 +106,8 @@ function AdminModeButton({ currentView, onViewChange }: { currentView: any; onVi
   const { settings, toggleAdminMode } = useAccessibility();
   
   const handleAdminToggle = () => {
-    // If turning off admin mode and currently on data-management or user-management page, go back to materials
-    if (settings.adminMode && (currentView.type === 'data-management' || currentView.type === 'user-management')) {
+    // If turning off admin mode and currently on admin-only pages, go back to materials
+    if (settings.adminMode && (currentView.type === 'data-management' || currentView.type === 'user-management' || currentView.type === 'scientific-editor')) {
       onViewChange({ type: 'materials' });
     }
     toggleAdminMode();
@@ -529,6 +570,7 @@ function MaterialCard({
   onDelete,
   onViewArticles,
   onViewMaterial,
+  onEditScientific,
   isAdminModeActive
 }: { 
   material: Material; 
@@ -536,6 +578,7 @@ function MaterialCard({
   onDelete: () => void;
   onViewArticles: (category: CategoryType) => void;
   onViewMaterial: () => void;
+  onEditScientific?: () => void;
   isAdminModeActive?: boolean;
 }) {
   return (
@@ -577,7 +620,7 @@ function MaterialCard({
         <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/70 dark:text-white/70 mb-3 line-clamp-2">{material.description}</p>
       )}
       
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 mb-3">
         <ScoreBar 
           score={material.compostability} 
           label="Compostability" 
@@ -600,6 +643,12 @@ function MaterialCard({
           onClick={() => onViewArticles('reusability')}
         />
       </div>
+      
+      <ScientificMetadataView 
+        material={material} 
+        onEditScientific={onEditScientific}
+        isAdminModeActive={isAdminModeActive}
+      />
     </div>
   );
 }
@@ -1867,15 +1916,18 @@ function DataManagementView({
   materials,
   onBack,
   onUpdateMaterial,
+  onUpdateMaterials,
   onBulkImport,
   onDeleteAllData
 }: {
   materials: Material[];
   onBack: () => void;
   onUpdateMaterial: (material: Material) => void;
+  onUpdateMaterials: (materials: Material[]) => void;
   onBulkImport: (materials: Material[]) => void;
   onDeleteAllData: () => void;
 }) {
+  const [activeTab, setActiveTab] = useState('materials');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editData, setEditData] = useState<Partial<Material>>({});
   const [showImportOptions, setShowImportOptions] = useState(false);
@@ -2041,12 +2093,56 @@ function DataManagementView({
         </button>
         <div className="flex-1">
           <h2 className="font-['Sniglet:Regular',_sans-serif] text-[18px] text-black dark:text-white">
-            Data Management
+            Database Management
           </h2>
           <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/60 dark:text-white/60">
-            {materials.length} material{materials.length !== 1 ? 's' : ''} total
+            Manage materials and scientific operations
           </p>
         </div>
+      </div>
+
+      {/* Tabs for Material Management and Batch Operations */}
+      <div className="mb-6">
+        <div className="flex gap-2 border-b border-[#211f1c]/20 dark:border-white/20">
+          <button
+            onClick={() => setActiveTab('materials')}
+            className={`px-4 py-2 font-['Sniglet:Regular',_sans-serif] text-[12px] transition-colors ${
+              activeTab === 'materials'
+                ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
+                : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
+            }`}
+          >
+            Material Management
+          </button>
+          <button
+            onClick={() => setActiveTab('batch')}
+            className={`px-4 py-2 font-['Sniglet:Regular',_sans-serif] text-[12px] transition-colors ${
+              activeTab === 'batch'
+                ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
+                : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
+            }`}
+          >
+            Batch Operations
+          </button>
+        </div>
+      </div>
+
+      {activeTab === 'materials' ? (
+        <div>
+          {/* Data Migration Tool */}
+          <div className="mb-6">
+            <DataMigrationTool
+              materials={materials}
+              onMigrate={(migratedMaterials) => onUpdateMaterials(migratedMaterials)}
+            />
+          </div>
+
+          <div className="flex items-center gap-4 mb-4">
+            <div className="flex-1">
+              <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/60 dark:text-white/60">
+                {materials.length} material{materials.length !== 1 ? 's' : ''} total
+              </p>
+            </div>
         
         <div className="flex gap-2">
           <button
@@ -2340,6 +2436,15 @@ function DataManagementView({
           </div>
         )}
       </div>
+        </div>
+      ) : (
+        <BatchScientificOperations
+          materials={materials}
+          onUpdateMaterials={onUpdateMaterials}
+          onBack={() => {}} // Empty since we're in a tab
+          isEmbedded={true} // Hide back button when in tab mode
+        />
+      )}
     </div>
   );
 }
@@ -2352,7 +2457,7 @@ function AppContent() {
   const [searchQuery, setSearchQuery] = useState('');
   const [editingMaterial, setEditingMaterial] = useState<Material | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const [currentView, setCurrentView] = useState<{ type: 'materials' } | { type: 'articles'; materialId: string; category: CategoryType } | { type: 'all-articles'; category: CategoryType } | { type: 'material-detail'; materialId: string } | { type: 'article-standalone'; articleId: string; materialId: string; category: CategoryType } | { type: 'recyclability-calculation' } | { type: 'methodology-list' } | { type: 'whitepaper'; whitepaperSlug: string } | { type: 'data-management' } | { type: 'user-management' }>({ type: 'materials' });
+  const [currentView, setCurrentView] = useState<{ type: 'materials' } | { type: 'articles'; materialId: string; category: CategoryType } | { type: 'all-articles'; category: CategoryType } | { type: 'material-detail'; materialId: string } | { type: 'article-standalone'; articleId: string; materialId: string; category: CategoryType } | { type: 'recyclability-calculation' } | { type: 'methodology-list' } | { type: 'whitepaper'; whitepaperSlug: string } | { type: 'data-management' } | { type: 'user-management' } | { type: 'scientific-editor'; materialId: string } | { type: 'export' }>({ type: 'materials' });
   const [articleToOpen, setArticleToOpen] = useState<string | null>(null);
   const [syncStatus, setSyncStatus] = useState<'synced' | 'syncing' | 'offline' | 'error'>('syncing');
   const [supabaseAvailable, setSupabaseAvailable] = useState(true);
@@ -2526,6 +2631,11 @@ function AppContent() {
   };
 
   const initializeSampleData = () => {
+    // Get sources from library for initial data
+    const cardboardSources = getSourcesByTag('cardboard').slice(0, 4);
+    const glassSources = getSourcesByTag('glass').slice(0, 4);
+    const petSources = getSourcesByTag('pet').slice(0, 5);
+    
     const sampleMaterials: Material[] = [
       {
         id: '1',
@@ -2535,6 +2645,21 @@ function AppContent() {
         recyclability: 95,
         reusability: 70,
         description: 'Made from thick paper stock or heavy paper-pulp. Widely used for packaging.',
+        // Scientific parameters
+        Y_value: 0.82,  // 82% recovery rate
+        D_value: 0.15,  // 15% quality loss per cycle (fiber shortening)
+        C_value: 0.70,  // Moderate contamination tolerance (sensitive to grease)
+        M_value: 0.95,  // Very mature infrastructure
+        E_value: 0.25,  // Low energy demand (normalized)
+        CR_practical_mean: 0.78,
+        CR_theoretical_mean: 0.89,
+        CR_practical_CI95: { lower: 0.74, upper: 0.82 },
+        CR_theoretical_CI95: { lower: 0.85, upper: 0.93 },
+        confidence_level: 'High',
+        sources: cardboardSources,
+        whitepaper_version: '2025.1',
+        calculation_timestamp: new Date().toISOString(),
+        method_version: 'CR-v1',
         articles: {
           compostability: [
             {
@@ -2566,6 +2691,21 @@ function AppContent() {
         recyclability: 100,
         reusability: 95,
         description: 'Infinitely recyclable without loss of quality. Excellent for reuse.',
+        // Scientific parameters
+        Y_value: 0.98,  // 98% recovery rate (nearly perfect)
+        D_value: 0.01,  // 1% quality loss (essentially none)
+        C_value: 0.85,  // High contamination tolerance (can handle some ceramics)
+        M_value: 0.92,  // Very mature infrastructure
+        E_value: 0.35,  // Moderate energy demand (melting)
+        CR_practical_mean: 0.93,
+        CR_theoretical_mean: 0.97,
+        CR_practical_CI95: { lower: 0.91, upper: 0.95 },
+        CR_theoretical_CI95: { lower: 0.95, upper: 0.99 },
+        confidence_level: 'High',
+        sources: glassSources,
+        whitepaper_version: '2025.1',
+        calculation_timestamp: new Date().toISOString(),
+        method_version: 'CR-v1',
         articles: {
           compostability: [],
           recyclability: [
@@ -2597,6 +2737,21 @@ function AppContent() {
         recyclability: 75,
         reusability: 60,
         description: 'Common plastic type used in bottles and containers.',
+        // Scientific parameters
+        Y_value: 0.65,  // 65% recovery rate (losses in sorting/washing)
+        D_value: 0.25,  // 25% quality loss per cycle (molecular weight reduction)
+        C_value: 0.45,  // Low contamination tolerance (food residue issues)
+        M_value: 0.75,  // Moderate infrastructure maturity
+        E_value: 0.40,  // Moderate-high energy demand
+        CR_practical_mean: 0.52,
+        CR_theoretical_mean: 0.71,
+        CR_practical_CI95: { lower: 0.48, upper: 0.56 },
+        CR_theoretical_CI95: { lower: 0.67, upper: 0.75 },
+        confidence_level: 'High',
+        sources: petSources,
+        whitepaper_version: '2025.1',
+        calculation_timestamp: new Date().toISOString(),
+        method_version: 'CR-v1',
         articles: {
           compostability: [],
           recyclability: [],
@@ -2741,7 +2896,7 @@ function AppContent() {
     m.description?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const currentMaterial = (currentView.type === 'articles' || currentView.type === 'material-detail' || currentView.type === 'article-standalone')
+  const currentMaterial = (currentView.type === 'articles' || currentView.type === 'material-detail' || currentView.type === 'article-standalone' || currentView.type === 'scientific-editor')
     ? materials.find(m => m.id === currentView.materialId) 
     : null;
 
@@ -2820,31 +2975,43 @@ function AppContent() {
                         onClick={() => setCurrentView({ type: 'data-management' })}
                         className="bg-[#e4e3ac] h-[40px] px-3 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
                       >
-                        Manage Data
+                        Database Management
                       </button>
                       <button
                         onClick={() => setCurrentView({ type: 'user-management' })}
                         className="bg-[#e6beb5] h-[40px] px-3 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
                       >
-                        User Admin
+                        User Management
                       </button>
                     </div>
                   )}
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2">
+                      <motion.button
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.3 }}
+                        onClick={() => setCurrentView({ type: 'methodology-list' })}
+                        className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:underline transition-colors text-left"
+                      >
+                        Methodology & Whitepapers
+                      </motion.button>
+                      {userRole === 'admin' && (
+                        <div className="md:hidden">
+                          <AdminModeButton currentView={currentView} onViewChange={setCurrentView} />
+                        </div>
+                      )}
+                    </div>
                     <motion.button
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: 0.3 }}
-                      onClick={() => setCurrentView({ type: 'methodology-list' })}
-                      className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:underline transition-colors text-left"
+                      transition={{ duration: 0.5, delay: 0.35 }}
+                      onClick={() => setCurrentView({ type: 'export' })}
+                      className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:underline transition-colors text-left flex items-center gap-1"
                     >
-                      Methodology & Whitepapers
+                      <Download size={12} />
+                      Export Data (Open Access)
                     </motion.button>
-                    {userRole === 'admin' && (
-                      <div className="md:hidden">
-                        <AdminModeButton currentView={currentView} onViewChange={setCurrentView} />
-                      </div>
-                    )}
                   </div>
                 </div>
 
@@ -2914,6 +3081,7 @@ function AppContent() {
                     onDelete={() => handleDeleteMaterial(material.id)}
                     onViewArticles={(category) => handleViewArticles(material.id, category)}
                     onViewMaterial={() => handleViewMaterial(material.id)}
+                    onEditScientific={() => setCurrentView({ type: 'scientific-editor', materialId: material.id })}
                     isAdminModeActive={isAdminModeActive}
                   />
                 ))}
@@ -2997,6 +3165,7 @@ function AppContent() {
               materials={materials}
               onBack={() => setCurrentView({ type: 'materials' })}
               onUpdateMaterial={handleUpdateMaterial}
+              onUpdateMaterials={(updatedMaterials) => saveMaterials(updatedMaterials)}
               onBulkImport={handleBulkImport}
               onDeleteAllData={async () => {
                 setMaterials([]);
@@ -3018,6 +3187,20 @@ function AppContent() {
             <UserManagementView
               onBack={() => setCurrentView({ type: 'materials' })}
               currentUserId={user?.id || ''}
+            />
+          ) : currentView.type === 'scientific-editor' && currentMaterial ? (
+            <ScientificDataEditor
+              material={currentMaterial}
+              onSave={(updatedMaterial) => {
+                handleUpdateMaterial(updatedMaterial);
+                setCurrentView({ type: 'materials' });
+              }}
+              onCancel={() => setCurrentView({ type: 'materials' })}
+            />
+          ) : currentView.type === 'export' ? (
+            <PublicExportView
+              onBack={() => setCurrentView({ type: 'materials' })}
+              materialsCount={materials.length}
             />
           ) : null}
         </div>
