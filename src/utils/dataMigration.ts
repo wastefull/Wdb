@@ -303,15 +303,55 @@ function getSourcesForMaterial(materialName: string): Source[] {
     }
   }
   
-  // Convert to Material source format (limit to 5 max)
-  return selectedSources.slice(0, 5).map(s => ({
-    title: s.title,
-    authors: s.authors,
-    year: s.year,
-    doi: s.doi,
-    url: s.url,
-    weight: s.weight,
-  }));
+  // Convert to Material source format with parameter assignments (limit to 5 max)
+  return selectedSources.slice(0, 5).map((s, index) => {
+    // Assign parameters based on source tags and material context
+    const parameters: string[] = [];
+    const tags = s.tags || [];
+    
+    // Material-specific sources (high score) contribute to most parameters
+    if (scoredSources.find(scored => scored.source === s)!.score > 8) {
+      // High-relevance sources: contribute to Y, D, C
+      if (tags.some(t => ['recycling', 'yield', 'recovery'].includes(t))) {
+        parameters.push('Y_value', 'CR_practical_mean');
+      }
+      if (tags.some(t => ['degradation', 'quality', 'composting'].includes(t))) {
+        parameters.push('D_value');
+      }
+      if (tags.some(t => ['contamination', 'quality', 'purity'].includes(t))) {
+        parameters.push('C_value');
+      }
+      if (tags.some(t => ['infrastructure', 'maturity', 'facilities'].includes(t))) {
+        parameters.push('M_value');
+      }
+      if (tags.some(t => ['energy', 'lca'].includes(t))) {
+        parameters.push('E_value');
+      }
+      
+      // If no specific matches, assign to general CR scores
+      if (parameters.length === 0) {
+        parameters.push('CR_practical_mean', 'CR_theoretical_mean');
+      }
+    }
+    // General/methodology sources contribute to CR scores and methodology
+    else if (tags.includes('general') || tags.includes('lca') || tags.includes('methodology')) {
+      parameters.push('CR_practical_mean', 'CR_theoretical_mean');
+    }
+    // Medium-relevance sources: contribute to at least CR
+    else {
+      parameters.push('CR_practical_mean');
+    }
+    
+    return {
+      title: s.title,
+      authors: s.authors,
+      year: s.year,
+      doi: s.doi,
+      url: s.url,
+      weight: s.weight,
+      parameters: parameters.length > 0 ? parameters : undefined,
+    };
+  });
 }
 
 /**

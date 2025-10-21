@@ -72,6 +72,54 @@ Each source includes:
 }
 ```
 
+## Source Provenance Tracking
+
+Each source can be tagged with which parameters it contributed to. This enables transparent data provenance:
+
+```typescript
+{
+  title: "PET recycling: Recovery and purification",
+  authors: "Smith et al.",
+  year: 2023,
+  doi: "10.1016/j.wasman.2023.01.001",
+  weight: 1.0,
+  parameters: ['Y_value', 'CR_practical_mean']  // This source contributed to Yield and CR Practical
+}
+```
+
+### How Parameters Are Assigned
+
+When adding sources from the library, parameters are **automatically assigned** based on source tags:
+
+| Source Tags | Parameters Assigned | Rationale |
+|-------------|---------------------|-----------|
+| `recycling`, `yield`, `recovery` | `Y_value`, `CR_practical_mean` | Recovery/yield data |
+| `degradation`, `quality`, `composting` | `D_value` | Degradation/quality loss |
+| `contamination`, `purity` | `C_value` | Contamination tolerance |
+| `infrastructure`, `maturity` | `M_value` | Infrastructure availability |
+| `energy`, `lca` | `E_value` | Energy demand |
+| `general`, `methodology` | `CR_practical_mean`, `CR_theoretical_mean` | Overall methodology |
+
+### Viewing Provenance
+
+In the material detail view, each parameter shows inline citations:
+
+```
+Yield (Y): 0.85
+  [1] Smith et al. 2023
+  [3] Jones 2022
+  
+Degradability (D): 0.92
+  [2] Brown et al. 2024
+```
+
+In the Sources section, each source lists what it contributed:
+
+```
+[1] Smith et al. PET recycling: Recovery and purification (2023)
+    Used for: Yield, CR Practical
+```
+
 ## Source Selection Algorithm (for Migration)
 
 When automatically backfilling sources during data migration, the system uses an intelligent scoring algorithm:

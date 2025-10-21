@@ -2,7 +2,8 @@
 
 **Organization:** Wastefull  
 **Project:** WasteDB - Open Materials Sustainability Database  
-**Last Updated:** October 20, 2025
+**Last Updated:** October 21, 2025  
+**Production URL:** https://db.wastefull.org
 
 ---
 
@@ -14,16 +15,17 @@ Build an open, accessible, and scientifically rigorous materials database that c
 
 ## 📊 Overall Progress
 
-### Phases Completed: 3 / 5 (60%)
+### Phases Completed: 3.5 / 5 (70%)
 
 ```
-[████████████████████████████████████░░░░░░░░░░░░] 60%
+[██████████████████████████████████████████░░░░░░] 70%
 
-✅ Phase 1: Data Model Integration        [COMPLETE]
-✅ Phase 2: Admin & Research Tools         [COMPLETE]
-✅ Phase 3: Public Data & Export Layer     [COMPLETE]
-⬜ Phase 4: UI & UX Enhancements           [PLANNED]
-⬜ Phase 5: Research API & Data Publication [PLANNED]
+✅ Phase 1: Data Model Integration            [COMPLETE]
+✅ Phase 2: Admin & Research Tools             [COMPLETE]
+✅ Phase 3: Public Data & Export Layer         [COMPLETE]
+✅ Phase 3.5: Auth & Asset Infrastructure      [COMPLETE]
+⬜ Phase 4: UI & UX Enhancements               [PLANNED]
+⬜ Phase 5: Research API & Data Publication    [PLANNED]
 ```
 
 ---
@@ -105,6 +107,42 @@ Admins can now efficiently manage scientific data at both individual and batch l
 
 ### Impact
 Anyone can now download, analyze, and build upon WasteDB data—empowering education, research, and industry.
+
+---
+
+## ✅ Phase 3.5: Auth & Asset Infrastructure (COMPLETE)
+
+**Completed:** October 21, 2025  
+**Documentation:** `/ASSET_STORAGE_GUIDE.md`, `/EMAIL_LOGO_SETUP.md`
+
+### Achievements
+- **Magic Link Authentication** - Passwordless email-based signin
+  - Custom token system with expiry (1 hour)
+  - Single-use security tokens
+  - Honeypot protection against bots
+  - Email validation with pattern detection
+  - Auto-admin for @wastefull.org emails
+  - Resend integration with branded emails
+  - Email sender: `WasteDB <auth@wastefull.org>`
+  - Wastefull green branding on templates
+
+- **Asset Storage CDN** - Supabase Storage integration
+  - Public bucket `make-17cae920-assets`
+  - 5MB file limit per upload
+  - Supported formats: PNG, JPG, SVG, WebP
+  - Admin-only upload/delete
+  - Permanent public URLs for use anywhere
+  - Asset Manager UI in Database Management
+
+- **Infrastructure** - Production deployment ready
+  - DNS configured: `db.wastefull.org`
+  - SSL certificates active
+  - Resend domain verification complete
+  - Rate limiting on all auth endpoints
+  - Session management with access tokens
+
+### Impact
+Secure, branded authentication system with CDN-backed asset hosting enables professional email communications and production deployment.
 
 ---
 
@@ -285,8 +323,10 @@ Enables academic papers to cite WasteDB with DOI, ensures reproducibility, and f
 ## 🔗 Integration Points
 
 ### Completed Integrations ✅
-- Supabase Auth (signup, signin, signout)
+- Supabase Auth (magic link authentication)
 - Supabase KV Store (materials, users, whitepapers)
+- Supabase Storage (asset CDN)
+- Resend (email delivery - auth@wastefull.org)
 - localStorage (offline caching)
 - Motion (smooth animations)
 - Recharts (data visualization)
@@ -336,6 +376,11 @@ Enables academic papers to cite WasteDB with DOI, ensures reproducibility, and f
 - ✅ `/ROLES_AND_PERMISSIONS.md` - Access control guide
 - ✅ `/SUPABASE_INTEGRATION.md` - Backend integration guide
 - ✅ `/DATA_PIPELINE.md` - Data flow documentation
+- ✅ `/ASSET_STORAGE_GUIDE.md` - Asset upload & CDN guide
+- ✅ `/EMAIL_LOGO_SETUP.md` - Email branding guide
+- ✅ `/DEPLOYMENT_CHECKLIST.md` - Production testing guide
+- ✅ `/QUICK_START.md` - User onboarding guide
+- ✅ `/SECURITY.md` - Security features documentation
 - ✅ `/whitepapers/Recyclability.md` - Methodology whitepaper
 
 ### Available Documentation
@@ -393,6 +438,7 @@ WasteDB is becoming a trusted open scientific resource that:
 
 ---
 
-**Status:** 60% Complete | 3 of 5 phases finished  
+**Status:** 70% Complete | 3.5 of 5 phases finished  
+**Production:** https://db.wastefull.org (LIVE)  
 **Next Milestone:** Phase 4 (UI/UX Enhancements)  
 **Maintained by:** Wastefull (San Jose, CA)

@@ -4,11 +4,143 @@ import { logger } from "npm:hono/logger";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import * as kv from "./kv_store.tsx";
 
-// WasteDB Server - v1.0.2
+// WasteDB Server - v1.1.0 (Hardened Security)
 const app = new Hono();
 
 // Add logger middleware
 app.use('*', logger(console.log));
+
+// ==================== SECURITY MIDDLEWARE ====================
+
+// Rate limiting configuration
+const RATE_LIMITS = {
+  AUTH: { window: 60000, maxRequests: 5 }, // 5 auth requests per minute
+  API: { window: 60000, maxRequests: 100 }, // 100 API requests per minute
+  SIGNUP: { window: 3600000, maxRequests: 3 }, // 3 signups per hour per IP
+};
+
+// Get client identifier (IP + User-Agent hash)
+function getClientId(c: any): string {
+  const forwarded = c.req.header('x-forwarded-for');
+  const ip = forwarded ? forwarded.split(',')[0].trim() : 'unknown';
+  const userAgent = c.req.header('user-agent') || 'unknown';
+  // Simple hash to avoid storing full user agents
+  const uaHash = userAgent.split('').reduce((acc, char) => {
+    return ((acc << 5) - acc) + char.charCodeAt(0);
+  }, 0);
+  return `${ip}:${uaHash}`;
+}
+
+// Rate limiting middleware factory
+function rateLimit(type: keyof typeof RATE_LIMITS) {
+  return async (c: any, next: any) => {
+    const clientId = getClientId(c);
+    const key = `ratelimit:${type}:${clientId}`;
+    const now = Date.now();
+    
+    try {
+      // Get existing rate limit data
+      const data = await kv.get(key) as { requests: number[], firstRequest: number } | null;
+      
+      const limit = RATE_LIMITS[type];
+      const windowStart = now - limit.window;
+      
+      if (data) {
+        // Filter out old requests outside the time window
+        const recentRequests = data.requests.filter(timestamp => timestamp > windowStart);
+        
+        if (recentRequests.length >= limit.maxRequests) {
+          const oldestRequest = Math.min(...recentRequests);
+          const resetIn = Math.ceil((oldestRequest + limit.window - now) / 1000);
+          
+          console.log(`Rate limit exceeded for ${clientId} on ${type}: ${recentRequests.length}/${limit.maxRequests}`);
+          
+          return c.json({ 
+            error: 'Rate limit exceeded. Please try again later.',
+            retryAfter: resetIn 
+          }, 429);
+        }
+        
+        // Add current request
+        recentRequests.push(now);
+        await kv.set(key, { requests: recentRequests, firstRequest: data.firstRequest });
+      } else {
+        // First request in window
+        await kv.set(key, { requests: [now], firstRequest: now });
+      }
+      
+      await next();
+    } catch (error) {
+      console.error('Rate limiting error:', error);
+      // Fail open - don't block on rate limit errors
+      await next();
+    }
+  };
+}
+
+// Email domain validation
+const ALLOWED_EMAIL_PATTERNS = [
+  /@wastefull\.org$/i,  // Official organization emails
+  /@wastedb\.app$/i,    // Demo/testing emails
+  /.+@.+\..+/,          // Any valid email for regular users (will be non-admin)
+];
+
+function validateEmail(email: string): { valid: boolean; isOrgEmail: boolean; error?: string } {
+  if (!email || typeof email !== 'string') {
+    return { valid: false, isOrgEmail: false, error: 'Email is required' };
+  }
+  
+  const trimmedEmail = email.trim().toLowerCase();
+  
+  // Basic format validation
+  if (!/.+@.+\..+/.test(trimmedEmail)) {
+    return { valid: false, isOrgEmail: false, error: 'Invalid email format' };
+  }
+  
+  // Check for suspicious patterns
+  if (trimmedEmail.includes('..') || trimmedEmail.includes('+') && trimmedEmail.split('+').length > 2) {
+    return { valid: false, isOrgEmail: false, error: 'Email contains suspicious patterns' };
+  }
+  
+  // Validate length
+  if (trimmedEmail.length > 254) {
+    return { valid: false, isOrgEmail: false, error: 'Email is too long' };
+  }
+  
+  // Check if it's an organization email
+  const isOrgEmail = /@wastefull\.org$/i.test(trimmedEmail);
+  
+  return { valid: true, isOrgEmail };
+}
+
+// Password strength validation
+function validatePassword(password: string): { valid: boolean; error?: string } {
+  if (!password || typeof password !== 'string') {
+    return { valid: false, error: 'Password is required' };
+  }
+  
+  if (password.length < 8) {
+    return { valid: false, error: 'Password must be at least 8 characters' };
+  }
+  
+  if (password.length > 128) {
+    return { valid: false, error: 'Password is too long' };
+  }
+  
+  // Check for common weak passwords
+  const weakPasswords = ['password', '12345678', 'qwertyui', 'admin123', 'letmein1'];
+  if (weakPasswords.some(weak => password.toLowerCase().includes(weak))) {
+    return { valid: false, error: 'Password is too weak. Please choose a stronger password.' };
+  }
+  
+  return { valid: true };
+}
+
+// Honeypot validation (checks for bot-submitted hidden field)
+function checkHoneypot(honeypot: any): boolean {
+  // If honeypot field is filled, it's likely a bot
+  return !honeypot || honeypot === '';
+}
 
 // Enable CORS for all routes and methods
 app.use(
@@ -21,6 +153,46 @@ app.use(
     maxAge: 600,
   }),
 );
+
+// ==================== STORAGE INITIALIZATION ====================
+
+// Initialize Supabase Storage buckets on startup
+async function initializeStorage() {
+  try {
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+    );
+
+    const bucketName = 'make-17cae920-assets';
+
+    // Check if bucket exists
+    const { data: buckets } = await supabase.storage.listBuckets();
+    const bucketExists = buckets?.some(bucket => bucket.name === bucketName);
+
+    if (!bucketExists) {
+      // Create public bucket for assets (logo, images, etc.)
+      const { error } = await supabase.storage.createBucket(bucketName, {
+        public: true,
+        fileSizeLimit: 5242880, // 5MB limit
+        allowedMimeTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml', 'image/webp']
+      });
+
+      if (error) {
+        console.error('Error creating storage bucket:', error);
+      } else {
+        console.log(`✅ Created public storage bucket: ${bucketName}`);
+      }
+    } else {
+      console.log(`✅ Storage bucket already exists: ${bucketName}`);
+    }
+  } catch (error) {
+    console.error('Error initializing storage:', error);
+  }
+}
+
+// Initialize storage on server startup
+initializeStorage();
 
 // Middleware to verify authentication
 async function verifyAuth(c: any, next: any) {
@@ -104,13 +276,40 @@ app.get("/make-server-17cae920/health", (c) => {
   return c.json({ status: "ok" });
 });
 
-// Sign up endpoint (public)
-app.post("/make-server-17cae920/auth/signup", async (c) => {
+// Sign up endpoint (public, rate-limited)
+app.post("/make-server-17cae920/auth/signup", rateLimit('SIGNUP'), async (c) => {
   try {
-    const { email, password, name } = await c.req.json();
+    const body = await c.req.json();
+    const { email, password, name, honeypot } = body;
     
-    if (!email || !password) {
-      return c.json({ error: 'Email and password are required' }, 400);
+    // Check honeypot (anti-bot)
+    if (!checkHoneypot(honeypot)) {
+      console.log('Honeypot triggered for signup attempt');
+      // Return success to not alert bots
+      return c.json({ 
+        user: { id: 'blocked', email: 'blocked', name: 'blocked' } 
+      });
+    }
+    
+    // Validate email
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.valid) {
+      return c.json({ error: emailValidation.error || 'Invalid email' }, 400);
+    }
+    
+    // Validate password
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.valid) {
+      return c.json({ error: passwordValidation.error || 'Invalid password' }, 400);
+    }
+    
+    // Check for duplicate signups from same IP (additional anti-abuse)
+    const clientId = getClientId(c);
+    const recentSignupsKey = `recent_signups:${clientId}`;
+    const recentSignups = await kv.get(recentSignupsKey) as string[] | null;
+    
+    if (recentSignups && recentSignups.includes(email.toLowerCase())) {
+      return c.json({ error: 'Account already created from this location' }, 400);
     }
 
     const supabase = createClient(
@@ -120,17 +319,38 @@ app.post("/make-server-17cae920/auth/signup", async (c) => {
 
     // Create user with admin API
     const { data, error } = await supabase.auth.admin.createUser({
-      email,
+      email: email.toLowerCase().trim(),
       password,
-      user_metadata: { name: name || email.split('@')[0] },
+      user_metadata: { 
+        name: name || email.split('@')[0],
+        isOrgEmail: emailValidation.isOrgEmail,
+        signupIp: getClientId(c).split(':')[0],
+        signupTimestamp: new Date().toISOString()
+      },
       // Automatically confirm the user's email since an email server hasn't been configured
       email_confirm: true,
     });
 
     if (error) {
       console.error('Signup error:', error);
-      return c.json({ error: error.message || 'Failed to create user' }, 400);
+      
+      // Don't reveal if user already exists (security best practice)
+      if (error.message?.includes('already registered')) {
+        return c.json({ error: 'Unable to create account. Please try signing in instead.' }, 400);
+      }
+      
+      return c.json({ error: 'Failed to create account. Please try again.' }, 400);
     }
+    
+    // Track recent signup
+    const updatedSignups = recentSignups ? [...recentSignups, email.toLowerCase()] : [email.toLowerCase()];
+    await kv.set(recentSignupsKey, updatedSignups.slice(-10)); // Keep last 10
+    
+    // Initialize user role (users default to 'user', @wastefull.org gets 'admin')
+    const initialRole = emailValidation.isOrgEmail ? 'admin' : 'user';
+    await kv.set(`user_role:${data.user.id}`, initialRole);
+    
+    console.log(`New user created: ${email} (role: ${initialRole})`);
 
     return c.json({ 
       user: { 
@@ -141,17 +361,47 @@ app.post("/make-server-17cae920/auth/signup", async (c) => {
     });
   } catch (error) {
     console.error('Signup exception:', error);
-    return c.json({ error: 'Server error during signup', details: String(error) }, 500);
+    return c.json({ error: 'Server error during signup. Please try again.' }, 500);
   }
 });
 
-// Sign in endpoint (public)
-app.post("/make-server-17cae920/auth/signin", async (c) => {
+// Sign in endpoint (public, rate-limited)
+app.post("/make-server-17cae920/auth/signin", rateLimit('AUTH'), async (c) => {
   try {
-    const { email, password } = await c.req.json();
+    const body = await c.req.json();
+    const { email, password, honeypot } = body;
+    
+    // Check honeypot (anti-bot)
+    if (!checkHoneypot(honeypot)) {
+      console.log('Honeypot triggered for signin attempt');
+      // Delay response to slow down bots
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      return c.json({ error: 'Invalid credentials' }, 401);
+    }
     
     if (!email || !password) {
       return c.json({ error: 'Email and password are required' }, 400);
+    }
+    
+    // Track failed login attempts per email
+    const failedAttemptsKey = `failed_logins:${email.toLowerCase()}`;
+    const failedAttempts = await kv.get(failedAttemptsKey) as { count: number, lastAttempt: number } | null;
+    
+    // Lock account after 5 failed attempts within 15 minutes
+    if (failedAttempts && failedAttempts.count >= 5) {
+      const lockDuration = 15 * 60 * 1000; // 15 minutes
+      const timeSinceLastAttempt = Date.now() - failedAttempts.lastAttempt;
+      
+      if (timeSinceLastAttempt < lockDuration) {
+        const remainingMinutes = Math.ceil((lockDuration - timeSinceLastAttempt) / 60000);
+        console.log(`Account locked: ${email} (${failedAttempts.count} failed attempts)`);
+        return c.json({ 
+          error: `Too many failed login attempts. Please try again in ${remainingMinutes} minute(s).` 
+        }, 429);
+      } else {
+        // Reset after lock duration
+        await kv.del(failedAttemptsKey);
+      }
     }
 
     const supabase = createClient(
@@ -160,14 +410,26 @@ app.post("/make-server-17cae920/auth/signin", async (c) => {
     );
 
     const { data, error } = await supabase.auth.signInWithPassword({
-      email,
+      email: email.toLowerCase().trim(),
       password,
     });
 
     if (error) {
       console.error('Signin error:', error);
-      return c.json({ error: error.message || 'Invalid credentials' }, 401);
+      
+      // Track failed attempt
+      const newCount = failedAttempts ? failedAttempts.count + 1 : 1;
+      await kv.set(failedAttemptsKey, { count: newCount, lastAttempt: Date.now() });
+      
+      // Use generic error message to prevent user enumeration
+      return c.json({ error: 'Invalid email or password' }, 401);
     }
+    
+    // Clear failed attempts on successful login
+    await kv.del(failedAttemptsKey);
+    
+    // Log successful login
+    console.log(`Successful login: ${email}`);
 
     return c.json({ 
       access_token: data.session.access_token,
@@ -179,12 +441,282 @@ app.post("/make-server-17cae920/auth/signin", async (c) => {
     });
   } catch (error) {
     console.error('Signin exception:', error);
-    return c.json({ error: 'Server error during signin', details: String(error) }, 500);
+    return c.json({ error: 'Server error during signin. Please try again.' }, 500);
   }
 });
 
-// Get all materials (protected)
-app.get("/make-server-17cae920/materials", verifyAuth, async (c) => {
+// Send magic link (public, rate-limited)
+app.post("/make-server-17cae920/auth/magic-link", rateLimit('AUTH'), async (c) => {
+  try {
+    const body = await c.req.json();
+    const { email, honeypot } = body;
+    
+    // Check honeypot (anti-bot)
+    if (!checkHoneypot(honeypot)) {
+      console.log('Honeypot triggered for magic link attempt');
+      // Delay response to slow down bots
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      return c.json({ error: 'Invalid request' }, 400);
+    }
+    
+    if (!email) {
+      return c.json({ error: 'Email is required' }, 400);
+    }
+    
+    // Validate email
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.valid) {
+      return c.json({ error: emailValidation.error || 'Invalid email' }, 400);
+    }
+
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+    );
+
+    const trimmedEmail = email.toLowerCase().trim();
+    
+    // Generate a secure random token
+    const magicToken = crypto.randomUUID();
+    const tokenExpiry = Date.now() + (60 * 60 * 1000); // 1 hour from now
+    
+    // Store the magic link token with expiry
+    await kv.set(`magic_token:${magicToken}`, {
+      email: trimmedEmail,
+      expiry: tokenExpiry,
+      used: false
+    });
+    
+    // Generate magic link
+    const magicLink = `${c.req.url.split('/functions')[0]}?magic_token=${magicToken}`;
+    
+    // Send email via Resend
+    const resendApiKey = Deno.env.get('RESEND_API_KEY');
+    
+    if (!resendApiKey) {
+      console.error('RESEND_API_KEY not configured');
+      return c.json({ error: 'Email service not configured. Please contact support.' }, 500);
+    }
+    
+    try {
+      const emailResponse = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${resendApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: 'WasteDB <auth@wastefull.org>',
+          to: [trimmedEmail],
+          subject: 'Your WasteDB Magic Link',
+          html: `
+            <!DOCTYPE html>
+            <html>
+              <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              </head>
+              <body style="font-family: system-ui, -apple-system, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+                <div style="background: linear-gradient(135deg, #84cc16 0%, #65a30d 100%); padding: 40px 30px; border-radius: 12px 12px 0 0; text-align: center;">
+                  <div style="background: white; border-radius: 12px; padding: 20px; display: inline-block; margin-bottom: 15px;">
+                    <h1 style="color: #65a30d; margin: 0; font-size: 32px; font-family: 'Comic Sans MS', cursive, sans-serif;">Wastefull</h1>
+                  </div>
+                  <p style="color: white; margin: 10px 0 0 0; font-weight: 600;">Materials Database & Sustainability Scoring</p>
+                </div>
+                
+                <div style="background: #ffffff; padding: 40px 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
+                  <h2 style="color: #1f2937; margin-top: 0;">Sign in to WasteDB</h2>
+                  
+                  <p style="color: #4b5563; font-size: 16px;">
+                    Click the button below to securely sign in to your WasteDB account. This link will expire in <strong>1 hour</strong>.
+                  </p>
+                  
+                  <div style="text-align: center; margin: 35px 0;">
+                    <a href="${magicLink}" 
+                       style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 6px rgba(102, 126, 234, 0.25);">
+                      Sign In to WasteDB
+                    </a>
+                  </div>
+                  
+                  <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; margin: 25px 0;">
+                    <p style="margin: 0; font-size: 14px; color: #6b7280;">
+                      <strong>Security tip:</strong> This link can only be used once. If you didn't request this email, you can safely ignore it.
+                    </p>
+                  </div>
+                  
+                  <p style="color: #9ca3af; font-size: 13px; margin-top: 30px; border-top: 1px solid #e5e7eb; padding-top: 20px;">
+                    If the button doesn't work, copy and paste this link into your browser:<br>
+                    <span style="word-break: break-all; color: #667eea;">${magicLink}</span>
+                  </p>
+                </div>
+                
+                <div style="text-align: center; margin-top: 30px; color: #9ca3af; font-size: 12px;">
+                  <p>WasteDB - Sustainable Materials Intelligence</p>
+                  <p style="margin: 5px 0;">This email was sent to ${trimmedEmail}</p>
+                </div>
+              </body>
+            </html>
+          `,
+        }),
+      });
+      
+      if (!emailResponse.ok) {
+        const errorData = await emailResponse.text();
+        console.error('Resend API error:', errorData);
+        throw new Error(`Failed to send email: ${emailResponse.status}`);
+      }
+      
+      const emailData = await emailResponse.json();
+      console.log(`Magic link email sent to ${trimmedEmail} (Resend ID: ${emailData.id})`);
+      
+      return c.json({ 
+        message: 'Magic link sent successfully',
+        email: trimmedEmail
+      });
+    } catch (emailError) {
+      console.error('Error sending magic link email:', emailError);
+      // Still log to console for debugging
+      console.log(`Fallback: Magic link for ${trimmedEmail}: ${magicLink}`);
+      return c.json({ error: 'Failed to send email. Please try again or contact support.' }, 500);
+    }
+  } catch (error) {
+    console.error('Magic link exception:', error);
+    return c.json({ error: 'Server error sending magic link. Please try again.' }, 500);
+  }
+});
+
+// Verify magic link token (public)
+app.post("/make-server-17cae920/auth/verify-magic-link", async (c) => {
+  try {
+    const body = await c.req.json();
+    const { token } = body;
+    
+    if (!token) {
+      return c.json({ error: 'Token is required' }, 400);
+    }
+
+    // Get the magic link token data
+    const tokenData = await kv.get(`magic_token:${token}`) as {
+      email: string;
+      expiry: number;
+      used: boolean;
+    } | null;
+
+    if (!tokenData) {
+      return c.json({ error: 'Invalid or expired magic link' }, 401);
+    }
+
+    // Check if token has expired
+    if (Date.now() > tokenData.expiry) {
+      await kv.del(`magic_token:${token}`);
+      return c.json({ error: 'Magic link has expired' }, 401);
+    }
+
+    // Check if token has already been used
+    if (tokenData.used) {
+      return c.json({ error: 'Magic link has already been used' }, 401);
+    }
+
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+    );
+
+    const trimmedEmail = tokenData.email;
+    let userData;
+
+    // Check if user exists - getUserByEmail doesn't throw, it returns null data if user not found
+    const { data: existingUserData, error: getUserError } = await supabase.auth.admin.getUserByEmail(trimmedEmail);
+    
+    if (existingUserData && existingUserData.user) {
+      // User exists
+      userData = existingUserData;
+      console.log(`Existing user found for magic link: ${trimmedEmail}`);
+    } else {
+      // User doesn't exist, create them
+      console.log(`User not found, creating new user for: ${trimmedEmail}`);
+      const emailValidation = validateEmail(trimmedEmail);
+      const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
+        email: trimmedEmail,
+        user_metadata: { 
+          name: trimmedEmail.split('@')[0],
+          isOrgEmail: emailValidation.isOrgEmail,
+          signupTimestamp: new Date().toISOString(),
+          authMethod: 'magic-link'
+        },
+        email_confirm: true,
+      });
+      
+      if (createError) {
+        console.error('Error creating user for magic link:', createError);
+        
+        // If user already exists (race condition), try to get them again
+        if (createError.message?.includes('already been registered') || createError.code === 'email_exists') {
+          const { data: retryUserData } = await supabase.auth.admin.getUserByEmail(trimmedEmail);
+          if (retryUserData && retryUserData.user) {
+            userData = retryUserData;
+            console.log(`User found on retry: ${trimmedEmail}`);
+          } else {
+            return c.json({ error: 'Failed to retrieve existing account.' }, 400);
+          }
+        } else {
+          return c.json({ error: 'Failed to create account. Please try again.' }, 400);
+        }
+      } else {
+        userData = newUser;
+        
+        // Initialize user role
+        const initialRole = emailValidation.isOrgEmail ? 'admin' : 'user';
+        await kv.set(`user_role:${userData.user.id}`, initialRole);
+        console.log(`New magic link user created: ${trimmedEmail} (role: ${initialRole})`);
+      }
+    }
+    
+    // Ensure user role is set (in case it's an existing user without a role)
+    const existingRole = await kv.get(`user_role:${userData.user.id}`);
+    if (!existingRole) {
+      const emailValidation = validateEmail(trimmedEmail);
+      const initialRole = emailValidation.isOrgEmail ? 'admin' : 'user';
+      await kv.set(`user_role:${userData.user.id}`, initialRole);
+      console.log(`Role initialized for existing user: ${trimmedEmail} (role: ${initialRole})`);
+    }
+
+    // Mark token as used
+    await kv.set(`magic_token:${token}`, {
+      ...tokenData,
+      used: true
+    });
+
+    // Create a session for the user
+    const { data: sessionData, error: sessionError } = await supabase.auth.admin.generateLink({
+      type: 'magiclink',
+      email: trimmedEmail
+    });
+
+    if (sessionError) {
+      console.error('Error generating session:', sessionError);
+      return c.json({ error: 'Failed to create session' }, 500);
+    }
+
+    console.log(`Successful magic link verification: ${trimmedEmail}`);
+
+    // Return user data and access token
+    return c.json({ 
+      access_token: sessionData.properties?.access_token || 'magic-link-token',
+      user: { 
+        id: userData.user.id, 
+        email: userData.user.email,
+        name: userData.user.user_metadata?.name 
+      } 
+    });
+  } catch (error) {
+    console.error('Magic link verification exception:', error);
+    return c.json({ error: 'Server error during verification. Please try again.' }, 500);
+  }
+});
+
+// Get all materials (protected, rate-limited)
+app.get("/make-server-17cae920/materials", rateLimit('API'), verifyAuth, async (c) => {
   try {
     const userId = c.get('userId');
     // Get materials for this user (or all if using public key for backward compat)
@@ -440,6 +972,148 @@ app.put("/make-server-17cae920/users/:id", verifyAuth, verifyAdmin, async (c) =>
   } catch (error) {
     console.error("Error updating user:", error);
     return c.json({ error: "Failed to update user", details: String(error) }, 500);
+  }
+});
+
+// ==================== ASSET STORAGE ROUTES ====================
+
+// Upload asset to Supabase Storage (admin only)
+app.post('/make-server-17cae920/assets/upload', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const formData = await c.req.formData();
+    const file = formData.get('file') as File;
+    
+    if (!file) {
+      return c.json({ error: 'No file provided' }, 400);
+    }
+
+    // Validate file type
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      return c.json({ error: 'Invalid file type. Only images are allowed.' }, 400);
+    }
+
+    // Validate file size (5MB max)
+    if (file.size > 5242880) {
+      return c.json({ error: 'File too large. Maximum size is 5MB.' }, 400);
+    }
+
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+    );
+
+    const bucketName = 'make-17cae920-assets';
+    
+    // Generate filename with timestamp to avoid collisions
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${file.name.split('.')[0]}-${Date.now()}.${fileExt}`;
+
+    // Convert File to ArrayBuffer then to Uint8Array
+    const arrayBuffer = await file.arrayBuffer();
+    const uint8Array = new Uint8Array(arrayBuffer);
+
+    // Upload to Supabase Storage
+    const { data, error } = await supabase.storage
+      .from(bucketName)
+      .upload(fileName, uint8Array, {
+        contentType: file.type,
+        upsert: false
+      });
+
+    if (error) {
+      console.error('Error uploading to storage:', error);
+      return c.json({ error: 'Failed to upload file', details: error.message }, 500);
+    }
+
+    // Get public URL
+    const { data: { publicUrl } } = supabase.storage
+      .from(bucketName)
+      .getPublicUrl(fileName);
+
+    console.log(`✅ Asset uploaded: ${fileName} -> ${publicUrl}`);
+
+    return c.json({ 
+      success: true, 
+      fileName,
+      publicUrl,
+      size: file.size,
+      type: file.type
+    });
+  } catch (error) {
+    console.error('Error in asset upload:', error);
+    return c.json({ error: 'Failed to upload asset', details: String(error) }, 500);
+  }
+});
+
+// List all assets (admin only)
+app.get('/make-server-17cae920/assets', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+    );
+
+    const bucketName = 'make-17cae920-assets';
+
+    const { data, error } = await supabase.storage
+      .from(bucketName)
+      .list();
+
+    if (error) {
+      console.error('Error listing assets:', error);
+      return c.json({ error: 'Failed to list assets', details: error.message }, 500);
+    }
+
+    // Get public URLs for all files
+    const assets = data.map(file => {
+      const { data: { publicUrl } } = supabase.storage
+        .from(bucketName)
+        .getPublicUrl(file.name);
+      
+      return {
+        name: file.name,
+        publicUrl,
+        size: file.metadata?.size,
+        createdAt: file.created_at,
+        updatedAt: file.updated_at
+      };
+    });
+
+    return c.json({ assets });
+  } catch (error) {
+    console.error('Error in asset listing:', error);
+    return c.json({ error: 'Failed to list assets', details: String(error) }, 500);
+  }
+});
+
+// Delete an asset (admin only)
+app.delete('/make-server-17cae920/assets/:fileName', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const fileName = c.req.param('fileName');
+
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+    );
+
+    const bucketName = 'make-17cae920-assets';
+
+    const { error } = await supabase.storage
+      .from(bucketName)
+      .remove([fileName]);
+
+    if (error) {
+      console.error('Error deleting asset:', error);
+      return c.json({ error: 'Failed to delete asset', details: error.message }, 500);
+    }
+
+    console.log(`✅ Asset deleted: ${fileName}`);
+
+    return c.json({ success: true });
+  } catch (error) {
+    console.error('Error in asset deletion:', error);
+    return c.json({ error: 'Failed to delete asset', details: String(error) }, 500);
   }
 });
 

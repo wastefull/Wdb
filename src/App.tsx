@@ -19,6 +19,8 @@ import { ScientificDataEditor } from './components/ScientificDataEditor';
 import { BatchScientificOperations } from './components/BatchScientificOperations';
 import { PublicExportView } from './components/PublicExportView';
 import { DataMigrationTool } from './components/DataMigrationTool';
+import { SourceLibraryManager } from './components/SourceLibraryManager';
+import { AssetUploadManager } from './components/AssetUploadManager';
 import { SOURCE_LIBRARY, getSourcesByTag } from './data/sources';
 import { Popover, PopoverContent, PopoverTrigger } from './components/ui/popover';
 import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './components/ui/tooltip';
@@ -1194,7 +1196,9 @@ function ArticlesView({
   onBack,
   onUpdateMaterial,
   onViewArticleStandalone,
-  isAdminModeActive
+  isAdminModeActive,
+  user,
+  onSignUp
 }: { 
   material: Material; 
   category: CategoryType;
@@ -1202,6 +1206,8 @@ function ArticlesView({
   onUpdateMaterial: (material: Material) => void;
   onViewArticleStandalone: (articleId: string) => void;
   isAdminModeActive?: boolean;
+  user: { id: string; email: string; name?: string } | null;
+  onSignUp: () => void;
 }) {
   const [showForm, setShowForm] = useState(false);
   const [editingArticle, setEditingArticle] = useState<Article | null>(null);
@@ -1337,7 +1343,20 @@ function ArticlesView({
       {articles.length === 0 && (
         <div className="text-center py-12">
           <p className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black/50">
-            No articles yet. Add your first one!
+            {user ? (
+              'No articles yet. Add your first one!'
+            ) : (
+              <>
+                No articles yet.{' '}
+                <button
+                  onClick={onSignUp}
+                  className="text-black dark:text-white underline hover:no-underline transition-all"
+                >
+                  Sign up
+                </button>
+                {' '}to become a contributor!
+              </>
+            )}
           </p>
         </div>
       )}
@@ -1918,7 +1937,8 @@ function DataManagementView({
   onUpdateMaterial,
   onUpdateMaterials,
   onBulkImport,
-  onDeleteAllData
+  onDeleteAllData,
+  onViewMaterial
 }: {
   materials: Material[];
   onBack: () => void;
@@ -1926,6 +1946,7 @@ function DataManagementView({
   onUpdateMaterials: (materials: Material[]) => void;
   onBulkImport: (materials: Material[]) => void;
   onDeleteAllData: () => void;
+  onViewMaterial: (materialId: string) => void;
 }) {
   const [activeTab, setActiveTab] = useState('materials');
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -2101,7 +2122,7 @@ function DataManagementView({
         </div>
       </div>
 
-      {/* Tabs for Material Management and Batch Operations */}
+      {/* Tabs for Material Management, Batch Operations, Source Library, and Assets */}
       <div className="mb-6">
         <div className="flex gap-2 border-b border-[#211f1c]/20 dark:border-white/20">
           <button
@@ -2123,6 +2144,26 @@ function DataManagementView({
             }`}
           >
             Batch Operations
+          </button>
+          <button
+            onClick={() => setActiveTab('sources')}
+            className={`px-4 py-2 font-['Sniglet:Regular',_sans-serif] text-[12px] transition-colors ${
+              activeTab === 'sources'
+                ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
+                : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
+            }`}
+          >
+            Source Library
+          </button>
+          <button
+            onClick={() => setActiveTab('assets')}
+            className={`px-4 py-2 font-['Sniglet:Regular',_sans-serif] text-[12px] transition-colors ${
+              activeTab === 'assets'
+                ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
+                : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
+            }`}
+          >
+            Assets
           </button>
         </div>
       </div>
@@ -2274,7 +2315,7 @@ function DataManagementView({
                 const isEditing = editingId === material.id;
                 return (
                   <TableRow key={material.id} className="border-b border-[#211f1c]/20 dark:border-white/10 hover:bg-[#211f1c]/5 dark:hover:bg-white/5">
-                    <TableCell className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white">
+                    <TableCell className="font-['Sniglet:Regular',_sans-serif] text-[11px]">
                       {isEditing ? (
                         <Input
                           value={editData.name || ''}
@@ -2282,7 +2323,13 @@ function DataManagementView({
                           className="h-7 text-[11px] font-['Sniglet:Regular',_sans-serif] border-[#211f1c] dark:border-white/20"
                         />
                       ) : (
-                        material.name
+                        <button
+                          onClick={() => onViewMaterial(material.id)}
+                          className="text-blue-600 dark:text-blue-400 hover:underline text-left flex items-center gap-1.5 group"
+                        >
+                          <Eye size={12} className="opacity-0 group-hover:opacity-60 transition-opacity" />
+                          {material.name}
+                        </button>
                       )}
                     </TableCell>
                     <TableCell>
@@ -2437,14 +2484,23 @@ function DataManagementView({
         )}
       </div>
         </div>
-      ) : (
+      ) : activeTab === 'batch' ? (
         <BatchScientificOperations
           materials={materials}
           onUpdateMaterials={onUpdateMaterials}
           onBack={() => {}} // Empty since we're in a tab
           isEmbedded={true} // Hide back button when in tab mode
         />
-      )}
+      ) : activeTab === 'sources' ? (
+        <SourceLibraryManager
+          onBack={() => {}} // Empty since we're in a tab
+          materials={materials}
+        />
+      ) : activeTab === 'assets' ? (
+        <AssetUploadManager
+          accessToken={sessionStorage.getItem('wastedb_access_token')}
+        />
+      ) : null}
     </div>
   );
 }
@@ -2467,6 +2523,38 @@ function AppContent() {
   // Check if user is authenticated on mount and fetch their role
   useEffect(() => {
     const loadUserAndRole = async () => {
+      // Handle magic link callback
+      const urlParams = new URLSearchParams(window.location.search);
+      const accessToken = urlParams.get('access_token');
+      const refreshToken = urlParams.get('refresh_token');
+      
+      if (accessToken) {
+        // Magic link authentication successful
+        try {
+          api.setAccessToken(accessToken);
+          
+          // Get user info using the access token
+          const role = await api.getUserRole();
+          setUserRole(role);
+          
+          // Extract user info from the URL or make an API call to get it
+          // For now, we'll get it from the token - in production you'd decode it properly
+          const mockUser = { 
+            id: 'magic-link-user', 
+            email: urlParams.get('email') || 'user@example.com' 
+          };
+          setUser(mockUser);
+          sessionStorage.setItem('wastedb_user', JSON.stringify(mockUser));
+          
+          // Clear the URL parameters to avoid confusion
+          window.history.replaceState({}, document.title, window.location.pathname);
+          
+          console.log('Magic link authentication successful');
+        } catch (error) {
+          console.error('Error processing magic link:', error);
+        }
+      }
+      
       const isAuth = api.isAuthenticated();
       if (isAuth) {
         // Get user info from sessionStorage if available
@@ -3105,6 +3193,8 @@ function AppContent() {
               onUpdateMaterial={handleUpdateMaterial}
               onViewArticleStandalone={(articleId) => handleViewArticleStandalone(currentMaterial.id, articleId, currentView.category)}
               isAdminModeActive={isAdminModeActive}
+              user={user}
+              onSignUp={() => setShowAuthModal(true)}
             />
           ) : currentView.type === 'all-articles' ? (
             <AllArticlesView
@@ -3167,6 +3257,7 @@ function AppContent() {
               onUpdateMaterial={handleUpdateMaterial}
               onUpdateMaterials={(updatedMaterials) => saveMaterials(updatedMaterials)}
               onBulkImport={handleBulkImport}
+              onViewMaterial={(materialId) => setCurrentView({ type: 'material-detail', materialId })}
               onDeleteAllData={async () => {
                 setMaterials([]);
                 localStorage.removeItem('materials');

@@ -110,18 +110,42 @@ async function apiCall(endpoint: string, options: RequestInit = {}) {
 }
 
 // Auth API calls
-export async function signUp(email: string, password: string, name?: string): Promise<AuthResponse> {
+export async function signUp(email: string, password: string, name?: string, honeypot?: string): Promise<AuthResponse> {
   const data = await apiCall('/auth/signup', {
     method: 'POST',
-    body: JSON.stringify({ email, password, name }),
+    body: JSON.stringify({ email, password, name, honeypot }),
   });
   return data;
 }
 
-export async function signIn(email: string, password: string): Promise<AuthResponse> {
+export async function signIn(email: string, password: string, honeypot?: string): Promise<AuthResponse> {
   const data = await apiCall('/auth/signin', {
     method: 'POST',
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ email, password, honeypot }),
+  });
+  
+  // Store the access token
+  if (data.access_token) {
+    setAccessToken(data.access_token);
+  }
+  
+  return data;
+}
+
+import { projectId, publicAnonKey } from './supabase/info';
+
+export async function sendMagicLink(email: string, honeypot?: string): Promise<{ message: string; token?: string }> {
+  const data = await apiCall('/auth/magic-link', {
+    method: 'POST',
+    body: JSON.stringify({ email, honeypot }),
+  });
+  return data;
+}
+
+export async function verifyMagicLink(token: string): Promise<AuthResponse> {
+  const data = await apiCall('/auth/verify-magic-link', {
+    method: 'POST',
+    body: JSON.stringify({ token }),
   });
   
   // Store the access token

@@ -101,6 +101,14 @@ export function ScientificMetadataView({ material, onEditScientific, isAdminMode
     });
   };
   
+  // Get sources that contributed to a specific parameter
+  const getSourcesForParameter = (parameterName: string) => {
+    if (!material.sources) return [];
+    return material.sources
+      .map((source, idx) => ({ ...source, index: idx }))
+      .filter(source => source.parameters?.includes(parameterName));
+  };
+  
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
       <CollapsibleTrigger className="w-full">
@@ -165,35 +173,110 @@ export function ScientificMetadataView({ material, onEditScientific, isAdminMode
                     Raw Parameters (0-1 normalized)
                   </h4>
                 </div>
-                <div className="grid grid-cols-2 gap-2 text-[11px]">
+                <div className="grid grid-cols-1 gap-3 text-[11px]">
                   {material.Y_value !== undefined && (
-                    <div className="flex justify-between">
-                      <span className="text-black/60 dark:text-white/60">Yield (Y):</span>
-                      <span className="text-black dark:text-white font-medium">{material.Y_value.toFixed(2)}</span>
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-black/60 dark:text-white/60">Yield (Y):</span>
+                        <span className="text-black dark:text-white font-medium">{material.Y_value.toFixed(2)}</span>
+                      </div>
+                      {getSourcesForParameter('Y_value').length > 0 && (
+                        <div className="flex flex-wrap gap-1 pl-2">
+                          {getSourcesForParameter('Y_value').map((source) => (
+                            <Badge 
+                              key={source.index} 
+                              variant="outline" 
+                              className="text-[8px] bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
+                            >
+                              [{source.index + 1}] {source.authors?.split(',')[0]?.split(' et al')[0] || 'Source'} {source.year}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )}
                   {material.D_value !== undefined && (
-                    <div className="flex justify-between">
-                      <span className="text-black/60 dark:text-white/60">Degradability (D):</span>
-                      <span className="text-black dark:text-white font-medium">{material.D_value.toFixed(2)}</span>
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-black/60 dark:text-white/60">Degradability (D):</span>
+                        <span className="text-black dark:text-white font-medium">{material.D_value.toFixed(2)}</span>
+                      </div>
+                      {getSourcesForParameter('D_value').length > 0 && (
+                        <div className="flex flex-wrap gap-1 pl-2">
+                          {getSourcesForParameter('D_value').map((source) => (
+                            <Badge 
+                              key={source.index} 
+                              variant="outline" 
+                              className="text-[8px] bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
+                            >
+                              [{source.index + 1}] {source.authors?.split(',')[0]?.split(' et al')[0] || 'Source'} {source.year}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )}
                   {material.C_value !== undefined && (
-                    <div className="flex justify-between">
-                      <span className="text-black/60 dark:text-white/60">Contamination (C):</span>
-                      <span className="text-black dark:text-white font-medium">{material.C_value.toFixed(2)}</span>
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-black/60 dark:text-white/60">Contamination (C):</span>
+                        <span className="text-black dark:text-white font-medium">{material.C_value.toFixed(2)}</span>
+                      </div>
+                      {getSourcesForParameter('C_value').length > 0 && (
+                        <div className="flex flex-wrap gap-1 pl-2">
+                          {getSourcesForParameter('C_value').map((source) => (
+                            <Badge 
+                              key={source.index} 
+                              variant="outline" 
+                              className="text-[8px] bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
+                            >
+                              [{source.index + 1}] {source.authors?.split(',')[0]?.split(' et al')[0] || 'Source'} {source.year}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )}
                   {material.M_value !== undefined && (
-                    <div className="flex justify-between">
-                      <span className="text-black/60 dark:text-white/60">Maturity (M):</span>
-                      <span className="text-black dark:text-white font-medium">{material.M_value.toFixed(2)}</span>
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-black/60 dark:text-white/60">Maturity (M):</span>
+                        <span className="text-black dark:text-white font-medium">{material.M_value.toFixed(2)}</span>
+                      </div>
+                      {getSourcesForParameter('M_value').length > 0 && (
+                        <div className="flex flex-wrap gap-1 pl-2">
+                          {getSourcesForParameter('M_value').map((source) => (
+                            <Badge 
+                              key={source.index} 
+                              variant="outline" 
+                              className="text-[8px] bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
+                            >
+                              [{source.index + 1}] {source.authors?.split(',')[0]?.split(' et al')[0] || 'Source'} {source.year}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )}
                   {material.E_value !== undefined && material.E_value > 0 && (
-                    <div className="flex justify-between">
-                      <span className="text-black/60 dark:text-white/60">Energy (E):</span>
-                      <span className="text-black dark:text-white font-medium">{material.E_value.toFixed(2)}</span>
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-black/60 dark:text-white/60">Energy (E):</span>
+                        <span className="text-black dark:text-white font-medium">{material.E_value.toFixed(2)}</span>
+                      </div>
+                      {getSourcesForParameter('E_value').length > 0 && (
+                        <div className="flex flex-wrap gap-1 pl-2">
+                          {getSourcesForParameter('E_value').map((source) => (
+                            <Badge 
+                              key={source.index} 
+                              variant="outline" 
+                              className="text-[8px] bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
+                            >
+                              [{source.index + 1}] {source.authors?.split(',')[0]?.split(' et al')[0] || 'Source'} {source.year}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -209,7 +292,7 @@ export function ScientificMetadataView({ material, onEditScientific, isAdminMode
                     Composite Recyclability Index (CR)
                   </h4>
                 </div>
-                <div className="space-y-2 text-[11px]">
+                <div className="space-y-3 text-[11px]">
                   {material.CR_practical_mean !== undefined && (
                     <div>
                       <div className="flex justify-between mb-1">
@@ -219,8 +302,21 @@ export function ScientificMetadataView({ material, onEditScientific, isAdminMode
                         </span>
                       </div>
                       {material.CR_practical_CI95 && (
-                        <div className="text-[10px] text-black/50 dark:text-white/50">
+                        <div className="text-[10px] text-black/50 dark:text-white/50 mb-1">
                           95% CI: [{(material.CR_practical_CI95.lower * 100).toFixed(1)}%, {(material.CR_practical_CI95.upper * 100).toFixed(1)}%]
+                        </div>
+                      )}
+                      {getSourcesForParameter('CR_practical_mean').length > 0 && (
+                        <div className="flex flex-wrap gap-1 pl-2">
+                          {getSourcesForParameter('CR_practical_mean').map((source) => (
+                            <Badge 
+                              key={source.index} 
+                              variant="outline" 
+                              className="text-[8px] bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300"
+                            >
+                              [{source.index + 1}] {source.authors?.split(',')[0]?.split(' et al')[0] || 'Source'} {source.year}
+                            </Badge>
+                          ))}
                         </div>
                       )}
                     </div>
@@ -234,8 +330,21 @@ export function ScientificMetadataView({ material, onEditScientific, isAdminMode
                         </span>
                       </div>
                       {material.CR_theoretical_CI95 && (
-                        <div className="text-[10px] text-black/50 dark:text-white/50">
+                        <div className="text-[10px] text-black/50 dark:text-white/50 mb-1">
                           95% CI: [{(material.CR_theoretical_CI95.lower * 100).toFixed(1)}%, {(material.CR_theoretical_CI95.upper * 100).toFixed(1)}%]
+                        </div>
+                      )}
+                      {getSourcesForParameter('CR_theoretical_mean').length > 0 && (
+                        <div className="flex flex-wrap gap-1 pl-2">
+                          {getSourcesForParameter('CR_theoretical_mean').map((source) => (
+                            <Badge 
+                              key={source.index} 
+                              variant="outline" 
+                              className="text-[8px] bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300"
+                            >
+                              [{source.index + 1}] {source.authors?.split(',')[0]?.split(' et al')[0] || 'Source'} {source.year}
+                            </Badge>
+                          ))}
                         </div>
                       )}
                     </div>
@@ -253,21 +362,41 @@ export function ScientificMetadataView({ material, onEditScientific, isAdminMode
                     Sources ({material.sources.length})
                   </h4>
                 </div>
-                <div className="space-y-1 text-[10px]">
+                <div className="space-y-2 text-[10px]">
                   {material.sources.map((source, idx) => (
-                    <div key={idx} className="text-black/60 dark:text-white/60">
-                      {source.authors && `${source.authors}. `}
-                      {source.title}
-                      {source.year && ` (${source.year})`}
-                      {source.doi && (
-                        <a 
-                          href={`https://doi.org/${source.doi}`} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="ml-1 text-blue-600 dark:text-blue-400 hover:underline"
-                        >
-                          DOI
-                        </a>
+                    <div key={idx} className="border-l-2 border-blue-300 dark:border-blue-700 pl-2">
+                      <div className="text-black/80 dark:text-white/80">
+                        <span className="font-medium text-blue-600 dark:text-blue-400">[{idx + 1}]</span>{' '}
+                        {source.authors && `${source.authors}. `}
+                        {source.title}
+                        {source.year && ` (${source.year})`}
+                        {source.doi && (
+                          <a 
+                            href={`https://doi.org/${source.doi}`} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="ml-1 text-blue-600 dark:text-blue-400 hover:underline"
+                          >
+                            DOI
+                          </a>
+                        )}
+                      </div>
+                      {source.parameters && source.parameters.length > 0 && (
+                        <div className="mt-1 text-[9px] text-black/60 dark:text-white/60">
+                          <span className="italic">Used for:</span>{' '}
+                          {source.parameters.map(param => {
+                            const paramNames: Record<string, string> = {
+                              'Y_value': 'Yield',
+                              'D_value': 'Degradability',
+                              'C_value': 'Contamination',
+                              'M_value': 'Maturity',
+                              'E_value': 'Energy',
+                              'CR_practical_mean': 'CR Practical',
+                              'CR_theoretical_mean': 'CR Theoretical'
+                            };
+                            return paramNames[param] || param;
+                          }).join(', ')}
+                        </div>
                       )}
                     </div>
                   ))}

@@ -9,7 +9,7 @@ import { Card } from './ui/card';
 import { Badge } from './ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Alert, AlertDescription } from './ui/alert';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 import { toast } from 'sonner@2.0.3';
 import { SOURCE_LIBRARY, getSourcesByMaterial, type Source as LibrarySource } from '../data/sources';
 
@@ -20,6 +20,7 @@ interface Source {
   doi?: string;
   url?: string;
   weight?: number;
+  parameters?: string[];
 }
 
 interface ConfidenceInterval {
@@ -108,6 +109,32 @@ export function ScientificDataEditor({ material, onSave, onCancel }: ScientificD
       return;
     }
     
+    // Auto-assign parameters based on source tags
+    const parameters: string[] = [];
+    const tags = librarySource.tags || [];
+    
+    if (tags.some(t => ['recycling', 'yield', 'recovery'].includes(t))) {
+      parameters.push('Y_value', 'CR_practical_mean');
+    }
+    if (tags.some(t => ['degradation', 'quality', 'composting'].includes(t))) {
+      parameters.push('D_value');
+    }
+    if (tags.some(t => ['contamination', 'purity'].includes(t))) {
+      parameters.push('C_value');
+    }
+    if (tags.some(t => ['infrastructure', 'maturity', 'facilities'].includes(t))) {
+      parameters.push('M_value');
+    }
+    if (tags.some(t => ['energy', 'lca'].includes(t))) {
+      parameters.push('E_value');
+    }
+    if (tags.includes('general') || tags.includes('methodology')) {
+      parameters.push('CR_practical_mean', 'CR_theoretical_mean');
+    }
+    
+    // If no specific parameters assigned, default to CR scores
+    const finalParameters = parameters.length > 0 ? parameters : ['CR_practical_mean', 'CR_theoretical_mean'];
+    
     // Convert library source to material source format
     const newSource: Source = {
       title: librarySource.title,
@@ -116,6 +143,7 @@ export function ScientificDataEditor({ material, onSave, onCancel }: ScientificD
       doi: librarySource.doi,
       url: librarySource.url,
       weight: librarySource.weight,
+      parameters: finalParameters,
     };
     
     setSources(prev => [...prev, newSource]);
@@ -571,7 +599,7 @@ export function ScientificDataEditor({ material, onSave, onCancel }: ScientificD
                       {source.authors && (
                         <p className="text-[9px] text-black/60 dark:text-white/60">{source.authors}</p>
                       )}
-                      <div className="flex items-center gap-2 mt-1">
+                      <div className="flex items-center gap-2 mt-1 flex-wrap">
                         {source.year && (
                           <Badge variant="outline" className="text-[8px]">{source.year}</Badge>
                         )}
@@ -589,6 +617,23 @@ export function ScientificDataEditor({ material, onSave, onCancel }: ScientificD
                           <Badge variant="outline" className="text-[8px]">Weight: {source.weight.toFixed(2)}</Badge>
                         )}
                       </div>
+                      {source.parameters && source.parameters.length > 0 && (
+                        <div className="mt-2 text-[9px] text-black/60 dark:text-white/60">
+                          <span className="italic">Used for:</span>{' '}
+                          {source.parameters.map(param => {
+                            const paramNames: Record<string, string> = {
+                              'Y_value': 'Yield',
+                              'D_value': 'Degradability',
+                              'C_value': 'Contamination',
+                              'M_value': 'Maturity',
+                              'E_value': 'Energy',
+                              'CR_practical_mean': 'CR Practical',
+                              'CR_theoretical_mean': 'CR Theoretical'
+                            };
+                            return paramNames[param] || param;
+                          }).join(', ')}
+                        </div>
+                      )}
                     </div>
                     <Button
                       onClick={() => handleRemoveSource(index)}
@@ -626,6 +671,9 @@ export function ScientificDataEditor({ material, onSave, onCancel }: ScientificD
                     <DialogTitle className="font-['Sniglet:Regular',_sans-serif]">
                       Source Library
                     </DialogTitle>
+                    <DialogDescription className="text-[11px]">
+                      Browse and add academic sources from our curated library to support your scientific data.
+                    </DialogDescription>
                   </DialogHeader>
                   
                   {/* Search */}
