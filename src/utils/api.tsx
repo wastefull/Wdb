@@ -143,17 +143,24 @@ export async function sendMagicLink(email: string, honeypot?: string): Promise<{
 }
 
 export async function verifyMagicLink(token: string): Promise<AuthResponse> {
-  const data = await apiCall('/auth/verify-magic-link', {
-    method: 'POST',
-    body: JSON.stringify({ token }),
-  });
-  
-  // Store the access token
-  if (data.access_token) {
-    setAccessToken(data.access_token);
+  console.log('Calling verify-magic-link API with token:', token);
+  try {
+    const data = await apiCall('/auth/verify-magic-link', {
+      method: 'POST',
+      body: JSON.stringify({ token }),
+    });
+    console.log('Verify-magic-link API response:', data);
+    
+    // Store the access token
+    if (data.access_token) {
+      setAccessToken(data.access_token);
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Verify-magic-link API error:', error);
+    throw error;
   }
-  
-  return data;
 }
 
 export function signOut() {

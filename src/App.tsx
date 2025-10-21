@@ -2525,33 +2525,42 @@ function AppContent() {
     const loadUserAndRole = async () => {
       // Handle magic link callback
       const urlParams = new URLSearchParams(window.location.search);
-      const accessToken = urlParams.get('access_token');
-      const refreshToken = urlParams.get('refresh_token');
+      const magicToken = urlParams.get('magic_token');
       
-      if (accessToken) {
-        // Magic link authentication successful
+      if (magicToken) {
+        // Verify magic link token and get access token
+        console.log('Detected magic token in URL, verifying...');
         try {
-          api.setAccessToken(accessToken);
+          const response = await api.verifyMagicLink(magicToken);
+          console.log('Magic link verification response:', response);
           
-          // Get user info using the access token
-          const role = await api.getUserRole();
-          setUserRole(role);
-          
-          // Extract user info from the URL or make an API call to get it
-          // For now, we'll get it from the token - in production you'd decode it properly
-          const mockUser = { 
-            id: 'magic-link-user', 
-            email: urlParams.get('email') || 'user@example.com' 
-          };
-          setUser(mockUser);
-          sessionStorage.setItem('wastedb_user', JSON.stringify(mockUser));
-          
-          // Clear the URL parameters to avoid confusion
-          window.history.replaceState({}, document.title, window.location.pathname);
-          
-          console.log('Magic link authentication successful');
+          if (response.access_token && response.user) {
+            // Store access token
+            api.setAccessToken(response.access_token);
+            
+            // Set user info
+            setUser(response.user);
+            sessionStorage.setItem('wastedb_user', JSON.stringify(response.user));
+            
+            // Get user role
+            const role = await api.getUserRole();
+            setUserRole(role);
+            
+            // Clear the URL parameters to avoid confusion
+            window.history.replaceState({}, document.title, window.location.pathname);
+            
+            console.log('Magic link authentication successful');
+            toast.success(`Welcome back, ${response.user.email}!`);
+          } else {
+            console.error('Invalid response structure:', response);
+            throw new Error('Invalid magic link response');
+          }
         } catch (error) {
           console.error('Error processing magic link:', error);
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          toast.error(`Magic link verification failed: ${errorMessage}`);
+          // Clear the URL parameters
+          window.history.replaceState({}, document.title, window.location.pathname);
         }
       }
       

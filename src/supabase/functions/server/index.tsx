@@ -211,6 +211,29 @@ async function verifyAuth(c: any, next: any) {
   }
 
   try {
+    // First, check if this is a custom session token (magic link)
+    const sessionData = await kv.get(`session:${token}`) as {
+      userId: string;
+      email: string;
+      expiry: number;
+      createdAt: number;
+    } | null;
+    
+    if (sessionData) {
+      // Verify session hasn't expired
+      if (Date.now() > sessionData.expiry) {
+        await kv.del(`session:${token}`);
+        return c.json({ error: 'Session expired - please sign in again' }, 401);
+      }
+      
+      // Session is valid - set context and continue
+      c.set('userId', sessionData.userId);
+      c.set('userEmail', sessionData.email);
+      await next();
+      return;
+    }
+    
+    // If not a custom session, try Supabase JWT token (for backward compatibility)
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
@@ -487,8 +510,10 @@ app.post("/make-server-17cae920/auth/magic-link", rateLimit('AUTH'), async (c) =
       used: false
     });
     
-    // Generate magic link
-    const magicLink = `${c.req.url.split('/functions')[0]}?magic_token=${magicToken}`;
+    // Generate magic link pointing to the frontend app
+    // In production, this should be https://db.wastefull.org
+    const appUrl = Deno.env.get('APP_URL') || 'https://db.wastefull.org';
+    const magicLink = `${appUrl}?magic_token=${magicToken}`;
     
     // Send email via Resend
     const resendApiKey = Deno.env.get('RESEND_API_KEY');
@@ -625,12 +650,13 @@ app.post("/make-server-17cae920/auth/verify-magic-link", async (c) => {
     const trimmedEmail = tokenData.email;
     let userData;
 
-    // Check if user exists - getUserByEmail doesn't throw, it returns null data if user not found
-    const { data: existingUserData, error: getUserError } = await supabase.auth.admin.getUserByEmail(trimmedEmail);
+    // Check if user exists by listing users with email filter
+    const { data: listResult, error: getUserError } = await supabase.auth.admin.listUsers();
+    const existingUser = listResult?.users?.find(u => u.email === trimmedEmail);
     
-    if (existingUserData && existingUserData.user) {
+    if (existingUser) {
       // User exists
-      userData = existingUserData;
+      userData = { user: existingUser };
       console.log(`Existing user found for magic link: ${trimmedEmail}`);
     } else {
       // User doesn't exist, create them
@@ -652,9 +678,10 @@ app.post("/make-server-17cae920/auth/verify-magic-link", async (c) => {
         
         // If user already exists (race condition), try to get them again
         if (createError.message?.includes('already been registered') || createError.code === 'email_exists') {
-          const { data: retryUserData } = await supabase.auth.admin.getUserByEmail(trimmedEmail);
-          if (retryUserData && retryUserData.user) {
-            userData = retryUserData;
+          const { data: retryListResult } = await supabase.auth.admin.listUsers();
+          const retryUser = retryListResult?.users?.find(u => u.email === trimmedEmail);
+          if (retryUser) {
+            userData = { user: retryUser };
             console.log(`User found on retry: ${trimmedEmail}`);
           } else {
             return c.json({ error: 'Failed to retrieve existing account.' }, 400);
@@ -687,22 +714,23 @@ app.post("/make-server-17cae920/auth/verify-magic-link", async (c) => {
       used: true
     });
 
-    // Create a session for the user
-    const { data: sessionData, error: sessionError } = await supabase.auth.admin.generateLink({
-      type: 'magiclink',
-      email: trimmedEmail
+    // Generate a custom access token for this session
+    const accessToken = crypto.randomUUID();
+    const sessionExpiry = Date.now() + (7 * 24 * 60 * 60 * 1000); // 7 days
+    
+    // Store the session
+    await kv.set(`session:${accessToken}`, {
+      userId: userData.user.id,
+      email: userData.user.email,
+      expiry: sessionExpiry,
+      createdAt: Date.now()
     });
-
-    if (sessionError) {
-      console.error('Error generating session:', sessionError);
-      return c.json({ error: 'Failed to create session' }, 500);
-    }
 
     console.log(`Successful magic link verification: ${trimmedEmail}`);
 
     // Return user data and access token
     return c.json({ 
-      access_token: sessionData.properties?.access_token || 'magic-link-token',
+      access_token: accessToken,
       user: { 
         id: userData.user.id, 
         email: userData.user.email,
