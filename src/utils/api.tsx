@@ -17,11 +17,11 @@ interface Material {
     reusability: any[];
   };
   
-  // Scientific parameters (normalized 0-1)
+  // ========== RECYCLABILITY (CR-v1) ==========
   Y_value?: number;  // Yield (recovery rate)
   D_value?: number;  // Degradation (quality loss)
   C_value?: number;  // Contamination tolerance
-  M_value?: number;  // Maturity (infrastructure availability)
+  M_value?: number;  // Maturity (infrastructure availability) - shared across all dimensions
   E_value?: number;  // Energy demand (normalized)
   
   // Calculated composite recyclability scores
@@ -32,6 +32,40 @@ interface Material {
     upper: number;
   };
   CR_theoretical_CI95?: {
+    lower: number;
+    upper: number;
+  };
+  
+  // ========== COMPOSTABILITY (CC-v1) ==========
+  B_value?: number;  // Biodegradation rate constant
+  N_value?: number;  // Nutrient balance
+  T_value?: number;  // Toxicity / Residue index
+  H_value?: number;  // Habitat adaptability
+  
+  CC_practical_mean?: number;
+  CC_theoretical_mean?: number;
+  CC_practical_CI95?: {
+    lower: number;
+    upper: number;
+  };
+  CC_theoretical_CI95?: {
+    lower: number;
+    upper: number;
+  };
+  
+  // ========== REUSABILITY (RU-v1) ==========
+  L_value?: number;  // Lifetime
+  R_value?: number;  // Repairability
+  U_value?: number;  // Upgradability
+  C_RU_value?: number;  // Contamination susceptibility (renamed to avoid conflict)
+  
+  RU_practical_mean?: number;
+  RU_theoretical_mean?: number;
+  RU_practical_CI95?: {
+    lower: number;
+    upper: number;
+  };
+  RU_theoretical_CI95?: {
     lower: number;
     upper: number;
   };
@@ -400,4 +434,77 @@ export async function batchSaveSources(sources: Source[]): Promise<void> {
     method: 'POST',
     body: JSON.stringify({ sources }),
   });
+}
+
+// ==================== CALCULATION API ====================
+
+export interface CompostabilityParams {
+  B?: number;  // Biodegradation rate constant (0-1)
+  N?: number;  // Nutrient balance (0-1)
+  T?: number;  // Toxicity / Residue index (0-1)
+  H?: number;  // Habitat adaptability (0-1)
+  M?: number;  // Maturity - infrastructure (0-1)
+  mode?: 'theoretical' | 'practical';
+}
+
+export interface ReusabilityParams {
+  L?: number;  // Lifetime (0-1)
+  R?: number;  // Repairability (0-1)
+  U?: number;  // Upgradability (0-1)
+  C?: number;  // Contamination susceptibility (0-1)
+  M?: number;  // Maturity - market infrastructure (0-1)
+  mode?: 'theoretical' | 'practical';
+}
+
+export interface CalculationResult {
+  mean: number;  // 0-1 scale
+  public: number;  // 0-100 scale
+  mode: 'theoretical' | 'practical';
+  weights: Record<string, number>;
+  whitepaper_version: string;
+  method_version: string;
+  calculation_timestamp: string;
+}
+
+// Calculate Compostability Index (CC)
+export async function calculateCompostability(params: CompostabilityParams): Promise<CalculationResult> {
+  const data = await apiCall('/calculate/compostability', {
+    method: 'POST',
+    body: JSON.stringify(params),
+  });
+  return {
+    mean: data.CC_mean,
+    public: data.CC_public,
+    mode: data.mode,
+    weights: data.weights,
+    whitepaper_version: data.whitepaper_version,
+    method_version: data.method_version,
+    calculation_timestamp: data.calculation_timestamp
+  };
+}
+
+// Calculate Reusability Index (RU)
+export async function calculateReusability(params: ReusabilityParams): Promise<CalculationResult> {
+  const data = await apiCall('/calculate/reusability', {
+    method: 'POST',
+    body: JSON.stringify(params),
+  });
+  return {
+    mean: data.RU_mean,
+    public: data.RU_public,
+    mode: data.mode,
+    weights: data.weights,
+    whitepaper_version: data.whitepaper_version,
+    method_version: data.method_version,
+    calculation_timestamp: data.calculation_timestamp
+  };
+}
+
+// Calculate all three dimensions (CR, CC, RU)
+export async function calculateAllDimensions(params: any): Promise<any> {
+  const data = await apiCall('/calculate/all-dimensions', {
+    method: 'POST',
+    body: JSON.stringify(params),
+  });
+  return data;
 }

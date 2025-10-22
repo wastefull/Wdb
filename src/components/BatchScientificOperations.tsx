@@ -8,31 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { Badge } from './ui/badge';
 import { toast } from 'sonner@2.0.3';
-
-interface Material {
-  id: string;
-  name: string;
-  category: string;
-  compostability: number;
-  recyclability: number;
-  reusability: number;
-  description?: string;
-  
-  Y_value?: number;
-  D_value?: number;
-  C_value?: number;
-  M_value?: number;
-  E_value?: number;
-  CR_practical_mean?: number;
-  CR_theoretical_mean?: number;
-  CR_practical_CI95?: { lower: number; upper: number };
-  CR_theoretical_CI95?: { lower: number; upper: number };
-  confidence_level?: 'High' | 'Medium' | 'Low';
-  sources?: any[];
-  whitepaper_version?: string;
-  calculation_timestamp?: string;
-  method_version?: string;
-}
+import type { Material } from './scientific-editor/types';
+import { getSuggestedConfidenceLevel } from './scientific-editor/utils';
 
 interface BatchScientificOperationsProps {
   materials: Material[];
@@ -57,7 +34,11 @@ export function BatchScientificOperations({ materials, onUpdateMaterials, onBack
 
   // Calculate statistics
   const calculateStats = () => {
-    const withScientificData = materials.filter(m => m.Y_value !== undefined).length;
+    const withScientificData = materials.filter(m => 
+      m.Y_value !== undefined || 
+      m.B_value !== undefined || 
+      m.L_value !== undefined
+    ).length;
     const highConfidence = materials.filter(m => m.confidence_level === 'High').length;
     const mediumConfidence = materials.filter(m => m.confidence_level === 'Medium').length;
     const lowConfidence = materials.filter(m => m.confidence_level === 'Low').length;
@@ -82,18 +63,42 @@ export function BatchScientificOperations({ materials, onUpdateMaterials, onBack
         name: material.name,
         category: material.category,
         
-        // Raw parameters
+        // CR parameters
         Y_value: material.Y_value,
         D_value: material.D_value,
         C_value: material.C_value,
         M_value: material.M_value,
         E_value: material.E_value,
         
-        // Composite scores
+        // CR composite scores
         CR_practical_mean: material.CR_practical_mean,
         CR_theoretical_mean: material.CR_theoretical_mean,
         CR_practical_CI95: material.CR_practical_CI95,
         CR_theoretical_CI95: material.CR_theoretical_CI95,
+        
+        // CC parameters
+        B_value: material.B_value,
+        N_value: material.N_value,
+        T_value: material.T_value,
+        H_value: material.H_value,
+        
+        // CC composite scores
+        CC_practical_mean: material.CC_practical_mean,
+        CC_theoretical_mean: material.CC_theoretical_mean,
+        CC_practical_CI95: material.CC_practical_CI95,
+        CC_theoretical_CI95: material.CC_theoretical_CI95,
+        
+        // RU parameters
+        L_value: material.L_value,
+        R_value: material.R_value,
+        U_value: material.U_value,
+        C_RU_value: material.C_RU_value,
+        
+        // RU composite scores
+        RU_practical_mean: material.RU_practical_mean,
+        RU_theoretical_mean: material.RU_theoretical_mean,
+        RU_practical_CI95: material.RU_practical_CI95,
+        RU_theoretical_CI95: material.RU_theoretical_CI95,
         
         // Metadata
         confidence_level: material.confidence_level,
@@ -129,9 +134,19 @@ export function BatchScientificOperations({ materials, onUpdateMaterials, onBack
     try {
       const headers = [
         'ID', 'Name', 'Category',
+        // CR parameters
         'Y (Yield)', 'D (Degradability)', 'C (Contamination)', 'M (Maturity)', 'E (Energy)',
         'CR Practical Mean', 'CR Practical CI Lower', 'CR Practical CI Upper',
         'CR Theoretical Mean', 'CR Theoretical CI Lower', 'CR Theoretical CI Upper',
+        // CC parameters
+        'B (Biodegradation)', 'N (Nutrient Balance)', 'T (Toxicity)', 'H (Habitat Adaptability)',
+        'CC Practical Mean', 'CC Practical CI Lower', 'CC Practical CI Upper',
+        'CC Theoretical Mean', 'CC Theoretical CI Lower', 'CC Theoretical CI Upper',
+        // RU parameters
+        'L (Lifetime)', 'R (Repairability)', 'U (Upgradability)', 'C_RU (Contamination RU)',
+        'RU Practical Mean', 'RU Practical CI Lower', 'RU Practical CI Upper',
+        'RU Theoretical Mean', 'RU Theoretical CI Lower', 'RU Theoretical CI Upper',
+        // Metadata
         'Confidence Level', 'Source Count', 'Whitepaper Version', 'Method Version', 'Timestamp'
       ];
       
@@ -139,6 +154,7 @@ export function BatchScientificOperations({ materials, onUpdateMaterials, onBack
         m.id,
         m.name,
         m.category,
+        // CR parameters
         m.Y_value?.toFixed(4) || '',
         m.D_value?.toFixed(4) || '',
         m.C_value?.toFixed(4) || '',
@@ -150,6 +166,29 @@ export function BatchScientificOperations({ materials, onUpdateMaterials, onBack
         m.CR_theoretical_mean?.toFixed(4) || '',
         m.CR_theoretical_CI95?.lower.toFixed(4) || '',
         m.CR_theoretical_CI95?.upper.toFixed(4) || '',
+        // CC parameters
+        m.B_value?.toFixed(4) || '',
+        m.N_value?.toFixed(4) || '',
+        m.T_value?.toFixed(4) || '',
+        m.H_value?.toFixed(4) || '',
+        m.CC_practical_mean?.toFixed(4) || '',
+        m.CC_practical_CI95?.lower.toFixed(4) || '',
+        m.CC_practical_CI95?.upper.toFixed(4) || '',
+        m.CC_theoretical_mean?.toFixed(4) || '',
+        m.CC_theoretical_CI95?.lower.toFixed(4) || '',
+        m.CC_theoretical_CI95?.upper.toFixed(4) || '',
+        // RU parameters
+        m.L_value?.toFixed(4) || '',
+        m.R_value?.toFixed(4) || '',
+        m.U_value?.toFixed(4) || '',
+        m.C_RU_value?.toFixed(4) || '',
+        m.RU_practical_mean?.toFixed(4) || '',
+        m.RU_practical_CI95?.lower.toFixed(4) || '',
+        m.RU_practical_CI95?.upper.toFixed(4) || '',
+        m.RU_theoretical_mean?.toFixed(4) || '',
+        m.RU_theoretical_CI95?.lower.toFixed(4) || '',
+        m.RU_theoretical_CI95?.upper.toFixed(4) || '',
+        // Metadata
         m.confidence_level || '',
         m.sources?.length || '0',
         m.whitepaper_version || '',
@@ -242,30 +281,26 @@ export function BatchScientificOperations({ materials, onUpdateMaterials, onBack
         setProgress(((index + 1) / materials.length) * 100);
       }, 10);
       
-      // Skip if no scientific data
-      if (!material.Y_value) {
+      // Skip if no scientific data at all
+      const hasAnyScientificData = 
+        material.Y_value !== undefined || 
+        material.B_value !== undefined || 
+        material.L_value !== undefined;
+      
+      if (!hasAnyScientificData) {
         return material;
       }
       
-      // Calculate completeness score
-      let completeness = 0;
-      if (material.Y_value !== undefined) completeness += 0.2;
-      if (material.D_value !== undefined) completeness += 0.2;
-      if (material.C_value !== undefined) completeness += 0.2;
-      if (material.M_value !== undefined) completeness += 0.2;
-      if (material.sources && material.sources.length > 0) completeness += 0.2;
+      // Calculate total source weight
+      const sources = material.sources || [];
+      const totalWeight = sources.reduce((sum, s) => sum + (s.weight || 1.0), 0);
       
-      // Determine confidence level
-      let confidenceLevel: 'High' | 'Medium' | 'Low' = 'Low';
-      if (completeness >= 0.8 && material.sources && material.sources.length >= 2) {
-        confidenceLevel = 'High';
-      } else if (completeness >= 0.6) {
-        confidenceLevel = 'Medium';
-      }
+      // Use the shared utility function to determine confidence level
+      const suggestedLevel = getSuggestedConfidenceLevel(sources.length, totalWeight);
       
       return {
         ...material,
-        confidence_level: confidenceLevel,
+        confidence_level: suggestedLevel,
       };
     });
     
@@ -274,7 +309,7 @@ export function BatchScientificOperations({ materials, onUpdateMaterials, onBack
       setRecalculating(false);
       setProgress(0);
       calculateStats();
-      toast.success('Confidence levels recalculated');
+      toast.success('Confidence levels recalculated for all materials');
     }, materials.length * 10 + 100);
   };
 

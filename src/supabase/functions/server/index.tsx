@@ -1775,9 +1775,19 @@ app.get('/make-server-17cae920/export/full', async (c) => {
     if (format === 'csv') {
       const headers = [
         'ID', 'Name', 'Category', 'Description',
+        // CR parameters
         'Y (Yield)', 'D (Degradability)', 'C (Contamination)', 'M (Maturity)', 'E (Energy)',
         'CR Practical Mean', 'CR Practical CI Lower', 'CR Practical CI Upper',
         'CR Theoretical Mean', 'CR Theoretical CI Lower', 'CR Theoretical CI Upper',
+        // CC parameters
+        'B (Biodegradation)', 'N (Nutrient Balance)', 'T (Toxicity)', 'H (Habitat Adaptability)',
+        'CC Practical Mean', 'CC Practical CI Lower', 'CC Practical CI Upper',
+        'CC Theoretical Mean', 'CC Theoretical CI Lower', 'CC Theoretical CI Upper',
+        // RU parameters
+        'L (Lifetime)', 'R (Repairability)', 'U (Upgradability)', 'C_RU (Contamination)',
+        'RU Practical Mean', 'RU Practical CI Lower', 'RU Practical CI Upper',
+        'RU Theoretical Mean', 'RU Theoretical CI Lower', 'RU Theoretical CI Upper',
+        // Public scores and metadata
         'Compostability (0-100)', 'Recyclability (0-100)', 'Reusability (0-100)',
         'Confidence Level', 'Source Count', 'Whitepaper Version', 'Method Version',
         'Calculation Timestamp'
@@ -1788,6 +1798,7 @@ app.get('/make-server-17cae920/export/full', async (c) => {
         m.name,
         m.category,
         m.description || '',
+        // CR parameters
         m.Y_value?.toFixed(4) || '',
         m.D_value?.toFixed(4) || '',
         m.C_value?.toFixed(4) || '',
@@ -1799,6 +1810,29 @@ app.get('/make-server-17cae920/export/full', async (c) => {
         m.CR_theoretical_mean?.toFixed(4) || '',
         m.CR_theoretical_CI95?.lower?.toFixed(4) || '',
         m.CR_theoretical_CI95?.upper?.toFixed(4) || '',
+        // CC parameters
+        m.B_value?.toFixed(4) || '',
+        m.N_value?.toFixed(4) || '',
+        m.T_value?.toFixed(4) || '',
+        m.H_value?.toFixed(4) || '',
+        m.CC_practical_mean?.toFixed(4) || '',
+        m.CC_practical_CI95?.lower?.toFixed(4) || '',
+        m.CC_practical_CI95?.upper?.toFixed(4) || '',
+        m.CC_theoretical_mean?.toFixed(4) || '',
+        m.CC_theoretical_CI95?.lower?.toFixed(4) || '',
+        m.CC_theoretical_CI95?.upper?.toFixed(4) || '',
+        // RU parameters
+        m.L_value?.toFixed(4) || '',
+        m.R_value?.toFixed(4) || '',
+        m.U_value?.toFixed(4) || '',
+        m.C_RU_value?.toFixed(4) || '',
+        m.RU_practical_mean?.toFixed(4) || '',
+        m.RU_practical_CI95?.lower?.toFixed(4) || '',
+        m.RU_practical_CI95?.upper?.toFixed(4) || '',
+        m.RU_theoretical_mean?.toFixed(4) || '',
+        m.RU_theoretical_CI95?.lower?.toFixed(4) || '',
+        m.RU_theoretical_CI95?.upper?.toFixed(4) || '',
+        // Public scores and metadata
         m.compostability || '',
         m.recyclability || '',
         m.reusability || '',
@@ -1951,6 +1985,183 @@ app.post('/make-server-17cae920/sources/batch', verifyAuth, verifyAdmin, async (
   } catch (error) {
     console.error("Error batch saving sources:", error);
     return c.json({ error: "Failed to batch save sources", details: String(error) }, 500);
+  }
+});
+
+// ==================== CALCULATION ENDPOINTS ====================
+
+/**
+ * Calculate Composite Compostability Index (CC)
+ * Based on CC-v1 methodology whitepaper
+ * Formula: CC = w_B·B + w_N·N + w_H·H + w_M·M − w_T·T
+ */
+app.post('/make-server-17cae920/calculate/compostability', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const { B, N, T, H, M, mode } = await c.req.json();
+    
+    // Validate inputs (all should be 0-1)
+    const params = { B, N, T, H, M };
+    for (const [key, value] of Object.entries(params)) {
+      if (value !== undefined && (typeof value !== 'number' || value < 0 || value > 1)) {
+        return c.json({ error: `Invalid ${key} value. Must be between 0 and 1.` }, 400);
+      }
+    }
+    
+    // Default weights (from CC-v1 whitepaper)
+    const weights = mode === 'theoretical' 
+      ? { w_B: 0.45, w_N: 0.15, w_H: 0.15, w_M: 0.15, w_T: 0.10 }
+      : { w_B: 0.35, w_N: 0.15, w_H: 0.20, w_M: 0.20, w_T: 0.10 };
+    
+    // Calculate CC
+    const CC = (weights.w_B * (B || 0)) + 
+               (weights.w_N * (N || 0)) + 
+               (weights.w_H * (H || 0)) + 
+               (weights.w_M * (M || 0)) - 
+               (weights.w_T * (T || 0));
+    
+    // Constrain to 0-1
+    const CC_constrained = Math.max(0, Math.min(1, CC));
+    
+    return c.json({
+      CC_mean: CC_constrained,
+      CC_public: Math.round(CC_constrained * 100), // 0-100 scale
+      mode: mode || 'practical',
+      weights,
+      inputs: params,
+      whitepaper_version: '2025.1',
+      method_version: 'CC-v1',
+      calculation_timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Error calculating compostability:', error);
+    return c.json({ error: 'Failed to calculate compostability', details: String(error) }, 500);
+  }
+});
+
+/**
+ * Calculate Composite Reusability Index (RU)
+ * Based on RU-v1 methodology whitepaper
+ * Formula: RU = w_L·L + w_R·R + w_U·U + w_M·M − w_C·C
+ */
+app.post('/make-server-17cae920/calculate/reusability', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const { L, R, U, C, M, mode } = await c.req.json();
+    
+    // Validate inputs (all should be 0-1)
+    const params = { L, R, U, C, M };
+    for (const [key, value] of Object.entries(params)) {
+      if (value !== undefined && (typeof value !== 'number' || value < 0 || value > 1)) {
+        return c.json({ error: `Invalid ${key} value. Must be between 0 and 1.` }, 400);
+      }
+    }
+    
+    // Default weights (from RU-v1 whitepaper)
+    const weights = mode === 'theoretical'
+      ? { w_L: 0.35, w_R: 0.20, w_U: 0.15, w_M: 0.20, w_C: 0.10 }
+      : { w_L: 0.25, w_R: 0.25, w_U: 0.15, w_M: 0.25, w_C: 0.10 };
+    
+    // Calculate RU
+    const RU = (weights.w_L * (L || 0)) + 
+               (weights.w_R * (R || 0)) + 
+               (weights.w_U * (U || 0)) + 
+               (weights.w_M * (M || 0)) - 
+               (weights.w_C * (C || 0));
+    
+    // Constrain to 0-1
+    const RU_constrained = Math.max(0, Math.min(1, RU));
+    
+    return c.json({
+      RU_mean: RU_constrained,
+      RU_public: Math.round(RU_constrained * 100), // 0-100 scale
+      mode: mode || 'practical',
+      weights,
+      inputs: params,
+      whitepaper_version: '2025.1',
+      method_version: 'RU-v1',
+      calculation_timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Error calculating reusability:', error);
+    return c.json({ error: 'Failed to calculate reusability', details: String(error) }, 500);
+  }
+});
+
+/**
+ * Batch calculate all three dimensions for a material
+ * Returns CR, CC, and RU values
+ */
+app.post('/make-server-17cae920/calculate/all-dimensions', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const params = await c.req.json();
+    const { mode } = params;
+    
+    const results: any = {
+      mode: mode || 'practical',
+      calculation_timestamp: new Date().toISOString(),
+      whitepaper_version: '2025.1'
+    };
+    
+    // Calculate CR if Y, D, C, M, E are provided
+    if (params.Y !== undefined || params.D !== undefined || params.C !== undefined || 
+        params.M !== undefined || params.E !== undefined) {
+      // CR calculation logic (existing)
+      // For now, we'll just indicate it needs implementation
+      results.CR = { 
+        message: 'CR calculation implementation needed',
+        requires: ['Y', 'D', 'C', 'M', 'E']
+      };
+    }
+    
+    // Calculate CC if B, N, T, H, M are provided
+    if (params.B !== undefined || params.N !== undefined || params.T !== undefined || 
+        params.H !== undefined) {
+      const weights = mode === 'theoretical' 
+        ? { w_B: 0.45, w_N: 0.15, w_H: 0.15, w_M: 0.15, w_T: 0.10 }
+        : { w_B: 0.35, w_N: 0.15, w_H: 0.20, w_M: 0.20, w_T: 0.10 };
+      
+      const CC = (weights.w_B * (params.B || 0)) + 
+                 (weights.w_N * (params.N || 0)) + 
+                 (weights.w_H * (params.H || 0)) + 
+                 (weights.w_M * (params.M || 0)) - 
+                 (weights.w_T * (params.T || 0));
+      
+      const CC_constrained = Math.max(0, Math.min(1, CC));
+      
+      results.CC = {
+        mean: CC_constrained,
+        public: Math.round(CC_constrained * 100),
+        method_version: 'CC-v1',
+        weights
+      };
+    }
+    
+    // Calculate RU if L, R, U, C, M are provided
+    if (params.L !== undefined || params.R !== undefined || params.U !== undefined || 
+        params.C_RU !== undefined) {
+      const weights = mode === 'theoretical'
+        ? { w_L: 0.35, w_R: 0.20, w_U: 0.15, w_M: 0.20, w_C: 0.10 }
+        : { w_L: 0.25, w_R: 0.25, w_U: 0.15, w_M: 0.25, w_C: 0.10 };
+      
+      const RU = (weights.w_L * (params.L || 0)) + 
+                 (weights.w_R * (params.R || 0)) + 
+                 (weights.w_U * (params.U || 0)) + 
+                 (weights.w_M * (params.M || 0)) - 
+                 (weights.w_C * (params.C_RU || 0));
+      
+      const RU_constrained = Math.max(0, Math.min(1, RU));
+      
+      results.RU = {
+        mean: RU_constrained,
+        public: Math.round(RU_constrained * 100),
+        method_version: 'RU-v1',
+        weights
+      };
+    }
+    
+    return c.json(results);
+  } catch (error) {
+    console.error('Error calculating all dimensions:', error);
+    return c.json({ error: 'Failed to calculate dimensions', details: String(error) }, 500);
   }
 });
 

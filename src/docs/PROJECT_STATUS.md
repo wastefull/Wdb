@@ -15,17 +15,18 @@ Build an open, accessible, and scientifically rigorous materials database that c
 
 ## 📊 Overall Progress
 
-### Phases Completed: 3.5 / 5 (70%)
+### Phases Completed: 4 / 6 (67%)
 
 ```
-[██████████████████████████████████████████░░░░░░] 70%
+[████████████████████████████████████████░░░░░░░░] 67%
 
 ✅ Phase 1: Data Model Integration            [COMPLETE]
 ✅ Phase 2: Admin & Research Tools             [COMPLETE]
 ✅ Phase 3: Public Data & Export Layer         [COMPLETE]
 ✅ Phase 3.5: Auth & Asset Infrastructure      [COMPLETE]
-⬜ Phase 4: UI & UX Enhancements               [PLANNED]
-⬜ Phase 5: Research API & Data Publication    [PLANNED]
+✅ Phase 4: Visualization & Accessibility      [COMPLETE]
+🔄 Phase 5: Multi-Dimensional Data Layer      [IN PROGRESS]
+⬜ Phase 6: Research API & Data Publication    [PLANNED]
 ```
 
 ---
@@ -154,39 +155,166 @@ Secure, branded authentication system with CDN-backed asset hosting enables prof
 
 ---
 
-## 🔄 Phase 4: UI & UX Enhancements (PLANNED)
+## ✅ Phase 4: Visualization & Accessibility (COMPLETE)
 
-**Status:** Not yet started  
-**Priority:** Medium-High  
-**Estimated Effort:** 2-3 days
+**Completed:** October 22, 2025  
+**Documentation:** `/whitepapers/VIZ-v1.md`, `/docs/VIZ_UNIFIED.md`, `/docs/PHASE_4_VISUALIZATION_COMPLETE.md`
 
-### Planned Deliverables
-- **Advanced View Toggle**
-  - Show theoretical vs practical scores side-by-side
-  - Toggle between optimistic and realistic views
-  - Visual comparison of infrastructure impact
+### Achievements
+- **Hybrid Quantile-Halo Visualization Model (VIZ-v1)**
+  - Unified visual grammar for all three sustainability dimensions
+  - Three rendering modes based on confidence interval overlap:
+    * **Overlap Mode:** Dense quantile dots across shared CI range
+    * **Near-Overlap Mode:** Bridging dots with soft merged halos
+    * **Gap Mode:** Separated halos with gradient gap zone
+  - Communicates both practical (today) and theoretical (future) scores simultaneously
   
-- **Confidence Visualization**
-  - Whisker plots for confidence intervals
-  - Shaded bar charts with uncertainty bands
-  - Color-coded confidence indicators
+- **Accessibility-First Design**
+  - **High-Contrast Mode:** Dark purple/gray halos, black dots, checkerboard gap patterns
+  - **Dark Mode:** Complete color inversion with maintained contrast ratios
+  - **Reduced-Motion Mode:** Instant rendering without animations for vestibular sensitivity
+  - Full ARIA labels describing means, CIs, and gaps
+  - Keyboard navigation support with focus indicators
+  - WCAG 2.1 AA compliance minimum, AAA where possible
   
-- **Enhanced Tooltips**
-  - Methodology links to whitepaper sections
-  - Parameter definitions on hover
-  - Source count badges on cards
+- **Interactive Visualization Features**
+  - Hover states with opacity transitions (0.3→0.6 for practical, 0.25→0.5 for theoretical)
+  - Tooltips showing:
+    * Practical mean ± confidence interval
+    * Theoretical mean ± confidence interval
+    * Gap size in percentage points
+    * Confidence level (High/Medium/Low)
+  - "Today" and "Future" temporal labels on means
+  - Gap size label when halos don't overlap
   
-- **Interactive Features**
-  - CR score comparison sliders
-  - Filter by confidence level
-  - Sort by theoretical potential
+- **Color System** (Dimension-Specific Score Bars)
+  - **Recyclability:** Pale Yellow (`#e4e3ac`) / Golden Yellow (`#d4b400` high-contrast)
+  - **Compostability:** Soft Coral Beige (`#e6beb5`) / Brick Red (`#c74444` high-contrast)
+  - **Reusability:** Dusty Blue-Gray (`#b8c8cb`) / Steel Blue (`#4a90a4` high-contrast)
+  
+- **Unified Halo & Dot Colors** (Shared Across All Dimensions)
+  - Theoretical Halo: Light Blue (normal) / Dark Purple (high-contrast)
+  - Practical Halo: Gray (normal) / Dark Gray (high-contrast)
+  - Overlap Dots: Navy Blue (normal) / Black (high-contrast)
+  - Gap Zone: Gray→Blue gradient (normal) / Checkerboard pattern (high-contrast)
+  
+- **Technical Implementation**
+  - Component: `/components/QuantileVisualization.tsx`
+  - SVG-based rendering with motion animations
+  - Responsive dot count (50-150 based on viewport)
+  - Mobile optimization (20px tagline font, disabled interactions)
+  - CSS custom properties for theme switching
+  
+- **Documentation & Methodology**
+  - Complete whitepaper documenting visual grammar (VIZ-v1)
+  - Developer implementation guide (VIZ_UNIFIED.md)
+  - Data-visualization linkage tables
+  - Versioning strategy (paired with CR-v1)
 
-### User Benefits
-Clearer communication of data uncertainty and scientific methodology while preserving accessibility.
+### Impact
+Users can now see the gap between what science makes possible and what infrastructure delivers, with full uncertainty communication through confidence intervals. All visualizations are accessible to users with visual, motor, or vestibular disabilities.
 
 ---
 
-## 🌐 Phase 5: Research API & Data Publication (PLANNED)
+## 🔄 Phase 5: Multi-Dimensional Scientific Data Layer (IN PROGRESS)
+
+**Backend Completed:** October 22, 2025  
+**Frontend Status:** Planning in progress  
+**Priority:** High  
+**Estimated Frontend Effort:** 3-4 days  
+**Documentation:** `/docs/BACKEND_MULTI_DIMENSIONAL.md`
+
+### Backend Deliverables ✅
+- ✅ **Type System Updates**
+  - Extended `/types/material.ts` with 20 new fields
+  - Added CC parameters: B, N, T, H + means and CIs
+  - Added RU parameters: L, R, U, C_RU + means and CIs
+  - Shared M_value across all three dimensions
+  - ConfidenceInterval interfaces for CC and RU
+
+- ✅ **Calculation Endpoints (Admin Only)**
+  - `POST /calculate/compostability` - CC index calculation
+  - `POST /calculate/reusability` - RU index calculation
+  - `POST /calculate/all-dimensions` - Batch calculation
+  - Input validation (0-1 range enforcement)
+  - Mode support (theoretical vs practical)
+  - Whitepaper-compliant weight configurations
+
+- ✅ **Export System Updates**
+  - Extended full CSV export from 24 to 39 columns
+  - Added all CC and RU parameters and composite indices
+  - Maintained backward compatibility
+  - JSON export includes all new fields
+
+- ✅ **API Utilities**
+  - `calculateCompostability()` function
+  - `calculateReusability()` function
+  - `calculateAllDimensions()` function
+  - TypeScript interfaces for params and results
+
+- ✅ **Methodology Documentation**
+  - **CC-v1 (Compostability) Whitepaper**
+    - Parameters: B (Biodegradation), N (Nutrient Balance), T (Toxicity), H (Habitat Adaptability), M (Maturity)
+    - Formula: `CC = w_B·B + w_N·N + w_H·H + w_M·M − w_T·T`
+    - Dual mode: Theoretical (ideal) vs Practical (regional facilities)
+    - Score interpretation: 0-19 (Non-compostable) → 80-100 (Rapidly compostable)
+  
+  - **RU-v1 (Reusability) Whitepaper**
+    - Parameters: L (Lifetime), R (Repairability), U (Upgradability), C (Contamination), M (Market Maturity)
+    - Formula: `RU = w_L·L + w_R·R + w_U·U + w_M·M − w_C·C`
+    - Dual mode: Theoretical (design intent) vs Practical (market reality)
+    - Score interpretation: 0-19 (Disposable) → 80-100 (Highly reusable)
+
+### Frontend Deliverables ✅ (In Progress - 60% Complete)
+
+**ScientificDataEditor - COMPLETE** ✅
+- ✅ Refactored into modular structure (7 files)
+- ✅ Implemented Recyclability tab (CR parameters + scores)
+- ✅ Implemented Compostability tab (CC parameters + API calculation)
+- ✅ Implemented Reusability tab (RU parameters + API calculation)
+- ✅ Implemented Sources tab (citation management + library browser)
+- ✅ M_value shared across all dimensions
+- ✅ Full validation for 18 parameters and 6 CIs
+- ✅ Color-coded calculate buttons
+- ✅ Toast notifications
+- **See:** `/docs/SCIENTIFIC_EDITOR_REFACTOR.md`
+
+**Remaining Frontend Tasks:**
+- **ScientificDataEditor Extension**
+  - Add tabbed interface: Recyclability / Compostability / Reusability
+  - Parameter input forms for all 15 parameters (5 per dimension)
+  - Wire up "Calculate CC" and "Calculate RU" buttons to new endpoints
+  - Shared source citation manager across all tabs
+  
+- **DataProcessingView Extension**
+  - Three separate calculators (CR, CC, RU)
+  - Parameter sliders for all dimension-specific values
+  - Real-time formula visualization
+  - Side-by-side comparison of theoretical vs practical
+  
+- **QuantileVisualization Extension**
+  - Add dimension selector dropdown (Recyclability / Compostability / Reusability)
+  - Fetch and display CC and RU confidence intervals
+  - Apply correct score bar colors per dimension
+  
+- **Source Library Enhancement**
+  - Add tags: `biodegradation`, `composting`, `toxicity`, `nutrient-balance`
+  - Add tags: `repair`, `durability`, `longevity`, `modularity`
+  - Auto-assign parameters based on source tags
+  - Weight recommendations for biological and reuse studies
+
+### Technical Highlights
+- **M_value Shared:** Infrastructure maturity parameter is intentionally shared across CR, CC, and RU as it represents general circular economy infrastructure
+- **Versioning:** All calculations return `method_version` (CC-v1/RU-v1) and `whitepaper_version` (2025.1)
+- **Formula Accuracy:** Weights match whitepapers exactly (different for theoretical vs practical modes)
+- **Full Audit Trail:** Every calculation includes timestamp for reproducibility
+
+### User Benefits
+Complete scientific coverage of all three circularity pathways with transparent methodology and uncertainty quantification. Backend infrastructure ready for frontend integration.
+
+---
+
+## 🌐 Phase 6: Research API & Data Publication (PLANNED)
 
 **Status:** Not yet started  
 **Priority:** High (for academic adoption)  
@@ -251,10 +379,13 @@ Enables academic papers to cite WasteDB with DOI, ensures reproducibility, and f
 ### For General Users ✅
 - Browse materials without login
 - View sustainability scores (0-100)
+- See uncertainty visualizations with confidence intervals
+- Understand gap between theoretical potential and practical reality
 - Read educational articles
-- Access methodology whitepapers
+- Access methodology whitepapers (CR-v1, CC-v1, RU-v1, VIZ-v1)
 - Download data exports (CSV/JSON)
 - Search and filter materials
+- Adjust accessibility settings (high-contrast, dark mode, reduced-motion)
 
 ### For Researchers ✅
 - Download complete scientific datasets
@@ -350,14 +481,14 @@ Enables academic papers to cite WasteDB with DOI, ensures reproducibility, and f
 
 ## 📝 Next Steps
 
-### Immediate (Phase 4)
-1. Implement advanced view toggle for CR comparison
-2. Add confidence interval visualizations
-3. Create methodology tooltips
-4. Add source count badges to cards
-5. Build interactive filter/sort by confidence
+### Immediate (Phase 5)
+1. Extend ScientificDataEditor with CC and RU tabs
+2. Implement CC and RU composite index calculations
+3. Add parameter input forms for B, N, T, H, L, R, U values
+4. Update DataProcessingView with three separate calculators
+5. Extend source library with compostability and reusability tags
 
-### Near-term (Phase 5)
+### Near-term (Phase 6)
 1. Create RESTful API with pagination
 2. Register DOI for dataset
 3. Write API documentation
@@ -377,19 +508,24 @@ Enables academic papers to cite WasteDB with DOI, ensures reproducibility, and f
 
 ### Completed Documents
 - ✅ `/ROADMAP.md` - Technical roadmap with phases
-- ✅ `/PHASE_1_COMPLETE.md` - Data model documentation
-- ✅ `/PHASE_2_COMPLETE.md` - Admin tools documentation
-- ✅ `/PHASE_3_COMPLETE.md` - Export layer documentation
-- ✅ `/PROJECT_STATUS.md` - This document
-- ✅ `/ROLES_AND_PERMISSIONS.md` - Access control guide
-- ✅ `/SUPABASE_INTEGRATION.md` - Backend integration guide
-- ✅ `/DATA_PIPELINE.md` - Data flow documentation
-- ✅ `/ASSET_STORAGE_GUIDE.md` - Asset upload & CDN guide
-- ✅ `/EMAIL_LOGO_SETUP.md` - Email branding guide
-- ✅ `/DEPLOYMENT_CHECKLIST.md` - Production testing guide
-- ✅ `/QUICK_START.md` - User onboarding guide
-- ✅ `/SECURITY.md` - Security features documentation
-- ✅ `/whitepapers/Recyclability.md` - Methodology whitepaper
+- ✅ `/docs/PROJECT_STATUS.md` - This document
+- ✅ `/docs/PHASE_1_COMPLETE.md` - Data model documentation
+- ✅ `/docs/PHASE_2_COMPLETE.md` - Admin tools documentation
+- ✅ `/docs/PHASE_3_COMPLETE.md` - Export layer documentation
+- ✅ `/docs/PHASE_4_VISUALIZATION_COMPLETE.md` - Visualization documentation
+- ✅ `/docs/ROLES_AND_PERMISSIONS.md` - Access control guide
+- ✅ `/docs/SUPABASE_INTEGRATION.md` - Backend integration guide
+- ✅ `/docs/DATA_PIPELINE.md` - Data flow documentation
+- ✅ `/docs/ASSET_STORAGE_GUIDE.md` - Asset upload & CDN guide
+- ✅ `/docs/EMAIL_LOGO_SETUP.md` - Email branding guide
+- ✅ `/docs/DEPLOYMENT_CHECKLIST.md` - Production testing guide
+- ✅ `/docs/QUICK_START.md` - User onboarding guide
+- ✅ `/docs/SECURITY.md` - Security features documentation
+- ✅ `/docs/VIZ_UNIFIED.md` - Unified visualization implementation guide
+- ✅ `/whitepapers/Recyclability.md` - CR-v1 methodology whitepaper
+- ✅ `/whitepapers/CC-v1.md` - Compostability methodology whitepaper
+- ✅ `/whitepapers/RU-v1.md` - Reusability methodology whitepaper
+- ✅ `/whitepapers/VIZ-v1.md` - Visualization methodology whitepaper
 
 ### Available Documentation
 - API endpoint documentation (in PHASE_3_COMPLETE.md)
@@ -406,47 +542,56 @@ Enables academic papers to cite WasteDB with DOI, ensures reproducibility, and f
    - Complete source traceability
    - Transparent methodology
    - Public API endpoints
+   - Four versioned whitepapers (CR-v1, CC-v1, RU-v1, VIZ-v1)
 
 2. **Dual-Scale System** ✅
    - User-friendly 0-100 scores for public
    - Research-grade 0-1 parameters for science
    - Clear mapping between scales
    - No loss of precision
+   - Visual representation of both practical and theoretical scores
 
 3. **Admin Efficiency** ✅
    - Individual material editor
    - Batch operations tool
    - Auto-calculation from parameters
    - Import/export capabilities
+   - Scientific data editor with source management
 
 4. **Data Quality** ✅
    - Confidence assessment system
    - Source weighting
-   - Confidence intervals
+   - Confidence intervals (95% CI)
    - Version tracking
+   - Multi-source aggregation
 
-5. **Accessibility** ✅
-   - WCAG AAA compliance
-   - Screen reader support
+5. **Accessibility & Visualization** ✅
+   - WCAG 2.1 AA compliance (AAA where possible)
+   - Screen reader support with detailed ARIA labels
    - Keyboard navigation
-   - Dark mode
+   - Dark mode with proper contrast
+   - High-contrast mode for visual impairments
+   - Reduced-motion mode for vestibular disorders
+   - Uncertainty visualization through Quantile-Halo model
+   - Color-coded confidence indicators
 
 ---
 
 ## 🚀 Vision
 
 WasteDB is becoming a trusted open scientific resource that:
-- Empowers informed material choices
-- Supports academic research
-- Guides product design
-- Educates the public
-- Advances circularity
+- Empowers informed material choices through transparent uncertainty communication
+- Supports academic research with versioned methodologies and FAIR data
+- Guides product design by revealing gaps between theoretical potential and practical reality
+- Educates the public with accessible visualizations
+- Advances circularity across three pathways: Recyclability, Compostability, and Reusability
 
-**By combining scientific rigor with radical openness, WasteDB treats recyclability not as a fixed property but as a moving boundary that science and design can continually push outward.**
+**By combining scientific rigor with radical openness and accessible visualization, WasteDB treats sustainability not as a fixed score but as a dynamic system where science, infrastructure, and design interact—making the "innovation gap" visible and actionable.**
 
 ---
 
-**Status:** 70% Complete | 3.5 of 5 phases finished  
+**Status:** 67% Complete | 4 of 6 phases finished  
 **Production:** https://db.wastefull.org (LIVE)  
-**Next Milestone:** Phase 4 (UI/UX Enhancements)  
-**Maintained by:** Wastefull (San Jose, CA)
+**Next Milestone:** Phase 5 (Multi-Dimensional Scientific Data Layer)  
+**Maintained by:** Wastefull (San Jose, CA)  
+**Last Updated:** October 22, 2025

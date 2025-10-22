@@ -15,7 +15,7 @@ import { AccessibilityProvider, useAccessibility } from './components/Accessibil
 import { UserManagementView } from './components/UserManagementView';
 import { LoadingPlaceholder } from './components/LoadingPlaceholder';
 import { ScientificMetadataView } from './components/ScientificMetadataView';
-import { ScientificDataEditor } from './components/ScientificDataEditor';
+import { ScientificDataEditor } from './components/scientific-editor';
 import { BatchScientificOperations } from './components/BatchScientificOperations';
 import { PublicExportView } from './components/PublicExportView';
 import { DataMigrationTool } from './components/DataMigrationTool';

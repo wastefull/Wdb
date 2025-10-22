@@ -63,11 +63,12 @@ export interface Material {
   
   // ========== SCIENTIFIC DATA LAYER ==========
   
+  // ========== RECYCLABILITY (CR-v1) ==========
   // Raw normalized parameters (0-1 scale)
   Y_value?: number;  // Yield - material recovery rate
   D_value?: number;  // Degradability - quality loss (higher = better quality retention)
   C_value?: number;  // Contamination tolerance - process sensitivity
-  M_value?: number;  // Maturity - infrastructure availability and readiness
+  M_value?: number;  // Maturity - infrastructure availability and readiness (shared across all dimensions)
   E_value?: number;  // Energy demand - normalized energy cost
   
   // Composite Recyclability Index scores (0-1 scale)
@@ -77,6 +78,38 @@ export interface Material {
   // 95% Confidence Intervals
   CR_practical_CI95?: ConfidenceInterval;
   CR_theoretical_CI95?: ConfidenceInterval;
+  
+  // ========== COMPOSTABILITY (CC-v1) ==========
+  // Raw normalized parameters (0-1 scale)
+  B_value?: number;  // Biodegradation rate constant
+  N_value?: number;  // Nutrient balance - C:N:P ratio suitability
+  T_value?: number;  // Toxicity / Residue index (degree of phytotoxicity)
+  H_value?: number;  // Habitat adaptability - fraction of composting systems
+  // M_value - shared with CR above
+  
+  // Composite Compostability Index scores (0-1 scale)
+  CC_practical_mean?: number;      // Practical compostability (regional facilities)
+  CC_theoretical_mean?: number;    // Theoretical compostability (ideal conditions)
+  
+  // 95% Confidence Intervals
+  CC_practical_CI95?: ConfidenceInterval;
+  CC_theoretical_CI95?: ConfidenceInterval;
+  
+  // ========== REUSABILITY (RU-v1) ==========
+  // Raw normalized parameters (0-1 scale)
+  L_value?: number;  // Lifetime - average functional cycles before failure
+  R_value?: number;  // Repairability - ease of disassembly / component replacement
+  U_value?: number;  // Upgradability - ease of adaptation / repurposing
+  C_RU_value?: number;  // Contamination susceptibility (probability of functional loss per use) - renamed to avoid conflict
+  // M_value - shared with CR and CC above
+  
+  // Composite Reusability Index scores (0-1 scale)
+  RU_practical_mean?: number;      // Practical reusability (market reality)
+  RU_theoretical_mean?: number;    // Theoretical reusability (design intent)
+  
+  // 95% Confidence Intervals
+  RU_practical_CI95?: ConfidenceInterval;
+  RU_theoretical_CI95?: ConfidenceInterval;
   
   // Data quality and provenance
   confidence_level?: 'High' | 'Medium' | 'Low';  // Overall data confidence

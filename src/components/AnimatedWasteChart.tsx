@@ -124,7 +124,7 @@ export function AnimatedWasteChart({ chartData, onCategoryClick }: AnimatedWaste
             
             <text
               className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white fill-black dark:fill-white"
-              fontSize={isMobile ? `${16 * fontScale}` : "22"}
+              fontSize={isMobile ? `${20 * fontScale}` : "22"}
               textAnchor="middle"
             >
               <textPath href="#textCurve" startOffset="50%">
@@ -221,11 +221,11 @@ export function AnimatedWasteChart({ chartData, onCategoryClick }: AnimatedWaste
                 animationDuration={2000}
                 animationEasing="ease-in-out"
                 onClick={(data) => {
-                  if (data && data.categoryKey) {
+                  if (!isMobile && data && data.categoryKey) {
                     onCategoryClick(data.categoryKey);
                   }
                 }}
-                style={{ cursor: 'pointer', filter: settings.darkMode ? 'url(#textStrokeDark)' : 'url(#textStrokeLight)' }}
+                style={{ cursor: isMobile ? 'default' : 'pointer', filter: settings.darkMode ? 'url(#textStrokeDark)' : 'url(#textStrokeLight)' }}
                 label={{
                   position: 'insideStart',
                   fill: settings.darkMode ? '#ffffff' : '#000000',
