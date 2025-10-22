@@ -210,9 +210,11 @@ body {
   .bg-\\[#b8c8cb\\] .text-black,
   .bg-\\[#e4e3ac\\] .text-black,
   .bg-\\[#e6beb5\\] .text-black,
+  .bg-\\[#bdd4b7\\] .text-black,
   .bg-\\[#b8c8cb\\] *,
   .bg-\\[#e4e3ac\\] *,
-  .bg-\\[#e6beb5\\] *
+  .bg-\\[#e6beb5\\] *,
+  .bg-\\[#bdd4b7\\] *
 ) {
   color: white !important;
 }
@@ -302,6 +304,21 @@ body {
   background-color: #6bb6d0 !important;
 }
 
+/* Scientific Data: #bdd4b7 (pastel green) -> darker green */
+.high-contrast .bg-\\[#bdd4b7\\],
+.high-contrast [class*="bg-[#bdd4b7]"],
+.no-pastel .bg-\\[#bdd4b7\\],
+.no-pastel [class*="bg-[#bdd4b7]"] {
+  background-color: #5a9a4d !important;
+}
+
+.high-contrast.dark .bg-\\[#bdd4b7\\],
+.high-contrast.dark [class*="bg-[#bdd4b7]"],
+.no-pastel.dark .bg-\\[#bdd4b7\\],
+.no-pastel.dark [class*="bg-[#bdd4b7]"] {
+  background-color: #7bb86f !important;
+}
+
 /* High contrast mode: Update CSS custom properties for window buttons */
 .high-contrast [style*="--fill-0: rgba(230, 188, 181, 1)"],
 .no-pastel [style*="--fill-0: rgba(230, 188, 181, 1)"] {
@@ -331,6 +348,16 @@ body {
 .high-contrast.dark [style*="--fill-0: rgba(184, 200, 203, 1)"],
 .no-pastel.dark [style*="--fill-0: rgba(184, 200, 203, 1)"] {
   --fill-0: rgba(107, 182, 208, 1) !important;
+}
+
+.high-contrast [style*="--fill-0: rgba(189, 212, 183, 1)"],
+.no-pastel [style*="--fill-0: rgba(189, 212, 183, 1)"] {
+  --fill-0: rgba(90, 154, 77, 1) !important;
+}
+
+.high-contrast.dark [style*="--fill-0: rgba(189, 212, 183, 1)"],
+.no-pastel.dark [style*="--fill-0: rgba(189, 212, 183, 1)"] {
+  --fill-0: rgba(123, 184, 111, 1) !important;
 }
 
 /* No Pastel mode: Only affect table headers, not code blocks */

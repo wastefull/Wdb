@@ -21,7 +21,7 @@ import { PublicExportView } from './components/PublicExportView';
 import { DataMigrationTool } from './components/DataMigrationTool';
 import { SourceLibraryManager } from './components/SourceLibraryManager';
 import { AssetUploadManager } from './components/AssetUploadManager';
-import { RecyclabilityVisualization } from './components/RecyclabilityVisualization';
+import { QuantileVisualization } from './components/QuantileVisualization';
 import { SOURCE_LIBRARY, getSourcesByTag } from './data/sources';
 import { CookieConsent } from './components/CookieConsent';
 import { Popover, PopoverContent, PopoverTrigger } from './components/ui/popover';
@@ -122,7 +122,7 @@ function AdminModeButton({ currentView, onViewChange }: { currentView: any; onVi
       onClick={handleAdminToggle}
       className={`px-2 py-1 rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[10px] text-black dark:text-white uppercase ${
         settings.adminMode 
-          ? 'bg-[#e4e3ac] shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]' 
+          ? 'bg-[#bdd4b7] dark:bg-[#2a2f27] shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]' 
           : 'bg-[#e6beb5]'
       }`}
     >
@@ -324,7 +324,7 @@ function RetroButtons({ title }: { title: string }) {
 
           <div className="basis-0 grow min-h-px min-w-px flex items-center justify-center gap-2">
             <h1 className="font-['Sniglet:Regular',_sans-serif] leading-[25px] not-italic text-[14px] md:text-[20px] text-black dark:text-white text-center uppercase">{title}</h1>
-            <span className="font-['Sniglet:Regular',_sans-serif] text-[8px] md:text-[10px] px-1.5 md:px-2 py-0.5 md:py-1 rounded-full bg-[#e4e3ac] border border-[#211f1c] dark:border-white/20 text-black uppercase">Beta</span>
+            <span className="font-['Sniglet:Regular',_sans-serif] text-[8px] md:text-[10px] px-1.5 md:px-2 py-0.5 md:py-1 rounded-full bg-[#bdd4b7] dark:bg-[#2a2f27] border border-[#211f1c] dark:border-white/20 text-black dark:text-white uppercase">Beta</span>
           </div>
         </div>
       </div>
@@ -635,12 +635,13 @@ function MaterialCard({
           articleCount={material.articles.compostability.length}
           onClick={() => onViewArticles('compostability')}
         />
-        <RecyclabilityVisualization
+        <QuantileVisualization
+          scoreType="recyclability"
           data={{
-            CR_practical_mean: material.CR_practical_mean,
-            CR_theoretical_mean: material.CR_theoretical_mean,
-            CR_practical_CI95: material.CR_practical_CI95,
-            CR_theoretical_CI95: material.CR_theoretical_CI95,
+            practical_mean: material.CR_practical_mean,
+            theoretical_mean: material.CR_theoretical_mean,
+            practical_CI95: material.CR_practical_CI95,
+            theoretical_CI95: material.CR_theoretical_CI95,
             confidence_level: material.confidence_level,
             category: material.category
           }}
@@ -1334,6 +1335,31 @@ function ArticlesView({
             setEditingArticle(null);
           }}
         />
+      )}
+
+      {/* Recyclability Visualization - only for recyclability category */}
+      {category === 'recyclability' && material.CR_practical_mean && material.CR_theoretical_mean && (
+        <div className="mb-6 bg-white dark:bg-[#2a2825] rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 p-6 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)]">
+          <div className="max-w-2xl mx-auto">
+            <h3 className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black dark:text-white mb-4">
+              Recyclability Score Overview
+            </h3>
+            <QuantileVisualization
+              scoreType="recyclability"
+              data={{
+                practical_mean: material.CR_practical_mean,
+                theoretical_mean: material.CR_theoretical_mean,
+                practical_CI95: material.CR_practical_CI95,
+                theoretical_CI95: material.CR_theoretical_CI95,
+                confidence_level: material.confidence_level,
+                category: material.category
+              }}
+              width={600}
+              height={80}
+              articleCount={articles.length}
+            />
+          </div>
+        </div>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

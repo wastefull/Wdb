@@ -1,7 +1,7 @@
 import { Badge } from './ui/badge';
 import { Card } from './ui/card';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from './ui/collapsible';
-import { ChevronDown, FlaskConical, TrendingUp, Database, Calendar, FileText, Edit2, AlertTriangle } from 'lucide-react';
+import { ChevronDown, FlaskConical, TrendingUp, Database, Calendar, FileText, Edit2, AlertTriangle, CheckCircle2, AlertCircle, XCircle } from 'lucide-react';
 import { Button } from './ui/button';
 import { Alert, AlertDescription } from './ui/alert';
 import { useState } from 'react';
@@ -80,12 +80,16 @@ export function ScientificMetadataView({ material, onEditScientific, isAdminMode
   
   const validationWarning = validateConfidenceLevel();
   
-  const getConfidenceBadgeColor = (level?: string) => {
+  const getConfidenceIcon = (level?: string) => {
     switch (level) {
-      case 'High': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-      case 'Medium': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
-      case 'Low': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+      case 'High': 
+        return <CheckCircle2 className="w-4 h-4 text-green-700 dark:text-green-400" />;
+      case 'Medium': 
+        return <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400" />;
+      case 'Low': 
+        return <XCircle className="w-4 h-4 text-red-600 dark:text-red-400" />;
+      default: 
+        return null;
     }
   };
   
@@ -112,7 +116,7 @@ export function ScientificMetadataView({ material, onEditScientific, isAdminMode
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
       <CollapsibleTrigger className="w-full">
-        <div className="flex items-center gap-2 p-3 bg-[#b8c8cb] dark:bg-[#2a2827] border border-[#211f1c] dark:border-white/20 rounded-md hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all">
+        <div className="flex items-center gap-2 p-3 bg-[#bdd4b7] dark:bg-[#2a2f27] border border-[#211f1c] dark:border-white/20 rounded-md hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all">
           <FlaskConical className="w-4 h-4 text-black dark:text-white" />
           <span className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black dark:text-white">
             Scientific Data
@@ -121,9 +125,9 @@ export function ScientificMetadataView({ material, onEditScientific, isAdminMode
             <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 ml-auto" />
           )}
           {material.confidence_level && (
-            <Badge className={`${validationWarning ? '' : 'ml-auto'} ${getConfidenceBadgeColor(material.confidence_level)}`}>
-              {material.confidence_level} Confidence
-            </Badge>
+            <div className={`${validationWarning ? '' : 'ml-auto'}`}>
+              {getConfidenceIcon(material.confidence_level)}
+            </div>
           )}
           <ChevronDown className={`w-4 h-4 text-black dark:text-white transition-transform ${isOpen ? 'rotate-180' : ''}`} />
         </div>

@@ -136,7 +136,7 @@ export function AnimatedWasteChart({ chartData, onCategoryClick }: AnimatedWaste
 
         {/* Animated donut chart with rolling effect */}
         <motion.div
-          className="absolute"
+          className="absolute [&_*]:outline-none"
           style={{ width: '100%', height: '280px', marginTop: isMobile ? '40px' : '60px' }}
           initial={{ x: 600, opacity: 0 }}
           animate={{ 
