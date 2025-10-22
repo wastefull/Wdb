@@ -17,6 +17,7 @@ import { LoadingPlaceholder } from './components/LoadingPlaceholder';
 import { ScientificMetadataView } from './components/ScientificMetadataView';
 import { ScientificDataEditor } from './components/scientific-editor';
 import { BatchScientificOperations } from './components/BatchScientificOperations';
+import { DataProcessingView } from './components/DataProcessingView';
 import { PublicExportView } from './components/PublicExportView';
 import { DataMigrationTool } from './components/DataMigrationTool';
 import { SourceLibraryManager } from './components/SourceLibraryManager';
@@ -2160,9 +2161,9 @@ function DataManagementView({
         </div>
       </div>
 
-      {/* Tabs for Material Management, Batch Operations, Source Library, and Assets */}
+      {/* Tabs for Material Management, Batch Operations, Data Processing, Source Library, and Assets */}
       <div className="mb-6">
-        <div className="flex gap-2 border-b border-[#211f1c]/20 dark:border-white/20">
+        <div className="flex gap-2 border-b border-[#211f1c]/20 dark:border-white/20 flex-wrap">
           <button
             onClick={() => setActiveTab('materials')}
             className={`px-4 py-2 font-['Sniglet:Regular',_sans-serif] text-[12px] transition-colors ${
@@ -2182,6 +2183,16 @@ function DataManagementView({
             }`}
           >
             Batch Operations
+          </button>
+          <button
+            onClick={() => setActiveTab('processing')}
+            className={`px-4 py-2 font-['Sniglet:Regular',_sans-serif] text-[12px] transition-colors ${
+              activeTab === 'processing'
+                ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
+                : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
+            }`}
+          >
+            Data Processing
           </button>
           <button
             onClick={() => setActiveTab('sources')}
@@ -2528,6 +2539,12 @@ function DataManagementView({
           onUpdateMaterials={onUpdateMaterials}
           onBack={() => {}} // Empty since we're in a tab
           isEmbedded={true} // Hide back button when in tab mode
+        />
+      ) : activeTab === 'processing' ? (
+        <DataProcessingView
+          materials={materials}
+          onBack={() => {}} // Empty since we're in a tab
+          onUpdateMaterials={onUpdateMaterials}
         />
       ) : activeTab === 'sources' ? (
         <SourceLibraryManager
