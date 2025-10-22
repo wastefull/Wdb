@@ -56,9 +56,9 @@ export function AnimatedWasteChart({ chartData, onCategoryClick }: AnimatedWaste
   const getHighContrastColor = (originalColor: string): string => {
     const isDark = settings.darkMode;
     const colorMap: { [key: string]: { light: string; dark: string } } = {
-      '#e6beb5': { light: '#c74444', dark: '#ff6b6b' }, // Compostability
-      '#e4e3ac': { light: '#d4b400', dark: '#ffd700' }, // Recyclability
-      '#b8c8cb': { light: '#4a90a4', dark: '#6bb6d0' }, // Reusability
+      '#e8a593': { light: '#c74444', dark: '#ff6b6b' }, // Compostability
+      '#f0e68c': { light: '#d4b400', dark: '#ffd700' }, // Recyclability
+      '#a8c5d8': { light: '#4a90a4', dark: '#6bb6d0' }, // Reusability
     };
     
     const mapping = colorMap[originalColor.toLowerCase()];
@@ -168,10 +168,41 @@ export function AnimatedWasteChart({ chartData, onCategoryClick }: AnimatedWaste
                             0 0 0 1 0"
                   />
                 </filter>
+                <filter id="darkContrastFilter">
+                  <feColorMatrix
+                    type="matrix"
+                    values="2.5 0 0 0 -0.9
+                            0 2.5 0 0 -0.9
+                            0 0 2.5 0 -0.9
+                            0 0 0 1 0"
+                  />
+                </filter>
                 <pattern id="grayTexture" patternUnits="userSpaceOnUse" width="3" height="3">
-                  <rect width="3" height="3" fill="#fff" />
-                  <image href="https://www.transparenttextures.com/patterns/3px-tile.png" x="0" y="0" width="3" height="3" filter="url(#contrastFilter)" />
+                  <rect width="3" height="3" fill={settings.darkMode ? "#1a1917" : "#fff"} />
+                  <image href="https://www.transparenttextures.com/patterns/3px-tile.png" x="0" y="0" width="3" height="3" filter={settings.darkMode ? "url(#darkContrastFilter)" : "url(#contrastFilter)"} />
                 </pattern>
+                
+                {/* Text stroke filter for dark mode - creates outline effect */}
+                <filter id="textStrokeDark" x="-50%" y="-50%" width="200%" height="200%">
+                  <feMorphology operator="dilate" radius="2" in="SourceAlpha" result="thicken" />
+                  <feFlood floodColor="rgba(100, 100, 100, 0.8)" result="floodColor" />
+                  <feComposite in="floodColor" in2="thicken" operator="in" result="outline" />
+                  <feMerge>
+                    <feMergeNode in="outline" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+                
+                {/* Text stroke filter for light mode - creates outline effect */}
+                <filter id="textStrokeLight" x="-50%" y="-50%" width="200%" height="200%">
+                  <feMorphology operator="dilate" radius="2" in="SourceAlpha" result="thicken" />
+                  <feFlood floodColor="rgba(220, 220, 220, 0.5)" result="floodColor" />
+                  <feComposite in="floodColor" in2="thicken" operator="in" result="outline" />
+                  <feMerge>
+                    <feMergeNode in="outline" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
               </defs>
               <PolarAngleAxis 
                 type="number" 
@@ -184,9 +215,9 @@ export function AnimatedWasteChart({ chartData, onCategoryClick }: AnimatedWaste
                 background={{ fill: 'url(#grayTexture)' }}
                 dataKey="value"
                 cornerRadius={10}
-                stroke="#211f1c"
-                strokeWidth={0.5}
-                strokeOpacity={0.2}
+                stroke={settings.darkMode ? "rgba(255,255,255,0.3)" : "#211f1c"}
+                strokeWidth={1.5}
+                strokeOpacity={0.6}
                 animationDuration={2000}
                 animationEasing="ease-in-out"
                 onClick={(data) => {
@@ -194,12 +225,13 @@ export function AnimatedWasteChart({ chartData, onCategoryClick }: AnimatedWaste
                     onCategoryClick(data.categoryKey);
                   }
                 }}
-                style={{ cursor: 'pointer' }}
+                style={{ cursor: 'pointer', filter: settings.darkMode ? 'url(#textStrokeDark)' : 'url(#textStrokeLight)' }}
                 label={{
                   position: 'insideStart',
-                  fill: '#000000',
+                  fill: settings.darkMode ? '#ffffff' : '#000000',
                   fontFamily: 'Sniglet:Regular, sans-serif',
                   fontSize: '13px',
+                  filter: settings.darkMode ? 'url(#textStrokeDark)' : 'url(#textStrokeLight)',
                   formatter: (value: number) => {
                     const dataEntry = adjustedChartData.find(d => d.value === value);
                     return dataEntry ? `${value}% is ${dataEntry.shortName}` : `${value}% is`;

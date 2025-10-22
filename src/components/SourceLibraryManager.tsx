@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Plus, Edit2, Trash2, Search, BookOpen, ExternalLink, Save, X, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Plus, Edit2, Trash2, Search, BookOpen, ExternalLink, Save, X, AlertCircle, Cloud, CloudOff } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Alert, AlertDescription } from './ui/alert';
 import { toast } from 'sonner@2.0.3';
 import { Source, SOURCE_LIBRARY } from '../data/sources';
+import * as api from '../utils/api';
 
 interface Material {
   id: string;
@@ -30,15 +31,19 @@ interface Material {
 interface SourceLibraryManagerProps {
   onBack: () => void;
   materials: Material[];
+  isAuthenticated: boolean;
+  isAdmin: boolean;
 }
 
-export function SourceLibraryManager({ onBack, materials }: SourceLibraryManagerProps) {
+export function SourceLibraryManager({ onBack, materials, isAuthenticated, isAdmin }: SourceLibraryManagerProps) {
   const [sources, setSources] = useState<Source[]>([...SOURCE_LIBRARY]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState<string>('all');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [editingSource, setEditingSource] = useState<Source | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [cloudSynced, setCloudSynced] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState<Partial<Source>>({
     title: '',
     authors: '',
@@ -50,6 +55,34 @@ export function SourceLibraryManager({ onBack, materials }: SourceLibraryManager
     abstract: '',
     tags: []
   });
+
+  // Load sources from cloud on mount
+  useEffect(() => {
+    loadSourcesFromCloud();
+  }, []);
+
+  const loadSourcesFromCloud = async () => {
+    try {
+      setLoading(true);
+      const cloudSources = await api.getAllSources();
+      
+      if (cloudSources.length > 0) {
+        setSources(cloudSources);
+        setCloudSynced(true);
+      } else {
+        // No cloud sources, use default library
+        setSources([...SOURCE_LIBRARY]);
+        setCloudSynced(false);
+      }
+    } catch (error) {
+      console.error('Failed to load sources from cloud:', error);
+      toast.error('Failed to load sources from cloud');
+      setSources([...SOURCE_LIBRARY]);
+      setCloudSynced(false);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Get all unique tags from sources
   const allTags = Array.from(new Set(sources.flatMap(s => s.tags || []))).sort();
@@ -79,7 +112,7 @@ export function SourceLibraryManager({ onBack, materials }: SourceLibraryManager
     );
   };
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (!formData.title?.trim()) {
       toast.error('Title is required');
       return;
@@ -98,8 +131,23 @@ export function SourceLibraryManager({ onBack, materials }: SourceLibraryManager
       tags: formData.tags || []
     };
 
+    // Update local state
     setSources([...sources, newSource]);
-    toast.success('Source added to library');
+
+    // Sync to cloud if authenticated and admin
+    if (isAuthenticated && isAdmin) {
+      try {
+        await api.createSource(newSource);
+        toast.success('Source added and synced to cloud');
+        setCloudSynced(true);
+      } catch (error) {
+        console.error('Failed to sync source to cloud:', error);
+        toast.error('Source added locally but failed to sync to cloud');
+      }
+    } else {
+      toast.success('Source added to library');
+    }
+    
     resetForm();
   };
 
@@ -109,22 +157,37 @@ export function SourceLibraryManager({ onBack, materials }: SourceLibraryManager
     setShowForm(true);
   };
 
-  const handleUpdate = () => {
+  const handleUpdate = async () => {
     if (!formData.title?.trim()) {
       toast.error('Title is required');
       return;
     }
 
+    const updatedSource = { ...editingSource, ...formData } as Source;
+
+    // Update local state
     setSources(sources.map(s => 
-      s.id === editingSource?.id 
-        ? { ...s, ...formData } as Source
-        : s
+      s.id === editingSource?.id ? updatedSource : s
     ));
-    toast.success('Source updated');
+
+    // Sync to cloud if authenticated and admin
+    if (isAuthenticated && isAdmin && editingSource) {
+      try {
+        await api.updateSource(editingSource.id, updatedSource);
+        toast.success('Source updated and synced to cloud');
+        setCloudSynced(true);
+      } catch (error) {
+        console.error('Failed to sync source update to cloud:', error);
+        toast.error('Source updated locally but failed to sync to cloud');
+      }
+    } else {
+      toast.success('Source updated');
+    }
+    
     resetForm();
   };
 
-  const handleDelete = (sourceId: string) => {
+  const handleDelete = async (sourceId: string) => {
     const source = sources.find(s => s.id === sourceId);
     const usage = getSourceUsage(source?.title || '', source?.doi);
     
@@ -133,8 +196,22 @@ export function SourceLibraryManager({ onBack, materials }: SourceLibraryManager
       return;
     }
 
+    // Update local state
     setSources(sources.filter(s => s.id !== sourceId));
-    toast.success('Source removed from library');
+
+    // Sync to cloud if authenticated and admin
+    if (isAuthenticated && isAdmin) {
+      try {
+        await api.deleteSource(sourceId);
+        toast.success('Source removed and synced to cloud');
+        setCloudSynced(true);
+      } catch (error) {
+        console.error('Failed to sync source deletion to cloud:', error);
+        toast.error('Source removed locally but failed to sync to cloud');
+      }
+    } else {
+      toast.success('Source removed from library');
+    }
   };
 
   const resetForm = () => {
@@ -174,29 +251,81 @@ export function SourceLibraryManager({ onBack, materials }: SourceLibraryManager
     return labels[type];
   };
 
+  const handleSyncToCloud = async () => {
+    if (!isAuthenticated || !isAdmin) {
+      toast.error('Admin access required to sync to cloud');
+      return;
+    }
+
+    try {
+      await api.batchSaveSources(sources);
+      toast.success(`${sources.length} sources synced to cloud`);
+      setCloudSynced(true);
+    } catch (error) {
+      console.error('Failed to sync sources to cloud:', error);
+      toast.error('Failed to sync sources to cloud');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto">
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <Cloud className="w-12 h-12 mx-auto mb-3 text-black/20 dark:text-white/20 animate-pulse" />
+            <p className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black/50 dark:text-white/50">
+              Loading sources...
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h1 className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black dark:text-white">
-              Source Library Management
-            </h1>
+            <div className="flex items-center gap-2">
+              <h1 className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black dark:text-white">
+                Source Library Management
+              </h1>
+              {cloudSynced ? (
+                <Cloud className="w-4 h-4 text-green-600 dark:text-green-400" />
+              ) : (
+                <CloudOff className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+              )}
+            </div>
             <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/60 dark:text-white/60">
               Manage academic sources and citations ({sources.length} sources)
+              {cloudSynced ? ' • Synced with cloud' : ' • Local only'}
             </p>
           </div>
-          <Button
-            onClick={() => {
-              resetForm();
-              setShowForm(true);
-            }}
-            className="bg-[#b8c8cb] hover:bg-[#a8b8bb] text-black"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Add Source
-          </Button>
+          <div className="flex gap-2">
+            {isAuthenticated && isAdmin && !cloudSynced && sources.length > 0 && (
+              <Button
+                onClick={handleSyncToCloud}
+                variant="outline"
+                className="border-[#211f1c] dark:border-white/20"
+              >
+                <Cloud className="w-4 h-4 mr-2" />
+                Sync to Cloud
+              </Button>
+            )}
+            <Button
+              onClick={() => {
+                resetForm();
+                setShowForm(true);
+              }}
+              className="bg-[#b8c8cb] hover:bg-[#a8b8bb] text-black"
+              disabled={!isAuthenticated || !isAdmin}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add Source
+            </Button>
+          </div>
         </div>
 
         {/* Filters */}
@@ -555,13 +684,28 @@ export function SourceLibraryManager({ onBack, materials }: SourceLibraryManager
         </Dialog>
 
         {/* Info Alert */}
-        <Alert className="mt-4 bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-700">
-          <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-          <AlertDescription className="text-[11px] text-blue-800 dark:text-blue-200">
-            <strong>Note:</strong> Changes to the source library are local only and will not persist after refresh. 
-            To permanently modify the library, edit <code className="bg-blue-100 dark:bg-blue-950 px-1 rounded">/data/sources.ts</code>
-          </AlertDescription>
-        </Alert>
+        {!isAuthenticated || !isAdmin ? (
+          <Alert className="mt-4 bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-700">
+            <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+            <AlertDescription className="text-[11px] text-blue-800 dark:text-blue-200">
+              <strong>Note:</strong> Admin access required to modify the source library. Sign in with an admin account to add, edit, or delete sources.
+            </AlertDescription>
+          </Alert>
+        ) : cloudSynced ? (
+          <Alert className="mt-4 bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700">
+            <Cloud className="h-4 w-4 text-green-600 dark:text-green-400" />
+            <AlertDescription className="text-[11px] text-green-800 dark:text-green-200">
+              <strong>Cloud Sync Active:</strong> Changes to the source library are automatically synced to the cloud and will persist across sessions.
+            </AlertDescription>
+          </Alert>
+        ) : (
+          <Alert className="mt-4 bg-orange-50 dark:bg-orange-900/20 border-orange-300 dark:border-orange-700">
+            <CloudOff className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+            <AlertDescription className="text-[11px] text-orange-800 dark:text-orange-200">
+              <strong>Local Only:</strong> Sources are stored locally. Click "Sync to Cloud" to save changes permanently.
+            </AlertDescription>
+          </Alert>
+        )}
       </div>
     </div>
   );

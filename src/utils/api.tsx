@@ -1,6 +1,7 @@
 import { projectId, publicAnonKey } from './supabase/info';
 
 const API_BASE_URL = `https://${projectId}.supabase.co/functions/v1/make-server-17cae920`;
+console.log('🔧 API_BASE_URL initialized:', API_BASE_URL);
 
 interface Material {
   id: string;
@@ -63,12 +64,16 @@ interface AuthResponse {
 
 // Get current access token from session storage
 function getAccessToken(): string {
-  return sessionStorage.getItem('wastedb_access_token') || publicAnonKey;
+  const token = sessionStorage.getItem('wastedb_access_token') || publicAnonKey;
+  console.log('getAccessToken called, returning:', token.substring(0, 8) + '...', token === publicAnonKey ? '(anon key)' : '(custom token)');
+  return token;
 }
 
 // Store access token in session storage
 export function setAccessToken(token: string) {
+  console.log('setAccessToken called with:', token.substring(0, 8) + '...');
   sessionStorage.setItem('wastedb_access_token', token);
+  console.log('Token stored in sessionStorage, verifying:', sessionStorage.getItem('wastedb_access_token')?.substring(0, 8) + '...');
 }
 
 // Clear access token from session storage
@@ -85,12 +90,22 @@ export function isAuthenticated(): boolean {
 // Helper function to make API calls
 async function apiCall(endpoint: string, options: RequestInit = {}) {
   const token = getAccessToken();
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  const fullUrl = `${API_BASE_URL}${endpoint}`;
+  console.log('🌐 apiCall - Full URL:', fullUrl);
+  console.log('🌐 apiCall - Method:', options.method || 'GET');
+  console.log('🌐 apiCall - Token:', token.substring(0, 8) + '...');
+  
+  // For custom session tokens, use X-Session-Token header
+  // For anon key, use Authorization header
+  const isCustomToken = token !== publicAnonKey;
+  
+  const response = await fetch(fullUrl, {
     ...options,
     headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
       ...options.headers,
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${publicAnonKey}`,  // Always use anon key for Supabase
+      ...(isCustomToken ? { 'X-Session-Token': token } : {}),  // Custom tokens go in X-Session-Token
     },
   });
 
@@ -153,7 +168,12 @@ export async function verifyMagicLink(token: string): Promise<AuthResponse> {
     
     // Store the access token
     if (data.access_token) {
+      console.log('Storing access token from verification:', data.access_token);
       setAccessToken(data.access_token);
+      
+      // Verify it was stored
+      const stored = sessionStorage.getItem('wastedb_access_token');
+      console.log('Token stored successfully?', stored === data.access_token, 'stored:', stored?.substring(0, 8) + '...');
     }
     
     return data;
@@ -314,5 +334,70 @@ export async function saveWhitepaper(whitepaper: { slug: string; title: string; 
 export async function deleteWhitepaper(slug: string): Promise<void> {
   await apiCall(`/whitepapers/${slug}`, {
     method: 'DELETE',
+  });
+}
+
+// ==================== SOURCE LIBRARY API ====================
+
+export interface Source {
+  id: string;
+  title: string;
+  authors?: string;
+  year?: number;
+  doi?: string;
+  url?: string;
+  weight?: number;
+  type: 'peer-reviewed' | 'government' | 'industrial' | 'ngo' | 'internal';
+  abstract?: string;
+  tags?: string[];
+}
+
+// Get all sources (public, no auth required)
+export async function getAllSources(): Promise<Source[]> {
+  const response = await fetch(`${API_BASE_URL}/sources`, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${publicAnonKey}`,
+    },
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to fetch sources');
+  }
+  
+  const data = await response.json();
+  return data.sources || [];
+}
+
+// Create a new source (admin only)
+export async function createSource(source: Source): Promise<Source> {
+  const data = await apiCall('/sources', {
+    method: 'POST',
+    body: JSON.stringify(source),
+  });
+  return data.source;
+}
+
+// Update a source (admin only)
+export async function updateSource(id: string, source: Source): Promise<Source> {
+  const data = await apiCall(`/sources/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(source),
+  });
+  return data.source;
+}
+
+// Delete a source (admin only)
+export async function deleteSource(id: string): Promise<void> {
+  await apiCall(`/sources/${id}`, {
+    method: 'DELETE',
+  });
+}
+
+// Batch save sources (admin only)
+export async function batchSaveSources(sources: Source[]): Promise<void> {
+  await apiCall('/sources/batch', {
+    method: 'POST',
+    body: JSON.stringify({ sources }),
   });
 }

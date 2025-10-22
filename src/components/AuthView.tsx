@@ -39,7 +39,11 @@ export function AuthView({ onAuthSuccess }: AuthViewProps) {
       
       // Display user-friendly error messages
       const errorMsg = error.message || 'Failed to sign in';
-      if (errorMsg.includes('Rate limit')) {
+      if (errorMsg.includes('confirm your email')) {
+        toast.error('Please confirm your email address before signing in. Check your inbox for the confirmation link.', {
+          duration: 6000,
+        });
+      } else if (errorMsg.includes('Rate limit')) {
         toast.error('Too many attempts. Please wait a moment and try again.');
       } else if (errorMsg.includes('failed login')) {
         toast.error('Too many failed attempts. Account temporarily locked.');
@@ -67,17 +71,17 @@ export function AuthView({ onAuthSuccess }: AuthViewProps) {
       // Sign up
       const signupData = await api.signUp(email, password, name, honeypot);
       
-      // Check for @wastefull.org email
-      const isOrgEmail = email.toLowerCase().endsWith('@wastefull.org');
-      if (isOrgEmail) {
-        toast.success(`Admin account created! Welcome, ${signupData.user.name || signupData.user.email}!`);
-      } else {
-        toast.success(`Account created! Welcome, ${signupData.user.name || signupData.user.email}!`);
-      }
+      // Show confirmation message
+      toast.success('Account created! Please check your email to confirm your account.', {
+        duration: 6000,
+      });
       
-      // Auto sign in after signup
-      const signinData = await api.signIn(email, password, honeypot);
-      onAuthSuccess(signinData.user);
+      // Clear form
+      setEmail('');
+      setPassword('');
+      setName('');
+      
+      // Note: Do NOT auto sign-in - user must confirm email first
     } catch (error: any) {
       console.error('Sign up error:', error);
       
@@ -347,6 +351,13 @@ export function AuthView({ onAuthSuccess }: AuthViewProps) {
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
+              </div>
+
+              {/* Email Confirmation Notice */}
+              <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-300 dark:border-blue-700 rounded-[8px]">
+                <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-blue-800 dark:text-blue-200">
+                  📧 New accounts require email confirmation. You'll receive a confirmation link after signing up.
+                </p>
               </div>
 
               {/* Action Buttons */}

@@ -21,7 +21,9 @@ import { PublicExportView } from './components/PublicExportView';
 import { DataMigrationTool } from './components/DataMigrationTool';
 import { SourceLibraryManager } from './components/SourceLibraryManager';
 import { AssetUploadManager } from './components/AssetUploadManager';
+import { RecyclabilityVisualization } from './components/RecyclabilityVisualization';
 import { SOURCE_LIBRARY, getSourcesByTag } from './data/sources';
+import { CookieConsent } from './components/CookieConsent';
 import { Popover, PopoverContent, PopoverTrigger } from './components/ui/popover';
 import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './components/ui/tooltip';
 import { Switch } from './components/ui/switch';
@@ -320,7 +322,10 @@ function RetroButtons({ title }: { title: string }) {
             </div>
           </TooltipProvider>
 
-          <h1 className="basis-0 font-['Sniglet:Regular',_sans-serif] grow leading-[25px] min-h-px min-w-px not-italic relative shrink-0 text-[14px] md:text-[20px] text-black dark:text-white text-left md:text-center uppercase">{title}</h1>
+          <div className="basis-0 grow min-h-px min-w-px flex items-center justify-center gap-2">
+            <h1 className="font-['Sniglet:Regular',_sans-serif] leading-[25px] not-italic text-[14px] md:text-[20px] text-black dark:text-white text-center uppercase">{title}</h1>
+            <span className="font-['Sniglet:Regular',_sans-serif] text-[8px] md:text-[10px] px-1.5 md:px-2 py-0.5 md:py-1 rounded-full bg-[#e4e3ac] border border-[#211f1c] dark:border-white/20 text-black uppercase">Beta</span>
+          </div>
         </div>
       </div>
     </div>
@@ -630,12 +635,19 @@ function MaterialCard({
           articleCount={material.articles.compostability.length}
           onClick={() => onViewArticles('compostability')}
         />
-        <ScoreBar 
-          score={material.recyclability} 
-          label="Recyclability" 
-          color="#e4e3ac" 
-          articleCount={material.articles.recyclability.length}
+        <RecyclabilityVisualization
+          data={{
+            CR_practical_mean: material.CR_practical_mean,
+            CR_theoretical_mean: material.CR_theoretical_mean,
+            CR_practical_CI95: material.CR_practical_CI95,
+            CR_theoretical_CI95: material.CR_theoretical_CI95,
+            confidence_level: material.confidence_level,
+            category: material.category
+          }}
+          simplified={!material.CR_practical_mean || !material.CR_theoretical_mean}
+          height={50}
           onClick={() => onViewArticles('recyclability')}
+          articleCount={material.articles.recyclability.length}
         />
         <ScoreBar 
           score={material.reusability} 
@@ -2535,15 +2547,25 @@ function AppContent() {
           console.log('Magic link verification response:', response);
           
           if (response.access_token && response.user) {
-            // Store access token
+            // Store access token (already done in verifyMagicLink, but do it again to be sure)
+            console.log('App.tsx: Storing access token again:', response.access_token.substring(0, 8) + '...');
             api.setAccessToken(response.access_token);
             
             // Set user info
             setUser(response.user);
             sessionStorage.setItem('wastedb_user', JSON.stringify(response.user));
             
+            // Wait a tiny bit to ensure sessionStorage has committed
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            // Verify token is stored
+            const storedToken = sessionStorage.getItem('wastedb_access_token');
+            console.log('App.tsx: Verified token in storage before getUserRole:', storedToken?.substring(0, 8) + '...');
+            
             // Get user role
+            console.log('App.tsx: About to fetch user role...');
             const role = await api.getUserRole();
+            console.log('App.tsx: Got user role:', role);
             setUserRole(role);
             
             // Clear the URL parameters to avoid confusion
@@ -3021,14 +3043,14 @@ function AppContent() {
       )}
       
       <div 
-        className="min-h-screen p-3 md:p-8 bg-[#faf7f2] dark:bg-[#1a1917]"
+        className="min-h-screen p-3 md:p-8 bg-[#faf7f2] dark:bg-[#2a2825]"
         style={{
           backgroundImage: `url("https://www.transparenttextures.com/patterns/3px-tile.png")`,
           backgroundSize: '3px 3px'
         }}
       >
         <div className="max-w-6xl mx-auto">
-          <div className="bg-[#faf7f2] dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 overflow-hidden mb-6">
+          <div className="bg-[#faf7f2] dark:bg-[#1a1917] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 overflow-hidden mb-6">
             <StatusBar title="WasteDB" currentView={currentView} onViewChange={setCurrentView} syncStatus={syncStatus} user={user} userRole={userRole} onLogout={handleLogout} onSignIn={() => setShowAuthModal(true)} />
           
           {currentView.type === 'materials' ? (
@@ -3053,11 +3075,11 @@ function AppContent() {
               )}
               {/* Search bar and chart on same line for wide screens */}
               <div className="flex flex-col lg:flex-row gap-4 lg:justify-between mb-6">
-                {/* Left column: Search bar, Add Material button, and Methodology link (vertically centered) */}
-                <div className="w-full lg:w-96 flex flex-col justify-center gap-4">
+                {/* Left column: Search bar, Add Material button, and Methodology link (vertically and horizontally centered) */}
+                <div className="w-full lg:w-96 lg:pl-20 flex flex-col justify-center items-center gap-4">
                   <SearchBar value={searchQuery} onChange={setSearchQuery} />
                   {isAdminModeActive && (
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2 justify-center">
                       <button
                         onClick={() => {
                           setShowForm(true);
@@ -3082,14 +3104,14 @@ function AppContent() {
                       </button>
                     </div>
                   )}
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-2 items-center">
                     <div className="flex items-center gap-2">
                       <motion.button
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, delay: 0.3 }}
                         onClick={() => setCurrentView({ type: 'methodology-list' })}
-                        className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:underline transition-colors text-left"
+                        className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:underline transition-colors text-center"
                       >
                         Methodology & Whitepapers
                       </motion.button>
@@ -3104,7 +3126,7 @@ function AppContent() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.5, delay: 0.35 }}
                       onClick={() => setCurrentView({ type: 'export' })}
-                      className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:underline transition-colors text-left flex items-center gap-1"
+                      className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:underline transition-colors text-center flex items-center gap-1"
                     >
                       <Download size={12} />
                       Export Data (Open Access)
@@ -3122,7 +3144,7 @@ function AppContent() {
                       categoryKey: 'compostability',
                       value: Math.round(materials.reduce((sum, m) => sum + m.compostability, 0) / materials.length),
                       articleCount: materials.reduce((sum, m) => sum + m.articles.compostability.length, 0),
-                      fill: '#e6beb5'
+                      fill: '#e8a593'
                     },
                     {
                       name: 'Recyclable',
@@ -3130,7 +3152,7 @@ function AppContent() {
                       categoryKey: 'recyclability',
                       value: Math.round(materials.reduce((sum, m) => sum + m.recyclability, 0) / materials.length),
                       articleCount: materials.reduce((sum, m) => sum + m.articles.recyclability.length, 0),
-                      fill: '#e4e3ac'
+                      fill: '#f0e68c'
                     },
                     {
                       name: 'Reusable',
@@ -3138,7 +3160,7 @@ function AppContent() {
                       categoryKey: 'reusability',
                       value: Math.round(materials.reduce((sum, m) => sum + m.reusability, 0) / materials.length),
                       articleCount: materials.reduce((sum, m) => sum + m.articles.reusability.length, 0),
-                      fill: '#b8c8cb'
+                      fill: '#a8c5d8'
                     }
                   ];
 
@@ -3305,6 +3327,13 @@ function AppContent() {
           ) : null}
         </div>
       </div>
+      
+      {/* Footer */}
+      <footer className="mt-8 pb-6 text-center">
+        <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/60 dark:text-white/60 max-w-3xl mx-auto px-4">
+          <a href="https://wastefull.org" target="_blank" rel="noopener noreferrer" className="hover:text-black dark:hover:text-white transition-colors underline">Wastefull, Inc.</a> is a registered California 501(c)(3) nonprofit organization. Donations to the organization may be tax deductible.
+        </p>
+      </footer>
       </div>
     </>
   );
@@ -3315,6 +3344,7 @@ export default function App() {
     <AccessibilityProvider>
       <Toaster />
       <AppContent />
+      <CookieConsent />
     </AccessibilityProvider>
   );
 }

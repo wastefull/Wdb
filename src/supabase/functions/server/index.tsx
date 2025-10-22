@@ -147,7 +147,7 @@ app.use(
   "/*",
   cors({
     origin: "*",
-    allowHeaders: ["Content-Type", "Authorization"],
+    allowHeaders: ["Content-Type", "Authorization", "X-Session-Token"],
     allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     exposeHeaders: ["Content-Length"],
     maxAge: 600,
@@ -196,22 +196,38 @@ initializeStorage();
 
 // Middleware to verify authentication
 async function verifyAuth(c: any, next: any) {
-  const authHeader = c.req.header('Authorization');
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return c.json({ error: 'Unauthorized - missing token' }, 401);
-  }
-
-  const token = authHeader.split(' ')[1];
+  // Check for custom session token in X-Session-Token header
+  const sessionToken = c.req.header('X-Session-Token');
+  console.log('verifyAuth: X-Session-Token header:', sessionToken ? `${sessionToken.substring(0, 8)}...` : 'missing');
   
-  // Skip verification for public anon key (for backward compatibility during development)
-  const publicAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
-  if (token === publicAnonKey) {
-    await next();
-    return;
+  // If no session token, check Authorization header for backward compatibility
+  if (!sessionToken) {
+    const authHeader = c.req.header('Authorization');
+    console.log('verifyAuth: Authorization header:', authHeader ? `Bearer ${authHeader.split(' ')[1]?.substring(0, 8)}...` : 'missing');
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.log('verifyAuth: Missing or invalid Authorization header');
+      return c.json({ error: 'Unauthorized - missing token' }, 401);
+    }
+
+    const token = authHeader.split(' ')[1];
+    console.log('verifyAuth: Token extracted:', token.substring(0, 8) + '...');
+    
+    // Skip verification for public anon key (for backward compatibility during development)
+    const publicAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
+    if (token === publicAnonKey) {
+      console.log('verifyAuth: Using public anon key (skipping verification)');
+      await next();
+      return;
+    }
   }
+  
+  const token = sessionToken || c.req.header('Authorization')?.split(' ')[1] || '';
 
   try {
     // First, check if this is a custom session token (magic link)
+    console.log('verifyAuth: Checking for custom session token in KV...');
+    console.log(`verifyAuth: Looking up key: session:${token}`);
     const sessionData = await kv.get(`session:${token}`) as {
       userId: string;
       email: string;
@@ -219,14 +235,21 @@ async function verifyAuth(c: any, next: any) {
       createdAt: number;
     } | null;
     
+    console.log('verifyAuth: Session data found:', sessionData ? `userId: ${sessionData.userId}, email: ${sessionData.email}, expiry: ${new Date(sessionData.expiry).toISOString()}` : 'null');
+    if (!sessionData) {
+      console.log('verifyAuth: No session found in KV for this token');
+    }
+    
     if (sessionData) {
       // Verify session hasn't expired
       if (Date.now() > sessionData.expiry) {
+        console.log('verifyAuth: Session expired');
         await kv.del(`session:${token}`);
         return c.json({ error: 'Session expired - please sign in again' }, 401);
       }
       
       // Session is valid - set context and continue
+      console.log('verifyAuth: Session valid, setting context');
       c.set('userId', sessionData.userId);
       c.set('userEmail', sessionData.email);
       await next();
@@ -234,6 +257,7 @@ async function verifyAuth(c: any, next: any) {
     }
     
     // If not a custom session, try Supabase JWT token (for backward compatibility)
+    console.log('verifyAuth: No custom session, trying Supabase JWT...');
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
@@ -242,10 +266,12 @@ async function verifyAuth(c: any, next: any) {
     const { data: { user }, error } = await supabase.auth.getUser(token);
     
     if (error || !user) {
+      console.log('verifyAuth: Supabase JWT validation failed:', error);
       return c.json({ error: 'Unauthorized - invalid token' }, 401);
     }
     
     // Store user ID and email in context for use in route handlers
+    console.log('verifyAuth: Supabase JWT valid, user:', user.email);
     c.set('userId', user.id);
     c.set('userEmail', user.email);
     await next();
@@ -341,6 +367,8 @@ app.post("/make-server-17cae920/auth/signup", rateLimit('SIGNUP'), async (c) => 
     );
 
     // Create user with admin API
+    // Note: Email confirmation is required. Users must verify their email before signing in.
+    // Configure email templates in Supabase Dashboard > Authentication > Email Templates
     const { data, error } = await supabase.auth.admin.createUser({
       email: email.toLowerCase().trim(),
       password,
@@ -350,8 +378,8 @@ app.post("/make-server-17cae920/auth/signup", rateLimit('SIGNUP'), async (c) => 
         signupIp: getClientId(c).split(':')[0],
         signupTimestamp: new Date().toISOString()
       },
-      // Automatically confirm the user's email since an email server hasn't been configured
-      email_confirm: true,
+      // Require email confirmation for security
+      email_confirm: false,
     });
 
     if (error) {
@@ -373,14 +401,15 @@ app.post("/make-server-17cae920/auth/signup", rateLimit('SIGNUP'), async (c) => 
     const initialRole = emailValidation.isOrgEmail ? 'admin' : 'user';
     await kv.set(`user_role:${data.user.id}`, initialRole);
     
-    console.log(`New user created: ${email} (role: ${initialRole})`);
+    console.log(`New user created: ${email} (role: ${initialRole}) - awaiting email confirmation`);
 
     return c.json({ 
       user: { 
         id: data.user.id, 
         email: data.user.email,
         name: data.user.user_metadata?.name 
-      } 
+      },
+      message: 'Account created! Please check your email to confirm your account before signing in.' 
     });
   } catch (error) {
     console.error('Signup exception:', error);
@@ -440,12 +469,30 @@ app.post("/make-server-17cae920/auth/signin", rateLimit('AUTH'), async (c) => {
     if (error) {
       console.error('Signin error:', error);
       
+      // Check if the error is due to unconfirmed email
+      if (error.message?.includes('Email not confirmed') || error.message?.includes('email_not_confirmed')) {
+        // Don't track as failed attempt for unconfirmed emails
+        return c.json({ 
+          error: 'Please confirm your email address before signing in. Check your inbox for the confirmation link.',
+          code: 'EMAIL_NOT_CONFIRMED'
+        }, 403);
+      }
+      
       // Track failed attempt
       const newCount = failedAttempts ? failedAttempts.count + 1 : 1;
       await kv.set(failedAttemptsKey, { count: newCount, lastAttempt: Date.now() });
       
       // Use generic error message to prevent user enumeration
       return c.json({ error: 'Invalid email or password' }, 401);
+    }
+    
+    // Additional check: verify user's email is confirmed
+    if (data.user && !data.user.email_confirmed_at) {
+      console.log(`Sign in blocked for unconfirmed email: ${email}`);
+      return c.json({ 
+        error: 'Please confirm your email address before signing in. Check your inbox for the confirmation link.',
+        code: 'EMAIL_NOT_CONFIRMED'
+      }, 403);
     }
     
     // Clear failed attempts on successful login
@@ -670,6 +717,7 @@ app.post("/make-server-17cae920/auth/verify-magic-link", async (c) => {
           signupTimestamp: new Date().toISOString(),
           authMethod: 'magic-link'
         },
+        // Magic links auto-confirm since clicking the link verifies email ownership
         email_confirm: true,
       });
       
@@ -718,6 +766,9 @@ app.post("/make-server-17cae920/auth/verify-magic-link", async (c) => {
     const accessToken = crypto.randomUUID();
     const sessionExpiry = Date.now() + (7 * 24 * 60 * 60 * 1000); // 7 days
     
+    console.log(`Creating session for user ${userData.user.id} with token: ${accessToken}`);
+    console.log(`Session will be stored with key: session:${accessToken}`);
+    
     // Store the session
     await kv.set(`session:${accessToken}`, {
       userId: userData.user.id,
@@ -725,8 +776,16 @@ app.post("/make-server-17cae920/auth/verify-magic-link", async (c) => {
       expiry: sessionExpiry,
       createdAt: Date.now()
     });
+    
+    // Verify the session was stored
+    const verifySession = await kv.get(`session:${accessToken}`);
+    console.log(`Session storage verification:`, verifySession ? 'SUCCESS' : 'FAILED');
+    if (verifySession) {
+      console.log(`Verified session data:`, JSON.stringify(verifySession));
+    }
 
     console.log(`Successful magic link verification: ${trimmedEmail}`);
+    console.log(`Returning access_token to frontend: ${accessToken}`);
 
     // Return user data and access token
     return c.json({ 
@@ -840,18 +899,24 @@ app.delete("/make-server-17cae920/materials", verifyAuth, verifyAdmin, async (c)
 
 // Get current user's role (protected)
 app.get("/make-server-17cae920/users/me/role", verifyAuth, async (c) => {
+  console.log('🔍 GET /users/me/role - Endpoint reached after verifyAuth');
+  console.log('✅ GET /users/me/role endpoint reached after verifyAuth');
   try {
     const userId = c.get('userId');
     const userEmail = c.get('userEmail');
+    console.log(`Getting role for user: ${userId} (${userEmail})`);
     
     let userRole = await kv.get(`user_role:${userId}`);
+    console.log(`Retrieved role from KV: ${userRole}`);
     
     // Initialize role if not set
     if (!userRole) {
       userRole = (userEmail === 'natto@wastefull.org') ? 'admin' : 'user';
       await kv.set(`user_role:${userId}`, userRole);
+      console.log(`Initialized role for user: ${userRole}`);
     }
     
+    console.log(`Returning role: ${userRole}`);
     return c.json({ role: userRole });
   } catch (error) {
     console.error("Error getting user role:", error);
@@ -1808,6 +1873,93 @@ app.get('/make-server-17cae920/export/full', async (c) => {
     console.error('Error exporting research data:', error);
     return c.json({ error: 'Failed to export data', details: String(error) }, 500);
   }
+});
+
+// ==================== SOURCE LIBRARY ROUTES ====================
+
+// Get all sources (public, no auth required)
+app.get('/make-server-17cae920/sources', async (c) => {
+  try {
+    const sources = await kv.getByPrefix('source:');
+    return c.json({ sources: sources || [] });
+  } catch (error) {
+    console.error("Error fetching sources:", error);
+    return c.json({ error: "Failed to fetch sources", details: String(error) }, 500);
+  }
+});
+
+// Create a new source (admin only)
+app.post('/make-server-17cae920/sources', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const source = await c.req.json();
+    if (!source.id) {
+      return c.json({ error: "Source ID is required" }, 400);
+    }
+    await kv.set(`source:${source.id}`, source);
+    return c.json({ source });
+  } catch (error) {
+    console.error("Error creating source:", error);
+    return c.json({ error: "Failed to create source", details: String(error) }, 500);
+  }
+});
+
+// Update a source (admin only)
+app.put('/make-server-17cae920/sources/:id', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const id = c.req.param("id");
+    const source = await c.req.json();
+    
+    // Verify the source exists
+    const existing = await kv.get(`source:${id}`);
+    if (!existing) {
+      return c.json({ error: "Source not found" }, 404);
+    }
+    
+    await kv.set(`source:${id}`, source);
+    return c.json({ source });
+  } catch (error) {
+    console.error("Error updating source:", error);
+    return c.json({ error: "Failed to update source", details: String(error) }, 500);
+  }
+});
+
+// Delete a source (admin only)
+app.delete('/make-server-17cae920/sources/:id', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const id = c.req.param("id");
+    await kv.del(`source:${id}`);
+    return c.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting source:", error);
+    return c.json({ error: "Failed to delete source", details: String(error) }, 500);
+  }
+});
+
+// Batch save sources (admin only)
+app.post('/make-server-17cae920/sources/batch', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const { sources } = await c.req.json();
+    if (!Array.isArray(sources)) {
+      return c.json({ error: "Sources must be an array" }, 400);
+    }
+    
+    const keys = sources.map(s => `source:${s.id}`);
+    const values = sources;
+    await kv.mset(keys, values);
+    
+    return c.json({ success: true, count: sources.length });
+  } catch (error) {
+    console.error("Error batch saving sources:", error);
+    return c.json({ error: "Failed to batch save sources", details: String(error) }, 500);
+  }
+});
+
+// Catch-all 404 handler for debugging
+app.all('*', (c) => {
+  console.log(`❌ 404 - Unmatched route: ${c.req.method} ${c.req.url}`);
+  console.log(`❌ Path: ${c.req.path}`);
+  console.log(`❌ Headers:`, JSON.stringify(Object.fromEntries(c.req.header())));
+  return c.json({ error: 'Not found', path: c.req.path }, 404);
 });
 
 // Run initialization
