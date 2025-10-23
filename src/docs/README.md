@@ -31,12 +31,14 @@ Welcome to the WasteDB documentation! This folder contains all project documenta
 ### Security & Authentication
 - **[Roles & Permissions](ROLES_AND_PERMISSIONS.md)** - User roles and access control
 - **[Security Guide](SECURITY.md)** - Security best practices
+- **[API Security & Logging](API_SECURITY_LOGGING.md)** - Secure logging practices (CRITICAL)
 - **[Magic Link Testing](MAGIC_LINK_TEST_GUIDE.md)** - Passwordless authentication
 
 ### Development
 - **[Supabase Integration](SUPABASE_INTEGRATION.md)** - Backend setup
 - **[Data Pipeline](DATA_PIPELINE.md)** - Data flow and processing
 - **[Asset Storage](ASSET_STORAGE_GUIDE.md)** - File upload and storage
+- **[Logger System](LOGGER_USAGE_GUIDE.md)** - Centralized logging & debugging
 - **[Deployment Checklist](DEPLOYMENT_CHECKLIST.md)** - Pre-production checklist
 
 ### Project History
@@ -75,6 +77,11 @@ If you're here to set up email confirmation:
 **Frontend & UI**
 - `/docs/VISUALIZATION.md`
 - `/docs/PHASE_4_VISUALIZATION_COMPLETE.md`
+
+**Development Tools**
+- `/docs/LOGGER_USAGE_GUIDE.md` - Centralized logging
+- `/docs/LOGGER_MIGRATION_EXAMPLE.md` - Migration patterns
+- `/docs/LOGGER_IMPLEMENTATION_SUMMARY.md` - Implementation overview
 
 **Deployment**
 - `/docs/DEPLOYMENT_CHECKLIST.md`

@@ -2,6 +2,30 @@
 
 This document outlines the comprehensive security measures implemented in WasteDB to protect against malicious actors, API abuse, DOS/DDOS attacks, and unauthorized access.
 
+## 🔴 CRITICAL: Token Logging Removal (October 23, 2025)
+
+**Status:** ✅ Complete  
+**Impact:** HIGH - Security vulnerability eliminated
+
+All authentication token logging has been removed from the API utility (`/utils/api.tsx`). Prior to this update, tokens were being logged to the browser console, creating a security risk.
+
+**What Was Fixed:**
+- ❌ Removed all token substring logging
+- ❌ Removed direct token logging
+- ✅ Replaced with authentication state logging
+- ✅ Improved structured error logging
+
+**Documentation:**
+- 📖 [API Security & Logging Guide](/docs/API_SECURITY_LOGGING.md) - Complete security guidelines
+- 📖 [Security Update Details](/docs/SECURITY_UPDATE_OCT_23_LOGGER.md) - Full vulnerability report
+
+**Developer Action Required:**
+- When writing new code, NEVER log authentication tokens
+- Use the logger system from `/utils/logger.ts`
+- Follow guidelines in [API_SECURITY_LOGGING.md](/docs/API_SECURITY_LOGGING.md)
+
+---
+
 ## 🆕 Environment-Aware Authentication (v1.2.0)
 
 **Implemented:** October 23, 2025

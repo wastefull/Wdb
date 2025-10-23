@@ -3,6 +3,7 @@ import { LogIn, UserPlus, Eye, EyeOff, Mail, ArrowLeft } from 'lucide-react';
 import * as api from '../utils/api';
 import { toast } from 'sonner@2.0.3';
 import { isFigmaMake, logEnvironmentInfo } from '../utils/environment';
+import { logger } from '../utils/logger';
 
 interface AuthViewProps {
   onAuthSuccess: (user: { id: string; email: string; name?: string }) => void;
@@ -24,19 +25,19 @@ export function AuthView({ onAuthSuccess }: AuthViewProps) {
   // Log environment info on mount
   useEffect(() => {
     logEnvironmentInfo();
-    console.log('🔐 Auth View - Password auth enabled:', showPasswordAuth);
-    console.log('🔐 Initial auth mode:', showPasswordAuth ? 'traditional' : 'magic-link');
+    logger.log('🔐 Auth View - Password auth enabled:', showPasswordAuth);
+    logger.log('🔐 Initial auth mode:', showPasswordAuth ? 'traditional' : 'magic-link');
   }, [showPasswordAuth]);
   
   // Auto-redirect to correct mode based on environment
   useEffect(() => {
     if (showPasswordAuth && authMode === 'magic-link') {
       // In Figma Make, default to password
-      console.log('🔄 Figma Make environment - using Password auth');
+      logger.log('🔄 Figma Make environment - using Password auth');
       setAuthMode('traditional');
     } else if (!showPasswordAuth && authMode === 'traditional') {
       // In production, default to magic link
-      console.log('🔄 Production environment - switching to Magic Link auth');
+      logger.log('🔄 Production environment - switching to Magic Link auth');
       setAuthMode('magic-link');
     }
   }, [showPasswordAuth, authMode]);

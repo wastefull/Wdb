@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import svgPaths from "./imports/svg-qhqftidoeu";
 import { Plus, Edit2, Trash2, Search, ArrowLeft, Upload, Image as ImageIcon, ChevronDown, Copy, Check, Type, Eye, RotateCcw, Moon, Save, X, Download, FileUp, Cloud, CloudOff, LogOut, User } from 'lucide-react';
 import * as api from './utils/api';
+import { logger, setTestMode, getTestMode, loggerInfo } from './utils/logger';
 import { AuthView } from './components/AuthView';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from './components/ui/collapsible';
 import { RadialBarChart, RadialBar, ResponsiveContainer, Legend, Tooltip, PolarAngleAxis, Cell, Text } from 'recharts';
@@ -2631,6 +2632,28 @@ function AppContent() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isLoadingMaterials, setIsLoadingMaterials] = useState(true);
   
+  // Expose logger to window for browser console debugging
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).wastedbLogger = {
+        setTestMode,
+        getTestMode,
+        info: loggerInfo,
+        log: logger.log,
+        error: logger.error,
+        warn: logger.warn,
+        debug: logger.debug,
+      };
+      
+      // Log initialization only if in test mode
+      if (getTestMode()) {
+        logger.log('🪟 Logger exposed to window.wastedbLogger');
+        logger.log('   Usage: wastedbLogger.setTestMode(true/false)');
+        logger.log('   Info: wastedbLogger.info()');
+      }
+    }
+  }, []);
+  
   // Check if user is authenticated on mount and fetch their role
   useEffect(() => {
     const loadUserAndRole = async () => {
@@ -2640,14 +2663,14 @@ function AppContent() {
       
       if (magicToken) {
         // Verify magic link token and get access token
-        console.log('Detected magic token in URL, verifying...');
+        logger.log('Detected magic token in URL, verifying...');
         try {
           const response = await api.verifyMagicLink(magicToken);
-          console.log('Magic link verification response:', response);
+          logger.log('Magic link verification response:', response);
           
           if (response.access_token && response.user) {
             // Store access token (already done in verifyMagicLink, but do it again to be sure)
-            console.log('App.tsx: Storing access token again:', response.access_token.substring(0, 8) + '...');
+            logger.log('App.tsx: Storing access token again:', response.access_token.substring(0, 8) + '...');
             api.setAccessToken(response.access_token);
             
             // Set user info
@@ -2659,25 +2682,25 @@ function AppContent() {
             
             // Verify token is stored
             const storedToken = sessionStorage.getItem('wastedb_access_token');
-            console.log('App.tsx: Verified token in storage before getUserRole:', storedToken?.substring(0, 8) + '...');
+            logger.log('App.tsx: Verified token in storage before getUserRole:', storedToken?.substring(0, 8) + '...');
             
             // Get user role
-            console.log('App.tsx: About to fetch user role...');
+            logger.log('App.tsx: About to fetch user role...');
             const role = await api.getUserRole();
-            console.log('App.tsx: Got user role:', role);
+            logger.log('App.tsx: Got user role:', role);
             setUserRole(role);
             
             // Clear the URL parameters to avoid confusion
             window.history.replaceState({}, document.title, window.location.pathname);
             
-            console.log('Magic link authentication successful');
+            logger.log('Magic link authentication successful');
             toast.success(`Welcome back, ${response.user.email}!`);
           } else {
-            console.error('Invalid response structure:', response);
+            logger.error('Invalid response structure:', response);
             throw new Error('Invalid magic link response');
           }
         } catch (error) {
-          console.error('Error processing magic link:', error);
+          logger.error('Error processing magic link:', error);
           const errorMessage = error instanceof Error ? error.message : 'Unknown error';
           toast.error(`Magic link verification failed: ${errorMessage}`);
           // Clear the URL parameters

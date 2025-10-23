@@ -1,7 +1,8 @@
 import { projectId, publicAnonKey } from './supabase/info';
+import { logger } from './logger';
 
 const API_BASE_URL = `https://${projectId}.supabase.co/functions/v1/make-server-17cae920`;
-console.log('🔧 API_BASE_URL initialized:', API_BASE_URL);
+logger.log('🔧 API_BASE_URL initialized:', API_BASE_URL);
 
 interface Material {
   id: string;
@@ -99,15 +100,15 @@ interface AuthResponse {
 // Get current access token from session storage
 function getAccessToken(): string {
   const token = sessionStorage.getItem('wastedb_access_token') || publicAnonKey;
-  console.log('getAccessToken called, returning:', token.substring(0, 8) + '...', token === publicAnonKey ? '(anon key)' : '(custom token)');
+  logger.log('getAccessToken called, returning:', token === publicAnonKey ? '(anon key)' : '(authenticated token)');
   return token;
 }
 
 // Store access token in session storage
 export function setAccessToken(token: string) {
-  console.log('setAccessToken called with:', token.substring(0, 8) + '...');
+  logger.log('setAccessToken called - storing authenticated token');
   sessionStorage.setItem('wastedb_access_token', token);
-  console.log('Token stored in sessionStorage, verifying:', sessionStorage.getItem('wastedb_access_token')?.substring(0, 8) + '...');
+  logger.log('Token stored in sessionStorage successfully');
 }
 
 // Clear access token from session storage
@@ -125,14 +126,16 @@ export function isAuthenticated(): boolean {
 export async function apiCall(endpoint: string, options: RequestInit = {}) {
   const token = getAccessToken();
   const fullUrl = `${API_BASE_URL}${endpoint}`;
-  console.log('🌐 apiCall - Full URL:', fullUrl);
-  console.log('🌐 apiCall - Method:', options.method || 'GET');
-  console.log('🌐 apiCall - Token:', token.substring(0, 8) + '...');
+  const isCustomToken = token !== publicAnonKey;
+  
+  logger.log('🌐 API Call:', {
+    endpoint,
+    method: options.method || 'GET',
+    authType: isCustomToken ? 'authenticated' : 'anonymous',
+  });
   
   // For custom session tokens, use X-Session-Token header
   // For anon key, use Authorization header
-  const isCustomToken = token !== publicAnonKey;
-  
   const response = await fetch(fullUrl, {
     ...options,
     headers: {
@@ -146,8 +149,16 @@ export async function apiCall(endpoint: string, options: RequestInit = {}) {
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
     
+    logger.error('API call failed:', {
+      endpoint,
+      status: response.status,
+      statusText: response.statusText,
+      error: errorData.error || 'Unknown error',
+    });
+    
     // If we get a 401 and it's not a signin/signup request, clear the stale token
     if (response.status === 401 && !endpoint.includes('/auth/')) {
+      logger.warn('Unauthorized request - clearing stale authentication');
       clearAccessToken();
       sessionStorage.removeItem('wastedb_user');
     }
@@ -192,27 +203,27 @@ export async function sendMagicLink(email: string, honeypot?: string): Promise<{
 }
 
 export async function verifyMagicLink(token: string): Promise<AuthResponse> {
-  console.log('Calling verify-magic-link API with token:', token);
+  logger.log('Verifying magic link token');
   try {
     const data = await apiCall('/auth/verify-magic-link', {
       method: 'POST',
       body: JSON.stringify({ token }),
     });
-    console.log('Verify-magic-link API response:', data);
+    logger.log('Magic link verification successful');
     
     // Store the access token
     if (data.access_token) {
-      console.log('Storing access token from verification:', data.access_token);
+      logger.log('Storing access token from magic link verification');
       setAccessToken(data.access_token);
       
       // Verify it was stored
       const stored = sessionStorage.getItem('wastedb_access_token');
-      console.log('Token stored successfully?', stored === data.access_token, 'stored:', stored?.substring(0, 8) + '...');
+      logger.log('Token stored successfully:', !!stored);
     }
     
     return data;
   } catch (error) {
-    console.error('Verify-magic-link API error:', error);
+    logger.error('Magic link verification failed:', error);
     throw error;
   }
 }
@@ -313,7 +324,7 @@ interface Whitepaper {
 
 // Get all whitepapers (public, no auth required)
 export async function getAllWhitepapers(): Promise<Whitepaper[]> {
-  console.log('Fetching whitepapers from:', `${API_BASE_URL}/whitepapers`);
+  logger.log('Fetching whitepapers from API');
   const response = await fetch(`${API_BASE_URL}/whitepapers`, {
     headers: {
       'Content-Type': 'application/json',
@@ -321,16 +332,19 @@ export async function getAllWhitepapers(): Promise<Whitepaper[]> {
     },
   });
   
-  console.log('Whitepaper response status:', response.status);
+  logger.log('Whitepaper response status:', response.status);
   
   if (!response.ok) {
     const errorText = await response.text();
-    console.error('Whitepaper fetch failed:', errorText);
+    logger.error('Whitepaper fetch failed:', {
+      status: response.status,
+      error: errorText,
+    });
     throw new Error('Failed to fetch whitepapers');
   }
   
   const data = await response.json();
-  console.log('Whitepapers data:', data);
+  logger.log('Whitepapers fetched successfully:', data.whitepapers?.length || 0, 'whitepapers');
   return data.whitepapers || [];
 }
 

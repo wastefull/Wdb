@@ -248,6 +248,44 @@ Search by:
 1. **Use Batch Operations** for updating multiple materials at once
 2. **Tag sources** in Source Library for easy filtering
 3. **Export data regularly** as backup
+4. **Enable debug logging** in browser console with `wastedbLogger.setTestMode(true)`
+
+---
+
+## 🔍 Debugging & Development
+
+### Enable Console Logging
+
+WasteDB uses a smart logging system that automatically suppresses console output in production.
+
+**In Browser Console:**
+```javascript
+// Enable all logging
+wastedbLogger.setTestMode(true);
+
+// Check current configuration
+wastedbLogger.info();
+
+// Disable logging
+wastedbLogger.setTestMode(false);
+```
+
+**In Development:**
+- Logging is **enabled by default** in Figma Make environment
+- Logging is **disabled by default** in production
+- Errors are **always visible** regardless of mode
+
+**For Developers:**
+```typescript
+// Import logger in your code
+import { log, error, warn } from './utils/logger';
+
+log('Debug message');      // Suppressed in production
+error('Error occurred');   // Always visible
+warn('Warning message');   // Suppressed in production
+```
+
+📖 See [Logger Usage Guide](/docs/LOGGER_USAGE_GUIDE.md) for complete documentation
 4. **Use scientific editor** for detailed recyclability calculations
 5. **Share article permalinks** for direct access
 6. **Enable dark mode** for night work sessions
