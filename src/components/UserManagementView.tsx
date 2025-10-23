@@ -215,38 +215,85 @@ export function UserManagementView({
                       <button
                         onClick={() => handleEditUser(user)}
                         className="p-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#b8c8cb] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                        title="Edit user"
                       >
                         <Edit2 size={12} className="text-black" />
                       </button>
                       {user.id !== currentUserId && (
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <button className="p-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#e6beb5] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all">
-                              <Trash2 size={12} className="text-black" />
+                        <>
+                          {user.active !== false ? (
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <button 
+                                  className="p-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#f4d3a0] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                                  title="Inactivate user"
+                                >
+                                  <UserX size={12} className="text-black" />
+                                </button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent className="bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20">
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">
+                                    Inactivate User
+                                  </AlertDialogTitle>
+                                  <AlertDialogDescription className="font-['Sniglet:Regular',_sans-serif] text-black/70 dark:text-white/70">
+                                    Inactivate {user.email}? They won't be able to log in, but their data will be preserved. You can reactivate them later.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel className="font-['Sniglet:Regular',_sans-serif]">
+                                    Cancel
+                                  </AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => handleInactivateUser(user.id)}
+                                    className="bg-[#f4d3a0] text-black hover:bg-[#e5c591] font-['Sniglet:Regular',_sans-serif]"
+                                  >
+                                    Inactivate
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          ) : (
+                            <button
+                              onClick={() => handleActivateUser(user.id)}
+                              className="p-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#c8e5c8] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                              title="Reactivate user"
+                            >
+                              <UserIcon size={12} className="text-black" />
                             </button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent className="bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20">
-                            <AlertDialogHeader>
-                              <AlertDialogTitle className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">
-                                Delete User
-                              </AlertDialogTitle>
-                              <AlertDialogDescription className="font-['Sniglet:Regular',_sans-serif] text-black/70 dark:text-white/70">
-                                Are you sure you want to delete {user.email}? This action cannot be undone.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel className="font-['Sniglet:Regular',_sans-serif]">
-                                Cancel
-                              </AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => handleDeleteUser(user.id)}
-                                className="bg-[#e6beb5] text-black hover:bg-[#d4aea5] font-['Sniglet:Regular',_sans-serif]"
+                          )}
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <button 
+                                className="p-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#e6beb5] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                                title="Delete user"
                               >
-                                Delete
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                                <Trash2 size={12} className="text-black" />
+                              </button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent className="bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20">
+                              <AlertDialogHeader>
+                                <AlertDialogTitle className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">
+                                  Delete User
+                                </AlertDialogTitle>
+                                <AlertDialogDescription className="font-['Sniglet:Regular',_sans-serif] text-black/70 dark:text-white/70">
+                                  Are you sure you want to delete {user.email}? This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel className="font-['Sniglet:Regular',_sans-serif]">
+                                  Cancel
+                                </AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => handleDeleteUser(user.id)}
+                                  className="bg-[#e6beb5] text-black hover:bg-[#d4aea5] font-['Sniglet:Regular',_sans-serif]"
+                                >
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </>
                       )}
                     </div>
                   </TableCell>

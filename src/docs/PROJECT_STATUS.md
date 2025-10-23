@@ -2,7 +2,7 @@
 
 **Organization:** Wastefull  
 **Project:** WasteDB - Open Materials Sustainability Database  
-**Last Updated:** October 22, 2025  
+**Last Updated:** October 23, 2025  
 **Production URL:** https://db.wastefull.org
 
 ---
@@ -15,10 +15,10 @@ Build an open, accessible, and scientifically rigorous materials database that c
 
 ## 📊 Overall Progress
 
-### Phases Completed: 5 / 7 (71%)
+### Phases Completed: 5 / 8 (62.5%)
 
 ```
-[███████████████████████████████████████████░░░░░░░░░] 71%
+[████████████████████████████████████░░░░░░░░░░░░░░░░] 62.5%
 
 ✅ Phase 1: Data Model Integration            [COMPLETE]
 ✅ Phase 2: Admin & Research Tools             [COMPLETE]
@@ -26,8 +26,14 @@ Build an open, accessible, and scientifically rigorous materials database that c
 ✅ Phase 3.5: Auth & Asset Infrastructure      [COMPLETE]
 ✅ Phase 4: Visualization & Accessibility      [COMPLETE]
 ✅ Phase 5: Multi-Dimensional Data Layer       [COMPLETE]
-⬜ Phase 6: Research API & Data Publication    [PLANNED]
-⬜ Phase 7: Performance & Scalability          [PLANNED]
+🔄 Phase 6: Content Management & Editorial     [IN PROGRESS - 20%]
+  ✅ Phase 6.1: Foundation                     [COMPLETE]
+  ⬜ Phase 6.2: Submission Forms               [PLANNED]
+  ⬜ Phase 6.3: Review Center                  [PLANNED]
+  ⬜ Phase 6.4: Editorial Features             [PLANNED]
+  ⬜ Phase 6.5: Notifications & Email          [PLANNED]
+⬜ Phase 7: Research API & Data Publication    [PLANNED]
+⬜ Phase 8: Performance & Scalability          [PLANNED]
 ```
 
 ---
@@ -314,7 +320,67 @@ Complete scientific coverage of all three circularity pathways with transparent 
 
 ---
 
-## 🌐 Phase 6: Research API & Data Publication (PLANNED)
+## 🔄 Phase 6: Content Management & Editorial Workflow (IN PROGRESS - 20%)
+
+**Status:** Phase 6.1 Complete (Foundation)  
+**Started:** October 23, 2025  
+**Documentation:** `/docs/PHASE_6.1_FOUNDATION.md`, `/docs/SESSION_SUMMARY_OCT_23_2025_PHASE_6.md`
+
+### Phase 6.1: Foundation (COMPLETE - 100%) ✅
+
+**Completed:** October 23, 2025
+
+#### Backend Infrastructure (15 new routes)
+- **User Profiles:** GET/PUT `/profile/:userId` for bio, social links, avatar
+- **Articles:** Full CRUD on markdown articles linked to materials
+- **Submissions:** Workflow for user-contributed content with admin review
+- **Notifications:** Real-time alerts with read/unread tracking
+
+#### Frontend Components
+- **UserProfileView:** Profile editing with avatar, bio, social link, contribution history
+- **NotificationBell:** Real-time badge with unread count, auto-polling every 30s
+- **ArticleEditor:** Markdown WYSIWYG with toolbar, live preview, material picker
+- **UserManagementView:** Added inactivate/reactivate user buttons
+
+#### Data Types
+- `Article` - Markdown content (composting/recycling/reuse categories)
+- `Submission` - User contribution workflow with status tracking
+- `Notification` - Alert system with type-specific icons
+- `UserProfile` - Extended user metadata (bio, social, avatar)
+
+#### Key Features
+- ✅ Customizable user profiles with avatar support
+- ✅ Markdown-based article system with live preview
+- ✅ Real-time notification system with polling
+- ✅ Submission workflow backend (forms in Phase 6.2)
+- ✅ User inactivation (soft delete)
+- ✅ Role-based access (author ownership + admin override)
+
+### Phase 6.2: Submission Forms (PLANNED - 0%)
+- Submit new material form (basic fields only)
+- Suggest material description edit
+- Submit new article with ArticleEditor integration
+- Display articles on material detail pages
+- Material-article deletion cascade
+
+### Phase 6.3: Content Review Center (PLANNED - 0%)
+- Three-tab interface (Review / Pending / Moderation)
+- Review feed with cards and actions
+- Approve/Flag/Edit workflows
+
+### Phase 6.4: Editorial Features (PLANNED - 0%)
+- "Suggest Edits" with email feedback
+- "Edit Directly" with dual attribution
+- Inline diff viewer (color + icons)
+
+### Phase 6.5: Notifications & Email (PLANNED - 0%)
+- Email templates via Resend
+- Notification triggers
+- Manual actions (Remit to Review / Delete)
+
+---
+
+## 🌐 Phase 7: Research API & Data Publication (PLANNED)
 
 **Status:** Not yet started  
 **Priority:** High (for academic adoption)  
@@ -400,10 +466,19 @@ Enables academic papers to cite WasteDB with DOI, ensures reproducibility, and f
 - Edit scientific parameters
 - Manage source citations
 - Batch operations (import/export)
-- Auto-calculate CR scores
+- Auto-calculate CR/CC/RU scores
 - Recalculate confidence levels
-- User management
+- User management (with inactivate/reactivate)
 - Data processing workflows
+- Review user submissions (Phase 6.2+)
+- Moderate community content (Phase 6.3+)
+
+### For Contributors 🔄 (Phase 6.1 Complete)
+- Create and edit user profile
+- Receive real-time notifications
+- Submit articles (Phase 6.2+)
+- Suggest material edits (Phase 6.2+)
+- Track submission status (Phase 6.2+)
 
 ---
 

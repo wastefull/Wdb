@@ -352,15 +352,7 @@ function OverlapMode({
         />
       ))}
       
-      {/* Time labels */}
-      <text
-        x={pracMean * width}
-        y={centerY + 18}
-        textAnchor="middle"
-        className="font-['Sniglet:Regular',_sans-serif] text-[8px] fill-black/50 dark:fill-white/50"
-      >
-        today
-      </text>
+      {/* Time labels - hide "today" when halos overlap */}
       <text
         x={theoMean * width}
         y={centerY + 18}
@@ -392,6 +384,10 @@ function NearOverlapMode({
   const dotStroke = highContrast ? '#666666' : '#1A3A5A';
   const barStroke = darkMode ? 'rgba(255, 255, 255, 0.2)' : '#211f1c';
   const barFill = highContrast ? SCORE_COLORS[scoreType].highContrast : SCORE_COLORS[scoreType].pastel;
+  
+  // Check if text labels would overlap (accounting for text width ~25-30px each)
+  const labelDistance = Math.abs((theoMean - pracMean) * width);
+  const showTodayLabel = labelDistance > 35; // Hide if labels are too close
   
   return (
     <g>
@@ -450,15 +446,17 @@ function NearOverlapMode({
         />
       ))}
       
-      {/* Time labels */}
-      <text
-        x={pracMean * width}
-        y={centerY + 18}
-        textAnchor="middle"
-        className="font-['Sniglet:Regular',_sans-serif] text-[8px] fill-black/50 dark:fill-white/50"
-      >
-        today
-      </text>
+      {/* Time labels - conditionally hide "today" if too close to "future" */}
+      {showTodayLabel && (
+        <text
+          x={pracMean * width}
+          y={centerY + 18}
+          textAnchor="middle"
+          className="font-['Sniglet:Regular',_sans-serif] text-[8px] fill-black/50 dark:fill-white/50"
+        >
+          today
+        </text>
+      )}
       <text
         x={theoMean * width}
         y={centerY + 18}
@@ -495,6 +493,10 @@ function GapMode({
   // Gap zone coordinates
   const gapStart = pracCI.upper * width;
   const gapEnd = theoCI.lower * width;
+  
+  // Check if text labels would overlap (accounting for text width ~25-30px each)
+  const labelDistance = Math.abs((theoMean - pracMean) * width);
+  const showTodayLabel = labelDistance > 35; // Hide if labels are too close
   
   return (
     <g>
@@ -565,15 +567,17 @@ function GapMode({
         Gap: {Math.round(gap * 100)}%
       </text>
       
-      {/* Time labels */}
-      <text
-        x={pracMean * width}
-        y={centerY + 18}
-        textAnchor="middle"
-        className="font-['Sniglet:Regular',_sans-serif] text-[8px] fill-black/50 dark:fill-white/50"
-      >
-        today
-      </text>
+      {/* Time labels - conditionally hide "today" if too close to "future" */}
+      {showTodayLabel && (
+        <text
+          x={pracMean * width}
+          y={centerY + 18}
+          textAnchor="middle"
+          className="font-['Sniglet:Regular',_sans-serif] text-[8px] fill-black/50 dark:fill-white/50"
+        >
+          today
+        </text>
+      )}
       <text
         x={theoMean * width}
         y={centerY + 18}

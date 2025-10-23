@@ -15,6 +15,8 @@ import { AccessibilityProvider, useAccessibility } from './components/Accessibil
 import { UserManagementView } from './components/UserManagementView';
 import { LoadingPlaceholder } from './components/LoadingPlaceholder';
 import { ScientificMetadataView } from './components/ScientificMetadataView';
+import { NotificationBell } from './components/NotificationBell';
+import { UserProfileView } from './components/UserProfileView';
 import { ScientificDataEditor } from './components/scientific-editor';
 import { BatchScientificOperations } from './components/BatchScientificOperations';
 import { DataProcessingView } from './components/DataProcessingView';
@@ -395,18 +397,22 @@ function StatusBar({ title, currentView, onViewChange, syncStatus, user, userRol
                 <TooltipProvider delayDuration={300}>
                   <UITooltip>
                     <TooltipTrigger asChild>
-                      <div className="flex items-center gap-1 px-2 py-1 bg-white/50 dark:bg-black/20 rounded-md border border-[#211f1c]/20 dark:border-white/20">
+                      <button
+                        onClick={() => onViewChange({ type: 'user-profile', userId: user.id })}
+                        className="flex items-center gap-1 px-2 py-1 bg-white/50 dark:bg-black/20 rounded-md border border-[#211f1c]/20 dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all cursor-pointer"
+                      >
                         <User size={12} className="text-black dark:text-white" />
                         <span className="font-['Sniglet:Regular',_sans-serif] text-[10px] text-black dark:text-white max-w-[100px] truncate">
                           {user.name || user.email.split('@')[0]}
                         </span>
-                      </div>
+                      </button>
                     </TooltipTrigger>
                     <TooltipContent side="bottom" className="bg-black text-white border-black">
-                      <p className="font-['Sniglet:Regular',_sans-serif] text-[11px]">{user.email}</p>
+                      <p className="font-['Sniglet:Regular',_sans-serif] text-[11px]">View profile</p>
                     </TooltipContent>
                   </UITooltip>
                 </TooltipProvider>
+                <NotificationBell userId={user.id} isAdmin={userRole === 'admin'} />
                 {userRole === 'admin' && (
                   <div className="hidden md:block">
                     <AdminModeButton currentView={currentView} onViewChange={onViewChange} />
@@ -800,46 +806,11 @@ function MaterialForm({ material, onSave, onCancel }: { material?: Material; onS
           />
         </div>
 
-        <div>
-          <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black block mb-2">
-            Compostability: {formData.compostability}
-          </label>
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={formData.compostability}
-            onChange={(e) => setFormData({ ...formData, compostability: Number(e.target.value) })}
-            className="w-full h-2 bg-[#e6beb5] rounded-full outline-none slider"
-          />
-        </div>
-
-        <div>
-          <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black block mb-2">
-            Recyclability: {formData.recyclability}
-          </label>
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={formData.recyclability}
-            onChange={(e) => setFormData({ ...formData, recyclability: Number(e.target.value) })}
-            className="w-full h-2 bg-[#e4e3ac] rounded-full outline-none slider"
-          />
-        </div>
-
-        <div>
-          <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black block mb-2">
-            Reusability: {formData.reusability}
-          </label>
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={formData.reusability}
-            onChange={(e) => setFormData({ ...formData, reusability: Number(e.target.value) })}
-            className="w-full h-2 bg-[#b8c8cb] rounded-full outline-none slider"
-          />
+        {/* Note about sustainability scores */}
+        <div className="bg-[#e5e4dc] dark:bg-[#3a3835] rounded-[8px] p-3 border border-[#211f1c]/20 dark:border-white/20">
+          <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/70 dark:text-white/70">
+            ℹ️ Sustainability scores (Compostability, Recyclability, Reusability) will be calculated by admins in the Data Management area based on scientific parameters.
+          </p>
         </div>
 
         <div className="flex gap-3 mt-2 justify-center">
@@ -2653,7 +2624,7 @@ function AppContent() {
   const [searchQuery, setSearchQuery] = useState('');
   const [editingMaterial, setEditingMaterial] = useState<Material | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const [currentView, setCurrentView] = useState<{ type: 'materials' } | { type: 'articles'; materialId: string; category: CategoryType } | { type: 'all-articles'; category: CategoryType } | { type: 'material-detail'; materialId: string } | { type: 'article-standalone'; articleId: string; materialId: string; category: CategoryType } | { type: 'recyclability-calculation' } | { type: 'methodology-list' } | { type: 'whitepaper'; whitepaperSlug: string } | { type: 'data-management' } | { type: 'user-management' } | { type: 'scientific-editor'; materialId: string } | { type: 'export' }>({ type: 'materials' });
+  const [currentView, setCurrentView] = useState<{ type: 'materials' } | { type: 'articles'; materialId: string; category: CategoryType } | { type: 'all-articles'; category: CategoryType } | { type: 'material-detail'; materialId: string } | { type: 'article-standalone'; articleId: string; materialId: string; category: CategoryType } | { type: 'recyclability-calculation' } | { type: 'methodology-list' } | { type: 'whitepaper'; whitepaperSlug: string } | { type: 'data-management' } | { type: 'user-management' } | { type: 'scientific-editor'; materialId: string } | { type: 'export' } | { type: 'user-profile'; userId: string } | { type: 'whitepaper-sync' }>({ type: 'materials' });
   const [articleToOpen, setArticleToOpen] = useState<string | null>(null);
   const [syncStatus, setSyncStatus] = useState<'synced' | 'syncing' | 'offline' | 'error'>('syncing');
   const [supabaseAvailable, setSupabaseAvailable] = useState(true);
@@ -3205,19 +3176,29 @@ function AppContent() {
               <div className="flex flex-col lg:flex-row gap-4 lg:justify-between mb-6">
                 {/* Left column: Search bar, Add Material button, and Methodology link (vertically and horizontally centered) */}
                 <div className="w-full lg:w-96 lg:pl-20 flex flex-col justify-center items-center gap-4">
-                  <SearchBar value={searchQuery} onChange={setSearchQuery} />
-                  {isAdminModeActive && (
-                    <div className="flex flex-wrap gap-2 justify-center">
+                  {/* Search bar with Add Material button beside it */}
+                  <div className="w-full flex gap-2">
+                    <div className="flex-1">
+                      <SearchBar value={searchQuery} onChange={setSearchQuery} />
+                    </div>
+                    {user && (
                       <button
                         onClick={() => {
                           setShowForm(true);
                           setEditingMaterial(null);
                         }}
-                        className="bg-[#b8c8cb] h-[40px] px-3 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-2"
+                        className={`h-[40px] px-3 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-2 whitespace-nowrap ${
+                          isAdminModeActive ? 'bg-[#b8c8cb]' : 'bg-[#c8e5c8]'
+                        }`}
+                        title={isAdminModeActive ? "Add a new material" : "Submit a new material"}
                       >
                         <Plus size={14} className="text-black" />
-                        Add Material
+                        <span className="hidden sm:inline">Add Material</span>
                       </button>
+                    )}
+                  </div>
+                  {isAdminModeActive && (
+                    <div className="flex flex-wrap gap-2 justify-center">
                       <button
                         onClick={() => setCurrentView({ type: 'data-management' })}
                         className="bg-[#e4e3ac] h-[40px] px-3 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
@@ -3461,6 +3442,12 @@ function AppContent() {
             <PublicExportView
               onBack={() => setCurrentView({ type: 'materials' })}
               materialsCount={materials.length}
+            />
+          ) : currentView.type === 'user-profile' ? (
+            <UserProfileView
+              userId={currentView.userId}
+              onBack={() => setCurrentView({ type: 'materials' })}
+              isOwnProfile={currentView.userId === user?.id}
             />
           ) : null}
         </div>
