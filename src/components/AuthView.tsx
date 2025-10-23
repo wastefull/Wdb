@@ -1,7 +1,8 @@
-import { useState } from 'react';
-import { LogIn, UserPlus, Eye, EyeOff, Shield, Mail, ArrowLeft } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { LogIn, UserPlus, Eye, EyeOff, Mail, ArrowLeft } from 'lucide-react';
 import * as api from '../utils/api';
 import { toast } from 'sonner@2.0.3';
+import { isFigmaMake, logEnvironmentInfo } from '../utils/environment';
 
 interface AuthViewProps {
   onAuthSuccess: (user: { id: string; email: string; name?: string }) => void;
@@ -14,7 +15,31 @@ export function AuthView({ onAuthSuccess }: AuthViewProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [honeypot, setHoneypot] = useState(''); // Anti-bot honeypot field
-  const [authMode, setAuthMode] = useState<'traditional' | 'magic-link' | 'magic-link-sent'>('magic-link');
+  // Detect environment and set initial auth mode
+  const showPasswordAuth = isFigmaMake();
+  const [authMode, setAuthMode] = useState<'traditional' | 'magic-link' | 'magic-link-sent'>(
+    showPasswordAuth ? 'traditional' : 'magic-link'
+  );
+  
+  // Log environment info on mount
+  useEffect(() => {
+    logEnvironmentInfo();
+    console.log('🔐 Auth View - Password auth enabled:', showPasswordAuth);
+    console.log('🔐 Initial auth mode:', showPasswordAuth ? 'traditional' : 'magic-link');
+  }, [showPasswordAuth]);
+  
+  // Auto-redirect to correct mode based on environment
+  useEffect(() => {
+    if (showPasswordAuth && authMode === 'magic-link') {
+      // In Figma Make, default to password
+      console.log('🔄 Figma Make environment - using Password auth');
+      setAuthMode('traditional');
+    } else if (!showPasswordAuth && authMode === 'traditional') {
+      // In production, default to magic link
+      console.log('🔄 Production environment - switching to Magic Link auth');
+      setAuthMode('magic-link');
+    }
+  }, [showPasswordAuth, authMode]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     // Prevent Figma from intercepting text editing shortcuts
@@ -164,44 +189,6 @@ export function AuthView({ onAuthSuccess }: AuthViewProps) {
 
         {/* Auth Card */}
         <div className="bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] p-8">
-          {/* Security Notice */}
-          <div className="mb-6 p-3 bg-[#b8c8cb]/20 dark:bg-[#b8c8cb]/10 border border-[#211f1c]/20 dark:border-white/20 rounded-[8px]">
-            <div className="flex items-start gap-2">
-              <Shield size={14} className="text-black dark:text-white mt-0.5 shrink-0" />
-              <p className="font-['Sniglet:Regular',_sans-serif] text-[10px] text-black/70 dark:text-white/70">
-                Protected by rate limiting & anti-abuse measures
-              </p>
-            </div>
-          </div>
-
-          {/* Auth Mode Toggle */}
-          {authMode !== 'magic-link-sent' && (
-            <div className="mb-6 flex gap-2">
-              <button
-                onClick={() => setAuthMode('magic-link')}
-                className={`flex-1 h-[32px] rounded-[6px] border border-[#211f1c] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[12px] transition-all flex items-center justify-center gap-1 ${
-                  authMode === 'magic-link' 
-                    ? 'bg-[#e4e3ac] text-black shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]'
-                    : 'bg-white dark:bg-[#1a1917] text-black dark:text-white hover:bg-[#e4e3ac] dark:hover:bg-[#e4e3ac]/20'
-                }`}
-              >
-                <Mail size={14} />
-                Magic Link
-              </button>
-              <button
-                onClick={() => setAuthMode('traditional')}
-                className={`flex-1 h-[32px] rounded-[6px] border border-[#211f1c] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[12px] transition-all flex items-center justify-center gap-1 ${
-                  authMode === 'traditional'
-                    ? 'bg-[#b8c8cb] text-black shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]'
-                    : 'bg-white dark:bg-[#1a1917] text-black dark:text-white hover:bg-[#b8c8cb] dark:hover:bg-[#b8c8cb]/20'
-                }`}
-              >
-                <LogIn size={14} />
-                Password
-              </button>
-            </div>
-          )}
-
           {/* Form */}
           {authMode === 'magic-link-sent' ? (
             <div className="text-center space-y-4">
@@ -246,9 +233,6 @@ export function AuthView({ onAuthSuccess }: AuthViewProps) {
                   placeholder="you@example.com"
                   className="w-full px-3 py-2 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50 outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
                 />
-                <p className="font-['Sniglet:Regular',_sans-serif] text-[10px] text-black/50 dark:text-white/50 mt-1">
-                  Use @wastefull.org email for admin access
-                </p>
               </div>
 
               {/* Honeypot field - hidden from users, catches bots */}
@@ -262,13 +246,6 @@ export function AuthView({ onAuthSuccess }: AuthViewProps) {
                 aria-hidden="true"
               />
 
-              {/* Magic Link Info */}
-              <div className="p-3 bg-[#e4e3ac]/30 dark:bg-[#e4e3ac]/10 border border-[#211f1c]/20 dark:border-white/20 rounded-[8px]">
-                <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/70 dark:text-white/70">
-                  ✨ No password needed! We'll send a secure sign-in link to your email.
-                </p>
-              </div>
-
               <button
                 onClick={handleSendMagicLink}
                 disabled={loading}
@@ -278,7 +255,7 @@ export function AuthView({ onAuthSuccess }: AuthViewProps) {
                 {loading ? 'Sending...' : 'Send Magic Link'}
               </button>
             </div>
-          ) : (
+          ) : authMode === 'traditional' && showPasswordAuth ? (
             <div className="space-y-4">
               <div>
                 <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black dark:text-white block mb-1">
@@ -309,9 +286,6 @@ export function AuthView({ onAuthSuccess }: AuthViewProps) {
                   placeholder="you@example.com"
                   className="w-full px-3 py-2 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50 outline-none focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
                 />
-                <p className="font-['Sniglet:Regular',_sans-serif] text-[10px] text-black/50 dark:text-white/50 mt-1">
-                  Use @wastefull.org email for admin access
-                </p>
               </div>
 
               {/* Honeypot field - hidden from users, catches bots */}
@@ -377,6 +351,22 @@ export function AuthView({ onAuthSuccess }: AuthViewProps) {
                 >
                   <UserPlus size={16} />
                   {loading ? 'Loading...' : 'Sign Up'}
+                </button>
+              </div>
+            </div>
+          ) : (
+            /* Fallback: If password auth is disabled but mode is traditional, show magic link */
+            <div className="space-y-4">
+              <div className="p-4 bg-[#e4e3ac]/40 dark:bg-[#e4e3ac]/20 border-2 border-[#211f1c]/30 dark:border-white/30 rounded-[8px]">
+                <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white text-center mb-3">
+                  Password authentication is not available in production.
+                </p>
+                <button
+                  onClick={() => setAuthMode('magic-link')}
+                  className="w-full bg-[#e4e3ac] h-[36px] rounded-[8px] border border-[#211f1c] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[13px] text-black hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all flex items-center justify-center gap-2"
+                >
+                  <Mail size={14} />
+                  Use Magic Link Instead
                 </button>
               </div>
             </div>

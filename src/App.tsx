@@ -23,6 +23,7 @@ import { DataMigrationTool } from './components/DataMigrationTool';
 import { SourceLibraryManager } from './components/SourceLibraryManager';
 import { AssetUploadManager } from './components/AssetUploadManager';
 import { QuantileVisualization } from './components/QuantileVisualization';
+import { WhitepaperSyncTool } from './components/WhitepaperSyncTool';
 import { SOURCE_LIBRARY, getSourcesByTag } from './data/sources';
 import { CookieConsent } from './components/CookieConsent';
 import { Popover, PopoverContent, PopoverTrigger } from './components/ui/popover';
@@ -70,13 +71,26 @@ interface Material {
   };
   
   // Scientific parameters (normalized 0-1)
+  // Recyclability (CR)
   Y_value?: number;  // Yield (recovery rate)
   D_value?: number;  // Degradation (quality loss)
   C_value?: number;  // Contamination tolerance
-  M_value?: number;  // Maturity (infrastructure availability)
+  M_value?: number;  // Maturity (infrastructure availability) - shared across all dimensions
   E_value?: number;  // Energy demand (normalized)
   
-  // Calculated composite recyclability scores
+  // Compostability (CC)
+  B_value?: number;  // Biodegradation rate
+  N_value?: number;  // Nutrient balance
+  T_value?: number;  // Toxicity / Residue index
+  H_value?: number;  // Habitat adaptability
+  
+  // Reusability (RU)
+  L_value?: number;  // Lifetime - functional cycles
+  R_value?: number;  // Repairability
+  U_value?: number;  // Upgradability
+  C_RU_value?: number;  // Contamination susceptibility (for reusability)
+  
+  // Calculated composite scores - Recyclability
   CR_practical_mean?: number;      // Practical recyclability (0-1)
   CR_theoretical_mean?: number;    // Theoretical recyclability (0-1)
   CR_practical_CI95?: {            // 95% confidence interval
@@ -84,6 +98,30 @@ interface Material {
     upper: number;
   };
   CR_theoretical_CI95?: {
+    lower: number;
+    upper: number;
+  };
+  
+  // Calculated composite scores - Compostability
+  CC_practical_mean?: number;
+  CC_theoretical_mean?: number;
+  CC_practical_CI95?: {
+    lower: number;
+    upper: number;
+  };
+  CC_theoretical_CI95?: {
+    lower: number;
+    upper: number;
+  };
+  
+  // Calculated composite scores - Reusability
+  RU_practical_mean?: number;
+  RU_theoretical_mean?: number;
+  RU_practical_CI95?: {
+    lower: number;
+    upper: number;
+  };
+  RU_theoretical_CI95?: {
     lower: number;
     upper: number;
   };
@@ -97,6 +135,7 @@ interface Material {
     doi?: string;
     url?: string;
     weight?: number;  // Source weight in aggregation
+    parameters?: string[];  // Which parameters this source contributed to
   }>;
   
   // Versioning and audit trail
@@ -112,7 +151,7 @@ function AdminModeButton({ currentView, onViewChange }: { currentView: any; onVi
   
   const handleAdminToggle = () => {
     // If turning off admin mode and currently on admin-only pages, go back to materials
-    if (settings.adminMode && (currentView.type === 'data-management' || currentView.type === 'user-management' || currentView.type === 'scientific-editor')) {
+    if (settings.adminMode && (currentView.type === 'data-management' || currentView.type === 'user-management' || currentView.type === 'scientific-editor' || currentView.type === 'whitepaper-sync')) {
       onViewChange({ type: 'materials' });
     }
     toggleAdminMode();
@@ -629,12 +668,21 @@ function MaterialCard({
       )}
       
       <div className="flex flex-col gap-2 mb-3">
-        <ScoreBar 
-          score={material.compostability} 
-          label="Compostability" 
-          color="#e6beb5" 
-          articleCount={material.articles.compostability.length}
+        <QuantileVisualization
+          scoreType="compostability"
+          data={{
+            practical_mean: material.CC_practical_mean,
+            theoretical_mean: material.CC_theoretical_mean,
+            practical_CI95: material.CC_practical_CI95,
+            theoretical_CI95: material.CC_theoretical_CI95,
+            confidence_level: material.confidence_level,
+            category: material.category
+          }}
+          fallbackScore={material.compostability}
+          simplified={!material.CC_practical_mean || !material.CC_theoretical_mean}
+          height={50}
           onClick={() => onViewArticles('compostability')}
+          articleCount={material.articles.compostability.length}
         />
         <QuantileVisualization
           scoreType="recyclability"
@@ -646,17 +694,27 @@ function MaterialCard({
             confidence_level: material.confidence_level,
             category: material.category
           }}
+          fallbackScore={material.recyclability}
           simplified={!material.CR_practical_mean || !material.CR_theoretical_mean}
           height={50}
           onClick={() => onViewArticles('recyclability')}
           articleCount={material.articles.recyclability.length}
         />
-        <ScoreBar 
-          score={material.reusability} 
-          label="Reusability" 
-          color="#b8c8cb" 
-          articleCount={material.articles.reusability.length}
+        <QuantileVisualization
+          scoreType="reusability"
+          data={{
+            practical_mean: material.RU_practical_mean,
+            theoretical_mean: material.RU_theoretical_mean,
+            practical_CI95: material.RU_practical_CI95,
+            theoretical_CI95: material.RU_theoretical_CI95,
+            confidence_level: material.confidence_level,
+            category: material.category
+          }}
+          fallbackScore={material.reusability}
+          simplified={!material.RU_practical_mean || !material.RU_theoretical_mean}
+          height={50}
           onClick={() => onViewArticles('reusability')}
+          articleCount={material.articles.reusability.length}
         />
       </div>
       
@@ -1506,29 +1564,56 @@ function MaterialDetailView({
         </div>
       )}
 
-      <div className="bg-white rounded-[11.464px] border-[1.5px] border-[#211f1c] p-4 mb-6">
-        <h3 className="font-['Sniglet:Regular',_sans-serif] text-[15px] text-black mb-4">Sustainability Scores</h3>
+      <div className="bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 p-4 mb-6">
+        <h3 className="font-['Sniglet:Regular',_sans-serif] text-[15px] text-black dark:text-white mb-4">Sustainability Scores</h3>
         <div className="flex flex-col gap-3">
-          <ScoreBar 
-            score={material.compostability} 
-            label="Compostability" 
-            color="#e6beb5" 
-            articleCount={material.articles.compostability.length}
+          <QuantileVisualization
+            scoreType="compostability"
+            data={{
+              practical_mean: material.CC_practical_mean,
+              theoretical_mean: material.CC_theoretical_mean,
+              practical_CI95: material.CC_practical_CI95,
+              theoretical_CI95: material.CC_theoretical_CI95,
+              confidence_level: material.confidence_level,
+              category: material.category
+            }}
+            fallbackScore={material.compostability}
+            simplified={!material.CC_practical_mean || !material.CC_theoretical_mean}
+            height={50}
             onClick={() => onViewArticles('compostability')}
+            articleCount={material.articles.compostability.length}
           />
-          <ScoreBar 
-            score={material.recyclability} 
-            label="Recyclability" 
-            color="#e4e3ac" 
-            articleCount={material.articles.recyclability.length}
+          <QuantileVisualization
+            scoreType="recyclability"
+            data={{
+              practical_mean: material.CR_practical_mean,
+              theoretical_mean: material.CR_theoretical_mean,
+              practical_CI95: material.CR_practical_CI95,
+              theoretical_CI95: material.CR_theoretical_CI95,
+              confidence_level: material.confidence_level,
+              category: material.category
+            }}
+            fallbackScore={material.recyclability}
+            simplified={!material.CR_practical_mean || !material.CR_theoretical_mean}
+            height={50}
             onClick={() => onViewArticles('recyclability')}
+            articleCount={material.articles.recyclability.length}
           />
-          <ScoreBar 
-            score={material.reusability} 
-            label="Reusability" 
-            color="#b8c8cb" 
-            articleCount={material.articles.reusability.length}
+          <QuantileVisualization
+            scoreType="reusability"
+            data={{
+              practical_mean: material.RU_practical_mean,
+              theoretical_mean: material.RU_theoretical_mean,
+              practical_CI95: material.RU_practical_CI95,
+              theoretical_CI95: material.RU_theoretical_CI95,
+              confidence_level: material.confidence_level,
+              category: material.category
+            }}
+            fallbackScore={material.reusability}
+            simplified={!material.RU_practical_mean || !material.RU_theoretical_mean}
+            height={50}
             onClick={() => onViewArticles('reusability')}
+            articleCount={material.articles.reusability.length}
           />
         </div>
       </div>
@@ -3145,6 +3230,12 @@ function AppContent() {
                       >
                         User Management
                       </button>
+                      <button
+                        onClick={() => setCurrentView({ type: 'whitepaper-sync' })}
+                        className="bg-[#b8c8cb] h-[40px] px-3 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
+                      >
+                        Whitepaper Sync
+                      </button>
                     </div>
                   )}
                   <div className="flex flex-col gap-2 items-center">
@@ -3352,6 +3443,10 @@ function AppContent() {
             <UserManagementView
               onBack={() => setCurrentView({ type: 'materials' })}
               currentUserId={user?.id || ''}
+            />
+          ) : currentView.type === 'whitepaper-sync' ? (
+            <WhitepaperSyncTool
+              onBack={() => setCurrentView({ type: 'materials' })}
             />
           ) : currentView.type === 'scientific-editor' && currentMaterial ? (
             <ScientificDataEditor

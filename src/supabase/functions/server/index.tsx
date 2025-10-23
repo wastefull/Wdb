@@ -1216,6 +1216,15 @@ app.delete('/make-server-17cae920/assets/:fileName', verifyAuth, verifyAdmin, as
 app.get('/make-server-17cae920/whitepapers', async (c) => {
   try {
     const whitepapers = await kv.getByPrefix('whitepaper:');
+    console.log('📚 Fetching all whitepapers:', {
+      count: whitepapers?.length || 0,
+      whitepapers: whitepapers?.map(wp => ({
+        slug: wp?.slug,
+        title: wp?.title,
+        contentLength: wp?.content?.length || 0,
+        hasContent: !!wp?.content
+      }))
+    });
     return c.json({ whitepapers });
   } catch (error) {
     console.error("Error fetching whitepapers:", error);
@@ -1228,6 +1237,16 @@ app.get('/make-server-17cae920/whitepapers/:slug', async (c) => {
   try {
     const slug = c.req.param('slug');
     const whitepaper = await kv.get(`whitepaper:${slug}`);
+    
+    console.log('🔍 Retrieving whitepaper:', {
+      slug,
+      found: !!whitepaper,
+      title: whitepaper?.title,
+      contentType: typeof whitepaper?.content,
+      contentLength: whitepaper?.content?.length || 0,
+      contentPreview: typeof whitepaper?.content === 'string' ? whitepaper.content.substring(0, 100) : 'NOT A STRING',
+      keys: whitepaper ? Object.keys(whitepaper) : []
+    });
     
     if (!whitepaper) {
       return c.json({ error: "Whitepaper not found" }, 404);
@@ -1245,6 +1264,14 @@ app.post('/make-server-17cae920/whitepapers', verifyAuth, verifyAdmin, async (c)
   try {
     const { slug, title, content } = await c.req.json();
     
+    console.log('📝 Saving whitepaper:', { 
+      slug, 
+      title,
+      contentType: typeof content,
+      contentLength: content?.length || 0,
+      contentPreview: typeof content === 'string' ? content.substring(0, 100) : 'NOT A STRING'
+    });
+    
     if (!slug || !title || !content) {
       return c.json({ error: "Missing required fields: slug, title, content" }, 400);
     }
@@ -1257,6 +1284,16 @@ app.post('/make-server-17cae920/whitepapers', verifyAuth, verifyAdmin, async (c)
     };
     
     await kv.set(`whitepaper:${slug}`, whitepaper);
+    
+    // Verify it was saved correctly
+    const verification = await kv.get(`whitepaper:${slug}`);
+    console.log('✅ Verification after save:', {
+      slug: verification?.slug,
+      title: verification?.title,
+      contentType: typeof verification?.content,
+      contentLength: verification?.content?.length || 0,
+      hasContent: !!verification?.content
+    });
     
     return c.json({ whitepaper });
   } catch (error) {
@@ -1274,6 +1311,54 @@ app.delete('/make-server-17cae920/whitepapers/:slug', verifyAuth, verifyAdmin, a
   } catch (error) {
     console.error("Error deleting whitepaper:", error);
     return c.json({ error: "Failed to delete whitepaper", details: String(error) }, 500);
+  }
+});
+
+// Get whitepaper source files from filesystem (admin only)
+app.get('/make-server-17cae920/whitepapers-source', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    // Define the whitepaper manifest
+    const whitepaperFiles = [
+      { slug: 'recyclability', filename: 'Recyclability.md', title: 'WasteDB Recyclability Methodology (CR-v1)' },
+      { slug: 'compostability', filename: 'CC-v1.md', title: 'WasteDB Compostability Methodology (CC-v1)' },
+      { slug: 'reusability', filename: 'RU-v1.md', title: 'WasteDB Reusability Methodology (RU-v1)' },
+      { slug: 'visualization', filename: 'VIZ-v1.md', title: 'WasteDB Visualization Methodology (VIZ-v1)' },
+      { slug: 'calculation-methodology', filename: 'Calculation_Methodology.md', title: 'WasteDB Calculation Methodology' },
+    ];
+
+    const whitepapers = [];
+    
+    for (const file of whitepaperFiles) {
+      try {
+        // Read the markdown file from the whitepapers directory
+        // In Deno, we need to construct the path relative to the current working directory
+        const content = await Deno.readTextFile(`./whitepapers/${file.filename}`);
+        
+        whitepapers.push({
+          slug: file.slug,
+          title: file.title,
+          filename: file.filename,
+          content: content
+        });
+        
+        console.log(`✅ Read ${file.filename}: ${content.length} characters`);
+      } catch (error) {
+        console.error(`❌ Failed to read ${file.filename}:`, error);
+        // Continue with other files even if one fails
+        whitepapers.push({
+          slug: file.slug,
+          title: file.title,
+          filename: file.filename,
+          content: '',
+          error: String(error)
+        });
+      }
+    }
+
+    return c.json({ whitepapers });
+  } catch (error) {
+    console.error("Error reading whitepaper source files:", error);
+    return c.json({ error: "Failed to read whitepaper files", details: String(error) }, 500);
   }
 });
 
@@ -2162,6 +2247,394 @@ app.post('/make-server-17cae920/calculate/all-dimensions', verifyAuth, verifyAdm
   } catch (error) {
     console.error('Error calculating all dimensions:', error);
     return c.json({ error: 'Failed to calculate dimensions', details: String(error) }, 500);
+  }
+});
+
+// ==================== PHASE 6: CONTENT MANAGEMENT ROUTES ====================
+
+// ===== USER PROFILES =====
+
+// Get user profile
+app.get('/make-server-17cae920/profile/:userId', verifyAuth, async (c) => {
+  try {
+    const userId = c.req.param('userId');
+    const profile = await kv.get(`user_profile:${userId}`);
+    
+    if (!profile) {
+      return c.json({ error: 'Profile not found' }, 404);
+    }
+    
+    return c.json({ profile });
+  } catch (error) {
+    console.error('Error fetching profile:', error);
+    return c.json({ error: 'Failed to fetch profile', details: String(error) }, 500);
+  }
+});
+
+// Update user profile
+app.put('/make-server-17cae920/profile/:userId', verifyAuth, async (c) => {
+  try {
+    const userId = c.req.param('userId');
+    const requestingUserId = c.get('userId');
+    
+    // Users can only update their own profile
+    if (userId !== requestingUserId) {
+      return c.json({ error: 'Unauthorized - can only update own profile' }, 403);
+    }
+    
+    const updates = await c.req.json();
+    const existing = await kv.get(`user_profile:${userId}`) || {};
+    
+    // Merge updates (bio, social_link, avatar_url only)
+    const updatedProfile = {
+      ...existing,
+      bio: updates.bio,
+      social_link: updates.social_link,
+      avatar_url: updates.avatar_url,
+      updated_at: new Date().toISOString()
+    };
+    
+    await kv.set(`user_profile:${userId}`, updatedProfile);
+    return c.json({ profile: updatedProfile });
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    return c.json({ error: 'Failed to update profile', details: String(error) }, 500);
+  }
+});
+
+// ===== ARTICLES =====
+
+// Get all articles (public)
+app.get('/make-server-17cae920/articles', async (c) => {
+  try {
+    const status = c.req.query('status') || 'published';
+    const materialId = c.req.query('material_id');
+    
+    let articles = await kv.getByPrefix('article:');
+    
+    // Filter by status
+    if (status) {
+      articles = articles?.filter(a => a.status === status) || [];
+    }
+    
+    // Filter by material_id
+    if (materialId) {
+      articles = articles?.filter(a => a.material_id === materialId) || [];
+    }
+    
+    return c.json({ articles: articles || [] });
+  } catch (error) {
+    console.error('Error fetching articles:', error);
+    return c.json({ error: 'Failed to fetch articles', details: String(error) }, 500);
+  }
+});
+
+// Get single article
+app.get('/make-server-17cae920/articles/:id', async (c) => {
+  try {
+    const id = c.req.param('id');
+    const article = await kv.get(`article:${id}`);
+    
+    if (!article) {
+      return c.json({ error: 'Article not found' }, 404);
+    }
+    
+    return c.json({ article });
+  } catch (error) {
+    console.error('Error fetching article:', error);
+    return c.json({ error: 'Failed to fetch article', details: String(error) }, 500);
+  }
+});
+
+// Create article (authenticated users)
+app.post('/make-server-17cae920/articles', verifyAuth, async (c) => {
+  try {
+    const userId = c.get('userId');
+    const articleData = await c.req.json();
+    
+    const article = {
+      id: crypto.randomUUID(),
+      ...articleData,
+      author_id: userId,
+      status: 'draft',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    
+    await kv.set(`article:${article.id}`, article);
+    return c.json({ article });
+  } catch (error) {
+    console.error('Error creating article:', error);
+    return c.json({ error: 'Failed to create article', details: String(error) }, 500);
+  }
+});
+
+// Update article
+app.put('/make-server-17cae920/articles/:id', verifyAuth, async (c) => {
+  try {
+    const id = c.req.param('id');
+    const userId = c.get('userId');
+    const updates = await c.req.json();
+    
+    const existing = await kv.get(`article:${id}`);
+    if (!existing) {
+      return c.json({ error: 'Article not found' }, 404);
+    }
+    
+    // Check permission (author or admin)
+    const userRole = await kv.get(`user_role:${userId}`);
+    if (existing.author_id !== userId && userRole !== 'admin') {
+      return c.json({ error: 'Unauthorized' }, 403);
+    }
+    
+    const updatedArticle = {
+      ...existing,
+      ...updates,
+      updated_at: new Date().toISOString()
+    };
+    
+    await kv.set(`article:${id}`, updatedArticle);
+    return c.json({ article: updatedArticle });
+  } catch (error) {
+    console.error('Error updating article:', error);
+    return c.json({ error: 'Failed to update article', details: String(error) }, 500);
+  }
+});
+
+// Delete article (author or admin)
+app.delete('/make-server-17cae920/articles/:id', verifyAuth, async (c) => {
+  try {
+    const id = c.req.param('id');
+    const userId = c.get('userId');
+    
+    const existing = await kv.get(`article:${id}`);
+    if (!existing) {
+      return c.json({ error: 'Article not found' }, 404);
+    }
+    
+    // Check permission
+    const userRole = await kv.get(`user_role:${userId}`);
+    if (existing.author_id !== userId && userRole !== 'admin') {
+      return c.json({ error: 'Unauthorized' }, 403);
+    }
+    
+    await kv.del(`article:${id}`);
+    return c.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting article:', error);
+    return c.json({ error: 'Failed to delete article', details: String(error) }, 500);
+  }
+});
+
+// ===== SUBMISSIONS =====
+
+// Get all submissions (admin only)
+app.get('/make-server-17cae920/submissions', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const status = c.req.query('status');
+    let submissions = await kv.getByPrefix('submission:');
+    
+    if (status) {
+      submissions = submissions?.filter(s => s.status === status) || [];
+    }
+    
+    return c.json({ submissions: submissions || [] });
+  } catch (error) {
+    console.error('Error fetching submissions:', error);
+    return c.json({ error: 'Failed to fetch submissions', details: String(error) }, 500);
+  }
+});
+
+// Get user's own submissions
+app.get('/make-server-17cae920/submissions/my', verifyAuth, async (c) => {
+  try {
+    const userId = c.get('userId');
+    const submissions = await kv.getByPrefix('submission:');
+    const userSubmissions = submissions?.filter(s => s.submitted_by === userId) || [];
+    
+    return c.json({ submissions: userSubmissions });
+  } catch (error) {
+    console.error('Error fetching user submissions:', error);
+    return c.json({ error: 'Failed to fetch submissions', details: String(error) }, 500);
+  }
+});
+
+// Create submission (authenticated users)
+app.post('/make-server-17cae920/submissions', verifyAuth, async (c) => {
+  try {
+    const userId = c.get('userId');
+    const submissionData = await c.req.json();
+    
+    const submission = {
+      id: crypto.randomUUID(),
+      ...submissionData,
+      submitted_by: userId,
+      status: 'pending_review',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    
+    await kv.set(`submission:${submission.id}`, submission);
+    
+    // Create notification for admins
+    const adminNotification = {
+      id: crypto.randomUUID(),
+      user_id: 'admin', // Special case for admin notifications
+      type: 'new_review_item',
+      content_id: submission.id,
+      content_type: 'submission',
+      message: `New ${submission.type} submission from user`,
+      read: false,
+      created_at: new Date().toISOString()
+    };
+    
+    await kv.set(`notification:${adminNotification.id}`, adminNotification);
+    
+    return c.json({ submission });
+  } catch (error) {
+    console.error('Error creating submission:', error);
+    return c.json({ error: 'Failed to create submission', details: String(error) }, 500);
+  }
+});
+
+// Update submission (admin only)
+app.put('/make-server-17cae920/submissions/:id', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const id = c.req.param('id');
+    const userId = c.get('userId');
+    const updates = await c.req.json();
+    
+    const existing = await kv.get(`submission:${id}`);
+    if (!existing) {
+      return c.json({ error: 'Submission not found' }, 404);
+    }
+    
+    const updatedSubmission = {
+      ...existing,
+      ...updates,
+      reviewed_by: userId,
+      updated_at: new Date().toISOString()
+    };
+    
+    await kv.set(`submission:${id}`, updatedSubmission);
+    
+    // If approved/rejected, notify the submitter
+    if (updates.status === 'approved' || updates.status === 'rejected') {
+      const notification = {
+        id: crypto.randomUUID(),
+        user_id: existing.submitted_by,
+        type: 'submission_approved',
+        content_id: id,
+        content_type: 'submission',
+        message: updates.status === 'approved' ? 'Your submission was approved!' : 'Your submission was rejected',
+        read: false,
+        created_at: new Date().toISOString()
+      };
+      
+      await kv.set(`notification:${notification.id}`, notification);
+    }
+    
+    // If feedback provided, notify submitter
+    if (updates.feedback) {
+      const notification = {
+        id: crypto.randomUUID(),
+        user_id: existing.submitted_by,
+        type: 'feedback_received',
+        content_id: id,
+        content_type: 'submission',
+        message: 'You received feedback on your submission',
+        read: false,
+        created_at: new Date().toISOString()
+      };
+      
+      await kv.set(`notification:${notification.id}`, notification);
+    }
+    
+    return c.json({ submission: updatedSubmission });
+  } catch (error) {
+    console.error('Error updating submission:', error);
+    return c.json({ error: 'Failed to update submission', details: String(error) }, 500);
+  }
+});
+
+// Delete submission (admin only)
+app.delete('/make-server-17cae920/submissions/:id', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const id = c.req.param('id');
+    await kv.del(`submission:${id}`);
+    return c.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting submission:', error);
+    return c.json({ error: 'Failed to delete submission', details: String(error) }, 500);
+  }
+});
+
+// ===== NOTIFICATIONS =====
+
+// Get user notifications
+app.get('/make-server-17cae920/notifications/:userId', verifyAuth, async (c) => {
+  try {
+    const userId = c.req.param('userId');
+    const requestingUserId = c.get('userId');
+    const userRole = await kv.get(`user_role:${requestingUserId}`);
+    
+    // Users can only see their own notifications, admins see all admin notifications
+    if (userId !== requestingUserId && !(userRole === 'admin' && userId === 'admin')) {
+      return c.json({ error: 'Unauthorized' }, 403);
+    }
+    
+    const allNotifications = await kv.getByPrefix('notification:');
+    const userNotifications = allNotifications?.filter(n => n.user_id === userId) || [];
+    
+    return c.json({ notifications: userNotifications });
+  } catch (error) {
+    console.error('Error fetching notifications:', error);
+    return c.json({ error: 'Failed to fetch notifications', details: String(error) }, 500);
+  }
+});
+
+// Mark notification as read
+app.put('/make-server-17cae920/notifications/:id/read', verifyAuth, async (c) => {
+  try {
+    const id = c.req.param('id');
+    const notification = await kv.get(`notification:${id}`);
+    
+    if (!notification) {
+      return c.json({ error: 'Notification not found' }, 404);
+    }
+    
+    notification.read = true;
+    await kv.set(`notification:${id}`, notification);
+    
+    return c.json({ notification });
+  } catch (error) {
+    console.error('Error marking notification as read:', error);
+    return c.json({ error: 'Failed to update notification', details: String(error) }, 500);
+  }
+});
+
+// Mark all notifications as read for a user
+app.put('/make-server-17cae920/notifications/:userId/read-all', verifyAuth, async (c) => {
+  try {
+    const userId = c.req.param('userId');
+    const requestingUserId = c.get('userId');
+    
+    if (userId !== requestingUserId) {
+      return c.json({ error: 'Unauthorized' }, 403);
+    }
+    
+    const allNotifications = await kv.getByPrefix('notification:');
+    const userNotifications = allNotifications?.filter(n => n.user_id === userId && !n.read) || [];
+    
+    for (const notification of userNotifications) {
+      notification.read = true;
+      await kv.set(`notification:${notification.id}`, notification);
+    }
+    
+    return c.json({ success: true, count: userNotifications.length });
+  } catch (error) {
+    console.error('Error marking all notifications as read:', error);
+    return c.json({ error: 'Failed to update notifications', details: String(error) }, 500);
   }
 });
 

@@ -17,6 +17,7 @@ interface QuantileVisualizationProps {
   scoreType: ScoreType;
   data: QuantileData;
   simplified?: boolean; // If true, shows just the simple bar (for backwards compatibility)
+  fallbackScore?: number; // Fallback score (0-100) to use when scientific data is missing
   width?: number;
   height?: number;
   onClick?: () => void;
@@ -51,6 +52,7 @@ export function QuantileVisualization({
   scoreType,
   data,
   simplified = false,
+  fallbackScore = 0,
   width = 300,
   height = 60,
   onClick,
@@ -73,9 +75,11 @@ export function QuantileVisualization({
   // If simplified or missing scientific data, show simple bar
   if (simplified || !data.practical_mean || !data.theoretical_mean || 
       !data.practical_CI95 || !data.theoretical_CI95) {
+    // Use fallbackScore if provided, otherwise use practical_mean * 100
+    const displayScore = fallbackScore > 0 ? fallbackScore : (data.practical_mean || 0) * 100;
     return (
       <SimpleBar
-        score={(data.practical_mean || 0) * 100}
+        score={displayScore}
         label={label}
         color={color}
         onClick={onClick}

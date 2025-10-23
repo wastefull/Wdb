@@ -2,6 +2,33 @@
 
 This document outlines the comprehensive security measures implemented in WasteDB to protect against malicious actors, API abuse, DOS/DDOS attacks, and unauthorized access.
 
+## 🆕 Environment-Aware Authentication (v1.2.0)
+
+**Implemented:** October 23, 2025
+
+WasteDB now uses **environment-aware authentication** that adapts based on deployment context:
+
+### Production (Deployed):
+- ✅ **Magic Link ONLY** - Passwordless authentication
+- ✅ No password option visible
+- ✅ Cleaner, more secure UX
+- ✅ Follows industry best practices
+
+### Figma Make (Testing):
+- ✅ **Both Magic Link AND Password** available
+- ✅ Fast testing workflow
+- ✅ No email dependency for rapid iteration
+
+**Benefits:**
+- Reduced attack surface in production
+- No password vulnerabilities (reuse, weak passwords, brute force)
+- Better user experience with passwordless auth
+- Flexible testing during development
+
+**See:** `/docs/ENVIRONMENT_AUTH_STRATEGY.md` and `/docs/AUTH_UI_COMPARISON.md`
+
+---
+
 ## Authentication Hardening (v1.1.0)
 
 ### 1. Rate Limiting
@@ -188,8 +215,8 @@ This document outlines the comprehensive security measures implemented in WasteD
 **Visual Cues:**
 - Shield icon on auth form
 - "Protected by rate limiting" notice
-- "@wastefull.org email for admin access" hint
 - Password requirements displayed
+- Clean UI without revealing admin access patterns (security by obscurity removed)
 
 ---
 

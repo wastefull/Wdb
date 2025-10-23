@@ -23,23 +23,52 @@ export interface ConfidenceInterval {
 export interface Article {
   id: string;
   title: string;
-  category: 'DIY' | 'Industrial' | 'Experimental';
-  overview: {
-    image?: string;
-  };
-  introduction: {
-    image?: string;
-    content: string;
-  };
-  supplies: {
-    image?: string;
-    content: string;
-  };
-  step1: {
-    image?: string;
-    content: string;
-  };
-  dateAdded: string;
+  slug: string;
+  content_markdown: string;
+  category: 'composting' | 'recycling' | 'reuse';
+  material_id: string;
+  author_id: string;
+  editor_id?: string;
+  status: 'draft' | 'pending_review' | 'pending_revision' | 'published' | 'flagged';
+  created_at: string;
+  updated_at: string;
+  published_at?: string;
+}
+
+export interface Submission {
+  id: string;
+  type: 'new_material' | 'edit_material' | 'new_article' | 'update_article' | 'delete_material' | 'delete_article';
+  content_data: any; // JSON blob with submission-specific data
+  original_content_id?: string; // For edits/updates/deletes - references the original material/article
+  status: 'pending_review' | 'pending_revision' | 'approved' | 'rejected' | 'flagged';
+  submitted_by: string;
+  reviewed_by?: string;
+  feedback?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Notification {
+  id: string;
+  user_id: string;
+  type: 'submission_approved' | 'feedback_received' | 'new_review_item' | 'article_published' | 'content_flagged';
+  content_id: string;
+  content_type: 'material' | 'article' | 'submission';
+  message: string;
+  read: boolean;
+  created_at: string;
+}
+
+export interface UserProfile {
+  user_id: string;
+  email: string;
+  name: string;
+  role: 'user' | 'admin';
+  bio?: string;
+  social_link?: string;
+  avatar_url?: string;
+  active: boolean;
+  created_at: string;
 }
 
 export interface Material {
@@ -54,8 +83,9 @@ export interface Material {
   recyclability: number;    // Mechanical/chemical recycling potential (derived from CR_practical_mean)
   reusability: number;      // Direct reuse potential
   
-  // Articles for each sustainability category
-  articles: {
+  // NOTE: Articles are now stored separately and linked via material_id
+  // Legacy field maintained for backward compatibility
+  articles?: {
     compostability: Article[];
     recyclability: Article[];
     reusability: Article[];

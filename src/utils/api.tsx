@@ -122,7 +122,7 @@ export function isAuthenticated(): boolean {
 }
 
 // Helper function to make API calls
-async function apiCall(endpoint: string, options: RequestInit = {}) {
+export async function apiCall(endpoint: string, options: RequestInit = {}) {
   const token = getAccessToken();
   const fullUrl = `${API_BASE_URL}${endpoint}`;
   console.log('🌐 apiCall - Full URL:', fullUrl);
@@ -507,4 +507,136 @@ export async function calculateAllDimensions(params: any): Promise<any> {
     body: JSON.stringify(params),
   });
   return data;
+}
+
+// ==================== PHASE 6: CONTENT MANAGEMENT API ====================
+
+// ===== USER PROFILES =====
+
+export async function getUserProfile(userId: string): Promise<any> {
+  const data = await apiCall(`/profile/${userId}`);
+  return data.profile;
+}
+
+export async function updateUserProfile(userId: string, updates: {
+  bio?: string;
+  social_link?: string;
+  avatar_url?: string;
+}): Promise<any> {
+  const data = await apiCall(`/profile/${userId}`, {
+    method: 'PUT',
+    body: JSON.stringify(updates),
+  });
+  return data.profile;
+}
+
+// ===== ARTICLES =====
+
+export async function getArticles(params?: {
+  status?: string;
+  material_id?: string;
+}): Promise<any[]> {
+  const queryParams = new URLSearchParams();
+  if (params?.status) queryParams.append('status', params.status);
+  if (params?.material_id) queryParams.append('material_id', params.material_id);
+  
+  const url = `/articles${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+  const data = await apiCall(url);
+  return data.articles;
+}
+
+export async function getArticle(id: string): Promise<any> {
+  const data = await apiCall(`/articles/${id}`);
+  return data.article;
+}
+
+export async function createArticle(article: {
+  title: string;
+  slug: string;
+  content_markdown: string;
+  category: 'composting' | 'recycling' | 'reuse';
+  material_id: string;
+}): Promise<any> {
+  const data = await apiCall('/articles', {
+    method: 'POST',
+    body: JSON.stringify(article),
+  });
+  return data.article;
+}
+
+export async function updateArticle(id: string, updates: any): Promise<any> {
+  const data = await apiCall(`/articles/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(updates),
+  });
+  return data.article;
+}
+
+export async function deleteArticle(id: string): Promise<void> {
+  await apiCall(`/articles/${id}`, {
+    method: 'DELETE',
+  });
+}
+
+// ===== SUBMISSIONS =====
+
+export async function getSubmissions(status?: string): Promise<any[]> {
+  const url = status ? `/submissions?status=${status}` : '/submissions';
+  const data = await apiCall(url);
+  return data.submissions;
+}
+
+export async function getMySubmissions(): Promise<any[]> {
+  const data = await apiCall('/submissions/my');
+  return data.submissions;
+}
+
+export async function createSubmission(submission: {
+  type: 'new_material' | 'edit_material' | 'new_article' | 'update_article' | 'delete_material' | 'delete_article';
+  content_data: any;
+  original_content_id?: string;
+}): Promise<any> {
+  const data = await apiCall('/submissions', {
+    method: 'POST',
+    body: JSON.stringify(submission),
+  });
+  return data.submission;
+}
+
+export async function updateSubmission(id: string, updates: {
+  status?: string;
+  feedback?: string;
+  reviewed_by?: string;
+}): Promise<any> {
+  const data = await apiCall(`/submissions/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(updates),
+  });
+  return data.submission;
+}
+
+export async function deleteSubmission(id: string): Promise<void> {
+  await apiCall(`/submissions/${id}`, {
+    method: 'DELETE',
+  });
+}
+
+// ===== NOTIFICATIONS =====
+
+export async function getNotifications(userId: string): Promise<any[]> {
+  const data = await apiCall(`/notifications/${userId}`);
+  return data.notifications;
+}
+
+export async function markNotificationAsRead(id: string): Promise<any> {
+  const data = await apiCall(`/notifications/${id}/read`, {
+    method: 'PUT',
+  });
+  return data.notification;
+}
+
+export async function markAllNotificationsAsRead(userId: string): Promise<void> {
+  await apiCall(`/notifications/${userId}/read-all`, {
+    method: 'PUT',
+  });
 }

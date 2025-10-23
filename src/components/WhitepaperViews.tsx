@@ -114,13 +114,23 @@ export function WhitepaperView({
   useEffect(() => {
     const loadWhitepaper = async () => {
       try {
+        console.log('🔍 Loading whitepaper with slug:', whitepaperSlug);
         const fetchedWhitepaper = await api.getWhitepaper(whitepaperSlug);
+        console.log('📄 Fetched whitepaper:', {
+          slug: fetchedWhitepaper?.slug,
+          title: fetchedWhitepaper?.title,
+          contentType: typeof fetchedWhitepaper?.content,
+          contentLength: fetchedWhitepaper?.content?.length || 0,
+          contentPreview: typeof fetchedWhitepaper?.content === 'string' ? fetchedWhitepaper.content.substring(0, 100) : 'NOT A STRING',
+          keys: fetchedWhitepaper ? Object.keys(fetchedWhitepaper) : []
+        });
         if (fetchedWhitepaper) {
           setWhitepaper(fetchedWhitepaper);
         } else {
           setError('Whitepaper not found');
         }
       } catch (err) {
+        console.error('❌ Error loading whitepaper:', err);
         setError('Failed to load whitepaper');
       } finally {
         setLoading(false);

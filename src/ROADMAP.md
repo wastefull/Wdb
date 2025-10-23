@@ -28,6 +28,12 @@ WasteDB will:
 
 ## **Major Phases**
 
+**Progress: 5 of 8 phases complete (62.5%)**
+
+```
+[████████████████████████████████████░░░░░░░░░░░░░░░░] 62.5%
+```
+
 ### **1. Data Model Integration** ✅ COMPLETE
 
 **Goal:** Introduce the WasteDB scientific data layer without disrupting the public schema.
@@ -119,7 +125,7 @@ WasteDB will:
 
 ---
 
-### **5. Multi-Dimensional Scientific Data Layer** 🔄 IN PROGRESS
+### **5. Multi-Dimensional Scientific Data Layer** ✅ COMPLETE
 
 **Goal:** Extend scientific data infrastructure to Compostability and Reusability.
 
@@ -134,21 +140,62 @@ WasteDB will:
 * ✅ Add API utility functions for calculations
 * ✅ Create whitepapers: `CC-v1.md` (Compostability) and `RU-v1.md` (Reusability)
 
-**Frontend Deliverables**
+**Frontend Deliverables** ✅
 * ✅ Implement ScientificDataEditor with tabbed interface for CR/CC/RU
 * ✅ Refactor into modular structure (7 files, ~185 lines each)
 * ✅ Create parameter input forms for all 15 parameters across three dimensions
 * ✅ Implement CC and RU calculation buttons with API integration
 * ✅ Share M_value across all three dimensions
-* ⏳ Update DataProcessingView with three separate calculators (in progress)
-* ⏳ Update source library tags for compostability and reusability sources (in progress)
-* ⏳ Extend QuantileVisualization with dimension selector (in progress)
+* ✅ Update DataProcessingView with three separate calculators (CR/CC/RU tabs)
+* ✅ Update source library tags for compostability and reusability sources
+* ✅ Extend QuantileVisualization with dimension selector (scoreType prop)
 
-**Status:** Backend complete (Oct 22, 2025); ScientificDataEditor complete (Oct 22, 2025); remaining UI components in progress. **Phase 5: 60% complete**. See `/docs/PHASE_5_MILESTONE_SCIENTIFIC_EDITOR.md` for details.
+**Status:** Completed October 23, 2025. All three dimensions (CR, CC, RU) now have complete scientific data infrastructure, calculation endpoints, parameter editors, and visualizations. See `/docs/PHASE_5_COMPLETE.md` for details.
 
 ---
 
-### **6. Research API & Data Publication** ⬜ PLANNED
+### **6. Content Management & Editorial Workflow** 🔄 IN PROGRESS
+
+**Goal:** Enable community-driven content creation with admin editorial oversight.
+
+**Deliverables**
+
+**Phase 6.1: Foundation** 🔄 IN PROGRESS
+* User profiles with bio, social links, and contribution history
+* Articles data model (markdown-based, tied to materials)
+* Submissions workflow (new materials, material edits, articles)
+* Notifications system with bell UI
+* Basic WYSIWYG markdown editor
+* "Inactivate" button in User Management
+
+**Phase 6.2: Submission Forms** ⬜ PLANNED
+* Submit new material form (basic fields only)
+* Suggest material description edit form
+* Submit new article form (category + material selector)
+* "Pending Review" badges for submitters
+
+**Phase 6.3: Content Review Center** ⬜ PLANNED
+* Three-tab interface (Review / Pending / Moderation)
+* Review feed with type icons, snippets, Review/Flag buttons
+* Review modal with Approve/Edit Directly/Suggest Edits
+* Flag system moving content to Moderation tab
+
+**Phase 6.4: Editorial Features** ⬜ PLANNED
+* "Suggest Edits" workflow with email feedback via Resend
+* "Edit Directly" with dual Writer/Editor credit attribution
+* Inline diff viewer for article updates (color + icons)
+* Published articles show Writer and Editor credits
+
+**Phase 6.5: Notifications & Email** ⬜ PLANNED
+* Email templates for editorial feedback and approvals
+* Notification triggers (new submission, feedback, approval)
+* Manual Pending actions ("Remit to Review" / "Delete")
+
+**Status:** Phase 6.1 started October 23, 2025.
+
+---
+
+### **7. Research API & Data Publication** ⬜ PLANNED
 
 **Goal:** Open WasteDB data for public and academic use.
 
@@ -159,6 +206,27 @@ WasteDB will:
 * Embed dataset citation (DOI or DataCite).
 * Include `whitepaper_version`, `calculation_date`, and `method_version`.
 * Host data snapshots on Wastefull's GitHub or a research subdomain.
+
+---
+
+### **8. Performance & Scalability** ⬜ PLANNED
+
+**Goal:** Optimize rendering performance for large datasets and complex visualizations.
+
+**Deliverables**
+
+* **Local Rasterization of Charts:** Pre-render quantile visualizations to canvas/image format to prevent poor page performance with many materials
+  * Implement lazy loading for visualization rendering
+  * Cache rasterized charts in localStorage/IndexedDB
+  * Add server-side rendering option for static charts
+  * Maintain accessibility with ARIA labels and text alternatives
+  * Preserve interactivity for critical user actions (tooltips on demand)
+* Database query optimization for large material collections
+* Implement virtual scrolling for material lists
+* Add progressive loading for scientific data editor
+* Performance monitoring and metrics collection
+
+**Status:** Planned. Priority increases as material database grows beyond 100 entries.
 
 ---
 

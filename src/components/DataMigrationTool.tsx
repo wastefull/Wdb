@@ -20,7 +20,16 @@ interface Material {
   recyclability: number;
   reusability: number;
   description?: string;
+  
+  // CR parameters
   Y_value?: number;
+  
+  // CC parameters
+  B_value?: number;
+  
+  // RU parameters
+  L_value?: number;
+  
   sources?: any[];
   confidence_level?: 'High' | 'Medium' | 'Low';
 }
@@ -82,7 +91,7 @@ export function DataMigrationTool({ materials, onMigrate }: DataMigrationToolPro
           </p>
 
           {/* Statistics Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
             <div className="p-3 bg-white dark:bg-[#2a2825] rounded-lg border border-[#211f1c] dark:border-white/20">
               <div className="text-[10px] text-black/60 dark:text-white/60 mb-1">Total Materials</div>
               <div className="text-[20px] text-black dark:text-white">{stats.total}</div>
@@ -92,13 +101,6 @@ export function DataMigrationTool({ materials, onMigrate }: DataMigrationToolPro
               <div className="text-[10px] text-black/60 dark:text-white/60 mb-1">Need Migration</div>
               <div className="text-[20px] text-black dark:text-white">
                 {stats.needsMigration}
-              </div>
-            </div>
-            
-            <div className="p-3 bg-white dark:bg-[#2a2825] rounded-lg border border-[#211f1c] dark:border-white/20">
-              <div className="text-[10px] text-black/60 dark:text-white/60 mb-1">Has Sci Data</div>
-              <div className="text-[20px] text-black dark:text-white">
-                {stats.hasScientificData}
               </div>
             </div>
             
@@ -116,21 +118,66 @@ export function DataMigrationTool({ materials, onMigrate }: DataMigrationToolPro
               </div>
             </div>
           </div>
+          
+          {/* Multi-Dimensional Statistics */}
+          <div className="grid grid-cols-3 gap-3 mb-4">
+            <div className="p-3 bg-[#e6beb5]/20 dark:bg-[#e6beb5]/10 rounded-lg border border-[#e6beb5] dark:border-[#e6beb5]/30">
+              <div className="text-[10px] text-black/60 dark:text-white/60 mb-1">Compostability (CC)</div>
+              <div className="flex items-baseline gap-2">
+                <div className="text-[18px] text-black dark:text-white">{stats.hasCC}</div>
+                <div className="text-[10px] text-black/50 dark:text-white/50">/ {stats.total}</div>
+              </div>
+              {stats.needsCC > 0 && (
+                <div className="text-[9px] text-amber-700 dark:text-amber-400 mt-1">
+                  {stats.needsCC} need data
+                </div>
+              )}
+            </div>
+            
+            <div className="p-3 bg-[#e4e3ac]/20 dark:bg-[#e4e3ac]/10 rounded-lg border border-[#e4e3ac] dark:border-[#e4e3ac]/30">
+              <div className="text-[10px] text-black/60 dark:text-white/60 mb-1">Recyclability (CR)</div>
+              <div className="flex items-baseline gap-2">
+                <div className="text-[18px] text-black dark:text-white">{stats.hasCR}</div>
+                <div className="text-[10px] text-black/50 dark:text-white/50">/ {stats.total}</div>
+              </div>
+              {stats.needsCR > 0 && (
+                <div className="text-[9px] text-amber-700 dark:text-amber-400 mt-1">
+                  {stats.needsCR} need data
+                </div>
+              )}
+            </div>
+            
+            <div className="p-3 bg-[#b8c8cb]/20 dark:bg-[#b8c8cb]/10 rounded-lg border border-[#b8c8cb] dark:border-[#b8c8cb]/30">
+              <div className="text-[10px] text-black/60 dark:text-white/60 mb-1">Reusability (RU)</div>
+              <div className="flex items-baseline gap-2">
+                <div className="text-[18px] text-black dark:text-white">{stats.hasRU}</div>
+                <div className="text-[10px] text-black/50 dark:text-white/50">/ {stats.total}</div>
+              </div>
+              {stats.needsRU > 0 && (
+                <div className="text-[9px] text-amber-700 dark:text-amber-400 mt-1">
+                  {stats.needsRU} need data
+                </div>
+              )}
+            </div>
+          </div>
 
           {/* Status Alert */}
           {stats.needsMigration > 0 ? (
             <Alert className="mb-4 bg-amber-50 dark:bg-amber-900/20 border-amber-300 dark:border-amber-700">
               <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
               <AlertDescription className="text-[11px] text-amber-800 dark:text-amber-200">
-                <strong>{stats.needsMigration} material(s)</strong> are missing scientific data or sources. 
-                Migration will automatically add default parameters and citations from the source library.
+                <strong>{stats.needsMigration} material(s)</strong> need scientific data. 
+                {stats.needsCC > 0 && <span> <strong>{stats.needsCC}</strong> missing CC (compostability),</span>}
+                {stats.needsCR > 0 && <span> <strong>{stats.needsCR}</strong> missing CR (recyclability),</span>}
+                {stats.needsRU > 0 && <span> <strong>{stats.needsRU}</strong> missing RU (reusability),</span>}
+                {stats.total - stats.hasSources > 0 && <span> <strong>{stats.needsRU}</strong> missing sources.</span>}
               </AlertDescription>
             </Alert>
           ) : (
             <Alert className="mb-4 bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700">
               <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
               <AlertDescription className="text-[11px] text-green-800 dark:text-green-200">
-                All materials are up to date with scientific data and sources!
+                ✓ All materials have complete multi-dimensional scientific data (CC, CR, RU) with source citations traceable to each parameter!
               </AlertDescription>
             </Alert>
           )}
@@ -165,10 +212,20 @@ export function DataMigrationTool({ materials, onMigrate }: DataMigrationToolPro
                             )}
                             <span className="text-black dark:text-white font-medium">{material.name}</span>
                           </div>
-                          <div className="flex gap-2">
+                          <div className="flex gap-1 flex-wrap">
+                            {!material.B_value && (
+                              <Badge variant="outline" className="text-[8px] bg-[#e6beb5]/30 dark:bg-[#e6beb5]/20 border-[#e6beb5]">
+                                No CC
+                              </Badge>
+                            )}
                             {!material.Y_value && (
-                              <Badge variant="outline" className="text-[8px] bg-amber-50 dark:bg-amber-900/20">
-                                No sci data
+                              <Badge variant="outline" className="text-[8px] bg-[#e4e3ac]/30 dark:bg-[#e4e3ac]/20 border-[#e4e3ac]">
+                                No CR
+                              </Badge>
+                            )}
+                            {!material.L_value && (
+                              <Badge variant="outline" className="text-[8px] bg-[#b8c8cb]/30 dark:bg-[#b8c8cb]/20 border-[#b8c8cb]">
+                                No RU
                               </Badge>
                             )}
                             {(!material.sources || material.sources.length < 3) && (
@@ -176,9 +233,6 @@ export function DataMigrationTool({ materials, onMigrate }: DataMigrationToolPro
                                 {material.sources?.length || 0} sources
                               </Badge>
                             )}
-                            <Badge variant="outline" className="text-[8px] bg-green-50 dark:bg-green-900/20">
-                              Will add {previewSources.length}
-                            </Badge>
                           </div>
                         </div>
                         
@@ -247,12 +301,15 @@ export function DataMigrationTool({ materials, onMigrate }: DataMigrationToolPro
               What does migration do?
             </summary>
             <div className="mt-2 text-[10px] text-black/60 dark:text-white/60 space-y-1 pl-4">
-              <p>✓ Adds scientific parameters (Y, D, C, M, E values) based on material type</p>
-              <p>✓ Adds 3-5 academic source citations from the source library</p>
-              <p>✓ Calculates CR practical and theoretical scores with confidence intervals</p>
-              <p>✓ Sets appropriate confidence level (High/Medium/Low) based on sources</p>
-              <p>✓ Adds whitepaper version and methodology metadata</p>
-              <p>✓ Preserves all existing material data (name, scores, articles, etc.)</p>
+              <p>✓ <strong>Recyclability (CR):</strong> Adds Y, D, C, M, E parameters and calculates CR practical/theoretical scores with 95% CI</p>
+              <p>✓ <strong>Compostability (CC):</strong> Adds B, N, T, H parameters and calculates CC practical/theoretical scores with 95% CI</p>
+              <p>✓ <strong>Reusability (RU):</strong> Adds L, R, U, C_RU parameters and calculates RU practical/theoretical scores with 95% CI</p>
+              <p>✓ Adds 3-5 academic source citations from the source library (smart tag matching)</p>
+              <p>✓ Sets appropriate confidence level (High/Medium/Low) based on source count and quality</p>
+              <p>✓ Adds whitepaper version (2025.1) and methodology metadata (CR-v1,CC-v1,RU-v1)</p>
+              <p>✓ Updates calculation timestamp to track when migration occurred</p>
+              <p>✓ Preserves all existing material data (name, legacy scores, description, articles, etc.)</p>
+              <p className="text-amber-700 dark:text-amber-400 mt-2">⚠️ Migration uses material-specific defaults based on material type and name matching</p>
             </div>
           </details>
           

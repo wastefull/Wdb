@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Edit2, Trash2, Shield, User as UserIcon } from 'lucide-react';
+import { ArrowLeft, Edit2, Trash2, Shield, User as UserIcon, UserX } from 'lucide-react';
 import * as api from '../utils/api';
 import { toast } from 'sonner@2.0.3';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
@@ -13,6 +13,7 @@ interface User {
   email: string;
   name: string;
   role: 'user' | 'admin';
+  active?: boolean;
   created_at: string;
   last_sign_in_at?: string;
 }
@@ -56,6 +57,28 @@ export function UserManagementView({
     } catch (error) {
       console.error('Error updating role:', error);
       toast.error('Failed to update role');
+    }
+  };
+
+  const handleInactivateUser = async (userId: string) => {
+    try {
+      await api.updateUser(userId, { active: false });
+      toast.success('User inactivated successfully');
+      loadUsers();
+    } catch (error) {
+      console.error('Error inactivating user:', error);
+      toast.error('Failed to inactivate user');
+    }
+  };
+
+  const handleActivateUser = async (userId: string) => {
+    try {
+      await api.updateUser(userId, { active: true });
+      toast.success('User reactivated successfully');
+      loadUsers();
+    } catch (error) {
+      console.error('Error reactivating user:', error);
+      toast.error('Failed to reactivate user');
     }
   };
 
@@ -148,6 +171,9 @@ export function UserManagementView({
                     {user.email}
                     {user.id === currentUserId && (
                       <span className="ml-2 text-[10px] text-black/50 dark:text-white/50">(You)</span>
+                    )}
+                    {user.active === false && (
+                      <span className="ml-2 px-2 py-0.5 text-[9px] bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded">Inactive</span>
                     )}
                   </TableCell>
                   <TableCell className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">

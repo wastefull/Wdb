@@ -82,7 +82,7 @@ export function PublicExportView({ onBack, materialsCount }: PublicExportViewPro
               Export WasteDB Data
             </h1>
             <p className="text-[12px] text-black/60 dark:text-white/60">
-              Download {materialsCount} materials in CSV or JSON format
+              Download {materialsCount} materials with 3D circularity data (CR, CC, RU)
             </p>
           </div>
         </div>
@@ -92,7 +92,7 @@ export function PublicExportView({ onBack, materialsCount }: PublicExportViewPro
           <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
           <AlertTitle className="text-[12px] text-blue-800 dark:text-blue-200">Open Data Access</AlertTitle>
           <AlertDescription className="text-[10px] text-blue-700 dark:text-blue-300">
-            All WasteDB data is freely available under open license. Choose the export format that best suits your needs.
+            All WasteDB data is freely available under open license. Complete scientific data for all three dimensions: Recyclability, Compostability, and Reusability.
           </AlertDescription>
         </Alert>
 
@@ -114,20 +114,20 @@ export function PublicExportView({ onBack, materialsCount }: PublicExportViewPro
                     Public-Friendly Data Export
                   </h2>
                   <p className="text-[12px] text-black/70 dark:text-white/70 mb-4">
-                    Simplified data for general audiences, educators, and product designers. All scores are on a 0-100 scale for easy interpretation.
+                    Simplified data for general audiences, educators, and product designers. All scores are on a 0-100 scale for easy interpretation across all three circular economy pathways.
                   </p>
                   
                   <div className="space-y-2 mb-4">
                     <h3 className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white">
-                      Included Fields:
+                      Included Fields (8 columns):
                     </h3>
                     <div className="grid grid-cols-2 gap-2">
                       <Badge variant="outline" className="text-[10px] justify-start">Material Name & Category</Badge>
-                      <Badge variant="outline" className="text-[10px] justify-start">Compostability (0-100)</Badge>
+                      <Badge variant="outline" className="text-[10px] justify-start">Description</Badge>
                       <Badge variant="outline" className="text-[10px] justify-start">Recyclability (0-100)</Badge>
+                      <Badge variant="outline" className="text-[10px] justify-start">Compostability (0-100)</Badge>
                       <Badge variant="outline" className="text-[10px] justify-start">Reusability (0-100)</Badge>
                       <Badge variant="outline" className="text-[10px] justify-start">Confidence Level</Badge>
-                      <Badge variant="outline" className="text-[10px] justify-start">Estimation Flag</Badge>
                     </div>
                   </div>
                 </div>
@@ -161,7 +161,7 @@ export function PublicExportView({ onBack, materialsCount }: PublicExportViewPro
 
               <div className="mt-4 p-3 bg-[#faf9f6] dark:bg-[#1a1918] rounded-md border border-[#211f1c] dark:border-white/20">
                 <p className="text-[10px] text-black/60 dark:text-white/60">
-                  <strong>Best for:</strong> Product labeling, educational materials, consumer-facing applications, sustainability reports
+                  <strong>Best for:</strong> Product labeling, educational materials, consumer-facing applications, sustainability reports, quick analysis
                 </p>
               </div>
             </Card>
@@ -179,22 +179,26 @@ export function PublicExportView({ onBack, materialsCount }: PublicExportViewPro
                     Research-Grade Data Export
                   </h2>
                   <p className="text-[12px] text-black/70 dark:text-white/70 mb-4">
-                    Complete scientific metadata including normalized parameters, confidence intervals, source citations, and calculation timestamps. For academic research and advanced analysis.
+                    Complete scientific metadata for all three dimensions including normalized parameters, confidence intervals, source citations, and calculation timestamps. For academic research and advanced analysis.
                   </p>
                   
                   <div className="space-y-2 mb-4">
                     <h3 className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white">
-                      Included Fields:
+                      Included Fields (39 columns):
                     </h3>
                     <div className="grid grid-cols-2 gap-2">
-                      <Badge variant="outline" className="text-[10px] justify-start">All Public Fields</Badge>
-                      <Badge variant="outline" className="text-[10px] justify-start">Y, D, C, M, E Parameters (0-1)</Badge>
-                      <Badge variant="outline" className="text-[10px] justify-start">CR Practical & Theoretical</Badge>
-                      <Badge variant="outline" className="text-[10px] justify-start">95% Confidence Intervals</Badge>
-                      <Badge variant="outline" className="text-[10px] justify-start">Source Citations</Badge>
+                      <Badge variant="outline" className="text-[10px] justify-start">All Public Fields (8 cols)</Badge>
+                      <Badge variant="outline" className="text-[10px] justify-start">CR Parameters: Y, D, C, M, E (0-1)</Badge>
+                      <Badge variant="outline" className="text-[10px] justify-start">CC Parameters: B, N, T, H (0-1)</Badge>
+                      <Badge variant="outline" className="text-[10px] justify-start">RU Parameters: L, R, U, C (0-1)</Badge>
+                      <Badge variant="outline" className="text-[10px] justify-start">CR Practical & Theoretical (0-1)</Badge>
+                      <Badge variant="outline" className="text-[10px] justify-start">CC Practical & Theoretical (0-1)</Badge>
+                      <Badge variant="outline" className="text-[10px] justify-start">RU Practical & Theoretical (0-1)</Badge>
+                      <Badge variant="outline" className="text-[10px] justify-start">95% Confidence Intervals (all 3)</Badge>
+                      <Badge variant="outline" className="text-[10px] justify-start">Source Citations (DOI links)</Badge>
                       <Badge variant="outline" className="text-[10px] justify-start">Calculation Timestamps</Badge>
-                      <Badge variant="outline" className="text-[10px] justify-start">Method Versions</Badge>
-                      <Badge variant="outline" className="text-[10px] justify-start">Whitepaper References</Badge>
+                      <Badge variant="outline" className="text-[10px] justify-start">Method Versions (CR-v1, CC-v1, RU-v1)</Badge>
+                      <Badge variant="outline" className="text-[10px] justify-start">Whitepaper Version (2025.1)</Badge>
                     </div>
                   </div>
                 </div>
@@ -208,7 +212,7 @@ export function PublicExportView({ onBack, materialsCount }: PublicExportViewPro
                 >
                   <FileText className="w-5 h-5 mr-2" />
                   <div className="text-left">
-                    <div className="text-[13px]">Download CSV</div>
+                    <div className="text-[13px]">Download CSV (39 cols)</div>
                     <div className="text-[9px] opacity-70">For R, Python, statistical analysis</div>
                   </div>
                 </Button>
@@ -228,7 +232,7 @@ export function PublicExportView({ onBack, materialsCount }: PublicExportViewPro
 
               <div className="mt-4 p-3 bg-[#faf9f6] dark:bg-[#1a1918] rounded-md border border-[#211f1c] dark:border-white/20">
                 <p className="text-[10px] text-black/60 dark:text-white/60">
-                  <strong>Best for:</strong> Academic research, peer review, reproducible studies, methodology validation, LCA databases
+                  <strong>Best for:</strong> Academic research, peer review, reproducible studies, methodology validation, LCA databases, multi-dimensional analysis
                 </p>
               </div>
             </Card>
@@ -238,28 +242,76 @@ export function PublicExportView({ onBack, materialsCount }: PublicExportViewPro
               <div className="flex items-center gap-2 mb-2">
                 <ExternalLink className="w-4 h-4 text-black dark:text-white" />
                 <h3 className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white">
-                  Methodology Reference
+                  Methodology References
                 </h3>
               </div>
               <p className="text-[11px] text-black/70 dark:text-white/70 mb-3">
-                For detailed information about parameters, formulas, and data collection standards, please refer to the WasteDB Statistical and Accessibility Methodology whitepaper.
+                For detailed information about parameters, formulas, and data collection standards, please refer to the WasteDB methodology whitepapers (CR-v1, CC-v1, RU-v1).
               </p>
-              <div className="flex flex-wrap gap-2">
-                <Badge className="text-[9px] bg-[#e4e3ac] text-black border-[#211f1c]">
-                  Y = Yield (recovery fraction)
-                </Badge>
-                <Badge className="text-[9px] bg-[#e6beb5] text-black border-[#211f1c]">
-                  D = Degradability (quality retention)
-                </Badge>
-                <Badge className="text-[9px] bg-[#b8c8cb] text-black border-[#211f1c]">
-                  C = Contamination tolerance
-                </Badge>
-                <Badge className="text-[9px] bg-[#e4e3ac] text-black border-[#211f1c]">
-                  M = Infrastructure maturity
-                </Badge>
-                <Badge className="text-[9px] bg-[#e6beb5] text-black border-[#211f1c]">
-                  E = Energy demand
-                </Badge>
+              
+              <div className="space-y-3">
+                <div>
+                  <h4 className="text-[11px] font-medium text-black dark:text-white mb-2">Recyclability (CR) Parameters:</h4>
+                  <div className="flex flex-wrap gap-2">
+                    <Badge className="text-[9px] bg-[#e4e3ac] text-black border-[#211f1c]">
+                      Y = Yield (recovery fraction)
+                    </Badge>
+                    <Badge className="text-[9px] bg-[#e4e3ac] text-black border-[#211f1c]">
+                      D = Degradability (quality retention)
+                    </Badge>
+                    <Badge className="text-[9px] bg-[#e4e3ac] text-black border-[#211f1c]">
+                      C = Contamination tolerance
+                    </Badge>
+                    <Badge className="text-[9px] bg-[#e4e3ac] text-black border-[#211f1c]">
+                      M = Infrastructure maturity
+                    </Badge>
+                    <Badge className="text-[9px] bg-[#e4e3ac] text-black border-[#211f1c]">
+                      E = Energy demand
+                    </Badge>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-[11px] font-medium text-black dark:text-white mb-2">Compostability (CC) Parameters:</h4>
+                  <div className="flex flex-wrap gap-2">
+                    <Badge className="text-[9px] bg-[#e6beb5] text-black border-[#211f1c]">
+                      B = Biodegradation rate
+                    </Badge>
+                    <Badge className="text-[9px] bg-[#e6beb5] text-black border-[#211f1c]">
+                      N = Nutrient balance
+                    </Badge>
+                    <Badge className="text-[9px] bg-[#e6beb5] text-black border-[#211f1c]">
+                      T = Toxicity (inverted)
+                    </Badge>
+                    <Badge className="text-[9px] bg-[#e6beb5] text-black border-[#211f1c]">
+                      H = Habitat adaptability
+                    </Badge>
+                    <Badge className="text-[9px] bg-[#e6beb5] text-black border-[#211f1c]">
+                      M = Infrastructure maturity (shared)
+                    </Badge>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-[11px] font-medium text-black dark:text-white mb-2">Reusability (RU) Parameters:</h4>
+                  <div className="flex flex-wrap gap-2">
+                    <Badge className="text-[9px] bg-[#b8c8cb] text-black border-[#211f1c]">
+                      L = Lifetime (functional cycles)
+                    </Badge>
+                    <Badge className="text-[9px] bg-[#b8c8cb] text-black border-[#211f1c]">
+                      R = Repairability
+                    </Badge>
+                    <Badge className="text-[9px] bg-[#b8c8cb] text-black border-[#211f1c]">
+                      U = Upgradability
+                    </Badge>
+                    <Badge className="text-[9px] bg-[#b8c8cb] text-black border-[#211f1c]">
+                      C = Contamination (functional loss, inverted)
+                    </Badge>
+                    <Badge className="text-[9px] bg-[#b8c8cb] text-black border-[#211f1c]">
+                      M = Infrastructure maturity (shared)
+                    </Badge>
+                  </div>
+                </div>
               </div>
             </Card>
           </TabsContent>
@@ -276,6 +328,7 @@ export function PublicExportView({ onBack, materialsCount }: PublicExportViewPro
               <h4 className="text-[12px] font-medium text-black dark:text-white mb-1">CSV Format</h4>
               <p className="text-[10px] text-black/70 dark:text-white/70">
                 Comma-separated values compatible with Excel, Google Sheets, R, and Python pandas. 
+                Public export: 8 columns. Research export: 39 columns with complete scientific metadata.
                 First row contains column headers. All text fields are quoted for safety.
               </p>
             </div>
@@ -284,7 +337,7 @@ export function PublicExportView({ onBack, materialsCount }: PublicExportViewPro
               <h4 className="text-[12px] font-medium text-black dark:text-white mb-1">JSON Format</h4>
               <p className="text-[10px] text-black/70 dark:text-white/70">
                 Structured JSON with metadata including export date, format type, and material count. 
-                Research exports include parameter definitions and confidence level descriptions.
+                Research exports include all 15 parameters across three dimensions, confidence intervals, parameter definitions, and source citations with DOI links.
               </p>
             </div>
             
@@ -302,6 +355,13 @@ export function PublicExportView({ onBack, materialsCount }: PublicExportViewPro
                 </Badge>
               </div>
             </div>
+
+            <div>
+              <h4 className="text-[12px] font-medium text-black dark:text-white mb-1">Dual-Mode Scoring</h4>
+              <p className="text-[10px] text-black/70 dark:text-white/70">
+                Each dimension includes both <strong>Practical</strong> (real-world infrastructure) and <strong>Theoretical</strong> (ideal conditions) scores. The gap between them represents innovation potential and infrastructure development opportunities.
+              </p>
+            </div>
           </div>
         </Card>
 
@@ -314,10 +374,13 @@ export function PublicExportView({ onBack, materialsCount }: PublicExportViewPro
             WasteDB is maintained by <strong>Wastefull</strong> (San Jose, CA) as an open scientific resource. 
             All data is freely available for research, education, and commercial use.
           </p>
-          <p className="text-[10px] text-black/60 dark:text-white/60">
+          <p className="text-[10px] text-black/60 dark:text-white/60 mb-3">
             When using WasteDB data in publications, please cite: <br />
             <em>WasteDB: Open Materials Sustainability Database. Wastefull, {new Date().getFullYear()}. 
             Available at: wastedb.wastefull.org</em>
+          </p>
+          <p className="text-[10px] text-black/60 dark:text-white/60">
+            <strong>Methodology versions:</strong> CR-v1 (Recyclability), CC-v1 (Compostability), RU-v1 (Reusability), VIZ-v1 (Visualization) — All version 2025.1
           </p>
         </Card>
       </div>
