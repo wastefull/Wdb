@@ -1,7 +1,7 @@
 
-  # App Development
+  # WasteDB
 
-  This is a code bundle for App Development. The original project is available at https://www.figma.com/design/N6ESwxqmbR2SzggYTiIzQT/App-Development.
+  This is a code bundle for WasteDB. The original project is available at https://www.figma.com/design/N6ESwxqmbR2SzggYTiIzQT/WasteDB.
 
   ## Running the code
 
