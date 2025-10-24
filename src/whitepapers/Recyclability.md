@@ -1,5 +1,3 @@
----
-
 # WasteDB: Statistical and Accessibility Methodology
 
 ## Organization Overview

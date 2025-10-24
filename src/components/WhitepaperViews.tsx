@@ -125,7 +125,15 @@ export function WhitepaperView({
           keys: fetchedWhitepaper ? Object.keys(fetchedWhitepaper) : []
         });
         if (fetchedWhitepaper) {
-          setWhitepaper(fetchedWhitepaper);
+          // Convert [] math blocks to $ for proper KaTeX rendering
+          const processedContent = fetchedWhitepaper.content.replace(
+            /\[\n([\s\S]*?)\n\]/g,
+            (match, equation) => `$\n${equation.trim()}\n$`
+          );
+          setWhitepaper({
+            ...fetchedWhitepaper,
+            content: processedContent
+          });
         } else {
           setError('Whitepaper not found');
         }
@@ -205,7 +213,7 @@ export function WhitepaperView({
         >
           <ArrowLeft size={16} className="text-black" />
         </button>
-        <h2 className="font-['Sniglet:Regular',_sans-serif] text-[18px] text-black dark:text-white flex-1">
+        <h2 className="font-['Fredoka_One',_sans-serif] text-[18px] text-black dark:text-white flex-1">
           {whitepaper.title}
         </h2>
       </div>
@@ -222,6 +230,7 @@ export function WhitepaperView({
           prose-li:text-black dark:prose-li:text-white
           prose-table:font-['Sniglet:Regular',_sans-serif] 
           prose-table:text-[11px]
+          prose-th:font-['Fredoka_One',_sans-serif]
           prose-th:text-black dark:prose-th:text-white
           prose-td:text-black dark:prose-td:text-white
           prose-strong:text-black dark:prose-strong:text-white
@@ -240,6 +249,9 @@ export function WhitepaperView({
                 <div className="table-scroll-wrapper">
                   <table {...props} />
                 </div>
+              ),
+              th: ({node, ...props}) => (
+                <th {...props} className="font-['Fredoka_One',_sans-serif]" />
               ),
             }}
           >

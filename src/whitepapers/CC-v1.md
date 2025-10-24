@@ -1,8 +1,3 @@
-Splendid. Let’s begin with the **Compostability Methodology (CC-v1)**, written in the same formal white-paper structure as your _Calculation Methodology_, followed by the **Reusability Methodology (RU-v1)**.
-Both documents preserve the WasteDB voice: scientific precision balanced with accessibility, versioned and citation-ready.
-
----
-
 # WasteDB Compostability Methodology
 
 **Methodology Version:** CC-v1
