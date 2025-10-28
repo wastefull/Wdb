@@ -401,6 +401,19 @@ app.post("/make-server-17cae920/auth/signup", rateLimit('SIGNUP'), async (c) => 
     const initialRole = emailValidation.isOrgEmail ? 'admin' : 'user';
     await kv.set(`user_role:${data.user.id}`, initialRole);
     
+    // Initialize user profile
+    const initialProfile = {
+      user_id: data.user.id,
+      email: data.user.email,
+      name: data.user.user_metadata?.name || email.split('@')[0],
+      bio: '',
+      social_link: '',
+      avatar_url: '',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    await kv.set(`user_profile:${data.user.id}`, initialProfile);
+    
     console.log(`New user created: ${email} (role: ${initialRole}) - awaiting email confirmation`);
 
     return c.json({ 
@@ -2258,10 +2271,46 @@ app.post('/make-server-17cae920/calculate/all-dimensions', verifyAuth, verifyAdm
 app.get('/make-server-17cae920/profile/:userId', verifyAuth, async (c) => {
   try {
     const userId = c.req.param('userId');
-    const profile = await kv.get(`user_profile:${userId}`);
+    let profile = await kv.get(`user_profile:${userId}`);
     
+    // If profile doesn't exist, create a default one (for existing users)
     if (!profile) {
-      return c.json({ error: 'Profile not found' }, 404);
+      console.log(`Profile not found for user ${userId}, creating default profile`);
+      
+      // Try to get user email from context or from Supabase
+      let userEmail = c.get('userEmail');
+      let userName = userEmail ? userEmail.split('@')[0] : 'User';
+      
+      // If we don't have email in context, try to get it from Supabase
+      if (!userEmail) {
+        try {
+          const supabase = createClient(
+            Deno.env.get('SUPABASE_URL') ?? '',
+            Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+          );
+          const { data: userData } = await supabase.auth.admin.getUserById(userId);
+          if (userData?.user) {
+            userEmail = userData.user.email || '';
+            userName = userData.user.user_metadata?.name || userEmail.split('@')[0];
+          }
+        } catch (err) {
+          console.error('Error fetching user data from Supabase:', err);
+        }
+      }
+      
+      profile = {
+        user_id: userId,
+        email: userEmail || '',
+        name: userName,
+        bio: '',
+        social_link: '',
+        avatar_url: '',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      
+      await kv.set(`user_profile:${userId}`, profile);
+      console.log(`Created default profile for user ${userId}`);
     }
     
     return c.json({ profile });

@@ -28,10 +28,10 @@ WasteDB will:
 
 ## **Major Phases**
 
-**Progress: 5 of 8 phases complete (62.5%)**
+**Progress: 6 of 8 phases complete (75%)**
 
 ```
-[████████████████████████████████████░░░░░░░░░░░░░░░░] 62.5%
+[████████████████████████████████████████████████░░░░] 75%
 ```
 
 ### **1. Data Model Integration** ✅ COMPLETE
@@ -160,25 +160,31 @@ WasteDB will:
 
 **Deliverables**
 
-**Phase 6.1: Foundation** 🔄 IN PROGRESS
-* User profiles with bio, social links, and contribution history
-* Articles data model (markdown-based, tied to materials)
-* Submissions workflow (new materials, material edits, articles)
-* Notifications system with bell UI
-* Basic WYSIWYG markdown editor
-* "Inactivate" button in User Management
+**Phase 6.1: Foundation** ✅ COMPLETE
+* ✅ User profiles with bio, social links, and contribution history
+* ✅ Articles data model (markdown-based, tied to materials)
+* ✅ Submissions workflow (new materials, material edits, articles)
+* ✅ Notifications system with bell UI
+* ✅ Basic WYSIWYG markdown editor
+* ✅ "Inactivate" button in User Management
 
-**Phase 6.2: Submission Forms** ⬜ PLANNED
-* Submit new material form (basic fields only)
-* Suggest material description edit form
-* Submit new article form (category + material selector)
-* "Pending Review" badges for submitters
+**Phase 6.2: Submission Forms** ✅ COMPLETE
+* ✅ Submit new material form (basic fields only)
+* ✅ Suggest material description edit form
+* ✅ Submit new article form (category + material selector)
+* ✅ "Pending Review" badges for submitters (My Submissions view)
+* ✅ User-facing submission workflow integrated into main UI
+* ✅ "Suggest Edit" button on material cards for non-admin users
+* ✅ "My Submissions" view to track submission status
 
-**Phase 6.3: Content Review Center** ⬜ PLANNED
-* Three-tab interface (Review / Pending / Moderation)
-* Review feed with type icons, snippets, Review/Flag buttons
-* Review modal with Approve/Edit Directly/Suggest Edits
-* Flag system moving content to Moderation tab
+**Phase 6.3: Content Review Center** ✅ COMPLETE
+* ✅ Three-tab interface (Review / Pending / Moderation)
+* ✅ Review feed with type icons, snippets, Review/Flag buttons
+* ✅ Review modal with Approve/Edit Directly/Suggest Edits
+* ✅ Flag system moving content to Moderation tab
+* ✅ Submission cards with timestamps and status indicators
+* ✅ Direct editing capability for admin reviewers
+* ✅ Auto-publishing approved submissions to database
 
 **Phase 6.4: Editorial Features** ⬜ PLANNED
 * "Suggest Edits" workflow with email feedback via Resend
@@ -191,7 +197,7 @@ WasteDB will:
 * Notification triggers (new submission, feedback, approval)
 * Manual Pending actions ("Remit to Review" / "Delete")
 
-**Status:** Phase 6.1 started October 23, 2025.
+**Status:** Phase 6.3 completed October 28, 2025. Content Review Center with full editorial workflow operational.
 
 ---
 

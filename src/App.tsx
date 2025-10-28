@@ -29,6 +29,11 @@ import { QuantileVisualization } from './components/QuantileVisualization';
 import { WhitepaperSyncTool } from './components/WhitepaperSyncTool';
 import { SOURCE_LIBRARY, getSourcesByTag } from './data/sources';
 import { CookieConsent } from './components/CookieConsent';
+import { SubmitMaterialForm } from './components/SubmitMaterialForm';
+import { SuggestMaterialEditForm } from './components/SuggestMaterialEditForm';
+import { SubmitArticleForm } from './components/SubmitArticleForm';
+import { MySubmissionsView } from './components/MySubmissionsView';
+import { ContentReviewCenter } from './components/ContentReviewCenter';
 import { Popover, PopoverContent, PopoverTrigger } from './components/ui/popover';
 import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './components/ui/tooltip';
 import { Switch } from './components/ui/switch';
@@ -154,7 +159,7 @@ function AdminModeButton({ currentView, onViewChange }: { currentView: any; onVi
   
   const handleAdminToggle = () => {
     // If turning off admin mode and currently on admin-only pages, go back to materials
-    if (settings.adminMode && (currentView.type === 'data-management' || currentView.type === 'user-management' || currentView.type === 'scientific-editor' || currentView.type === 'whitepaper-sync')) {
+    if (settings.adminMode && (currentView.type === 'data-management' || currentView.type === 'user-management' || currentView.type === 'scientific-editor' || currentView.type === 'whitepaper-sync' || currentView.type === 'review-center')) {
       onViewChange({ type: 'materials' });
     }
     toggleAdminMode();
@@ -625,7 +630,9 @@ function MaterialCard({
   onViewArticles,
   onViewMaterial,
   onEditScientific,
-  isAdminModeActive
+  onSuggestEdit,
+  isAdminModeActive,
+  isAuthenticated
 }: { 
   material: Material; 
   onEdit: () => void; 
@@ -633,7 +640,9 @@ function MaterialCard({
   onViewArticles: (category: CategoryType) => void;
   onViewMaterial: () => void;
   onEditScientific?: () => void;
+  onSuggestEdit?: () => void;
   isAdminModeActive?: boolean;
+  isAuthenticated?: boolean;
 }) {
   return (
     <div className="bg-white dark:bg-[#2a2825] relative rounded-[11.464px] p-4 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] border-[1.5px] border-[#211f1c] dark:border-white/20">
@@ -650,7 +659,7 @@ function MaterialCard({
             {material.category}
           </span>
         </div>
-        {isAdminModeActive && (
+        {isAdminModeActive ? (
           <div className="flex gap-2">
             <button
               onClick={onEdit}
@@ -667,7 +676,16 @@ function MaterialCard({
               <Trash2 size={14} className="text-black" aria-hidden="true" />
             </button>
           </div>
-        )}
+        ) : isAuthenticated && onSuggestEdit ? (
+          <button
+            onClick={onSuggestEdit}
+            className="p-1.5 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+            aria-label={`Suggest edit for ${material.name}`}
+            title="Suggest an edit"
+          >
+            <Edit2 size={14} className="text-black" aria-hidden="true" />
+          </button>
+        ) : null}
       </div>
       
       {material.description && (
@@ -1846,7 +1864,7 @@ Where:
                 thead: ({node, ...props}) => <thead className="bg-[#e4e3ac] border-b-[1.5px] border-[#211f1c]" {...props} />,
                 tbody: ({node, ...props}) => <tbody {...props} />,
                 tr: ({node, ...props}) => <tr className="border-b border-[#211f1c]/20" {...props} />,
-                th: ({node, ...props}) => <th className="font-['Fredoka_One',_sans-serif] text-[12px] text-black px-3 py-2 text-left border-r border-[#211f1c]/20 last:border-r-0" {...props} />,
+                th: ({node, ...props}) => <th className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black px-3 py-2 text-left border-r border-[#211f1c]/20 last:border-r-0" {...props} />,
                 td: ({node, ...props}) => <td className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/80 px-3 py-2 border-r border-[#211f1c]/20 last:border-r-0" {...props} />,
                 code: ({node, inline, ...props}) => 
                   inline ? (
@@ -2034,6 +2052,7 @@ function DataManagementView({
   onUpdateMaterials,
   onBulkImport,
   onDeleteAllData,
+  onDeleteMaterial,
   onViewMaterial
 }: {
   materials: Material[];
@@ -2042,6 +2061,7 @@ function DataManagementView({
   onUpdateMaterials: (materials: Material[]) => void;
   onBulkImport: (materials: Material[]) => void;
   onDeleteAllData: () => void;
+  onDeleteMaterial: (materialId: string) => void;
   onViewMaterial: (materialId: string) => void;
 }) {
   const [activeTab, setActiveTab] = useState('materials');
@@ -2566,12 +2586,46 @@ function DataManagementView({
                           </button>
                         </div>
                       ) : (
-                        <button
-                          onClick={() => handleEdit(material)}
-                          className="p-1.5 bg-[#e4e3ac] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all"
-                        >
-                          <Edit2 size={12} className="text-black" />
-                        </button>
+                        <div className="flex gap-1 justify-center">
+                          <button
+                            onClick={() => handleEdit(material)}
+                            className="p-1.5 bg-[#e4e3ac] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                            title="Edit material"
+                          >
+                            <Edit2 size={12} className="text-black" />
+                          </button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <button
+                                className="p-1.5 bg-[#e6beb5] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                                title="Delete material"
+                              >
+                                <Trash2 size={12} className="text-black" />
+                              </button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent className="bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20">
+                              <AlertDialogHeader>
+                                <AlertDialogTitle className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">
+                                  Delete Material?
+                                </AlertDialogTitle>
+                                <AlertDialogDescription className="font-['Sniglet:Regular',_sans-serif] text-black/70 dark:text-white/70">
+                                  Are you sure you want to delete "{material.name}"? This will permanently remove the material and all its associated articles. This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel className="font-['Sniglet:Regular',_sans-serif] bg-[#b8c8cb] border-[#211f1c] dark:border-white/20">
+                                  Cancel
+                                </AlertDialogCancel>
+                                <AlertDialogAction 
+                                  onClick={() => onDeleteMaterial(material.id)}
+                                  className="font-['Sniglet:Regular',_sans-serif] bg-[#e6beb5] text-black border-[1.5px] border-[#211f1c] dark:border-white/20 hover:bg-[#e6beb5]/80"
+                                >
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
                       )}
                     </TableCell>
                   </TableRow>
@@ -2625,12 +2679,15 @@ function AppContent() {
   const [searchQuery, setSearchQuery] = useState('');
   const [editingMaterial, setEditingMaterial] = useState<Material | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const [currentView, setCurrentView] = useState<{ type: 'materials' } | { type: 'articles'; materialId: string; category: CategoryType } | { type: 'all-articles'; category: CategoryType } | { type: 'material-detail'; materialId: string } | { type: 'article-standalone'; articleId: string; materialId: string; category: CategoryType } | { type: 'recyclability-calculation' } | { type: 'methodology-list' } | { type: 'whitepaper'; whitepaperSlug: string } | { type: 'data-management' } | { type: 'user-management' } | { type: 'scientific-editor'; materialId: string } | { type: 'export' } | { type: 'user-profile'; userId: string } | { type: 'whitepaper-sync' }>({ type: 'materials' });
+  const [currentView, setCurrentView] = useState<{ type: 'materials' } | { type: 'articles'; materialId: string; category: CategoryType } | { type: 'all-articles'; category: CategoryType } | { type: 'material-detail'; materialId: string } | { type: 'article-standalone'; articleId: string; materialId: string; category: CategoryType } | { type: 'recyclability-calculation' } | { type: 'methodology-list' } | { type: 'whitepaper'; whitepaperSlug: string } | { type: 'data-management' } | { type: 'user-management' } | { type: 'scientific-editor'; materialId: string } | { type: 'export' } | { type: 'user-profile'; userId: string } | { type: 'whitepaper-sync' } | { type: 'my-submissions' } | { type: 'review-center' }>({ type: 'materials' });
   const [articleToOpen, setArticleToOpen] = useState<string | null>(null);
   const [syncStatus, setSyncStatus] = useState<'synced' | 'syncing' | 'offline' | 'error'>('syncing');
   const [supabaseAvailable, setSupabaseAvailable] = useState(true);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isLoadingMaterials, setIsLoadingMaterials] = useState(true);
+  const [showSubmitMaterialForm, setShowSubmitMaterialForm] = useState(false);
+  const [materialToEdit, setMaterialToEdit] = useState<Material | null>(null);
+  const [showSubmitArticleForm, setShowSubmitArticleForm] = useState(false);
   
   // Expose logger to window for browser console debugging
   useEffect(() => {
@@ -3207,8 +3264,12 @@ function AppContent() {
                     {user && (
                       <button
                         onClick={() => {
-                          setShowForm(true);
-                          setEditingMaterial(null);
+                          if (isAdminModeActive) {
+                            setShowForm(true);
+                            setEditingMaterial(null);
+                          } else {
+                            setShowSubmitMaterialForm(true);
+                          }
                         }}
                         className={`h-[40px] px-3 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-2 whitespace-nowrap ${
                           isAdminModeActive ? 'bg-[#b8c8cb]' : 'bg-[#c8e5c8]'
@@ -3216,30 +3277,47 @@ function AppContent() {
                         title={isAdminModeActive ? "Add a new material" : "Submit a new material"}
                       >
                         <Plus size={14} className="text-black" />
-                        <span className="hidden sm:inline">Add Material</span>
+                        <span className="hidden sm:inline">{isAdminModeActive ? 'Add' : 'Submit'} Material</span>
                       </button>
                     )}
                   </div>
-                  {isAdminModeActive && (
+                  {user && (
                     <div className="flex flex-wrap gap-2 justify-center">
-                      <button
-                        onClick={() => setCurrentView({ type: 'data-management' })}
-                        className="bg-[#e4e3ac] h-[40px] px-3 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
-                      >
-                        Database Management
-                      </button>
-                      <button
-                        onClick={() => setCurrentView({ type: 'user-management' })}
-                        className="bg-[#e6beb5] h-[40px] px-3 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
-                      >
-                        User Management
-                      </button>
-                      <button
-                        onClick={() => setCurrentView({ type: 'whitepaper-sync' })}
-                        className="bg-[#b8c8cb] h-[40px] px-3 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
-                      >
-                        Whitepaper Sync
-                      </button>
+                      {isAdminModeActive ? (
+                        <>
+                          <button
+                            onClick={() => setCurrentView({ type: 'review-center' })}
+                            className="bg-[#c8e5c8] h-[40px] px-3 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
+                          >
+                            Review Center
+                          </button>
+                          <button
+                            onClick={() => setCurrentView({ type: 'data-management' })}
+                            className="bg-[#e4e3ac] h-[40px] px-3 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
+                          >
+                            Database Management
+                          </button>
+                          <button
+                            onClick={() => setCurrentView({ type: 'user-management' })}
+                            className="bg-[#e6beb5] h-[40px] px-3 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
+                          >
+                            User Management
+                          </button>
+                          <button
+                            onClick={() => setCurrentView({ type: 'whitepaper-sync' })}
+                            className="bg-[#b8c8cb] h-[40px] px-3 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
+                          >
+                            Whitepaper Sync
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          onClick={() => setCurrentView({ type: 'my-submissions' })}
+                          className="bg-[#f4d3a0] h-[40px] px-3 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
+                        >
+                          My Submissions
+                        </button>
+                      )}
                     </div>
                   )}
                   <div className="flex flex-col gap-2 items-center">
@@ -3339,7 +3417,9 @@ function AppContent() {
                     onViewArticles={(category) => handleViewArticles(material.id, category)}
                     onViewMaterial={() => handleViewMaterial(material.id)}
                     onEditScientific={() => setCurrentView({ type: 'scientific-editor', materialId: material.id })}
+                    onSuggestEdit={() => setMaterialToEdit(material)}
                     isAdminModeActive={isAdminModeActive}
+                    isAuthenticated={!!user}
                   />
                 ))}
               </div>
@@ -3426,6 +3506,7 @@ function AppContent() {
               onUpdateMaterial={handleUpdateMaterial}
               onUpdateMaterials={(updatedMaterials) => saveMaterials(updatedMaterials)}
               onBulkImport={handleBulkImport}
+              onDeleteMaterial={handleDeleteMaterial}
               onViewMaterial={(materialId) => setCurrentView({ type: 'material-detail', materialId })}
               onDeleteAllData={async () => {
                 setMaterials([]);
@@ -3472,9 +3553,48 @@ function AppContent() {
               onBack={() => setCurrentView({ type: 'materials' })}
               isOwnProfile={currentView.userId === user?.id}
             />
+          ) : currentView.type === 'my-submissions' ? (
+            <MySubmissionsView
+              onBack={() => setCurrentView({ type: 'materials' })}
+            />
+          ) : currentView.type === 'review-center' ? (
+            <ContentReviewCenter
+              onBack={() => setCurrentView({ type: 'materials' })}
+              currentUserId={user?.id || ''}
+            />
           ) : null}
         </div>
       </div>
+
+      {/* Submission Forms */}
+      {showSubmitMaterialForm && (
+        <SubmitMaterialForm
+          onClose={() => setShowSubmitMaterialForm(false)}
+          onSubmitSuccess={() => {
+            // Optionally refresh submissions or show a notification
+            toast.success('Material submitted! Check "My Submissions" for updates.');
+          }}
+        />
+      )}
+
+      {materialToEdit && (
+        <SuggestMaterialEditForm
+          material={materialToEdit}
+          onClose={() => setMaterialToEdit(null)}
+          onSubmitSuccess={() => {
+            toast.success('Edit suggestion submitted! Check "My Submissions" for updates.');
+          }}
+        />
+      )}
+
+      {showSubmitArticleForm && (
+        <SubmitArticleForm
+          onClose={() => setShowSubmitArticleForm(false)}
+          onSubmitSuccess={() => {
+            toast.success('Article submitted! Check "My Submissions" for updates.');
+          }}
+        />
+      )}
       
       {/* Footer */}
       <footer className="mt-8 pb-6 text-center">

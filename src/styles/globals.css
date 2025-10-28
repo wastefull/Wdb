@@ -390,7 +390,7 @@ body {
 .prose h4,
 .prose h5,
 .prose h6 {
-  font-family: 'Fredoka One', 'Sniglet', sans-serif;
+  font-family: 'Sniglet', sans-serif;
 }
 
 .prose h1 {
@@ -398,7 +398,7 @@ body {
 }
 
 .prose th {
-  font-family: 'Fredoka One', 'Sniglet', sans-serif;
+  font-family: 'Sniglet', sans-serif;
 }
 
 .prose p,
@@ -413,7 +413,7 @@ body {
 }
 
 .prose strong {
-  font-family: 'Fredoka One', 'Sniglet', sans-serif;
+  font-family: 'Sniglet', sans-serif;
   font-weight: 400;
 }
 

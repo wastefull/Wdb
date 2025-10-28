@@ -219,39 +219,79 @@ export function WhitepaperView({
       </div>
 
       <div className="max-w-4xl bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 p-8 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)]">
-        <article className="prose prose-sm max-w-none dark:prose-invert
-          prose-headings:font-['Sniglet:Regular',_sans-serif] 
+        <article className="prose prose-lg max-w-none dark:prose-invert
+          prose-headings:font-serif
           prose-headings:text-black dark:prose-headings:text-white
-          prose-p:font-['Sniglet:Regular',_sans-serif] 
-          prose-p:text-[12px] 
+          prose-h1:text-3xl prose-h1:font-bold prose-h1:mb-4 prose-h1:mt-6
+          prose-h2:text-2xl prose-h2:font-bold prose-h2:mb-3 prose-h2:mt-5
+          prose-h3:text-xl prose-h3:font-semibold prose-h3:mb-2 prose-h3:mt-4
+          prose-p:font-serif
+          prose-p:text-base prose-p:leading-relaxed
           prose-p:text-black dark:prose-p:text-white
-          prose-li:font-['Sniglet:Regular',_sans-serif] 
-          prose-li:text-[12px] 
+          prose-li:font-serif
+          prose-li:text-base prose-li:leading-relaxed
           prose-li:text-black dark:prose-li:text-white
-          prose-table:font-['Sniglet:Regular',_sans-serif] 
-          prose-table:text-[11px]
-          prose-th:font-['Fredoka_One',_sans-serif]
+          prose-table:font-serif
+          prose-table:text-sm
+          prose-th:font-semibold
           prose-th:text-black dark:prose-th:text-white
           prose-td:text-black dark:prose-td:text-white
-          prose-strong:text-black dark:prose-strong:text-white
-          prose-em:text-black dark:prose-em:text-white
+          prose-strong:font-semibold prose-strong:text-black dark:prose-strong:text-white
+          prose-em:italic prose-em:text-black dark:prose-em:text-white
+          prose-code:font-mono prose-code:text-sm
           prose-code:text-black dark:prose-code:text-white
-          prose-code:bg-[#e4e3ac] dark:prose-code:bg-[#211f1c]
-          prose-code:px-1 prose-code:py-0.5 prose-code:rounded
-          prose-blockquote:border-l-[#b8c8cb] 
-          prose-blockquote:text-black/70 dark:prose-blockquote:text-white/70
-        ">
+          prose-code:bg-gray-100 dark:prose-code:bg-gray-800
+          prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded
+          prose-pre:font-mono prose-pre:text-sm
+          prose-blockquote:border-l-gray-300 dark:prose-blockquote:border-l-gray-600
+          prose-blockquote:font-serif prose-blockquote:italic
+          prose-blockquote:text-black/80 dark:prose-blockquote:text-white/80
+        " style={{ fontFamily: 'Charter, "Bitstream Charter", "Sitka Text", Cambria, serif' }}>
           <ReactMarkdown
             remarkPlugins={[remarkMath, remarkGfm, remarkBreaks]}
             rehypePlugins={[rehypeKatex]}
             components={{
               table: ({node, ...props}) => (
-                <div className="table-scroll-wrapper">
-                  <table {...props} />
+                <div className="overflow-x-auto my-6">
+                  <table {...props} className="border-collapse border border-gray-300 dark:border-gray-600" />
                 </div>
               ),
               th: ({node, ...props}) => (
-                <th {...props} className="font-['Fredoka_One',_sans-serif]" />
+                <th {...props} className="border border-gray-300 dark:border-gray-600 px-4 py-2 bg-gray-50 dark:bg-gray-800" style={{ fontFamily: 'Charter, "Bitstream Charter", "Sitka Text", Cambria, serif' }} />
+              ),
+              td: ({node, ...props}) => (
+                <td {...props} className="border border-gray-300 dark:border-gray-600 px-4 py-2" style={{ fontFamily: 'Charter, "Bitstream Charter", "Sitka Text", Cambria, serif' }} />
+              ),
+              code: ({node, inline, className, ...props}) => (
+                inline ? (
+                  <code {...props} className={className} style={{ fontFamily: '"Courier New", Courier, monospace' }} />
+                ) : (
+                  <code {...props} className={className} style={{ fontFamily: '"Courier New", Courier, monospace' }} />
+                )
+              ),
+              h1: ({node, ...props}) => (
+                <h1 {...props} style={{ fontFamily: 'Charter, "Bitstream Charter", "Sitka Text", Cambria, serif' }} />
+              ),
+              h2: ({node, ...props}) => (
+                <h2 {...props} style={{ fontFamily: 'Charter, "Bitstream Charter", "Sitka Text", Cambria, serif' }} />
+              ),
+              h3: ({node, ...props}) => (
+                <h3 {...props} style={{ fontFamily: 'Charter, "Bitstream Charter", "Sitka Text", Cambria, serif' }} />
+              ),
+              p: ({node, ...props}) => (
+                <p {...props} style={{ fontFamily: 'Charter, "Bitstream Charter", "Sitka Text", Cambria, serif' }} />
+              ),
+              li: ({node, ...props}) => (
+                <li {...props} style={{ fontFamily: 'Charter, "Bitstream Charter", "Sitka Text", Cambria, serif' }} />
+              ),
+              blockquote: ({node, ...props}) => (
+                <blockquote {...props} style={{ fontFamily: 'Charter, "Bitstream Charter", "Sitka Text", Cambria, serif' }} />
+              ),
+              strong: ({node, ...props}) => (
+                <strong {...props} style={{ fontFamily: 'Charter, "Bitstream Charter", "Sitka Text", Cambria, serif' }} />
+              ),
+              em: ({node, ...props}) => (
+                <em {...props} style={{ fontFamily: 'Charter, "Bitstream Charter", "Sitka Text", Cambria, serif' }} />
               ),
             }}
           >
