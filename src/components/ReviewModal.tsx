@@ -31,7 +31,7 @@ interface Submission {
 interface ReviewModalProps {
   submission: Submission;
   onClose: () => void;
-  onApprove: (submissionId: string, editedContent?: any) => void;
+  onApprove: (submissionId: string, editedContent?: any, wasEditedByAdmin?: boolean) => void;
   onReject: (submissionId: string, feedback: string) => void;
   onRequestRevision: (submissionId: string, feedback: string) => void;
 }
@@ -52,7 +52,8 @@ export function ReviewModal({
     setProcessing(true);
     try {
       if (action === 'approve' || action === 'edit') {
-        await onApprove(submission.id, action === 'edit' ? editedContent : undefined);
+        const wasEdited = action === 'edit';
+        await onApprove(submission.id, wasEdited ? editedContent : undefined, wasEdited);
       } else if (action === 'reject') {
         if (!feedback.trim()) {
           alert('Please provide feedback for rejection');

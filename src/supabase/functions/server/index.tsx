@@ -844,6 +844,7 @@ app.post("/make-server-17cae920/materials", verifyAuth, verifyAdmin, async (c) =
 });
 
 // Batch save materials (protected - admin only)
+// This endpoint REPLACES all materials with the provided array
 app.post("/make-server-17cae920/materials/batch", verifyAuth, verifyAdmin, async (c) => {
   try {
     const { materials } = await c.req.json();
@@ -851,12 +852,25 @@ app.post("/make-server-17cae920/materials/batch", verifyAuth, verifyAdmin, async
       return c.json({ error: "Materials must be an array" }, 400);
     }
     
-    // Use mset for batch operations - separate keys and values
-    const keys = materials.map(m => `material:${m.id}`);
-    const values = materials;
-    await kv.mset(keys, values);
+    // First, get all existing materials
+    const existingMaterials = await kv.getByPrefix("material:");
     
-    return c.json({ success: true, count: materials.length });
+    // Delete all existing materials
+    if (existingMaterials && existingMaterials.length > 0) {
+      const keysToDelete = existingMaterials.map(m => `material:${m.id}`);
+      await kv.mdel(keysToDelete);
+      console.log(`Deleted ${keysToDelete.length} existing materials`);
+    }
+    
+    // Now save the new materials (if any)
+    if (materials.length > 0) {
+      const keys = materials.map(m => `material:${m.id}`);
+      const values = materials;
+      await kv.mset(keys, values);
+      console.log(`Saved ${materials.length} materials`);
+    }
+    
+    return c.json({ success: true, count: materials.length, deleted: existingMaterials?.length || 0 });
   } catch (error) {
     console.error("Error batch saving materials:", error);
     return c.json({ error: "Failed to batch save materials", details: String(error) }, 500);
@@ -2684,6 +2698,860 @@ app.put('/make-server-17cae920/notifications/:userId/read-all', verifyAuth, asyn
   } catch (error) {
     console.error('Error marking all notifications as read:', error);
     return c.json({ error: 'Failed to update notifications', details: String(error) }, 500);
+  }
+});
+
+// ===== EMAIL NOTIFICATIONS (RESEND) =====
+
+// Send email notification (admin only)
+app.post('/make-server-17cae920/email/send', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const { to, subject, html, text } = await c.req.json();
+    
+    if (!to || !subject || (!html && !text)) {
+      return c.json({ error: 'Missing required fields: to, subject, and html or text' }, 400);
+    }
+    
+    const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
+    
+    if (!RESEND_API_KEY) {
+      console.error('RESEND_API_KEY not configured');
+      return c.json({ error: 'Email service not configured' }, 500);
+    }
+    
+    // Send email via Resend API
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${RESEND_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        from: 'WasteDB <no-reply@wastefull.org>',
+        to: [to],
+        subject,
+        html: html || text,
+        text: text || undefined
+      })
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Resend API error:', errorText);
+      return c.json({ error: 'Failed to send email', details: errorText }, 500);
+    }
+    
+    const result = await response.json();
+    console.log('Email sent successfully:', result.id);
+    
+    return c.json({ success: true, emailId: result.id });
+  } catch (error) {
+    console.error('Error sending email:', error);
+    return c.json({ error: 'Failed to send email', details: String(error) }, 500);
+  }
+});
+
+// Send revision request email (admin only)
+app.post('/make-server-17cae920/email/revision-request', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const { submissionId, feedback, submitterEmail, submitterName, submissionType } = await c.req.json();
+    
+    if (!submitterEmail || !feedback || !submissionType) {
+      return c.json({ error: 'Missing required fields' }, 400);
+    }
+    
+    const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
+    
+    if (!RESEND_API_KEY) {
+      console.error('RESEND_API_KEY not configured');
+      return c.json({ error: 'Email service not configured' }, 500);
+    }
+    
+    // Format submission type for display
+    const typeDisplay = submissionType
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, (l: string) => l.toUpperCase());
+    
+    const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Revision Requested - WasteDB</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Sniglet', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background-color: #faf7f2;">
+  <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #faf7f2; padding: 40px 20px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border: 1.5px solid #211f1c; border-radius: 11.464px; overflow: hidden;">
+          <!-- Header -->
+          <tr>
+            <td style="background-color: #e4e3ac; padding: 30px 40px; border-bottom: 1.5px solid #211f1c; text-align: center;">
+              <h1 style="margin: 0; font-family: 'Fredoka One', sans-serif; font-size: 28px; color: #211f1c;">
+                WasteDB
+              </h1>
+              <p style="margin: 8px 0 0 0; font-size: 12px; color: #211f1c; opacity: 0.7; text-transform: uppercase; letter-spacing: 1px;">
+                Content Review System
+              </p>
+            </td>
+          </tr>
+          
+          <!-- Content -->
+          <tr>
+            <td style="padding: 40px;">
+              <h2 style="margin: 0 0 16px 0; font-size: 20px; color: #211f1c;">
+                Revision Requested
+              </h2>
+              
+              <p style="margin: 0 0 24px 0; font-size: 14px; line-height: 1.6; color: #211f1c;">
+                ${submitterName ? `Hi ${submitterName},` : 'Hello,'}
+              </p>
+              
+              <p style="margin: 0 0 24px 0; font-size: 14px; line-height: 1.6; color: #211f1c;">
+                Your <strong>${typeDisplay}</strong> submission has been reviewed, and we'd like to request some revisions before approval.
+              </p>
+              
+              <!-- Feedback Box -->
+              <div style="background-color: #faf7f2; border: 1.5px solid #211f1c; border-radius: 8px; padding: 20px; margin: 0 0 24px 0;">
+                <p style="margin: 0 0 8px 0; font-size: 12px; color: #211f1c; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.5px;">
+                  Reviewer Feedback:
+                </p>
+                <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #211f1c; white-space: pre-wrap;">
+${feedback}
+                </p>
+              </div>
+              
+              <p style="margin: 0 0 24px 0; font-size: 14px; line-height: 1.6; color: #211f1c;">
+                Please review the feedback above and make any necessary changes. You can view and update your submission in your <strong>My Submissions</strong> dashboard.
+              </p>
+              
+              <!-- CTA Button -->
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                <tr>
+                  <td align="center" style="padding: 8px 0 24px 0;">
+                    <a href="https://wastedb.app" style="display: inline-block; background-color: #e4e3ac; color: #211f1c; text-decoration: none; padding: 12px 32px; border: 1.5px solid #211f1c; border-radius: 8px; font-size: 14px; font-weight: 600; box-shadow: 3px 4px 0px -1px #000000;">
+                      View My Submissions
+                    </a>
+                  </td>
+                </tr>
+              </table>
+              
+              <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #211f1c; opacity: 0.7;">
+                Thank you for contributing to WasteDB! We appreciate your effort in making our materials database more accurate and comprehensive.
+              </p>
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #faf7f2; padding: 24px 40px; border-top: 1.5px solid #211f1c; text-align: center;">
+              <p style="margin: 0 0 8px 0; font-size: 12px; color: #211f1c; opacity: 0.7;">
+                <strong>Wastefull</strong> • San Jose, California
+              </p>
+              <p style="margin: 0; font-size: 11px; color: #211f1c; opacity: 0.5;">
+                Building open scientific infrastructure for material circularity
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+    `;
+    
+    const text = `
+WasteDB - Revision Requested
+
+${submitterName ? `Hi ${submitterName},` : 'Hello,'}
+
+Your ${typeDisplay} submission has been reviewed, and we'd like to request some revisions before approval.
+
+Reviewer Feedback:
+${feedback}
+
+Please review the feedback above and make any necessary changes. You can view and update your submission in your My Submissions dashboard at https://wastedb.app
+
+Thank you for contributing to WasteDB!
+
+---
+Wastefull • San Jose, California
+Building open scientific infrastructure for material circularity
+    `;
+    
+    // Send email via Resend API
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${RESEND_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        from: 'WasteDB <no-reply@wastefull.org>',
+        to: [submitterEmail],
+        subject: `[WasteDB] Revision Requested: ${typeDisplay}`,
+        html,
+        text
+      })
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Resend API error:', errorText);
+      return c.json({ error: 'Failed to send email', details: errorText }, 500);
+    }
+    
+    const result = await response.json();
+    console.log('Revision request email sent successfully:', result.id);
+    
+    return c.json({ success: true, emailId: result.id });
+  } catch (error) {
+    console.error('Error sending revision request email:', error);
+    return c.json({ error: 'Failed to send email', details: String(error) }, 500);
+  }
+});
+
+// Send approval email (admin only)
+app.post('/make-server-17cae920/email/approval', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const { submitterEmail, submitterName, submissionType, contentName } = await c.req.json();
+    
+    if (!submitterEmail || !submissionType) {
+      return c.json({ error: 'Missing required fields' }, 400);
+    }
+    
+    const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
+    
+    if (!RESEND_API_KEY) {
+      console.error('RESEND_API_KEY not configured');
+      return c.json({ error: 'Email service not configured' }, 500);
+    }
+    
+    // Format submission type for display
+    const typeDisplay = submissionType
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, (l: string) => l.toUpperCase());
+    
+    const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Submission Approved - WasteDB</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Sniglet', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background-color: #faf7f2;">
+  <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #faf7f2; padding: 40px 20px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border: 1.5px solid #211f1c; border-radius: 11.464px; overflow: hidden;">
+          <!-- Header -->
+          <tr>
+            <td style="background-color: #c8e5c8; padding: 30px 40px; border-bottom: 1.5px solid #211f1c; text-align: center;">
+              <h1 style="margin: 0; font-family: 'Fredoka One', sans-serif; font-size: 28px; color: #211f1c;">
+                WasteDB
+              </h1>
+              <p style="margin: 8px 0 0 0; font-size: 12px; color: #211f1c; opacity: 0.7; text-transform: uppercase; letter-spacing: 1px;">
+                Content Review System
+              </p>
+            </td>
+          </tr>
+          
+          <!-- Content -->
+          <tr>
+            <td style="padding: 40px;">
+              <div style="text-align: center; margin-bottom: 24px;">
+                <span style="font-size: 48px; line-height: 1;">🎉</span>
+              </div>
+              
+              <h2 style="margin: 0 0 16px 0; font-size: 20px; color: #211f1c; text-align: center;">
+                Submission Approved!
+              </h2>
+              
+              <p style="margin: 0 0 24px 0; font-size: 14px; line-height: 1.6; color: #211f1c;">
+                ${submitterName ? `Hi ${submitterName},` : 'Hello,'}
+              </p>
+              
+              <p style="margin: 0 0 24px 0; font-size: 14px; line-height: 1.6; color: #211f1c;">
+                Great news! Your <strong>${typeDisplay}</strong> submission${contentName ? ` <em>"${contentName}"</em>` : ''} has been reviewed and approved. It's now live on WasteDB!
+              </p>
+              
+              <!-- Success Box -->
+              <div style="background-color: #c8e5c8; border: 1.5px solid #211f1c; border-radius: 8px; padding: 20px; margin: 0 0 24px 0; text-align: center;">
+                <p style="margin: 0; font-size: 14px; font-weight: 600; color: #211f1c;">
+                  ✅ Your contribution is now public
+                </p>
+              </div>
+              
+              <p style="margin: 0 0 24px 0; font-size: 14px; line-height: 1.6; color: #211f1c;">
+                Thank you for contributing to WasteDB! Your effort helps make our materials database more accurate and comprehensive for everyone.
+              </p>
+              
+              <!-- CTA Button -->
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                <tr>
+                  <td align="center" style="padding: 8px 0 24px 0;">
+                    <a href="https://wastedb.app" style="display: inline-block; background-color: #c8e5c8; color: #211f1c; text-decoration: none; padding: 12px 32px; border: 1.5px solid #211f1c; border-radius: 8px; font-size: 14px; font-weight: 600; box-shadow: 3px 4px 0px -1px #000000;">
+                      View WasteDB
+                    </a>
+                  </td>
+                </tr>
+              </table>
+              
+              <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #211f1c; opacity: 0.7;">
+                We'd love to see more contributions from you. Feel free to submit additional materials or articles anytime!
+              </p>
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #faf7f2; padding: 24px 40px; border-top: 1.5px solid #211f1c; text-align: center;">
+              <p style="margin: 0 0 8px 0; font-size: 12px; color: #211f1c; opacity: 0.7;">
+                <strong>Wastefull</strong> • San Jose, California
+              </p>
+              <p style="margin: 0; font-size: 11px; color: #211f1c; opacity: 0.5;">
+                Building open scientific infrastructure for material circularity
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+    `;
+    
+    const text = `
+WasteDB - Submission Approved!
+
+${submitterName ? `Hi ${submitterName},` : 'Hello,'}
+
+Great news! Your ${typeDisplay} submission${contentName ? ` "${contentName}"` : ''} has been reviewed and approved. It's now live on WasteDB!
+
+Thank you for contributing to WasteDB! Your effort helps make our materials database more accurate and comprehensive for everyone.
+
+View WasteDB at https://wastedb.app
+
+---
+Wastefull • San Jose, California
+Building open scientific infrastructure for material circularity
+    `;
+    
+    // Send email via Resend API
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${RESEND_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        from: 'WasteDB <no-reply@wastefull.org>',
+        to: [submitterEmail],
+        subject: `[WasteDB] Submission Approved! 🎉`,
+        html,
+        text
+      })
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Resend API error:', errorText);
+      return c.json({ error: 'Failed to send email', details: errorText }, 500);
+    }
+    
+    const result = await response.json();
+    console.log('Approval email sent successfully:', result.id);
+    
+    return c.json({ success: true, emailId: result.id });
+  } catch (error) {
+    console.error('Error sending approval email:', error);
+    return c.json({ error: 'Failed to send email', details: String(error) }, 500);
+  }
+});
+
+// Send rejection email (admin only)
+app.post('/make-server-17cae920/email/rejection', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const { submitterEmail, submitterName, submissionType, feedback } = await c.req.json();
+    
+    if (!submitterEmail || !submissionType) {
+      return c.json({ error: 'Missing required fields' }, 400);
+    }
+    
+    const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
+    
+    if (!RESEND_API_KEY) {
+      console.error('RESEND_API_KEY not configured');
+      return c.json({ error: 'Email service not configured' }, 500);
+    }
+    
+    // Format submission type for display
+    const typeDisplay = submissionType
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, (l: string) => l.toUpperCase());
+    
+    const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Submission Decision - WasteDB</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Sniglet', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background-color: #faf7f2;">
+  <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #faf7f2; padding: 40px 20px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border: 1.5px solid #211f1c; border-radius: 11.464px; overflow: hidden;">
+          <!-- Header -->
+          <tr>
+            <td style="background-color: #e6beb5; padding: 30px 40px; border-bottom: 1.5px solid #211f1c; text-align: center;">
+              <h1 style="margin: 0; font-family: 'Fredoka One', sans-serif; font-size: 28px; color: #211f1c;">
+                WasteDB
+              </h1>
+              <p style="margin: 8px 0 0 0; font-size: 12px; color: #211f1c; opacity: 0.7; text-transform: uppercase; letter-spacing: 1px;">
+                Content Review System
+              </p>
+            </td>
+          </tr>
+          
+          <!-- Content -->
+          <tr>
+            <td style="padding: 40px;">
+              <h2 style="margin: 0 0 16px 0; font-size: 20px; color: #211f1c;">
+                Submission Update
+              </h2>
+              
+              <p style="margin: 0 0 24px 0; font-size: 14px; line-height: 1.6; color: #211f1c;">
+                ${submitterName ? `Hi ${submitterName},` : 'Hello,'}
+              </p>
+              
+              <p style="margin: 0 0 24px 0; font-size: 14px; line-height: 1.6; color: #211f1c;">
+                Thank you for your <strong>${typeDisplay}</strong> submission to WasteDB. After careful review, we've decided not to approve this submission at this time.
+              </p>
+              
+              ${feedback ? `
+              <!-- Feedback Box -->
+              <div style="background-color: #faf7f2; border: 1.5px solid #211f1c; border-radius: 8px; padding: 20px; margin: 0 0 24px 0;">
+                <p style="margin: 0 0 8px 0; font-size: 12px; color: #211f1c; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.5px;">
+                  Reviewer Feedback:
+                </p>
+                <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #211f1c; white-space: pre-wrap;">
+${feedback}
+                </p>
+              </div>
+              ` : ''}
+              
+              <p style="margin: 0 0 24px 0; font-size: 14px; line-height: 1.6; color: #211f1c;">
+                We appreciate your interest in contributing to WasteDB. If you'd like to submit a different contribution or have questions about this decision, please don't hesitate to reach out.
+              </p>
+              
+              <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #211f1c; opacity: 0.7;">
+                Thank you for helping us maintain the quality and accuracy of our materials database!
+              </p>
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #faf7f2; padding: 24px 40px; border-top: 1.5px solid #211f1c; text-align: center;">
+              <p style="margin: 0 0 8px 0; font-size: 12px; color: #211f1c; opacity: 0.7;">
+                <strong>Wastefull</strong> • San Jose, California
+              </p>
+              <p style="margin: 0; font-size: 11px; color: #211f1c; opacity: 0.5;">
+                Building open scientific infrastructure for material circularity
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+    `;
+    
+    const text = `
+WasteDB - Submission Update
+
+${submitterName ? `Hi ${submitterName},` : 'Hello,'}
+
+Thank you for your ${typeDisplay} submission to WasteDB. After careful review, we've decided not to approve this submission at this time.
+
+${feedback ? `
+Reviewer Feedback:
+${feedback}
+` : ''}
+
+We appreciate your interest in contributing to WasteDB. If you'd like to submit a different contribution or have questions about this decision, please don't hesitate to reach out.
+
+Thank you for helping us maintain the quality and accuracy of our materials database!
+
+---
+Wastefull • San Jose, California
+Building open scientific infrastructure for material circularity
+    `;
+    
+    // Send email via Resend API
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${RESEND_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        from: 'WasteDB <no-reply@wastefull.org>',
+        to: [submitterEmail],
+        subject: `[WasteDB] Submission Update: ${typeDisplay}`,
+        html,
+        text
+      })
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Resend API error:', errorText);
+      return c.json({ error: 'Failed to send email', details: errorText }, 500);
+    }
+    
+    const result = await response.json();
+    console.log('Rejection email sent successfully:', result.id);
+    
+    return c.json({ success: true, emailId: result.id });
+  } catch (error) {
+    console.error('Error sending rejection email:', error);
+    return c.json({ error: 'Failed to send email', details: String(error) }, 500);
+  }
+});
+
+// Delete submission (admin only)
+app.delete('/make-server-17cae920/submissions/:id', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const id = c.req.param('id');
+    const submission = await kv.get(`submission:${id}`);
+    
+    if (!submission) {
+      return c.json({ error: 'Submission not found' }, 404);
+    }
+    
+    await kv.del(`submission:${id}`);
+    console.log(`Submission deleted: ${id}`);
+    
+    return c.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting submission:', error);
+    return c.json({ error: 'Failed to delete submission', details: String(error) }, 500);
+  }
+});
+
+// ==================== PUBLIC RESEARCH API ====================
+// Public API for researchers and external applications
+// No authentication required - read-only access to published data
+
+// API v1: Get all materials with filtering, pagination, and sorting
+app.get('/make-server-17cae920/api/v1/materials', async (c) => {
+  try {
+    // Parse query parameters
+    const category = c.req.query('category'); // Filter by category
+    const sortBy = c.req.query('sort') || 'name'; // Sort field: name, recyclability, compostability, reusability
+    const order = c.req.query('order') || 'asc'; // Sort order: asc, desc
+    const limit = parseInt(c.req.query('limit') || '100'); // Max 100 results per request
+    const offset = parseInt(c.req.query('offset') || '0');
+    const search = c.req.query('search'); // Search in name/description
+
+    // Get all materials
+    let materials = await kv.getByPrefix('material:');
+    
+    if (!materials) {
+      materials = [];
+    }
+
+    // Filter by category if specified
+    if (category) {
+      materials = materials.filter((m: any) => 
+        m.category?.toLowerCase() === category.toLowerCase()
+      );
+    }
+
+    // Filter by search term if specified
+    if (search) {
+      const searchLower = search.toLowerCase();
+      materials = materials.filter((m: any) => 
+        m.name?.toLowerCase().includes(searchLower) || 
+        m.description?.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Sort materials
+    materials.sort((a: any, b: any) => {
+      let aVal, bVal;
+      
+      switch (sortBy) {
+        case 'recyclability':
+          aVal = a.recyclability || 0;
+          bVal = b.recyclability || 0;
+          break;
+        case 'compostability':
+          aVal = a.compostability || 0;
+          bVal = b.compostability || 0;
+          break;
+        case 'reusability':
+          aVal = a.reusability || 0;
+          bVal = b.reusability || 0;
+          break;
+        case 'name':
+        default:
+          aVal = a.name || '';
+          bVal = b.name || '';
+          break;
+      }
+
+      if (typeof aVal === 'string') {
+        return order === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+      } else {
+        return order === 'asc' ? aVal - bVal : bVal - aVal;
+      }
+    });
+
+    // Apply pagination
+    const total = materials.length;
+    const paginatedMaterials = materials.slice(offset, offset + limit);
+
+    // Return response with metadata
+    return c.json({
+      data: paginatedMaterials,
+      meta: {
+        total,
+        limit,
+        offset,
+        count: paginatedMaterials.length,
+        filters: {
+          category: category || null,
+          search: search || null,
+          sortBy,
+          order
+        }
+      },
+      links: {
+        self: `/api/v1/materials?limit=${limit}&offset=${offset}`,
+        next: offset + limit < total ? `/api/v1/materials?limit=${limit}&offset=${offset + limit}` : null,
+        prev: offset > 0 ? `/api/v1/materials?limit=${limit}&offset=${Math.max(0, offset - limit)}` : null
+      }
+    });
+  } catch (error) {
+    console.error('API error fetching materials:', error);
+    return c.json({ error: 'Failed to fetch materials', details: String(error) }, 500);
+  }
+});
+
+// API v1: Get single material by ID
+app.get('/make-server-17cae920/api/v1/materials/:id', async (c) => {
+  try {
+    const id = c.req.param('id');
+    const material = await kv.get(`material:${id}`);
+    
+    if (!material) {
+      return c.json({ error: 'Material not found' }, 404);
+    }
+
+    return c.json({ data: material });
+  } catch (error) {
+    console.error('API error fetching material:', error);
+    return c.json({ error: 'Failed to fetch material', details: String(error) }, 500);
+  }
+});
+
+// API v1: Get aggregate statistics
+app.get('/make-server-17cae920/api/v1/stats', async (c) => {
+  try {
+    const materials = await kv.getByPrefix('material:') || [];
+    
+    // Calculate statistics
+    const stats = {
+      totalMaterials: materials.length,
+      categories: {} as Record<string, number>,
+      averages: {
+        recyclability: 0,
+        compostability: 0,
+        reusability: 0
+      },
+      ranges: {
+        recyclability: { min: 100, max: 0 },
+        compostability: { min: 100, max: 0 },
+        reusability: { min: 100, max: 0 }
+      }
+    };
+
+    let totalRecyclability = 0;
+    let totalCompostability = 0;
+    let totalReusability = 0;
+
+    materials.forEach((material: any) => {
+      // Count categories
+      const category = material.category || 'Unknown';
+      stats.categories[category] = (stats.categories[category] || 0) + 1;
+
+      // Sum for averages
+      const r = material.recyclability || 0;
+      const c = material.compostability || 0;
+      const u = material.reusability || 0;
+
+      totalRecyclability += r;
+      totalCompostability += c;
+      totalReusability += u;
+
+      // Track ranges
+      stats.ranges.recyclability.min = Math.min(stats.ranges.recyclability.min, r);
+      stats.ranges.recyclability.max = Math.max(stats.ranges.recyclability.max, r);
+      stats.ranges.compostability.min = Math.min(stats.ranges.compostability.min, c);
+      stats.ranges.compostability.max = Math.max(stats.ranges.compostability.max, c);
+      stats.ranges.reusability.min = Math.min(stats.ranges.reusability.min, u);
+      stats.ranges.reusability.max = Math.max(stats.ranges.reusability.max, u);
+    });
+
+    // Calculate averages
+    if (materials.length > 0) {
+      stats.averages.recyclability = Math.round(totalRecyclability / materials.length);
+      stats.averages.compostability = Math.round(totalCompostability / materials.length);
+      stats.averages.reusability = Math.round(totalReusability / materials.length);
+    }
+
+    return c.json({ data: stats });
+  } catch (error) {
+    console.error('API error calculating stats:', error);
+    return c.json({ error: 'Failed to calculate statistics', details: String(error) }, 500);
+  }
+});
+
+// API v1: Get list of categories
+app.get('/make-server-17cae920/api/v1/categories', async (c) => {
+  try {
+    const categories = [
+      'Plastics',
+      'Metals',
+      'Glass',
+      'Paper & Cardboard',
+      'Fabrics & Textiles',
+      'Electronics & Batteries',
+      'Building Materials',
+      'Organic/Natural Waste'
+    ];
+
+    return c.json({ data: categories });
+  } catch (error) {
+    console.error('API error fetching categories:', error);
+    return c.json({ error: 'Failed to fetch categories', details: String(error) }, 500);
+  }
+});
+
+// API v1: Get methodology information
+app.get('/make-server-17cae920/api/v1/methodology', async (c) => {
+  try {
+    const whitepapers = await kv.getByPrefix('whitepaper:') || [];
+    
+    const methodologyInfo = {
+      version: '1.0',
+      description: 'WasteDB uses a multi-dimensional scoring system to evaluate material sustainability across three key metrics: recyclability, compostability, and reusability.',
+      metrics: [
+        {
+          name: 'Recyclability',
+          description: 'Measures how effectively a material can be recycled, considering yield, degradation, contamination tolerance, infrastructure maturity, and energy demand.',
+          scale: '0-100',
+          parameters: ['Y (Yield)', 'D (Degradation)', 'C (Contamination)', 'M (Maturity)', 'E (Energy)']
+        },
+        {
+          name: 'Compostability',
+          description: 'Evaluates the biodegradation potential of materials in composting conditions.',
+          scale: '0-100',
+          parameters: ['B (Biodegradation)', 'N (Nutrient balance)', 'P (Phytotoxicity)', 'T (Time)', 'M (Maturity)']
+        },
+        {
+          name: 'Reusability',
+          description: 'Assesses how well a material maintains functionality through multiple use cycles.',
+          scale: '0-100',
+          parameters: ['L (Lifetime)', 'V (Versatility)', 'I (Integrity)', 'M (Maturity)']
+        }
+      ],
+      whitepapers: whitepapers.map((wp: any) => ({
+        slug: wp.slug,
+        title: wp.title,
+        link: `/api/v1/whitepapers/${wp.slug}`
+      })),
+      lastUpdated: new Date().toISOString()
+    };
+
+    return c.json({ data: methodologyInfo });
+  } catch (error) {
+    console.error('API error fetching methodology:', error);
+    return c.json({ error: 'Failed to fetch methodology information', details: String(error) }, 500);
+  }
+});
+
+// API v1: Get whitepapers
+app.get('/make-server-17cae920/api/v1/whitepapers', async (c) => {
+  try {
+    const whitepapers = await kv.getByPrefix('whitepaper:') || [];
+    
+    const whitepapersData = whitepapers.map((wp: any) => ({
+      slug: wp.slug,
+      title: wp.title,
+      updatedAt: wp.updatedAt,
+      link: `/api/v1/whitepapers/${wp.slug}`
+    }));
+
+    return c.json({ data: whitepapersData });
+  } catch (error) {
+    console.error('API error fetching whitepapers:', error);
+    return c.json({ error: 'Failed to fetch whitepapers', details: String(error) }, 500);
+  }
+});
+
+// API v1: Get single whitepaper
+app.get('/make-server-17cae920/api/v1/whitepapers/:slug', async (c) => {
+  try {
+    const slug = c.req.param('slug');
+    const whitepaper = await kv.get(`whitepaper:${slug}`);
+    
+    if (!whitepaper) {
+      return c.json({ error: 'Whitepaper not found' }, 404);
+    }
+
+    return c.json({ data: whitepaper });
+  } catch (error) {
+    console.error('API error fetching whitepaper:', error);
+    return c.json({ error: 'Failed to fetch whitepaper', details: String(error) }, 500);
+  }
+});
+
+// API v1: Get articles for a material
+app.get('/make-server-17cae920/api/v1/articles', async (c) => {
+  try {
+    const materialId = c.req.query('material_id');
+    const category = c.req.query('category'); // compostability, recyclability, or reusability
+    
+    let articles = await kv.getByPrefix('article:') || [];
+    
+    // Filter by status (only published articles)
+    articles = articles.filter((a: any) => a.status === 'published');
+    
+    // Filter by material if specified
+    if (materialId) {
+      articles = articles.filter((a: any) => a.material_id === materialId);
+    }
+    
+    // Filter by category if specified
+    if (category) {
+      articles = articles.filter((a: any) => a.category?.toLowerCase() === category.toLowerCase());
+    }
+
+    return c.json({ data: articles });
+  } catch (error) {
+    console.error('API error fetching articles:', error);
+    return c.json({ error: 'Failed to fetch articles', details: String(error) }, 500);
   }
 });
 

@@ -71,7 +71,7 @@ export function ContentReviewCenter({ onBack, currentUserId }: ContentReviewCent
     }
   };
 
-  const handleApprove = async (submissionId: string, editedContent?: any) => {
+  const handleApprove = async (submissionId: string, editedContent?: any, wasEditedByAdmin: boolean = false) => {
     try {
       // Update submission status
       await api.updateSubmission(submissionId, {
@@ -81,6 +81,26 @@ export function ContentReviewCenter({ onBack, currentUserId }: ContentReviewCent
 
       const submission = submissions.find(s => s.id === submissionId);
       if (!submission) return;
+
+      // Get submitter's profile for attribution
+      let writerName = 'Anonymous';
+      try {
+        const writerProfile = await api.getUserProfile(submission.submitted_by);
+        writerName = writerProfile.name || writerProfile.email?.split('@')[0] || 'Anonymous';
+      } catch (error) {
+        console.error('Error fetching writer profile:', error);
+      }
+
+      // Get editor's name if edited by admin
+      let editorName;
+      if (wasEditedByAdmin) {
+        try {
+          const editorProfile = await api.getUserProfile(currentUserId);
+          editorName = editorProfile.name || editorProfile.email?.split('@')[0];
+        } catch (error) {
+          console.error('Error fetching editor profile:', error);
+        }
+      }
 
       // Process based on submission type
       if (submission.type === 'new_material') {
@@ -92,7 +112,13 @@ export function ContentReviewCenter({ onBack, currentUserId }: ContentReviewCent
           description: materialData.description,
           compostability: materialData.compostability || 0,
           recyclability: materialData.recyclability || 0,
-          reusability: materialData.reusability || 0
+          reusability: materialData.reusability || 0,
+          created_by: submission.submitted_by,
+          writer_name: writerName,
+          ...(wasEditedByAdmin && editorName ? {
+            edited_by: currentUserId,
+            editor_name: editorName
+          } : {})
         });
       } else if (submission.type === 'edit_material' && submission.original_content_id) {
         // Update existing material
@@ -100,7 +126,11 @@ export function ContentReviewCenter({ onBack, currentUserId }: ContentReviewCent
         await api.updateMaterial(submission.original_content_id, {
           name: materialData.name,
           category: materialData.category,
-          description: materialData.description
+          description: materialData.description,
+          ...(wasEditedByAdmin && editorName ? {
+            edited_by: currentUserId,
+            editor_name: editorName
+          } : {})
         });
       } else if (submission.type === 'new_article') {
         // Create new article
@@ -109,7 +139,27 @@ export function ContentReviewCenter({ onBack, currentUserId }: ContentReviewCent
         console.log('Article approval:', articleData);
       }
 
-      toast.success('Submission approved and published');
+      // Send approval email
+      try {
+        const writerProfile = await api.getUserProfile(submission.submitted_by);
+        const contentName = submission.content_data?.name || submission.content_data?.title;
+        
+        await api.sendApprovalEmail({
+          submitterEmail: writerProfile.email,
+          submitterName: writerProfile.name,
+          submissionType: submission.type,
+          contentName
+        });
+      } catch (emailError) {
+        console.error('Error sending approval email:', emailError);
+        // Don't fail the approval if email fails
+      }
+
+      const creditMessage = wasEditedByAdmin && editorName 
+        ? `Submission approved and published with dual credit (Writer: ${writerName}, Editor: ${editorName})`
+        : 'Submission approved and published';
+      toast.success(creditMessage);
+      
       loadSubmissions();
       setShowReviewModal(false);
       setSelectedSubmission(null);
@@ -126,6 +176,25 @@ export function ContentReviewCenter({ onBack, currentUserId }: ContentReviewCent
         feedback,
         reviewed_by: currentUserId
       });
+
+      // Send rejection email
+      const submission = submissions.find(s => s.id === submissionId);
+      if (submission) {
+        try {
+          const profile = await api.getUserProfile(submission.submitted_by);
+          
+          await api.sendRejectionEmail({
+            submitterEmail: profile.email,
+            submitterName: profile.name,
+            submissionType: submission.type,
+            feedback
+          });
+        } catch (emailError) {
+          console.error('Error sending rejection email:', emailError);
+          // Don't fail the rejection if email fails
+        }
+      }
+
       toast.success('Submission rejected with feedback');
       loadSubmissions();
       setShowReviewModal(false);
@@ -138,18 +207,74 @@ export function ContentReviewCenter({ onBack, currentUserId }: ContentReviewCent
 
   const handleRequestRevision = async (submissionId: string, feedback: string) => {
     try {
+      // Update submission status
       await api.updateSubmission(submissionId, {
         status: 'needs_revision',
         feedback,
         reviewed_by: currentUserId
       });
-      toast.success('Revision requested');
+
+      // Get submission details for email
+      const submission = submissions.find(s => s.id === submissionId);
+      if (submission) {
+        try {
+          // Get submitter's profile to get their email
+          const profile = await api.getUserProfile(submission.submitted_by);
+          
+          // Send revision request email
+          await api.sendRevisionRequestEmail({
+            submissionId: submission.id,
+            feedback,
+            submitterEmail: profile.email,
+            submitterName: profile.name,
+            submissionType: submission.type
+          });
+          
+          toast.success('Revision requested and email sent');
+        } catch (emailError) {
+          console.error('Error sending revision email:', emailError);
+          // Still show success since the submission was updated
+          toast.success('Revision requested (email notification failed)');
+        }
+      } else {
+        toast.success('Revision requested');
+      }
+      
       loadSubmissions();
       setShowReviewModal(false);
       setSelectedSubmission(null);
     } catch (error) {
       console.error('Error requesting revision:', error);
       toast.error('Failed to request revision');
+    }
+  };
+
+  const handleRemitToReview = async (submissionId: string) => {
+    try {
+      await api.updateSubmission(submissionId, {
+        status: 'pending_review',
+        reviewed_by: currentUserId
+      });
+      toast.success('Submission remitted to review queue');
+      loadSubmissions();
+    } catch (error) {
+      console.error('Error remitting submission:', error);
+      toast.error('Failed to remit submission');
+    }
+  };
+
+  const handleDelete = async (submissionId: string) => {
+    if (!confirm('Are you sure you want to delete this submission? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      await api.deleteSubmission(submissionId);
+      toast.success('Submission deleted');
+      loadSubmissions();
+    } catch (error) {
+      console.error('Error deleting submission:', error);
+      toast.error('Failed to delete submission');
     }
   };
 
@@ -226,6 +351,8 @@ export function ContentReviewCenter({ onBack, currentUserId }: ContentReviewCent
                   submission={submission}
                   onReview={() => handleReview(submission)}
                   onFlag={() => handleFlag(submission)}
+                  onRemitToReview={() => handleRemitToReview(submission.id)}
+                  onDelete={() => handleDelete(submission.id)}
                   activeTab={activeTab}
                 />
               ))}
@@ -254,11 +381,15 @@ function SubmissionCard({
   submission,
   onReview,
   onFlag,
+  onRemitToReview,
+  onDelete,
   activeTab
 }: {
   submission: Submission;
   onReview: () => void;
   onFlag: () => void;
+  onRemitToReview: () => void;
+  onDelete: () => void;
   activeTab: string;
 }) {
   const getSubmissionIcon = () => {
@@ -372,20 +503,47 @@ function SubmissionCard({
               </>
             )}
             {activeTab === 'pending' && (
-              <button
-                onClick={onReview}
-                className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#b8c8cb] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[11px] text-black"
-              >
-                View Details
-              </button>
+              <>
+                <button
+                  onClick={onReview}
+                  className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#b8c8cb] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[11px] text-black"
+                >
+                  View Details
+                </button>
+                {submission.status === 'needs_revision' && (
+                  <button
+                    onClick={onRemitToReview}
+                    className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#e4e3ac] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[11px] text-black flex items-center gap-1"
+                  >
+                    <Clock size={12} />
+                    Remit to Review
+                  </button>
+                )}
+                <button
+                  onClick={onDelete}
+                  className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#e6beb5] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[11px] text-black flex items-center gap-1"
+                >
+                  <XCircle size={12} />
+                  Delete
+                </button>
+              </>
             )}
             {activeTab === 'moderation' && (
-              <button
-                onClick={onReview}
-                className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#f4d3a0] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[11px] text-black"
-              >
-                Review Moderation
-              </button>
+              <>
+                <button
+                  onClick={onReview}
+                  className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#f4d3a0] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[11px] text-black"
+                >
+                  Review Moderation
+                </button>
+                <button
+                  onClick={onDelete}
+                  className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#e6beb5] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[11px] text-black flex items-center gap-1"
+                >
+                  <XCircle size={12} />
+                  Delete
+                </button>
+              </>
             )}
           </div>
         </div>

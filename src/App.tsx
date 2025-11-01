@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
 import svgPaths from "./imports/svg-qhqftidoeu";
-import { Plus, Edit2, Trash2, Search, ArrowLeft, Upload, Image as ImageIcon, ChevronDown, Copy, Check, Type, Eye, RotateCcw, Moon, Save, X, Download, FileUp, Cloud, CloudOff, LogOut, User } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, ArrowLeft, Upload, Image as ImageIcon, ChevronDown, Copy, Check, Type, Eye, RotateCcw, Moon, Save, X, Download, FileUp, Cloud, CloudOff, LogOut, User, Code } from 'lucide-react';
 import * as api from './utils/api';
 import { logger, setTestMode, getTestMode, loggerInfo } from './utils/logger';
 import { AuthView } from './components/AuthView';
+import { NavigationProvider, useNavigationContext } from './contexts/NavigationContext';
+import { AuthProvider, useAuthContext } from './contexts/AuthContext';
+import { MaterialsProvider, useMaterialsContext } from './contexts/MaterialsContext';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from './components/ui/collapsible';
 import { RadialBarChart, RadialBar, ResponsiveContainer, Legend, Tooltip, PolarAngleAxis, Cell, Text } from 'recharts';
 import ReactMarkdown from 'react-markdown';
@@ -26,6 +29,7 @@ import { DataMigrationTool } from './components/DataMigrationTool';
 import { SourceLibraryManager } from './components/SourceLibraryManager';
 import { AssetUploadManager } from './components/AssetUploadManager';
 import { QuantileVisualization } from './components/QuantileVisualization';
+import { ChartRasterizationDemo } from './components/ChartRasterizationDemo';
 import { WhitepaperSyncTool } from './components/WhitepaperSyncTool';
 import { SOURCE_LIBRARY, getSourcesByTag } from './data/sources';
 import { CookieConsent } from './components/CookieConsent';
@@ -34,6 +38,7 @@ import { SuggestMaterialEditForm } from './components/SuggestMaterialEditForm';
 import { SubmitArticleForm } from './components/SubmitArticleForm';
 import { MySubmissionsView } from './components/MySubmissionsView';
 import { ContentReviewCenter } from './components/ContentReviewCenter';
+import { ApiDocumentation } from './components/ApiDocumentation';
 import { Popover, PopoverContent, PopoverTrigger } from './components/ui/popover';
 import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './components/ui/tooltip';
 import { Switch } from './components/ui/switch';
@@ -62,6 +67,12 @@ interface Article {
   supplies: ArticleSection;
   step1: ArticleSection;
   dateAdded: string;
+  
+  // Content attribution
+  created_by?: string;               // User ID of original creator
+  edited_by?: string;                // User ID of editor (if edited directly by admin)
+  writer_name?: string;              // Display name of original writer
+  editor_name?: string;              // Display name of editor
 }
 
 interface Material {
@@ -150,6 +161,12 @@ interface Material {
   whitepaper_version?: string;      // e.g., "2025.1"
   calculation_timestamp?: string;   // ISO 8601 timestamp
   method_version?: string;           // e.g., "CR-v1"
+  
+  // Content attribution
+  created_by?: string;               // User ID of original creator
+  edited_by?: string;                // User ID of editor (if edited directly by admin)
+  writer_name?: string;              // Display name of original writer
+  editor_name?: string;              // Display name of editor
 }
 
 type CategoryType = 'compostability' | 'recyclability' | 'reusability';
@@ -655,6 +672,23 @@ function MaterialCard({
           >
             {material.name}
           </button>
+          
+          {/* Writer/Editor Attribution */}
+          {(material.writer_name || material.editor_name) && (
+            <div className="mt-1 flex items-center gap-1 flex-wrap font-['Sniglet:Regular',_sans-serif] text-[8px] text-black/40 dark:text-white/40">
+              {material.writer_name && material.editor_name ? (
+                <>
+                  <span>by {material.writer_name}</span>
+                  <span>•</span>
+                  <span>ed. {material.editor_name}</span>
+                </>
+              ) : material.writer_name ? (
+                <span>by {material.writer_name}</span>
+              ) : material.editor_name ? (
+                <span>ed. {material.editor_name}</span>
+              ) : null}
+            </div>
+          )}
           <span className="inline-block px-2 py-0.5 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[9px] text-black">
             {material.category}
           </span>
@@ -2291,6 +2325,16 @@ function DataManagementView({
           >
             Assets
           </button>
+          <button
+            onClick={() => setActiveTab('charts')}
+            className={`px-4 py-2 font-['Sniglet:Regular',_sans-serif] text-[12px] transition-colors ${
+              activeTab === 'charts'
+                ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
+                : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
+            }`}
+          >
+            Chart Testing
+          </button>
         </div>
       </div>
 
@@ -2666,6 +2710,8 @@ function DataManagementView({
         <AssetUploadManager
           accessToken={sessionStorage.getItem('wastedb_access_token')}
         />
+      ) : activeTab === 'charts' ? (
+        <ChartRasterizationDemo />
       ) : null}
     </div>
   );
@@ -2673,18 +2719,30 @@ function DataManagementView({
 
 function AppContent() {
   const { settings, toggleAdminMode } = useAccessibility();
-  const [user, setUser] = useState<{ id: string; email: string; name?: string } | null>(null);
-  const [userRole, setUserRole] = useState<'user' | 'admin'>('user');
-  const [materials, setMaterials] = useState<Material[]>([]);
+  const { currentView, navigateTo, navigateToMaterials, navigateToMaterialDetail, navigateToArticles, navigateToArticleDetail, navigateToMethodologyList, navigateToWhitepaper, navigateToDataManagement, navigateToUserManagement, navigateToScientificEditor, navigateToExport, navigateToUserProfile, navigateToMySubmissions, navigateToReviewCenter, navigateToWhitepaperSync, navigateToApiDocs } = useNavigationContext();
+  const { user, userRole, isAuthenticated, signIn, signOut, updateUserRole } = useAuthContext();
+  
+  // Phase 3B Complete: MaterialsContext is the single source of truth for all material data
+  const {
+    materials,
+    isLoadingMaterials,
+    syncStatus,
+    supabaseAvailable,
+    addMaterial,
+    updateMaterial,
+    deleteMaterial,
+    bulkImport,
+    updateMaterials,
+    deleteAllMaterials,
+    retrySync,
+    getMaterialById,
+  } = useMaterialsContext();
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [editingMaterial, setEditingMaterial] = useState<Material | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const [currentView, setCurrentView] = useState<{ type: 'materials' } | { type: 'articles'; materialId: string; category: CategoryType } | { type: 'all-articles'; category: CategoryType } | { type: 'material-detail'; materialId: string } | { type: 'article-standalone'; articleId: string; materialId: string; category: CategoryType } | { type: 'recyclability-calculation' } | { type: 'methodology-list' } | { type: 'whitepaper'; whitepaperSlug: string } | { type: 'data-management' } | { type: 'user-management' } | { type: 'scientific-editor'; materialId: string } | { type: 'export' } | { type: 'user-profile'; userId: string } | { type: 'whitepaper-sync' } | { type: 'my-submissions' } | { type: 'review-center' }>({ type: 'materials' });
   const [articleToOpen, setArticleToOpen] = useState<string | null>(null);
-  const [syncStatus, setSyncStatus] = useState<'synced' | 'syncing' | 'offline' | 'error'>('syncing');
-  const [supabaseAvailable, setSupabaseAvailable] = useState(true);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [isLoadingMaterials, setIsLoadingMaterials] = useState(true);
   const [showSubmitMaterialForm, setShowSubmitMaterialForm] = useState(false);
   const [materialToEdit, setMaterialToEdit] = useState<Material | null>(null);
   const [showSubmitArticleForm, setShowSubmitArticleForm] = useState(false);
@@ -2711,10 +2769,20 @@ function AppContent() {
     }
   }, []);
   
-  // Check if user is authenticated on mount and fetch their role
+  // Phase 3A: Log context state for verification
   useEffect(() => {
-    const loadUserAndRole = async () => {
-      // Handle magic link callback
+    console.log('[Phase 3A] MaterialsContext Status:', {
+      materials_count_ctx: materials.length,
+      isLoadingMaterials_ctx: isLoadingMaterials,
+      syncStatus_ctx: syncStatus,
+      supabaseAvailable_ctx: supabaseAvailable,
+      context_functions_available: !!(addMaterial && updateMaterial && deleteMaterial)
+    });
+  }, [materials.length, isLoadingMaterials, syncStatus, supabaseAvailable]);
+  
+  // Handle magic link callback (AuthContext handles regular session restoration)
+  useEffect(() => {
+    const handleMagicLink = async () => {
       const urlParams = new URLSearchParams(window.location.search);
       const magicToken = urlParams.get('magic_token');
       
@@ -2730,10 +2798,6 @@ function AppContent() {
             logger.log('App.tsx: Storing access token again:', response.access_token.substring(0, 8) + '...');
             api.setAccessToken(response.access_token);
             
-            // Set user info
-            setUser(response.user);
-            sessionStorage.setItem('wastedb_user', JSON.stringify(response.user));
-            
             // Wait a tiny bit to ensure sessionStorage has committed
             await new Promise(resolve => setTimeout(resolve, 100));
             
@@ -2741,11 +2805,8 @@ function AppContent() {
             const storedToken = sessionStorage.getItem('wastedb_access_token');
             logger.log('App.tsx: Verified token in storage before getUserRole:', storedToken?.substring(0, 8) + '...');
             
-            // Get user role
-            logger.log('App.tsx: About to fetch user role...');
-            const role = await api.getUserRole();
-            logger.log('App.tsx: Got user role:', role);
-            setUserRole(role);
+            // Sign in user via context (this will also fetch role)
+            await signIn(response.user);
             
             // Clear the URL parameters to avoid confusion
             window.history.replaceState({}, document.title, window.location.pathname);
@@ -2764,121 +2825,27 @@ function AppContent() {
           window.history.replaceState({}, document.title, window.location.pathname);
         }
       }
-      
-      const isAuth = api.isAuthenticated();
-      if (isAuth) {
-        // Get user info from sessionStorage if available
-        const userInfo = sessionStorage.getItem('wastedb_user');
-        if (userInfo) {
-          setUser(JSON.parse(userInfo));
-          
-          // Fetch user role
-          try {
-            const role = await api.getUserRole();
-            setUserRole(role);
-          } catch (error) {
-            console.error('Error fetching user role:', error);
-            // If role fetch fails (likely expired session), clear user state
-            if (!api.isAuthenticated()) {
-              setUser(null);
-              setUserRole('user');
-              if (settings.adminMode) {
-                toggleAdminMode();
-              }
-            } else {
-              setUserRole('user'); // Default to user role on error
-            }
-          }
-        }
-      } else {
-        // Not authenticated - ensure admin mode is off
-        if (settings.adminMode) {
-          toggleAdminMode();
-        }
-      }
     };
     
-    loadUserAndRole();
-  }, []);
-
-  // Load materials from Supabase (if authenticated), fallback to localStorage
+    handleMagicLink();
+  }, [signIn]);
+  
+  // Ensure admin mode is off when not authenticated
   useEffect(() => {
-    const loadMaterials = async () => {
-      // Try to load from Supabase first (works for both authenticated and unauthenticated users)
-      try {
-        const supabaseMaterials = await api.getAllMaterials();
-        
-        if (supabaseMaterials.length > 0) {
-          // Ensure all materials have articles structure and category
-          const materialsWithArticles = supabaseMaterials.map((m: any) => ({
-            ...m,
-            category: m.category || 'Plastics',
-            articles: m.articles || {
-              compostability: [],
-              recyclability: [],
-              reusability: []
-            }
-          }));
-          setMaterials(materialsWithArticles);
-          // Sync to localStorage as cache
-          localStorage.setItem('materials', JSON.stringify(materialsWithArticles));
-          if (user) {
-            setSyncStatus('synced');
-          }
-          setSupabaseAvailable(true);
-        } else {
-          // If Supabase is empty, load from localStorage or initialize sample data
-          loadFromLocalStorage();
-          if (user) {
-            setSyncStatus('synced');
-          }
-          setSupabaseAvailable(true);
-        }
-      } catch (error) {
-        setSupabaseAvailable(false);
-        loadFromLocalStorage();
-        if (user) {
-          setSyncStatus('offline');
-          toast.warning('Working offline - data stored locally only');
-        }
-      } finally {
-        setIsLoadingMaterials(false);
-      }
-    };
+    if (!isAuthenticated && settings.adminMode) {
+      toggleAdminMode();
+    }
+  }, [isAuthenticated, settings.adminMode, toggleAdminMode]);
 
-    const loadFromLocalStorage = () => {
-      const stored = localStorage.getItem('materials');
-      if (stored) {
-        try {
-          const parsedMaterials = JSON.parse(stored);
-          const materialsWithArticles = parsedMaterials.map((m: any) => ({
-            ...m,
-            category: m.category || 'Plastics',
-            articles: m.articles || {
-              compostability: [],
-              recyclability: [],
-              reusability: []
-            }
-          }));
-          setMaterials(materialsWithArticles);
-        } catch (e) {
-          console.error('Error parsing stored materials:', e);
-          initializeSampleData();
-        }
-      } else {
-        initializeSampleData();
-      }
-    };
-
-    loadMaterials();
-
-    // Check for article permalink in URL
+  // OLD CODE REMOVED: MaterialsContext now handles loading materials from Supabase/localStorage
+  // Check for article permalink in URL
+  useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const articleId = urlParams.get('article');
     if (articleId) {
       setArticleToOpen(articleId);
     }
-  }, [user]);
+  }, []);
 
   // Navigate to article when articleToOpen is set and materials are loaded
   useEffect(() => {
@@ -2899,294 +2866,77 @@ function AppContent() {
     }
   }, [articleToOpen, materials]);
 
-  const handleAuthSuccess = async (userData: { id: string; email: string; name?: string }) => {
-    setUser(userData);
-    sessionStorage.setItem('wastedb_user', JSON.stringify(userData));
-    
-    // Fetch user role after successful auth
-    try {
-      const role = await api.getUserRole();
-      setUserRole(role);
-    } catch (error) {
-      console.error('Error fetching user role:', error);
-      setUserRole('user'); // Default to user role on error
-    }
-  };
-
-  const handleLogout = () => {
-    api.signOut();
-    setUser(null);
-    setUserRole('user');
-    sessionStorage.removeItem('wastedb_user');
-    setMaterials([]);
-    
-    // Turn off admin mode when logging out
-    if (settings.adminMode) {
-      toggleAdminMode();
-    }
-    
-    toast.success('Signed out successfully');
-  };
-
-  const initializeSampleData = () => {
-    // Get sources from library for initial data
-    const cardboardSources = getSourcesByTag('cardboard').slice(0, 4);
-    const glassSources = getSourcesByTag('glass').slice(0, 4);
-    const petSources = getSourcesByTag('pet').slice(0, 5);
-    
-    const sampleMaterials: Material[] = [
-      {
-        id: '1',
-        name: 'Cardboard',
-        category: 'Paper & Cardboard',
-        compostability: 85,
-        recyclability: 95,
-        reusability: 70,
-        description: 'Made from thick paper stock or heavy paper-pulp. Widely used for packaging.',
-        // Scientific parameters
-        Y_value: 0.82,  // 82% recovery rate
-        D_value: 0.15,  // 15% quality loss per cycle (fiber shortening)
-        C_value: 0.70,  // Moderate contamination tolerance (sensitive to grease)
-        M_value: 0.95,  // Very mature infrastructure
-        E_value: 0.25,  // Low energy demand (normalized)
-        CR_practical_mean: 0.78,
-        CR_theoretical_mean: 0.89,
-        CR_practical_CI95: { lower: 0.74, upper: 0.82 },
-        CR_theoretical_CI95: { lower: 0.85, upper: 0.93 },
-        confidence_level: 'High',
-        sources: cardboardSources,
-        whitepaper_version: '2025.1',
-        calculation_timestamp: new Date().toISOString(),
-        method_version: 'CR-v1',
-        articles: {
-          compostability: [
-            {
-              id: '1a',
-              title: 'Composting Cardboard at Home',
-              category: 'DIY',
-              overview: {},
-              introduction: {
-                content: 'Cardboard breaks down easily in compost bins. Remove any tape or labels, shred into smaller pieces, and layer with green materials for best results.',
-              },
-              supplies: {
-                content: '• Cardboard boxes\n• Scissors or shredder\n• Compost bin\n• Brown and green materials',
-              },
-              step1: {
-                content: 'Remove all tape, labels, and any non-cardboard materials from your boxes. Flatten the boxes to make them easier to work with.',
-              },
-              dateAdded: new Date().toISOString(),
-            }
-          ],
-          recyclability: [],
-          reusability: []
-        }
-      },
-      {
-        id: '2',
-        name: 'Glass',
-        category: 'Glass',
-        compostability: 0,
-        recyclability: 100,
-        reusability: 95,
-        description: 'Infinitely recyclable without loss of quality. Excellent for reuse.',
-        // Scientific parameters
-        Y_value: 0.98,  // 98% recovery rate (nearly perfect)
-        D_value: 0.01,  // 1% quality loss (essentially none)
-        C_value: 0.85,  // High contamination tolerance (can handle some ceramics)
-        M_value: 0.92,  // Very mature infrastructure
-        E_value: 0.35,  // Moderate energy demand (melting)
-        CR_practical_mean: 0.93,
-        CR_theoretical_mean: 0.97,
-        CR_practical_CI95: { lower: 0.91, upper: 0.95 },
-        CR_theoretical_CI95: { lower: 0.95, upper: 0.99 },
-        confidence_level: 'High',
-        sources: glassSources,
-        whitepaper_version: '2025.1',
-        calculation_timestamp: new Date().toISOString(),
-        method_version: 'CR-v1',
-        articles: {
-          compostability: [],
-          recyclability: [
-            {
-              id: '2a',
-              title: 'Glass Recycling Process',
-              category: 'Industrial',
-              overview: {},
-              introduction: {
-                content: 'Glass can be recycled endlessly without loss in quality or purity. It saves raw materials and reduces energy consumption.',
-              },
-              supplies: {
-                content: '• Clean glass containers\n• Recycling bin\n• Access to recycling facility',
-              },
-              step1: {
-                content: 'Rinse all glass containers thoroughly to remove any food residue. Remove lids and caps as they are often made of different materials.',
-              },
-              dateAdded: new Date().toISOString(),
-            }
-          ],
-          reusability: []
-        }
-      },
-      {
-        id: '3',
-        name: 'Plastic (PET)',
-        category: 'Plastics',
-        compostability: 0,
-        recyclability: 75,
-        reusability: 60,
-        description: 'Common plastic type used in bottles and containers.',
-        // Scientific parameters
-        Y_value: 0.65,  // 65% recovery rate (losses in sorting/washing)
-        D_value: 0.25,  // 25% quality loss per cycle (molecular weight reduction)
-        C_value: 0.45,  // Low contamination tolerance (food residue issues)
-        M_value: 0.75,  // Moderate infrastructure maturity
-        E_value: 0.40,  // Moderate-high energy demand
-        CR_practical_mean: 0.52,
-        CR_theoretical_mean: 0.71,
-        CR_practical_CI95: { lower: 0.48, upper: 0.56 },
-        CR_theoretical_CI95: { lower: 0.67, upper: 0.75 },
-        confidence_level: 'High',
-        sources: petSources,
-        whitepaper_version: '2025.1',
-        calculation_timestamp: new Date().toISOString(),
-        method_version: 'CR-v1',
-        articles: {
-          compostability: [],
-          recyclability: [],
-          reusability: []
-        }
-      },
-    ];
-    saveMaterials(sampleMaterials);
-  };
-
-  const saveMaterials = async (newMaterials: Material[]) => {
-    setMaterials(newMaterials);
-    localStorage.setItem('materials', JSON.stringify(newMaterials));
-    
-    // Sync to Supabase only if user is authenticated, has admin role, and supabase is available
-    if (user && userRole === 'admin' && supabaseAvailable) {
-      setSyncStatus('syncing');
-      
-      // Try syncing with retry logic
-      let lastError: any = null;
-      const maxRetries = 2;
-      const retryDelay = 1000; // 1 second
-      
-      for (let attempt = 0; attempt <= maxRetries; attempt++) {
-        try {
-          await api.batchSaveMaterials(newMaterials);
-          setSyncStatus('synced');
-          return; // Success, exit early
-        } catch (error) {
-          lastError = error;
-          
-          // If not the last attempt, wait before retrying
-          if (attempt < maxRetries) {
-            await new Promise(resolve => setTimeout(resolve, retryDelay));
-          }
-        }
-      }
-      
-      // All retries failed
-      setSyncStatus('error');
-      setSupabaseAvailable(false);
-      toast.error('Failed to sync to cloud - saved locally');
-    }
-  };
-
-  const retrySync = async () => {
-    if (!user) {
-      toast.info('Please sign in to sync to cloud');
-      return;
-    }
-    
-    if (userRole !== 'admin') {
-      toast.info('Only admins can sync data to cloud');
-      return;
-    }
-    
-    if (materials.length === 0) {
-      toast.info('No data to sync');
-      return;
-    }
-    
-    setSyncStatus('syncing');
-    try {
-      await api.batchSaveMaterials(materials);
-      setSyncStatus('synced');
-      setSupabaseAvailable(true);
-      toast.success('Successfully synced to cloud');
-    } catch (error) {
-      setSyncStatus('error');
-      setSupabaseAvailable(false);
-      toast.error('Sync failed - check your connection');
-    }
-  };
-
-  const handleAddMaterial = (materialData: Omit<Material, 'id'>) => {
+  const handleAddMaterial = async (materialData: Omit<Material, 'id'>) => {
     const newMaterial: Material = {
       ...materialData,
       id: Date.now().toString(),
     };
-    saveMaterials([...materials, newMaterial]);
+    await addMaterial(newMaterial);
     setShowForm(false);
     toast.success(`Added ${materialData.name} successfully`);
   };
 
-  const handleUpdateMaterial = (materialData: Omit<Material, 'id'> | Material) => {
+  const handleUpdateMaterial = async (materialData: Omit<Material, 'id'> | Material) => {
     if ('id' in materialData) {
       // Direct update with full material (from ArticlesView or CSV import)
       const existingIndex = materials.findIndex(m => m.id === materialData.id);
       if (existingIndex >= 0) {
         // Update existing material
-        const updated = materials.map(m => m.id === materialData.id ? materialData : m);
-        saveMaterials(updated);
+        await updateMaterial(materialData);
         toast.success(`Updated ${materialData.name} successfully`);
       } else {
         // Add new material (e.g., from CSV import)
-        saveMaterials([...materials, materialData]);
+        await addMaterial(materialData);
         toast.success(`Added ${materialData.name} successfully`);
       }
     } else {
       // Update from form (preserves id and articles)
       if (!editingMaterial) return;
-      const updated = materials.map(m => 
-        m.id === editingMaterial.id 
-          ? { ...materialData, id: m.id, articles: m.articles } 
-          : m
-      );
-      saveMaterials(updated);
+      const updatedMaterial = { ...materialData, id: editingMaterial.id, articles: editingMaterial.articles };
+      await updateMaterial(updatedMaterial);
       setEditingMaterial(null);
       setShowForm(false);
       toast.success(`Updated ${materialData.name} successfully`);
     }
   };
 
-  const handleDeleteMaterial = (id: string) => {
+  const handleDeleteMaterial = async (id: string) => {
     const material = materials.find(m => m.id === id);
     if (confirm('Are you sure you want to delete this material?')) {
-      saveMaterials(materials.filter(m => m.id !== id));
+      await deleteMaterial(id);
       if (material) {
         toast.success(`Deleted ${material.name} successfully`);
       }
     }
   };
 
-  const handleBulkImport = (newMaterials: Material[]) => {
-    saveMaterials([...materials, ...newMaterials]);
+  const handleBulkImport = async (newMaterials: Material[]) => {
+    await bulkImport(newMaterials);
   };
 
   const handleViewArticles = (materialId: string, category: CategoryType) => {
-    setCurrentView({ type: 'articles', materialId, category });
+    navigateToArticles(materialId, category);
   };
 
   const handleViewMaterial = (materialId: string) => {
-    setCurrentView({ type: 'material-detail', materialId });
+    navigateToMaterialDetail(materialId);
   };
 
   const handleViewArticleStandalone = (materialId: string, articleId: string, category: CategoryType) => {
-    setCurrentView({ type: 'article-standalone', articleId, materialId, category });
+    navigateTo({ type: 'article-standalone', articleId, materialId, category });
+  };
+
+  // Auth handlers
+  const handleAuthSuccess = async (userData: { id: string; email: string; name?: string }) => {
+    await signIn(userData);
+  };
+
+  const handleLogout = () => {
+    signOut();
+    // Ensure admin mode is off
+    if (settings.adminMode) {
+      toggleAdminMode();
+    }
   };
 
   const filteredMaterials = materials.filter(m =>
@@ -3230,7 +2980,7 @@ function AppContent() {
       >
         <div className="max-w-6xl mx-auto">
           <div className="bg-[#faf7f2] dark:bg-[#1a1917] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 overflow-hidden mb-6">
-            <StatusBar title="WasteDB" currentView={currentView} onViewChange={setCurrentView} syncStatus={syncStatus} user={user} userRole={userRole} onLogout={handleLogout} onSignIn={() => setShowAuthModal(true)} />
+            <StatusBar title="WasteDB" currentView={currentView} onViewChange={navigateTo} syncStatus={syncStatus} user={user} userRole={userRole} onLogout={handleLogout} onSignIn={() => setShowAuthModal(true)} />
           
           {currentView.type === 'materials' ? (
             <div className="p-6">
@@ -3286,25 +3036,25 @@ function AppContent() {
                       {isAdminModeActive ? (
                         <>
                           <button
-                            onClick={() => setCurrentView({ type: 'review-center' })}
+                            onClick={navigateToReviewCenter}
                             className="bg-[#c8e5c8] h-[40px] px-3 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
                           >
                             Review Center
                           </button>
                           <button
-                            onClick={() => setCurrentView({ type: 'data-management' })}
+                            onClick={navigateToDataManagement}
                             className="bg-[#e4e3ac] h-[40px] px-3 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
                           >
                             Database Management
                           </button>
                           <button
-                            onClick={() => setCurrentView({ type: 'user-management' })}
+                            onClick={navigateToUserManagement}
                             className="bg-[#e6beb5] h-[40px] px-3 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
                           >
                             User Management
                           </button>
                           <button
-                            onClick={() => setCurrentView({ type: 'whitepaper-sync' })}
+                            onClick={navigateToWhitepaperSync}
                             className="bg-[#b8c8cb] h-[40px] px-3 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
                           >
                             Whitepaper Sync
@@ -3312,7 +3062,7 @@ function AppContent() {
                         </>
                       ) : (
                         <button
-                          onClick={() => setCurrentView({ type: 'my-submissions' })}
+                          onClick={navigateToMySubmissions}
                           className="bg-[#f4d3a0] h-[40px] px-3 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
                         >
                           My Submissions
@@ -3326,14 +3076,14 @@ function AppContent() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, delay: 0.3 }}
-                        onClick={() => setCurrentView({ type: 'methodology-list' })}
+                        onClick={navigateToMethodologyList}
                         className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:underline transition-colors text-center"
                       >
                         Methodology & Whitepapers
                       </motion.button>
                       {userRole === 'admin' && (
                         <div className="md:hidden">
-                          <AdminModeButton currentView={currentView} onViewChange={setCurrentView} />
+                          <AdminModeButton currentView={currentView} onViewChange={navigateTo} />
                         </div>
                       )}
                     </div>
@@ -3341,11 +3091,21 @@ function AppContent() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.5, delay: 0.35 }}
-                      onClick={() => setCurrentView({ type: 'export' })}
+                      onClick={navigateToExport}
                       className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:underline transition-colors text-center flex items-center gap-1"
                     >
                       <Download size={12} />
                       Export Data (Open Access)
+                    </motion.button>
+                    <motion.button
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: 0.4 }}
+                      onClick={navigateToApiDocs}
+                      className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:underline transition-colors text-center flex items-center gap-1"
+                    >
+                      <Code size={12} />
+                      API Documentation
                     </motion.button>
                   </div>
                 </div>
@@ -3384,7 +3144,7 @@ function AppContent() {
                     <div className="w-full lg:w-[50%]">
                       <AnimatedWasteChart
                         chartData={chartData}
-                        onCategoryClick={(categoryKey) => setCurrentView({ type: 'all-articles', category: categoryKey as CategoryType })}
+                        onCategoryClick={(categoryKey) => navigateTo({ type: 'all-articles', category: categoryKey as CategoryType })}
                       />
                     </div>
                   );
@@ -3416,7 +3176,7 @@ function AppContent() {
                     onDelete={() => handleDeleteMaterial(material.id)}
                     onViewArticles={(category) => handleViewArticles(material.id, category)}
                     onViewMaterial={() => handleViewMaterial(material.id)}
-                    onEditScientific={() => setCurrentView({ type: 'scientific-editor', materialId: material.id })}
+                    onEditScientific={() => navigateToScientificEditor(material.id)}
                     onSuggestEdit={() => setMaterialToEdit(material)}
                     isAdminModeActive={isAdminModeActive}
                     isAuthenticated={!!user}
@@ -3438,7 +3198,7 @@ function AppContent() {
             <ArticlesView
               material={currentMaterial}
               category={currentView.category}
-              onBack={() => setCurrentView({ type: 'materials' })}
+              onBack={navigateToMaterials}
               onUpdateMaterial={handleUpdateMaterial}
               onViewArticleStandalone={(articleId) => handleViewArticleStandalone(currentMaterial.id, articleId, currentView.category)}
               isAdminModeActive={isAdminModeActive}
@@ -3449,13 +3209,13 @@ function AppContent() {
             <AllArticlesView
               category={currentView.category}
               materials={materials}
-              onBack={() => setCurrentView({ type: 'materials' })}
+              onBack={navigateToMaterials}
               onViewArticleStandalone={(articleId, materialId) => handleViewArticleStandalone(materialId, articleId, currentView.category)}
             />
           ) : currentMaterial && currentView.type === 'material-detail' ? (
             <MaterialDetailView
               material={currentMaterial}
-              onBack={() => setCurrentView({ type: 'materials' })}
+              onBack={navigateToMaterials}
               onViewArticles={(category) => handleViewArticles(currentMaterial.id, category)}
               onUpdateMaterial={handleUpdateMaterial}
               onViewArticleStandalone={(articleId, category) => handleViewArticleStandalone(currentMaterial.id, articleId, category)}
@@ -3469,10 +3229,10 @@ function AppContent() {
                 color: currentView.category === 'compostability' ? '#e6beb5' : currentView.category === 'recyclability' ? '#e4e3ac' : '#b8c8cb'
               }}
               materialName={currentMaterial.name}
-              onBack={() => setCurrentView({ type: 'material-detail', materialId: currentMaterial.id })}
+              onBack={() => navigateToMaterialDetail(currentMaterial.id)}
               onEdit={() => {
                 // Navigate back to material detail with edit form open
-                setCurrentView({ type: 'material-detail', materialId: currentMaterial.id });
+                navigateToMaterialDetail(currentMaterial.id);
               }}
               onDelete={() => {
                 if (confirm('Are you sure you want to delete this article?')) {
@@ -3484,84 +3244,87 @@ function AppContent() {
                     }
                   };
                   handleUpdateMaterial(updatedMaterial);
-                  setCurrentView({ type: 'material-detail', materialId: currentMaterial.id });
+                  navigateToMaterialDetail(currentMaterial.id);
                 }
               }}
               isAdminModeActive={isAdminModeActive}
             />
           ) : currentView.type === 'methodology-list' ? (
             <MethodologyListView
-              onBack={() => setCurrentView({ type: 'materials' })}
-              onSelectWhitepaper={(whitepaperSlug) => setCurrentView({ type: 'whitepaper', whitepaperSlug })}
+              onBack={navigateToMaterials}
+              onSelectWhitepaper={navigateToWhitepaper}
             />
           ) : currentView.type === 'whitepaper' ? (
             <WhitepaperView
               whitepaperSlug={currentView.whitepaperSlug}
-              onBack={() => setCurrentView({ type: 'methodology-list' })}
+              onBack={navigateToMethodologyList}
             />
           ) : currentView.type === 'data-management' ? (
             <DataManagementView
               materials={materials}
-              onBack={() => setCurrentView({ type: 'materials' })}
+              onBack={navigateToMaterials}
               onUpdateMaterial={handleUpdateMaterial}
-              onUpdateMaterials={(updatedMaterials) => saveMaterials(updatedMaterials)}
+              onUpdateMaterials={updateMaterials}
               onBulkImport={handleBulkImport}
               onDeleteMaterial={handleDeleteMaterial}
-              onViewMaterial={(materialId) => setCurrentView({ type: 'material-detail', materialId })}
+              onViewMaterial={navigateToMaterialDetail}
               onDeleteAllData={async () => {
-                setMaterials([]);
-                localStorage.removeItem('materials');
-                if (supabaseAvailable) {
-                  try {
-                    await api.deleteAllMaterials();
-                    toast.success('All data deleted from cloud and locally');
-                  } catch (error) {
-                    toast.success('All data deleted locally');
-                  }
-                } else {
-                  toast.success('All data deleted locally');
-                }
-                setCurrentView({ type: 'materials' });
+                await deleteAllMaterials();
+                toast.success(supabaseAvailable ? 'All data deleted from cloud and locally' : 'All data deleted locally');
+                navigateToMaterials();
               }}
             />
           ) : currentView.type === 'user-management' ? (
             <UserManagementView
-              onBack={() => setCurrentView({ type: 'materials' })}
+              onBack={navigateToMaterials}
               currentUserId={user?.id || ''}
             />
           ) : currentView.type === 'whitepaper-sync' ? (
             <WhitepaperSyncTool
-              onBack={() => setCurrentView({ type: 'materials' })}
+              onBack={navigateToMaterials}
             />
           ) : currentView.type === 'scientific-editor' && currentMaterial ? (
             <ScientificDataEditor
               material={currentMaterial}
               onSave={(updatedMaterial) => {
                 handleUpdateMaterial(updatedMaterial);
-                setCurrentView({ type: 'materials' });
+                navigateToMaterials();
               }}
-              onCancel={() => setCurrentView({ type: 'materials' })}
+              onCancel={navigateToMaterials}
             />
           ) : currentView.type === 'export' ? (
             <PublicExportView
-              onBack={() => setCurrentView({ type: 'materials' })}
+              onBack={navigateToMaterials}
               materialsCount={materials.length}
             />
           ) : currentView.type === 'user-profile' ? (
             <UserProfileView
               userId={currentView.userId}
-              onBack={() => setCurrentView({ type: 'materials' })}
+              onBack={navigateToMaterials}
               isOwnProfile={currentView.userId === user?.id}
             />
           ) : currentView.type === 'my-submissions' ? (
             <MySubmissionsView
-              onBack={() => setCurrentView({ type: 'materials' })}
+              onBack={navigateToMaterials}
             />
           ) : currentView.type === 'review-center' ? (
             <ContentReviewCenter
-              onBack={() => setCurrentView({ type: 'materials' })}
+              onBack={navigateToMaterials}
               currentUserId={user?.id || ''}
             />
+          ) : currentView.type === 'api-docs' ? (
+            <div className="max-w-5xl mx-auto">
+              <div className="mb-6">
+                <button
+                  onClick={() => navigateToMaterials()}
+                  className="flex items-center gap-2 text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white font-['Sniglet:Regular',_sans-serif] transition-colors"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Back to Materials
+                </button>
+              </div>
+              <ApiDocumentation />
+            </div>
           ) : null}
         </div>
       </div>
@@ -3607,12 +3370,27 @@ function AppContent() {
   );
 }
 
+// Wrapper to pass auth props to MaterialsProvider
+function AppWithMaterialsContext() {
+  const { user, userRole } = useAuthContext();
+  
+  return (
+    <MaterialsProvider user={user} userRole={userRole}>
+      <AppContent />
+    </MaterialsProvider>
+  );
+}
+
 export default function App() {
   return (
     <AccessibilityProvider>
-      <Toaster />
-      <AppContent />
-      <CookieConsent />
+      <AuthProvider>
+        <NavigationProvider>
+          <Toaster />
+          <AppWithMaterialsContext />
+          <CookieConsent />
+        </NavigationProvider>
+      </AuthProvider>
     </AccessibilityProvider>
   );
 }

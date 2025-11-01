@@ -28,10 +28,10 @@ WasteDB will:
 
 ## **Major Phases**
 
-**Progress: 6 of 8 phases complete (75%)**
+**Progress: 7 of 8 phases complete (87.5%)**
 
 ```
-[████████████████████████████████████████████████░░░░] 75%
+[██████████████████████████████████████████████████░░] 87.5%
 ```
 
 ### **1. Data Model Integration** ✅ COMPLETE
@@ -186,11 +186,11 @@ WasteDB will:
 * ✅ Direct editing capability for admin reviewers
 * ✅ Auto-publishing approved submissions to database
 
-**Phase 6.4: Editorial Features** ⬜ PLANNED
-* "Suggest Edits" workflow with email feedback via Resend
-* "Edit Directly" with dual Writer/Editor credit attribution
-* Inline diff viewer for article updates (color + icons)
-* Published articles show Writer and Editor credits
+**Phase 6.4: Editorial Features** ✅ COMPLETE
+* ✅ "Suggest Edits" workflow with email feedback via Resend
+* ✅ "Edit Directly" with dual Writer/Editor credit attribution
+* ✅ Published materials show Writer and Editor credits
+* ⬜ Inline diff viewer for article updates (color + icons) - DEFERRED
 
 **Phase 6.5: Notifications & Email** ⬜ PLANNED
 * Email templates for editorial feedback and approvals
@@ -201,38 +201,46 @@ WasteDB will:
 
 ---
 
-### **7. Research API & Data Publication** ⬜ PLANNED
+### **7. Research API & Data Publication** ✅ COMPLETE
 
 **Goal:** Open WasteDB data for public and academic use.
 
-**Deliverables**
+**Deliverables** ✅
 
-* Create `/api/v1/materials` (read-only, paginated JSON).
-* Add `/api/v1/materials/:id/full` for detailed metadata.
-* Embed dataset citation (DOI or DataCite).
-* Include `whitepaper_version`, `calculation_date`, and `method_version`.
-* Host data snapshots on Wastefull's GitHub or a research subdomain.
+* ✅ Create `/api/v1/materials` (read-only, paginated JSON)
+* ✅ Add `/api/v1/materials/:id` for detailed metadata
+* ✅ Create `/api/v1/stats` for aggregate database statistics
+* ✅ Create `/api/v1/categories` for material category listing
+* ✅ Create `/api/v1/methodology` for scoring methodology information
+* ✅ Include `whitepaper_version`, `calculation_date`, and `method_version`
+* ✅ Build comprehensive API documentation component
+* ✅ Integrate API docs into main UI navigation with Code icon
+
+**Status:** Completed October 30, 2025. See `/docs/PHASE_7_API_INTEGRATION_COMPLETE.md` for details.
 
 ---
 
-### **8. Performance & Scalability** ⬜ PLANNED
+### **8. Performance & Scalability** 🔄 IN PROGRESS
 
 **Goal:** Optimize rendering performance for large datasets and complex visualizations.
 
 **Deliverables**
 
 * **Local Rasterization of Charts:** Pre-render quantile visualizations to canvas/image format to prevent poor page performance with many materials
-  * Implement lazy loading for visualization rendering
-  * Cache rasterized charts in localStorage/IndexedDB
-  * Add server-side rendering option for static charts
-  * Maintain accessibility with ARIA labels and text alternatives
-  * Preserve interactivity for critical user actions (tooltips on demand)
-* Database query optimization for large material collections
-* Implement virtual scrolling for material lists
-* Add progressive loading for scientific data editor
-* Performance monitoring and metrics collection
+  * ✅ Implement IndexedDB caching infrastructure (`/utils/chartCache.ts`)
+  * ✅ Create SVG-to-canvas rasterization hook (`/utils/useRasterizedChart.ts`)
+  * ✅ Build rasterized component wrapper (`/components/RasterizedQuantileVisualization.tsx`)
+  * ✅ Add cache management UI for admins (`/components/ChartCacheManager.tsx`)
+  * ✅ Maintain accessibility with ARIA labels and keyboard navigation
+  * ✅ Preserve interactivity (tooltips, click handlers, hover states)
+  * ⬜ Implement lazy loading for visualization rendering
+  * ⬜ Add server-side rendering option for static charts
+* ⬜ Database query optimization for large material collections
+* ⬜ Implement virtual scrolling for material lists
+* ⬜ Add progressive loading for scientific data editor
+* ⬜ Performance monitoring and metrics collection
 
-**Status:** Planned. Priority increases as material database grows beyond 100 entries.
+**Status:** Phase 8.1 Complete (Chart Rasterization). Ready for integration into main application. See `/docs/PHASE_8_CHART_RASTERIZATION.md` for details.
 
 ---
 

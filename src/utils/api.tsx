@@ -654,3 +654,58 @@ export async function markAllNotificationsAsRead(userId: string): Promise<void> 
     method: 'PUT',
   });
 }
+
+// ===== EMAIL NOTIFICATIONS =====
+
+export async function sendEmail(params: {
+  to: string;
+  subject: string;
+  html?: string;
+  text?: string;
+}): Promise<{ success: boolean; emailId: string }> {
+  const data = await apiCall('/email/send', {
+    method: 'POST',
+    body: JSON.stringify(params),
+  });
+  return data;
+}
+
+export async function sendRevisionRequestEmail(params: {
+  submissionId: string;
+  feedback: string;
+  submitterEmail: string;
+  submitterName?: string;
+  submissionType: string;
+}): Promise<{ success: boolean; emailId: string }> {
+  const data = await apiCall('/email/revision-request', {
+    method: 'POST',
+    body: JSON.stringify(params),
+  });
+  return data;
+}
+
+export async function sendApprovalEmail(params: {
+  submitterEmail: string;
+  submitterName?: string;
+  submissionType: string;
+  contentName?: string;
+}): Promise<{ success: boolean; emailId: string }> {
+  const data = await apiCall('/email/approval', {
+    method: 'POST',
+    body: JSON.stringify(params),
+  });
+  return data;
+}
+
+export async function sendRejectionEmail(params: {
+  submitterEmail: string;
+  submitterName?: string;
+  submissionType: string;
+  feedback?: string;
+}): Promise<{ success: boolean; emailId: string }> {
+  const data = await apiCall('/email/rejection', {
+    method: 'POST',
+    body: JSON.stringify(params),
+  });
+  return data;
+}
