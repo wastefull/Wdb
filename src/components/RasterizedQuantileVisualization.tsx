@@ -210,6 +210,11 @@ function RasterizedDisplay({
       {/* Rasterized image */}
       <div 
         className="relative group w-full cursor-pointer"
+        style={{ 
+          width: `${width}px`,
+          height: `${height}px`,
+          overflow: 'hidden'
+        }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         onClick={onClick}
@@ -227,14 +232,11 @@ function RasterizedDisplay({
           src={dataUrl}
           alt=""
           aria-hidden="true"
-          width={width}
-          height={height}
           style={{ 
             display: 'block', 
-            width: `${width}px`,
+            width: 'auto',
             height: `${height}px`,
             imageRendering: '-webkit-optimize-contrast',
-            objectFit: 'contain',
           }}
           className="transition-opacity group-hover:opacity-90"
         />

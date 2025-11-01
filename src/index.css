@@ -2114,6 +2114,26 @@
     fill: var(--primary);
   }
 
+  .fill-white\/50 {
+    fill: #ffffff80;
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .fill-white\/50 {
+      fill: color-mix(in oklab, var(--color-white) 50%, transparent);
+    }
+  }
+
+  .fill-white\/70 {
+    fill: #ffffffb3;
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .fill-white\/70 {
+      fill: color-mix(in oklab, var(--color-white) 70%, transparent);
+    }
+  }
+
   .object-cover {
     object-fit: cover;
   }

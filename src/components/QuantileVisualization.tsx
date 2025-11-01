@@ -639,25 +639,16 @@ function Axis({ width, height, highContrast }: { width: number; height: number; 
         opacity={0.3}
       />
       {ticks.map((tick) => (
-        <g key={tick}>
-          <line
-            x1={tick * width}
-            y1={axisY - 2}
-            x2={tick * width}
-            y2={axisY + 2}
-            stroke={highContrast ? '#000' : '#222'}
-            strokeWidth="1"
-            opacity={0.4}
-          />
-          <text
-            x={tick * width}
-            y={axisY + 10}
-            textAnchor="middle"
-            className="font-['Sniglet:Regular',_sans-serif] text-[7px] fill-black/50 dark:fill-white/50"
-          >
-            {Math.round(tick * 100)}
-          </text>
-        </g>
+        <line
+          key={tick}
+          x1={tick * width}
+          y1={axisY - 2}
+          x2={tick * width}
+          y2={axisY + 2}
+          stroke={highContrast ? '#000' : '#222'}
+          strokeWidth="1"
+          opacity={0.4}
+        />
       ))}
     </g>
   );
