@@ -388,7 +388,7 @@ function RetroButtons({ title }: { title: string }) {
           </TooltipProvider>
 
           <div className="basis-0 grow min-h-px min-w-px flex items-center justify-center gap-0 md:gap-2">
-            <h1 className="font-['Sniglet:Regular',_sans-serif] leading-[25px] not-italic text-[14px] md:text-[20px] text-black dark:text-white text-center uppercase">{title}</h1>
+            <h1 className="font-['Sniglet:Regular',_sans-serif] leading-[25px] not-italic text-[18px] md:text-[28px] text-black dark:text-white text-center uppercase">{title}</h1>
             <span className="font-['Sniglet:Regular',_sans-serif] text-[8px] md:text-[10px] px-1 md:px-1.5 py-0 md:py-0.5 rounded-full bg-[#bdd4b7] dark:bg-[#2a2f27] border border-[#211f1c] dark:border-white/20 text-black dark:text-white uppercase">Beta</span>
           </div>
         </div>
@@ -507,11 +507,16 @@ function SearchIcon() {
   );
 }
 
-function SearchBar({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+function SearchBar({ value, onChange, onSearch }: { value: string; onChange: (value: string) => void; onSearch?: (value: string) => void }) {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     // Prevent Figma from intercepting text editing shortcuts
     if (e.metaKey || e.ctrlKey) {
       e.stopPropagation();
+    }
+    
+    // Trigger search on Enter key
+    if (e.key === 'Enter' && onSearch && value.trim()) {
+      onSearch(value.trim());
     }
   };
 
@@ -2726,7 +2731,7 @@ function DataManagementView({
 
 function AppContent() {
   const { settings, toggleAdminMode } = useAccessibility();
-  const { currentView, navigateTo, navigateToMaterials, navigateToMaterialDetail, navigateToArticles, navigateToArticleDetail, navigateToMethodologyList, navigateToWhitepaper, navigateToDataManagement, navigateToUserManagement, navigateToScientificEditor, navigateToExport, navigateToUserProfile, navigateToMySubmissions, navigateToReviewCenter, navigateToWhitepaperSync, navigateToApiDocs } = useNavigationContext();
+  const { currentView, navigateTo, navigateToMaterials, navigateToSearchResults, navigateToMaterialDetail, navigateToArticles, navigateToArticleDetail, navigateToMethodologyList, navigateToWhitepaper, navigateToDataManagement, navigateToUserManagement, navigateToScientificEditor, navigateToExport, navigateToUserProfile, navigateToMySubmissions, navigateToReviewCenter, navigateToWhitepaperSync, navigateToApiDocs } = useNavigationContext();
   const { user, userRole, isAuthenticated, signIn, signOut, updateUserRole } = useAuthContext();
   
   // Phase 3B Complete: MaterialsContext is the single source of truth for all material data
@@ -2753,6 +2758,7 @@ function AppContent() {
   const [showSubmitMaterialForm, setShowSubmitMaterialForm] = useState(false);
   const [materialToEdit, setMaterialToEdit] = useState<Material | null>(null);
   const [showSubmitArticleForm, setShowSubmitArticleForm] = useState(false);
+  const [showChart, setShowChart] = useState(false);
   
   // Expose logger to window for browser console debugging
   useEffect(() => {
@@ -3006,10 +3012,10 @@ function AppContent() {
                   </button>
                 </div>
               )}
-              {/* Search bar and chart on same line for wide screens */}
-              <div className="flex flex-col lg:flex-row gap-4 lg:justify-between mb-6">
-                {/* Left column: Logo, Search bar, Add Material button, and Methodology link (vertically and horizontally centered) */}
-                <div className="w-full lg:w-96 lg:pl-20 flex flex-col justify-center items-center gap-4">
+              {/* Centered content */}
+              <div className="flex flex-col items-center justify-center mb-6 max-w-2xl mx-auto px-4">
+                {/* All elements centered in a single column */}
+                <div className="w-full flex flex-col justify-center items-center gap-4">
                   {/* Logo */}
                   <button
                     onClick={() => {
@@ -3022,34 +3028,17 @@ function AppContent() {
                     <img
                       src="https://bdvfwjmaufjeqmxphmtv.supabase.co/storage/v1/object/public/make-17cae920-assets/uplogo_transparent-1761169051994.png"
                       alt="WasteDB Logo"
-                      className="h-16 lg:h-20 w-auto"
+                      className="h-24 lg:h-32 w-auto"
                     />
                   </button>
                   
-                  {/* Search bar with Add Material button - stacked on mobile, side-by-side on desktop */}
-                  <div className="w-full flex flex-col sm:flex-row gap-2">
-                    <div className="flex-1 min-w-0">
-                      <SearchBar value={searchQuery} onChange={setSearchQuery} />
-                    </div>
-                    {user && (
-                      <button
-                        onClick={() => {
-                          if (isAdminModeActive) {
-                            setShowForm(true);
-                            setEditingMaterial(null);
-                          } else {
-                            setShowSubmitMaterialForm(true);
-                          }
-                        }}
-                        className={`h-[40px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center justify-center gap-2 whitespace-nowrap sm:flex-shrink-0 ${
-                          isAdminModeActive ? 'bg-[#b8c8cb]' : 'bg-[#c8e5c8]'
-                        }`}
-                        title={isAdminModeActive ? "Add a new material" : "Submit a new material"}
-                      >
-                        <Plus size={14} className="text-black flex-shrink-0" />
-                        <span>{isAdminModeActive ? 'Add' : 'Submit'} Material</span>
-                      </button>
-                    )}
+                  {/* Search bar - centered */}
+                  <div className="w-full max-w-xl">
+                    <SearchBar 
+                      value={searchQuery} 
+                      onChange={setSearchQuery}
+                      onSearch={(query) => navigateToSearchResults(query)}
+                    />
                   </div>
                   {user && currentView.type === 'materials' && (
                     <div className="flex flex-wrap gap-2 justify-center">
@@ -3121,47 +3110,64 @@ function AppContent() {
                       API Documentation
                     </motion.button>
                   </div>
-                </div>
-
-                {/* Chart on right side for wide screens - max 50% width */}
-                {!searchQuery && materials.length > 0 && currentView.type === 'materials' && (() => {
-                  // Compute chart data once so we can reference it in the label
-                  const chartData = [
-                    {
-                      name: 'Compostable',
-                      shortName: 'compostable',
-                      categoryKey: 'compostability',
-                      value: Math.round(materials.reduce((sum, m) => sum + m.compostability, 0) / materials.length),
-                      articleCount: materials.reduce((sum, m) => sum + m.articles.compostability.length, 0),
-                      fill: '#e8a593'
-                    },
-                    {
-                      name: 'Recyclable',
-                      shortName: 'recyclable',
-                      categoryKey: 'recyclability',
-                      value: Math.round(materials.reduce((sum, m) => sum + m.recyclability, 0) / materials.length),
-                      articleCount: materials.reduce((sum, m) => sum + m.articles.recyclability.length, 0),
-                      fill: '#f0e68c'
-                    },
-                    {
-                      name: 'Reusable',
-                      shortName: 'reusable',
-                      categoryKey: 'reusability',
-                      value: Math.round(materials.reduce((sum, m) => sum + m.reusability, 0) / materials.length),
-                      articleCount: materials.reduce((sum, m) => sum + m.articles.reusability.length, 0),
-                      fill: '#a8c5d8'
+                  
+                  {/* Chart centered below links */}
+                  {materials.length > 0 && currentView.type === 'materials' && (() => {
+                    // Show eye icon in admin mode, show chart when clicked
+                    if (isAdminModeActive && !showChart) {
+                      return (
+                        <div className="mt-4 flex items-center justify-center">
+                          <button
+                            onClick={() => setShowChart(true)}
+                            className="p-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#e4e3ac] hover:bg-[#e4e3ac]/80 transition-all hover:shadow-[3px_4px_0px_-1px_#000000] dark:hover:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)]"
+                            aria-label="Show chart (work in progress)"
+                          >
+                            <Eye size={32} className="text-black" />
+                          </button>
+                        </div>
+                      );
                     }
-                  ];
+                    
+                    if (!showChart) return null;
+                    
+                    // Compute chart data once so we can reference it in the label
+                    const chartData = [
+                      {
+                        name: 'Compostable',
+                        shortName: 'compostable',
+                        categoryKey: 'compostability',
+                        value: Math.round(materials.reduce((sum, m) => sum + m.compostability, 0) / materials.length),
+                        articleCount: materials.reduce((sum, m) => sum + m.articles.compostability.length, 0),
+                        fill: '#e8a593'
+                      },
+                      {
+                        name: 'Recyclable',
+                        shortName: 'recyclable',
+                        categoryKey: 'recyclability',
+                        value: Math.round(materials.reduce((sum, m) => sum + m.recyclability, 0) / materials.length),
+                        articleCount: materials.reduce((sum, m) => sum + m.articles.recyclability.length, 0),
+                        fill: '#f0e68c'
+                      },
+                      {
+                        name: 'Reusable',
+                        shortName: 'reusable',
+                        categoryKey: 'reusability',
+                        value: Math.round(materials.reduce((sum, m) => sum + m.reusability, 0) / materials.length),
+                        articleCount: materials.reduce((sum, m) => sum + m.articles.reusability.length, 0),
+                        fill: '#a8c5d8'
+                      }
+                    ];
 
-                  return (
-                    <div className="w-full lg:w-[50%]">
-                      <AnimatedWasteChart
-                        chartData={chartData}
-                        onCategoryClick={(categoryKey) => navigateTo({ type: 'all-articles', category: categoryKey as CategoryType })}
-                      />
-                    </div>
-                  );
-                })()}
+                    return (
+                      <div className="mt-6 w-full max-w-md">
+                        <AnimatedWasteChart
+                          chartData={chartData}
+                          onCategoryClick={(categoryKey) => navigateTo({ type: 'all-articles', category: categoryKey as CategoryType })}
+                        />
+                      </div>
+                    );
+                  })()}
+                </div>
               </div>
 
               {showForm && (
@@ -3177,35 +3183,123 @@ function AppContent() {
                 </div>
               )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredMaterials.map(material => (
-                  <MaterialCard
-                    key={material.id}
-                    material={material}
-                    onEdit={() => {
-                      setEditingMaterial(material);
-                      setShowForm(true);
-                    }}
-                    onDelete={() => handleDeleteMaterial(material.id)}
-                    onViewArticles={(category) => handleViewArticles(material.id, category)}
-                    onViewMaterial={() => handleViewMaterial(material.id)}
-                    onEditScientific={() => navigateToScientificEditor(material.id)}
-                    onSuggestEdit={() => setMaterialToEdit(material)}
-                    isAdminModeActive={isAdminModeActive}
-                    isAuthenticated={!!user}
-                  />
-                ))}
-              </div>
-
+              {/* Welcome message when no search */}
               {isLoadingMaterials ? (
                 <LoadingPlaceholder />
-              ) : filteredMaterials.length === 0 ? (
+              ) : (
+                <div className="text-center py-12 max-w-2xl mx-auto">
+                  <p className="font-['Sniglet:Regular',_sans-serif] text-[20px] text-black/70 dark:text-white/70 mb-2">
+                    Welcome to WasteDB
+                  </p>
+                  <p className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black/50 dark:text-white/50 mb-6">
+                    Search for materials to explore their sustainability scores and recycling guides
+                  </p>
+                  
+                  {/* Beta contributor message */}
+                  <div className="mb-6 px-4">
+                    <p className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white mb-1">
+                      WasteDB is in beta and needs help from contributors like you.
+                    </p>
+                    <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/60 dark:text-white/60">
+                      The database currently has <span className="font-bold">{materials.length}</span> materials and{' '}
+                      <span className="font-bold">
+                        {materials.reduce((sum, m) => 
+                          sum + 
+                          m.articles.compostability.length + 
+                          m.articles.recyclability.length + 
+                          m.articles.reusability.length, 
+                          0
+                        )}
+                      </span> articles.
+                    </p>
+                  </div>
+
+                  {/* Submit Material button */}
+                  {user && (
+                    <button
+                      onClick={() => {
+                        if (isAdminModeActive) {
+                          setShowForm(true);
+                          setEditingMaterial(null);
+                        } else {
+                          setShowSubmitMaterialForm(true);
+                        }
+                      }}
+                      className={`h-[48px] px-6 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[14px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all inline-flex items-center justify-center gap-2 ${
+                        isAdminModeActive ? 'bg-[#b8c8cb]' : 'bg-[#c8e5c8]'
+                      }`}
+                      title={isAdminModeActive ? "Add a new material" : "Submit a new material"}
+                    >
+                      <Plus size={16} className="text-black" />
+                      <span>{isAdminModeActive ? 'Add' : 'Submit'} Material</span>
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          ) : currentView.type === 'search-results' ? (
+            <div className="p-6">
+              {/* Back button and search info */}
+              <div className="mb-6 flex items-center justify-between">
+                <button
+                  onClick={() => {
+                    setSearchQuery('');
+                    navigateToMaterials();
+                  }}
+                  className="flex items-center gap-2 px-4 py-2 bg-[#b8c8cb] rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
+                >
+                  <ArrowLeft size={16} className="text-black" />
+                  <span className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black">Back to Home</span>
+                </button>
+                <div className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white">
+                  Search results for: <span className="font-bold">"{currentView.query}"</span>
+                </div>
+              </div>
+
+              {/* Filter options placeholder */}
+              <div className="mb-6 p-4 bg-white dark:bg-[#2a2825] rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)]">
+                <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/50 dark:text-white/50 italic">
+                  Filter options coming soon...
+                </p>
+              </div>
+
+              {/* Materials grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {materials
+                  .filter(m =>
+                    m.name.toLowerCase().includes(currentView.query.toLowerCase()) ||
+                    m.description?.toLowerCase().includes(currentView.query.toLowerCase())
+                  )
+                  .map(material => (
+                    <MaterialCard
+                      key={material.id}
+                      material={material}
+                      onEdit={() => {
+                        setEditingMaterial(material);
+                        setShowForm(true);
+                      }}
+                      onDelete={() => handleDeleteMaterial(material.id)}
+                      onViewArticles={(category) => handleViewArticles(material.id, category)}
+                      onViewMaterial={() => handleViewMaterial(material.id)}
+                      onEditScientific={() => navigateToScientificEditor(material.id)}
+                      onSuggestEdit={() => setMaterialToEdit(material)}
+                      isAdminModeActive={isAdminModeActive}
+                      isAuthenticated={!!user}
+                    />
+                  ))}
+              </div>
+
+              {/* No results message */}
+              {materials.filter(m =>
+                m.name.toLowerCase().includes(currentView.query.toLowerCase()) ||
+                m.description?.toLowerCase().includes(currentView.query.toLowerCase())
+              ).length === 0 && (
                 <div className="text-center py-12">
                   <p className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black/50 dark:text-white/50">
-                    {searchQuery ? 'No materials found matching your search.' : 'No materials yet. Add your first one!'}
+                    No materials found matching your search.
                   </p>
                 </div>
-              ) : null}
+              )}
             </div>
           ) : currentMaterial && currentView.type === 'articles' ? (
             <ArticlesView

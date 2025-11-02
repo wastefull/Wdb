@@ -12,6 +12,7 @@ import { CategoryType } from '../types/material';
 export type ViewType = 
   | { type: 'auth' }
   | { type: 'materials' }
+  | { type: 'search-results'; query: string }
   | { type: 'material-detail'; materialId: string }
   | { type: 'articles'; category: CategoryType; materialId: string }
   | { type: 'article-detail'; articleId: string; materialId: string; category: CategoryType }
@@ -37,6 +38,7 @@ interface NavigationContextType {
   navigateTo: (view: ViewType) => void;
   navigateToAuth: () => void;
   navigateToMaterials: () => void;
+  navigateToSearchResults: (query: string) => void;
   navigateToMaterialDetail: (materialId: string) => void;
   navigateToArticles: (materialId: string, category: CategoryType) => void;
   navigateToArticleDetail: (articleId: string, materialId: string, category: CategoryType) => void;
@@ -84,6 +86,10 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
 
   const navigateToMaterials = () => {
     navigateTo({ type: 'materials' });
+  };
+
+  const navigateToSearchResults = (query: string) => {
+    navigateTo({ type: 'search-results', query });
   };
 
   const navigateToMaterialDetail = (materialId: string) => {
@@ -161,6 +167,7 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
     navigateTo,
     navigateToAuth,
     navigateToMaterials,
+    navigateToSearchResults,
     navigateToMaterialDetail,
     navigateToArticles,
     navigateToArticleDetail,
