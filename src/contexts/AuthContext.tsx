@@ -41,11 +41,35 @@ export const useAuthContext = () => {
 
 interface AuthProviderProps {
   children: ReactNode;
+  onSessionExpired?: () => void;
 }
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children, onSessionExpired }) => {
   const [user, setUser] = useState<User | null>(null);
   const [userRole, setUserRole] = useState<UserRole>('user');
+
+  // Handle session expiry
+  useEffect(() => {
+    const handleSessionExpired = () => {
+      authLogger.warn('Session expired - redirecting to sign-in');
+      setUser(null);
+      setUserRole('user');
+      sessionStorage.removeItem('wastedb_user');
+      
+      // Call the parent callback to navigate to auth view
+      if (onSessionExpired) {
+        onSessionExpired();
+      }
+    };
+
+    // Register the callback with the API module
+    api.setSessionExpiredCallback(handleSessionExpired);
+
+    return () => {
+      // Clean up callback on unmount
+      api.setSessionExpiredCallback(() => {});
+    };
+  }, [onSessionExpired]);
 
   // Initialize auth state from session storage
   useEffect(() => {

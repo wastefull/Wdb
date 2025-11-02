@@ -73,25 +73,25 @@ export function ChartRasterizationDemo() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h2 className="text-2xl font-['Fredoka_One',_cursive]">Chart Rasterization Demo</h2>
-          <p className="text-sm text-black/60 dark:text-white/60 mt-1">
+          <h2 className="text-xl md:text-2xl font-['Fredoka_One',_cursive]">Chart Rasterization Demo</h2>
+          <p className="text-xs md:text-sm text-black/60 dark:text-white/60 mt-1">
             Test and compare rasterized vs. live SVG chart performance
           </p>
         </div>
-        <Button onClick={handleRefresh} variant="outline">
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Refresh All
+        <Button onClick={handleRefresh} variant="outline" className="text-[11px] md:text-sm">
+          <RefreshCw className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
+          <span className="whitespace-nowrap">Refresh</span>
         </Button>
       </div>
 
       <Tabs defaultValue="comparison" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="comparison">Side-by-Side</TabsTrigger>
-          <TabsTrigger value="performance">Performance</TabsTrigger>
-          <TabsTrigger value="cache">Cache Manager</TabsTrigger>
-          <TabsTrigger value="stress">Stress Test</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 h-auto">
+          <TabsTrigger value="comparison" className="text-[10px] md:text-sm">Side-by-Side</TabsTrigger>
+          <TabsTrigger value="performance" className="text-[10px] md:text-sm">Performance</TabsTrigger>
+          <TabsTrigger value="cache" className="text-[10px] md:text-sm">Cache</TabsTrigger>
+          <TabsTrigger value="stress" className="text-[10px] md:text-sm">Stress Test</TabsTrigger>
         </TabsList>
 
         {/* Side-by-Side Comparison */}

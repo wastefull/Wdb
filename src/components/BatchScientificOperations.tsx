@@ -370,11 +370,11 @@ export function BatchScientificOperations({ materials, onUpdateMaterials, onBack
         )}
 
         <Tabs defaultValue="export" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-6">
-            <TabsTrigger value="export">Export</TabsTrigger>
-            <TabsTrigger value="import">Import</TabsTrigger>
-            <TabsTrigger value="batch">Batch Operations</TabsTrigger>
-            <TabsTrigger value="audit">Data Quality</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 mb-6 h-auto">
+            <TabsTrigger value="export" className="text-[10px] md:text-sm">Export</TabsTrigger>
+            <TabsTrigger value="import" className="text-[10px] md:text-sm">Import</TabsTrigger>
+            <TabsTrigger value="batch" className="text-[10px] md:text-sm">Batch Ops</TabsTrigger>
+            <TabsTrigger value="audit" className="text-[10px] md:text-sm">Quality</TabsTrigger>
           </TabsList>
 
           {/* Export Tab */}

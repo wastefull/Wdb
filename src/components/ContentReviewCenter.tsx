@@ -308,18 +308,18 @@ export function ContentReviewCenter({ onBack, currentUserId }: ContentReviewCent
       </div>
 
       <Tabs value={activeTab} onValueChange={(value: any) => setActiveTab(value)} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 mb-6">
-          <TabsTrigger value="review" className="font-['Sniglet:Regular',_sans-serif] data-[state=active]:bg-[#c8e5c8]">
-            <Clock size={14} className="mr-2" />
-            Review ({submissions.filter(s => s.status === 'pending_review').length})
+        <TabsList className="grid w-full grid-cols-3 mb-6 h-auto">
+          <TabsTrigger value="review" className="font-['Sniglet:Regular',_sans-serif] text-[10px] md:text-sm px-2 py-2 data-[state=active]:bg-[#c8e5c8]">
+            <Clock size={12} className="mr-1 shrink-0" />
+            <span className="truncate">Review ({submissions.filter(s => s.status === 'pending_review').length})</span>
           </TabsTrigger>
-          <TabsTrigger value="pending" className="font-['Sniglet:Regular',_sans-serif] data-[state=active]:bg-[#f4d3a0]">
-            <AlertTriangle size={14} className="mr-2" />
-            Pending ({submissions.filter(s => s.status === 'needs_revision' || s.status === 'approved').length})
+          <TabsTrigger value="pending" className="font-['Sniglet:Regular',_sans-serif] text-[10px] md:text-sm px-2 py-2 data-[state=active]:bg-[#f4d3a0]">
+            <AlertTriangle size={12} className="mr-1 shrink-0" />
+            <span className="truncate">Pending ({submissions.filter(s => s.status === 'needs_revision' || s.status === 'approved').length})</span>
           </TabsTrigger>
-          <TabsTrigger value="moderation" className="font-['Sniglet:Regular',_sans-serif] data-[state=active]:bg-[#e6beb5]">
-            <Flag size={14} className="mr-2" />
-            Moderation ({submissions.filter(s => s.status === 'flagged' || s.status === 'rejected').length})
+          <TabsTrigger value="moderation" className="font-['Sniglet:Regular',_sans-serif] text-[10px] md:text-sm px-2 py-2 data-[state=active]:bg-[#e6beb5]">
+            <Flag size={12} className="mr-1 shrink-0" />
+            <span className="truncate">Moderation ({submissions.filter(s => s.status === 'flagged' || s.status === 'rejected').length})</span>
           </TabsTrigger>
         </TabsList>
 

@@ -136,9 +136,40 @@ export function AssetUploadManager({ accessToken }: AssetUploadManagerProps) {
     }
   };
 
-  const copyUrl = (url: string) => {
-    navigator.clipboard.writeText(url);
-    toast.success('URL copied to clipboard');
+  const copyUrl = async (url: string) => {
+    try {
+      // Try modern Clipboard API first
+      await navigator.clipboard.writeText(url);
+      toast.success('URL copied to clipboard');
+    } catch (error) {
+      // Fallback for when Clipboard API is blocked
+      try {
+        // Create a temporary textarea
+        const textarea = document.createElement('textarea');
+        textarea.value = url;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        
+        // Select and copy
+        textarea.select();
+        textarea.setSelectionRange(0, 99999); // For mobile devices
+        const successful = document.execCommand('copy');
+        
+        // Clean up
+        document.body.removeChild(textarea);
+        
+        if (successful) {
+          toast.success('URL copied to clipboard');
+        } else {
+          throw new Error('Copy command failed');
+        }
+      } catch (fallbackError) {
+        // If all else fails, show the URL for manual copying
+        console.error('Copy failed:', error, fallbackError);
+        toast.error('Copy failed. URL: ' + url, { duration: 10000 });
+      }
+    }
   };
 
   const formatSize = (bytes?: number) => {

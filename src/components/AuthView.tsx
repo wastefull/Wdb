@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { LogIn, UserPlus, Eye, EyeOff, Mail, ArrowLeft } from 'lucide-react';
+import { LogIn, UserPlus, Eye, EyeOff, Mail, ArrowLeft, X } from 'lucide-react';
 import * as api from '../utils/api';
 import { toast } from 'sonner@2.0.3';
 import { isFigmaMake, logEnvironmentInfo } from '../utils/environment';
@@ -7,9 +7,10 @@ import { logger } from '../utils/logger';
 
 interface AuthViewProps {
   onAuthSuccess: (user: { id: string; email: string; name?: string }) => void;
+  onClose?: () => void;
 }
 
-export function AuthView({ onAuthSuccess }: AuthViewProps) {
+export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
@@ -162,7 +163,6 @@ export function AuthView({ onAuthSuccess }: AuthViewProps) {
       console.error('Magic link verification error:', error);
       toast.error(error.message || 'Failed to verify magic link');
       setAuthMode('magic-link');
-      setDevMagicToken(null);
     } finally {
       setLoading(false);
     }
@@ -171,54 +171,63 @@ export function AuthView({ onAuthSuccess }: AuthViewProps) {
 
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-8 bg-[#faf7f2] dark:bg-[#1a1917]"
-      style={{
-        backgroundImage: `url("https://www.transparenttextures.com/patterns/3px-tile.png")`,
-        backgroundSize: '3px 3px'
-      }}
-    >
-      <div className="w-full max-w-md">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="font-['Sniglet:Regular',_sans-serif] text-[32px] text-black dark:text-white mb-2 uppercase">
-            WasteDB
-          </h1>
-          <p className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black/60 dark:text-white/60">
-            Material Sustainability Database
-          </p>
-        </div>
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="w-full max-w-[400px]">
+        {/* Auth Window */}
+        <div className="rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] overflow-hidden backdrop-blur-md bg-white/70 dark:bg-[#2a2825]/70">
+          {/* Mini Status Bar */}
+          <div className="h-[32px] bg-[#faf7f2] dark:bg-[#2a2825] border-b-[1.5px] border-[#211f1c] dark:border-white/20 flex items-center justify-center relative">
+            {/* Red Close Button - Positioned absolutely on the left */}
+            <button
+              onClick={onClose}
+              className="group absolute left-2 w-[11px] h-[11px] cursor-pointer"
+            >
+              <div className="absolute inset-[-8.333%]">
+                <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 14 14">
+                  <circle cx="7" cy="7" fill="#E6BCB5" r="6.5" stroke="#211F1C" />
+                </svg>
+              </div>
+              {/* X appears on hover */}
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <X size={8} className="text-black" strokeWidth={2.5} />
+              </div>
+            </button>
+            {/* Window Title - Centered */}
+            <span className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white">
+              Welcome back!
+            </span>
+          </div>
 
-        {/* Auth Card */}
-        <div className="bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] p-8">
-          {/* Form */}
+          {/* Form Content */}
+          <div className="p-6 bg-[#faf7f2]/90 dark:bg-[#2a2825]/90">
           {authMode === 'magic-link-sent' ? (
-            <div className="text-center space-y-4">
-              <div className="p-6 bg-[#e4e3ac]/30 dark:bg-[#e4e3ac]/10 border border-[#211f1c]/20 dark:border-white/20 rounded-[8px]">
-                <Mail size={32} className="mx-auto mb-3 text-black dark:text-white" />
-                <h3 className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black dark:text-white mb-2">
+            <div className="text-center space-y-3">
+              <div className="p-5 bg-[#e4e3ac]/30 dark:bg-[#e4e3ac]/10 border border-[#211f1c]/20 dark:border-white/20 rounded-[8px]">
+                <Mail size={28} className="mx-auto mb-2 text-black dark:text-white" />
+                <h3 className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white mb-2">
                   Magic Link Sent!
                 </h3>
-                <p className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black/70 dark:text-white/70 mb-4">
+                <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70 mb-3">
                   We've sent a secure sign-in link to <strong>{email}</strong>.
                   Click the link in your email to sign in instantly.
                 </p>
-                <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/50 dark:text-white/50">
+                <p className="font-['Sniglet:Regular',_sans-serif] text-[10px] text-black/50 dark:text-white/50">
                   The link will expire in 1 hour for security.
                 </p>
               </div>
               
               <button
                 onClick={() => setAuthMode('magic-link')}
-                className="w-full bg-[#b8c8cb] h-[36px] rounded-[8px] border border-[#211f1c] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[13px] text-black hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all flex items-center justify-center gap-2"
+                className="w-full bg-[#b8c8cb] h-[36px] rounded-[8px] border border-[#211f1c] dark:border-white/20 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all flex items-center justify-center gap-2"
               >
                 <ArrowLeft size={14} />
                 Send Another Link
               </button>
             </div>
           ) : authMode === 'magic-link' ? (
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div>
-                <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black dark:text-white block mb-1">
+                <label className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white block mb-1">
                   Email Address
                 </label>
                 <input
@@ -232,7 +241,7 @@ export function AuthView({ onAuthSuccess }: AuthViewProps) {
                     }
                   }}
                   placeholder="you@example.com"
-                  className="w-full px-3 py-2 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50 outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                  className="w-full px-3 py-2 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[13px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50 outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
                 />
               </div>
 
@@ -250,16 +259,16 @@ export function AuthView({ onAuthSuccess }: AuthViewProps) {
               <button
                 onClick={handleSendMagicLink}
                 disabled={loading}
-                className="w-full bg-[#e4e3ac] h-[44px] rounded-[8px] border border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[15px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
+                className="w-full bg-[#e4e3ac] h-[40px] rounded-[8px] border border-[#211f1c] dark:border-white/20 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[13px] text-black hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
               >
                 <Mail size={16} />
                 {loading ? 'Sending...' : 'Send Magic Link'}
               </button>
             </div>
           ) : authMode === 'traditional' && showPasswordAuth ? (
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div>
-                <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black dark:text-white block mb-1">
+                <label className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white block mb-1">
                   Name (optional)
                 </label>
                 <input
@@ -268,15 +277,15 @@ export function AuthView({ onAuthSuccess }: AuthViewProps) {
                   onChange={(e) => setName(e.target.value)}
                   onKeyDownCapture={handleKeyDown}
                   placeholder="Your name"
-                  className="w-full px-3 py-2 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50 outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                  className="w-full px-3 py-2 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[13px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50 outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
                 />
-                <p className="font-['Sniglet:Regular',_sans-serif] text-[10px] text-black/50 dark:text-white/50 mt-1">
+                <p className="font-['Sniglet:Regular',_sans-serif] text-[9px] text-black/50 dark:text-white/50 mt-1">
                   Only used when creating a new account
                 </p>
               </div>
 
               <div>
-                <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black dark:text-white block mb-1">
+                <label className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white block mb-1">
                   Email
                 </label>
                 <input
@@ -285,7 +294,7 @@ export function AuthView({ onAuthSuccess }: AuthViewProps) {
                   onChange={(e) => setEmail(e.target.value)}
                   onKeyDownCapture={handleKeyDown}
                   placeholder="you@example.com"
-                  className="w-full px-3 py-2 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50 outline-none focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                  className="w-full px-3 py-2 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[13px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50 outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
                 />
               </div>
 
@@ -301,7 +310,7 @@ export function AuthView({ onAuthSuccess }: AuthViewProps) {
               />
 
               <div>
-                <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black dark:text-white block mb-1">
+                <label className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white block mb-1">
                   Password
                 </label>
                 <div className="relative">
@@ -316,7 +325,7 @@ export function AuthView({ onAuthSuccess }: AuthViewProps) {
                       }
                     }}
                     placeholder="At least 8 characters"
-                    className="w-full px-3 py-2 pr-10 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50 outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                    className="w-full px-3 py-2 pr-10 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[13px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50 outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
                   />
                   <button
                     type="button"
@@ -329,18 +338,18 @@ export function AuthView({ onAuthSuccess }: AuthViewProps) {
               </div>
 
               {/* Email Confirmation Notice */}
-              <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-300 dark:border-blue-700 rounded-[8px]">
-                <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-blue-800 dark:text-blue-200">
+              <div className="p-2.5 bg-blue-50 dark:bg-blue-900/20 border border-blue-300 dark:border-blue-700 rounded-[8px]">
+                <p className="font-['Sniglet:Regular',_sans-serif] text-[10px] text-blue-800 dark:text-blue-200">
                   📧 New accounts require email confirmation. You'll receive a confirmation link after signing up.
                 </p>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex gap-2 pt-2">
+              <div className="flex gap-2 pt-1">
                 <button
                   onClick={handleSignIn}
                   disabled={loading}
-                  className="flex-1 bg-[#b8c8cb] h-[44px] rounded-[8px] border border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[15px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
+                  className="flex-1 bg-[#b8c8cb] h-[40px] rounded-[8px] border border-[#211f1c] dark:border-white/20 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[13px] text-black hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
                 >
                   <LogIn size={16} />
                   {loading ? 'Loading...' : 'Sign In'}
@@ -348,7 +357,7 @@ export function AuthView({ onAuthSuccess }: AuthViewProps) {
                 <button
                   onClick={handleSignUp}
                   disabled={loading}
-                  className="flex-1 bg-[#e4e3ac] h-[44px] rounded-[8px] border border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[15px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
+                  className="flex-1 bg-[#e4e3ac] h-[40px] rounded-[8px] border border-[#211f1c] dark:border-white/20 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[13px] text-black hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
                 >
                   <UserPlus size={16} />
                   {loading ? 'Loading...' : 'Sign Up'}
@@ -357,14 +366,14 @@ export function AuthView({ onAuthSuccess }: AuthViewProps) {
             </div>
           ) : (
             /* Fallback: If password auth is disabled but mode is traditional, show magic link */
-            <div className="space-y-4">
-              <div className="p-4 bg-[#e4e3ac]/40 dark:bg-[#e4e3ac]/20 border-2 border-[#211f1c]/30 dark:border-white/30 rounded-[8px]">
-                <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white text-center mb-3">
+            <div className="space-y-3">
+              <div className="p-3 bg-[#e4e3ac]/40 dark:bg-[#e4e3ac]/20 border-2 border-[#211f1c]/30 dark:border-white/30 rounded-[8px]">
+                <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white text-center mb-2">
                   Password authentication is not available in production.
                 </p>
                 <button
                   onClick={() => setAuthMode('magic-link')}
-                  className="w-full bg-[#e4e3ac] h-[36px] rounded-[8px] border border-[#211f1c] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[13px] text-black hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all flex items-center justify-center gap-2"
+                  className="w-full bg-[#e4e3ac] h-[36px] rounded-[8px] border border-[#211f1c] dark:border-white/20 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all flex items-center justify-center gap-2"
                 >
                   <Mail size={14} />
                   Use Magic Link Instead
@@ -372,15 +381,7 @@ export function AuthView({ onAuthSuccess }: AuthViewProps) {
               </div>
             </div>
           )}
-
-
-        </div>
-
-        {/* Footer Note */}
-        <div className="mt-6 text-center">
-          <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/50 dark:text-white/50">
-            Your data is securely stored with Supabase
-          </p>
+          </div>
         </div>
       </div>
     </div>

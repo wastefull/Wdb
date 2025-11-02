@@ -12,6 +12,7 @@ interface UserProfileViewProps {
   userId: string;
   onBack: () => void;
   isOwnProfile: boolean;
+  onNavigateToMySubmissions?: () => void;
 }
 
 interface Profile {
@@ -26,7 +27,7 @@ interface Profile {
   created_at: string;
 }
 
-export function UserProfileView({ userId, onBack, isOwnProfile }: UserProfileViewProps) {
+export function UserProfileView({ userId, onBack, isOwnProfile, onNavigateToMySubmissions }: UserProfileViewProps) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
@@ -134,7 +135,7 @@ export function UserProfileView({ userId, onBack, isOwnProfile }: UserProfileVie
         <CardHeader>
           <div className="flex items-start gap-4">
             {/* Avatar */}
-            <div className="w-24 h-24 rounded-full border-2 border-[#211f1c] dark:border-white/20 overflow-hidden bg-[#e5e4dc] dark:bg-[#3a3835] flex items-center justify-center">
+            <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full border-2 border-[#211f1c] dark:border-white/20 overflow-hidden bg-[#e5e4dc] dark:bg-[#3a3835] flex items-center justify-center flex-shrink-0">
               {(editing ? editedAvatarUrl : profile.avatar_url) ? (
                 <img
                   src={editing ? editedAvatarUrl : profile.avatar_url}
@@ -145,23 +146,23 @@ export function UserProfileView({ userId, onBack, isOwnProfile }: UserProfileVie
                   }}
                 />
               ) : (
-                <span className="font-['Sniglet:Regular',_sans-serif] text-3xl text-black dark:text-white">
+                <span className="font-['Sniglet:Regular',_sans-serif] text-2xl sm:text-3xl text-black dark:text-white">
                   {profile.name.charAt(0).toUpperCase()}
                 </span>
               )}
             </div>
 
             {/* Name and Email */}
-            <div className="flex-1">
-              <CardTitle className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white mb-1">
+            <div className="flex-1 min-w-0">
+              <CardTitle className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white mb-1 break-words">
                 {profile.name}
                 {profile.role === 'admin' && (
-                  <span className="ml-2 px-2 py-0.5 text-[10px] bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded">
+                  <span className="ml-2 px-2 py-0.5 text-[10px] bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded whitespace-nowrap">
                     Admin
                   </span>
                 )}
               </CardTitle>
-              <CardDescription className="font-['Sniglet:Regular',_sans-serif] text-[13px]">
+              <CardDescription className="font-['Sniglet:Regular',_sans-serif] text-[11px] sm:text-[13px] break-all">
                 {profile.email}
               </CardDescription>
               <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/50 dark:text-white/50 mt-2">
@@ -251,11 +252,11 @@ export function UserProfileView({ userId, onBack, isOwnProfile }: UserProfileVie
 
           {/* Edit Actions */}
           {editing && (
-            <div className="flex gap-3 pt-4 border-t border-[#211f1c]/20 dark:border-white/20">
+            <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-[#211f1c]/20 dark:border-white/20">
               <Button
                 onClick={handleSave}
                 disabled={saving}
-                className="flex items-center gap-2 bg-[#c8e5c8] text-black hover:bg-[#b8d5b8] border border-[#211f1c] dark:border-white/20"
+                className="flex items-center justify-center gap-2 bg-[#c8e5c8] text-black hover:bg-[#b8d5b8] border border-[#211f1c] dark:border-white/20 w-full sm:w-auto"
               >
                 <Save size={14} />
                 {saving ? 'Saving...' : 'Save Changes'}
@@ -264,7 +265,7 @@ export function UserProfileView({ userId, onBack, isOwnProfile }: UserProfileVie
                 onClick={handleCancel}
                 disabled={saving}
                 variant="outline"
-                className="flex items-center gap-2"
+                className="flex items-center justify-center gap-2 w-full sm:w-auto"
               >
                 <X size={14} />
                 Cancel
@@ -277,12 +278,24 @@ export function UserProfileView({ userId, onBack, isOwnProfile }: UserProfileVie
       {/* Contributions Section */}
       <Card className="mt-6 border-[1.5px] border-[#211f1c] dark:border-white/20 bg-white dark:bg-[#2a2825]">
         <CardHeader>
-          <CardTitle className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">
-            Contributions
-          </CardTitle>
-          <CardDescription className="font-['Sniglet:Regular',_sans-serif]">
-            Materials and articles submitted by this user
-          </CardDescription>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <CardTitle className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">
+                Contributions
+              </CardTitle>
+              <CardDescription className="font-['Sniglet:Regular',_sans-serif]">
+                Materials and articles submitted by this user
+              </CardDescription>
+            </div>
+            {isOwnProfile && onNavigateToMySubmissions && (
+              <Button
+                onClick={onNavigateToMySubmissions}
+                className="bg-[#f4d3a0] text-black hover:bg-[#e4c390] border border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] w-full sm:w-auto"
+              >
+                My Submissions
+              </Button>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           <p className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black/60 dark:text-white/60 italic">

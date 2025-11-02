@@ -1,8 +1,16 @@
 import { projectId, publicAnonKey } from './supabase/info';
 import { logger } from './logger';
+import { toast } from 'sonner@2.0.3';
 
 const API_BASE_URL = `https://${projectId}.supabase.co/functions/v1/make-server-17cae920`;
 logger.log('🔧 API_BASE_URL initialized:', API_BASE_URL);
+
+// Session expiry callback - will be set by AuthContext
+let onSessionExpired: (() => void) | null = null;
+
+export function setSessionExpiredCallback(callback: () => void) {
+  onSessionExpired = callback;
+}
 
 interface Material {
   id: string;
@@ -156,11 +164,22 @@ export async function apiCall(endpoint: string, options: RequestInit = {}) {
       error: errorData.error || 'Unknown error',
     });
     
-    // If we get a 401 and it's not a signin/signup request, clear the stale token
+    // If we get a 401 and it's not a signin/signup request, handle session expiry
     if (response.status === 401 && !endpoint.includes('/auth/')) {
-      logger.warn('Unauthorized request - clearing stale authentication');
+      logger.warn('Session expired - clearing authentication');
       clearAccessToken();
       sessionStorage.removeItem('wastedb_user');
+      
+      // Show toast notification for session expiry
+      const errorMessage = errorData.error || '';
+      if (errorMessage.includes('expired') || errorMessage.includes('Unauthorized')) {
+        toast.error('Your session has expired. Please sign in again.');
+      }
+      
+      // Trigger the session expired callback (redirects to sign-in)
+      if (onSessionExpired) {
+        onSessionExpired();
+      }
     }
     
     throw new Error(errorData.error || `API call failed: ${response.statusText}`);

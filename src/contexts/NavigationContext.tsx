@@ -10,6 +10,7 @@ import { CategoryType } from '../types/material';
 
 // View types that the app can navigate to
 export type ViewType = 
+  | { type: 'auth' }
   | { type: 'materials' }
   | { type: 'material-detail'; materialId: string }
   | { type: 'articles'; category: CategoryType; materialId: string }
@@ -30,9 +31,11 @@ export type ViewType =
 interface NavigationContextType {
   // State
   currentView: ViewType;
+  setCurrentView: (view: ViewType) => void;
   
   // Navigation
   navigateTo: (view: ViewType) => void;
+  navigateToAuth: () => void;
   navigateToMaterials: () => void;
   navigateToMaterialDetail: (materialId: string) => void;
   navigateToArticles: (materialId: string, category: CategoryType) => void;
@@ -73,6 +76,10 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
     navigationLogger.info('Navigating to:', view.type);
     setCurrentView(view);
     setViewHistory(prev => [...prev, view]);
+  };
+
+  const navigateToAuth = () => {
+    navigateTo({ type: 'auth' });
   };
 
   const navigateToMaterials = () => {
@@ -150,7 +157,9 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
 
   const value: NavigationContextType = {
     currentView,
+    setCurrentView,
     navigateTo,
+    navigateToAuth,
     navigateToMaterials,
     navigateToMaterialDetail,
     navigateToArticles,

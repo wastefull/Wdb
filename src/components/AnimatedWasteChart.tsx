@@ -36,9 +36,9 @@ export function AnimatedWasteChart({ chartData, onCategoryClick }: AnimatedWaste
   }, []);
 
   useEffect(() => {
-    // Detect mobile screen size
+    // Detect mobile/small screen size (below 1300px)
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+      setIsMobile(window.innerWidth < 1300);
     };
     
     checkMobile();
@@ -87,57 +87,73 @@ export function AnimatedWasteChart({ chartData, onCategoryClick }: AnimatedWaste
   const pathEnd = isMobile ? 430 : 450;
 
   return (
-    <div className="bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 p-3 lg:p-4 shadow-sm overflow-hidden">
-      <div className="relative h-[350px] flex items-center justify-center">
-        {/* Animated curved text */}
-        <motion.div
-          className="absolute top-0 left-0 right-0 flex justify-center"
-          initial={{ x: -600, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ duration: 1.2, ease: "easeOut" }}
+    <div>
+      {/* Title outside box on smaller screens */}
+      {isMobile && (
+        <motion.h2
+          className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white text-center mb-3"
+          style={{ fontSize: `${18 * fontScale}px` }}
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          <svg width="500" height="140" viewBox="0 0 500 140" className="overflow-visible w-full max-w-[500px]">
-            <defs>
-              {/* Define the curve path for the text */}
-              <motion.path
-                id="textCurve"
-                initial={{
-                  d: `M ${pathStart} 70 L ${pathEnd} 70` // Start as straight line
-                }}
-                animate={{
-                  d: hasAnimated 
-                    ? [
-                        `M ${pathStart} ${centerY} Q ${centerX} ${centerY - initialRadius + 60} ${pathEnd} ${centerY}`, // Gentle curve
-                        `M ${pathStart} ${centerY} Q ${centerX} ${centerY - finalRadius + mobileCurveOffset} ${pathEnd} ${centerY}`   // Very tight curve
-                      ]
-                    : `M ${pathStart} 70 L ${pathEnd} 70`
-                }}
-                transition={{ 
-                  duration: hasAnimated ? 1.5 : 1.2, 
-                  delay: 0.3, 
-                  ease: "easeInOut",
-                  times: hasAnimated ? [0, 1] : undefined
-                }}
-                fill="none"
-              />
-            </defs>
-            
-            <text
-              className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white fill-black dark:fill-white"
-              fontSize={isMobile ? `${20 * fontScale}` : "22"}
-              textAnchor="middle"
+          What options do I have for my waste?
+        </motion.h2>
+      )}
+      
+      <div className="bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-sm overflow-hidden" style={{ padding: isMobile ? '8px' : '16px' }}>
+        <div className="relative flex items-center justify-center" style={{ height: isMobile ? '280px' : '350px' }}>
+          {/* Animated curved text - only shown on larger screens */}
+          {!isMobile && (
+            <motion.div
+              className="absolute top-0 left-0 right-0 flex justify-center"
+              initial={{ x: -600, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ duration: 1.2, ease: "easeOut" }}
             >
-              <textPath href="#textCurve" startOffset="50%">
-                What options do I have for my waste?
-              </textPath>
-            </text>
-          </svg>
-        </motion.div>
+              <svg width="500" height="140" viewBox="0 0 500 140" className="overflow-visible w-full max-w-[500px]">
+                <defs>
+                  {/* Define the curve path for the text */}
+                  <motion.path
+                    id="textCurve"
+                    initial={{
+                      d: `M ${pathStart} 70 L ${pathEnd} 70` // Start as straight line
+                    }}
+                    animate={{
+                      d: hasAnimated 
+                        ? [
+                            `M ${pathStart} ${centerY} Q ${centerX} ${centerY - initialRadius + 60} ${pathEnd} ${centerY}`, // Gentle curve
+                            `M ${pathStart} ${centerY} Q ${centerX} ${centerY - finalRadius + mobileCurveOffset} ${pathEnd} ${centerY}`   // Very tight curve
+                          ]
+                        : `M ${pathStart} 70 L ${pathEnd} 70`
+                    }}
+                    transition={{ 
+                      duration: hasAnimated ? 1.5 : 1.2, 
+                      delay: 0.3, 
+                      ease: "easeInOut",
+                      times: hasAnimated ? [0, 1] : undefined
+                    }}
+                    fill="none"
+                  />
+                </defs>
+                
+                <text
+                  className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white fill-black dark:fill-white"
+                  fontSize="22"
+                  textAnchor="middle"
+                >
+                  <textPath href="#textCurve" startOffset="50%">
+                    What options do I have for my waste?
+                  </textPath>
+                </text>
+              </svg>
+            </motion.div>
+          )}
 
         {/* Animated donut chart with rolling effect */}
         <motion.div
           className="absolute [&_*]:outline-none"
-          style={{ width: '100%', height: '280px', marginTop: isMobile ? '40px' : '60px' }}
+          style={{ width: '100%', height: '280px', marginTop: isMobile ? '0px' : '60px' }}
           initial={{ x: 600, opacity: 0 }}
           animate={{ 
             x: 0, 
@@ -268,6 +284,7 @@ export function AnimatedWasteChart({ chartData, onCategoryClick }: AnimatedWaste
           </ResponsiveContainer>
         </motion.div>
       </div>
+    </div>
     </div>
   );
 }

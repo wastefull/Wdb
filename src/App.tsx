@@ -205,13 +205,13 @@ function RetroButtons({ title }: { title: string }) {
   return (
     <div className="basis-0 grow h-full min-h-px min-w-px relative shrink-0">
       <div className="flex flex-row items-center justify-start md:justify-center size-full">
-        <div className="box-border content-stretch flex gap-[6px] md:gap-[10px] items-center justify-start md:justify-center px-[3px] md:px-[7px] py-[2px] relative size-full">
+        <div className="box-border content-stretch flex gap-[4px] md:gap-[10px] items-center justify-start md:justify-center px-[3px] md:px-[7px] py-[2px] relative size-full">
           <TooltipProvider delayDuration={300}>
-            <div className="flex flex-row gap-[6px] md:gap-[10px] items-center h-full">
+            <div className="flex flex-row gap-[4px] md:gap-[10px] items-center h-full">
               {/* Red Button - Reset Settings */}
               <UITooltip>
               <TooltipTrigger asChild>
-                <div className="relative shrink-0 w-[13px] h-[13px] overflow-visible flex items-center justify-center">
+                <div className="relative shrink-0 w-[11px] h-[11px] md:w-[13px] md:h-[13px] overflow-visible flex items-center justify-center">
                   <Popover open={redOpen} onOpenChange={setRedOpen}>
                     <PopoverTrigger 
                       className="relative size-full hover:scale-110 transition-transform cursor-pointer"
@@ -254,7 +254,7 @@ function RetroButtons({ title }: { title: string }) {
             {/* Yellow Button - Font Size */}
             <UITooltip>
               <TooltipTrigger asChild>
-                <div className="relative shrink-0 w-[13px] h-[13px] overflow-visible flex items-center justify-center">
+                <div className="relative shrink-0 w-[11px] h-[11px] md:w-[13px] md:h-[13px] overflow-visible flex items-center justify-center">
                   <Popover open={yellowOpen} onOpenChange={setYellowOpen}>
                     <PopoverTrigger 
                       className="relative size-full hover:scale-110 transition-transform cursor-pointer"
@@ -317,7 +317,7 @@ function RetroButtons({ title }: { title: string }) {
             {/* Blue Button - Display Controls */}
             <UITooltip>
               <TooltipTrigger asChild>
-                <div className="relative shrink-0 w-[13px] h-[13px] overflow-visible flex items-center justify-center">
+                <div className="relative shrink-0 w-[11px] h-[11px] md:w-[13px] md:h-[13px] overflow-visible flex items-center justify-center">
                   <Popover open={blueOpen} onOpenChange={setBlueOpen}>
                     <PopoverTrigger 
                       className="relative size-full hover:scale-110 transition-transform cursor-pointer"
@@ -387,9 +387,9 @@ function RetroButtons({ title }: { title: string }) {
             </div>
           </TooltipProvider>
 
-          <div className="basis-0 grow min-h-px min-w-px flex items-center justify-center gap-2">
+          <div className="basis-0 grow min-h-px min-w-px flex items-center justify-center gap-0 md:gap-2">
             <h1 className="font-['Sniglet:Regular',_sans-serif] leading-[25px] not-italic text-[14px] md:text-[20px] text-black dark:text-white text-center uppercase">{title}</h1>
-            <span className="font-['Sniglet:Regular',_sans-serif] text-[8px] md:text-[10px] px-1.5 md:px-2 py-0.5 md:py-1 rounded-full bg-[#bdd4b7] dark:bg-[#2a2f27] border border-[#211f1c] dark:border-white/20 text-black dark:text-white uppercase">Beta</span>
+            <span className="font-['Sniglet:Regular',_sans-serif] text-[8px] md:text-[10px] px-1 md:px-1.5 py-0 md:py-0.5 rounded-full bg-[#bdd4b7] dark:bg-[#2a2f27] border border-[#211f1c] dark:border-white/20 text-black dark:text-white uppercase">Beta</span>
           </div>
         </div>
       </div>
@@ -405,12 +405,12 @@ function StatusBar({ title, currentView, onViewChange, syncStatus, user, userRol
         <div className="box-border content-stretch flex h-[42px] items-center justify-between px-[5px] py-0 relative w-full">
           <RetroButtons title={title} />
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 md:gap-2">
             {/* User Controls */}
             {!user && onSignIn && (
               <button
                 onClick={onSignIn}
-                className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#b8c8cb] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[11px] text-black"
+                className="px-2 md:px-3 py-1 md:py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#b8c8cb] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[10px] md:text-[11px] text-black"
               >
                 Sign In
               </button>
@@ -422,10 +422,10 @@ function StatusBar({ title, currentView, onViewChange, syncStatus, user, userRol
                     <TooltipTrigger asChild>
                       <button
                         onClick={() => onViewChange({ type: 'user-profile', userId: user.id })}
-                        className="flex items-center gap-1 px-2 py-1 bg-white/50 dark:bg-black/20 rounded-md border border-[#211f1c]/20 dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all cursor-pointer"
+                        className="flex items-center gap-1 px-1.5 md:px-2 py-1 bg-white/50 dark:bg-black/20 rounded-md border border-[#211f1c]/20 dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all cursor-pointer"
                       >
-                        <User size={12} className="text-black dark:text-white" />
-                        <span className="font-['Sniglet:Regular',_sans-serif] text-[10px] text-black dark:text-white max-w-[100px] truncate">
+                        <User className="w-3 h-3 md:w-[12px] md:h-[12px] text-black dark:text-white" />
+                        <span className="hidden md:inline font-['Sniglet:Regular',_sans-serif] text-[10px] text-black dark:text-white max-w-[100px] truncate">
                           {user.name || user.email.split('@')[0]}
                         </span>
                       </button>
@@ -447,10 +447,10 @@ function StatusBar({ title, currentView, onViewChange, syncStatus, user, userRol
                       <TooltipTrigger asChild>
                         <button
                           onClick={onLogout}
-                          className="p-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#e6beb5] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                          className="p-1 md:p-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#e6beb5] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
                           aria-label="Sign out"
                         >
-                          <LogOut size={12} className="text-black" />
+                          <LogOut className="w-3 h-3 md:w-[12px] md:h-[12px] text-black" />
                         </button>
                       </TooltipTrigger>
                       <TooltipContent side="bottom" className="bg-black text-white border-black">
@@ -463,16 +463,16 @@ function StatusBar({ title, currentView, onViewChange, syncStatus, user, userRol
             )}
           </div>
           {user && syncStatus && (
-            <div className="flex items-center justify-center gap-2 px-3 h-full">
+            <div className="flex items-center justify-center gap-1 md:gap-2 px-1.5 md:px-3 h-full">
               <TooltipProvider delayDuration={300}>
                 <UITooltip>
                   <TooltipTrigger 
                     aria-label={`Sync status: ${syncStatus === 'synced' ? 'Synced to cloud' : syncStatus === 'syncing' ? 'Syncing' : syncStatus === 'offline' ? 'Working offline' : 'Sync error'}`}
                   >
-                    {syncStatus === 'synced' && <Cloud size={14} className="text-[#4a90a4] dark:text-[#6bb6d0]" aria-hidden="true" />}
-                    {syncStatus === 'syncing' && <Cloud size={14} className="text-[#d4b400] dark:text-[#ffd700] animate-pulse" aria-hidden="true" />}
-                    {syncStatus === 'offline' && <CloudOff size={14} className="text-black/40 dark:text-white/40" aria-hidden="true" />}
-                    {syncStatus === 'error' && <CloudOff size={14} className="text-[#c74444] dark:text-[#ff6b6b]" aria-hidden="true" />}
+                    {syncStatus === 'synced' && <Cloud className="w-3 h-3 md:w-[14px] md:h-[14px] text-[#4a90a4] dark:text-[#6bb6d0]" aria-hidden="true" />}
+                    {syncStatus === 'syncing' && <Cloud className="w-3 h-3 md:w-[14px] md:h-[14px] text-[#d4b400] dark:text-[#ffd700] animate-pulse" aria-hidden="true" />}
+                    {syncStatus === 'offline' && <CloudOff className="w-3 h-3 md:w-[14px] md:h-[14px] text-black/40 dark:text-white/40" aria-hidden="true" />}
+                    {syncStatus === 'error' && <CloudOff className="w-3 h-3 md:w-[14px] md:h-[14px] text-[#c74444] dark:text-[#ff6b6b]" aria-hidden="true" />}
                   </TooltipTrigger>
                   <TooltipContent side="bottom" className="bg-black text-white border-black">
                     <p className="font-['Sniglet:Regular',_sans-serif] text-[11px]">
@@ -528,8 +528,8 @@ function SearchBar({ value, onChange }: { value: string; onChange: (value: strin
             value={value}
             onChange={(e) => onChange(e.target.value)}
             onKeyDownCapture={handleKeyDown}
-            placeholder="Search materials..."
-            className="font-['Sniglet:Regular',_sans-serif] bg-transparent border-none outline-none text-[15px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50 flex-1"
+            placeholder="Search..."
+            className="font-['Sniglet:Regular',_sans-serif] bg-transparent border-none outline-none text-[15px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50 flex-1 min-w-0"
             aria-label="Search materials"
           />
         </div>
@@ -2281,50 +2281,50 @@ function DataManagementView({
 
       {/* Tabs for Material Management, Batch Operations, Data Processing, Source Library, and Assets */}
       <div className="mb-6">
-        <div className="flex gap-2 border-b border-[#211f1c]/20 dark:border-white/20 flex-wrap">
+        <div className="flex gap-1 md:gap-2 border-b border-[#211f1c]/20 dark:border-white/20 flex-wrap overflow-x-auto">
           <button
             onClick={() => setActiveTab('materials')}
-            className={`px-4 py-2 font-['Sniglet:Regular',_sans-serif] text-[12px] transition-colors ${
+            className={`px-2 md:px-4 py-2 font-['Sniglet:Regular',_sans-serif] text-[10px] md:text-[12px] transition-colors whitespace-nowrap ${
               activeTab === 'materials'
                 ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
                 : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
             }`}
           >
-            Material Management
+            Materials
           </button>
           <button
             onClick={() => setActiveTab('batch')}
-            className={`px-4 py-2 font-['Sniglet:Regular',_sans-serif] text-[12px] transition-colors ${
+            className={`px-2 md:px-4 py-2 font-['Sniglet:Regular',_sans-serif] text-[10px] md:text-[12px] transition-colors whitespace-nowrap ${
               activeTab === 'batch'
                 ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
                 : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
             }`}
           >
-            Batch Operations
+            Batch Ops
           </button>
           <button
             onClick={() => setActiveTab('processing')}
-            className={`px-4 py-2 font-['Sniglet:Regular',_sans-serif] text-[12px] transition-colors ${
+            className={`px-2 md:px-4 py-2 font-['Sniglet:Regular',_sans-serif] text-[10px] md:text-[12px] transition-colors whitespace-nowrap ${
               activeTab === 'processing'
                 ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
                 : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
             }`}
           >
-            Data Processing
+            Processing
           </button>
           <button
             onClick={() => setActiveTab('sources')}
-            className={`px-4 py-2 font-['Sniglet:Regular',_sans-serif] text-[12px] transition-colors ${
+            className={`px-2 md:px-4 py-2 font-['Sniglet:Regular',_sans-serif] text-[10px] md:text-[12px] transition-colors whitespace-nowrap ${
               activeTab === 'sources'
                 ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
                 : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
             }`}
           >
-            Source Library
+            Sources
           </button>
           <button
             onClick={() => setActiveTab('assets')}
-            className={`px-4 py-2 font-['Sniglet:Regular',_sans-serif] text-[12px] transition-colors ${
+            className={`px-2 md:px-4 py-2 font-['Sniglet:Regular',_sans-serif] text-[10px] md:text-[12px] transition-colors whitespace-nowrap ${
               activeTab === 'assets'
                 ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
                 : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
@@ -2334,13 +2334,13 @@ function DataManagementView({
           </button>
           <button
             onClick={() => setActiveTab('charts')}
-            className={`px-4 py-2 font-['Sniglet:Regular',_sans-serif] text-[12px] transition-colors ${
+            className={`px-2 md:px-4 py-2 font-['Sniglet:Regular',_sans-serif] text-[10px] md:text-[12px] transition-colors whitespace-nowrap ${
               activeTab === 'charts'
                 ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
                 : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
             }`}
           >
-            Chart Testing
+            Charts
           </button>
         </div>
       </div>
@@ -2362,31 +2362,31 @@ function DataManagementView({
               </p>
             </div>
         
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <button
             onClick={handleExportCSV}
-            className="bg-[#b8c8cb] h-[36px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-2"
+            className="bg-[#b8c8cb] h-[36px] px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[11px] md:text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-1 md:gap-2"
           >
             <Download size={14} className="text-black" />
-            Export CSV
+            <span className="whitespace-nowrap">Export CSV</span>
           </button>
           
           <button
             onClick={() => setShowImportOptions(!showImportOptions)}
-            className={`bg-[#e4e3ac] h-[36px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-2 ${
+            className={`bg-[#e4e3ac] h-[36px] px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[11px] md:text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-1 md:gap-2 ${
               showImportOptions ? 'translate-y-[1px] shadow-[1px_2px_0px_-1px_#000000]' : ''
             }`}
           >
             <FileUp size={14} className="text-black" />
-            Import CSV
+            <span className="whitespace-nowrap">Import CSV</span>
             <ChevronDown size={14} className={`text-black transition-transform ${showImportOptions ? 'rotate-180' : ''}`} />
           </button>
 
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <button className="bg-[#e6beb5] h-[36px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-2">
+              <button className="bg-[#e6beb5] h-[36px] px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[11px] md:text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-1 md:gap-2">
                 <Trash2 size={14} className="text-black" />
-                Delete All
+                <span className="whitespace-nowrap">Delete All</span>
               </button>
             </AlertDialogTrigger>
             <AlertDialogContent className="bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20">
@@ -2964,16 +2964,13 @@ function AppContent() {
       {showAuthModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="relative max-w-md w-full">
-            <button
-              onClick={() => setShowAuthModal(false)}
-              className="absolute -top-2 -right-2 z-10 p-2 rounded-full bg-[#e6beb5] border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
-            >
-              <X size={16} className="text-black" />
-            </button>
-            <AuthView onAuthSuccess={(userData) => {
-              handleAuthSuccess(userData);
-              setShowAuthModal(false);
-            }} />
+            <AuthView 
+              onAuthSuccess={(userData) => {
+                handleAuthSuccess(userData);
+                setShowAuthModal(false);
+              }}
+              onClose={() => setShowAuthModal(false)}
+            />
           </div>
         </div>
       )}
@@ -3011,11 +3008,27 @@ function AppContent() {
               )}
               {/* Search bar and chart on same line for wide screens */}
               <div className="flex flex-col lg:flex-row gap-4 lg:justify-between mb-6">
-                {/* Left column: Search bar, Add Material button, and Methodology link (vertically and horizontally centered) */}
+                {/* Left column: Logo, Search bar, Add Material button, and Methodology link (vertically and horizontally centered) */}
                 <div className="w-full lg:w-96 lg:pl-20 flex flex-col justify-center items-center gap-4">
-                  {/* Search bar with Add Material button beside it */}
-                  <div className="w-full flex gap-2">
-                    <div className="flex-1">
+                  {/* Logo */}
+                  <button
+                    onClick={() => {
+                      setSearchQuery('');
+                      navigateTo({ type: 'materials' });
+                    }}
+                    className="transition-transform hover:scale-105"
+                    aria-label="Go to home page"
+                  >
+                    <img
+                      src="https://bdvfwjmaufjeqmxphmtv.supabase.co/storage/v1/object/public/make-17cae920-assets/uplogo_transparent-1761169051994.png"
+                      alt="WasteDB Logo"
+                      className="h-16 lg:h-20 w-auto"
+                    />
+                  </button>
+                  
+                  {/* Search bar with Add Material button - stacked on mobile, side-by-side on desktop */}
+                  <div className="w-full flex flex-col sm:flex-row gap-2">
+                    <div className="flex-1 min-w-0">
                       <SearchBar value={searchQuery} onChange={setSearchQuery} />
                     </div>
                     {user && (
@@ -3028,19 +3041,19 @@ function AppContent() {
                             setShowSubmitMaterialForm(true);
                           }
                         }}
-                        className={`h-[40px] px-3 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-2 whitespace-nowrap ${
+                        className={`h-[40px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center justify-center gap-2 whitespace-nowrap sm:flex-shrink-0 ${
                           isAdminModeActive ? 'bg-[#b8c8cb]' : 'bg-[#c8e5c8]'
                         }`}
                         title={isAdminModeActive ? "Add a new material" : "Submit a new material"}
                       >
-                        <Plus size={14} className="text-black" />
-                        <span className="hidden sm:inline">{isAdminModeActive ? 'Add' : 'Submit'} Material</span>
+                        <Plus size={14} className="text-black flex-shrink-0" />
+                        <span>{isAdminModeActive ? 'Add' : 'Submit'} Material</span>
                       </button>
                     )}
                   </div>
-                  {user && (
+                  {user && currentView.type === 'materials' && (
                     <div className="flex flex-wrap gap-2 justify-center">
-                      {isAdminModeActive ? (
+                      {isAdminModeActive && (
                         <>
                           <button
                             onClick={navigateToReviewCenter}
@@ -3067,13 +3080,6 @@ function AppContent() {
                             Whitepaper Sync
                           </button>
                         </>
-                      ) : (
-                        <button
-                          onClick={navigateToMySubmissions}
-                          className="bg-[#f4d3a0] h-[40px] px-3 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
-                        >
-                          My Submissions
-                        </button>
                       )}
                     </div>
                   )}
@@ -3309,6 +3315,7 @@ function AppContent() {
               userId={currentView.userId}
               onBack={navigateToMaterials}
               isOwnProfile={currentView.userId === user?.id}
+              onNavigateToMySubmissions={currentView.userId === user?.id ? navigateToMySubmissions : undefined}
             />
           ) : currentView.type === 'my-submissions' ? (
             <MySubmissionsView
@@ -3391,13 +3398,26 @@ function AppWithMaterialsContext() {
 export default function App() {
   return (
     <AccessibilityProvider>
-      <AuthProvider>
-        <NavigationProvider>
-          <Toaster />
-          <AppWithMaterialsContext />
-          <CookieConsent />
-        </NavigationProvider>
-      </AuthProvider>
+      <NavigationProvider>
+        <AppWithAuth />
+      </NavigationProvider>
     </AccessibilityProvider>
+  );
+}
+
+// Wrapper to provide session expiry callback to AuthProvider
+function AppWithAuth() {
+  const navigation = useNavigationContext();
+  
+  const handleSessionExpired = () => {
+    navigation.navigateToAuth();
+  };
+  
+  return (
+    <AuthProvider onSessionExpired={handleSessionExpired}>
+      <Toaster />
+      <AppWithMaterialsContext />
+      <CookieConsent />
+    </AuthProvider>
   );
 }

@@ -75,9 +75,9 @@ export function DataMigrationTool({ materials, onMigrate }: DataMigrationToolPro
   };
 
   return (
-    <Card className="p-6 bg-[#faf9f6] dark:bg-[#1a1918] border-[#211f1c] dark:border-white/20">
-      <div className="flex items-start gap-4">
-        <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+    <Card className="p-4 md:p-6 bg-[#faf9f6] dark:bg-[#1a1918] border-[#211f1c] dark:border-white/20">
+      <div className="flex items-start gap-3 md:gap-4">
+        <div className="hidden md:block p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
           <Database className="w-6 h-6 text-blue-600 dark:text-blue-400" />
         </div>
         

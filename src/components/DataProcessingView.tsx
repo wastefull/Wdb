@@ -542,10 +542,10 @@ export function DataProcessingView({ materials, onBack, onUpdateMaterials }: Dat
 
       {/* Dimension Tabs */}
       <Tabs defaultValue="recyclability" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 mb-4">
-          <TabsTrigger value="recyclability">Recyclability (CR)</TabsTrigger>
-          <TabsTrigger value="compostability">Compostability (CC)</TabsTrigger>
-          <TabsTrigger value="reusability">Reusability (RU)</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-3 mb-4 h-auto">
+          <TabsTrigger value="recyclability" className="text-[10px] md:text-sm px-2">Recycle (CR)</TabsTrigger>
+          <TabsTrigger value="compostability" className="text-[10px] md:text-sm px-2">Compost (CC)</TabsTrigger>
+          <TabsTrigger value="reusability" className="text-[10px] md:text-sm px-2">Reuse (RU)</TabsTrigger>
         </TabsList>
 
         {/* CR Tab */}
@@ -631,17 +631,17 @@ export function DataProcessingView({ materials, onBack, onUpdateMaterials }: Dat
                 <div className="flex gap-2 pt-4 border-t border-[#211f1c]/20 dark:border-white/20">
                   <button
                     onClick={() => { setCRParams(defaultCRParameters); setCRResults([]); toast.info('CR reset'); }}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] transition-all font-['Sniglet:Regular',_sans-serif] text-[12px] text-black"
+                    className="flex-1 flex items-center justify-center gap-1 md:gap-2 px-2 md:px-4 py-2 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] transition-all font-['Sniglet:Regular',_sans-serif] text-[11px] md:text-[12px] text-black"
                   >
                     <RefreshCcw size={14} />
-                    Reset
+                    <span>Reset</span>
                   </button>
                   <button
                     onClick={handleCRPreview}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-[#e4e3ac] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] transition-all font-['Sniglet:Regular',_sans-serif] text-[12px] text-black"
+                    className="flex-1 flex items-center justify-center gap-1 md:gap-2 px-2 md:px-4 py-2 bg-[#e4e3ac] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] transition-all font-['Sniglet:Regular',_sans-serif] text-[11px] md:text-[12px] text-black"
                   >
                     <Play size={14} />
-                    Calculate
+                    <span>Calculate</span>
                   </button>
                 </div>
               </div>
@@ -727,18 +727,18 @@ export function DataProcessingView({ materials, onBack, onUpdateMaterials }: Dat
                 <div className="flex gap-2 pt-4 border-t border-[#211f1c]/20 dark:border-white/20">
                   <button
                     onClick={() => { setCCParams(defaultCCParameters); setCCResults([]); toast.info('CC reset'); }}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-[#e6beb5] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] transition-all font-['Sniglet:Regular',_sans-serif] text-[12px] text-black"
+                    className="flex-1 flex items-center justify-center gap-1 md:gap-2 px-2 md:px-4 py-2 bg-[#e6beb5] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] transition-all font-['Sniglet:Regular',_sans-serif] text-[11px] md:text-[12px] text-black"
                   >
                     <RefreshCcw size={14} />
-                    Reset
+                    <span>Reset</span>
                   </button>
                   <button
                     onClick={handleCCPreview}
                     disabled={ccCalculating}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-[#c74444] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] transition-all font-['Sniglet:Regular',_sans-serif] text-[12px] text-white disabled:opacity-50"
+                    className="flex-1 flex items-center justify-center gap-1 md:gap-2 px-2 md:px-4 py-2 bg-[#c74444] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] transition-all font-['Sniglet:Regular',_sans-serif] text-[11px] md:text-[12px] text-white disabled:opacity-50"
                   >
                     <Calculator size={14} />
-                    {ccCalculating ? 'Calculating...' : 'Calculate'}
+                    <span>{ccCalculating ? 'Calculating...' : 'Calculate'}</span>
                   </button>
                 </div>
               </div>
@@ -825,18 +825,18 @@ export function DataProcessingView({ materials, onBack, onUpdateMaterials }: Dat
                 <div className="flex gap-2 pt-4 border-t border-[#211f1c]/20 dark:border-white/20">
                   <button
                     onClick={() => { setRUParams(defaultRUParameters); setRUResults([]); toast.info('RU reset'); }}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-[#b5bec6] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] transition-all font-['Sniglet:Regular',_sans-serif] text-[12px] text-black"
+                    className="flex-1 flex items-center justify-center gap-1 md:gap-2 px-2 md:px-4 py-2 bg-[#b5bec6] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] transition-all font-['Sniglet:Regular',_sans-serif] text-[11px] md:text-[12px] text-black"
                   >
                     <RefreshCcw size={14} />
-                    Reset
+                    <span>Reset</span>
                   </button>
                   <button
                     onClick={handleRUPreview}
                     disabled={ruCalculating}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-[#5a7a8f] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] transition-all font-['Sniglet:Regular',_sans-serif] text-[12px] text-white disabled:opacity-50"
+                    className="flex-1 flex items-center justify-center gap-1 md:gap-2 px-2 md:px-4 py-2 bg-[#5a7a8f] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] transition-all font-['Sniglet:Regular',_sans-serif] text-[11px] md:text-[12px] text-white disabled:opacity-50"
                   >
                     <Calculator size={14} />
-                    {ruCalculating ? 'Calculating...' : 'Calculate'}
+                    <span>{ruCalculating ? 'Calculating...' : 'Calculate'}</span>
                   </button>
                 </div>
               </div>
