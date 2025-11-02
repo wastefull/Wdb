@@ -97,8 +97,9 @@ export function useRasterizedChart({
               console.warn('Sniglet font not found in document.fonts after loading attempt');
             }
             
-            // Extra time for font rendering
-            await new Promise(r => setTimeout(r, 150));
+            // Extra time for font rendering and animation completion
+            // Wait for animations to finish (600ms SimpleBar + 300ms staggered dots + buffer)
+            await new Promise(r => setTimeout(r, 1000));
           } catch (fontErr) {
             console.warn('Font loading check failed, continuing anyway:', fontErr);
           }

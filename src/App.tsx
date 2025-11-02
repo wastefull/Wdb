@@ -28,7 +28,7 @@ import { PublicExportView } from './components/PublicExportView';
 import { DataMigrationTool } from './components/DataMigrationTool';
 import { SourceLibraryManager } from './components/SourceLibraryManager';
 import { AssetUploadManager } from './components/AssetUploadManager';
-import { QuantileVisualization } from './components/QuantileVisualization';
+import { RasterizedQuantileVisualization } from './components/RasterizedQuantileVisualization';
 import { ChartRasterizationDemo } from './components/ChartRasterizationDemo';
 import { WhitepaperSyncTool } from './components/WhitepaperSyncTool';
 import { SOURCE_LIBRARY, getSourcesByTag } from './data/sources';
@@ -727,7 +727,8 @@ function MaterialCard({
       )}
       
       <div className="flex flex-col gap-2 mb-3">
-        <QuantileVisualization
+        <RasterizedQuantileVisualization
+          materialId={material.id}
           scoreType="compostability"
           data={{
             practical_mean: material.CC_practical_mean,
@@ -743,7 +744,8 @@ function MaterialCard({
           onClick={() => onViewArticles('compostability')}
           articleCount={material.articles.compostability.length}
         />
-        <QuantileVisualization
+        <RasterizedQuantileVisualization
+          materialId={material.id}
           scoreType="recyclability"
           data={{
             practical_mean: material.CR_practical_mean,
@@ -759,7 +761,8 @@ function MaterialCard({
           onClick={() => onViewArticles('recyclability')}
           articleCount={material.articles.recyclability.length}
         />
-        <QuantileVisualization
+        <RasterizedQuantileVisualization
+          materialId={material.id}
           scoreType="reusability"
           data={{
             practical_mean: material.RU_practical_mean,
@@ -1427,7 +1430,8 @@ function ArticlesView({
             <h3 className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black dark:text-white mb-4">
               Recyclability Score Overview
             </h3>
-            <QuantileVisualization
+            <RasterizedQuantileVisualization
+              materialId={material.id}
               scoreType="recyclability"
               data={{
                 practical_mean: material.CR_practical_mean,
@@ -1591,7 +1595,8 @@ function MaterialDetailView({
       <div className="bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 p-4 mb-6">
         <h3 className="font-['Sniglet:Regular',_sans-serif] text-[15px] text-black dark:text-white mb-4">Sustainability Scores</h3>
         <div className="flex flex-col gap-3">
-          <QuantileVisualization
+          <RasterizedQuantileVisualization
+            materialId={material.id}
             scoreType="compostability"
             data={{
               practical_mean: material.CC_practical_mean,
@@ -1607,7 +1612,8 @@ function MaterialDetailView({
             onClick={() => onViewArticles('compostability')}
             articleCount={material.articles.compostability.length}
           />
-          <QuantileVisualization
+          <RasterizedQuantileVisualization
+            materialId={material.id}
             scoreType="recyclability"
             data={{
               practical_mean: material.CR_practical_mean,
@@ -1623,7 +1629,8 @@ function MaterialDetailView({
             onClick={() => onViewArticles('recyclability')}
             articleCount={material.articles.recyclability.length}
           />
-          <QuantileVisualization
+          <RasterizedQuantileVisualization
+            materialId={material.id}
             scoreType="reusability"
             data={{
               practical_mean: material.RU_practical_mean,

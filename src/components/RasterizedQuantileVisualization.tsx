@@ -45,6 +45,16 @@ export function RasterizedQuantileVisualization({
 }: RasterizedQuantileVisualizationProps) {
   const { settings, reduceMotion, highContrast } = useAccessibility();
   const [shouldRasterize, setShouldRasterize] = useState(enableRasterization);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+
+  // Detect mobile vs desktop
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Use rasterization hook
   const { dataUrl, isLoading, error, svgRef } = useRasterizedChart({
@@ -109,7 +119,7 @@ export function RasterizedQuantileVisualization({
         </div>
       </div>
 
-      {/* Visible content: rasterized image or loading SVG */}
+      {/* Visible content: smart switching based on device and hover state */}
       {dataUrl && !isLoading ? (
         <RasterizedDisplay
           dataUrl={dataUrl}
@@ -119,6 +129,9 @@ export function RasterizedQuantileVisualization({
           height={height}
           onClick={onClick}
           articleCount={articleCount}
+          isMobile={isMobile}
+          isHovered={isHovered}
+          onHoverChange={setIsHovered}
         />
       ) : (
         // Show live SVG while loading
@@ -139,7 +152,9 @@ export function RasterizedQuantileVisualization({
 
 /**
  * Display component for rasterized chart
- * Maintains accessibility features from original component
+ * Implements smart rendering strategy:
+ * - Mobile: Always show rasterized PNG (performance)
+ * - Desktop: Show rasterized by default, switch to live SVG on hover (quality on demand)
  */
 function RasterizedDisplay({
   dataUrl,
@@ -149,6 +164,9 @@ function RasterizedDisplay({
   height,
   onClick,
   articleCount,
+  isMobile,
+  isHovered,
+  onHoverChange,
 }: {
   dataUrl: string;
   scoreType: ScoreType;
@@ -157,8 +175,10 @@ function RasterizedDisplay({
   height: number;
   onClick?: () => void;
   articleCount?: number;
+  isMobile: boolean;
+  isHovered: boolean;
+  onHoverChange: (hovered: boolean) => void;
 }) {
-  const [isHovered, setIsHovered] = useState(false);
   
   // Calculate display values for labels and ARIA
   const pracMean = data.practical_mean || 0;
@@ -207,16 +227,19 @@ function RasterizedDisplay({
         <span className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white">{displayScore}</span>
       </div>
       
-      {/* Rasterized image */}
+      {/* Chart display: Rasterized PNG or Live SVG based on device/hover */}
       <div 
         className="relative group w-full cursor-pointer"
         style={{ 
-          width: `${width}px`,
+          // Mobile: Responsive width, Desktop: Fixed width
+          width: isMobile ? '100%' : `${width}px`,
           height: `${height}px`,
-          overflow: 'hidden'
+          // Only clip overflow when showing PNG (to handle buffer)
+          // Allow overflow when showing SVG (for tooltips)
+          overflow: (isMobile || !isHovered) ? 'hidden' : 'visible'
         }}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        onMouseEnter={() => onHoverChange(true)}
+        onMouseLeave={() => onHoverChange(false)}
         onClick={onClick}
         role="button"
         tabIndex={0}
@@ -228,30 +251,44 @@ function RasterizedDisplay({
           }
         }}
       >
-        <img
-          src={dataUrl}
-          alt=""
-          aria-hidden="true"
-          style={{ 
-            display: 'block', 
-            width: 'auto',
-            height: `${height}px`,
-            imageRendering: '-webkit-optimize-contrast',
-          }}
-          className="transition-opacity group-hover:opacity-90"
-        />
-        
-        {/* Tooltip on hover */}
-        {isHovered && pracCI && theoCI && (
-          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-black dark:bg-white text-white dark:text-black text-xs rounded shadow-lg whitespace-nowrap z-10 pointer-events-none">
-            <div className="font-['Sniglet:Regular',_sans-serif]">
-              <div>Practical: {pracScore}% (±{Math.round((pracCI.upper - pracCI.lower) * 50)}pp)</div>
-              <div>Theoretical: {theoScore}% (±{Math.round((theoCI.upper - theoCI.lower) * 50)}pp)</div>
-              {gap >= 0.05 && <div>Gap: {Math.round(gap * 100)}pp</div>}
-              <div className="text-[10px] opacity-70 mt-1">Confidence: {confidence}</div>
-            </div>
-          </div>
+        {/* 
+          Smart rendering:
+          - Mobile: Always PNG scaled to fit (performance)
+          - Desktop not hovered: PNG at natural size (performance)  
+          - Desktop hovered: Live SVG (quality)
+        */}
+        {isMobile || !isHovered ? (
+          <img
+            src={dataUrl}
+            alt=""
+            aria-hidden="true"
+            style={{ 
+              display: 'block', 
+              // Mobile: Scale to fit container, Desktop: Natural size
+              width: isMobile ? '100%' : 'auto',
+              height: isMobile ? 'auto' : `${height}px`,
+              marginLeft: isMobile ? '0' : '-2px', // Only offset on desktop
+              imageRendering: '-webkit-optimize-contrast',
+            }}
+            className="transition-opacity"
+          />
+        ) : (
+          <QuantileVisualization
+            scoreType={scoreType}
+            data={data}
+            width={width}
+            height={height}
+            onClick={onClick}
+            articleCount={articleCount}
+            hideHeader={true}
+          />
         )}
+        
+        {/* No custom tooltips needed:
+            - Mobile: Tap to navigate, no hover state
+            - Desktop + PNG: No tooltip (performance)
+            - Desktop + SVG: Built-in tooltips from live SVG
+        */}
       </div>
     </div>
   );
