@@ -2634,6 +2634,37 @@ app.delete('/make-server-17cae920/submissions/:id', verifyAuth, verifyAdmin, asy
 
 // ===== NOTIFICATIONS =====
 
+// Create notification (admin only)
+app.post('/make-server-17cae920/notifications', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const { user_id, type, content_id, content_type, message } = await c.req.json();
+    
+    if (!user_id || !type || !message) {
+      return c.json({ error: 'Missing required fields: user_id, type, message' }, 400);
+    }
+    
+    const notificationId = `notif_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const notification = {
+      id: notificationId,
+      user_id,
+      type,
+      content_id: content_id || null,
+      content_type: content_type || null,
+      message,
+      read: false,
+      created_at: new Date().toISOString()
+    };
+    
+    await kv.set(`notification:${notificationId}`, notification);
+    console.log('Notification created:', notificationId);
+    
+    return c.json({ success: true, notification });
+  } catch (error) {
+    console.error('Error creating notification:', error);
+    return c.json({ error: 'Failed to create notification', details: String(error) }, 500);
+  }
+});
+
 // Get user notifications
 app.get('/make-server-17cae920/notifications/:userId', verifyAuth, async (c) => {
   try {
@@ -2788,9 +2819,7 @@ app.post('/make-server-17cae920/email/revision-request', verifyAuth, verifyAdmin
           <!-- Header -->
           <tr>
             <td style="background-color: #e4e3ac; padding: 30px 40px; border-bottom: 1.5px solid #211f1c; text-align: center;">
-              <h1 style="margin: 0; font-family: 'Fredoka One', sans-serif; font-size: 28px; color: #211f1c;">
-                WasteDB
-              </h1>
+              <img src="https://bdvfwjmaufjeqmxphmtv.supabase.co/storage/v1/object/public/make-17cae920-assets/uplogo_transparent-1761169051994.png" alt="WasteDB Logo" style="width: 120px; height: auto; margin-bottom: 16px;" />
               <p style="margin: 8px 0 0 0; font-size: 12px; color: #211f1c; opacity: 0.7; text-transform: uppercase; letter-spacing: 1px;">
                 Content Review System
               </p>
@@ -2950,9 +2979,7 @@ app.post('/make-server-17cae920/email/approval', verifyAuth, verifyAdmin, async 
           <!-- Header -->
           <tr>
             <td style="background-color: #c8e5c8; padding: 30px 40px; border-bottom: 1.5px solid #211f1c; text-align: center;">
-              <h1 style="margin: 0; font-family: 'Fredoka One', sans-serif; font-size: 28px; color: #211f1c;">
-                WasteDB
-              </h1>
+              <img src="https://bdvfwjmaufjeqmxphmtv.supabase.co/storage/v1/object/public/make-17cae920-assets/uplogo_transparent-1761169051994.png" alt="WasteDB Logo" style="width: 120px; height: auto; margin-bottom: 16px;" />
               <p style="margin: 8px 0 0 0; font-size: 12px; color: #211f1c; opacity: 0.7; text-transform: uppercase; letter-spacing: 1px;">
                 Content Review System
               </p>
@@ -3110,9 +3137,7 @@ app.post('/make-server-17cae920/email/rejection', verifyAuth, verifyAdmin, async
           <!-- Header -->
           <tr>
             <td style="background-color: #e6beb5; padding: 30px 40px; border-bottom: 1.5px solid #211f1c; text-align: center;">
-              <h1 style="margin: 0; font-family: 'Fredoka One', sans-serif; font-size: 28px; color: #211f1c;">
-                WasteDB
-              </h1>
+              <img src="https://bdvfwjmaufjeqmxphmtv.supabase.co/storage/v1/object/public/make-17cae920-assets/uplogo_transparent-1761169051994.png" alt="WasteDB Logo" style="width: 120px; height: auto; margin-bottom: 16px;" />
               <p style="margin: 8px 0 0 0; font-size: 12px; color: #211f1c; opacity: 0.7; text-transform: uppercase; letter-spacing: 1px;">
                 Content Review System
               </p>

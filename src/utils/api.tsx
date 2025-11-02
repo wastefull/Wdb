@@ -656,6 +656,20 @@ export async function deleteSubmission(id: string): Promise<void> {
 
 // ===== NOTIFICATIONS =====
 
+export async function createNotification(params: {
+  user_id: string;
+  type: 'submission_approved' | 'feedback_received' | 'new_review_item' | 'article_published' | 'content_flagged';
+  content_id?: string;
+  content_type?: 'material' | 'article' | 'submission';
+  message: string;
+}): Promise<any> {
+  const data = await apiCall('/notifications', {
+    method: 'POST',
+    body: JSON.stringify(params),
+  });
+  return data.notification;
+}
+
 export async function getNotifications(userId: string): Promise<any[]> {
   const data = await apiCall(`/notifications/${userId}`);
   return data.notifications;

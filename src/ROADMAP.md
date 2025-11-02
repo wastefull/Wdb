@@ -192,12 +192,12 @@ WasteDB will:
 * ✅ Published materials show Writer and Editor credits
 * ⬜ Inline diff viewer for article updates (color + icons) - DEFERRED
 
-**Phase 6.5: Notifications & Email** ⬜ PLANNED
-* Email templates for editorial feedback and approvals
-* Notification triggers (new submission, feedback, approval)
-* Manual Pending actions ("Remit to Review" / "Delete")
+**Phase 6.5: Notifications & Email** ✅ COMPLETE
+* ✅ Email templates for editorial feedback and approvals (with logo)
+* ✅ Notification triggers (new submission, feedback, approval, rejection)
+* ✅ Manual Pending actions ("Remit to Review" / "Delete")
 
-**Status:** Phase 6.3 completed October 28, 2025. Content Review Center with full editorial workflow operational.
+**Status:** Phase 6.5 completed November 2, 2025. Full notification and email system operational with logo integration.
 
 ---
 

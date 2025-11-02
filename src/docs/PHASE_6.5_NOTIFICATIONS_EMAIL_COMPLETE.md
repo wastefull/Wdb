@@ -1,7 +1,7 @@
 # Phase 6.5: Notifications & Email - COMPLETE
 
 **Status:** ✅ Complete  
-**Completed:** October 29, 2025  
+**Completed:** November 2, 2025  
 **Progress:** 6.75 of 8 phases (84.4%)
 
 ---
@@ -37,9 +37,10 @@ Phase 6.5 completes the notification and email system by adding approval/rejecti
 - `handleApprove()` updated to:
   1. Process and publish the submission
   2. Fetch submitter's profile
-  3. Send branded approval email
-  4. Show success toast
-  5. Gracefully handle email failures (doesn't block approval)
+  3. Send branded approval email with logo
+  4. Create in-app notification for submitter
+  5. Show success toast
+  6. Gracefully handle email/notification failures (doesn't block approval)
 
 ---
 
@@ -64,9 +65,41 @@ Phase 6.5 completes the notification and email system by adding approval/rejecti
 - `handleReject()` updated to:
   1. Update submission status to 'rejected'
   2. Fetch submitter's profile
-  3. Send rejection email with feedback
-  4. Show success toast
-  5. Gracefully handle email failures
+  3. Send rejection email with feedback and logo
+  4. Create in-app notification for submitter
+  5. Show success toast
+  6. Gracefully handle email/notification failures
+
+---
+
+### ✅ In-App Notifications System
+
+**Backend Implementation** (`/supabase/functions/server/index.tsx`)
+- **POST `/make-server-17cae920/notifications`** - Create notification (admin only)
+  - Parameters: `user_id`, `type`, `content_id`, `content_type`, `message`
+  - Notification types: `submission_approved`, `feedback_received`, `new_review_item`, `article_published`, `content_flagged`
+  - Automatically stores notification with timestamp and read status
+
+**Frontend API** (`/utils/api.tsx`)
+- `createNotification()` - Create new notification for user
+- `getNotifications()` - Fetch user's notifications
+- `markNotificationAsRead()` - Mark single notification as read
+- `markAllNotificationsAsRead()` - Mark all user notifications as read
+
+**UI Component** (`/components/NotificationBell.tsx`)
+- Bell icon with unread count badge
+- Popover dropdown showing all notifications
+- Auto-refresh every 30 seconds
+- Type-specific icons (✅ approved, 💬 feedback, 📝 review, 🎉 published, ⚠️ flagged)
+- Time ago formatting (e.g., "5m ago", "2h ago")
+- "Mark all read" functionality
+- Admin users see both personal and admin notifications
+
+**Notification Triggers**
+- ✅ New submission created → Admin notification
+- ✅ Submission approved → Submitter notification
+- ✅ Submission rejected → Submitter notification
+- ✅ Revision requested → Submitter notification
 
 ---
 
@@ -163,13 +196,15 @@ Admin views Pending/Moderation tab
 - Professional rejection handling
 
 ### Shared Features (all emails)
+- **WasteDB Logo** displayed at top of each email (120px width)
 - Responsive HTML layout for mobile/desktop
 - ARIA-compliant for screen readers
 - Plain text fallback for compatibility
 - Retro Sokpop design (borders, shadows, colors)
-- Fredoka One headers, Sniglet body text
+- Sniglet body text
 - Wastefull branding in footer
 - Dark mode compatible plain text
+- Logo URL: `https://bdvfwjmaufjeqmxphmtv.supabase.co/storage/v1/object/public/make-17cae920-assets/uplogo_transparent-1761169051994.png`
 
 ---
 

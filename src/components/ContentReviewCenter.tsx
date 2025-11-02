@@ -139,7 +139,7 @@ export function ContentReviewCenter({ onBack, currentUserId }: ContentReviewCent
         console.log('Article approval:', articleData);
       }
 
-      // Send approval email
+      // Send approval email and notification
       try {
         const writerProfile = await api.getUserProfile(submission.submitted_by);
         const contentName = submission.content_data?.name || submission.content_data?.title;
@@ -150,9 +150,18 @@ export function ContentReviewCenter({ onBack, currentUserId }: ContentReviewCent
           submissionType: submission.type,
           contentName
         });
+
+        // Create notification for submitter
+        await api.createNotification({
+          user_id: submission.submitted_by,
+          type: 'submission_approved',
+          content_id: submission.id,
+          content_type: 'submission',
+          message: `Your ${submission.type.replace(/_/g, ' ')} submission has been approved and is now live!`
+        });
       } catch (emailError) {
-        console.error('Error sending approval email:', emailError);
-        // Don't fail the approval if email fails
+        console.error('Error sending approval email/notification:', emailError);
+        // Don't fail the approval if email/notification fails
       }
 
       const creditMessage = wasEditedByAdmin && editorName 
@@ -177,7 +186,7 @@ export function ContentReviewCenter({ onBack, currentUserId }: ContentReviewCent
         reviewed_by: currentUserId
       });
 
-      // Send rejection email
+      // Send rejection email and notification
       const submission = submissions.find(s => s.id === submissionId);
       if (submission) {
         try {
@@ -189,9 +198,18 @@ export function ContentReviewCenter({ onBack, currentUserId }: ContentReviewCent
             submissionType: submission.type,
             feedback
           });
+
+          // Create notification for submitter
+          await api.createNotification({
+            user_id: submission.submitted_by,
+            type: 'feedback_received',
+            content_id: submissionId,
+            content_type: 'submission',
+            message: `Your ${submission.type.replace(/_/g, ' ')} submission was not approved. Feedback has been provided.`
+          });
         } catch (emailError) {
-          console.error('Error sending rejection email:', emailError);
-          // Don't fail the rejection if email fails
+          console.error('Error sending rejection email/notification:', emailError);
+          // Don't fail the rejection if email/notification fails
         }
       }
 
@@ -214,7 +232,7 @@ export function ContentReviewCenter({ onBack, currentUserId }: ContentReviewCent
         reviewed_by: currentUserId
       });
 
-      // Get submission details for email
+      // Get submission details for email and notification
       const submission = submissions.find(s => s.id === submissionId);
       if (submission) {
         try {
@@ -229,10 +247,19 @@ export function ContentReviewCenter({ onBack, currentUserId }: ContentReviewCent
             submitterName: profile.name,
             submissionType: submission.type
           });
+
+          // Create notification for submitter
+          await api.createNotification({
+            user_id: submission.submitted_by,
+            type: 'feedback_received',
+            content_id: submissionId,
+            content_type: 'submission',
+            message: `Revision requested for your ${submission.type.replace(/_/g, ' ')} submission. Please review the feedback.`
+          });
           
           toast.success('Revision requested and email sent');
         } catch (emailError) {
-          console.error('Error sending revision email:', emailError);
+          console.error('Error sending revision email/notification:', emailError);
           // Still show success since the submission was updated
           toast.success('Revision requested (email notification failed)');
         }
