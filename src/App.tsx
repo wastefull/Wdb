@@ -667,7 +667,7 @@ function MaterialCard({
   isAuthenticated?: boolean;
 }) {
   return (
-    <div className="bg-white dark:bg-[#2a2825] relative rounded-[11.464px] p-4 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] border-[1.5px] border-[#211f1c] dark:border-white/20">
+    <div className="bg-white dark:bg-[#2a2825] relative rounded-[11.464px] p-4 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] border-[1.5px] border-[#211f1c] dark:border-white/20 md:overflow-hidden 2xl:overflow-visible">
       <div className="flex justify-between items-start mb-3">
         <div className="flex-1">
           <button
