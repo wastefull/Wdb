@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Plus, Edit2, Trash2, Search, BookOpen, ExternalLink, Save, X, AlertCircle, Cloud, CloudOff } from 'lucide-react';
+import { ArrowLeft, Plus, Edit2, Trash2, Search, BookOpen, ExternalLink, Save, X, AlertCircle, Cloud, CloudOff, Download, Upload, RefreshCw } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
@@ -113,21 +113,52 @@ export function SourceLibraryManager({ onBack, materials, isAuthenticated, isAdm
   };
 
   const handleAdd = async () => {
+    // Validation
     if (!formData.title?.trim()) {
       toast.error('Title is required');
       return;
     }
 
+    if (!formData.type) {
+      toast.error('Source type is required');
+      return;
+    }
+
+    if (formData.year && (formData.year < 1900 || formData.year > new Date().getFullYear() + 1)) {
+      toast.error('Please enter a valid year');
+      return;
+    }
+
+    if (formData.weight !== undefined && (formData.weight < 0 || formData.weight > 1)) {
+      toast.error('Weight must be between 0 and 1');
+      return;
+    }
+
+    // Check for duplicates by DOI or title
+    const duplicate = sources.find(s => 
+      (formData.doi && s.doi && s.doi.toLowerCase() === formData.doi.toLowerCase()) ||
+      (s.title.toLowerCase().trim() === formData.title.toLowerCase().trim())
+    );
+
+    if (duplicate) {
+      if (formData.doi && duplicate.doi) {
+        toast.error(`Duplicate DOI: Source "${duplicate.title}" already exists`);
+      } else {
+        toast.error(`Duplicate title: A source with this title already exists`);
+      }
+      return;
+    }
+
     const newSource: Source = {
-      id: `custom-${Date.now()}`,
-      title: formData.title,
-      authors: formData.authors,
+      id: `custom-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      title: formData.title.trim(),
+      authors: formData.authors?.trim(),
       year: formData.year,
-      doi: formData.doi,
-      url: formData.url,
+      doi: formData.doi?.trim(),
+      url: formData.url?.trim(),
       weight: formData.weight || 1.0,
       type: formData.type as Source['type'],
-      abstract: formData.abstract,
+      abstract: formData.abstract?.trim(),
       tags: formData.tags || []
     };
 
@@ -267,6 +298,82 @@ export function SourceLibraryManager({ onBack, materials, isAuthenticated, isAdm
     }
   };
 
+  const handleExportSources = () => {
+    try {
+      const dataStr = JSON.stringify(sources, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `wastedb-sources-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      toast.success('Sources exported successfully');
+    } catch (error) {
+      console.error('Export failed:', error);
+      toast.error('Failed to export sources');
+    }
+  };
+
+  const handleImportSources = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!isAuthenticated || !isAdmin) {
+      toast.error('Admin access required to import sources');
+      event.target.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const content = e.target?.result as string;
+        const importedSources = JSON.parse(content);
+
+        if (!Array.isArray(importedSources)) {
+          toast.error('Invalid file format: Expected array of sources');
+          return;
+        }
+
+        // Validate each source has required fields
+        const validSources = importedSources.filter(s => s.title && s.type);
+        if (validSources.length !== importedSources.length) {
+          toast.error(`Skipped ${importedSources.length - validSources.length} invalid sources`);
+        }
+
+        // Merge with existing sources (avoiding duplicates by ID)
+        const existingIds = new Set(sources.map(s => s.id));
+        const newSources = validSources.filter(s => !existingIds.has(s.id));
+        const updatedSources = [...sources, ...newSources];
+
+        setSources(updatedSources);
+        setCloudSynced(false); // Mark as not synced
+
+        toast.success(`Imported ${newSources.length} new sources`);
+      } catch (error) {
+        console.error('Import failed:', error);
+        toast.error('Failed to import sources: Invalid JSON format');
+      } finally {
+        event.target.value = ''; // Reset file input
+      }
+    };
+
+    reader.readAsText(file);
+  };
+
+  const handleRefreshFromCloud = async () => {
+    if (!isAuthenticated || !isAdmin) {
+      toast.error('Admin access required');
+      return;
+    }
+
+    await loadSourcesFromCloud();
+    toast.success('Sources refreshed from cloud');
+  };
+
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto">
@@ -285,6 +392,20 @@ export function SourceLibraryManager({ onBack, materials, isAuthenticated, isAdm
   return (
     <div>
       <div className="max-w-7xl mx-auto">
+        {/* Back button - only show when onBack is provided and not in tab mode */}
+        {onBack && (
+          <div className="mb-6">
+            <Button
+              onClick={onBack}
+              variant="outline"
+              className="border-[#211f1c] dark:border-white/20 text-[11px] md:text-sm"
+            >
+              <ArrowLeft className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
+              Back
+            </Button>
+          </div>
+        )}
+
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">
           <div>
@@ -304,6 +425,49 @@ export function SourceLibraryManager({ onBack, materials, isAuthenticated, isAdm
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
+            {/* Export button - always available */}
+            <Button
+              onClick={handleExportSources}
+              variant="outline"
+              className="border-[#211f1c] dark:border-white/20 text-[11px] md:text-sm"
+              disabled={sources.length === 0}
+            >
+              <Download className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
+              <span className="whitespace-nowrap">Export</span>
+            </Button>
+
+            {/* Import button - admin only */}
+            {isAuthenticated && isAdmin && (
+              <Button
+                variant="outline"
+                className="border-[#211f1c] dark:border-white/20 text-[11px] md:text-sm relative"
+                onClick={() => document.getElementById('import-sources-input')?.click()}
+              >
+                <Upload className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
+                <span className="whitespace-nowrap">Import</span>
+                <input
+                  id="import-sources-input"
+                  type="file"
+                  accept="application/json"
+                  onChange={handleImportSources}
+                  className="hidden"
+                />
+              </Button>
+            )}
+
+            {/* Refresh from cloud button */}
+            {isAuthenticated && isAdmin && cloudSynced && (
+              <Button
+                onClick={handleRefreshFromCloud}
+                variant="outline"
+                className="border-[#211f1c] dark:border-white/20 text-[11px] md:text-sm"
+              >
+                <RefreshCw className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
+                <span className="whitespace-nowrap">Refresh</span>
+              </Button>
+            )}
+
+            {/* Sync to cloud button */}
             {isAuthenticated && isAdmin && !cloudSynced && sources.length > 0 && (
               <Button
                 onClick={handleSyncToCloud}
@@ -314,6 +478,8 @@ export function SourceLibraryManager({ onBack, materials, isAuthenticated, isAdm
                 <span className="whitespace-nowrap">Sync to Cloud</span>
               </Button>
             )}
+
+            {/* Add source button */}
             <Button
               onClick={() => {
                 resetForm();

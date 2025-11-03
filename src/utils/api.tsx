@@ -462,11 +462,12 @@ export async function deleteSource(id: string): Promise<void> {
 }
 
 // Batch save sources (admin only)
-export async function batchSaveSources(sources: Source[]): Promise<void> {
-  await apiCall('/sources/batch', {
+export async function batchSaveSources(sources: Source[]): Promise<{ success: boolean; count: number }> {
+  const data = await apiCall('/sources/batch', {
     method: 'POST',
     body: JSON.stringify({ sources }),
   });
+  return data;
 }
 
 // ==================== CALCULATION API ====================

@@ -3273,6 +3273,198 @@ app.delete('/make-server-17cae920/submissions/:id', verifyAuth, verifyAdmin, asy
   }
 });
 
+// ===== SOURCE LIBRARY MANAGEMENT =====
+
+// Get all sources
+app.get('/make-server-17cae920/sources', async (c) => {
+  try {
+    const sources = await kv.getByPrefix('source:');
+    return c.json({ sources: sources || [] });
+  } catch (error) {
+    console.error('Error fetching sources:', error);
+    return c.json({ error: 'Failed to fetch sources', details: String(error) }, 500);
+  }
+});
+
+// Get single source
+app.get('/make-server-17cae920/sources/:id', async (c) => {
+  try {
+    const id = c.req.param('id');
+    const source = await kv.get(`source:${id}`);
+    
+    if (!source) {
+      return c.json({ error: 'Source not found' }, 404);
+    }
+    
+    return c.json({ source });
+  } catch (error) {
+    console.error('Error fetching source:', error);
+    return c.json({ error: 'Failed to fetch source', details: String(error) }, 500);
+  }
+});
+
+// Create source (admin only)
+app.post('/make-server-17cae920/sources', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const sourceData = await c.req.json();
+    const userId = c.get('userId');
+    
+    // Validation
+    if (!sourceData.title || !sourceData.type) {
+      return c.json({ error: 'Missing required fields: title and type' }, 400);
+    }
+    
+    // Validate type
+    const validTypes = ['peer-reviewed', 'government', 'industrial', 'ngo', 'internal'];
+    if (!validTypes.includes(sourceData.type)) {
+      return c.json({ error: `Invalid type. Must be one of: ${validTypes.join(', ')}` }, 400);
+    }
+    
+    // Validate weight if provided
+    if (sourceData.weight !== undefined) {
+      const weight = parseFloat(sourceData.weight);
+      if (isNaN(weight) || weight < 0 || weight > 1) {
+        return c.json({ error: 'Weight must be a number between 0 and 1' }, 400);
+      }
+    }
+    
+    const source = {
+      id: sourceData.id || `source-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      title: sourceData.title.trim(),
+      authors: sourceData.authors?.trim() || undefined,
+      year: sourceData.year ? parseInt(sourceData.year) : undefined,
+      doi: sourceData.doi?.trim() || undefined,
+      url: sourceData.url?.trim() || undefined,
+      weight: sourceData.weight !== undefined ? parseFloat(sourceData.weight) : 1.0,
+      type: sourceData.type,
+      abstract: sourceData.abstract?.trim() || undefined,
+      tags: Array.isArray(sourceData.tags) ? sourceData.tags.filter((t: any) => t && t.trim()) : [],
+      created_at: new Date().toISOString(),
+      created_by: userId,
+      updated_at: new Date().toISOString(),
+    };
+    
+    await kv.set(`source:${source.id}`, source);
+    console.log(`Source created: ${source.id} by user ${userId}`);
+    
+    return c.json({ source });
+  } catch (error) {
+    console.error('Error creating source:', error);
+    return c.json({ error: 'Failed to create source', details: String(error) }, 500);
+  }
+});
+
+// Update source (admin only)
+app.put('/make-server-17cae920/sources/:id', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const id = c.req.param('id');
+    const updates = await c.req.json();
+    const userId = c.get('userId');
+    
+    const existing = await kv.get(`source:${id}`);
+    if (!existing) {
+      return c.json({ error: 'Source not found' }, 404);
+    }
+    
+    // Validate type if being updated
+    if (updates.type) {
+      const validTypes = ['peer-reviewed', 'government', 'industrial', 'ngo', 'internal'];
+      if (!validTypes.includes(updates.type)) {
+        return c.json({ error: `Invalid type. Must be one of: ${validTypes.join(', ')}` }, 400);
+      }
+    }
+    
+    // Validate weight if being updated
+    if (updates.weight !== undefined) {
+      const weight = parseFloat(updates.weight);
+      if (isNaN(weight) || weight < 0 || weight > 1) {
+        return c.json({ error: 'Weight must be a number between 0 and 1' }, 400);
+      }
+    }
+    
+    const updatedSource = {
+      ...existing,
+      title: updates.title?.trim() || existing.title,
+      authors: updates.authors !== undefined ? (updates.authors?.trim() || undefined) : existing.authors,
+      year: updates.year !== undefined ? (updates.year ? parseInt(updates.year) : undefined) : existing.year,
+      doi: updates.doi !== undefined ? (updates.doi?.trim() || undefined) : existing.doi,
+      url: updates.url !== undefined ? (updates.url?.trim() || undefined) : existing.url,
+      weight: updates.weight !== undefined ? parseFloat(updates.weight) : existing.weight,
+      type: updates.type || existing.type,
+      abstract: updates.abstract !== undefined ? (updates.abstract?.trim() || undefined) : existing.abstract,
+      tags: updates.tags !== undefined ? (Array.isArray(updates.tags) ? updates.tags.filter((t: any) => t && t.trim()) : existing.tags) : existing.tags,
+      updated_at: new Date().toISOString(),
+      updated_by: userId,
+    };
+    
+    await kv.set(`source:${id}`, updatedSource);
+    console.log(`Source updated: ${id} by user ${userId}`);
+    
+    return c.json({ source: updatedSource });
+  } catch (error) {
+    console.error('Error updating source:', error);
+    return c.json({ error: 'Failed to update source', details: String(error) }, 500);
+  }
+});
+
+// Delete source (admin only)
+app.delete('/make-server-17cae920/sources/:id', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const id = c.req.param('id');
+    const userId = c.get('userId');
+    
+    const source = await kv.get(`source:${id}`);
+    if (!source) {
+      return c.json({ error: 'Source not found' }, 404);
+    }
+    
+    await kv.del(`source:${id}`);
+    console.log(`Source deleted: ${id} by user ${userId}`);
+    
+    return c.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting source:', error);
+    return c.json({ error: 'Failed to delete source', details: String(error) }, 500);
+  }
+});
+
+// Batch save sources (admin only) - for syncing entire library
+app.post('/make-server-17cae920/sources/batch', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const { sources } = await c.req.json();
+    const userId = c.get('userId');
+    
+    if (!Array.isArray(sources)) {
+      return c.json({ error: 'Sources must be an array' }, 400);
+    }
+    
+    // Save each source
+    const savedSources = [];
+    for (const sourceData of sources) {
+      if (!sourceData.title || !sourceData.type) {
+        console.warn('Skipping source without title or type:', sourceData);
+        continue;
+      }
+      
+      const source = {
+        ...sourceData,
+        id: sourceData.id || `source-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        updated_at: new Date().toISOString(),
+        updated_by: userId,
+      };
+      
+      await kv.set(`source:${source.id}`, source);
+      savedSources.push(source);
+    }
+    
+    console.log(`Batch saved ${savedSources.length} sources by user ${userId}`);
+    return c.json({ success: true, count: savedSources.length, sources: savedSources });
+  } catch (error) {
+    console.error('Error batch saving sources:', error);
+    return c.json({ error: 'Failed to batch save sources', details: String(error) }, 500);
+  }
+});
+
 // ==================== PUBLIC RESEARCH API ====================
 // Public API for researchers and external applications
 // No authentication required - read-only access to published data

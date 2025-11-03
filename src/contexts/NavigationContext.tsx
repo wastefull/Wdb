@@ -27,7 +27,9 @@ export type ViewType =
   | { type: 'user-profile'; userId: string }
   | { type: 'my-submissions' }
   | { type: 'review-center' }
-  | { type: 'api-docs' };
+  | { type: 'api-docs' }
+  | { type: 'source-library' }
+  | { type: 'licenses' };
 
 interface NavigationContextType {
   // State
@@ -53,6 +55,8 @@ interface NavigationContextType {
   navigateToMySubmissions: () => void;
   navigateToReviewCenter: () => void;
   navigateToApiDocs: () => void;
+  navigateToSourceLibrary: () => void;
+  navigateToLicenses: () => void;
   goBack: () => void;
 }
 
@@ -148,6 +152,14 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
     navigateTo({ type: 'api-docs' });
   };
 
+  const navigateToSourceLibrary = () => {
+    navigateTo({ type: 'source-library' });
+  };
+
+  const navigateToLicenses = () => {
+    navigateTo({ type: 'licenses' });
+  };
+
   const goBack = () => {
     if (viewHistory.length > 1) {
       const newHistory = viewHistory.slice(0, -1);
@@ -182,6 +194,8 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
     navigateToMySubmissions,
     navigateToReviewCenter,
     navigateToApiDocs,
+    navigateToSourceLibrary,
+    navigateToLicenses,
     goBack,
   };
 

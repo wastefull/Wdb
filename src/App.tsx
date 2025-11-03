@@ -29,6 +29,7 @@ import { DataMigrationTool } from './components/DataMigrationTool';
 import { SourceLibraryManager } from './components/SourceLibraryManager';
 import { AssetUploadManager } from './components/AssetUploadManager';
 import { RasterizedQuantileVisualization } from './components/RasterizedQuantileVisualization';
+import { useIsMobile } from './components/ui/use-mobile';
 import { ChartRasterizationDemo } from './components/ChartRasterizationDemo';
 import { WhitepaperSyncTool } from './components/WhitepaperSyncTool';
 import { SOURCE_LIBRARY, getSourcesByTag } from './data/sources';
@@ -39,6 +40,7 @@ import { SubmitArticleForm } from './components/SubmitArticleForm';
 import { MySubmissionsView } from './components/MySubmissionsView';
 import { ContentReviewCenter } from './components/ContentReviewCenter';
 import { ApiDocumentation } from './components/ApiDocumentation';
+import { LicensesView } from './components/LicensesView';
 import { Popover, PopoverContent, PopoverTrigger } from './components/ui/popover';
 import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './components/ui/tooltip';
 import { Switch } from './components/ui/switch';
@@ -508,6 +510,8 @@ function SearchIcon() {
 }
 
 function SearchBar({ value, onChange, onSearch }: { value: string; onChange: (value: string) => void; onSearch?: (value: string) => void }) {
+  const isMobile = useIsMobile();
+  
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     // Prevent Figma from intercepting text editing shortcuts
     if (e.metaKey || e.ctrlKey) {
@@ -533,7 +537,7 @@ function SearchBar({ value, onChange, onSearch }: { value: string; onChange: (va
             value={value}
             onChange={(e) => onChange(e.target.value)}
             onKeyDownCapture={handleKeyDown}
-            placeholder="Search..."
+            placeholder={isMobile ? "Search…" : "What do I do with…?"}
             className="font-['Sniglet:Regular',_sans-serif] bg-transparent border-none outline-none text-[15px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50 flex-1 min-w-0"
             aria-label="Search materials"
           />
@@ -2099,7 +2103,9 @@ function DataManagementView({
   onBulkImport,
   onDeleteAllData,
   onDeleteMaterial,
-  onViewMaterial
+  onViewMaterial,
+  user,
+  userRole
 }: {
   materials: Material[];
   onBack: () => void;
@@ -2109,6 +2115,8 @@ function DataManagementView({
   onDeleteAllData: () => void;
   onDeleteMaterial: (materialId: string) => void;
   onViewMaterial: (materialId: string) => void;
+  user: any;
+  userRole: 'user' | 'admin';
 }) {
   const [activeTab, setActiveTab] = useState('materials');
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -2717,6 +2725,8 @@ function DataManagementView({
         <SourceLibraryManager
           onBack={() => {}} // Empty since we're in a tab
           materials={materials}
+          isAuthenticated={!!user}
+          isAdmin={userRole === 'admin'}
         />
       ) : activeTab === 'assets' ? (
         <AssetUploadManager
@@ -2731,7 +2741,7 @@ function DataManagementView({
 
 function AppContent() {
   const { settings, toggleAdminMode } = useAccessibility();
-  const { currentView, navigateTo, navigateToMaterials, navigateToSearchResults, navigateToMaterialDetail, navigateToArticles, navigateToArticleDetail, navigateToMethodologyList, navigateToWhitepaper, navigateToDataManagement, navigateToUserManagement, navigateToScientificEditor, navigateToExport, navigateToUserProfile, navigateToMySubmissions, navigateToReviewCenter, navigateToWhitepaperSync, navigateToApiDocs } = useNavigationContext();
+  const { currentView, navigateTo, navigateToMaterials, navigateToSearchResults, navigateToMaterialDetail, navigateToArticles, navigateToArticleDetail, navigateToMethodologyList, navigateToWhitepaper, navigateToDataManagement, navigateToUserManagement, navigateToScientificEditor, navigateToExport, navigateToUserProfile, navigateToMySubmissions, navigateToReviewCenter, navigateToWhitepaperSync, navigateToApiDocs, navigateToLicenses } = useNavigationContext();
   const { user, userRole, isAuthenticated, signIn, signOut, updateUserRole } = useAuthContext();
   
   // Phase 3B Complete: MaterialsContext is the single source of truth for all material data
@@ -3028,7 +3038,7 @@ function AppContent() {
                     <img
                       src="https://bdvfwjmaufjeqmxphmtv.supabase.co/storage/v1/object/public/make-17cae920-assets/uplogo_transparent-1761169051994.png"
                       alt="WasteDB Logo"
-                      className="h-24 lg:h-32 w-auto"
+                      className="h-36 lg:h-48 w-auto"
                     />
                   </button>
                   
@@ -3074,41 +3084,42 @@ function AppContent() {
                   )}
                   <div className="flex flex-col gap-2 items-center">
                     <div className="flex items-center gap-2">
-                      <motion.button
+                      <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, delay: 0.3 }}
-                        onClick={navigateToMethodologyList}
-                        className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:underline transition-colors text-center"
+                        className="flex items-center gap-2"
                       >
-                        Methodology & Whitepapers
-                      </motion.button>
+                        <button
+                          onClick={navigateToMethodologyList}
+                          className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white md:hover:underline transition-colors flex items-center gap-1"
+                        >
+                          <FileUp className="w-5 h-5 md:w-3 md:h-3" />
+                          <span className="hidden md:inline">White Papers</span>
+                        </button>
+                        <span className="text-black/30 dark:text-white/30">•</span>
+                        <button
+                          onClick={navigateToExport}
+                          className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white md:hover:underline transition-colors flex items-center gap-1"
+                        >
+                          <Download className="w-5 h-5 md:w-3 md:h-3" />
+                          <span className="hidden md:inline">Open Access</span>
+                        </button>
+                        <span className="text-black/30 dark:text-white/30">•</span>
+                        <button
+                          onClick={navigateToApiDocs}
+                          className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white md:hover:underline transition-colors flex items-center gap-1"
+                        >
+                          <Code className="w-5 h-5 md:w-3 md:h-3" />
+                          <span className="hidden md:inline">API</span>
+                        </button>
+                      </motion.div>
                       {userRole === 'admin' && (
                         <div className="md:hidden">
                           <AdminModeButton currentView={currentView} onViewChange={navigateTo} />
                         </div>
                       )}
                     </div>
-                    <motion.button
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: 0.35 }}
-                      onClick={navigateToExport}
-                      className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:underline transition-colors text-center flex items-center gap-1"
-                    >
-                      <Download size={12} />
-                      Export Data (Open Access)
-                    </motion.button>
-                    <motion.button
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: 0.4 }}
-                      onClick={navigateToApiDocs}
-                      className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white hover:underline transition-colors text-center flex items-center gap-1"
-                    >
-                      <Code size={12} />
-                      API Documentation
-                    </motion.button>
                   </div>
                   
                   {/* Chart centered below links */}
@@ -3380,6 +3391,8 @@ function AppContent() {
                 toast.success(supabaseAvailable ? 'All data deleted from cloud and locally' : 'All data deleted locally');
                 navigateToMaterials();
               }}
+              user={user}
+              userRole={userRole}
             />
           ) : currentView.type === 'user-management' ? (
             <UserManagementView
@@ -3433,6 +3446,17 @@ function AppContent() {
               </div>
               <ApiDocumentation />
             </div>
+          ) : currentView.type === 'source-library' ? (
+            <SourceLibraryManager
+              onBack={navigateToMaterials}
+              materials={materials}
+              isAuthenticated={!!user}
+              isAdmin={userRole === 'admin'}
+            />
+          ) : currentView.type === 'licenses' ? (
+            <LicensesView
+              onBack={navigateToMaterials}
+            />
           ) : null}
         </div>
       </div>
@@ -3471,6 +3495,11 @@ function AppContent() {
       <footer className="mt-8 pb-6 text-center">
         <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/60 dark:text-white/60 max-w-3xl mx-auto px-4">
           <a href="https://wastefull.org" target="_blank" rel="noopener noreferrer" className="hover:text-black dark:hover:text-white transition-colors underline">Wastefull, Inc.</a> is a registered California 501(c)(3) nonprofit organization. Donations to the organization may be tax deductible.
+        </p>
+        <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/60 dark:text-white/60 mt-2">
+          <button onClick={() => navigateToLicenses()} className="hover:text-black dark:hover:text-white transition-colors underline">
+            Open Source Licenses
+          </button>
         </p>
       </footer>
       </div>
