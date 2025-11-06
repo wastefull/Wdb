@@ -316,12 +316,12 @@ export const ApiDocumentation: React.FC = () => {
       <Card key={endpoint.path} className="mb-6">
         <CardHeader>
           <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-2">
-                <Badge variant={endpoint.method === 'GET' ? 'default' : 'secondary'}>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 md:gap-3 mb-2 flex-wrap">
+                <Badge variant={endpoint.method === 'GET' ? 'default' : 'secondary'} className="shrink-0">
                   {endpoint.method}
                 </Badge>
-                <code className="text-sm bg-muted px-2 py-1 rounded">{endpoint.path}</code>
+                <code className="text-xs md:text-sm bg-muted px-2 py-1 rounded break-all">{endpoint.path}</code>
               </div>
               <CardDescription className="mt-2">{endpoint.description}</CardDescription>
             </div>
@@ -334,17 +334,17 @@ export const ApiDocumentation: React.FC = () => {
               <h4 className="mb-2">Path Parameters</h4>
               <div className="bg-muted/50 rounded p-3 space-y-2">
                 {endpoint.params.map((param) => (
-                  <div key={param.name} className="flex items-start gap-2">
-                    <code className="text-sm bg-background px-2 py-1 rounded">{param.name}</code>
-                    <Badge variant="outline" className="text-xs">
+                  <div key={param.name} className="flex items-start gap-2 flex-wrap">
+                    <code className="text-xs md:text-sm bg-background px-2 py-1 rounded shrink-0">{param.name}</code>
+                    <Badge variant="outline" className="text-xs shrink-0">
                       {param.type}
                     </Badge>
                     {param.required && (
-                      <Badge variant="destructive" className="text-xs">
+                      <Badge variant="destructive" className="text-xs shrink-0">
                         required
                       </Badge>
                     )}
-                    <span className="text-sm text-muted-foreground flex-1">{param.description}</span>
+                    <span className="text-xs md:text-sm text-muted-foreground flex-1 basis-full md:basis-auto">{param.description}</span>
                   </div>
                 ))}
               </div>
@@ -358,20 +358,20 @@ export const ApiDocumentation: React.FC = () => {
               <div className="bg-muted/50 rounded p-3 space-y-2">
                 {endpoint.queryParams.map((param) => (
                   <div key={param.name} className="flex items-start gap-2 flex-wrap">
-                    <code className="text-sm bg-background px-2 py-1 rounded">{param.name}</code>
-                    <Badge variant="outline" className="text-xs">
+                    <code className="text-xs md:text-sm bg-background px-2 py-1 rounded shrink-0">{param.name}</code>
+                    <Badge variant="outline" className="text-xs shrink-0">
                       {param.type}
                     </Badge>
                     {param.required && (
-                      <Badge variant="destructive" className="text-xs">
+                      <Badge variant="destructive" className="text-xs shrink-0">
                         required
                       </Badge>
                     )}
-                    <span className="text-sm text-muted-foreground flex-1 basis-full md:basis-auto">
+                    <span className="text-xs md:text-sm text-muted-foreground flex-1 basis-full md:basis-auto">
                       {param.description}
                     </span>
                     {param.example && (
-                      <code className="text-xs bg-background px-2 py-1 rounded text-muted-foreground">
+                      <code className="text-xs bg-background px-2 py-1 rounded text-muted-foreground break-all">
                         e.g., {param.example}
                       </code>
                     )}
@@ -387,29 +387,31 @@ export const ApiDocumentation: React.FC = () => {
             <div className="space-y-2">
               {endpoint.examples.map((example, idx) => (
                 <div key={idx} className="bg-muted/50 rounded p-3">
-                  <p className="text-sm mb-2">{example.description}</p>
-                  <div className="flex items-center gap-2">
-                    <code className="text-xs bg-background px-2 py-1 rounded flex-1 overflow-x-auto">
+                  <p className="text-xs md:text-sm mb-2">{example.description}</p>
+                  <div className="flex items-start gap-2 flex-col sm:flex-row">
+                    <code className="text-xs bg-background px-2 py-1 rounded flex-1 overflow-x-auto w-full break-all">
                       {example.url}
                     </code>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => copyToClipboard(example.url, example.url)}
-                    >
-                      {copiedUrl === example.url ? (
-                        <Check className="h-4 w-4 text-green-600" />
-                      ) : (
-                        <Copy className="h-4 w-4" />
-                      )}
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => window.open(example.url, '_blank')}
-                    >
-                      <ExternalLink className="h-4 w-4" />
-                    </Button>
+                    <div className="flex gap-2 shrink-0">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => copyToClipboard(example.url, example.url)}
+                      >
+                        {copiedUrl === example.url ? (
+                          <Check className="h-4 w-4 text-green-600" />
+                        ) : (
+                          <Copy className="h-4 w-4" />
+                        )}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => window.open(example.url, '_blank')}
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -420,9 +422,11 @@ export const ApiDocumentation: React.FC = () => {
           {endpoint.responseSchema && (
             <div>
               <h4 className="mb-2">Response Schema</h4>
-              <pre className="bg-muted/50 rounded p-3 text-xs overflow-x-auto">
-                <code>{endpoint.responseSchema}</code>
-              </pre>
+              <div className="bg-muted/50 rounded p-3 overflow-x-auto">
+                <pre className="text-xs">
+                  <code>{endpoint.responseSchema}</code>
+                </pre>
+              </div>
             </div>
           )}
         </CardContent>
@@ -492,7 +496,7 @@ curl "${baseUrl}/api/v1/methodology"`,
   };
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-6xl mx-auto px-4 md:px-6 py-6 space-y-6">
       {/* Header */}
       <div>
         <h1>Research API Documentation</h1>
@@ -513,14 +517,15 @@ curl "${baseUrl}/api/v1/methodology"`,
         <CardContent className="space-y-4">
           <div>
             <h4 className="mb-2">Base URL</h4>
-            <div className="flex items-center gap-2">
-              <code className="text-sm bg-muted px-3 py-2 rounded flex-1">
+            <div className="flex items-start gap-2 flex-col sm:flex-row">
+              <code className="text-xs md:text-sm bg-muted px-3 py-2 rounded flex-1 break-all w-full">
                 {baseUrl}
               </code>
               <Button
                 size="sm"
                 variant="outline"
                 onClick={() => copyToClipboard(baseUrl, 'baseUrl')}
+                className="shrink-0"
               >
                 {copiedUrl === 'baseUrl' ? (
                   <Check className="h-4 w-4 text-green-600" />
@@ -535,7 +540,7 @@ curl "${baseUrl}/api/v1/methodology"`,
           
           <div>
             <h4 className="mb-2">Key Features</h4>
-            <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+            <ul className="list-disc list-inside space-y-1 text-xs md:text-sm text-muted-foreground">
               <li>No authentication required - fully open access</li>
               <li>RESTful JSON API with pagination support</li>
               <li>Comprehensive filtering and sorting options</li>
@@ -549,22 +554,26 @@ curl "${baseUrl}/api/v1/methodology"`,
 
       {/* API Endpoints */}
       <Tabs defaultValue="materials" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="materials">
-            <Database className="h-4 w-4 mr-2" />
-            Materials
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4">
+          <TabsTrigger value="materials" className="text-xs md:text-sm">
+            <Database className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
+            <span className="hidden sm:inline">Materials</span>
+            <span className="sm:hidden">Data</span>
           </TabsTrigger>
-          <TabsTrigger value="statistics">
-            <Activity className="h-4 w-4 mr-2" />
-            Statistics
+          <TabsTrigger value="statistics" className="text-xs md:text-sm">
+            <Activity className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
+            <span className="hidden sm:inline">Statistics</span>
+            <span className="sm:hidden">Stats</span>
           </TabsTrigger>
-          <TabsTrigger value="methodology">
-            <BookOpen className="h-4 w-4 mr-2" />
-            Methodology
+          <TabsTrigger value="methodology" className="text-xs md:text-sm">
+            <BookOpen className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
+            <span className="hidden sm:inline">Methodology</span>
+            <span className="sm:hidden">Docs</span>
           </TabsTrigger>
-          <TabsTrigger value="code">
-            <Code className="h-4 w-4 mr-2" />
-            Code Examples
+          <TabsTrigger value="code" className="text-xs md:text-sm">
+            <Code className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
+            <span className="hidden sm:inline">Code Examples</span>
+            <span className="sm:hidden">Code</span>
           </TabsTrigger>
         </TabsList>
 
@@ -598,9 +607,11 @@ curl "${baseUrl}/api/v1/methodology"`,
               </CardHeader>
               <CardContent>
                 <div className="relative">
-                  <pre className="bg-muted rounded p-4 text-sm overflow-x-auto">
-                    <code>{codeExamples.javascript}</code>
-                  </pre>
+                  <div className="bg-muted rounded p-3 md:p-4 overflow-x-auto">
+                    <pre className="text-xs md:text-sm">
+                      <code>{codeExamples.javascript}</code>
+                    </pre>
+                  </div>
                   <Button
                     size="sm"
                     variant="outline"
@@ -625,9 +636,11 @@ curl "${baseUrl}/api/v1/methodology"`,
               </CardHeader>
               <CardContent>
                 <div className="relative">
-                  <pre className="bg-muted rounded p-4 text-sm overflow-x-auto">
-                    <code>{codeExamples.python}</code>
-                  </pre>
+                  <div className="bg-muted rounded p-3 md:p-4 overflow-x-auto">
+                    <pre className="text-xs md:text-sm">
+                      <code>{codeExamples.python}</code>
+                    </pre>
+                  </div>
                   <Button
                     size="sm"
                     variant="outline"
@@ -652,9 +665,11 @@ curl "${baseUrl}/api/v1/methodology"`,
               </CardHeader>
               <CardContent>
                 <div className="relative">
-                  <pre className="bg-muted rounded p-4 text-sm overflow-x-auto">
-                    <code>{codeExamples.curl}</code>
-                  </pre>
+                  <div className="bg-muted rounded p-3 md:p-4 overflow-x-auto">
+                    <pre className="text-xs md:text-sm">
+                      <code>{codeExamples.curl}</code>
+                    </pre>
+                  </div>
                   <Button
                     size="sm"
                     variant="outline"
@@ -679,7 +694,7 @@ curl "${baseUrl}/api/v1/methodology"`,
         <CardHeader>
           <CardTitle>Support & Attribution</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3 text-sm">
+        <CardContent className="space-y-3 text-xs md:text-sm">
           <p>
             <strong>Data Attribution:</strong> When using WasteDB data in publications or applications,
             please cite: "WasteDB by Wastefull (db.wastefull.org)"
@@ -687,7 +702,7 @@ curl "${baseUrl}/api/v1/methodology"`,
           <p>
             <strong>Support:</strong> For API support, feature requests, or to report issues,
             please contact us at{' '}
-            <a href="mailto:api@wastefull.org" className="text-primary hover:underline">
+            <a href="mailto:api@wastefull.org" className="text-primary hover:underline break-all">
               api@wastefull.org
             </a>
           </p>

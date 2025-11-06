@@ -3,7 +3,7 @@
  */
 
 import { useState } from 'react';
-import { Plus, Trash2, ExternalLink, BookOpen, Search, AlertCircle } from 'lucide-react';
+import { Plus, Trash2, ExternalLink, BookOpen, Search, AlertCircle, GraduationCap } from 'lucide-react';
 import { Card } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
@@ -16,6 +16,13 @@ import { toast } from 'sonner@2.0.3';
 import { SOURCE_LIBRARY, getSourcesByMaterial, type Source as LibrarySource } from '../../data/sources';
 import type { Material, Source } from './types';
 import { getSuggestedConfidenceLevel, PARAMETER_NAMES, autoAssignParameters } from './utils';
+import * as api from '../../utils/api';
+
+// Helper function to generate Google Scholar search URL
+const getGoogleScholarUrl = (title: string, authors?: string): string => {
+  const query = authors ? `${title} ${authors}` : title;
+  return `https://scholar.google.com/scholar?q=${encodeURIComponent(query)}`;
+};
 
 interface SourcesTabProps {
   material: Material;
@@ -171,7 +178,7 @@ export function SourcesTab({ material, sources, onSourcesChange, onParameterChan
                     {source.year && (
                       <Badge variant="outline" className="text-[8px]">{source.year}</Badge>
                     )}
-                    {source.doi && (
+                    {source.doi ? (
                       <a
                         href={`https://doi.org/${source.doi}`}
                         target="_blank"
@@ -179,6 +186,32 @@ export function SourcesTab({ material, sources, onSourcesChange, onParameterChan
                         className="text-[9px] text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
                       >
                         DOI <ExternalLink className="w-2 h-2" />
+                      </a>
+                    ) : source.pdfFileName ? (
+                      <button
+                        onClick={async () => {
+                          try {
+                            const signedUrl = await api.getSourcePdfUrl(source.pdfFileName!);
+                            window.open(signedUrl, '_blank');
+                          } catch (error) {
+                            console.error('Failed to open PDF:', error);
+                            toast.error('Failed to open PDF');
+                          }
+                        }}
+                        className="text-[9px] text-green-600 dark:text-green-400 hover:underline flex items-center gap-1"
+                        title="View uploaded PDF"
+                      >
+                        <BookOpen className="w-2 h-2" /> View PDF
+                      </button>
+                    ) : (
+                      <a
+                        href={getGoogleScholarUrl(source.title, source.authors)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[9px] text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-1"
+                        title="Search on Google Scholar"
+                      >
+                        <GraduationCap className="w-2 h-2" /> Scholar
                       </a>
                     )}
                     {source.weight !== undefined && source.weight !== 1.0 && (

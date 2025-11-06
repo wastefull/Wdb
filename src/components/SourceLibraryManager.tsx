@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Plus, Edit2, Trash2, Search, BookOpen, ExternalLink, Save, X, AlertCircle, Cloud, CloudOff, Download, Upload, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Plus, Edit2, Trash2, Search, BookOpen, ExternalLink, Save, X, AlertCircle, Cloud, CloudOff, Download, Upload, RefreshCw, GraduationCap } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
@@ -35,6 +35,12 @@ interface SourceLibraryManagerProps {
   isAdmin: boolean;
 }
 
+// Helper function to generate Google Scholar search URL
+const getGoogleScholarUrl = (title: string, authors?: string): string => {
+  const query = authors ? `${title} ${authors}` : title;
+  return `https://scholar.google.com/scholar?q=${encodeURIComponent(query)}`;
+};
+
 export function SourceLibraryManager({ onBack, materials, isAuthenticated, isAdmin }: SourceLibraryManagerProps) {
   const [sources, setSources] = useState<Source[]>([...SOURCE_LIBRARY]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -44,6 +50,7 @@ export function SourceLibraryManager({ onBack, materials, isAuthenticated, isAdm
   const [showForm, setShowForm] = useState(false);
   const [cloudSynced, setCloudSynced] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [uploadingPdf, setUploadingPdf] = useState<string | null>(null); // sourceId of PDF being uploaded
   const [formData, setFormData] = useState<Partial<Source>>({
     title: '',
     authors: '',
@@ -280,6 +287,81 @@ export function SourceLibraryManager({ onBack, materials, isAuthenticated, isAdm
       'internal': 'Internal'
     };
     return labels[type];
+  };
+
+  const handlePdfUpload = async (sourceId: string, file: File) => {
+    console.log('📤 handlePdfUpload called:', { sourceId, fileName: file.name, isAuthenticated, isAdmin });
+    
+    if (!isAuthenticated || !isAdmin) {
+      toast.error('Admin access required to upload PDFs');
+      return;
+    }
+
+    try {
+      setUploadingPdf(sourceId);
+      console.log('⏳ Uploading PDF...');
+      
+      const result = await api.uploadSourcePdf(file, sourceId);
+      console.log('✅ Upload result:', result);
+      
+      // Update the source with the PDF filename
+      const updatedSources = sources.map(s =>
+        s.id === sourceId ? { ...s, pdfFileName: result.fileName } : s
+      );
+      setSources(updatedSources);
+
+      // Sync the updated source to cloud
+      const updatedSource = updatedSources.find(s => s.id === sourceId);
+      if (updatedSource) {
+        console.log('☁️ Syncing updated source to cloud...');
+        await api.updateSource(sourceId, updatedSource);
+      }
+
+      toast.success('PDF uploaded successfully');
+    } catch (error) {
+      console.error('❌ Failed to upload PDF:', error);
+      toast.error(`Failed to upload PDF: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setUploadingPdf(null);
+    }
+  };
+
+  const handlePdfDelete = async (sourceId: string, pdfFileName: string) => {
+    if (!isAuthenticated || !isAdmin) {
+      toast.error('Admin access required to delete PDFs');
+      return;
+    }
+
+    try {
+      await api.deleteSourcePdf(pdfFileName);
+      
+      // Update the source to remove the PDF filename
+      const updatedSources = sources.map(s =>
+        s.id === sourceId ? { ...s, pdfFileName: undefined } : s
+      );
+      setSources(updatedSources);
+
+      // Sync the updated source to cloud
+      const updatedSource = updatedSources.find(s => s.id === sourceId);
+      if (updatedSource) {
+        await api.updateSource(sourceId, updatedSource);
+      }
+
+      toast.success('PDF deleted successfully');
+    } catch (error) {
+      console.error('Failed to delete PDF:', error);
+      toast.error('Failed to delete PDF');
+    }
+  };
+
+  const handleViewPdf = async (pdfFileName: string) => {
+    try {
+      const signedUrl = await api.getSourcePdfUrl(pdfFileName);
+      window.open(signedUrl, '_blank');
+    } catch (error) {
+      console.error('Failed to get PDF URL:', error);
+      toast.error('Failed to open PDF');
+    }
   };
 
   const handleSyncToCloud = async () => {
@@ -613,7 +695,7 @@ export function SourceLibraryManager({ onBack, materials, isAuthenticated, isAdm
                                 {source.year}
                               </Badge>
                             )}
-                            {source.doi && (
+                            {source.doi ? (
                               <a
                                 href={`https://doi.org/${source.doi}`}
                                 target="_blank"
@@ -621,6 +703,24 @@ export function SourceLibraryManager({ onBack, materials, isAuthenticated, isAdm
                                 className="text-[9px] text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
                               >
                                 DOI <ExternalLink className="w-2 h-2" />
+                              </a>
+                            ) : source.pdfFileName ? (
+                              <button
+                                onClick={() => handleViewPdf(source.pdfFileName!)}
+                                className="text-[9px] text-green-600 dark:text-green-400 hover:underline flex items-center gap-1"
+                                title="View uploaded PDF"
+                              >
+                                <BookOpen className="w-2 h-2" /> View PDF
+                              </button>
+                            ) : (
+                              <a
+                                href={getGoogleScholarUrl(source.title, source.authors)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[9px] text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-1"
+                                title="Search on Google Scholar"
+                              >
+                                <GraduationCap className="w-2 h-2" /> Scholar
                               </a>
                             )}
                           </div>
@@ -663,6 +763,44 @@ export function SourceLibraryManager({ onBack, materials, isAuthenticated, isAdm
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-1 justify-center">
+                          {isAdmin && !source.doi && (
+                            <>
+                              {source.pdfFileName ? (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handlePdfDelete(source.id, source.pdfFileName!)}
+                                  title="Delete PDF"
+                                  className="text-red-600 hover:text-red-700 dark:text-red-400"
+                                >
+                                  <X className="w-3 h-3" />
+                                </Button>
+                              ) : (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    const input = document.createElement('input');
+                                    input.type = 'file';
+                                    input.accept = 'application/pdf';
+                                    input.onchange = (e) => {
+                                      const file = (e.target as HTMLInputElement).files?.[0];
+                                      if (file) handlePdfUpload(source.id, file);
+                                    };
+                                    input.click();
+                                  }}
+                                  disabled={uploadingPdf === source.id}
+                                  title="Upload PDF"
+                                >
+                                  {uploadingPdf === source.id ? (
+                                    <RefreshCw className="w-3 h-3 animate-spin" />
+                                  ) : (
+                                    <Upload className="w-3 h-3" />
+                                  )}
+                                </Button>
+                              )}
+                            </>
+                          )}
                           <Button
                             variant="outline"
                             size="sm"

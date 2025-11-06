@@ -27,6 +27,7 @@ import { DataProcessingView } from './components/DataProcessingView';
 import { PublicExportView } from './components/PublicExportView';
 import { DataMigrationTool } from './components/DataMigrationTool';
 import { SourceLibraryManager } from './components/SourceLibraryManager';
+import { SourceDataComparison } from './components/SourceDataComparison';
 import { AssetUploadManager } from './components/AssetUploadManager';
 import { RasterizedQuantileVisualization } from './components/RasterizedQuantileVisualization';
 import { useIsMobile } from './components/ui/use-mobile';
@@ -389,7 +390,7 @@ function RetroButtons({ title }: { title: string }) {
             </div>
           </TooltipProvider>
 
-          <div className="basis-0 grow min-h-px min-w-px flex items-center justify-center gap-0 md:gap-2">
+          <div className="basis-0 grow min-h-px min-w-px flex items-center justify-center gap-1.5 md:gap-2">
             <h1 className="font-['Sniglet:Regular',_sans-serif] leading-[25px] not-italic text-[18px] md:text-[28px] text-black dark:text-white text-center uppercase">{title}</h1>
             <span className="font-['Sniglet:Regular',_sans-serif] text-[8px] md:text-[10px] px-1 md:px-1.5 py-0 md:py-0.5 rounded-full bg-[#bdd4b7] dark:bg-[#2a2f27] border border-[#211f1c] dark:border-white/20 text-black dark:text-white uppercase">Beta</span>
           </div>
@@ -2336,6 +2337,16 @@ function DataManagementView({
             Sources
           </button>
           <button
+            onClick={() => setActiveTab('comparison')}
+            className={`px-2 md:px-4 py-2 font-['Sniglet:Regular',_sans-serif] text-[10px] md:text-[12px] transition-colors whitespace-nowrap ${
+              activeTab === 'comparison'
+                ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
+                : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
+            }`}
+          >
+            Comparison
+          </button>
+          <button
             onClick={() => setActiveTab('assets')}
             className={`px-2 md:px-4 py-2 font-['Sniglet:Regular',_sans-serif] text-[10px] md:text-[12px] transition-colors whitespace-nowrap ${
               activeTab === 'assets'
@@ -2727,6 +2738,11 @@ function DataManagementView({
           materials={materials}
           isAuthenticated={!!user}
           isAdmin={userRole === 'admin'}
+        />
+      ) : activeTab === 'comparison' ? (
+        <SourceDataComparison
+          onBack={() => {}} // Empty since we're in a tab
+          materials={materials}
         />
       ) : activeTab === 'assets' ? (
         <AssetUploadManager
@@ -3452,6 +3468,11 @@ function AppContent() {
               materials={materials}
               isAuthenticated={!!user}
               isAdmin={userRole === 'admin'}
+            />
+          ) : currentView.type === 'source-comparison' ? (
+            <SourceDataComparison
+              onBack={navigateToMaterials}
+              materials={materials}
             />
           ) : currentView.type === 'licenses' ? (
             <LicensesView

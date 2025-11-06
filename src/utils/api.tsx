@@ -470,6 +470,88 @@ export async function batchSaveSources(sources: Source[]): Promise<{ success: bo
   return data;
 }
 
+// Upload PDF for a source (admin only)
+export async function uploadSourcePdf(file: File, sourceId: string): Promise<{ success: boolean; fileName: string }> {
+  logger.log('📄 Starting PDF upload:', {
+    fileName: file.name,
+    fileSize: file.size,
+    fileType: file.type,
+    sourceId
+  });
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('sourceId', sourceId);
+
+  const token = sessionStorage.getItem('wastedb_access_token') || publicAnonKey;
+  const isCustomToken = token !== publicAnonKey;
+  
+  logger.log('🔐 Auth state for PDF upload:', {
+    hasCustomToken: isCustomToken,
+    tokenPreview: token.substring(0, 8) + '...'
+  });
+  
+  const headers: Record<string, string> = {
+    'Authorization': `Bearer ${publicAnonKey}`,  // Always use anon key for Supabase
+  };
+  
+  // Custom tokens go in X-Session-Token header
+  if (isCustomToken) {
+    headers['X-Session-Token'] = token;
+  }
+
+  const uploadUrl = `${API_BASE_URL}/source-pdfs/upload`;
+  logger.log('🌐 Uploading to:', uploadUrl);
+
+  try {
+    const response = await fetch(uploadUrl, {
+      method: 'POST',
+      headers,
+      body: formData,
+    });
+
+    logger.log('📡 Upload response status:', response.status);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      logger.error('❌ Upload failed:', {
+        status: response.status,
+        statusText: response.statusText,
+        responseBody: errorText
+      });
+      
+      let errorData;
+      try {
+        errorData = JSON.parse(errorText);
+      } catch {
+        errorData = { error: 'Failed to upload PDF' };
+      }
+      
+      throw new Error(errorData.error || `Upload failed: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    logger.log('✅ PDF upload successful:', result);
+    return result;
+  } catch (error) {
+    logger.error('💥 PDF upload exception:', error);
+    throw error;
+  }
+}
+
+// Get signed URL for a source PDF (authenticated users)
+export async function getSourcePdfUrl(fileName: string): Promise<string> {
+  const data = await apiCall(`/source-pdfs/${fileName}`);
+  return data.signedUrl;
+}
+
+// Delete a source PDF (admin only)
+export async function deleteSourcePdf(fileName: string): Promise<void> {
+  await apiCall(`/source-pdfs/${fileName}`, {
+    method: 'DELETE',
+  });
+}
+
 // ==================== CALCULATION API ====================
 
 export interface CompostabilityParams {

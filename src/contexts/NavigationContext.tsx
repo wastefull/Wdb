@@ -29,6 +29,7 @@ export type ViewType =
   | { type: 'review-center' }
   | { type: 'api-docs' }
   | { type: 'source-library' }
+  | { type: 'source-comparison' }
   | { type: 'licenses' };
 
 interface NavigationContextType {
@@ -56,6 +57,7 @@ interface NavigationContextType {
   navigateToReviewCenter: () => void;
   navigateToApiDocs: () => void;
   navigateToSourceLibrary: () => void;
+  navigateToSourceComparison: () => void;
   navigateToLicenses: () => void;
   goBack: () => void;
 }
@@ -156,6 +158,10 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
     navigateTo({ type: 'source-library' });
   };
 
+  const navigateToSourceComparison = () => {
+    navigateTo({ type: 'source-comparison' });
+  };
+
   const navigateToLicenses = () => {
     navigateTo({ type: 'licenses' });
   };
@@ -195,6 +201,7 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
     navigateToReviewCenter,
     navigateToApiDocs,
     navigateToSourceLibrary,
+    navigateToSourceComparison,
     navigateToLicenses,
     goBack,
   };

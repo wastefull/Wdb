@@ -24,6 +24,7 @@ export interface Source {
   type: 'peer-reviewed' | 'government' | 'industrial' | 'ngo' | 'internal';
   abstract?: string;
   tags?: string[]; // e.g., ['cardboard', 'paper', 'recyclability', 'composting']
+  pdfFileName?: string; // Filename of uploaded PDF in Supabase Storage
 }
 
 export const SOURCE_LIBRARY: Source[] = [

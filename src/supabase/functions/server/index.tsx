@@ -164,27 +164,41 @@ async function initializeStorage() {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     );
 
-    const bucketName = 'make-17cae920-assets';
-
-    // Check if bucket exists
-    const { data: buckets } = await supabase.storage.listBuckets();
-    const bucketExists = buckets?.some(bucket => bucket.name === bucketName);
-
-    if (!bucketExists) {
-      // Create public bucket for assets (logo, images, etc.)
-      const { error } = await supabase.storage.createBucket(bucketName, {
+    const buckets = [
+      {
+        name: 'make-17cae920-assets',
         public: true,
         fileSizeLimit: 5242880, // 5MB limit
         allowedMimeTypes: ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml', 'image/webp']
-      });
-
-      if (error) {
-        console.error('Error creating storage bucket:', error);
-      } else {
-        console.log(`✅ Created public storage bucket: ${bucketName}`);
+      },
+      {
+        name: 'make-17cae920-source-pdfs',
+        public: false, // Private bucket for source PDFs
+        fileSizeLimit: 20971520, // 20MB limit for PDFs
+        allowedMimeTypes: ['application/pdf']
       }
-    } else {
-      console.log(`✅ Storage bucket already exists: ${bucketName}`);
+    ];
+
+    const { data: existingBuckets } = await supabase.storage.listBuckets();
+
+    for (const bucketConfig of buckets) {
+      const bucketExists = existingBuckets?.some(bucket => bucket.name === bucketConfig.name);
+
+      if (!bucketExists) {
+        const { error } = await supabase.storage.createBucket(bucketConfig.name, {
+          public: bucketConfig.public,
+          fileSizeLimit: bucketConfig.fileSizeLimit,
+          allowedMimeTypes: bucketConfig.allowedMimeTypes
+        });
+
+        if (error) {
+          console.error(`Error creating storage bucket ${bucketConfig.name}:`, error);
+        } else {
+          console.log(`✅ Created ${bucketConfig.public ? 'public' : 'private'} storage bucket: ${bucketConfig.name}`);
+        }
+      } else {
+        console.log(`✅ Storage bucket already exists: ${bucketConfig.name}`);
+      }
     }
   } catch (error) {
     console.error('Error initializing storage:', error);
@@ -1234,6 +1248,156 @@ app.delete('/make-server-17cae920/assets/:fileName', verifyAuth, verifyAdmin, as
   } catch (error) {
     console.error('Error in asset deletion:', error);
     return c.json({ error: 'Failed to delete asset', details: String(error) }, 500);
+  }
+});
+
+// ==================== SOURCE PDF ROUTES ====================
+
+// Upload source PDF (admin only)
+app.post('/make-server-17cae920/source-pdfs/upload', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    console.log('📥 Received PDF upload request');
+    
+    const formData = await c.req.formData();
+    const file = formData.get('file') as File;
+    const sourceId = formData.get('sourceId') as string;
+    
+    console.log('📦 Form data parsed:', {
+      hasFile: !!file,
+      fileName: file?.name,
+      fileSize: file?.size,
+      fileType: file?.type,
+      sourceId
+    });
+    
+    if (!file) {
+      console.log('❌ No file provided');
+      return c.json({ error: 'No file provided' }, 400);
+    }
+
+    if (!sourceId) {
+      console.log('❌ No source ID provided');
+      return c.json({ error: 'Source ID is required' }, 400);
+    }
+
+    // Validate file type
+    if (file.type !== 'application/pdf') {
+      console.log(`❌ Invalid file type: ${file.type}`);
+      return c.json({ error: 'Invalid file type. Only PDF files are allowed.' }, 400);
+    }
+
+    // Validate file size (20MB max)
+    if (file.size > 20971520) {
+      console.log(`❌ File too large: ${file.size} bytes`);
+      return c.json({ error: 'File too large. Maximum size is 20MB.' }, 400);
+    }
+
+    console.log('✅ Validation passed, creating Supabase client');
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+    );
+
+    const bucketName = 'make-17cae920-source-pdfs';
+    
+    // Generate filename: sourceId-timestamp.pdf
+    const fileName = `${sourceId}-${Date.now()}.pdf`;
+    console.log(`📝 Generated filename: ${fileName}`);
+
+    // Convert File to ArrayBuffer then to Uint8Array
+    console.log('🔄 Converting file to Uint8Array...');
+    const arrayBuffer = await file.arrayBuffer();
+    const uint8Array = new Uint8Array(arrayBuffer);
+    console.log(`✅ Converted ${uint8Array.length} bytes`);
+
+    // Upload to Supabase Storage
+    console.log(`☁️ Uploading to bucket: ${bucketName}`);
+    const { data, error } = await supabase.storage
+      .from(bucketName)
+      .upload(fileName, uint8Array, {
+        contentType: file.type,
+        upsert: false
+      });
+
+    if (error) {
+      console.error('❌ Error uploading PDF to storage:', error);
+      return c.json({ error: 'Failed to upload PDF', details: error.message }, 500);
+    }
+
+    console.log(`✅ Source PDF uploaded successfully: ${fileName}`);
+    console.log('📊 Upload data:', data);
+
+    return c.json({ 
+      success: true, 
+      fileName,
+      sourceId,
+      size: file.size
+    });
+  } catch (error) {
+    console.error('💥 Exception in source PDF upload:', error);
+    return c.json({ error: 'Failed to upload source PDF', details: String(error) }, 500);
+  }
+});
+
+// Get signed URL for a source PDF (authenticated users)
+app.get('/make-server-17cae920/source-pdfs/:fileName', verifyAuth, async (c) => {
+  try {
+    const fileName = c.req.param('fileName');
+
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+    );
+
+    const bucketName = 'make-17cae920-source-pdfs';
+
+    // Generate signed URL valid for 1 hour
+    const { data, error } = await supabase.storage
+      .from(bucketName)
+      .createSignedUrl(fileName, 3600);
+
+    if (error) {
+      console.error('Error creating signed URL:', error);
+      return c.json({ error: 'Failed to get PDF URL', details: error.message }, 500);
+    }
+
+    return c.json({ 
+      signedUrl: data.signedUrl,
+      expiresIn: 3600
+    });
+  } catch (error) {
+    console.error('Error in PDF URL retrieval:', error);
+    return c.json({ error: 'Failed to get PDF URL', details: String(error) }, 500);
+  }
+});
+
+// Delete a source PDF (admin only)
+app.delete('/make-server-17cae920/source-pdfs/:fileName', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const fileName = c.req.param('fileName');
+
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+    );
+
+    const bucketName = 'make-17cae920-source-pdfs';
+
+    const { error } = await supabase.storage
+      .from(bucketName)
+      .remove([fileName]);
+
+    if (error) {
+      console.error('Error deleting source PDF:', error);
+      return c.json({ error: 'Failed to delete PDF', details: error.message }, 500);
+    }
+
+    console.log(`✅ Source PDF deleted: ${fileName}`);
+
+    return c.json({ success: true });
+  } catch (error) {
+    console.error('Error in source PDF deletion:', error);
+    return c.json({ error: 'Failed to delete PDF', details: String(error) }, 500);
   }
 });
 
