@@ -6,7 +6,7 @@
  */
 
 import { useState, useMemo } from 'react';
-import { ArrowLeft, TrendingUp, TrendingDown, Minus, AlertCircle, Download, ExternalLink, GraduationCap } from 'lucide-react';
+import { ArrowLeft, TrendingUp, TrendingDown, Minus, AlertCircle, Download, ExternalLink, GraduationCap, BookOpen } from 'lucide-react';
 import { Card } from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Alert, AlertDescription } from './ui/alert';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { toast } from 'sonner@2.0.3';
+import * as api from '../utils/api';
 
 interface Material {
   id: string;
@@ -25,6 +26,7 @@ interface Material {
     year?: number;
     doi?: string;
     url?: string;
+    pdfFileName?: string;
     weight?: number;
     parameters?: string[];
   }>;
@@ -420,6 +422,16 @@ export function SourceDataComparison({ onBack, materials }: SourceDataComparison
                               className="text-[9px] text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
                             >
                               DOI <ExternalLink className="w-2 h-2" />
+                            </a>
+                          ) : sc.source.pdfFileName ? (
+                            <a
+                              href={api.getSourcePdfViewUrl(sc.source.pdfFileName)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-[9px] text-green-600 dark:text-green-400 hover:underline flex items-center gap-1 cursor-pointer"
+                              title="View uploaded PDF"
+                            >
+                              <BookOpen className="w-2 h-2" /> View PDF
                             </a>
                           ) : (
                             <a

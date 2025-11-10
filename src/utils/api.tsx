@@ -541,8 +541,23 @@ export async function uploadSourcePdf(file: File, sourceId: string): Promise<{ s
 
 // Get signed URL for a source PDF (authenticated users)
 export async function getSourcePdfUrl(fileName: string): Promise<string> {
-  const data = await apiCall(`/source-pdfs/${fileName}`);
-  return data.signedUrl;
+  logger.log('📄 Fetching PDF URL for:', fileName);
+  try {
+    const data = await apiCall(`/source-pdfs/${fileName}`);
+    logger.log('✅ Got signed URL:', data.signedUrl?.substring(0, 50) + '...');
+    return data.signedUrl;
+  } catch (error) {
+    logger.error('❌ Failed to get PDF URL:', error);
+    throw error;
+  }
+}
+
+// Get direct view URL for a source PDF (for use in <a> tags)
+// Returns a URL that redirects to the signed Supabase storage URL
+export function getSourcePdfViewUrl(fileName: string): string {
+  const url = `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/source-pdfs/${encodeURIComponent(fileName)}/view`;
+  logger.log(`🔗 Generated PDF view URL for "${fileName}":`, url);
+  return url;
 }
 
 // Delete a source PDF (admin only)

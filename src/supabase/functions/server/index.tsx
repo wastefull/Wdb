@@ -173,7 +173,7 @@ async function initializeStorage() {
       },
       {
         name: 'make-17cae920-source-pdfs',
-        public: false, // Private bucket for source PDFs
+        public: true, // Public bucket (access still controlled via app logic + UUID filenames)
         fileSizeLimit: 20971520, // 20MB limit for PDFs
         allowedMimeTypes: ['application/pdf']
       }
@@ -182,9 +182,10 @@ async function initializeStorage() {
     const { data: existingBuckets } = await supabase.storage.listBuckets();
 
     for (const bucketConfig of buckets) {
-      const bucketExists = existingBuckets?.some(bucket => bucket.name === bucketConfig.name);
+      const existingBucket = existingBuckets?.find(bucket => bucket.name === bucketConfig.name);
 
-      if (!bucketExists) {
+      if (!existingBucket) {
+        // Create new bucket
         const { error } = await supabase.storage.createBucket(bucketConfig.name, {
           public: bucketConfig.public,
           fileSizeLimit: bucketConfig.fileSizeLimit,
@@ -196,8 +197,22 @@ async function initializeStorage() {
         } else {
           console.log(`✅ Created ${bucketConfig.public ? 'public' : 'private'} storage bucket: ${bucketConfig.name}`);
         }
+      } else if (existingBucket.public !== bucketConfig.public) {
+        // Bucket exists but has wrong privacy setting - update it
+        console.log(`⚠️ Bucket ${bucketConfig.name} exists as ${existingBucket.public ? 'public' : 'private'}, updating to ${bucketConfig.public ? 'public' : 'private'}...`);
+        const { error } = await supabase.storage.updateBucket(bucketConfig.name, {
+          public: bucketConfig.public,
+          fileSizeLimit: bucketConfig.fileSizeLimit,
+          allowedMimeTypes: bucketConfig.allowedMimeTypes
+        });
+
+        if (error) {
+          console.error(`Error updating storage bucket ${bucketConfig.name}:`, error);
+        } else {
+          console.log(`✅ Updated bucket ${bucketConfig.name} to ${bucketConfig.public ? 'public' : 'private'}`);
+        }
       } else {
-        console.log(`✅ Storage bucket already exists: ${bucketConfig.name}`);
+        console.log(`✅ Storage bucket already exists: ${bucketConfig.name} (${bucketConfig.public ? 'public' : 'private'})`);
       }
     }
   } catch (error) {
@@ -1339,10 +1354,51 @@ app.post('/make-server-17cae920/source-pdfs/upload', verifyAuth, verifyAdmin, as
   }
 });
 
-// Get signed URL for a source PDF (authenticated users)
+// Get signed URL for a source PDF (authenticated users) - API endpoint
 app.get('/make-server-17cae920/source-pdfs/:fileName', verifyAuth, async (c) => {
   try {
     const fileName = c.req.param('fileName');
+    console.log(`📥 Request for PDF URL: ${fileName}`);
+
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+    );
+
+    const bucketName = 'make-17cae920-source-pdfs';
+    console.log(`🪣 Using bucket: ${bucketName}`);
+
+    // Generate signed URL valid for 1 hour
+    console.log(`🔐 Creating signed URL for ${fileName}...`);
+    const { data, error } = await supabase.storage
+      .from(bucketName)
+      .createSignedUrl(fileName, 3600);
+
+    if (error) {
+      console.error('❌ Error creating signed URL:', error);
+      return c.json({ error: 'Failed to get PDF URL', details: error.message }, 500);
+    }
+
+    console.log(`✅ Signed URL created successfully`);
+    console.log(`📍 URL: ${data.signedUrl?.substring(0, 80)}...`);
+
+    return c.json({ 
+      signedUrl: data.signedUrl,
+      expiresIn: 3600
+    });
+  } catch (error) {
+    console.error('💥 Exception in PDF URL retrieval:', error);
+    return c.json({ error: 'Failed to get PDF URL', details: String(error) }, 500);
+  }
+});
+
+// Direct PDF view endpoint - redirects to public URL (for <a> tag links)
+app.get('/make-server-17cae920/source-pdfs/:fileName/view', async (c) => {
+  try {
+    const fileName = c.req.param('fileName');
+    console.log(`\n========== PDF VIEW REQUEST ==========`);
+    console.log(`🔗 Requested file: ${fileName}`);
+    console.log(`🕐 Timestamp: ${new Date().toISOString()}`);
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -1351,23 +1407,89 @@ app.get('/make-server-17cae920/source-pdfs/:fileName', verifyAuth, async (c) => 
 
     const bucketName = 'make-17cae920-source-pdfs';
 
-    // Generate signed URL valid for 1 hour
-    const { data, error } = await supabase.storage
-      .from(bucketName)
-      .createSignedUrl(fileName, 3600);
-
-    if (error) {
-      console.error('Error creating signed URL:', error);
-      return c.json({ error: 'Failed to get PDF URL', details: error.message }, 500);
+    // Ensure bucket is public (check and update if needed)
+    console.log(`🔍 Checking bucket privacy settings...`);
+    const { data: buckets, error: listError } = await supabase.storage.listBuckets();
+    
+    if (listError) {
+      console.error('❌ Failed to list buckets:', listError);
+      return c.text('Failed to access storage', 500);
     }
 
-    return c.json({ 
-      signedUrl: data.signedUrl,
-      expiresIn: 3600
-    });
+    console.log(`📦 Found ${buckets?.length || 0} buckets total`);
+    const bucket = buckets?.find(b => b.name === bucketName);
+    
+    if (bucket) {
+      console.log(`📦 Bucket info:`, {
+        name: bucket.name,
+        public: bucket.public,
+        id: bucket.id,
+        created_at: bucket.created_at,
+      });
+      
+      if (!bucket.public) {
+        console.log(`⚠️ Bucket is PRIVATE - updating to PUBLIC...`);
+        const { data: updateData, error: updateError } = await supabase.storage.updateBucket(bucketName, {
+          public: true,
+          fileSizeLimit: 20971520,
+          allowedMimeTypes: ['application/pdf']
+        });
+        
+        if (updateError) {
+          console.error('❌ Failed to update bucket to public:', updateError);
+          console.error('   Error details:', JSON.stringify(updateError, null, 2));
+        } else {
+          console.log(`✅ Successfully updated bucket to PUBLIC`);
+          console.log(`   Update response:`, updateData);
+        }
+      } else {
+        console.log(`✅ Bucket is already PUBLIC ✓`);
+      }
+    } else {
+      console.error('❌ Bucket not found');
+      console.log('   Available buckets:', buckets?.map(b => b.name).join(', '));
+      return c.text('Storage bucket not found', 500);
+    }
+
+    // Check if file exists
+    console.log(`🔍 Checking if file exists: ${fileName}`);
+    const { data: fileList, error: listFilesError } = await supabase.storage
+      .from(bucketName)
+      .list('', { search: fileName });
+    
+    if (listFilesError) {
+      console.error('❌ Failed to check file existence:', listFilesError);
+    } else {
+      const fileExists = fileList?.some(f => f.name === fileName);
+      console.log(`📄 File exists: ${fileExists ? '✓ YES' : '✗ NO'}`);
+      if (!fileExists) {
+        console.log(`   Files in bucket:`, fileList?.map(f => f.name).slice(0, 5).join(', '));
+      }
+    }
+
+    // Get public URL for the PDF
+    console.log(`🔗 Generating public URL...`);
+    const { data } = supabase.storage
+      .from(bucketName)
+      .getPublicUrl(fileName);
+
+    if (!data.publicUrl) {
+      console.error('❌ Failed to get public URL - data.publicUrl is empty');
+      return c.text('Failed to load PDF', 500);
+    }
+
+    console.log(`✅ Generated public URL: ${data.publicUrl}`);
+    console.log(`🎯 Issuing 302 redirect to public URL...`);
+    console.log(`======================================\n`);
+    
+    // Return 302 redirect to the public URL
+    return c.redirect(data.publicUrl, 302);
   } catch (error) {
-    console.error('Error in PDF URL retrieval:', error);
-    return c.json({ error: 'Failed to get PDF URL', details: String(error) }, 500);
+    console.error('💥 EXCEPTION in PDF redirect:');
+    console.error('   Error:', error);
+    console.error('   Stack:', error instanceof Error ? error.stack : 'N/A');
+    console.log(`======================================\n`);
+    return c.text('Failed to load PDF', 500);
   }
 });
 

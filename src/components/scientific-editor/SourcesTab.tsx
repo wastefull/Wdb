@@ -188,21 +188,15 @@ export function SourcesTab({ material, sources, onSourcesChange, onParameterChan
                         DOI <ExternalLink className="w-2 h-2" />
                       </a>
                     ) : source.pdfFileName ? (
-                      <button
-                        onClick={async () => {
-                          try {
-                            const signedUrl = await api.getSourcePdfUrl(source.pdfFileName!);
-                            window.open(signedUrl, '_blank');
-                          } catch (error) {
-                            console.error('Failed to open PDF:', error);
-                            toast.error('Failed to open PDF');
-                          }
-                        }}
-                        className="text-[9px] text-green-600 dark:text-green-400 hover:underline flex items-center gap-1"
+                      <a
+                        href={api.getSourcePdfViewUrl(source.pdfFileName)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[9px] text-green-600 dark:text-green-400 hover:underline flex items-center gap-1 cursor-pointer"
                         title="View uploaded PDF"
                       >
                         <BookOpen className="w-2 h-2" /> View PDF
-                      </button>
+                      </a>
                     ) : (
                       <a
                         href={getGoogleScholarUrl(source.title, source.authors)}

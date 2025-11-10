@@ -13,6 +13,7 @@ import { Alert, AlertDescription } from './ui/alert';
 import { toast } from 'sonner@2.0.3';
 import { Source, SOURCE_LIBRARY } from '../data/sources';
 import * as api from '../utils/api';
+import { logger } from '../utils/logger';
 
 interface Material {
   id: string;
@@ -354,15 +355,8 @@ export function SourceLibraryManager({ onBack, materials, isAuthenticated, isAdm
     }
   };
 
-  const handleViewPdf = async (pdfFileName: string) => {
-    try {
-      const signedUrl = await api.getSourcePdfUrl(pdfFileName);
-      window.open(signedUrl, '_blank');
-    } catch (error) {
-      console.error('Failed to get PDF URL:', error);
-      toast.error('Failed to open PDF');
-    }
-  };
+  // No longer needed - using direct <a> links now
+  // const handleViewPdf = async (pdfFileName: string) => { ... };
 
   const handleSyncToCloud = async () => {
     if (!isAuthenticated || !isAdmin) {
@@ -705,13 +699,20 @@ export function SourceLibraryManager({ onBack, materials, isAuthenticated, isAdm
                                 DOI <ExternalLink className="w-2 h-2" />
                               </a>
                             ) : source.pdfFileName ? (
-                              <button
-                                onClick={() => handleViewPdf(source.pdfFileName!)}
-                                className="text-[9px] text-green-600 dark:text-green-400 hover:underline flex items-center gap-1"
+                              <a
+                                href={api.getSourcePdfViewUrl(source.pdfFileName)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[9px] text-green-600 dark:text-green-400 hover:underline flex items-center gap-1 cursor-pointer"
                                 title="View uploaded PDF"
+                                onClick={(e) => {
+                                  logger.log(`🖱️ User clicked "View PDF" for:`, source.pdfFileName);
+                                  logger.log(`   URL:`, api.getSourcePdfViewUrl(source.pdfFileName));
+                                  logger.log(`   Source:`, source.title);
+                                }}
                               >
                                 <BookOpen className="w-2 h-2" /> View PDF
-                              </button>
+                              </a>
                             ) : (
                               <a
                                 href={getGoogleScholarUrl(source.title, source.authors)}

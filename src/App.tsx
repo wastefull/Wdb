@@ -3540,6 +3540,12 @@ function AppWithMaterialsContext() {
 }
 
 export default function App() {
+  // Enable debug mode for troubleshooting
+  useEffect(() => {
+    setTestMode(true);
+    loggerInfo();
+  }, []);
+
   return (
     <AccessibilityProvider>
       <NavigationProvider>
