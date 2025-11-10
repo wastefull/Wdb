@@ -556,9 +556,9 @@ export async function getSourcePdfUrl(fileName: string): Promise<string> {
 }
 
 // Get direct view URL for a source PDF (for use in <a> tags)
-// Returns a URL that redirects to the signed Supabase storage URL
+// Returns the public Supabase Storage URL (no server endpoint needed since bucket is public)
 export function getSourcePdfViewUrl(fileName: string): string {
-  const url = `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/source-pdfs/${encodeURIComponent(fileName)}/view`;
+  const url = `https://${projectId}.supabase.co/storage/v1/object/public/make-17cae920-source-pdfs/${encodeURIComponent(fileName)}`;
   logger.log(`🔗 Generated PDF view URL for "${fileName}":`, url);
   return url;
 }
