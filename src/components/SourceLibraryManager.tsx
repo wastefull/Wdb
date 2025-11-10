@@ -699,20 +699,41 @@ export function SourceLibraryManager({ onBack, materials, isAuthenticated, isAdm
                                 DOI <ExternalLink className="w-2 h-2" />
                               </a>
                             ) : source.pdfFileName ? (
-                              <a
-                                href={api.getSourcePdfViewUrl(source.pdfFileName)}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-[9px] text-green-600 dark:text-green-400 hover:underline flex items-center gap-1 cursor-pointer"
-                                title="View uploaded PDF"
-                                onClick={(e) => {
-                                  logger.log(`🖱️ User clicked "View PDF" for:`, source.pdfFileName);
-                                  logger.log(`   URL:`, api.getSourcePdfViewUrl(source.pdfFileName));
-                                  logger.log(`   Source:`, source.title);
-                                }}
-                              >
-                                <BookOpen className="w-2 h-2" /> View PDF
-                              </a>
+                              <div className="flex items-center gap-2">
+                                <a
+                                  href={api.getSourcePdfViewUrl(source.pdfFileName)}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-[9px] text-green-600 dark:text-green-400 hover:underline flex items-center gap-1 cursor-pointer"
+                                  title="View uploaded PDF"
+                                  onClick={(e) => {
+                                    logger.log(`🖱️ User clicked "View PDF" for:`, source.pdfFileName);
+                                    logger.log(`   URL:`, api.getSourcePdfViewUrl(source.pdfFileName));
+                                    logger.log(`   Source:`, source.title);
+                                  }}
+                                >
+                                  <BookOpen className="w-2 h-2" /> View PDF
+                                </a>
+                                <button
+                                  onClick={async () => {
+                                    logger.log(`🔍 Running diagnostics for:`, source.pdfFileName);
+                                    try {
+                                      const response = await fetch(
+                                        `https://${api.projectId}.supabase.co/functions/v1/make-server-17cae920/source-pdfs/${encodeURIComponent(source.pdfFileName)}/debug`
+                                      );
+                                      const data = await response.json();
+                                      logger.log(`📊 Diagnostics results:`, data);
+                                      console.table(data.checks);
+                                    } catch (error) {
+                                      logger.error('❌ Diagnostics failed:', error);
+                                    }
+                                  }}
+                                  className="text-[9px] text-orange-600 dark:text-orange-400 hover:underline flex items-center gap-1 cursor-pointer"
+                                  title="Run diagnostics"
+                                >
+                                  🔍 Debug
+                                </button>
+                              </div>
                             ) : (
                               <a
                                 href={getGoogleScholarUrl(source.title, source.authors)}

@@ -1493,6 +1493,97 @@ app.get('/make-server-17cae920/source-pdfs/:fileName/view', async (c) => {
   }
 });
 
+// Diagnostic endpoint to check bucket and file status
+app.get('/make-server-17cae920/source-pdfs/:fileName/debug', async (c) => {
+  try {
+    const fileName = c.req.param('fileName');
+    const diagnostics: any = {
+      timestamp: new Date().toISOString(),
+      fileName,
+      checks: {},
+    };
+
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+    );
+
+    const bucketName = 'make-17cae920-source-pdfs';
+
+    // Check buckets
+    const { data: buckets, error: listError } = await supabase.storage.listBuckets();
+    diagnostics.checks.listBuckets = {
+      success: !listError,
+      error: listError,
+      totalBuckets: buckets?.length || 0,
+    };
+
+    const bucket = buckets?.find(b => b.name === bucketName);
+    diagnostics.checks.bucketFound = {
+      found: !!bucket,
+      details: bucket ? {
+        name: bucket.name,
+        id: bucket.id,
+        public: bucket.public,
+        created_at: bucket.created_at,
+        file_size_limit: bucket.file_size_limit,
+        allowed_mime_types: bucket.allowed_mime_types,
+      } : null,
+    };
+
+    // Check if file exists
+    if (bucket) {
+      const { data: fileList, error: listFilesError } = await supabase.storage
+        .from(bucketName)
+        .list('', { search: fileName });
+      
+      const fileExists = fileList?.some(f => f.name === fileName);
+      diagnostics.checks.fileExists = {
+        exists: fileExists,
+        error: listFilesError,
+        searchResults: fileList?.map(f => ({
+          name: f.name,
+          size: f.metadata?.size,
+          created_at: f.created_at,
+        })),
+      };
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from(bucketName)
+        .getPublicUrl(fileName);
+      
+      diagnostics.checks.publicUrl = {
+        url: urlData.publicUrl,
+      };
+
+      // Try to fetch the URL to see what status we get
+      if (urlData.publicUrl) {
+        try {
+          const response = await fetch(urlData.publicUrl, { method: 'HEAD' });
+          diagnostics.checks.urlAccessibility = {
+            status: response.status,
+            statusText: response.statusText,
+            headers: Object.fromEntries(response.headers.entries()),
+          };
+        } catch (fetchError) {
+          diagnostics.checks.urlAccessibility = {
+            error: String(fetchError),
+          };
+        }
+      }
+    }
+
+    return c.json(diagnostics, 200);
+  } catch (error) {
+    return c.json({ 
+      error: 'Diagnostic failed', 
+      details: String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+    }, 500);
+  }
+});
+
 // Delete a source PDF (admin only)
 app.delete('/make-server-17cae920/source-pdfs/:fileName', verifyAuth, verifyAdmin, async (c) => {
   try {

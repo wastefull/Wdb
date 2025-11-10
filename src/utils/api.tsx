@@ -2,6 +2,9 @@ import { projectId, publicAnonKey } from './supabase/info';
 import { logger } from './logger';
 import { toast } from 'sonner@2.0.3';
 
+// Export projectId for use in other modules
+export { projectId };
+
 const API_BASE_URL = `https://${projectId}.supabase.co/functions/v1/make-server-17cae920`;
 logger.log('🔧 API_BASE_URL initialized:', API_BASE_URL);
 
