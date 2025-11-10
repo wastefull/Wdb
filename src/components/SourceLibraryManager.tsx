@@ -718,14 +718,27 @@ export function SourceLibraryManager({ onBack, materials, isAuthenticated, isAdm
                                   onClick={async () => {
                                     logger.log(`🔍 Running diagnostics for:`, source.pdfFileName);
                                     try {
-                                      const response = await fetch(
-                                        `https://${api.projectId}.supabase.co/functions/v1/make-server-17cae920/source-pdfs/${encodeURIComponent(source.pdfFileName)}/debug`
-                                      );
-                                      const data = await response.json();
-                                      logger.log(`📊 Diagnostics results:`, data);
-                                      console.table(data.checks);
+                                      const diagnostics = await api.getSourcePdfDiagnostics(source.pdfFileName);
+                                      logger.log(`📊 Diagnostics results:`, diagnostics);
+                                      console.table(diagnostics.checks);
+                                      
+                                      // Show a summary toast
+                                      const bucketPublic = diagnostics.checks.bucketFound?.details?.public;
+                                      const fileExists = diagnostics.checks.fileExists?.exists;
+                                      const urlStatus = diagnostics.checks.urlAccessibility?.status;
+                                      
+                                      if (bucketPublic && fileExists && urlStatus === 200) {
+                                        toast.success('✅ All checks passed! PDF should be accessible.');
+                                      } else {
+                                        const issues = [];
+                                        if (!bucketPublic) issues.push('Bucket is PRIVATE');
+                                        if (!fileExists) issues.push('File NOT FOUND');
+                                        if (urlStatus !== 200) issues.push(`URL returns ${urlStatus}`);
+                                        toast.error(`❌ Issues: ${issues.join(', ')}`);
+                                      }
                                     } catch (error) {
                                       logger.error('❌ Diagnostics failed:', error);
+                                      toast.error('Failed to run diagnostics');
                                     }
                                   }}
                                   className="text-[9px] text-orange-600 dark:text-orange-400 hover:underline flex items-center gap-1 cursor-pointer"

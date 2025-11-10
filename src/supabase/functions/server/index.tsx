@@ -1354,45 +1354,8 @@ app.post('/make-server-17cae920/source-pdfs/upload', verifyAuth, verifyAdmin, as
   }
 });
 
-// Get signed URL for a source PDF (authenticated users) - API endpoint
-app.get('/make-server-17cae920/source-pdfs/:fileName', verifyAuth, async (c) => {
-  try {
-    const fileName = c.req.param('fileName');
-    console.log(`📥 Request for PDF URL: ${fileName}`);
-
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-    );
-
-    const bucketName = 'make-17cae920-source-pdfs';
-    console.log(`🪣 Using bucket: ${bucketName}`);
-
-    // Generate signed URL valid for 1 hour
-    console.log(`🔐 Creating signed URL for ${fileName}...`);
-    const { data, error } = await supabase.storage
-      .from(bucketName)
-      .createSignedUrl(fileName, 3600);
-
-    if (error) {
-      console.error('❌ Error creating signed URL:', error);
-      return c.json({ error: 'Failed to get PDF URL', details: error.message }, 500);
-    }
-
-    console.log(`✅ Signed URL created successfully`);
-    console.log(`📍 URL: ${data.signedUrl?.substring(0, 80)}...`);
-
-    return c.json({ 
-      signedUrl: data.signedUrl,
-      expiresIn: 3600
-    });
-  } catch (error) {
-    console.error('💥 Exception in PDF URL retrieval:', error);
-    return c.json({ error: 'Failed to get PDF URL', details: String(error) }, 500);
-  }
-});
-
 // Direct PDF view endpoint - redirects to public URL (for <a> tag links)
+// IMPORTANT: This must come BEFORE the generic /:fileName route to avoid the auth middleware
 app.get('/make-server-17cae920/source-pdfs/:fileName/view', async (c) => {
   try {
     const fileName = c.req.param('fileName');
@@ -1581,6 +1544,45 @@ app.get('/make-server-17cae920/source-pdfs/:fileName/debug', async (c) => {
       details: String(error),
       stack: error instanceof Error ? error.stack : undefined,
     }, 500);
+  }
+});
+
+// Get signed URL for a source PDF (authenticated users) - API endpoint
+// IMPORTANT: This comes AFTER the more specific routes (/view, /debug)
+app.get('/make-server-17cae920/source-pdfs/:fileName', verifyAuth, async (c) => {
+  try {
+    const fileName = c.req.param('fileName');
+    console.log(`📥 Request for PDF URL: ${fileName}`);
+
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+    );
+
+    const bucketName = 'make-17cae920-source-pdfs';
+    console.log(`🪣 Using bucket: ${bucketName}`);
+
+    // Generate signed URL valid for 1 hour
+    console.log(`🔐 Creating signed URL for ${fileName}...`);
+    const { data, error } = await supabase.storage
+      .from(bucketName)
+      .createSignedUrl(fileName, 3600);
+
+    if (error) {
+      console.error('❌ Error creating signed URL:', error);
+      return c.json({ error: 'Failed to get PDF URL', details: error.message }, 500);
+    }
+
+    console.log(`✅ Signed URL created successfully`);
+    console.log(`📍 URL: ${data.signedUrl?.substring(0, 80)}...`);
+
+    return c.json({ 
+      signedUrl: data.signedUrl,
+      expiresIn: 3600
+    });
+  } catch (error) {
+    console.error('💥 Exception in PDF URL retrieval:', error);
+    return c.json({ error: 'Failed to get PDF URL', details: String(error) }, 500);
   }
 });
 

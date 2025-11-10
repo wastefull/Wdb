@@ -570,6 +570,21 @@ export async function deleteSourcePdf(fileName: string): Promise<void> {
   });
 }
 
+// Get diagnostics for a source PDF (debug tool)
+export async function getSourcePdfDiagnostics(fileName: string): Promise<any> {
+  logger.log(`🔍 Fetching diagnostics for PDF: ${fileName}`);
+  try {
+    const data = await apiCall(`/source-pdfs/${encodeURIComponent(fileName)}/debug`, {
+      method: 'GET',
+    });
+    logger.log(`✅ Diagnostics received:`, data);
+    return data;
+  } catch (error) {
+    logger.error('❌ Failed to get PDF diagnostics:', error);
+    throw error;
+  }
+}
+
 // ==================== CALCULATION API ====================
 
 export interface CompostabilityParams {
