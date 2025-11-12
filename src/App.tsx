@@ -2976,6 +2976,8 @@ function AppContent() {
     if (settings.adminMode) {
       toggleAdminMode();
     }
+    // Navigate to front page (materials list)
+    navigateToMaterials();
   };
 
   const filteredMaterials = materials.filter(m =>
@@ -3540,9 +3542,11 @@ function AppWithMaterialsContext() {
 }
 
 export default function App() {
-  // Enable debug mode for troubleshooting
+  // Logger defaults to environment-based mode:
+  // - TEST_MODE = true in Figma Make (logs enabled for development)
+  // - TEST_MODE = false in production (logs suppressed for security)
+  // Can be manually overridden via window.wastedbLogger.setTestMode(true/false)
   useEffect(() => {
-    setTestMode(true);
     loggerInfo();
   }, []);
 

@@ -160,32 +160,47 @@ export async function apiCall(endpoint: string, options: RequestInit = {}) {
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
     
+    // Handle authentication/authorization errors (401 Unauthorized, 403 Forbidden)
+    const isAuthError = response.status === 401 || response.status === 403;
+    const isAuthEndpoint = endpoint.includes('/auth/');
+    
+    // Log error WITHOUT exposing full endpoint in production
     logger.error('API call failed:', {
-      endpoint,
+      method: options.method || 'GET',
       status: response.status,
       statusText: response.statusText,
-      error: errorData.error || 'Unknown error',
+      // Only log endpoint path (not full URL) and only in test mode
+      ...(logger.isTestMode() ? { endpoint } : {}),
     });
     
-    // If we get a 401 and it's not a signin/signup request, handle session expiry
-    if (response.status === 401 && !endpoint.includes('/auth/')) {
-      logger.warn('Session expired - clearing authentication');
+    // Handle session expiry for non-auth endpoints
+    if (isAuthError && !isAuthEndpoint) {
+      logger.warn('🔐 Authentication error detected - clearing session');
       clearAccessToken();
       sessionStorage.removeItem('wastedb_user');
       
-      // Show toast notification for session expiry
-      const errorMessage = errorData.error || '';
-      if (errorMessage.includes('expired') || errorMessage.includes('Unauthorized')) {
+      // Show user-friendly message based on status
+      if (response.status === 401) {
         toast.error('Your session has expired. Please sign in again.');
+      } else if (response.status === 403) {
+        toast.error('You do not have permission to perform this action.');
       }
       
-      // Trigger the session expired callback (redirects to sign-in)
+      // Trigger the session expired callback (redirects to front page/login)
       if (onSessionExpired) {
+        logger.log('🔄 Triggering session expired callback');
         onSessionExpired();
       }
+      
+      // Throw a user-friendly error (don't expose endpoint)
+      throw new Error('Authentication required. Please sign in to continue.');
     }
     
-    throw new Error(errorData.error || `API call failed: ${response.statusText}`);
+    // For non-auth errors, throw with sanitized message
+    const userMessage = errorData.error || 
+                        (response.status >= 500 ? 'Server error. Please try again later.' : 
+                         'Request failed. Please try again.');
+    throw new Error(userMessage);
   }
 
   return response.json();

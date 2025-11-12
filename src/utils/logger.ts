@@ -69,11 +69,13 @@ export function log(...args: any[]): void {
 }
 
 /**
- * Error logging - always logs regardless of TEST_MODE
- * Errors should always be visible for debugging
+ * Error logging - only logs in TEST_MODE to avoid exposing internals in production
+ * Critical errors should be handled via toast notifications instead
  */
 export function error(...args: any[]): void {
-  console.error(...args);
+  if (isTestMode()) {
+    console.error(...args);
+  }
 }
 
 /**
@@ -194,6 +196,7 @@ export const logger = {
   trace,
   setTestMode,
   getTestMode,
+  isTestMode,
   loggerInfo,
 };
 

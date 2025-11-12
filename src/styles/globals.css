@@ -1,14 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Sniglet:wght@400;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
-@import url('/daddytime.css');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
 
 @custom-variant dark (&:is(.dark *));
 
 :root {
   --font-size: 16px;
   --a11y-font-scale: 1;
-  --default-mono-font-family: 'DaddyTimeMono Nerd Font Mono', 'Press Start 2P', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --default-mono-font-family: 'JetBrains Mono', 'Press Start 2P', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   --background: #ffffff;
   --foreground: oklch(0.145 0 0);
   --card: #ffffff;
