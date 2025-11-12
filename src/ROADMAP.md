@@ -28,10 +28,10 @@ WasteDB will:
 
 ## **Major Phases**
 
-**Progress: 7 of 8 phases complete (87.5%)**
+**Progress: 7 of 9 phases complete (77.78%)**
 
 ```
-[██████████████████████████████████████████████████░░] 87.5%
+[███████████████████████████████████████░░░░░░░░░░░░] 77.78%
 ```
 
 ### **1. Data Model Integration** ✅ COMPLETE
@@ -240,7 +240,61 @@ WasteDB will:
 * ⬜ Add progressive loading for scientific data editor
 * ✅ Performance monitoring and metrics collection
 
-**Status:** Phase 8.1-8.3 Complete. Chart rasterization, lazy loading, virtual scrolling, and performance monitoring implemented. See `/docs/PHASE_8_PERFORMANCE_OPTIMIZATIONS.md` for details.
+**Status:** Phase 8.1-8.4 Complete. Chart rasterization, lazy loading, virtual scrolling, and performance monitoring implemented. See `/docs/PHASE_8_PERFORMANCE_OPTIMIZATIONS.md` for details.
+
+---
+
+### **9. Evidence Pipeline & Curation System** 📋 PLANNED
+
+**Goal:** Enable granular, auditable evidence extraction from sources with reproducible aggregation into material parameters.
+
+**Overview:** Transform WasteDB from a parameter-entry system to an evidence-extraction platform where every numeric value is traceable to specific passages, figures, and tables in peer-reviewed literature using Minimally Interpretable Units (MIUs).
+
+**Deliverables**
+
+**Phase 9.1: Database Schema & Backend** ⬜ NOT STARTED
+* ⬜ Create `public.evidence_points` table (MIUs)
+* ⬜ Create `public.parameter_aggregations` table
+* ⬜ Add indexes, views, and RLS policies
+* ⬜ Implement 6 evidence/aggregation API endpoints
+* ⬜ Add data guards (prevent source deletion with MIU references)
+
+**Phase 9.2: Curation Workbench (Pilot - CR Only)** ⬜ NOT STARTED
+* ⬜ Build split-pane UI (Source Viewer + Evidence Wizard)
+* ⬜ Implement 5-step MIU creation flow
+* ⬜ Pilot with 3 materials (Aluminum, PET, Cardboard)
+* ⬜ Extract MIUs for CR parameters only (Y, D, C, M, E)
+* ⬜ Validate workflow: median <3 min per MIU, κ ≥ 0.7
+
+**Phase 9.3: Aggregation Engine & Validation** ⬜ NOT STARTED
+* ⬜ Build MIU filter/selection UI
+* ⬜ Implement weighted statistics (mean, SE, CI95)
+* ⬜ Save aggregation records with policy snapshots
+* ⬜ Update material parameter fields from aggregations
+* ⬜ Validate: aggregated values within ±5% of manual entries
+
+**Phase 9.4: Scale to All Three Dimensions** ⬜ NOT STARTED
+* ⬜ Extend Workbench to support all 13 parameters (CR, CC, RU)
+* ⬜ Scale from 3 pilot materials to all 8 materials
+* ⬜ Extract 250-300 MIUs covering all dimensions
+* ⬜ Double-extraction validation (κ ≥ 0.7, numeric delta ≤5%)
+* ⬜ **Complete CR, CC, and RU dimension support**
+
+**Phase 9.5: Public Evidence Layer & Quality Tools** ⬜ NOT STARTED
+* ⬜ Add Evidence tab to material pages (public MIU display)
+* ⬜ Update research export with MIU IDs
+* ⬜ Build curator dashboard (quality metrics)
+* ⬜ Implement double-extraction comparison tools
+* ⬜ Publish Curator Codebook v0
+
+**Success Criteria:**
+* ✅ 250-300 MIUs created across 8 materials
+* ✅ All 13 parameters have ≥3 MIUs (100% coverage)
+* ✅ Inter-curator agreement κ ≥ 0.7
+* ✅ Median time-per-MIU <3 minutes
+* ✅ **ALL THREE DIMENSIONS (CR, CC, RU) FULLY SUPPORTED**
+
+**Status:** Specification complete (`/docs/PHASE_9_EVIDENCE_PIPELINE.md`). Implementation begins after Phase 8 completion. Estimated duration: 14 weeks.
 
 ---
 
