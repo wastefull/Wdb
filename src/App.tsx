@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import svgPaths from "./imports/svg-qhqftidoeu";
-import { Plus, Edit2, Trash2, Search, ArrowLeft, Upload, Image as ImageIcon, ChevronDown, Copy, Check, Type, Eye, RotateCcw, Moon, Save, X, Download, FileUp, Cloud, CloudOff, LogOut, User, Code } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, ArrowLeft, Upload, Image as ImageIcon, ChevronDown, Copy, Check, Type, Eye, RotateCcw, Moon, Save, X, Download, FileUp, Cloud, CloudOff, LogOut, User, Code, AlertCircle } from 'lucide-react';
 import * as api from './utils/api';
 import { logger, setTestMode, getTestMode, loggerInfo } from './utils/logger';
 import { AuthView } from './components/AuthView';
@@ -42,6 +42,10 @@ import { MySubmissionsView } from './components/MySubmissionsView';
 import { ContentReviewCenter } from './components/ContentReviewCenter';
 import { ApiDocumentation } from './components/ApiDocumentation';
 import { LicensesView } from './components/LicensesView';
+import { TakedownRequestForm } from './components/TakedownRequestForm';
+import { TakedownStatusView } from './components/TakedownStatusView';
+import { AdminTakedownList } from './components/AdminTakedownList';
+import { Phase9TestingPage } from './components/Phase9TestingPage';
 import { Popover, PopoverContent, PopoverTrigger } from './components/ui/popover';
 import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './components/ui/tooltip';
 import { Switch } from './components/ui/switch';
@@ -2757,7 +2761,7 @@ function DataManagementView({
 
 function AppContent() {
   const { settings, toggleAdminMode } = useAccessibility();
-  const { currentView, navigateTo, navigateToMaterials, navigateToSearchResults, navigateToMaterialDetail, navigateToArticles, navigateToArticleDetail, navigateToMethodologyList, navigateToWhitepaper, navigateToDataManagement, navigateToUserManagement, navigateToScientificEditor, navigateToExport, navigateToUserProfile, navigateToMySubmissions, navigateToReviewCenter, navigateToWhitepaperSync, navigateToApiDocs, navigateToLicenses } = useNavigationContext();
+  const { currentView, navigateTo, navigateToMaterials, navigateToSearchResults, navigateToMaterialDetail, navigateToArticles, navigateToArticleDetail, navigateToMethodologyList, navigateToWhitepaper, navigateToDataManagement, navigateToUserManagement, navigateToScientificEditor, navigateToExport, navigateToUserProfile, navigateToMySubmissions, navigateToReviewCenter, navigateToWhitepaperSync, navigateToApiDocs, navigateToLicenses, navigateToTakedownForm, navigateToAdminTakedownList, navigateToPhase9Testing } = useNavigationContext();
   const { user, userRole, isAuthenticated, signIn, signOut, updateUserRole } = useAuthContext();
   
   // Phase 3B Complete: MaterialsContext is the single source of truth for all material data
@@ -2810,7 +2814,7 @@ function AppContent() {
   
   // Phase 3A: Log context state for verification
   useEffect(() => {
-    console.log('[Phase 3A] MaterialsContext Status:', {
+    logger.log('[Phase 3A] MaterialsContext Status:', {
       materials_count_ctx: materials.length,
       isLoadingMaterials_ctx: isLoadingMaterials,
       syncStatus_ctx: syncStatus,
@@ -3096,6 +3100,18 @@ function AppContent() {
                           >
                             Whitepaper Sync
                           </button>
+                          <button
+                            onClick={navigateToAdminTakedownList}
+                            className="bg-[#ffb3ba] h-[40px] px-3 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
+                          >
+                            🚨 Takedown Requests
+                          </button>
+                          <button
+                            onClick={navigateToPhase9Testing}
+                            className="bg-[#bae1ff] h-[40px] px-3 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
+                          >
+                            🧪 Phase 9.0 Testing
+                          </button>
                         </>
                       )}
                     </div>
@@ -3130,6 +3146,14 @@ function AppContent() {
                         >
                           <Code className="w-5 h-5 md:w-3 md:h-3" />
                           <span className="hidden md:inline">API</span>
+                        </button>
+                        <span className="text-black/30 dark:text-white/30">•</span>
+                        <button
+                          onClick={navigateToTakedownForm}
+                          className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white md:hover:underline transition-colors flex items-center gap-1"
+                        >
+                          <AlertCircle className="w-5 h-5 md:w-3 md:h-3" />
+                          <span className="hidden md:inline">Legal</span>
                         </button>
                       </motion.div>
                       {userRole === 'admin' && (
@@ -3480,6 +3504,20 @@ function AppContent() {
             <LicensesView
               onBack={navigateToMaterials}
             />
+          ) : currentView.type === 'takedown-form' ? (
+            <div className="p-6">
+              <TakedownRequestForm />
+            </div>
+          ) : currentView.type === 'takedown-status' ? (
+            <div className="p-6">
+              <TakedownStatusView requestId={currentView.requestId} />
+            </div>
+          ) : currentView.type === 'admin-takedown-list' ? (
+            <div className="p-6">
+              <AdminTakedownList />
+            </div>
+          ) : currentView.type === 'phase9-testing' ? (
+            <Phase9TestingPage />
           ) : null}
         </div>
       </div>
@@ -3542,13 +3580,8 @@ function AppWithMaterialsContext() {
 }
 
 export default function App() {
-  // Logger defaults to environment-based mode:
-  // - TEST_MODE = true in Figma Make (logs enabled for development)
-  // - TEST_MODE = false in production (logs suppressed for security)
-  // Can be manually overridden via window.wastedbLogger.setTestMode(true/false)
-  useEffect(() => {
-    loggerInfo();
-  }, []);
+  // Logger is controlled via window.wastedbLogger.setTestMode(true/false)
+  // Defaults to FALSE to minimize console noise
 
   return (
     <AccessibilityProvider>

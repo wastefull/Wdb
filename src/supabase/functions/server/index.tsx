@@ -4159,6 +4159,370 @@ app.all('*', (c) => {
   return c.json({ error: 'Not found', path: c.req.path }, 404);
 });
 
+// ==================== PHASE 9.0: LEGAL & COMPLIANCE ====================
+
+// Submit DMCA takedown request
+app.post("/make-server-17cae920/legal/takedown", rateLimit('API'), async (c) => {
+  try {
+    const requestData = await c.req.json();
+    
+    // Validate required fields
+    const requiredFields = [
+      'fullName', 'email', 'workTitle', 'relationship', 
+      'wastedbURL', 'contentDescription', 'signature'
+    ];
+    
+    for (const field of requiredFields) {
+      if (!requestData[field]?.trim()) {
+        return c.json({ error: `${field} is required` }, 400);
+      }
+    }
+    
+    // Validate legal statements
+    if (!requestData.goodFaithBelief || !requestData.accuracyStatement || !requestData.misrepresentationWarning) {
+      return c.json({ error: 'All legal statements must be acknowledged' }, 400);
+    }
+    
+    // Validate signature matches name
+    if (requestData.signature.toLowerCase().trim() !== requestData.fullName.toLowerCase().trim()) {
+      return c.json({ error: 'Signature must match full name exactly' }, 400);
+    }
+    
+    // Generate unique request ID
+    const requestID = `TR-${Date.now()}-${crypto.randomUUID().split('-')[0]}`;
+    
+    // Store takedown request
+    await kv.set(`takedown:${requestID}`, {
+      ...requestData,
+      requestID,
+      status: 'pending',
+      submittedAt: new Date().toISOString(),
+      reviewedAt: null,
+      resolution: null,
+      reviewNotes: null
+    });
+    
+    console.log(`Takedown request submitted: ${requestID} by ${requestData.email}`);
+    
+    // Send notification email to compliance team
+    const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
+    
+    if (RESEND_API_KEY) {
+      try {
+        const emailHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: #dc2626; color: white; padding: 20px; border-radius: 8px 8px 0 0; }
+    .content { background: #f9fafb; padding: 20px; border: 1px solid #e5e7eb; }
+    .section { background: white; padding: 15px; margin: 15px 0; border-radius: 6px; border-left: 4px solid #dc2626; }
+    .label { font-weight: 600; color: #6b7280; margin-bottom: 4px; }
+    .value { color: #111827; }
+    .footer { background: #f3f4f6; padding: 15px; border-radius: 0 0 8px 8px; font-size: 12px; color: #6b7280; }
+    .badge { display: inline-block; padding: 4px 8px; background: #fef3c7; color: #92400e; border-radius: 4px; font-size: 12px; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1 style="margin: 0;">🚨 New DMCA Takedown Request</h1>
+      <p style="margin: 8px 0 0 0; opacity: 0.9;">Request ID: ${requestID}</p>
+    </div>
+    
+    <div class="content">
+      <div style="background: white; padding: 15px; border-radius: 6px; margin-bottom: 15px; border: 2px solid #dc2626;">
+        <div class="label">⏰ Response Deadline</div>
+        <div class="value" style="font-size: 18px; font-weight: 700; color: #dc2626;">
+          72 Hours from Submission
+        </div>
+        <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">
+          Submitted: ${new Date(requestData.signatureDate).toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'short' })}
+        </div>
+      </div>
+
+      <div class="section">
+        <h3 style="margin-top: 0; color: #dc2626;">Contact Information</h3>
+        <div style="margin-bottom: 8px;">
+          <div class="label">Name</div>
+          <div class="value">${requestData.fullName}</div>
+        </div>
+        <div style="margin-bottom: 8px;">
+          <div class="label">Email</div>
+          <div class="value"><a href="mailto:${requestData.email}">${requestData.email}</a></div>
+        </div>
+        ${requestData.phone ? `
+        <div style="margin-bottom: 8px;">
+          <div class="label">Phone</div>
+          <div class="value">${requestData.phone}</div>
+        </div>
+        ` : ''}
+        ${requestData.organization ? `
+        <div style="margin-bottom: 8px;">
+          <div class="label">Organization</div>
+          <div class="value">${requestData.organization}</div>
+        </div>
+        ` : ''}
+      </div>
+
+      <div class="section">
+        <h3 style="margin-top: 0; color: #dc2626;">Copyrighted Work</h3>
+        <div style="margin-bottom: 8px;">
+          <div class="label">Title</div>
+          <div class="value">${requestData.workTitle}</div>
+        </div>
+        <div style="margin-bottom: 8px;">
+          <div class="label">Relationship to Copyright</div>
+          <div class="value">${requestData.relationship}</div>
+        </div>
+        ${requestData.workDOI ? `
+        <div style="margin-bottom: 8px;">
+          <div class="label">DOI/URL</div>
+          <div class="value"><a href="${requestData.workDOI}">${requestData.workDOI}</a></div>
+        </div>
+        ` : ''}
+        ${requestData.copyrightRegistration ? `
+        <div style="margin-bottom: 8px;">
+          <div class="label">Copyright Registration #</div>
+          <div class="value">${requestData.copyrightRegistration}</div>
+        </div>
+        ` : ''}
+      </div>
+
+      <div class="section">
+        <h3 style="margin-top: 0; color: #dc2626;">Infringing Content</h3>
+        <div style="margin-bottom: 8px;">
+          <div class="label">WasteDB URL</div>
+          <div class="value"><a href="${requestData.wastedbURL}">${requestData.wastedbURL}</a></div>
+        </div>
+        ${requestData.miuID ? `
+        <div style="margin-bottom: 8px;">
+          <div class="label">MIU ID</div>
+          <div class="value"><code style="background: #f3f4f6; padding: 2px 6px; border-radius: 3px;">${requestData.miuID}</code></div>
+        </div>
+        ` : ''}
+        <div style="margin-bottom: 8px;">
+          <div class="label">Description of Infringing Content</div>
+          <div class="value" style="white-space: pre-wrap; background: #f9fafb; padding: 12px; border-radius: 4px; margin-top: 4px;">${requestData.contentDescription}</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3 style="margin-top: 0; color: #dc2626;">Legal Attestations</h3>
+        <div style="margin-bottom: 8px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="color: #059669; font-weight: 700;">✓</span>
+            <span>Good faith belief statement acknowledged</span>
+          </div>
+        </div>
+        <div style="margin-bottom: 8px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="color: #059669; font-weight: 700;">✓</span>
+            <span>Accuracy statement acknowledged</span>
+          </div>
+        </div>
+        <div style="margin-bottom: 8px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="color: #059669; font-weight: 700;">✓</span>
+            <span>§ 512(f) misrepresentation warning acknowledged</span>
+          </div>
+        </div>
+        <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e5e7eb;">
+          <div class="label">Electronic Signature</div>
+          <div class="value" style="font-style: italic;">${requestData.signature}</div>
+          <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">
+            Signed on: ${new Date(requestData.signatureDate).toLocaleDateString('en-US', { dateStyle: 'long' })}
+          </div>
+        </div>
+      </div>
+
+      <div style="background: #eff6ff; border: 1px solid #3b82f6; border-radius: 6px; padding: 15px; margin-top: 15px;">
+        <h4 style="margin: 0 0 8px 0; color: #1e40af;">📋 Next Steps</h4>
+        <ol style="margin: 0; padding-left: 20px; font-size: 14px;">
+          <li>Review request for completeness and validity</li>
+          <li>Access admin panel to update status</li>
+          <li>Respond within 72 hours (legally required)</li>
+          <li>Document decision and notify submitter</li>
+        </ol>
+      </div>
+    </div>
+    
+    <div class="footer">
+      <p style="margin: 0;">
+        This is an automated notification from WasteDB Legal & Compliance System.<br>
+        Request ID: ${requestID} • Submitted: ${new Date().toISOString()}
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+        `;
+
+        const emailText = `
+NEW DMCA TAKEDOWN REQUEST
+Request ID: ${requestID}
+
+⏰ RESPONSE DEADLINE: 72 Hours from Submission
+Submitted: ${new Date(requestData.signatureDate).toLocaleString()}
+
+CONTACT INFORMATION
+Name: ${requestData.fullName}
+Email: ${requestData.email}
+${requestData.phone ? `Phone: ${requestData.phone}` : ''}
+${requestData.organization ? `Organization: ${requestData.organization}` : ''}
+
+COPYRIGHTED WORK
+Title: ${requestData.workTitle}
+Relationship: ${requestData.relationship}
+${requestData.workDOI ? `DOI/URL: ${requestData.workDOI}` : ''}
+${requestData.copyrightRegistration ? `Registration #: ${requestData.copyrightRegistration}` : ''}
+
+INFRINGING CONTENT
+WasteDB URL: ${requestData.wastedbURL}
+${requestData.miuID ? `MIU ID: ${requestData.miuID}` : ''}
+Description:
+${requestData.contentDescription}
+
+LEGAL ATTESTATIONS
+✓ Good faith belief statement acknowledged
+✓ Accuracy statement acknowledged  
+✓ § 512(f) misrepresentation warning acknowledged
+
+Electronic Signature: ${requestData.signature}
+Signed on: ${new Date(requestData.signatureDate).toLocaleDateString()}
+
+NEXT STEPS
+1. Review request for completeness and validity
+2. Access admin panel to update status
+3. Respond within 72 hours (legally required)
+4. Document decision and notify submitter
+
+---
+WasteDB Legal & Compliance System
+Request ID: ${requestID}
+        `;
+
+        const emailResponse = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${RESEND_API_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            from: 'WasteDB Legal <legal@wastefull.org>',
+            to: ['compliance@wastefull.org'],
+            reply_to: requestData.email,
+            subject: `🚨 New DMCA Takedown Request ${requestID}`,
+            html: emailHtml,
+            text: emailText
+          })
+        });
+        
+        if (!emailResponse.ok) {
+          const errorText = await emailResponse.text();
+          console.error('Failed to send compliance notification email:', errorText);
+          // Don't fail the request if email fails - just log it
+        } else {
+          const emailResult = await emailResponse.json();
+          console.log(`Compliance notification email sent for ${requestID} (Resend ID: ${emailResult.id})`);
+        }
+      } catch (emailError) {
+        console.error('Error sending compliance notification email:', emailError);
+        // Don't fail the request if email fails - just log it
+      }
+    } else {
+      console.warn('RESEND_API_KEY not configured - compliance notification email not sent');
+    }
+    
+    return c.json({ 
+      success: true,
+      requestID,
+      message: 'Takedown request submitted successfully.'
+    });
+    
+  } catch (error) {
+    console.error('Error submitting takedown request:', error);
+    return c.json({ error: 'Failed to submit takedown request', details: String(error) }, 500);
+  }
+});
+
+// Get takedown request status (public - no auth required, but needs request ID)
+app.get("/make-server-17cae920/legal/takedown/status/:requestId", async (c) => {
+  try {
+    const requestId = c.req.param('requestId');
+    const request = await kv.get(`takedown:${requestId}`);
+    
+    if (!request) {
+      return c.json({ error: 'Request not found' }, 404);
+    }
+    
+    // Return public-safe data (hide sensitive admin notes)
+    return c.json({
+      requestID: request.requestID,
+      status: request.status,
+      submittedAt: request.submittedAt,
+      reviewedAt: request.reviewedAt,
+      resolution: request.resolution,
+      // Don't expose: reviewNotes, internal admin comments
+    });
+    
+  } catch (error) {
+    console.error('Error fetching takedown status:', error);
+    return c.json({ error: 'Failed to fetch status', details: String(error) }, 500);
+  }
+});
+
+// Admin: List all takedown requests
+app.get("/make-server-17cae920/admin/takedown", verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const requests = await kv.getByPrefix('takedown:');
+    
+    // Sort by submission date (newest first)
+    const sorted = requests?.sort((a, b) => 
+      new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
+    ) || [];
+    
+    return c.json({ requests: sorted });
+    
+  } catch (error) {
+    console.error('Error listing takedown requests:', error);
+    return c.json({ error: 'Failed to list requests', details: String(error) }, 500);
+  }
+});
+
+// Admin: Update takedown request status
+app.patch("/make-server-17cae920/admin/takedown/:requestId", verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const requestId = c.req.param('requestId');
+    const updates = await c.req.json();
+    
+    const existing = await kv.get(`takedown:${requestId}`);
+    if (!existing) {
+      return c.json({ error: 'Request not found' }, 404);
+    }
+    
+    const updated = {
+      ...existing,
+      ...updates,
+      reviewedAt: new Date().toISOString(),
+      reviewedBy: c.get('userId')
+    };
+    
+    await kv.set(`takedown:${requestId}`, updated);
+    
+    console.log(`Takedown request ${requestId} updated by admin: status=${updates.status}`);
+    
+    return c.json({ success: true, request: updated });
+    
+  } catch (error) {
+    console.error('Error updating takedown request:', error);
+    return c.json({ error: 'Failed to update request', details: String(error) }, 500);
+  }
+});
+
 // Run initialization
 initializeAdminUser();
 initializeWhitepapers();

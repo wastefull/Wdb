@@ -30,7 +30,11 @@ export type ViewType =
   | { type: 'api-docs' }
   | { type: 'source-library' }
   | { type: 'source-comparison' }
-  | { type: 'licenses' };
+  | { type: 'licenses' }
+  | { type: 'takedown-form' }
+  | { type: 'takedown-status'; requestId: string }
+  | { type: 'admin-takedown-list' }
+  | { type: 'phase9-testing' };
 
 interface NavigationContextType {
   // State
@@ -59,6 +63,10 @@ interface NavigationContextType {
   navigateToSourceLibrary: () => void;
   navigateToSourceComparison: () => void;
   navigateToLicenses: () => void;
+  navigateToTakedownForm: () => void;
+  navigateToTakedownStatus: (requestId: string) => void;
+  navigateToAdminTakedownList: () => void;
+  navigateToPhase9Testing: () => void;
   goBack: () => void;
 }
 
@@ -166,6 +174,22 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
     navigateTo({ type: 'licenses' });
   };
 
+  const navigateToTakedownForm = () => {
+    navigateTo({ type: 'takedown-form' });
+  };
+
+  const navigateToTakedownStatus = (requestId: string) => {
+    navigateTo({ type: 'takedown-status', requestId });
+  };
+
+  const navigateToAdminTakedownList = () => {
+    navigateTo({ type: 'admin-takedown-list' });
+  };
+
+  const navigateToPhase9Testing = () => {
+    navigateTo({ type: 'phase9-testing' });
+  };
+
   const goBack = () => {
     if (viewHistory.length > 1) {
       const newHistory = viewHistory.slice(0, -1);
@@ -203,6 +227,10 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
     navigateToSourceLibrary,
     navigateToSourceComparison,
     navigateToLicenses,
+    navigateToTakedownForm,
+    navigateToTakedownStatus,
+    navigateToAdminTakedownList,
+    navigateToPhase9Testing,
     goBack,
   };
 

@@ -97,7 +97,30 @@ Drawing from proven platforms like EC3, iNaturalist, Open Food Facts, and ecoinv
 
 ## 🚀 Phased Rollout Strategy
 
-Phase 9 is divided into **5 sub-phases** with a **pilot-first approach** that validates the system with CR dimension before scaling to all three dimensions.
+Phase 9 is divided into **6 sub-phases** with **critical infrastructure first**, followed by a **pilot-first approach** that validates the system with CR dimension before scaling to all three dimensions.
+
+### **Phase 9.0: Critical Infrastructure (MANDATORY)**
+
+**Duration:** 1.5 weeks  
+**Dependencies:** None (must complete BEFORE Phase 9.1)  
+**Source:** Comprehensive pressure-test analysis  
+**Goal:** Establish production-ready infrastructure (legal, security, governance, observability)
+
+**Implements 11 critical requirements:**
+1. Legal & Licensing Policy
+2. Transform Governance & Auto-Recompute
+3. Controlled Vocabularies (Ontologies)
+4. Validation Rules & Negative Evidence
+5. Security & RLS Hardening
+6. Deduplication (Minimum Viable)
+7. Policy Snapshots on Every Aggregation
+8. Minimal Observability
+9. Backups & Release Snapshots
+10. Export Completeness
+11. OA Triage & Curation Queue
+
+**See:** `/docs/PHASE_9_ADDENDUM_CRITICAL_INFRASTRUCTURE.md` for full specification  
+**See:** `/docs/PHASE_9_0_IMPLEMENTATION_CHECKLIST.md` for day-by-day implementation plan
 
 ### Pilot Scope (Phase 9.1-9.2)
 
@@ -721,31 +744,36 @@ Upon completion of Phase 9, WasteDB will have:
 
 ## 📅 Timeline
 
+### Phase 9.0: Critical Infrastructure
+**Duration:** 1.5 weeks  
+**Dependencies:** None (must complete BEFORE Phase 9.1)  
+**Deliverable:** Production-ready infrastructure (legal, security, governance, observability)
+
 ### Phase 9.1: Database & Backend
-**Duration:** 2 weeks  
-**Dependencies:** None (can start immediately after Phase 8)
+**Duration:** 2.5 weeks  
+**Dependencies:** Phase 9.0 complete
 
 ### Phase 9.2: Curation Workbench (Pilot)
-**Duration:** 3 weeks  
-**Dependencies:** 9.1 complete  
+**Duration:** 3.5 weeks  
+**Dependencies:** Phase 9.1 complete  
 **Deliverable:** 45 MIUs for CR parameters on 3 materials
 
 ### Phase 9.3: Aggregation Engine
 **Duration:** 2 weeks  
-**Dependencies:** 9.2 complete  
+**Dependencies:** Phase 9.2 complete  
 **Deliverable:** Validated aggregations for pilot materials
 
 ### Phase 9.4: Scale to All Dimensions
 **Duration:** 4 weeks  
-**Dependencies:** 9.3 validates (±5% accuracy)  
+**Dependencies:** Phase 9.3 validates (±5% accuracy)  
 **Deliverable:** 250-300 MIUs covering all 13 parameters, 8 materials, 3 dimensions
 
 ### Phase 9.5: Public Evidence Layer
-**Duration:** 4 weeks (+1 week for research-grade system, releases, expanded docs)  
-**Dependencies:** 9.4 complete  
-**Deliverable:** Evidence tab, curator tools, research export
+**Duration:** 4 weeks  
+**Dependencies:** Phase 9.4 complete  
+**Deliverable:** Evidence tab, curator tools, research export, releases
 
-### **Total Duration: 14 weeks (~3.5 months)**
+### **Total Duration: 17.5 weeks (~4.5 months)**
 
 ---
 
