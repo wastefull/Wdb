@@ -6,6 +6,7 @@ import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
 import rehypeKatex from 'rehype-katex';
 import * as api from '../utils/api';
+import { PageTemplate } from './PageTemplate';
 
 interface Whitepaper {
   slug: string;
@@ -39,19 +40,11 @@ export function MethodologyListView({ onBack, onSelectWhitepaper }: {
   }, []);
 
   return (
-    <div className="p-6">
-      <div className="flex items-center gap-4 mb-6">
-        <button
-          onClick={onBack}
-          className="p-2 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
-        >
-          <ArrowLeft size={16} className="text-black" />
-        </button>
-        <h2 className="font-['Sniglet:Regular',_sans-serif] text-[18px] text-black dark:text-white flex-1">
-          Methodology & Whitepapers
-        </h2>
-      </div>
-
+    <PageTemplate
+      title="Methodology & Whitepapers"
+      description="Scientific methodology and research behind WasteDB's circularity scoring"
+      onBack={onBack}
+    >
       {loading ? (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="w-8 h-8 animate-spin text-black/50 dark:text-white/50" />
@@ -69,7 +62,7 @@ export function MethodologyListView({ onBack, onSelectWhitepaper }: {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 max-w-4xl">
+        <div className="grid grid-cols-1 gap-4">
           {whitepapers.map(whitepaper => (
             <button
               key={whitepaper.slug}
@@ -96,7 +89,7 @@ export function MethodologyListView({ onBack, onSelectWhitepaper }: {
           ))}
         </div>
       )}
-    </div>
+    </PageTemplate>
   );
 }
 
@@ -168,57 +161,38 @@ export function WhitepaperView({
 
   if (loading) {
     return (
-      <div className="p-6">
-        <div className="flex items-center gap-4 mb-6">
-          <button
-            onClick={onBack}
-            className="p-2 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
-          >
-            <ArrowLeft size={16} className="text-black" />
-          </button>
-        </div>
+      <PageTemplate
+        title="Loading..."
+        onBack={onBack}
+      >
         <div className="flex items-center justify-center py-12">
           <Loader2 className="w-8 h-8 animate-spin text-black/50 dark:text-white/50" />
         </div>
-      </div>
+      </PageTemplate>
     );
   }
 
   if (error || !whitepaper) {
     return (
-      <div className="p-6">
-        <div className="flex items-center gap-4 mb-6">
-          <button
-            onClick={onBack}
-            className="p-2 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
-          >
-            <ArrowLeft size={16} className="text-black" />
-          </button>
-        </div>
+      <PageTemplate
+        title="Error"
+        onBack={onBack}
+      >
         <div className="text-center py-12">
           <p className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-red-600 dark:text-red-400">
             {error || 'Whitepaper not found'}
           </p>
         </div>
-      </div>
+      </PageTemplate>
     );
   }
 
   return (
-    <div className="p-6">
-      <div className="flex items-center gap-4 mb-6">
-        <button
-          onClick={onBack}
-          className="p-2 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
-        >
-          <ArrowLeft size={16} className="text-black" />
-        </button>
-        <h2 className="font-['Fredoka_One',_sans-serif] text-[18px] text-black dark:text-white flex-1">
-          {whitepaper.title}
-        </h2>
-      </div>
-
-      <div className="max-w-4xl bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 p-8 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)]">
+    <PageTemplate
+      title={whitepaper.title}
+      onBack={onBack}
+    >
+      <div className="bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 p-6 md:p-8 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)]">
         <article className="prose prose-lg max-w-none dark:prose-invert
           prose-headings:font-serif
           prose-headings:text-black dark:prose-headings:text-white
@@ -299,6 +273,6 @@ export function WhitepaperView({
           </ReactMarkdown>
         </article>
       </div>
-    </div>
+    </PageTemplate>
   );
 }

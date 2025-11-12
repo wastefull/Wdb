@@ -17,6 +17,7 @@ const RATE_LIMITS = {
   AUTH: { window: 60000, maxRequests: 5 }, // 5 auth requests per minute
   API: { window: 60000, maxRequests: 100 }, // 100 API requests per minute
   SIGNUP: { window: 3600000, maxRequests: 3 }, // 3 signups per hour per IP
+  TAKEDOWN: { window: 86400000, maxRequests: 2 }, // 2 takedown requests per 24 hours per IP
 };
 
 // Get client identifier (IP + User-Agent hash)
@@ -4162,11 +4163,21 @@ app.all('*', (c) => {
 // ==================== PHASE 9.0: LEGAL & COMPLIANCE ====================
 
 // Submit DMCA takedown request
-app.post("/make-server-17cae920/legal/takedown", rateLimit('API'), async (c) => {
+app.post("/make-server-17cae920/legal/takedown", rateLimit('TAKEDOWN'), async (c) => {
   try {
     const requestData = await c.req.json();
     
-    // Validate required fields
+    // ===== ANTI-ABUSE CHECKS =====
+    
+    // 1. Honeypot check (anti-bot)
+    if (!checkHoneypot(requestData.honeypot)) {
+      console.log('⚠️ Takedown honeypot triggered - likely bot attempt');
+      // Delay response to slow down bots
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      return c.json({ error: 'Invalid request' }, 400);
+    }
+    
+    // 2. Validate required fields
     const requiredFields = [
       'fullName', 'email', 'workTitle', 'relationship', 
       'wastedbURL', 'contentDescription', 'signature'
@@ -4178,31 +4189,135 @@ app.post("/make-server-17cae920/legal/takedown", rateLimit('API'), async (c) => 
       }
     }
     
-    // Validate legal statements
+    // 3. Validate email format
+    const emailValidation = validateEmail(requestData.email);
+    if (!emailValidation.valid) {
+      return c.json({ error: emailValidation.error || 'Invalid email' }, 400);
+    }
+    
+    // 4. Check for email-based throttling (max 1 request per email per 7 days)
+    const emailKey = `takedown:email:${requestData.email.toLowerCase().trim()}`;
+    const recentRequestByEmail = await kv.get(emailKey);
+    if (recentRequestByEmail) {
+      const timeSinceLastRequest = Date.now() - new Date(recentRequestByEmail.submittedAt).getTime();
+      const sevenDays = 7 * 24 * 60 * 60 * 1000;
+      if (timeSinceLastRequest < sevenDays) {
+        const hoursRemaining = Math.ceil((sevenDays - timeSinceLastRequest) / (60 * 60 * 1000));
+        console.log(`⚠️ Takedown rate limit by email: ${requestData.email}`);
+        return c.json({ 
+          error: `You have already submitted a takedown request recently. Please wait ${hoursRemaining} hours before submitting another request, or contact legal@wastefull.org for urgent matters.` 
+        }, 429);
+      }
+    }
+    
+    // 5. Content quality checks
+    if (requestData.contentDescription.trim().length < 50) {
+      return c.json({ 
+        error: 'Content description must be at least 50 characters. Please provide detailed information about the alleged infringement.' 
+      }, 400);
+    }
+    
+    if (requestData.workTitle.trim().length < 3) {
+      return c.json({ error: 'Work title is too short' }, 400);
+    }
+    
+    // 6. Check for duplicate content (similarity detection)
+    const allTakedowns = await kv.getByPrefix('takedown:TR-');
+    let isDuplicate = false;
+    let duplicateRequestID = '';
+    
+    for (const existing of allTakedowns) {
+      // Check if same email + same URL within 30 days
+      if (existing.email.toLowerCase() === requestData.email.toLowerCase() &&
+          existing.wastedbURL === requestData.wastedbURL) {
+        const daysSinceSubmission = (Date.now() - new Date(existing.submittedAt).getTime()) / (24 * 60 * 60 * 1000);
+        if (daysSinceSubmission < 30) {
+          isDuplicate = true;
+          duplicateRequestID = existing.requestID;
+          break;
+        }
+      }
+    }
+    
+    if (isDuplicate) {
+      console.log(`⚠️ Duplicate takedown detected: ${duplicateRequestID}`);
+      return c.json({ 
+        error: `You have already submitted a takedown request for this URL (Request ID: ${duplicateRequestID}). Please check the status of your existing request or contact legal@wastefull.org.` 
+      }, 409);
+    }
+    
+    // 7. Validate legal statements
     if (!requestData.goodFaithBelief || !requestData.accuracyStatement || !requestData.misrepresentationWarning) {
       return c.json({ error: 'All legal statements must be acknowledged' }, 400);
     }
     
-    // Validate signature matches name
+    // 8. Validate signature matches name
     if (requestData.signature.toLowerCase().trim() !== requestData.fullName.toLowerCase().trim()) {
       return c.json({ error: 'Signature must match full name exactly' }, 400);
+    }
+    
+    // 9. Detect suspicious patterns (auto-flag for admin review)
+    const suspiciousFlags: string[] = [];
+    
+    // Very short name (likely fake)
+    if (requestData.fullName.trim().length < 5) {
+      suspiciousFlags.push('name_too_short');
+    }
+    
+    // Generic/suspicious email domains
+    const suspiciousDomains = ['guerrillamail', 'tempmail', '10minutemail', 'throwaway', 'mailinator'];
+    if (suspiciousDomains.some(domain => requestData.email.toLowerCase().includes(domain))) {
+      suspiciousFlags.push('suspicious_email_domain');
+    }
+    
+    // Excessive caps in description (spam indicator)
+    const capsRatio = (requestData.contentDescription.match(/[A-Z]/g) || []).length / requestData.contentDescription.length;
+    if (capsRatio > 0.5) {
+      suspiciousFlags.push('excessive_caps');
+    }
+    
+    // Generic work titles
+    const genericTitles = ['test', 'sample', 'example', 'asdf', 'qwerty'];
+    if (genericTitles.some(word => requestData.workTitle.toLowerCase().includes(word))) {
+      suspiciousFlags.push('generic_work_title');
+    }
+    
+    // Log suspicious activity
+    if (suspiciousFlags.length > 0) {
+      console.log(`⚠️ Suspicious takedown request detected. Flags: ${suspiciousFlags.join(', ')}`);
     }
     
     // Generate unique request ID
     const requestID = `TR-${Date.now()}-${crypto.randomUUID().split('-')[0]}`;
     
-    // Store takedown request
-    await kv.set(`takedown:${requestID}`, {
+    // Get client IP for tracking
+    const clientIp = c.req.header('x-forwarded-for')?.split(',')[0].trim() || 'unknown';
+    
+    // Store takedown request with abuse detection metadata
+    const takedownRecord = {
       ...requestData,
       requestID,
       status: 'pending',
       submittedAt: new Date().toISOString(),
       reviewedAt: null,
       resolution: null,
-      reviewNotes: null
+      reviewNotes: null,
+      // Anti-abuse metadata
+      suspiciousFlags: suspiciousFlags.length > 0 ? suspiciousFlags : null,
+      flaggedForReview: suspiciousFlags.length >= 2, // Auto-flag if 2+ red flags
+      submitterIp: clientIp,
+    };
+    
+    await kv.set(`takedown:${requestID}`, takedownRecord);
+    
+    // Track email submissions (for rate limiting)
+    await kv.set(emailKey, {
+      requestID,
+      email: requestData.email,
+      submittedAt: new Date().toISOString()
     });
     
-    console.log(`Takedown request submitted: ${requestID} by ${requestData.email}`);
+    console.log(`Takedown request submitted: ${requestID} by ${requestData.email}${suspiciousFlags.length > 0 ? ' [FLAGGED: ' + suspiciousFlags.join(', ') + ']' : ''}`);
     
     // Send notification email to compliance team
     const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
@@ -4234,6 +4349,19 @@ app.post("/make-server-17cae920/legal/takedown", rateLimit('API'), async (c) => 
     </div>
     
     <div class="content">
+      ${suspiciousFlags.length > 0 ? `
+      <div style="background: #fef3c7; border: 2px solid #f59e0b; border-radius: 6px; padding: 15px; margin-bottom: 15px;">
+        <h4 style="margin: 0 0 8px 0; color: #92400e;">⚠️ ABUSE DETECTION ALERT</h4>
+        <div style="font-size: 14px; color: #78350f;">
+          This request has been flagged for potential abuse. Flags detected:
+          <ul style="margin: 8px 0 0 0; padding-left: 20px;">
+            ${suspiciousFlags.map(flag => `<li>${flag.replace(/_/g, ' ')}</li>`).join('')}
+          </ul>
+          <strong>Action required:</strong> ${suspiciousFlags.length >= 2 ? 'Manual review recommended before processing.' : 'Proceed with caution.'}
+        </div>
+      </div>
+      ` : ''}
+      
       <div style="background: white; padding: 15px; border-radius: 6px; margin-bottom: 15px; border: 2px solid #dc2626;">
         <div class="label">⏰ Response Deadline</div>
         <div class="value" style="font-size: 18px; font-weight: 700; color: #dc2626;">
@@ -4246,6 +4374,10 @@ app.post("/make-server-17cae920/legal/takedown", rateLimit('API'), async (c) => 
 
       <div class="section">
         <h3 style="margin-top: 0; color: #dc2626;">Contact Information</h3>
+        <div style="margin-bottom: 8px;">
+          <div class="label">Submitter IP</div>
+          <div class="value"><code style="background: #f3f4f6; padding: 2px 6px; border-radius: 3px;">${clientIp}</code></div>
+        </div>
         <div style="margin-bottom: 8px;">
           <div class="label">Name</div>
           <div class="value">${requestData.fullName}</div>
@@ -4364,11 +4496,17 @@ app.post("/make-server-17cae920/legal/takedown", rateLimit('API'), async (c) => 
         const emailText = `
 NEW DMCA TAKEDOWN REQUEST
 Request ID: ${requestID}
-
+${suspiciousFlags.length > 0 ? `
+⚠️ ABUSE DETECTION ALERT
+This request has been flagged for potential abuse.
+Flags: ${suspiciousFlags.join(', ')}
+Action: ${suspiciousFlags.length >= 2 ? 'Manual review recommended' : 'Proceed with caution'}
+` : ''}
 ⏰ RESPONSE DEADLINE: 72 Hours from Submission
 Submitted: ${new Date(requestData.signatureDate).toLocaleString()}
 
 CONTACT INFORMATION
+Submitter IP: ${clientIp}
 Name: ${requestData.fullName}
 Email: ${requestData.email}
 ${requestData.phone ? `Phone: ${requestData.phone}` : ''}

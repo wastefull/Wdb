@@ -14,6 +14,7 @@ import { Button } from './ui/button';
 import { Separator } from './ui/separator';
 import { toast } from 'sonner@2.0.3';
 import { projectId } from '../utils/supabase/info';
+import { PageTemplate } from './PageTemplate';
 
 interface EndpointExample {
   description: string;
@@ -39,7 +40,11 @@ interface ApiEndpoint {
   responseSchema?: string;
 }
 
-export const ApiDocumentation: React.FC = () => {
+interface ApiDocumentationProps {
+  onBack?: () => void;
+}
+
+export const ApiDocumentation: React.FC<ApiDocumentationProps> = ({ onBack }) => {
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
 
   const baseUrl = `https://${projectId}.supabase.co/functions/v1/make-server-17cae920`;
@@ -496,16 +501,12 @@ curl "${baseUrl}/api/v1/methodology"`,
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 md:px-6 py-6 space-y-6">
-      {/* Header */}
-      <div>
-        <h1>Research API Documentation</h1>
-        <p className="text-muted-foreground mt-2">
-          The WasteDB Research API provides programmatic access to our comprehensive materials sustainability database.
-          All endpoints are public and do not require authentication.
-        </p>
-      </div>
-
+    <PageTemplate 
+      title="Research API Documentation"
+      description="The WasteDB Research API provides programmatic access to our comprehensive materials sustainability database. All endpoints are public and do not require authentication."
+      onBack={onBack}
+      maxWidth="6xl"
+    >
       {/* Quick Start */}
       <Card>
         <CardHeader>
@@ -716,6 +717,6 @@ curl "${baseUrl}/api/v1/methodology"`,
           </p>
         </CardContent>
       </Card>
-    </div>
+    </PageTemplate>
   );
 };

@@ -6,27 +6,31 @@ import { Badge } from './ui/badge';
 import { CheckCircle2, AlertCircle, FileText, ShieldAlert } from 'lucide-react';
 import { useNavigationContext } from '../contexts/NavigationContext';
 import { useAuthContext } from '../contexts/AuthContext';
+import { PageTemplate } from './PageTemplate';
 
 export function Phase9TestingPage() {
-  const { navigateToTakedownForm, navigateToAdminTakedownList, navigateToMaterials } = useNavigationContext();
+  const { navigateToTakedownForm, navigateToAdminTakedownList } = useNavigationContext();
   const { userRole } = useAuthContext();
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
+    <PageTemplate
+      title="Phase 9.0 Day 1 Testing"
+      description="Legal & Licensing Infrastructure - DMCA Takedown System"
+    >
       <Card>
         <CardHeader>
           <div className="flex items-center gap-3">
             <ShieldAlert className="size-8 text-blue-600" />
             <div>
-              <CardTitle>Phase 9.0 Day 1 Testing</CardTitle>
+              <CardTitle>Testing Overview</CardTitle>
               <CardDescription>
-                Legal & Licensing Infrastructure - DMCA Takedown System
+                Complete DMCA takedown request system
               </CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Badge variant="outline">✅ Backend Complete</Badge>
             <Badge variant="outline">✅ Form Complete</Badge>
             <Badge variant="outline">✅ Admin Panel Complete</Badge>
@@ -203,12 +207,6 @@ export function Phase9TestingPage() {
               </ul>
             </AlertDescription>
           </Alert>
-
-          <div className="flex gap-3">
-            <Button onClick={navigateToMaterials} variant="outline">
-              Back to Materials
-            </Button>
-          </div>
         </CardContent>
       </Card>
 
@@ -238,6 +236,6 @@ export function Phase9TestingPage() {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </PageTemplate>
   );
 }

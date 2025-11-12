@@ -1,4 +1,5 @@
 import { ArrowLeft } from 'lucide-react';
+import { PageTemplate } from './PageTemplate';
 
 interface License {
   name: string;
@@ -111,72 +112,56 @@ const licenses: License[] = [
 
 export function LicensesView({ onBack }: { onBack: () => void }) {
   return (
-    <div className="min-h-screen bg-white dark:bg-[#1a1917]">
-      {/* Header */}
-      <div className="max-w-4xl mx-auto px-4 py-6">
-        <button
-          onClick={onBack}
-          className="flex items-center gap-2 mb-6 px-3 py-2 rounded-md border border-[#211f1c] dark:border-white/20 bg-white dark:bg-[#2a2825] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span className="font-['Sniglet:Regular',_sans-serif] text-[12px]">Back</span>
-        </button>
+    <PageTemplate
+      title="Open Source Licenses"
+      description="WasteDB is built on the shoulders of giants. We're grateful to the open source community for these amazing projects."
+      onBack={onBack}
+    >
+      {/* Licenses List */}
+      <div className="space-y-4">
+        {licenses.map((license, index) => (
+          <div
+            key={index}
+            className="bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[11.464px] p-5 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.1)] hover:shadow-[3px_3px_0px_0px_#000000] dark:hover:shadow-[3px_3px_0px_0px_rgba(255,255,255,0.15)] transition-all"
+          >
+            <div className="flex items-start justify-between gap-4 mb-2">
+              <div className="flex-1">
+                <h3 className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black dark:text-white">
+                  {license.name}
+                  {license.version && (
+                    <span className="text-[12px] text-black/60 dark:text-white/60 ml-2">
+                      v{license.version}
+                    </span>
+                  )}
+                </h3>
+              </div>
+              <span className="font-['Sniglet:Regular',_sans-serif] text-[11px] px-3 py-1 rounded-full bg-[#b8c8cb] dark:bg-[#2a2f27] border border-[#211f1c] dark:border-white/20 text-black dark:text-white whitespace-nowrap">
+                {license.licenseType}
+              </span>
+            </div>
+            
+            <p className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black/70 dark:text-white/70 mb-3">
+              {license.description}
+            </p>
+            
+            <a
+              href={license.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-[#4a90a4] dark:text-[#6bb6d0] hover:underline inline-flex items-center gap-1"
+            >
+              View on GitHub →
+            </a>
+          </div>
+        ))}
+      </div>
 
-        <h1 className="font-['Fredoka_One',_sans-serif] text-[32px] text-black dark:text-white mb-2">
-          Open Source Licenses
-        </h1>
-        <p className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black/70 dark:text-white/70 mb-8">
-          WasteDB is built on the shoulders of giants. We're grateful to the open source community for these amazing projects.
+      {/* Footer Note */}
+      <div className="mt-8 p-4 bg-[#e4e3ac]/20 dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[11.464px]">
+        <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70">
+          <strong>Note:</strong> This list includes the primary open source libraries used in WasteDB. Each library may have its own dependencies with their respective licenses. For complete license information, please refer to the individual project repositories.
         </p>
       </div>
-
-      {/* Licenses List */}
-      <div className="max-w-4xl mx-auto px-4 pb-12">
-        <div className="space-y-4">
-          {licenses.map((license, index) => (
-            <div
-              key={index}
-              className="bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[11.464px] p-5 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.1)] hover:shadow-[3px_3px_0px_0px_#000000] dark:hover:shadow-[3px_3px_0px_0px_rgba(255,255,255,0.15)] transition-all"
-            >
-              <div className="flex items-start justify-between gap-4 mb-2">
-                <div className="flex-1">
-                  <h3 className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black dark:text-white">
-                    {license.name}
-                    {license.version && (
-                      <span className="text-[12px] text-black/60 dark:text-white/60 ml-2">
-                        v{license.version}
-                      </span>
-                    )}
-                  </h3>
-                </div>
-                <span className="font-['Sniglet:Regular',_sans-serif] text-[11px] px-3 py-1 rounded-full bg-[#b8c8cb] dark:bg-[#2a2f27] border border-[#211f1c] dark:border-white/20 text-black dark:text-white whitespace-nowrap">
-                  {license.licenseType}
-                </span>
-              </div>
-              
-              <p className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black/70 dark:text-white/70 mb-3">
-                {license.description}
-              </p>
-              
-              <a
-                href={license.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-[#4a90a4] dark:text-[#6bb6d0] hover:underline inline-flex items-center gap-1"
-              >
-                View on GitHub →
-              </a>
-            </div>
-          ))}
-        </div>
-
-        {/* Footer Note */}
-        <div className="mt-8 p-4 bg-[#e4e3ac]/20 dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[11.464px]">
-          <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70">
-            <strong>Note:</strong> This list includes the primary open source libraries used in WasteDB. Each library may have its own dependencies with their respective licenses. For complete license information, please refer to the individual project repositories.
-          </p>
-        </div>
-      </div>
-    </div>
+    </PageTemplate>
   );
 }

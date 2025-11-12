@@ -6,9 +6,10 @@ import { Label } from './ui/label';
 import { Checkbox } from './ui/checkbox';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Alert, AlertDescription } from './ui/alert';
-import { AlertCircle, CheckCircle2, FileText, ArrowLeft } from 'lucide-react';
+import { AlertCircle, CheckCircle2, FileText } from 'lucide-react';
 import { projectId, publicAnonKey } from '../utils/supabase/info';
 import { useNavigationContext } from '../contexts/NavigationContext';
+import { PageTemplate } from './PageTemplate';
 
 interface TakedownRequestFormProps {
   onSubmitSuccess?: () => void;
@@ -43,6 +44,9 @@ export function TakedownRequestForm({ onSubmitSuccess }: TakedownRequestFormProp
     // Signature
     signature: '',
     signatureDate: new Date().toISOString().split('T')[0],
+    
+    // Anti-bot honeypot (should remain empty)
+    honeypot: '',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -130,14 +134,19 @@ export function TakedownRequestForm({ onSubmitSuccess }: TakedownRequestFormProp
 
   if (submitSuccess) {
     return (
-      <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
+      <PageTemplate 
+        title="Takedown Request Submitted"
+        description="Your request has been received and is under review"
+        hideBackButton={true}
+        maxWidth="2xl"
+      >
         <Card>
           <CardHeader>
             <div className="flex items-center gap-3">
               <CheckCircle2 className="size-8 text-green-600 flex-shrink-0" />
               <div>
-                <CardTitle>Takedown Request Submitted</CardTitle>
-                <CardDescription>Your request has been received and is under review</CardDescription>
+                <CardTitle>Request Confirmed</CardTitle>
+                <CardDescription>We've received your copyright takedown request</CardDescription>
               </div>
             </div>
           </CardHeader>
@@ -180,32 +189,17 @@ export function TakedownRequestForm({ onSubmitSuccess }: TakedownRequestFormProp
             </div>
           </CardContent>
         </Card>
-      </div>
+      </PageTemplate>
     );
   }
 
   return (
-    <div className="w-full max-w-3xl mx-auto px-4 sm:px-6 py-4 sm:py-6 space-y-6">
-      {/* Back Button */}
-      <Button
-        variant="ghost"
-        onClick={() => navigateToHome()}
-        className="gap-2 -ml-2"
-      >
-        <ArrowLeft className="size-4" />
-        Back
-      </Button>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Copyright Takedown Request</CardTitle>
-          <CardDescription>
-            Submit a DMCA takedown request for content you believe infringes your copyright.
-            All fields marked with * are required.
-          </CardDescription>
-        </CardHeader>
-      </Card>
-
+    <PageTemplate
+      title="Copyright Takedown Request"
+      description="Submit a DMCA takedown request for content you believe infringes your copyright. All fields marked with * are required."
+      onBack={navigateToHome}
+      maxWidth="3xl"
+    >
       <Alert>
         <AlertCircle className="size-4" />
         <AlertDescription>
@@ -493,6 +487,18 @@ export function TakedownRequestForm({ onSubmitSuccess }: TakedownRequestFormProp
           </CardContent>
         </Card>
 
+        {/* Honeypot field - hidden from users, catches bots */}
+        <input
+          type="text"
+          name="website"
+          value={formData.honeypot}
+          onChange={(e) => handleChange('honeypot', e.target.value)}
+          style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px' }}
+          tabIndex={-1}
+          autoComplete="off"
+          aria-hidden="true"
+        />
+
         {/* Submit */}
         {errors.submit && (
           <Alert variant="destructive">
@@ -513,6 +519,6 @@ export function TakedownRequestForm({ onSubmitSuccess }: TakedownRequestFormProp
           </Button>
         </div>
       </form>
-    </div>
+    </PageTemplate>
   );
 }

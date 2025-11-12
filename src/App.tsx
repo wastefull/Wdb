@@ -3476,18 +3476,7 @@ function AppContent() {
               currentUserId={user?.id || ''}
             />
           ) : currentView.type === 'api-docs' ? (
-            <div className="max-w-5xl mx-auto">
-              <div className="mb-6">
-                <button
-                  onClick={() => navigateToMaterials()}
-                  className="flex items-center gap-2 text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white font-['Sniglet:Regular',_sans-serif] transition-colors"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                  Back to Materials
-                </button>
-              </div>
-              <ApiDocumentation />
-            </div>
+            <ApiDocumentation onBack={navigateToMaterials} />
           ) : currentView.type === 'source-library' ? (
             <SourceLibraryManager
               onBack={navigateToMaterials}
