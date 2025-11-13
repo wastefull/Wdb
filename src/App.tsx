@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import svgPaths from "./imports/svg-qhqftidoeu";
-import { Plus, Edit2, Trash2, Search, ArrowLeft, Upload, Image as ImageIcon, ChevronDown, Copy, Check, Type, Eye, RotateCcw, Moon, Save, X, Download, FileUp, Cloud, CloudOff, LogOut, User, Code, AlertCircle } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, ArrowLeft, Upload, Image as ImageIcon, ChevronDown, Copy, Check, Type, Eye, RotateCcw, Moon, Save, X, Download, FileUp, Cloud, CloudOff, LogOut, User, Code, AlertCircle, FlaskConical } from 'lucide-react';
 import * as api from './utils/api';
 import { logger, setTestMode, getTestMode, loggerInfo } from './utils/logger';
 import { AuthView } from './components/AuthView';
@@ -21,11 +21,10 @@ import { LoadingPlaceholder } from './components/LoadingPlaceholder';
 import { ScientificMetadataView } from './components/ScientificMetadataView';
 import { NotificationBell } from './components/NotificationBell';
 import { UserProfileView } from './components/UserProfileView';
+import { LegalHubView } from './components/LegalHubView';
+import { ScienceHubView } from './components/ScienceHubView';
 import { ScientificDataEditor } from './components/scientific-editor';
-import { BatchScientificOperations } from './components/BatchScientificOperations';
-import { DataProcessingView } from './components/DataProcessingView';
 import { PublicExportView } from './components/PublicExportView';
-import { DataMigrationTool } from './components/DataMigrationTool';
 import { SourceLibraryManager } from './components/SourceLibraryManager';
 import { SourceDataComparison } from './components/SourceDataComparison';
 import { AssetUploadManager } from './components/AssetUploadManager';
@@ -46,6 +45,11 @@ import { TakedownRequestForm } from './components/TakedownRequestForm';
 import { TakedownStatusView } from './components/TakedownStatusView';
 import { AdminTakedownList } from './components/AdminTakedownList';
 import { Phase9TestingPage } from './components/Phase9TestingPage';
+import { TransformVersionManager } from './components/TransformVersionManager';
+import { AdminDashboard } from './components/AdminDashboard';
+import { RoadmapView } from './components/RoadmapView';
+import { MathView } from './components/MathView';
+import { ChartsPerformanceView } from './components/ChartsPerformanceView';
 import { Popover, PopoverContent, PopoverTrigger } from './components/ui/popover';
 import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './components/ui/tooltip';
 import { Switch } from './components/ui/switch';
@@ -57,6 +61,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { toast } from 'sonner@2.0.3';
 import { Toaster } from './components/ui/sonner';
 import { Textarea } from './components/ui/textarea';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 interface ArticleSection {
   image?: string; // base64 encoded image
@@ -183,23 +188,38 @@ function AdminModeButton({ currentView, onViewChange }: { currentView: any; onVi
   
   const handleAdminToggle = () => {
     // If turning off admin mode and currently on admin-only pages, go back to materials
-    if (settings.adminMode && (currentView.type === 'data-management' || currentView.type === 'user-management' || currentView.type === 'scientific-editor' || currentView.type === 'whitepaper-sync' || currentView.type === 'review-center')) {
+    if (settings.adminMode && (currentView.type === 'data-management' || currentView.type === 'user-management' || currentView.type === 'scientific-editor' || currentView.type === 'whitepaper-sync' || currentView.type === 'review-center' || currentView.type === 'admin-dashboard')) {
       onViewChange({ type: 'materials' });
     }
     toggleAdminMode();
   };
 
+  const handleNavigateToDashboard = () => {
+    onViewChange({ type: 'admin-dashboard' });
+  };
+
   return (
-    <button
-      onClick={handleAdminToggle}
-      className={`px-2 py-1 rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[10px] text-black dark:text-white uppercase ${
-        settings.adminMode 
-          ? 'bg-[#bdd4b7] dark:bg-[#2a2f27] shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]' 
-          : 'bg-[#e6beb5]'
-      }`}
-    >
-      Admin
-    </button>
+    <div className={`flex items-center gap-1 rounded-md border border-[#211f1c] dark:border-white/20 overflow-hidden ${
+      settings.adminMode 
+        ? 'bg-[#bdd4b7] dark:bg-[#2a2f27] shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]' 
+        : 'bg-[#e6beb5]'
+    }`}>
+      <button
+        onClick={handleNavigateToDashboard}
+        className="px-2 py-1 font-['Sniglet:Regular',_sans-serif] text-[10px] text-black dark:text-white uppercase hover:opacity-70 transition-opacity"
+      >
+        Admin
+      </button>
+      <div className="w-px h-4 bg-[#211f1c]/20 dark:bg-white/20" />
+      <div className="px-1.5 py-1">
+        <Switch 
+          checked={settings.adminMode}
+          onCheckedChange={handleAdminToggle}
+          className="scale-75"
+          aria-label={settings.adminMode ? "Disable admin mode" : "Enable admin mode"}
+        />
+      </div>
+    </div>
   );
 }
 
@@ -2297,7 +2317,7 @@ function DataManagementView({
         </div>
       </div>
 
-      {/* Tabs for Material Management, Batch Operations, Data Processing, Source Library, and Assets */}
+      {/* Tabs for Material Management, Source Library, and Assets */}
       <div className="mb-6">
         <div className="flex gap-1 md:gap-2 border-b border-[#211f1c]/20 dark:border-white/20 flex-wrap overflow-x-auto">
           <button
@@ -2311,44 +2331,14 @@ function DataManagementView({
             Materials
           </button>
           <button
-            onClick={() => setActiveTab('batch')}
-            className={`px-2 md:px-4 py-2 font-['Sniglet:Regular',_sans-serif] text-[10px] md:text-[12px] transition-colors whitespace-nowrap ${
-              activeTab === 'batch'
-                ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
-                : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
-            }`}
-          >
-            Batch Ops
-          </button>
-          <button
-            onClick={() => setActiveTab('processing')}
-            className={`px-2 md:px-4 py-2 font-['Sniglet:Regular',_sans-serif] text-[10px] md:text-[12px] transition-colors whitespace-nowrap ${
-              activeTab === 'processing'
-                ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
-                : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
-            }`}
-          >
-            Processing
-          </button>
-          <button
             onClick={() => setActiveTab('sources')}
             className={`px-2 md:px-4 py-2 font-['Sniglet:Regular',_sans-serif] text-[10px] md:text-[12px] transition-colors whitespace-nowrap ${
-              activeTab === 'sources'
+              activeTab === 'sources' || activeTab === 'comparison'
                 ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
                 : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
             }`}
           >
             Sources
-          </button>
-          <button
-            onClick={() => setActiveTab('comparison')}
-            className={`px-2 md:px-4 py-2 font-['Sniglet:Regular',_sans-serif] text-[10px] md:text-[12px] transition-colors whitespace-nowrap ${
-              activeTab === 'comparison'
-                ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
-                : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
-            }`}
-          >
-            Comparison
           </button>
           <button
             onClick={() => setActiveTab('assets')}
@@ -2360,29 +2350,11 @@ function DataManagementView({
           >
             Assets
           </button>
-          <button
-            onClick={() => setActiveTab('charts')}
-            className={`px-2 md:px-4 py-2 font-['Sniglet:Regular',_sans-serif] text-[10px] md:text-[12px] transition-colors whitespace-nowrap ${
-              activeTab === 'charts'
-                ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
-                : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
-            }`}
-          >
-            Charts
-          </button>
         </div>
       </div>
 
       {activeTab === 'materials' ? (
         <div>
-          {/* Data Migration Tool */}
-          <div className="mb-6">
-            <DataMigrationTool
-              materials={materials}
-              onMigrate={(migratedMaterials) => onUpdateMaterials(migratedMaterials)}
-            />
-          </div>
-
           <div className="flex items-center gap-4 mb-4">
             <div className="flex-1">
               <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/60 dark:text-white/60">
@@ -2723,19 +2695,6 @@ function DataManagementView({
         )}
       </div>
         </div>
-      ) : activeTab === 'batch' ? (
-        <BatchScientificOperations
-          materials={materials}
-          onUpdateMaterials={onUpdateMaterials}
-          onBack={() => {}} // Empty since we're in a tab
-          isEmbedded={true} // Hide back button when in tab mode
-        />
-      ) : activeTab === 'processing' ? (
-        <DataProcessingView
-          materials={materials}
-          onBack={() => {}} // Empty since we're in a tab
-          onUpdateMaterials={onUpdateMaterials}
-        />
       ) : activeTab === 'sources' ? (
         <SourceLibraryManager
           onBack={() => {}} // Empty since we're in a tab
@@ -2761,7 +2720,7 @@ function DataManagementView({
 
 function AppContent() {
   const { settings, toggleAdminMode } = useAccessibility();
-  const { currentView, navigateTo, navigateToMaterials, navigateToSearchResults, navigateToMaterialDetail, navigateToArticles, navigateToArticleDetail, navigateToMethodologyList, navigateToWhitepaper, navigateToDataManagement, navigateToUserManagement, navigateToScientificEditor, navigateToExport, navigateToUserProfile, navigateToMySubmissions, navigateToReviewCenter, navigateToWhitepaperSync, navigateToApiDocs, navigateToLicenses, navigateToTakedownForm, navigateToAdminTakedownList, navigateToPhase9Testing } = useNavigationContext();
+  const { currentView, navigateTo, navigateToMaterials, navigateToSearchResults, navigateToMaterialDetail, navigateToArticles, navigateToArticleDetail, navigateToMethodologyList, navigateToWhitepaper, navigateToAdminDashboard, navigateToDataManagement, navigateToUserManagement, navigateToScientificEditor, navigateToExport, navigateToUserProfile, navigateToMySubmissions, navigateToReviewCenter, navigateToWhitepaperSync, navigateToApiDocs, navigateToLicenses, navigateToLegalHub, navigateToScienceHub, navigateToTakedownForm, navigateToAdminTakedownList, navigateToPhase9Testing, navigateToTransformManager, navigateToWhitepapersManagement, navigateToAssetsManagement, navigateToMathTools, navigateToChartsPerformance, navigateToRoadmap, navigateToSourceLibrary, navigateToSourceComparison } = useNavigationContext();
   const { user, userRole, isAuthenticated, signIn, signOut, updateUserRole } = useAuthContext();
   
   // Phase 3B Complete: MaterialsContext is the single source of truth for all material data
@@ -3072,99 +3031,8 @@ function AppContent() {
                       onSearch={(query) => navigateToSearchResults(query)}
                     />
                   </div>
-                  {user && currentView.type === 'materials' && (
-                    <div className="flex flex-wrap gap-2 justify-center">
-                      {isAdminModeActive && (
-                        <>
-                          <button
-                            onClick={navigateToReviewCenter}
-                            className="bg-[#c8e5c8] h-[40px] px-3 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
-                          >
-                            Review Center
-                          </button>
-                          <button
-                            onClick={navigateToDataManagement}
-                            className="bg-[#e4e3ac] h-[40px] px-3 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
-                          >
-                            Database Management
-                          </button>
-                          <button
-                            onClick={navigateToUserManagement}
-                            className="bg-[#e6beb5] h-[40px] px-3 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
-                          >
-                            User Management
-                          </button>
-                          <button
-                            onClick={navigateToWhitepaperSync}
-                            className="bg-[#b8c8cb] h-[40px] px-3 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
-                          >
-                            Whitepaper Sync
-                          </button>
-                          <button
-                            onClick={navigateToAdminTakedownList}
-                            className="bg-[#ffb3ba] h-[40px] px-3 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
-                          >
-                            🚨 Takedown Requests
-                          </button>
-                          <button
-                            onClick={navigateToPhase9Testing}
-                            className="bg-[#bae1ff] h-[40px] px-3 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
-                          >
-                            🧪 Phase 9.0 Testing
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  )}
-                  <div className="flex flex-col gap-2 items-center">
-                    <div className="flex items-center gap-2">
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: 0.3 }}
-                        className="flex items-center gap-2"
-                      >
-                        <button
-                          onClick={navigateToMethodologyList}
-                          className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white md:hover:underline transition-colors flex items-center gap-1"
-                        >
-                          <FileUp className="w-5 h-5 md:w-3 md:h-3" />
-                          <span className="hidden md:inline">White Papers</span>
-                        </button>
-                        <span className="text-black/30 dark:text-white/30">•</span>
-                        <button
-                          onClick={navigateToExport}
-                          className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white md:hover:underline transition-colors flex items-center gap-1"
-                        >
-                          <Download className="w-5 h-5 md:w-3 md:h-3" />
-                          <span className="hidden md:inline">Open Access</span>
-                        </button>
-                        <span className="text-black/30 dark:text-white/30">•</span>
-                        <button
-                          onClick={navigateToApiDocs}
-                          className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white md:hover:underline transition-colors flex items-center gap-1"
-                        >
-                          <Code className="w-5 h-5 md:w-3 md:h-3" />
-                          <span className="hidden md:inline">API</span>
-                        </button>
-                        <span className="text-black/30 dark:text-white/30">•</span>
-                        <button
-                          onClick={navigateToTakedownForm}
-                          className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white md:hover:underline transition-colors flex items-center gap-1"
-                        >
-                          <AlertCircle className="w-5 h-5 md:w-3 md:h-3" />
-                          <span className="hidden md:inline">Legal</span>
-                        </button>
-                      </motion.div>
-                      {userRole === 'admin' && (
-                        <div className="md:hidden">
-                          <AdminModeButton currentView={currentView} onViewChange={navigateTo} />
-                        </div>
-                      )}
-                    </div>
-                  </div>
                   
-                  {/* Chart centered below links */}
+                  {/* Chart centered below search */}
                   {materials.length > 0 && currentView.type === 'materials' && (() => {
                     // Show eye icon in admin mode, show chart when clicked
                     if (isAdminModeActive && !showChart) {
@@ -3241,13 +3109,6 @@ function AppContent() {
                 <LoadingPlaceholder />
               ) : (
                 <div className="text-center py-12 max-w-2xl mx-auto">
-                  <p className="font-['Sniglet:Regular',_sans-serif] text-[20px] text-black/70 dark:text-white/70 mb-2">
-                    Welcome to WasteDB
-                  </p>
-                  <p className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black/50 dark:text-white/50 mb-6">
-                    Search for materials to explore their sustainability scores and recycling guides
-                  </p>
-                  
                   {/* Beta contributor message */}
                   <div className="mb-6 px-4">
                     <p className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white mb-1">
@@ -3411,13 +3272,31 @@ function AppContent() {
             />
           ) : currentView.type === 'methodology-list' ? (
             <MethodologyListView
-              onBack={navigateToMaterials}
+              onBack={navigateToScienceHub}
               onSelectWhitepaper={navigateToWhitepaper}
             />
           ) : currentView.type === 'whitepaper' ? (
             <WhitepaperView
               whitepaperSlug={currentView.whitepaperSlug}
               onBack={navigateToMethodologyList}
+            />
+          ) : currentView.type === 'admin-dashboard' ? (
+            <AdminDashboard
+              onBack={navigateToMaterials}
+              onNavigateToReviewCenter={navigateToReviewCenter}
+              onNavigateToDataManagement={navigateToDataManagement}
+              onNavigateToUserManagement={navigateToUserManagement}
+              onNavigateToWhitepaperSync={navigateToWhitepaperSync}
+              onNavigateToTransformManager={() => navigateToMathTools('transform-manager')}
+              onNavigateToPhase9Testing={navigateToPhase9Testing}
+              onNavigateToAdminTakedownList={navigateToAdminTakedownList}
+              onNavigateToWhitepapers={navigateToWhitepapersManagement}
+              onNavigateToAssets={navigateToAssetsManagement}
+              onNavigateToMath={navigateToMathTools}
+              onNavigateToCharts={navigateToChartsPerformance}
+              onNavigateToRoadmap={navigateToRoadmap}
+              onNavigateToSourceLibrary={navigateToSourceLibrary}
+              onNavigateToSourceComparison={navigateToSourceComparison}
             />
           ) : currentView.type === 'data-management' ? (
             <DataManagementView
@@ -3456,7 +3335,7 @@ function AppContent() {
             />
           ) : currentView.type === 'export' ? (
             <PublicExportView
-              onBack={navigateToMaterials}
+              onBack={navigateToScienceHub}
               materialsCount={materials.length}
             />
           ) : currentView.type === 'user-profile' ? (
@@ -3476,7 +3355,7 @@ function AppContent() {
               currentUserId={user?.id || ''}
             />
           ) : currentView.type === 'api-docs' ? (
-            <ApiDocumentation onBack={navigateToMaterials} />
+            <ApiDocumentation onBack={navigateToScienceHub} />
           ) : currentView.type === 'source-library' ? (
             <SourceLibraryManager
               onBack={navigateToMaterials}
@@ -3491,12 +3370,25 @@ function AppContent() {
             />
           ) : currentView.type === 'licenses' ? (
             <LicensesView
+              onBack={navigateToLegalHub}
+            />
+          ) : currentView.type === 'science-hub' ? (
+            <ScienceHubView
               onBack={navigateToMaterials}
+              onNavigateToWhitePapers={navigateToMethodologyList}
+              onNavigateToOpenAccess={navigateToExport}
+              onNavigateToAPI={navigateToApiDocs}
+            />
+          ) : currentView.type === 'legal-hub' ? (
+            <LegalHubView
+              onBack={navigateToMaterials}
+              onNavigateToTakedownForm={navigateToTakedownForm}
+              onNavigateToLicenses={navigateToLicenses}
             />
           ) : currentView.type === 'takedown-form' ? (
-            <div className="p-6">
-              <TakedownRequestForm />
-            </div>
+            <TakedownRequestForm
+              onBack={navigateToLegalHub}
+            />
           ) : currentView.type === 'takedown-status' ? (
             <div className="p-6">
               <TakedownStatusView requestId={currentView.requestId} />
@@ -3507,7 +3399,60 @@ function AppContent() {
             </div>
           ) : currentView.type === 'phase9-testing' ? (
             <Phase9TestingPage />
+          ) : currentView.type === 'transform-manager' ? (
+            <div className="p-6">
+              <TransformVersionManager />
+            </div>
+          ) : currentView.type === 'whitepapers-management' ? (
+            <div className="p-6">
+              <WhitepaperSyncTool />
+            </div>
+          ) : currentView.type === 'assets-management' ? (
+            <div className="p-6">
+              <AssetUploadManager />
+            </div>
+          ) : currentView.type === 'math-tools' ? (
+            <MathView onBack={navigateToAdminDashboard} defaultTab={currentView.defaultTab} />
+          ) : currentView.type === 'charts-performance' ? (
+            <ChartsPerformanceView onBack={navigateToAdminDashboard} />
+          ) : currentView.type === 'roadmap' ? (
+            <RoadmapView onBack={navigateToAdminDashboard} />
           ) : null}
+          
+          {/* Footer - inside rounded container */}
+          <div className="p-6">
+            <footer className="mt-8 text-center border-t border-[#211f1c]/10 dark:border-white/10 pt-6">
+              {/* Science and Legal links */}
+              <div className="flex justify-center items-center gap-2 mb-6">
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.3 }}
+                  className="flex items-center gap-2"
+                >
+                  <button
+                    onClick={navigateToScienceHub}
+                    className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white md:hover:underline transition-colors flex items-center gap-1"
+                  >
+                    <FlaskConical className="w-5 h-5 md:w-3 md:h-3" />
+                    <span className="hidden md:inline">Science</span>
+                  </button>
+                  <span className="text-black/30 dark:text-white/30">•</span>
+                  <button
+                    onClick={navigateToLegalHub}
+                    className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white md:hover:underline transition-colors flex items-center gap-1"
+                  >
+                    <AlertCircle className="w-5 h-5 md:w-3 md:h-3" />
+                    <span className="hidden md:inline">Legal</span>
+                  </button>
+                </motion.div>
+              </div>
+              
+              <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] md:text-[12px] text-black/60 dark:text-white/60 max-w-3xl mx-auto px-4">
+                <a href="https://wastefull.org" target="_blank" rel="noopener noreferrer" className="hover:text-black dark:hover:text-white transition-colors underline">Wastefull, Inc.</a> is a registered California 501(c)(3) nonprofit organization. Donations to the organization may be tax deductible.
+              </p>
+            </footer>
+          </div>
         </div>
       </div>
 
@@ -3540,18 +3485,6 @@ function AppContent() {
           }}
         />
       )}
-      
-      {/* Footer */}
-      <footer className="mt-8 pb-6 text-center">
-        <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/60 dark:text-white/60 max-w-3xl mx-auto px-4">
-          <a href="https://wastefull.org" target="_blank" rel="noopener noreferrer" className="hover:text-black dark:hover:text-white transition-colors underline">Wastefull, Inc.</a> is a registered California 501(c)(3) nonprofit organization. Donations to the organization may be tax deductible.
-        </p>
-        <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/60 dark:text-white/60 mt-2">
-          <button onClick={() => navigateToLicenses()} className="hover:text-black dark:hover:text-white transition-colors underline">
-            Open Source Licenses
-          </button>
-        </p>
-      </footer>
       </div>
     </>
   );
@@ -3573,11 +3506,13 @@ export default function App() {
   // Defaults to FALSE to minimize console noise
 
   return (
-    <AccessibilityProvider>
-      <NavigationProvider>
-        <AppWithAuth />
-      </NavigationProvider>
-    </AccessibilityProvider>
+    <ErrorBoundary>
+      <AccessibilityProvider>
+        <NavigationProvider>
+          <AppWithAuth />
+        </NavigationProvider>
+      </AccessibilityProvider>
+    </ErrorBoundary>
   );
 }
 

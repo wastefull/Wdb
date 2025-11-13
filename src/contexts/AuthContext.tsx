@@ -51,14 +51,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, onSessionE
   // Handle session expiry
   useEffect(() => {
     const handleSessionExpired = () => {
-      authLogger.warn('Session expired - redirecting to sign-in');
+      authLogger.warn('Session expired - clearing state and redirecting to sign-in');
       setUser(null);
       setUserRole('user');
       sessionStorage.removeItem('wastedb_user');
+      sessionStorage.removeItem('wastedb_access_token');
       
       // Call the parent callback to navigate to auth view
       if (onSessionExpired) {
+        authLogger.log('Calling onSessionExpired callback to navigate to auth');
         onSessionExpired();
+      } else {
+        authLogger.warn('No onSessionExpired callback registered');
       }
     };
 
@@ -70,41 +74,73 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, onSessionE
       api.setSessionExpiredCallback(() => {});
     };
   }, [onSessionExpired]);
+  
+  // Periodic session validation (check every 5 minutes)
+  useEffect(() => {
+    if (!user || !api.isAuthenticated()) {
+      return;
+    }
+
+    const validateSession = async () => {
+      try {
+        // Try to fetch user role as a lightweight session check
+        await api.getUserRole();
+        authLogger.log('Session validation successful');
+      } catch (error) {
+        authLogger.warn('Session validation failed - session may have expired');
+        // The API module will handle the session expiry via the callback
+      }
+    };
+
+    // Initial validation after 1 minute
+    const initialTimeout = setTimeout(validateSession, 60000);
+    
+    // Then every 5 minutes
+    const intervalId = setInterval(validateSession, 5 * 60 * 1000);
+
+    return () => {
+      clearTimeout(initialTimeout);
+      clearInterval(intervalId);
+    };
+  }, [user]);
 
   // Initialize auth state from session storage
   useEffect(() => {
     const loadUserAndRole = async () => {
-      authLogger.info('Initializing auth state...');
-      
-      // Check if user is authenticated
-      if (api.isAuthenticated()) {
-        const userInfo = sessionStorage.getItem('wastedb_user');
-        if (userInfo) {
-          const userData = JSON.parse(userInfo);
-          setUser(userData);
-          authLogger.info('User loaded from session:', userData.email);
-          
-          // Fetch user role
-          try {
-            const role = await api.getUserRole();
-            setUserRole(role);
-            userLogger.info('User role:', role);
-          } catch (error) {
-            authLogger.error('Error fetching user role:', error);
-            // If role fetch fails (likely expired session), clear user state
-            if (!api.isAuthenticated()) {
-              setUser(null);
-              setUserRole('user');
-            } else {
-              setUserRole('user'); // Default to user role on error
+      authLogger.log('Initializing auth state from session storage');
+
+      try {
+        // Check if user is authenticated
+        if (api.isAuthenticated()) {
+          const userInfo = sessionStorage.getItem('wastedb_user');
+          if (userInfo) {
+            const userData = JSON.parse(userInfo);
+            setUser(userData);
+            authLogger.info('User loaded from session:', userData.email);
+            
+            // Fetch user role
+            try {
+              const role = await api.getUserRole();
+              setUserRole(role);
+              authLogger.info('User role loaded:', role);
+            } catch (error) {
+              authLogger.error('Error fetching user role:', error);
+              // If role fetch fails (likely expired session), the API module will handle it
+              // by calling onSessionExpired. We don't need to do anything here.
+              // Just log and continue - the session expired handler will clean up.
             }
           }
+        } else {
+          authLogger.log('No authenticated session found');
         }
-      } else {
-        authLogger.info('No authenticated user found');
+      } catch (error) {
+        authLogger.error('Error during auth initialization:', error);
+        // Clear state on error
+        setUser(null);
+        setUserRole('user');
       }
     };
-    
+
     loadUserAndRole();
   }, []);
 

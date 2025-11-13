@@ -10,6 +10,36 @@ const app = new Hono();
 // Add logger middleware
 app.use('*', logger(console.log));
 
+// ==================== TRANSFORM DEFINITIONS ====================
+
+const TRANSFORMS_DATA = {
+  "version": "1.0",
+  "last_updated": "2025-11-12",
+  "description": "Versioned transform definitions for all 13 WasteDB parameters. Each transform converts raw extracted values to normalized ratios (0-1 scale).",
+  "transforms": [
+    {"id": "Y_v1.0", "parameter": "Y", "dimension": "CR", "name": "Yield", "formula": "value / 100", "description": "Convert percentage to ratio. Raw value is extraction yield as percentage (0-100%), transformed to ratio (0-1).", "version": "1.0", "effective_date": "2025-11-12", "unit_input": "%", "unit_output": "ratio", "changelog": "Initial version - direct percentage to ratio conversion"},
+    {"id": "D_v1.0", "parameter": "D", "dimension": "CR", "name": "Degradability", "formula": "value / 100", "description": "Convert percentage to ratio. Raw value is degradation rate as percentage (0-100%), transformed to ratio (0-1).", "version": "1.0", "effective_date": "2025-11-12", "unit_input": "%", "unit_output": "ratio", "changelog": "Initial version - direct percentage to ratio conversion"},
+    {"id": "C_v1.0", "parameter": "C", "dimension": "CR", "name": "Contamination", "formula": "value / 100", "description": "Convert percentage to ratio. Raw value is contamination tolerance as percentage (0-100%), transformed to ratio (0-1).", "version": "1.0", "effective_date": "2025-11-12", "unit_input": "%", "unit_output": "ratio", "changelog": "Initial version - direct percentage to ratio conversion"},
+    {"id": "M_v1.0", "parameter": "M", "dimension": "CR", "name": "Maturity", "formula": "value / 100", "description": "Convert percentage to ratio. Raw value is market maturity as percentage (0-100%), transformed to ratio (0-1).", "version": "1.0", "effective_date": "2025-11-12", "unit_input": "%", "unit_output": "ratio", "changelog": "Initial version - direct percentage to ratio conversion"},
+    {"id": "E_v1.0", "parameter": "E", "dimension": "CR", "name": "Energy", "formula": "value / 100", "description": "Convert percentage to ratio. Raw value is energy efficiency as percentage (0-100%), transformed to ratio (0-1).", "version": "1.0", "effective_date": "2025-11-12", "unit_input": "%", "unit_output": "ratio", "changelog": "Initial version - direct percentage to ratio conversion"},
+    {"id": "B_v1.0", "parameter": "B", "dimension": "CC", "name": "Biodegradation", "formula": "value / 100", "description": "Convert percentage to ratio. Raw value is biodegradation rate as percentage (0-100%), transformed to ratio (0-1).", "version": "1.0", "effective_date": "2025-11-12", "unit_input": "%", "unit_output": "ratio", "changelog": "Initial version - direct percentage to ratio conversion"},
+    {"id": "N_v1.0", "parameter": "N", "dimension": "CC", "name": "Nutrient Balance", "formula": "value / 100", "description": "Convert percentage to ratio. Raw value is nutrient balance score as percentage (0-100%), transformed to ratio (0-1).", "version": "1.0", "effective_date": "2025-11-12", "unit_input": "%", "unit_output": "ratio", "changelog": "Initial version - direct percentage to ratio conversion"},
+    {"id": "T_v1.0", "parameter": "T", "dimension": "CC", "name": "Toxicity", "formula": "value / 100", "description": "Convert percentage to ratio. Raw value is toxicity safety score as percentage (0-100%), transformed to ratio (0-1).", "version": "1.0", "effective_date": "2025-11-12", "unit_input": "%", "unit_output": "ratio", "changelog": "Initial version - direct percentage to ratio conversion"},
+    {"id": "H_v1.0", "parameter": "H", "dimension": "CC", "name": "Habitat Adaptability", "formula": "value / 100", "description": "Convert percentage to ratio. Raw value is habitat adaptability score as percentage (0-100%), transformed to ratio (0-1).", "version": "1.0", "effective_date": "2025-11-12", "unit_input": "%", "unit_output": "ratio", "changelog": "Initial version - direct percentage to ratio conversion"},
+    {"id": "L_v1.0", "parameter": "L", "dimension": "RU", "name": "Lifetime", "formula": "value / 100", "description": "Convert percentage to ratio. Raw value is expected lifetime score as percentage (0-100%), transformed to ratio (0-1).", "version": "1.0", "effective_date": "2025-11-12", "unit_input": "%", "unit_output": "ratio", "changelog": "Initial version - direct percentage to ratio conversion"},
+    {"id": "R_v1.0", "parameter": "R", "dimension": "RU", "name": "Repairability", "formula": "value / 100", "description": "Convert percentage to ratio. Raw value is repairability score as percentage (0-100%), transformed to ratio (0-1).", "version": "1.0", "effective_date": "2025-11-12", "unit_input": "%", "unit_output": "ratio", "changelog": "Initial version - direct percentage to ratio conversion"},
+    {"id": "U_v1.0", "parameter": "U", "dimension": "RU", "name": "Upgradability", "formula": "value / 100", "description": "Convert percentage to ratio. Raw value is upgradability score as percentage (0-100%), transformed to ratio (0-1).", "version": "1.0", "effective_date": "2025-11-12", "unit_input": "%", "unit_output": "ratio", "changelog": "Initial version - direct percentage to ratio conversion"},
+    {"id": "C_RU_v1.0", "parameter": "C_RU", "dimension": "RU", "name": "Contamination (Reusability)", "formula": "value / 100", "description": "Convert percentage to ratio. Raw value is contamination tolerance for reuse as percentage (0-100%), transformed to ratio (0-1).", "version": "1.0", "effective_date": "2025-11-12", "unit_input": "%", "unit_output": "ratio", "changelog": "Initial version - direct percentage to ratio conversion"}
+  ],
+  "usage_notes": [
+    "All transforms currently use simple percentage-to-ratio conversion (divide by 100)",
+    "Future versions may implement non-linear transforms based on research findings",
+    "When updating a transform, increment version number and update effective_date",
+    "Old transform versions should be preserved in changelog for audit trail",
+    "Recompute jobs should be triggered whenever transform formulas change"
+  ]
+};
+
 // ==================== SECURITY MIDDLEWARE ====================
 
 // Rate limiting configuration
@@ -4152,14 +4182,6 @@ app.get('/make-server-17cae920/api/v1/articles', async (c) => {
   }
 });
 
-// Catch-all 404 handler for debugging
-app.all('*', (c) => {
-  console.log(`❌ 404 - Unmatched route: ${c.req.method} ${c.req.url}`);
-  console.log(`❌ Path: ${c.req.path}`);
-  console.log(`❌ Headers:`, JSON.stringify(Object.fromEntries(c.req.header())));
-  return c.json({ error: 'Not found', path: c.req.path }, 404);
-});
-
 // ==================== PHASE 9.0: LEGAL & COMPLIANCE ====================
 
 // Submit DMCA takedown request
@@ -4659,6 +4681,137 @@ app.patch("/make-server-17cae920/admin/takedown/:requestId", verifyAuth, verifyA
     console.error('Error updating takedown request:', error);
     return c.json({ error: 'Failed to update request', details: String(error) }, 500);
   }
+});
+
+// ==================== TRANSFORM GOVERNANCE ROUTES ====================
+
+// Get all transform definitions
+app.get('/make-server-17cae920/transforms', async (c) => {
+  try {
+    return c.json(TRANSFORMS_DATA);
+  } catch (error) {
+    console.error('Error loading transforms:', error);
+    return c.json({ error: 'Failed to load transforms', details: String(error) }, 500);
+  }
+});
+
+// List all recompute jobs (admin only) - MUST come before /transforms/:parameter
+app.get('/make-server-17cae920/transforms/recompute', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const jobs = await kv.getByPrefix('recompute_job:');
+    
+    // Sort by creation date (newest first)
+    const sorted = jobs?.sort((a, b) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    ) || [];
+    
+    return c.json({ jobs: sorted });
+    
+  } catch (error) {
+    console.error('Error listing recompute jobs:', error);
+    return c.json({ error: 'Failed to list jobs', details: String(error) }, 500);
+  }
+});
+
+// Get recompute job status - MUST come before /transforms/:parameter
+app.get('/make-server-17cae920/transforms/recompute/:jobId', verifyAuth, async (c) => {
+  try {
+    const jobId = c.req.param('jobId');
+    const job = await kv.get(`recompute_job:${jobId}`);
+    
+    if (!job) {
+      return c.json({ error: 'Recompute job not found' }, 404);
+    }
+    
+    return c.json(job);
+    
+  } catch (error) {
+    console.error('Error fetching recompute job:', error);
+    return c.json({ error: 'Failed to fetch job status', details: String(error) }, 500);
+  }
+});
+
+// Get transform definition for specific parameter
+app.get('/make-server-17cae920/transforms/:parameter', async (c) => {
+  try {
+    const parameter = c.req.param('parameter');
+    const transform = TRANSFORMS_DATA.transforms.find((t: any) => t.parameter === parameter);
+    
+    if (!transform) {
+      return c.json({ error: `Transform not found for parameter: ${parameter}` }, 404);
+    }
+    
+    return c.json(transform);
+    
+  } catch (error) {
+    console.error('Error loading transform:', error);
+    return c.json({ error: 'Failed to load transform', details: String(error) }, 500);
+  }
+});
+
+// Create recompute job (admin only)
+app.post('/make-server-17cae920/transforms/recompute', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const { parameter, newTransformVersion, reason } = await c.req.json();
+    
+    if (!parameter || !newTransformVersion) {
+      return c.json({ error: 'Missing required fields: parameter, newTransformVersion' }, 400);
+    }
+    
+    // Load current transform definition
+    const oldTransform = TRANSFORMS_DATA.transforms.find((t: any) => t.parameter === parameter);
+    if (!oldTransform) {
+      return c.json({ error: `Transform not found for parameter: ${parameter}` }, 404);
+    }
+    
+    // Generate job ID
+    const jobId = `RJ-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`;
+    
+    // Create recompute job record
+    const job = {
+      id: jobId,
+      parameter,
+      oldTransformId: oldTransform.id,
+      oldTransformVersion: oldTransform.version,
+      newTransformVersion,
+      reason: reason || 'Manual recompute triggered',
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+      createdBy: c.get('userId'),
+      completedAt: null,
+      affectedMiusCount: 0,
+      errorMessage: null
+    };
+    
+    // Store job in KV
+    await kv.set(`recompute_job:${jobId}`, job);
+    
+    console.log(`Recompute job created: ${jobId} for parameter ${parameter}`);
+    console.log(`Transform version change: ${oldTransform.version} → ${newTransformVersion}`);
+    
+    // TODO: In Phase 9.2, this will trigger actual MIU reprocessing
+    // For now, just log the intent
+    console.log(`⚠️ Recompute job ${jobId} created but not executed (no MIUs exist yet)`);
+    
+    return c.json({
+      success: true,
+      jobId,
+      message: 'Recompute job created. Execution will begin when MIUs are available.',
+      estimatedDuration: 'N/A (no MIUs yet)'
+    });
+    
+  } catch (error) {
+    console.error('Error creating recompute job:', error);
+    return c.json({ error: 'Failed to create recompute job', details: String(error) }, 500);
+  }
+});
+
+// Catch-all 404 handler for debugging - MUST be last route
+app.all('*', (c) => {
+  console.log(`❌ 404 - Unmatched route: ${c.req.method} ${c.req.url}`);
+  console.log(`❌ Path: ${c.req.path}`);
+  console.log(`❌ Headers:`, JSON.stringify(c.req.header()));
+  return c.json({ error: 'Not found', path: c.req.path }, 404);
 });
 
 // Run initialization

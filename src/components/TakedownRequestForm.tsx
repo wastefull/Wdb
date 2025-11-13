@@ -13,10 +13,11 @@ import { PageTemplate } from './PageTemplate';
 
 interface TakedownRequestFormProps {
   onSubmitSuccess?: () => void;
+  onBack?: () => void;
 }
 
-export function TakedownRequestForm({ onSubmitSuccess }: TakedownRequestFormProps) {
-  const { navigateToTakedownStatus, navigateToHome } = useNavigationContext();
+export function TakedownRequestForm({ onSubmitSuccess, onBack }: TakedownRequestFormProps) {
+  const { navigateToTakedownStatus, navigateToMaterials } = useNavigationContext();
 
   const [formData, setFormData] = useState({
     // Contact Information
@@ -197,7 +198,7 @@ export function TakedownRequestForm({ onSubmitSuccess }: TakedownRequestFormProp
     <PageTemplate
       title="Copyright Takedown Request"
       description="Submit a DMCA takedown request for content you believe infringes your copyright. All fields marked with * are required."
-      onBack={navigateToHome}
+      onBack={onBack || navigateToMaterials}
       maxWidth="3xl"
     >
       <Alert>

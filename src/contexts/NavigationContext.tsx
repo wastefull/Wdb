@@ -19,6 +19,7 @@ export type ViewType =
   | { type: 'article-standalone'; articleId: string; materialId: string; category: CategoryType }
   | { type: 'methodology-list' }
   | { type: 'whitepaper'; whitepaperSlug: string }
+  | { type: 'admin-dashboard' }
   | { type: 'data-management' }
   | { type: 'user-management' }
   | { type: 'whitepaper-sync' }
@@ -31,10 +32,18 @@ export type ViewType =
   | { type: 'source-library' }
   | { type: 'source-comparison' }
   | { type: 'licenses' }
+  | { type: 'legal-hub' }
+  | { type: 'science-hub' }
   | { type: 'takedown-form' }
   | { type: 'takedown-status'; requestId: string }
   | { type: 'admin-takedown-list' }
-  | { type: 'phase9-testing' };
+  | { type: 'phase9-testing' }
+  | { type: 'transform-manager' }
+  | { type: 'whitepapers-management' }
+  | { type: 'assets-management' }
+  | { type: 'math-tools'; defaultTab?: 'overview' | 'transform-manager' }
+  | { type: 'charts-performance' }
+  | { type: 'roadmap' };
 
 interface NavigationContextType {
   // State
@@ -51,6 +60,7 @@ interface NavigationContextType {
   navigateToArticleDetail: (articleId: string, materialId: string, category: CategoryType) => void;
   navigateToMethodologyList: () => void;
   navigateToWhitepaper: (whitepaperSlug: string) => void;
+  navigateToAdminDashboard: () => void;
   navigateToDataManagement: () => void;
   navigateToUserManagement: () => void;
   navigateToWhitepaperSync: () => void;
@@ -63,10 +73,18 @@ interface NavigationContextType {
   navigateToSourceLibrary: () => void;
   navigateToSourceComparison: () => void;
   navigateToLicenses: () => void;
+  navigateToLegalHub: () => void;
+  navigateToScienceHub: () => void;
   navigateToTakedownForm: () => void;
   navigateToTakedownStatus: (requestId: string) => void;
   navigateToAdminTakedownList: () => void;
   navigateToPhase9Testing: () => void;
+  navigateToTransformManager: () => void;
+  navigateToWhitepapersManagement: () => void;
+  navigateToAssetsManagement: () => void;
+  navigateToMathTools: (defaultTab?: 'overview' | 'transform-manager') => void;
+  navigateToChartsPerformance: () => void;
+  navigateToRoadmap: () => void;
   goBack: () => void;
 }
 
@@ -126,6 +144,10 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
     navigateTo({ type: 'whitepaper', whitepaperSlug });
   };
 
+  const navigateToAdminDashboard = () => {
+    navigateTo({ type: 'admin-dashboard' });
+  };
+
   const navigateToDataManagement = () => {
     navigateTo({ type: 'data-management' });
   };
@@ -174,6 +196,14 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
     navigateTo({ type: 'licenses' });
   };
 
+  const navigateToLegalHub = () => {
+    navigateTo({ type: 'legal-hub' });
+  };
+
+  const navigateToScienceHub = () => {
+    navigateTo({ type: 'science-hub' });
+  };
+
   const navigateToTakedownForm = () => {
     navigateTo({ type: 'takedown-form' });
   };
@@ -188,6 +218,30 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
 
   const navigateToPhase9Testing = () => {
     navigateTo({ type: 'phase9-testing' });
+  };
+
+  const navigateToTransformManager = () => {
+    navigateTo({ type: 'transform-manager' });
+  };
+
+  const navigateToWhitepapersManagement = () => {
+    navigateTo({ type: 'whitepapers-management' });
+  };
+
+  const navigateToAssetsManagement = () => {
+    navigateTo({ type: 'assets-management' });
+  };
+
+  const navigateToMathTools = (defaultTab?: 'overview' | 'transform-manager') => {
+    navigateTo({ type: 'math-tools', defaultTab });
+  };
+
+  const navigateToChartsPerformance = () => {
+    navigateTo({ type: 'charts-performance' });
+  };
+
+  const navigateToRoadmap = () => {
+    navigateTo({ type: 'roadmap' });
   };
 
   const goBack = () => {
@@ -215,6 +269,7 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
     navigateToArticleDetail,
     navigateToMethodologyList,
     navigateToWhitepaper,
+    navigateToAdminDashboard,
     navigateToDataManagement,
     navigateToUserManagement,
     navigateToWhitepaperSync,
@@ -227,10 +282,18 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
     navigateToSourceLibrary,
     navigateToSourceComparison,
     navigateToLicenses,
+    navigateToLegalHub,
+    navigateToScienceHub,
     navigateToTakedownForm,
     navigateToTakedownStatus,
     navigateToAdminTakedownList,
     navigateToPhase9Testing,
+    navigateToTransformManager,
+    navigateToWhitepapersManagement,
+    navigateToAssetsManagement,
+    navigateToMathTools,
+    navigateToChartsPerformance,
+    navigateToRoadmap,
     goBack,
   };
 

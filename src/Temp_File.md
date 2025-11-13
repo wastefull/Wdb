@@ -1,0 +1,1 @@
+I want to consolidate the Admin menus a bit.

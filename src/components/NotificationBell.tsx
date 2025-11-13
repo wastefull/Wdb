@@ -56,7 +56,9 @@ export function NotificationBell({ userId, isAdmin }: NotificationBellProps) {
       
       setNotifications(allNotifications);
     } catch (error) {
-      console.error('Error loading notifications:', error);
+      // Silently fail - notifications backend not yet implemented
+      // This prevents console errors from blocking the UI
+      console.debug('Notifications not available:', error);
     } finally {
       setLoading(false);
     }

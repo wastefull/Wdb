@@ -169,6 +169,7 @@ export async function apiCall(endpoint: string, options: RequestInit = {}) {
       method: options.method || 'GET',
       status: response.status,
       statusText: response.statusText,
+      errorMessage: errorData.error || response.statusText,
       // Only log endpoint path (not full URL) and only in test mode
       ...(logger.isTestMode() ? { endpoint } : {}),
     });
@@ -179,21 +180,38 @@ export async function apiCall(endpoint: string, options: RequestInit = {}) {
       clearAccessToken();
       sessionStorage.removeItem('wastedb_user');
       
-      // Show user-friendly message based on status
+      // Show user-friendly message based on status and error message
+      const errorMessage = errorData.error || '';
       if (response.status === 401) {
-        toast.error('Your session has expired. Please sign in again.');
+        if (errorMessage.toLowerCase().includes('session expired') || errorMessage.toLowerCase().includes('expired')) {
+          toast.error('Your session has expired. Please sign in again.', {
+            duration: 5000,
+            id: 'session-expired', // Prevent duplicate toasts
+          });
+        } else {
+          toast.error('Authentication required. Please sign in to continue.', {
+            duration: 5000,
+            id: 'auth-required',
+          });
+        }
       } else if (response.status === 403) {
-        toast.error('You do not have permission to perform this action.');
+        toast.error('You do not have permission to perform this action.', {
+          duration: 5000,
+          id: 'permission-denied',
+        });
       }
       
       // Trigger the session expired callback (redirects to front page/login)
       if (onSessionExpired) {
         logger.log('🔄 Triggering session expired callback');
-        onSessionExpired();
+        // Delay slightly to ensure toast is visible
+        setTimeout(() => {
+          onSessionExpired();
+        }, 100);
       }
       
       // Throw a user-friendly error (don't expose endpoint)
-      throw new Error('Authentication required. Please sign in to continue.');
+      throw new Error(errorMessage || 'Authentication required. Please sign in to continue.');
     }
     
     // For non-auth errors, throw with sanitized message
