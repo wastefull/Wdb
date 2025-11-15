@@ -247,7 +247,7 @@ export function TakedownStatusView({ requestId }: TakedownStatusViewProps) {
                 <strong>Request resolved</strong>
                 <p className="mt-2 text-sm">
                   Your takedown request has been resolved. If you have questions about
-                  the resolution, please contact legal@wastedb.org
+                  the resolution, please contact compliance@wastefull.org
                 </p>
               </AlertDescription>
             </Alert>
@@ -271,7 +271,7 @@ export function TakedownStatusView({ requestId }: TakedownStatusViewProps) {
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
           <p>
-            <strong>Email:</strong> legal@wastedb.org
+            <strong>Email:</strong> compliance@wastefull.org
           </p>
           <p>
             <strong>Response Time:</strong> 72 hours for initial review

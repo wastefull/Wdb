@@ -163,6 +163,7 @@ export async function apiCall(endpoint: string, options: RequestInit = {}) {
     // Handle authentication/authorization errors (401 Unauthorized, 403 Forbidden)
     const isAuthError = response.status === 401 || response.status === 403;
     const isAuthEndpoint = endpoint.includes('/auth/');
+    const isNotificationEndpoint = endpoint.includes('/notifications');
     
     // Log error WITHOUT exposing full endpoint in production
     logger.error('API call failed:', {
@@ -174,8 +175,9 @@ export async function apiCall(endpoint: string, options: RequestInit = {}) {
       ...(logger.isTestMode() ? { endpoint } : {}),
     });
     
-    // Handle session expiry for non-auth endpoints
-    if (isAuthError && !isAuthEndpoint) {
+    // Handle session expiry for non-auth, non-notification endpoints
+    // Notification errors should NOT trigger session expiry (non-critical feature)
+    if (isAuthError && !isAuthEndpoint && !isNotificationEndpoint) {
       logger.warn('🔐 Authentication error detected - clearing session');
       clearAccessToken();
       sessionStorage.removeItem('wastedb_user');
@@ -820,15 +822,26 @@ export async function createNotification(params: {
 }
 
 export async function getNotifications(userId: string): Promise<any[]> {
-  const data = await apiCall(`/notifications/${userId}`);
-  return data.notifications;
+  try {
+    const data = await apiCall(`/notifications/${userId}`);
+    return data.notifications;
+  } catch (error) {
+    // Notifications are non-critical - fail silently without triggering session expiry
+    // Return empty array instead of throwing
+    return [];
+  }
 }
 
 export async function markNotificationAsRead(id: string): Promise<any> {
-  const data = await apiCall(`/notifications/${id}/read`, {
-    method: 'PUT',
-  });
-  return data.notification;
+  try {
+    const data = await apiCall(`/notifications/${id}/read`, {
+      method: 'PUT',
+    });
+    return data.notification;
+  } catch (error) {
+    // Fail silently for non-critical notification operations
+    return null;
+  }
 }
 
 export async function markAllNotificationsAsRead(userId: string): Promise<void> {

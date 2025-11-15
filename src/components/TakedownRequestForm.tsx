@@ -6,9 +6,11 @@ import { Label } from './ui/label';
 import { Checkbox } from './ui/checkbox';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Alert, AlertDescription } from './ui/alert';
-import { AlertCircle, CheckCircle2, FileText } from 'lucide-react';
+import { AlertCircle, CheckCircle2, FileText, Zap } from 'lucide-react';
 import { projectId, publicAnonKey } from '../utils/supabase/info';
 import { useNavigationContext } from '../contexts/NavigationContext';
+import { useAuthContext } from '../contexts/AuthContext';
+import { useAccessibility } from './AccessibilityContext';
 import { PageTemplate } from './PageTemplate';
 
 interface TakedownRequestFormProps {
@@ -18,6 +20,8 @@ interface TakedownRequestFormProps {
 
 export function TakedownRequestForm({ onSubmitSuccess, onBack }: TakedownRequestFormProps) {
   const { navigateToTakedownStatus, navigateToMaterials } = useNavigationContext();
+  const { userRole } = useAuthContext();
+  const { settings } = useAccessibility();
 
   const [formData, setFormData] = useState({
     // Contact Information
@@ -92,11 +96,14 @@ export function TakedownRequestForm({ onSubmitSuccess, onBack }: TakedownRequest
     setIsSubmitting(true);
 
     try {
+      // Get access token if user is logged in (for admin bypass)
+      const accessToken = sessionStorage.getItem('wastedb_access_token');
+      
       const response = await fetch(`https://${projectId}.supabase.co/functions/v1/make-server-17cae920/legal/takedown`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${publicAnonKey}`,
+          'Authorization': `Bearer ${accessToken || publicAnonKey}`,
         },
         body: JSON.stringify(formData),
       });
@@ -115,7 +122,7 @@ export function TakedownRequestForm({ onSubmitSuccess, onBack }: TakedownRequest
       }
     } catch (error) {
       console.error('Takedown request submission error:', error);
-      setErrors({ submit: error instanceof Error ? error.message : 'Failed to submit request. Please try again or email legal@wastedb.org' });
+      setErrors({ submit: error instanceof Error ? error.message : 'Failed to submit request. Please try again or email compliance@wastefull.org' });
     } finally {
       setIsSubmitting(false);
     }
@@ -131,6 +138,31 @@ export function TakedownRequestForm({ onSubmitSuccess, onBack }: TakedownRequest
         return newErrors;
       });
     }
+  };
+
+  // Admin-only quick fill function
+  const handleQuickFill = () => {
+    const testName = 'Jane Test Publisher';
+    setFormData({
+      fullName: testName,
+      email: 'test.dmca@example.com',
+      phone: '+1 (555) 987-6543',
+      organization: 'Test Publishing House Inc.',
+      workTitle: 'Sustainable Materials Research Compendium 2024',
+      workDOI: '10.1234/test.example.2024',
+      copyrightRegistration: 'TX 9-876-543',
+      relationship: 'Senior Legal Counsel and Authorized Agent',
+      wastedbURL: 'https://db.wastefull.org/materials/aluminum/evidence',
+      miuID: 'miu_test_abc123xyz',
+      contentDescription: 'The WasteDB entry contains a verbatim excerpt from Chapter 7, Section 3.2 of our copyrighted work, specifically the lifecycle analysis data table and accompanying methodology text spanning approximately 250 words. This excerpt appears without proper attribution, permission, or fair use justification. The copied content includes proprietary research findings and our organization\'s trademarked analytical framework.',
+      goodFaithBelief: true,
+      accuracyStatement: true,
+      misrepresentationWarning: true,
+      signature: testName,
+      signatureDate: new Date().toISOString().split('T')[0],
+      honeypot: '',
+    });
+    setErrors({});
   };
 
   if (submitSuccess) {
@@ -207,9 +239,31 @@ export function TakedownRequestForm({ onSubmitSuccess, onBack }: TakedownRequest
           <strong>Before submitting:</strong> Please review our{' '}
           <a href="/legal/MIU_LICENSING_POLICY.md" className="underline">MIU Licensing Policy</a> and{' '}
           <a href="/legal/TAKEDOWN_PROCESS.md" className="underline">Takedown Process</a> to understand what content
-          is subject to removal. Consider contacting us informally at hello@wastedb.org for faster resolution.
+          is subject to removal. Consider contacting us informally at info@wastefull.org for faster resolution.
         </AlertDescription>
       </Alert>
+
+      {/* Admin-only Quick Fill Button - only shown when Admin Mode is toggled on */}
+      {userRole === 'admin' && settings.adminMode && (
+        <Alert className="bg-amber-50 border-amber-300">
+          <Zap className="size-4 text-amber-600" />
+          <AlertDescription className="flex items-center justify-between">
+            <span className="text-amber-900">
+              <strong>Admin Mode:</strong> Testing utilities available
+            </span>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleQuickFill}
+              className="ml-4 border-amber-400 text-amber-700 hover:bg-amber-100"
+            >
+              <Zap className="size-4 mr-2" />
+              Quick Fill Test Data
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Contact Information */}
@@ -347,7 +401,7 @@ export function TakedownRequestForm({ onSubmitSuccess, onBack }: TakedownRequest
                 id="wastedbURL"
                 value={formData.wastedbURL}
                 onChange={(e) => handleChange('wastedbURL', e.target.value)}
-                placeholder="https://wastedb.org/materials/aluminum/evidence"
+                placeholder="https://db.wastefull.org/materials/aluminum/evidence"
                 className={errors.wastedbURL ? 'border-red-500' : ''}
               />
               {errors.wastedbURL && (

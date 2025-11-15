@@ -59,6 +59,7 @@ export function TransformVersionManager() {
   const [transforms, setTransforms] = useState<TransformsData | null>(null);
   const [jobs, setJobs] = useState<RecomputeJob[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshingJobs, setRefreshingJobs] = useState(false);
   const [selectedTransform, setSelectedTransform] = useState<Transform | null>(null);
   const [showRecomputeDialog, setShowRecomputeDialog] = useState(false);
   const [newVersion, setNewVersion] = useState('');
@@ -86,8 +87,18 @@ export function TransformVersionManager() {
     try {
       const data = await apiCall('/transforms/recompute', { method: 'GET' });
       setJobs(data.jobs || []);
+      
+      // Show toast only when manually refreshing
+      if (refreshingJobs) {
+        toast.success(`Refreshed job list - ${data.jobs?.length || 0} job(s) found`);
+      }
     } catch (error) {
       console.error('Failed to load recompute jobs:', error);
+      if (refreshingJobs) {
+        toast.error('Failed to refresh job list');
+      }
+    } finally {
+      setRefreshingJobs(false);
     }
   };
 
@@ -399,14 +410,27 @@ export function TransformVersionManager() {
             <Button
               variant="outline"
               size="sm"
-              onClick={loadJobs}
+              onClick={() => {
+                setRefreshingJobs(true);
+                loadJobs();
+              }}
+              disabled={refreshingJobs}
             >
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Refresh
+              <RefreshCw className={`w-4 h-4 mr-2 ${refreshingJobs ? 'animate-spin' : ''}`} />
+              {refreshingJobs ? 'Refreshing...' : 'Refresh'}
             </Button>
           </div>
         </CardHeader>
         <CardContent>
+          {jobs.length > 0 && (
+            <Alert className="mb-4 bg-yellow-50 dark:bg-yellow-900/20 border-yellow-300 dark:border-yellow-700">
+              <Clock className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+              <AlertDescription className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-yellow-900 dark:text-yellow-100">
+                <strong>Note:</strong> Job processing is not yet implemented. All jobs will remain in "pending" status until 
+                Phase 9.2 when MIU (Material Impact Units) are added. At that point, jobs will automatically process and update material scores.
+              </AlertDescription>
+            </Alert>
+          )}
           {jobs.length === 0 ? (
             <div className="text-center py-8 text-black/50 dark:text-white/50">
               <History className="w-12 h-12 mx-auto mb-3 opacity-30" />

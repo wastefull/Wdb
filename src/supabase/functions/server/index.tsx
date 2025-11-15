@@ -63,8 +63,33 @@ function getClientId(c: any): string {
 }
 
 // Rate limiting middleware factory
-function rateLimit(type: keyof typeof RATE_LIMITS) {
+function rateLimit(type: keyof typeof RATE_LIMITS, options?: { allowAdminBypass?: boolean }) {
   return async (c: any, next: any) => {
+    // Check for admin bypass if enabled
+    if (options?.allowAdminBypass) {
+      const authHeader = c.req.header('Authorization');
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.substring(7);
+        try {
+          const supabase = createClient(
+            Deno.env.get('SUPABASE_URL') ?? '',
+            Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+          );
+          const { data: { user } } = await supabase.auth.getUser(token);
+          if (user) {
+            const userRole = await kv.get(`user_role:${user.id}`);
+            if (userRole === 'admin' || user.email === 'natto@wastefull.org') {
+              console.log(`✓ Admin user ${user.email} bypassing ${type} rate limit`);
+              await next();
+              return;
+            }
+          }
+        } catch (error) {
+          // Ignore auth errors - continue with normal rate limiting
+        }
+      }
+    }
+    
     const clientId = getClientId(c);
     const key = `ratelimit:${type}:${clientId}`;
     const now = Date.now();
@@ -179,7 +204,7 @@ app.use(
   cors({
     origin: "*",
     allowHeaders: ["Content-Type", "Authorization", "X-Session-Token"],
-    allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     exposeHeaders: ["Content-Length"],
     maxAge: 600,
   }),
@@ -3117,31 +3142,6 @@ app.put('/make-server-17cae920/notifications/:id/read', verifyAuth, async (c) =>
   }
 });
 
-// Mark all notifications as read for a user
-app.put('/make-server-17cae920/notifications/:userId/read-all', verifyAuth, async (c) => {
-  try {
-    const userId = c.req.param('userId');
-    const requestingUserId = c.get('userId');
-    
-    if (userId !== requestingUserId) {
-      return c.json({ error: 'Unauthorized' }, 403);
-    }
-    
-    const allNotifications = await kv.getByPrefix('notification:');
-    const userNotifications = allNotifications?.filter(n => n.user_id === userId && !n.read) || [];
-    
-    for (const notification of userNotifications) {
-      notification.read = true;
-      await kv.set(`notification:${notification.id}`, notification);
-    }
-    
-    return c.json({ success: true, count: userNotifications.length });
-  } catch (error) {
-    console.error('Error marking all notifications as read:', error);
-    return c.json({ error: 'Failed to update notifications', details: String(error) }, 500);
-  }
-});
-
 // ===== EMAIL NOTIFICATIONS (RESEND) =====
 
 // Send email notification (admin only)
@@ -4185,9 +4185,40 @@ app.get('/make-server-17cae920/api/v1/articles', async (c) => {
 // ==================== PHASE 9.0: LEGAL & COMPLIANCE ====================
 
 // Submit DMCA takedown request
-app.post("/make-server-17cae920/legal/takedown", rateLimit('TAKEDOWN'), async (c) => {
+app.post("/make-server-17cae920/legal/takedown", rateLimit('TAKEDOWN', { allowAdminBypass: true }), async (c) => {
   try {
     const requestData = await c.req.json();
+    
+    // DEBUG: Log the received data to see what fields are present
+    console.log('🔍 Takedown request received. Fields present:', Object.keys(requestData));
+    console.log('📧 Email:', requestData.email);
+    console.log('👤 Full Name:', requestData.fullName);
+    console.log('📚 Work Title:', requestData.workTitle);
+    console.log('📄 Content Description length:', requestData.contentDescription?.length || 0);
+    
+    // Check if the submitter is an admin (to bypass rate limits for testing)
+    let isAdmin = false;
+    const authHeader = c.req.header('Authorization');
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.substring(7);
+      try {
+        const supabase = createClient(
+          Deno.env.get('SUPABASE_URL') ?? '',
+          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+        );
+        const { data: { user } } = await supabase.auth.getUser(token);
+        if (user) {
+          const userRole = await kv.get(`user_role:${user.id}`);
+          if (userRole === 'admin' || user.email === 'natto@wastefull.org') {
+            isAdmin = true;
+            console.log(`✓ Admin user ${user.email} submitting takedown request - anti-abuse checks bypassed`);
+          }
+        }
+      } catch (error) {
+        // Ignore auth errors - treat as non-admin
+        console.log('Admin check error in takedown handler:', error);
+      }
+    }
     
     // ===== ANTI-ABUSE CHECKS =====
     
@@ -4217,18 +4248,20 @@ app.post("/make-server-17cae920/legal/takedown", rateLimit('TAKEDOWN'), async (c
       return c.json({ error: emailValidation.error || 'Invalid email' }, 400);
     }
     
-    // 4. Check for email-based throttling (max 1 request per email per 7 days)
-    const emailKey = `takedown:email:${requestData.email.toLowerCase().trim()}`;
-    const recentRequestByEmail = await kv.get(emailKey);
-    if (recentRequestByEmail) {
-      const timeSinceLastRequest = Date.now() - new Date(recentRequestByEmail.submittedAt).getTime();
-      const sevenDays = 7 * 24 * 60 * 60 * 1000;
-      if (timeSinceLastRequest < sevenDays) {
-        const hoursRemaining = Math.ceil((sevenDays - timeSinceLastRequest) / (60 * 60 * 1000));
-        console.log(`⚠️ Takedown rate limit by email: ${requestData.email}`);
-        return c.json({ 
-          error: `You have already submitted a takedown request recently. Please wait ${hoursRemaining} hours before submitting another request, or contact legal@wastefull.org for urgent matters.` 
-        }, 429);
+    // 4. Check for email-based throttling (max 1 request per email per 7 days) - SKIP FOR ADMINS
+    const emailKey = `takedown_email_tracking:${requestData.email.toLowerCase().trim()}`;
+    if (!isAdmin) {
+      const recentRequestByEmail = await kv.get(emailKey);
+      if (recentRequestByEmail) {
+        const timeSinceLastRequest = Date.now() - new Date(recentRequestByEmail.submittedAt).getTime();
+        const sevenDays = 7 * 24 * 60 * 60 * 1000;
+        if (timeSinceLastRequest < sevenDays) {
+          const hoursRemaining = Math.ceil((sevenDays - timeSinceLastRequest) / (60 * 60 * 1000));
+          console.log(`⚠️ Takedown rate limit by email: ${requestData.email}`);
+          return c.json({ 
+            error: `You have already submitted a takedown request recently. Please wait ${hoursRemaining} hours before submitting another request, or contact legal@wastefull.org for urgent matters.` 
+          }, 429);
+        }
       }
     }
     
@@ -4243,29 +4276,31 @@ app.post("/make-server-17cae920/legal/takedown", rateLimit('TAKEDOWN'), async (c
       return c.json({ error: 'Work title is too short' }, 400);
     }
     
-    // 6. Check for duplicate content (similarity detection)
-    const allTakedowns = await kv.getByPrefix('takedown:TR-');
-    let isDuplicate = false;
-    let duplicateRequestID = '';
-    
-    for (const existing of allTakedowns) {
-      // Check if same email + same URL within 30 days
-      if (existing.email.toLowerCase() === requestData.email.toLowerCase() &&
-          existing.wastedbURL === requestData.wastedbURL) {
-        const daysSinceSubmission = (Date.now() - new Date(existing.submittedAt).getTime()) / (24 * 60 * 60 * 1000);
-        if (daysSinceSubmission < 30) {
-          isDuplicate = true;
-          duplicateRequestID = existing.requestID;
-          break;
+    // 6. Check for duplicate content (similarity detection) - SKIP FOR ADMINS
+    if (!isAdmin) {
+      const allTakedowns = await kv.getByPrefix('takedown:TR-');
+      let isDuplicate = false;
+      let duplicateRequestID = '';
+      
+      for (const existing of allTakedowns) {
+        // Check if same email + same URL within 30 days
+        if (existing.email.toLowerCase() === requestData.email.toLowerCase() &&
+            existing.wastedbURL === requestData.wastedbURL) {
+          const daysSinceSubmission = (Date.now() - new Date(existing.submittedAt).getTime()) / (24 * 60 * 60 * 1000);
+          if (daysSinceSubmission < 30) {
+            isDuplicate = true;
+            duplicateRequestID = existing.requestID;
+            break;
+          }
         }
       }
-    }
-    
-    if (isDuplicate) {
-      console.log(`⚠️ Duplicate takedown detected: ${duplicateRequestID}`);
-      return c.json({ 
-        error: `You have already submitted a takedown request for this URL (Request ID: ${duplicateRequestID}). Please check the status of your existing request or contact legal@wastefull.org.` 
-      }, 409);
+      
+      if (isDuplicate) {
+        console.log(`⚠️ Duplicate takedown detected: ${duplicateRequestID}`);
+        return c.json({ 
+          error: `You have already submitted a takedown request for this URL (Request ID: ${duplicateRequestID}). Please check the status of your existing request or contact legal@wastefull.org.` 
+        }, 409);
+      }
     }
     
     // 7. Validate legal statements
@@ -4330,6 +4365,11 @@ app.post("/make-server-17cae920/legal/takedown", rateLimit('TAKEDOWN'), async (c
       submitterIp: clientIp,
     };
     
+    // DEBUG: Log what's being saved
+    console.log('💾 Saving takedown record. Fields:', Object.keys(takedownRecord));
+    console.log('💾 Record fullName:', takedownRecord.fullName);
+    console.log('💾 Record workTitle:', takedownRecord.workTitle);
+    
     await kv.set(`takedown:${requestID}`, takedownRecord);
     
     // Track email submissions (for rate limiting)
@@ -4341,10 +4381,19 @@ app.post("/make-server-17cae920/legal/takedown", rateLimit('TAKEDOWN'), async (c
     
     console.log(`Takedown request submitted: ${requestID} by ${requestData.email}${suspiciousFlags.length > 0 ? ' [FLAGGED: ' + suspiciousFlags.join(', ') + ']' : ''}`);
     
+    // Track email sending status for debugging
+    const emailStatus = {
+      complianceEmailSent: false,
+      complianceEmailError: null,
+      requesterEmailSent: false,
+      requesterEmailError: null
+    };
+    
     // Send notification email to compliance team
     const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
     
     if (RESEND_API_KEY) {
+      console.log(`📧 RESEND_API_KEY found, attempting to send emails for ${requestID}...`);
       try {
         const emailHtml = `
 <!DOCTYPE html>
@@ -4583,29 +4632,163 @@ Request ID: ${requestID}
         
         if (!emailResponse.ok) {
           const errorText = await emailResponse.text();
-          console.error('Failed to send compliance notification email:', errorText);
+          console.error('❌ Failed to send compliance notification email:', errorText);
+          console.error('Response status:', emailResponse.status, emailResponse.statusText);
+          emailStatus.complianceEmailError = `${emailResponse.status}: ${errorText}`;
           // Don't fail the request if email fails - just log it
         } else {
           const emailResult = await emailResponse.json();
-          console.log(`Compliance notification email sent for ${requestID} (Resend ID: ${emailResult.id})`);
+          console.log(`✅ Compliance notification email sent for ${requestID} (Resend ID: ${emailResult.id})`);
+          emailStatus.complianceEmailSent = true;
         }
       } catch (emailError) {
-        console.error('Error sending compliance notification email:', emailError);
+        console.error('❌ Error sending compliance notification email:', emailError);
+        console.error('Full error:', JSON.stringify(emailError, null, 2));
+        emailStatus.complianceEmailError = String(emailError);
         // Don't fail the request if email fails - just log it
       }
+      
+      // Send confirmation email to requester
+      try {
+        const appUrl = Deno.env.get('APP_URL') || 'https://db.wastefull.org';
+        const trackingUrl = `${appUrl}/takedown/track/${requestID}`;
+        
+        const requesterEmailHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { border-bottom: 2px solid #2563eb; padding-bottom: 10px; margin-bottom: 20px; }
+    .content { margin: 20px 0; }
+    .info-box { background: #f3f4f6; padding: 15px; border-radius: 6px; margin: 15px 0; }
+    .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; font-size: 12px; color: #6b7280; }
+    a { color: #2563eb; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>Copyright Takedown Request Received</h2>
+    </div>
+    <div class="content">
+      <p>Thank you for submitting a copyright takedown request to WasteDB.</p>
+      
+      <div class="info-box">
+        <p><strong>Request ID:</strong> ${requestID}</p>
+        <p><strong>Status:</strong> Pending Review</p>
+        <p><strong>Submitted:</strong> ${new Date().toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'short' })}</p>
+      </div>
+      
+      <p>Your request is being reviewed by our compliance team. You will receive an email notification when the status is updated.</p>
+      
+      <p><a href="${trackingUrl}">Track Your Request</a></p>
+      
+      <p>If you have any questions, please forward this email to <a href="mailto:compliance@wastefull.org">compliance@wastefull.org</a>.</p>
+    </div>
+    <div class="footer">
+      <p>Wastefull • San Jose, California<br>
+      Building open scientific infrastructure for material circularity</p>
+    </div>
+  </div>
+</body>
+</html>
+        `;
+        
+        const requesterEmailText = `
+Copyright Takedown Request Received
+
+Thank you for submitting a copyright takedown request to WasteDB.
+
+Request ID: ${requestID}
+Status: Pending Review
+Submitted: ${new Date().toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'short' })}
+
+Your request is being reviewed by our compliance team. You will receive an email notification when the status is updated.
+
+Track Your Request: ${trackingUrl}
+
+If you have any questions, please forward this email to compliance@wastefull.org.
+
+---
+Wastefull • San Jose, California
+Building open scientific infrastructure for material circularity
+        `;
+        
+        const requesterEmailResponse = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${RESEND_API_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            from: 'WasteDB <compliance@wastefull.org>',
+            to: [requestData.email],
+            subject: `Takedown Request Received: ${requestID}`,
+            html: requesterEmailHtml,
+            text: requesterEmailText
+          })
+        });
+        
+        if (!requesterEmailResponse.ok) {
+          const errorText = await requesterEmailResponse.text();
+          console.error('❌ Failed to send requester confirmation email:', errorText);
+          console.error('Response status:', requesterEmailResponse.status, requesterEmailResponse.statusText);
+          emailStatus.requesterEmailError = `${requesterEmailResponse.status}: ${errorText}`;
+        } else {
+          console.log(`✅ Confirmation email sent to requester ${requestData.email} for ${requestID}`);
+          emailStatus.requesterEmailSent = true;
+        }
+      } catch (requesterEmailError) {
+        console.error('❌ Error sending requester confirmation email:', requesterEmailError);
+        console.error('Full error:', JSON.stringify(requesterEmailError, null, 2));
+        emailStatus.requesterEmailError = String(requesterEmailError);
+      }
     } else {
-      console.warn('RESEND_API_KEY not configured - compliance notification email not sent');
+      console.warn('⚠️ RESEND_API_KEY not configured - no emails will be sent');
+      emailStatus.complianceEmailError = 'RESEND_API_KEY not configured';
+      emailStatus.requesterEmailError = 'RESEND_API_KEY not configured';
     }
+    
+    console.log(`📊 Email Status for ${requestID}:`, emailStatus);
     
     return c.json({ 
       success: true,
       requestID,
-      message: 'Takedown request submitted successfully.'
+      message: 'Takedown request submitted successfully.',
+      emailStatus: emailStatus
     });
     
   } catch (error) {
     console.error('Error submitting takedown request:', error);
     return c.json({ error: 'Failed to submit takedown request', details: String(error) }, 500);
+  }
+});
+
+// DEBUG: Get raw takedown request data (admin only)
+app.get("/make-server-17cae920/admin/takedown-raw/:requestId", verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const requestId = c.req.param('requestId');
+    const request = await kv.get(`takedown:${requestId}`);
+    
+    if (!request) {
+      return c.json({ error: 'Request not found' }, 404);
+    }
+    
+    // Return raw data with field analysis
+    return c.json({ 
+      rawData: request,
+      fieldCount: Object.keys(request).length,
+      fields: Object.keys(request),
+      hasFullName: !!request.fullName,
+      hasWorkTitle: !!request.workTitle,
+      hasContentDescription: !!request.contentDescription
+    });
+  } catch (error) {
+    console.error('Error fetching raw takedown data:', error);
+    return c.json({ error: 'Failed to fetch raw data', details: String(error) }, 500);
   }
 });
 
@@ -4640,10 +4823,15 @@ app.get("/make-server-17cae920/admin/takedown", verifyAuth, verifyAdmin, async (
   try {
     const requests = await kv.getByPrefix('takedown:');
     
-    // Sort by submission date (newest first)
-    const sorted = requests?.sort((a, b) => 
-      new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
+    // Filter to only include actual takedown requests (not email tracking records)
+    const actualRequests = requests?.filter((item: any) => 
+      item.requestID && item.requestID.startsWith('TR-')
     ) || [];
+    
+    // Sort by submission date (newest first)
+    const sorted = actualRequests.sort((a, b) => 
+      new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
+    );
     
     return c.json({ requests: sorted });
     
@@ -4664,16 +4852,125 @@ app.patch("/make-server-17cae920/admin/takedown/:requestId", verifyAuth, verifyA
       return c.json({ error: 'Request not found' }, 404);
     }
     
+    // Get userId from context (set by verifyAuth middleware)
+    const userId = c.get('userId') || c.get('userEmail') || 'admin';
+    
     const updated = {
       ...existing,
       ...updates,
       reviewedAt: new Date().toISOString(),
-      reviewedBy: c.get('userId')
+      reviewedBy: userId
     };
     
     await kv.set(`takedown:${requestId}`, updated);
     
-    console.log(`Takedown request ${requestId} updated by admin: status=${updates.status}`);
+    console.log(`Takedown request ${requestId} updated by admin ${userId}: status=${updates.status}`);
+    
+    // Send email notification to requester
+    try {
+      const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
+      
+      if (RESEND_API_KEY && updated.requesterEmail) {
+        const appUrl = Deno.env.get('APP_URL') || 'https://db.wastefull.org';
+        const trackingUrl = `${appUrl}/takedown/track/${requestId}`;
+        
+        // Format status for display
+        const statusDisplay = updated.status.charAt(0).toUpperCase() + updated.status.slice(1);
+        
+        // Build resolution info
+        let resolutionInfo = '';
+        if (updated.resolutionType) {
+          const resolutionMap = {
+            'full_removal': 'Full Removal',
+            'partial_redaction': 'Partial Redaction',
+            'attribution_correction': 'Attribution Correction',
+            'no_action': 'No Action Required'
+          };
+          resolutionInfo = `\nResolution: ${resolutionMap[updated.resolutionType] || updated.resolutionType}`;
+        }
+        
+        const emailHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { border-bottom: 2px solid #2563eb; padding-bottom: 10px; margin-bottom: 20px; }
+    .content { margin: 20px 0; }
+    .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; font-size: 12px; color: #6b7280; }
+    a { color: #2563eb; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>Copyright Takedown Request Update</h2>
+    </div>
+    <div class="content">
+      <p>Your copyright takedown request has been updated.</p>
+      
+      <p><strong>Request ID:</strong> ${requestId}</p>
+      <p><strong>Status:</strong> ${statusDisplay}${resolutionInfo}</p>
+      
+      <p><a href="${trackingUrl}">Check Status</a></p>
+      
+      <p>If you have any follow-up questions, please forward this email to <a href="mailto:compliance@wastefull.org">compliance@wastefull.org</a>.</p>
+    </div>
+    <div class="footer">
+      <p>Wastefull • San Jose, California<br>
+      Building open scientific infrastructure for material circularity</p>
+    </div>
+  </div>
+</body>
+</html>
+        `;
+        
+        const emailText = `
+Copyright Takedown Request Update
+
+Your copyright takedown request has been updated.
+
+Request ID: ${requestId}
+Status: ${statusDisplay}${resolutionInfo}
+
+Check Status: ${trackingUrl}
+
+If you have any follow-up questions, please forward this email to compliance@wastefull.org.
+
+---
+Wastefull • San Jose, California
+Building open scientific infrastructure for material circularity
+        `;
+        
+        const emailResponse = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${RESEND_API_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            from: 'WasteDB <compliance@wastefull.org>',
+            to: [updated.requesterEmail],
+            subject: `Takedown Request Update: ${requestId}`,
+            html: emailHtml,
+            text: emailText
+          })
+        });
+        
+        if (!emailResponse.ok) {
+          const errorText = await emailResponse.text();
+          console.error('Failed to send update email:', errorText);
+          // Don't fail the request if email fails
+        } else {
+          console.log(`Update email sent to ${updated.requesterEmail} for request ${requestId}`);
+        }
+      }
+    } catch (emailError) {
+      console.error('Error sending update email:', emailError);
+      // Don't fail the request if email fails
+    }
     
     return c.json({ success: true, request: updated });
     
@@ -4803,6 +5100,208 @@ app.post('/make-server-17cae920/transforms/recompute', verifyAuth, verifyAdmin, 
   } catch (error) {
     console.error('Error creating recompute job:', error);
     return c.json({ error: 'Failed to create recompute job', details: String(error) }, 500);
+  }
+});
+
+// ==================== NOTIFICATION ROUTES ====================
+
+// Create a notification (protected - admin or system only)
+app.post("/make-server-17cae920/notifications", verifyAuth, async (c) => {
+  try {
+    const body = await c.req.json();
+    const { user_id, type, content_id, content_type, message } = body;
+    
+    // Validate required fields
+    if (!user_id || !type || !message) {
+      return c.json({ error: 'Missing required fields: user_id, type, message' }, 400);
+    }
+    
+    // Validate notification type
+    const validTypes = ['submission_approved', 'feedback_received', 'new_review_item', 'article_published', 'content_flagged'];
+    if (!validTypes.includes(type)) {
+      return c.json({ error: `Invalid notification type. Must be one of: ${validTypes.join(', ')}` }, 400);
+    }
+    
+    // Generate unique notification ID
+    const notificationId = `notif_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    const notification = {
+      id: notificationId,
+      user_id,
+      type,
+      content_id: content_id || null,
+      content_type: content_type || null,
+      message,
+      read: false,
+      created_at: new Date().toISOString()
+    };
+    
+    // Store notification in KV with user-specific key for efficient retrieval
+    await kv.set(`notification:${user_id}:${notificationId}`, notification);
+    
+    console.log(`✓ Notification created: ${notificationId} for user ${user_id}`);
+    
+    return c.json({ notification }, 201);
+  } catch (error) {
+    console.error('Error creating notification:', error);
+    return c.json({ error: 'Failed to create notification', details: String(error) }, 500);
+  }
+});
+
+// Get notifications for a specific user (protected)
+app.get("/make-server-17cae920/notifications/:userId", verifyAuth, async (c) => {
+  try {
+    const userId = c.req.param('userId');
+    const requestingUserId = c.get('userId');
+    
+    // Users can only view their own notifications (or 'admin' special case)
+    // Admin users can view admin notifications
+    if (userId !== 'admin' && userId !== requestingUserId) {
+      const userRole = await kv.get(`user_role:${requestingUserId}`);
+      if (userRole !== 'admin') {
+        return c.json({ error: 'Unauthorized: You can only view your own notifications' }, 403);
+      }
+    }
+    
+    // Get all notifications for this user
+    const notifications = await kv.getByPrefix(`notification:${userId}:`) || [];
+    
+    // Sort by creation date (newest first)
+    const sorted = notifications.sort((a, b) => 
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+    
+    console.log(`✓ Retrieved ${sorted.length} notifications for user ${userId}`);
+    
+    return c.json({ notifications: sorted });
+  } catch (error) {
+    console.error('Error fetching notifications:', error);
+    return c.json({ error: 'Failed to fetch notifications', details: String(error) }, 500);
+  }
+});
+
+// Mark a notification as read (protected)
+app.put("/make-server-17cae920/notifications/:notificationId/read", verifyAuth, async (c) => {
+  try {
+    const notificationId = c.req.param('notificationId');
+    const requestingUserId = c.get('userId');
+    
+    // Find the notification by searching all user prefixes
+    // This is inefficient but necessary since we only have notificationId
+    const allUsers = await kv.getByPrefix('user_role:') || [];
+    let notification = null;
+    let notificationKey = null;
+    
+    // Try to find the notification
+    for (const userRole of allUsers) {
+      const userId = (userRole as any).key?.split(':')[1];
+      if (userId) {
+        const key = `notification:${userId}:${notificationId}`;
+        const found = await kv.get(key);
+        if (found) {
+          notification = found;
+          notificationKey = key;
+          break;
+        }
+      }
+    }
+    
+    // Also check admin notifications
+    if (!notification) {
+      const adminKey = `notification:admin:${notificationId}`;
+      const found = await kv.get(adminKey);
+      if (found) {
+        notification = found;
+        notificationKey = adminKey;
+      }
+    }
+    
+    if (!notification) {
+      return c.json({ error: 'Notification not found' }, 404);
+    }
+    
+    // Verify user owns this notification
+    if (notification.user_id !== requestingUserId) {
+      const userRole = await kv.get(`user_role:${requestingUserId}`);
+      if (userRole !== 'admin' && notification.user_id !== 'admin') {
+        return c.json({ error: 'Unauthorized: You can only mark your own notifications as read' }, 403);
+      }
+    }
+    
+    // Update notification
+    const updated = {
+      ...notification,
+      read: true
+    };
+    
+    await kv.set(notificationKey, updated);
+    
+    console.log(`✓ Notification ${notificationId} marked as read by user ${requestingUserId}`);
+    
+    return c.json({ notification: updated });
+  } catch (error) {
+    console.error('Error marking notification as read:', error);
+    return c.json({ error: 'Failed to mark notification as read', details: String(error) }, 500);
+  }
+});
+
+// Mark all notifications as read for a user (protected)
+app.put("/make-server-17cae920/notifications/:userId/read-all", verifyAuth, async (c) => {
+  try {
+    const userId = c.req.param('userId');
+    const requestingUserId = c.get('userId');
+    
+    console.log(`📧 Mark all as read - userId: "${userId}", requestingUserId: "${requestingUserId}"`);
+    
+    // Check authorization
+    // Case 1: Users can mark their own notifications as read
+    if (userId === requestingUserId) {
+      console.log(`✅ User marking their own notifications as read`);
+      // Continue to mark notifications as read
+    } else {
+      // Case 2: Admins can mark admin notifications as read
+      const userRole = await kv.get(`user_role:${requestingUserId}`);
+      console.log(`📧 Authorization check - userRole: "${userRole}" (type: ${typeof userRole}), userId: "${userId}"`);
+      
+      const isAdmin = userRole === 'admin';
+      const isAccessingAdminNotifications = userId === 'admin';
+      
+      console.log(`📧 isAdmin: ${isAdmin}, isAccessingAdminNotifications: ${isAccessingAdminNotifications}`);
+      
+      if (!isAdmin || !isAccessingAdminNotifications) {
+        console.log(`❌ Authorization failed - User must be admin to access admin notifications`);
+        return c.json({ error: 'Unauthorized: You can only mark your own notifications as read' }, 403);
+      }
+      
+      console.log(`✅ Admin marking admin notifications as read`);
+    }
+    
+    // Get all notifications for this user
+    const notifications = await kv.getByPrefix(`notification:${userId}:`) || [];
+    
+    // Mark all as read
+    const updatePromises = notifications.map(async (notification: any) => {
+      const updated = {
+        ...notification,
+        read: true
+      };
+      const key = `notification:${userId}:${notification.id}`;
+      await kv.set(key, updated);
+      return updated;
+    });
+    
+    await Promise.all(updatePromises);
+    
+    console.log(`✓ Marked ${notifications.length} notifications as read for user ${userId}`);
+    
+    return c.json({ 
+      success: true, 
+      updated_count: notifications.length,
+      message: `Marked ${notifications.length} notifications as read` 
+    });
+  } catch (error) {
+    console.error('Error marking all notifications as read:', error);
+    return c.json({ error: 'Failed to mark all notifications as read', details: String(error) }, 500);
   }
 });
 

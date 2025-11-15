@@ -10,7 +10,7 @@
 
 WasteDB respects the intellectual property rights of authors, publishers, and copyright holders. If you believe content on WasteDB infringes your copyright, this document explains how to request removal or redaction.
 
-**Email:** legal@wastedb.org  
+**Email:** compliance@wastefull.org  
 **Form:** [/legal/takedown](#) (web form available 24/7)
 
 ---
@@ -81,7 +81,7 @@ Complete the form with:
 
 ### **Option 2: Email**
 
-Send to: **legal@wastedb.org**
+Send to: **compliance@wastefull.org**
 
 Subject line: `DMCA Takedown Request - [Your Work Title]`
 
@@ -167,7 +167,7 @@ Upon review, WasteDB will take one of the following actions:
 
 If you uploaded content that was removed, and you believe removal was in error:
 
-1. **Submit counter-notification:** legal@wastedb.org
+1. **Submit counter-notification:** compliance@wastefull.org
 2. **Include:**
    - Your contact information
    - MIU ID of removed content
@@ -237,7 +237,7 @@ If a curator's content is subject to **3 valid takedown requests**:
 2. **Strike 2:** Temporary suspension (30 days)
 3. **Strike 3:** Permanent curation privileges revoked
 
-**Appeals:** Available at each strike level via legal@wastedb.org
+**Appeals:** Available at each strike level via compliance@wastefull.org
 
 **Purpose:** Protect WasteDB from repeat infringers while supporting curators who make good faith mistakes.
 
@@ -248,7 +248,7 @@ If a curator's content is subject to **3 valid takedown requests**:
 **Before Filing a Takedown:**
 
 We encourage copyright holders to contact us informally:
-- Email: hello@wastedb.org or legal@wastedb.org
+- Email: info@wastefull.org or compliance@wastefull.org
 - Explain concern: "We believe snippet from our paper exceeds fair use"
 - We may resolve immediately with attribution fix or voluntary redaction
 
@@ -287,10 +287,10 @@ We encourage copyright holders to contact us informally:
 ## 📞 Contact
 
 **DMCA Takedown Requests:**  
-legal@wastedb.org
+compliance@wastefull.org
 
 **General Copyright Questions:**  
-hello@wastedb.org
+info@wastefull.org
 
 **Phone (Legal Emergencies):**  
 +1 (XXX) XXX-XXXX (staffed Mon-Fri 9am-5pm ET)

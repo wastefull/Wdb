@@ -27,10 +27,10 @@ export function RoadmapPhaseTab({
   return (
     <div>
       {/* Deliverables Section */}
-      <h3 className="font-['Fredoka_One:Regular',_sans-serif] text-[18px] text-black dark:text-white mb-4">
+      <h3 className="font-['Sniglet'] text-[18px] text-black dark:text-white mb-4">
         {phase} - {dayNumber}
       </h3>
-      <div className="space-y-4 font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70">
+      <div className="space-y-4 font-['Sniglet'] text-[12px] text-black/70 dark:text-white/70">
         {deliverables.map((deliverable, index) => (
           <div key={index} className="flex items-start gap-3">
             <div
@@ -43,7 +43,7 @@ export function RoadmapPhaseTab({
               <span className="text-[10px]">{deliverable.completed ? '✓' : '○'}</span>
             </div>
             <div>
-              <div className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
+              <div className="font-['Sniglet'] text-[12px] text-black dark:text-white">
                 {deliverable.title}
               </div>
               <div className="text-[11px] text-black/60 dark:text-white/60">
@@ -64,10 +64,10 @@ export function RoadmapPhaseTab({
             <div className="flex items-center gap-3">
               <span className="text-[18px]">🧪</span>
               <div className="text-left">
-                <div className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white">
+                <div className="font-['Sniglet'] text-[14px] text-black dark:text-white">
                   Testing View
                 </div>
-                <div className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/60 dark:text-white/60">
+                <div className="font-['Sniglet'] text-[11px] text-black/60 dark:text-white/60">
                   {showTesting ? 'Hide' : 'Show'} test scenarios and verification checklist
                 </div>
               </div>

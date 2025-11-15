@@ -9,13 +9,14 @@ import { useAuthContext } from '../contexts/AuthContext';
 import { PageTemplate } from './PageTemplate';
 
 export function Phase9TestingPage() {
-  const { navigateToTakedownForm, navigateToAdminTakedownList } = useNavigationContext();
+  const { navigateToTakedownForm, navigateToAdminTakedownList, navigateToAdminDashboard } = useNavigationContext();
   const { userRole } = useAuthContext();
 
   return (
     <PageTemplate
       title="Phase 9.0 Day 1 Testing"
       description="Legal & Licensing Infrastructure - DMCA Takedown System"
+      onBack={navigateToAdminDashboard}
     >
       <Card>
         <CardHeader>
@@ -45,7 +46,7 @@ export function Phase9TestingPage() {
           </Alert>
 
           <div className="space-y-4">
-            <h3 className="font-semibold">🧪 Test Scenarios</h3>
+            <h3 className="font-semibold">Test Scenarios</h3>
 
             <Card className="bg-muted/50">
               <CardHeader>
@@ -158,7 +159,7 @@ export function Phase9TestingPage() {
           </div>
 
           <div className="space-y-4 border-t pt-4">
-            <h3 className="font-semibold">📋 Manual Testing Checklist</h3>
+            <h3 className="font-semibold">Manual Testing Checklist</h3>
             <div className="text-sm space-y-2">
               <div className="flex items-start gap-2">
                 <input type="checkbox" id="test1" className="mt-1" />
@@ -212,7 +213,7 @@ export function Phase9TestingPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">📄 Documentation Created</CardTitle>
+          <CardTitle className="text-base">Documentation Created</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-sm space-y-2">

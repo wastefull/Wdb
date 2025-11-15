@@ -256,7 +256,7 @@ If abuse from specific IP/email:
 ## Contact Information
 
 **For Technical Issues:**
-- Email: engineering@wastefull.org
+- Email: natalie@wastefull.org
 - Subject: "Takedown System Issue"
 
 **For Legal/Compliance Questions:**
@@ -265,8 +265,7 @@ If abuse from specific IP/email:
 - Response time: 24-72 hours
 
 **For Urgent Matters:**
-- Email: hello@wastefull.org (monitored 24/7)
-- Phone: Available upon request for established relationships
+- Email: info@wastefull.org (monitored 24/7)
 
 ---
 

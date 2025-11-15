@@ -56,9 +56,9 @@ export function NotificationBell({ userId, isAdmin }: NotificationBellProps) {
       
       setNotifications(allNotifications);
     } catch (error) {
-      // Silently fail - notifications backend not yet implemented
-      // This prevents console errors from blocking the UI
-      console.debug('Notifications not available:', error);
+      // Silently fail - notifications are non-critical
+      // Don't log or propagate errors to prevent session expiry triggers
+      // This component is prepared for Phase 9.0 Day 3 when notification backend will be completed
     } finally {
       setLoading(false);
     }

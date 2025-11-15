@@ -132,7 +132,11 @@ export function AccessibilityProvider({ children }: { children: React.ReactNode 
   };
 
   const toggleDarkMode = () => {
-    setSettings(prev => ({ ...prev, darkMode: !prev.darkMode }));
+    setSettings(prev => ({ 
+      ...prev, 
+      darkMode: !prev.darkMode,
+      noPastel: !prev.darkMode ? true : prev.noPastel // Enable noPastel when turning on dark mode
+    }));
   };
 
   const toggleAdminMode = () => {

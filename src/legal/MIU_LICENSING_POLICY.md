@@ -159,7 +159,7 @@ Transparency ensures users can assess potential bias in evidence base.
 
 **If you believe content on WasteDB infringes your copyright:**
 
-1. **Submit takedown request:** Use form at [/legal/takedown](#) or email legal@wastedb.org
+1. **Submit takedown request:** Use form at [/legal/takedown](#) or email compliance@wastefull.org
 2. **Provide information:**
    - URL of infringing content on WasteDB
    - Original copyrighted work identification
@@ -232,13 +232,13 @@ WasteDB's MIU extraction falls under scientific research and educational excepti
 ## 📧 Contact
 
 **Legal Questions:**  
-legal@wastedb.org
+compliance@wastefull.org
 
 **Data Licensing Questions:**  
-data@wastedb.org
+natalie@wastefull.org
 
 **General Inquiries:**  
-hello@wastedb.org
+info@wastefull.org
 
 ---
 

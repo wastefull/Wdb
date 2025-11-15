@@ -27,7 +27,7 @@ import { ScientificDataEditor } from './components/scientific-editor';
 import { PublicExportView } from './components/PublicExportView';
 import { SourceLibraryManager } from './components/SourceLibraryManager';
 import { SourceDataComparison } from './components/SourceDataComparison';
-import { AssetUploadManager } from './components/AssetUploadManager';
+import { AssetsManagementPage } from './components/AssetsManagementPage';
 import { RasterizedQuantileVisualization } from './components/RasterizedQuantileVisualization';
 import { useIsMobile } from './components/ui/use-mobile';
 import { ChartRasterizationDemo } from './components/ChartRasterizationDemo';
@@ -48,6 +48,7 @@ import { Phase9TestingPage } from './components/Phase9TestingPage';
 import { TransformVersionManager } from './components/TransformVersionManager';
 import { AdminDashboard } from './components/AdminDashboard';
 import { RoadmapView } from './components/RoadmapView';
+import { SimplifiedRoadmap } from './components/SimplifiedRoadmap';
 import { MathView } from './components/MathView';
 import { ChartsPerformanceView } from './components/ChartsPerformanceView';
 import { Popover, PopoverContent, PopoverTrigger } from './components/ui/popover';
@@ -244,7 +245,10 @@ function RetroButtons({ title }: { title: string }) {
                       className="relative size-full hover:scale-110 transition-transform cursor-pointer"
                       aria-label="Reset accessibility settings"
                     >
-                      <div className="absolute inset-[-8.333%]" style={{ "--fill-0": "rgba(230, 188, 181, 1)", "--stroke-0": "rgba(33, 31, 28, 1)" } as React.CSSProperties}>
+                      <div className="absolute inset-[-8.333%]" style={{ 
+                        "--fill-0": settings.noPastel ? "rgba(168, 108, 103, 1)" : "rgba(230, 188, 181, 1)", 
+                        "--stroke-0": "rgba(33, 31, 28, 1)" 
+                      } as React.CSSProperties}>
                         <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 14 14">
                           <circle cx="7" cy="7" fill="var(--fill-0, #E6BCB5)" r="6.5" stroke="var(--stroke-0, #211F1C)" />
                         </svg>
@@ -287,7 +291,10 @@ function RetroButtons({ title }: { title: string }) {
                       className="relative size-full hover:scale-110 transition-transform cursor-pointer"
                       aria-label="Font size settings"
                     >
-                      <div className="absolute inset-[-8.333%]" style={{ "--fill-0": "rgba(228, 227, 172, 1)", "--stroke-0": "rgba(33, 31, 28, 1)" } as React.CSSProperties}>
+                      <div className="absolute inset-[-8.333%]" style={{ 
+                        "--fill-0": settings.noPastel ? "rgba(200, 180, 122, 1)" : "rgba(228, 227, 172, 1)", 
+                        "--stroke-0": "rgba(33, 31, 28, 1)" 
+                      } as React.CSSProperties}>
                         <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 14 14">
                           <circle cx="7" cy="7" fill="var(--fill-0, #E4E3AC)" r="6.5" stroke="var(--stroke-0, #211F1C)" />
                         </svg>
@@ -350,7 +357,10 @@ function RetroButtons({ title }: { title: string }) {
                       className="relative size-full hover:scale-110 transition-transform cursor-pointer"
                       aria-label="Display settings"
                     >
-                      <div className="absolute inset-[-8.333%]" style={{ "--fill-0": "rgba(184, 200, 203, 1)", "--stroke-0": "rgba(33, 31, 28, 1)" } as React.CSSProperties}>
+                      <div className="absolute inset-[-8.333%]" style={{ 
+                        "--fill-0": settings.noPastel ? "rgba(126, 159, 108, 1)" : "rgba(184, 200, 203, 1)", 
+                        "--stroke-0": "rgba(33, 31, 28, 1)" 
+                      } as React.CSSProperties}>
                         <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 14 14">
                           <circle cx="7" cy="7" fill="var(--fill-0, #B8C8CB)" r="6.5" stroke="var(--stroke-0, #211F1C)" />
                         </svg>
@@ -464,9 +474,7 @@ function StatusBar({ title, currentView, onViewChange, syncStatus, user, userRol
                 </TooltipProvider>
                 <NotificationBell userId={user.id} isAdmin={userRole === 'admin'} />
                 {userRole === 'admin' && (
-                  <div className="hidden md:block">
-                    <AdminModeButton currentView={currentView} onViewChange={onViewChange} />
-                  </div>
+                  <AdminModeButton currentView={currentView} onViewChange={onViewChange} />
                 )}
                 {onLogout && (
                   <TooltipProvider delayDuration={300}>
@@ -2317,7 +2325,7 @@ function DataManagementView({
         </div>
       </div>
 
-      {/* Tabs for Material Management, Source Library, and Assets */}
+      {/* Tabs for Material Management and Source Library */}
       <div className="mb-6">
         <div className="flex gap-1 md:gap-2 border-b border-[#211f1c]/20 dark:border-white/20 flex-wrap overflow-x-auto">
           <button
@@ -2339,16 +2347,6 @@ function DataManagementView({
             }`}
           >
             Sources
-          </button>
-          <button
-            onClick={() => setActiveTab('assets')}
-            className={`px-2 md:px-4 py-2 font-['Sniglet:Regular',_sans-serif] text-[10px] md:text-[12px] transition-colors whitespace-nowrap ${
-              activeTab === 'assets'
-                ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
-                : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
-            }`}
-          >
-            Assets
           </button>
         </div>
       </div>
@@ -2707,10 +2705,6 @@ function DataManagementView({
           onBack={() => {}} // Empty since we're in a tab
           materials={materials}
         />
-      ) : activeTab === 'assets' ? (
-        <AssetUploadManager
-          accessToken={sessionStorage.getItem('wastedb_access_token')}
-        />
       ) : activeTab === 'charts' ? (
         <ChartRasterizationDemo />
       ) : null}
@@ -2720,7 +2714,7 @@ function DataManagementView({
 
 function AppContent() {
   const { settings, toggleAdminMode } = useAccessibility();
-  const { currentView, navigateTo, navigateToMaterials, navigateToSearchResults, navigateToMaterialDetail, navigateToArticles, navigateToArticleDetail, navigateToMethodologyList, navigateToWhitepaper, navigateToAdminDashboard, navigateToDataManagement, navigateToUserManagement, navigateToScientificEditor, navigateToExport, navigateToUserProfile, navigateToMySubmissions, navigateToReviewCenter, navigateToWhitepaperSync, navigateToApiDocs, navigateToLicenses, navigateToLegalHub, navigateToScienceHub, navigateToTakedownForm, navigateToAdminTakedownList, navigateToPhase9Testing, navigateToTransformManager, navigateToWhitepapersManagement, navigateToAssetsManagement, navigateToMathTools, navigateToChartsPerformance, navigateToRoadmap, navigateToSourceLibrary, navigateToSourceComparison } = useNavigationContext();
+  const { currentView, navigateTo, navigateToMaterials, navigateToSearchResults, navigateToMaterialDetail, navigateToArticles, navigateToArticleDetail, navigateToMethodologyList, navigateToWhitepaper, navigateToAdminDashboard, navigateToDataManagement, navigateToUserManagement, navigateToScientificEditor, navigateToExport, navigateToUserProfile, navigateToMySubmissions, navigateToReviewCenter, navigateToWhitepaperSync, navigateToApiDocs, navigateToLicenses, navigateToLegalHub, navigateToScienceHub, navigateToTakedownForm, navigateToAdminTakedownList, navigateToPhase9Testing, navigateToTransformManager, navigateToWhitepapersManagement, navigateToAssetsManagement, navigateToMathTools, navigateToChartsPerformance, navigateToRoadmap, navigateToRoadmapOverview, navigateToSourceLibrary, navigateToSourceComparison } = useNavigationContext();
   const { user, userRole, isAuthenticated, signIn, signOut, updateUserRole } = useAuthContext();
   
   // Phase 3B Complete: MaterialsContext is the single source of truth for all material data
@@ -3017,9 +3011,12 @@ function AppContent() {
                     aria-label="Go to home page"
                   >
                     <img
-                      src="https://bdvfwjmaufjeqmxphmtv.supabase.co/storage/v1/object/public/make-17cae920-assets/uplogo_transparent-1761169051994.png"
+                      src={settings.darkMode 
+                        ? "https://bdvfwjmaufjeqmxphmtv.supabase.co/storage/v1/object/public/make-17cae920-assets/logo_darkmode-1763068549938.png"
+                        : "https://bdvfwjmaufjeqmxphmtv.supabase.co/storage/v1/object/public/make-17cae920-assets/uplogo_transparent-1761169051994.png"
+                      }
                       alt="WasteDB Logo"
-                      className="h-36 lg:h-48 w-auto"
+                      className={settings.darkMode ? "h-52 lg:h-64 w-auto" : "h-36 lg:h-48 w-auto"}
                     />
                   </button>
                   
@@ -3295,6 +3292,7 @@ function AppContent() {
               onNavigateToMath={navigateToMathTools}
               onNavigateToCharts={navigateToChartsPerformance}
               onNavigateToRoadmap={navigateToRoadmap}
+              onNavigateToRoadmapOverview={navigateToRoadmapOverview}
               onNavigateToSourceLibrary={navigateToSourceLibrary}
               onNavigateToSourceComparison={navigateToSourceComparison}
             />
@@ -3408,15 +3406,15 @@ function AppContent() {
               <WhitepaperSyncTool />
             </div>
           ) : currentView.type === 'assets-management' ? (
-            <div className="p-6">
-              <AssetUploadManager />
-            </div>
+            <AssetsManagementPage />
           ) : currentView.type === 'math-tools' ? (
             <MathView onBack={navigateToAdminDashboard} defaultTab={currentView.defaultTab} />
           ) : currentView.type === 'charts-performance' ? (
             <ChartsPerformanceView onBack={navigateToAdminDashboard} />
           ) : currentView.type === 'roadmap' ? (
             <RoadmapView onBack={navigateToAdminDashboard} />
+          ) : currentView.type === 'roadmap-overview' ? (
+            <SimplifiedRoadmap onBack={navigateToAdminDashboard} />
           ) : null}
           
           {/* Footer - inside rounded container */}
