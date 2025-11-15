@@ -23,6 +23,8 @@ interface AdminDashboardProps {
   onNavigateToRoadmapOverview?: () => void;
   onNavigateToSourceLibrary?: () => void;
   onNavigateToSourceComparison?: () => void;
+  onNavigateToEvidenceLab?: () => void;
+  onNavigateToTransformTesting?: () => void;
 }
 
 export function AdminDashboard({
@@ -42,6 +44,8 @@ export function AdminDashboard({
   onNavigateToRoadmapOverview,
   onNavigateToSourceLibrary,
   onNavigateToSourceComparison,
+  onNavigateToEvidenceLab,
+  onNavigateToTransformTesting,
 }: AdminDashboardProps) {
   return (
     <div className="flex h-full">
@@ -178,6 +182,14 @@ export function AdminDashboard({
                     Whitepapers
                   </button>
                 )}
+                {onNavigateToEvidenceLab && (
+                  <button
+                    onClick={onNavigateToEvidenceLab}
+                    className="w-full text-left font-['Sniglet'] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white transition-colors py-2 px-3 rounded-md hover:bg-[#e4e3ac]/20"
+                  >
+                    Evidence Lab
+                  </button>
+                )}
                 {/* Math with nested Transform Version Manager */}
                 {(onNavigateToMath || onNavigateToTransformManager) && (
                   <div className="space-y-2">
@@ -208,6 +220,14 @@ export function AdminDashboard({
             </AccordionTrigger>
             <AccordionContent>
               <div className="space-y-2 pl-6">
+                {onNavigateToTransformTesting && (
+                  <button
+                    onClick={onNavigateToTransformTesting}
+                    className="w-full text-left font-['Sniglet'] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white transition-colors py-2 px-3 rounded-md hover:bg-[#bae1ff]/20"
+                  >
+                    Transform Formula Testing
+                  </button>
+                )}
                 {onNavigateToCharts && (
                   <div className="space-y-2">
                     <div className="font-['Sniglet'] text-[11px] text-black/50 dark:text-white/50 px-3 py-1">

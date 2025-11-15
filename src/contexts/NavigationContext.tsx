@@ -31,6 +31,8 @@ export type ViewType =
   | { type: 'api-docs' }
   | { type: 'source-library' }
   | { type: 'source-comparison' }
+  | { type: 'evidence-lab' }
+  | { type: 'transform-formula-testing' }
   | { type: 'licenses' }
   | { type: 'legal-hub' }
   | { type: 'science-hub' }
@@ -73,6 +75,8 @@ interface NavigationContextType {
   navigateToApiDocs: () => void;
   navigateToSourceLibrary: () => void;
   navigateToSourceComparison: () => void;
+  navigateToEvidenceLab: () => void;
+  navigateToTransformTesting: () => void;
   navigateToLicenses: () => void;
   navigateToLegalHub: () => void;
   navigateToScienceHub: () => void;
@@ -194,6 +198,14 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
     navigateTo({ type: 'source-comparison' });
   };
 
+  const navigateToEvidenceLab = () => {
+    navigateTo({ type: 'evidence-lab' });
+  };
+
+  const navigateToTransformTesting = () => {
+    navigateTo({ type: 'transform-formula-testing' });
+  };
+
   const navigateToLicenses = () => {
     navigateTo({ type: 'licenses' });
   };
@@ -287,6 +299,8 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
     navigateToApiDocs,
     navigateToSourceLibrary,
     navigateToSourceComparison,
+    navigateToEvidenceLab,
+    navigateToTransformTesting,
     navigateToLicenses,
     navigateToLegalHub,
     navigateToScienceHub,

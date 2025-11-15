@@ -85,7 +85,7 @@ export function RoadmapView({ onBack }: RoadmapViewProps) {
     {
       title: 'Notification Bell Integration',
       description: 'Connect existing NotificationBell UI to new backend endpoints with real-time notification loading and badge counts',
-      completed: false,
+      completed: true,
     },
     {
       title: 'MIU Schema Planning',
@@ -93,14 +93,14 @@ export function RoadmapView({ onBack }: RoadmapViewProps) {
       completed: true,
     },
     {
-      title: 'Evidence Wizard Wireframes',
-      description: 'Create component structure and navigation flow for split-pane Evidence Wizard UI (preparation for Phase 9.2)',
-      completed: false,
+      title: 'Evidence Lab Wireframes',
+      description: 'Create component structure and navigation flow for split-pane Evidence Lab UI (preparation for Phase 9.2)',
+      completed: true,
     },
     {
       title: 'Transform Formula Testing',
       description: 'Validate current v1.0 transform formulas against existing material parameter values to ensure accuracy',
-      completed: false,
+      completed: true,
     },
     {
       title: 'Documentation Update',

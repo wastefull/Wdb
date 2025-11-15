@@ -4,6 +4,7 @@ import * as api from '../utils/api';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { ScrollArea } from './ui/scroll-area';
 import { Badge } from './ui/badge';
+import { toast } from 'sonner@2.0.3';
 
 interface Notification {
   id: string;
@@ -33,6 +34,13 @@ export function NotificationBell({ userId, isAdmin }: NotificationBellProps) {
     return () => clearInterval(interval);
   }, [userId, isAdmin]);
 
+  // Reload notifications when popover is opened
+  useEffect(() => {
+    if (open) {
+      loadNotifications();
+    }
+  }, [open]);
+
   const loadNotifications = async () => {
     try {
       setLoading(true);
@@ -58,7 +66,7 @@ export function NotificationBell({ userId, isAdmin }: NotificationBellProps) {
     } catch (error) {
       // Silently fail - notifications are non-critical
       // Don't log or propagate errors to prevent session expiry triggers
-      // This component is prepared for Phase 9.0 Day 3 when notification backend will be completed
+      console.error('Error loading notifications:', error);
     } finally {
       setLoading(false);
     }
@@ -72,6 +80,7 @@ export function NotificationBell({ userId, isAdmin }: NotificationBellProps) {
       );
     } catch (error) {
       console.error('Error marking notification as read:', error);
+      toast.error('Failed to mark notification as read');
     }
   };
 
@@ -82,8 +91,10 @@ export function NotificationBell({ userId, isAdmin }: NotificationBellProps) {
         await api.markAllNotificationsAsRead('admin');
       }
       setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+      toast.success('All notifications marked as read');
     } catch (error) {
       console.error('Error marking all as read:', error);
+      toast.error('Failed to mark all notifications as read');
     }
   };
 

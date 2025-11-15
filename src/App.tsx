@@ -51,6 +51,8 @@ import { RoadmapView } from './components/RoadmapView';
 import { SimplifiedRoadmap } from './components/SimplifiedRoadmap';
 import { MathView } from './components/MathView';
 import { ChartsPerformanceView } from './components/ChartsPerformanceView';
+import { EvidenceLabView } from './components/EvidenceLabView';
+import { TransformFormulaTesting } from './components/TransformFormulaTesting';
 import { Popover, PopoverContent, PopoverTrigger } from './components/ui/popover';
 import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './components/ui/tooltip';
 import { Switch } from './components/ui/switch';
@@ -2714,7 +2716,7 @@ function DataManagementView({
 
 function AppContent() {
   const { settings, toggleAdminMode } = useAccessibility();
-  const { currentView, navigateTo, navigateToMaterials, navigateToSearchResults, navigateToMaterialDetail, navigateToArticles, navigateToArticleDetail, navigateToMethodologyList, navigateToWhitepaper, navigateToAdminDashboard, navigateToDataManagement, navigateToUserManagement, navigateToScientificEditor, navigateToExport, navigateToUserProfile, navigateToMySubmissions, navigateToReviewCenter, navigateToWhitepaperSync, navigateToApiDocs, navigateToLicenses, navigateToLegalHub, navigateToScienceHub, navigateToTakedownForm, navigateToAdminTakedownList, navigateToPhase9Testing, navigateToTransformManager, navigateToWhitepapersManagement, navigateToAssetsManagement, navigateToMathTools, navigateToChartsPerformance, navigateToRoadmap, navigateToRoadmapOverview, navigateToSourceLibrary, navigateToSourceComparison } = useNavigationContext();
+  const { currentView, navigateTo, navigateToMaterials, navigateToSearchResults, navigateToMaterialDetail, navigateToArticles, navigateToArticleDetail, navigateToMethodologyList, navigateToWhitepaper, navigateToAdminDashboard, navigateToDataManagement, navigateToUserManagement, navigateToScientificEditor, navigateToExport, navigateToUserProfile, navigateToMySubmissions, navigateToReviewCenter, navigateToWhitepaperSync, navigateToApiDocs, navigateToLicenses, navigateToLegalHub, navigateToScienceHub, navigateToTakedownForm, navigateToAdminTakedownList, navigateToPhase9Testing, navigateToTransformManager, navigateToWhitepapersManagement, navigateToAssetsManagement, navigateToMathTools, navigateToChartsPerformance, navigateToRoadmap, navigateToRoadmapOverview, navigateToSourceLibrary, navigateToSourceComparison, navigateToEvidenceLab, navigateToTransformTesting } = useNavigationContext();
   const { user, userRole, isAuthenticated, signIn, signOut, updateUserRole } = useAuthContext();
   
   // Phase 3B Complete: MaterialsContext is the single source of truth for all material data
@@ -3295,6 +3297,8 @@ function AppContent() {
               onNavigateToRoadmapOverview={navigateToRoadmapOverview}
               onNavigateToSourceLibrary={navigateToSourceLibrary}
               onNavigateToSourceComparison={navigateToSourceComparison}
+              onNavigateToEvidenceLab={navigateToEvidenceLab}
+              onNavigateToTransformTesting={navigateToTransformTesting}
             />
           ) : currentView.type === 'data-management' ? (
             <DataManagementView
@@ -3364,6 +3368,15 @@ function AppContent() {
           ) : currentView.type === 'source-comparison' ? (
             <SourceDataComparison
               onBack={navigateToMaterials}
+              materials={materials}
+            />
+          ) : currentView.type === 'evidence-lab' ? (
+            <EvidenceLabView
+              onBack={navigateToAdminDashboard}
+            />
+          ) : currentView.type === 'transform-formula-testing' ? (
+            <TransformFormulaTesting
+              onBack={navigateToAdminDashboard}
               materials={materials}
             />
           ) : currentView.type === 'licenses' ? (
