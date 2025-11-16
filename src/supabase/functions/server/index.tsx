@@ -3,6 +3,7 @@ import { cors } from "npm:hono/cors";
 import { logger } from "npm:hono/logger";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import * as kv from "./kv_store.tsx";
+import { normalizeDOI, calculateSimilarity, areTitlesSimilar } from "./string-utils.tsx";
 
 // WasteDB Server - v1.1.0 (Hardened Security)
 const app = new Hono();
@@ -371,7 +372,10 @@ async function verifyAdmin(c: any, next: any) {
   const userId = c.get('userId');
   const userEmail = c.get('userEmail');
   
+  console.log('verifyAdmin check:', { userId, userEmail });
+  
   if (!userId) {
+    console.log('verifyAdmin: No userId found in context');
     return c.json({ error: 'Unauthorized - authentication required' }, 401);
   }
   
@@ -379,16 +383,20 @@ async function verifyAdmin(c: any, next: any) {
     // Get user role from KV store
     const userRole = await kv.get(`user_role:${userId}`);
     
+    console.log('verifyAdmin: User role from KV:', userRole);
+    
     // If no role is set, check if this is an admin email
     if (!userRole) {
       // Initialize role for natto@wastefull.org as admin
       if (userEmail === 'natto@wastefull.org') {
+        console.log('verifyAdmin: Initializing admin role for natto@wastefull.org');
         await kv.set(`user_role:${userId}`, 'admin');
         c.set('userRole', 'admin');
         await next();
         return;
       }
       // Default role is 'user'
+      console.log('verifyAdmin: Setting default user role');
       await kv.set(`user_role:${userId}`, 'user');
       return c.json({ error: 'Forbidden - admin role required' }, 403);
     }
@@ -921,6 +929,18 @@ app.post("/make-server-17cae920/materials", verifyAuth, verifyAdmin, async (c) =
       return c.json({ error: "Material ID is required" }, 400);
     }
     await kv.set(`material:${material.id}`, material);
+    
+    // Audit log
+    await createAuditLog({
+      userId: c.get('userId'),
+      userEmail: c.get('userEmail'),
+      entityType: 'material',
+      entityId: material.id,
+      action: 'create',
+      after: material,
+      req: c,
+    });
+    
     return c.json({ material });
   } catch (error) {
     console.error("Error creating material:", error);
@@ -975,6 +995,19 @@ app.put("/make-server-17cae920/materials/:id", verifyAuth, verifyAdmin, async (c
     }
     
     await kv.set(`material:${id}`, material);
+    
+    // Audit log
+    await createAuditLog({
+      userId: c.get('userId'),
+      userEmail: c.get('userEmail'),
+      entityType: 'material',
+      entityId: id,
+      action: 'update',
+      before: existing,
+      after: material,
+      req: c,
+    });
+    
     return c.json({ material });
   } catch (error) {
     console.error("Error updating material:", error);
@@ -986,7 +1019,25 @@ app.put("/make-server-17cae920/materials/:id", verifyAuth, verifyAdmin, async (c
 app.delete("/make-server-17cae920/materials/:id", verifyAuth, verifyAdmin, async (c) => {
   try {
     const id = c.req.param("id");
+    
+    // Get existing material for audit log
+    const existing = await kv.get(`material:${id}`);
+    
     await kv.del(`material:${id}`);
+    
+    // Audit log
+    if (existing) {
+      await createAuditLog({
+        userId: c.get('userId'),
+        userEmail: c.get('userEmail'),
+        entityType: 'material',
+        entityId: id,
+        action: 'delete',
+        before: existing,
+        req: c,
+      });
+    }
+    
     return c.json({ success: true });
   } catch (error) {
     console.error("Error deleting material:", error);
@@ -1091,7 +1142,22 @@ app.put("/make-server-17cae920/users/:id/role", verifyAuth, verifyAdmin, async (
       return c.json({ error: "Invalid role. Must be 'user' or 'admin'" }, 400);
     }
     
+    // Get old role for audit log
+    const oldRole = await kv.get(`user_role:${userId}`);
+    
     await kv.set(`user_role:${userId}`, role);
+    
+    // Audit log
+    await createAuditLog({
+      userId: c.get('userId'),
+      userEmail: c.get('userEmail'),
+      entityType: 'user',
+      entityId: userId,
+      action: 'update',
+      before: { role: oldRole },
+      after: { role },
+      req: c,
+    });
     
     return c.json({ success: true, userId, role });
   } catch (error) {
@@ -1116,6 +1182,10 @@ app.delete("/make-server-17cae920/users/:id", verifyAuth, verifyAdmin, async (c)
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     );
     
+    // Get user info for audit log
+    const { data: userData } = await supabase.auth.admin.getUserById(userId);
+    const userRole = await kv.get(`user_role:${userId}`);
+    
     // Delete user from Supabase Auth
     const { error } = await supabase.auth.admin.deleteUser(userId);
     
@@ -1126,6 +1196,19 @@ app.delete("/make-server-17cae920/users/:id", verifyAuth, verifyAdmin, async (c)
     
     // Delete user role from KV store
     await kv.del(`user_role:${userId}`);
+    
+    // Audit log
+    if (userData?.user) {
+      await createAuditLog({
+        userId: c.get('userId'),
+        userEmail: c.get('userEmail'),
+        entityType: 'user',
+        entityId: userId,
+        action: 'delete',
+        before: { email: userData.user.email, role: userRole },
+        req: c,
+      });
+    }
     
     return c.json({ success: true });
   } catch (error) {
@@ -1738,6 +1821,10 @@ app.post('/make-server-17cae920/whitepapers', verifyAuth, verifyAdmin, async (c)
       return c.json({ error: "Missing required fields: slug, title, content" }, 400);
     }
     
+    // Check if whitepaper exists for audit logging
+    const existing = await kv.get(`whitepaper:${slug}`);
+    const isUpdate = !!existing;
+    
     const whitepaper = {
       slug,
       title,
@@ -1746,6 +1833,18 @@ app.post('/make-server-17cae920/whitepapers', verifyAuth, verifyAdmin, async (c)
     };
     
     await kv.set(`whitepaper:${slug}`, whitepaper);
+    
+    // Audit log
+    await createAuditLog({
+      userId: c.get('userId'),
+      userEmail: c.get('userEmail'),
+      entityType: 'whitepaper',
+      entityId: slug,
+      action: isUpdate ? 'update' : 'create',
+      before: isUpdate ? existing : undefined,
+      after: whitepaper,
+      req: c,
+    });
     
     // Verify it was saved correctly
     const verification = await kv.get(`whitepaper:${slug}`);
@@ -1768,7 +1867,25 @@ app.post('/make-server-17cae920/whitepapers', verifyAuth, verifyAdmin, async (c)
 app.delete('/make-server-17cae920/whitepapers/:slug', verifyAuth, verifyAdmin, async (c) => {
   try {
     const slug = c.req.param('slug');
+    
+    // Get existing whitepaper for audit log
+    const existing = await kv.get(`whitepaper:${slug}`);
+    
     await kv.del(`whitepaper:${slug}`);
+    
+    // Audit log
+    if (existing) {
+      await createAuditLog({
+        userId: c.get('userId'),
+        userEmail: c.get('userEmail'),
+        entityType: 'whitepaper',
+        entityId: slug,
+        action: 'delete',
+        before: existing,
+        req: c,
+      });
+    }
+    
     return c.json({ success: true });
   } catch (error) {
     console.error("Error deleting whitepaper:", error);
@@ -2466,53 +2583,6 @@ app.get('/make-server-17cae920/sources', async (c) => {
   } catch (error) {
     console.error("Error fetching sources:", error);
     return c.json({ error: "Failed to fetch sources", details: String(error) }, 500);
-  }
-});
-
-// Create a new source (admin only)
-app.post('/make-server-17cae920/sources', verifyAuth, verifyAdmin, async (c) => {
-  try {
-    const source = await c.req.json();
-    if (!source.id) {
-      return c.json({ error: "Source ID is required" }, 400);
-    }
-    await kv.set(`source:${source.id}`, source);
-    return c.json({ source });
-  } catch (error) {
-    console.error("Error creating source:", error);
-    return c.json({ error: "Failed to create source", details: String(error) }, 500);
-  }
-});
-
-// Update a source (admin only)
-app.put('/make-server-17cae920/sources/:id', verifyAuth, verifyAdmin, async (c) => {
-  try {
-    const id = c.req.param("id");
-    const source = await c.req.json();
-    
-    // Verify the source exists
-    const existing = await kv.get(`source:${id}`);
-    if (!existing) {
-      return c.json({ error: "Source not found" }, 404);
-    }
-    
-    await kv.set(`source:${id}`, source);
-    return c.json({ source });
-  } catch (error) {
-    console.error("Error updating source:", error);
-    return c.json({ error: "Failed to update source", details: String(error) }, 500);
-  }
-});
-
-// Delete a source (admin only)
-app.delete('/make-server-17cae920/sources/:id', verifyAuth, verifyAdmin, async (c) => {
-  try {
-    const id = c.req.param("id");
-    await kv.del(`source:${id}`);
-    return c.json({ success: true });
-  } catch (error) {
-    console.error("Error deleting source:", error);
-    return c.json({ error: "Failed to delete source", details: String(error) }, 500);
   }
 });
 
@@ -3757,6 +3827,17 @@ app.post('/make-server-17cae920/sources', verifyAuth, verifyAdmin, async (c) => 
     await kv.set(`source:${source.id}`, source);
     console.log(`Source created: ${source.id} by user ${userId}`);
     
+    // Audit log
+    await createAuditLog({
+      userId: c.get('userId'),
+      userEmail: c.get('userEmail'),
+      entityType: 'source',
+      entityId: source.id,
+      action: 'create',
+      after: source,
+      req: c,
+    });
+    
     return c.json({ source });
   } catch (error) {
     console.error('Error creating source:', error);
@@ -3810,6 +3891,18 @@ app.put('/make-server-17cae920/sources/:id', verifyAuth, verifyAdmin, async (c) 
     await kv.set(`source:${id}`, updatedSource);
     console.log(`Source updated: ${id} by user ${userId}`);
     
+    // Audit log
+    await createAuditLog({
+      userId: c.get('userId'),
+      userEmail: c.get('userEmail'),
+      entityType: 'source',
+      entityId: id,
+      action: 'update',
+      before: existing,
+      after: updatedSource,
+      req: c,
+    });
+    
     return c.json({ source: updatedSource });
   } catch (error) {
     console.error('Error updating source:', error);
@@ -3830,6 +3923,17 @@ app.delete('/make-server-17cae920/sources/:id', verifyAuth, verifyAdmin, async (
     
     await kv.del(`source:${id}`);
     console.log(`Source deleted: ${id} by user ${userId}`);
+    
+    // Audit log
+    await createAuditLog({
+      userId: c.get('userId'),
+      userEmail: c.get('userEmail'),
+      entityType: 'source',
+      entityId: id,
+      action: 'delete',
+      before: source,
+      req: c,
+    });
     
     return c.json({ success: true });
   } catch (error) {
@@ -5302,6 +5406,887 @@ app.put("/make-server-17cae920/notifications/:userId/read-all", verifyAuth, asyn
   } catch (error) {
     console.error('Error marking all notifications as read:', error);
     return c.json({ error: 'Failed to mark all notifications as read', details: String(error) }, 500);
+  }
+});
+
+// ==================== EVIDENCE POINT ENDPOINTS ====================
+
+// Create evidence point (admin only)
+app.post('/make-server-17cae920/evidence', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const body = await c.req.json();
+    const {
+      material_id,
+      parameter_code,
+      raw_value,
+      raw_unit,
+      snippet,
+      source_type,
+      citation,
+      confidence_level,
+      notes,
+      page_number,
+      figure_number,
+      table_number,
+    } = body;
+
+    // Validation
+    if (!material_id || !parameter_code || raw_value === undefined || !raw_unit || !snippet || !source_type || !citation || !confidence_level) {
+      return c.json({ 
+        success: false, 
+        error: 'Missing required fields: material_id, parameter_code, raw_value, raw_unit, snippet, source_type, citation, confidence_level' 
+      }, 400);
+    }
+
+    // Validate parameter_code exists in transforms
+    const transform = TRANSFORMS_DATA.transforms.find(t => t.parameter === parameter_code);
+    if (!transform) {
+      return c.json({ 
+        success: false, 
+        error: `Invalid parameter_code: ${parameter_code}. Must be one of: ${TRANSFORMS_DATA.transforms.map(t => t.parameter).join(', ')}` 
+      }, 400);
+    }
+
+    // Validate raw_value is numeric
+    if (typeof raw_value !== 'number') {
+      return c.json({ 
+        success: false, 
+        error: 'raw_value must be a number' 
+      }, 400);
+    }
+
+    // Validate confidence_level
+    if (!['high', 'medium', 'low'].includes(confidence_level)) {
+      return c.json({ 
+        success: false, 
+        error: 'confidence_level must be one of: high, medium, low' 
+      }, 400);
+    }
+
+    // Validate source_type
+    if (!['whitepaper', 'article', 'external', 'manual'].includes(source_type)) {
+      return c.json({ 
+        success: false, 
+        error: 'source_type must be one of: whitepaper, article, external, manual' 
+      }, 400);
+    }
+
+    // Generate evidence ID
+    const evidenceId = `evidence_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const userId = c.get('userId');
+
+    // Create evidence point
+    const evidencePoint = {
+      id: evidenceId,
+      material_id,
+      parameter_code,
+      raw_value,
+      raw_unit,
+      transformed_value: null, // Will be computed later
+      transform_version: transform.version,
+      snippet,
+      source_type,
+      citation,
+      confidence_level,
+      notes: notes || null,
+      page_number: page_number || null,
+      figure_number: figure_number || null,
+      table_number: table_number || null,
+      created_by: userId,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    // Store evidence point
+    await kv.set(`evidence:${evidenceId}`, evidencePoint);
+    
+    // Also store under material_id for easy retrieval
+    const materialEvidenceKey = `evidence_by_material:${material_id}:${parameter_code}:${evidenceId}`;
+    await kv.set(materialEvidenceKey, evidenceId);
+
+    console.log(`✓ Created evidence point ${evidenceId} for material ${material_id}, parameter ${parameter_code}`);
+
+    // Audit log
+    await createAuditLog({
+      userId: c.get('userId'),
+      userEmail: c.get('userEmail'),
+      entityType: 'evidence',
+      entityId: evidenceId,
+      action: 'create',
+      after: evidencePoint,
+      req: c,
+    });
+
+    return c.json({ 
+      success: true, 
+      evidenceId,
+      evidence: evidencePoint,
+      message: 'Evidence point created successfully' 
+    });
+  } catch (error) {
+    console.error('Error creating evidence point:', error);
+    return c.json({ success: false, error: 'Failed to create evidence point', details: String(error) }, 500);
+  }
+});
+
+// Get evidence points for a material (all users)
+app.get('/make-server-17cae920/evidence/material/:materialId', async (c) => {
+  try {
+    const materialId = c.req.param('materialId');
+    
+    // Get all evidence IDs for this material
+    const evidenceRefs = await kv.getByPrefix(`evidence_by_material:${materialId}:`);
+    
+    if (!evidenceRefs || evidenceRefs.length === 0) {
+      return c.json({ 
+        success: true, 
+        evidence: [],
+        count: 0 
+      });
+    }
+
+    // Fetch full evidence objects
+    const evidencePromises = evidenceRefs.map(async (ref: any) => {
+      const evidenceId = ref.value;
+      const evidence = await kv.get(`evidence:${evidenceId}`);
+      return evidence;
+    });
+
+    const evidence = await Promise.all(evidencePromises);
+    const validEvidence = evidence.filter(e => e !== null);
+
+    console.log(`✓ Retrieved ${validEvidence.length} evidence points for material ${materialId}`);
+
+    return c.json({ 
+      success: true, 
+      evidence: validEvidence,
+      count: validEvidence.length 
+    });
+  } catch (error) {
+    console.error('Error retrieving evidence by material:', error);
+    return c.json({ success: false, error: 'Failed to retrieve evidence', details: String(error) }, 500);
+  }
+});
+
+// Get single evidence point (all users)
+app.get('/make-server-17cae920/evidence/:evidenceId', async (c) => {
+  try {
+    const evidenceId = c.req.param('evidenceId');
+    
+    const evidence = await kv.get(`evidence:${evidenceId}`);
+    
+    if (!evidence) {
+      return c.json({ 
+        success: false, 
+        error: 'Evidence point not found' 
+      }, 404);
+    }
+
+    console.log(`✓ Retrieved evidence point ${evidenceId}`);
+
+    return c.json({ 
+      success: true, 
+      evidence 
+    });
+  } catch (error) {
+    console.error('Error retrieving evidence:', error);
+    return c.json({ success: false, error: 'Failed to retrieve evidence', details: String(error) }, 500);
+  }
+});
+
+// Update evidence point (admin only)
+app.put('/make-server-17cae920/evidence/:evidenceId', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const evidenceId = c.req.param('evidenceId');
+    const updates = await c.req.json();
+    
+    // Get existing evidence
+    const existing = await kv.get(`evidence:${evidenceId}`) as any;
+    
+    if (!existing) {
+      return c.json({ 
+        success: false, 
+        error: 'Evidence point not found' 
+      }, 404);
+    }
+
+    // Validate parameter_code if being updated
+    if (updates.parameter_code && updates.parameter_code !== existing.parameter_code) {
+      const transform = TRANSFORMS_DATA.transforms.find(t => t.parameter === updates.parameter_code);
+      if (!transform) {
+        return c.json({ 
+          success: false, 
+          error: `Invalid parameter_code: ${updates.parameter_code}` 
+        }, 400);
+      }
+      updates.transform_version = transform.version;
+    }
+
+    // Validate raw_value if being updated
+    if (updates.raw_value !== undefined && typeof updates.raw_value !== 'number') {
+      return c.json({ 
+        success: false, 
+        error: 'raw_value must be a number' 
+      }, 400);
+    }
+
+    // Validate confidence_level if being updated
+    if (updates.confidence_level && !['high', 'medium', 'low'].includes(updates.confidence_level)) {
+      return c.json({ 
+        success: false, 
+        error: 'confidence_level must be one of: high, medium, low' 
+      }, 400);
+    }
+
+    // Validate source_type if being updated
+    if (updates.source_type && !['whitepaper', 'article', 'external', 'manual'].includes(updates.source_type)) {
+      return c.json({ 
+        success: false, 
+        error: 'source_type must be one of: whitepaper, article, external, manual' 
+      }, 400);
+    }
+
+    // Update evidence point
+    const updated = {
+      ...existing,
+      ...updates,
+      id: evidenceId, // Prevent ID change
+      created_by: existing.created_by, // Prevent creator change
+      created_at: existing.created_at, // Prevent creation date change
+      updated_at: new Date().toISOString(),
+    };
+
+    await kv.set(`evidence:${evidenceId}`, updated);
+
+    console.log(`✓ Updated evidence point ${evidenceId}`);
+
+    // Audit log
+    await createAuditLog({
+      userId: c.get('userId'),
+      userEmail: c.get('userEmail'),
+      entityType: 'evidence',
+      entityId: evidenceId,
+      action: 'update',
+      before: existing,
+      after: updated,
+      req: c,
+    });
+
+    return c.json({ 
+      success: true, 
+      evidence: updated,
+      message: 'Evidence point updated successfully' 
+    });
+  } catch (error) {
+    console.error('Error updating evidence:', error);
+    return c.json({ success: false, error: 'Failed to update evidence', details: String(error) }, 500);
+  }
+});
+
+// Delete evidence point (admin only)
+app.delete('/make-server-17cae920/evidence/:evidenceId', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const evidenceId = c.req.param('evidenceId');
+    
+    // Get existing evidence to find material_id
+    const existing = await kv.get(`evidence:${evidenceId}`) as any;
+    
+    if (!existing) {
+      return c.json({ 
+        success: false, 
+        error: 'Evidence point not found' 
+      }, 404);
+    }
+
+    // Delete evidence point
+    await kv.del(`evidence:${evidenceId}`);
+    
+    // Delete material reference
+    const materialEvidenceKey = `evidence_by_material:${existing.material_id}:${existing.parameter_code}:${evidenceId}`;
+    await kv.del(materialEvidenceKey);
+
+    console.log(`✓ Deleted evidence point ${evidenceId}`);
+
+    // Audit log
+    await createAuditLog({
+      userId: c.get('userId'),
+      userEmail: c.get('userEmail'),
+      entityType: 'evidence',
+      entityId: evidenceId,
+      action: 'delete',
+      before: existing,
+      req: c,
+    });
+
+    return c.json({ 
+      success: true, 
+      message: 'Evidence point deleted successfully' 
+    });
+  } catch (error) {
+    console.error('Error deleting evidence:', error);
+    return c.json({ success: false, error: 'Failed to delete evidence', details: String(error) }, 500);
+  }
+});
+
+// ==================== SOURCE DEDUPLICATION ENDPOINTS ====================
+
+// Normalize multiple DOIs (public endpoint for testing)
+app.post('/make-server-17cae920/sources/normalize-doi', async (c) => {
+  try {
+    const { dois } = await c.req.json() as { dois: string[] };
+    
+    if (!Array.isArray(dois)) {
+      return c.json({ 
+        success: false, 
+        error: 'dois must be an array' 
+      }, 400);
+    }
+    
+    const normalized = dois.map(doi => normalizeDOI(doi));
+    
+    return c.json({ 
+      success: true, 
+      normalized,
+      original: dois 
+    });
+  } catch (error) {
+    console.error('Error normalizing DOIs:', error);
+    return c.json({ success: false, error: 'Failed to normalize DOIs', details: String(error) }, 500);
+  }
+});
+
+// Check for duplicate sources by DOI or title
+app.post('/make-server-17cae920/sources/check-duplicate', async (c) => {
+  try {
+    const { doi, title } = await c.req.json() as { doi?: string; title?: string };
+    
+    if (!doi && !title) {
+      return c.json({ 
+        success: false, 
+        error: 'Either doi or title must be provided' 
+      }, 400);
+    }
+    
+    // Check DOI duplicate first (100% accurate)
+    if (doi) {
+      const normalizedDOI = normalizeDOI(doi);
+      
+      if (normalizedDOI) {
+        // Get all sources and check for DOI match
+        const allSources = await kv.getByPrefix('source:');
+        
+        for (const sourceData of allSources) {
+          const source = sourceData as any;
+          if (source.doi) {
+            const existingNormalizedDOI = normalizeDOI(source.doi);
+            if (existingNormalizedDOI === normalizedDOI) {
+              console.log(`⚠️ DOI duplicate detected: ${normalizedDOI}`);
+              return c.json({ 
+                success: true,
+                isDuplicate: true,
+                matchType: 'doi',
+                confidence: 100,
+                existingSource: {
+                  id: source.id,
+                  title: source.title,
+                  doi: source.doi,
+                  year: source.year,
+                  authors: source.authors,
+                },
+                message: `This DOI already exists in your library: "${source.title}"`
+              });
+            }
+          }
+        }
+      }
+    }
+    
+    // Check fuzzy title match (90%+ similarity)
+    if (title) {
+      const allSources = await kv.getByPrefix('source:');
+      const SIMILARITY_THRESHOLD = 90; // 90% similarity threshold
+      
+      for (const sourceData of allSources) {
+        const source = sourceData as any;
+        if (source.title) {
+          const similarity = calculateSimilarity(title, source.title);
+          
+          if (similarity >= SIMILARITY_THRESHOLD) {
+            console.log(`⚠️ Title similarity detected: "${title}" vs "${source.title}" (${similarity}%)`);
+            return c.json({ 
+              success: true,
+              isDuplicate: true,
+              matchType: 'title',
+              similarity,
+              confidence: similarity,
+              existingSource: {
+                id: source.id,
+                title: source.title,
+                doi: source.doi,
+                year: source.year,
+                authors: source.authors,
+              },
+              message: `A similar title already exists in your library: "${source.title}" (${similarity}% match)`
+            });
+          }
+        }
+      }
+    }
+    
+    // No duplicates found
+    return c.json({ 
+      success: true,
+      isDuplicate: false,
+      message: 'No duplicates found. Safe to add this source.'
+    });
+    
+  } catch (error) {
+    console.error('Error checking for duplicates:', error);
+    return c.json({ success: false, error: 'Failed to check duplicates', details: String(error) }, 500);
+  }
+});
+
+// Merge duplicate sources (admin only)
+app.post('/make-server-17cae920/sources/merge', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const { primarySourceId, duplicateSourceId } = await c.req.json() as { 
+      primarySourceId: string; 
+      duplicateSourceId: string; 
+    };
+    
+    if (!primarySourceId || !duplicateSourceId) {
+      return c.json({ 
+        success: false, 
+        error: 'Both primarySourceId and duplicateSourceId are required' 
+      }, 400);
+    }
+    
+    if (primarySourceId === duplicateSourceId) {
+      return c.json({ 
+        success: false, 
+        error: 'Cannot merge a source with itself' 
+      }, 400);
+    }
+    
+    // Get both sources
+    const primarySource = await kv.get(`source:${primarySourceId}`) as any;
+    const duplicateSource = await kv.get(`source:${duplicateSourceId}`) as any;
+    
+    if (!primarySource) {
+      return c.json({ 
+        success: false, 
+        error: 'Primary source not found' 
+      }, 404);
+    }
+    
+    if (!duplicateSource) {
+      return c.json({ 
+        success: false, 
+        error: 'Duplicate source not found' 
+      }, 404);
+    }
+    
+    // Find all evidence points referencing the duplicate source
+    const allEvidence = await kv.getByPrefix('evidence:');
+    let miusMigrated = 0;
+    
+    for (const evidenceData of allEvidence) {
+      const evidence = evidenceData as any;
+      
+      // Check if this evidence references the duplicate source
+      if (evidence.source_id === duplicateSourceId) {
+        // Update to point to primary source
+        const updated = {
+          ...evidence,
+          source_id: primarySourceId,
+          updated_at: new Date().toISOString(),
+        };
+        
+        await kv.set(`evidence:${evidence.id}`, updated);
+        miusMigrated++;
+        
+        console.log(`✓ Migrated evidence ${evidence.id} from source ${duplicateSourceId} to ${primarySourceId}`);
+      }
+    }
+    
+    // Delete the duplicate source
+    await kv.del(`source:${duplicateSourceId}`);
+    
+    console.log(`✓ Merged sources: kept ${primarySourceId}, deleted ${duplicateSourceId}, migrated ${miusMigrated} MIUs`);
+    
+    return c.json({ 
+      success: true,
+      primarySource,
+      miusMigrated,
+      message: `Successfully merged sources. ${miusMigrated} evidence point(s) migrated to the primary source.`
+    });
+    
+  } catch (error) {
+    console.error('Error merging sources:', error);
+    return c.json({ success: false, error: 'Failed to merge sources', details: String(error) }, 500);
+  }
+});
+
+// ==================== AUDIT LOGGING ====================
+
+// Audit log entry interface
+interface AuditLogEntry {
+  id: string;
+  timestamp: string;
+  userId: string;
+  userEmail: string;
+  entityType: string;  // material, source, evidence, article, whitepaper, user, etc.
+  entityId: string;
+  action: string;  // create, update, delete
+  before: any;     // previous state (null for create)
+  after: any;      // new state (null for delete)
+  changes: string[]; // human-readable list of changes
+  ipAddress?: string;
+  userAgent?: string;
+}
+
+// Helper function to send audit email notifications
+async function sendAuditEmailNotification(entry: AuditLogEntry) {
+  // Only send emails for critical events
+  const criticalEvents = [
+    { entityType: 'material', action: 'delete' },
+    { entityType: 'user', action: 'delete' },
+    { entityType: 'user', action: 'update' }, // role changes
+    { entityType: 'source', action: 'delete' },
+    { entityType: 'whitepaper', action: 'delete' },
+    { entityType: 'evidence', action: 'delete' },
+  ];
+  
+  const isCritical = criticalEvents.some(
+    event => event.entityType === entry.entityType && event.action === entry.action
+  );
+  
+  if (!isCritical) {
+    return; // Don't send email for non-critical events
+  }
+  
+  const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
+  if (!RESEND_API_KEY) {
+    console.log('⚠️ RESEND_API_KEY not configured, skipping audit email notification');
+    return;
+  }
+  
+  try {
+    // For now, hardcode admin email (in production, query user_role KV store)
+    const adminEmails = ['natto@wastefull.org'];
+    
+    // Format changes for email
+    const changesHtml = entry.changes.map(c => `<li>${c}</li>`).join('');
+    
+    const actionEmoji = {
+      create: '✨',
+      update: '📝',
+      delete: '🗑️',
+    }[entry.action] || '📋';
+    
+    const html = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: #f59e0b; color: white; padding: 20px; border-radius: 8px 8px 0 0; }
+            .content { background: #ffffff; border: 1px solid #e5e7eb; border-top: none; padding: 20px; border-radius: 0 0 8px 8px; }
+            .metadata { background: #f3f4f6; padding: 15px; border-radius: 6px; margin: 15px 0; }
+            .metadata-item { margin: 8px 0; }
+            .label { font-weight: 600; color: #374151; }
+            .changes { background: #fef3c7; padding: 15px; border-left: 4px solid #f59e0b; border-radius: 4px; }
+            .footer { text-align: center; color: #6b7280; font-size: 12px; margin-top: 20px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h2 style="margin: 0;">${actionEmoji} WasteDB Audit Alert</h2>
+            </div>
+            <div class="content">
+              <p><strong>A critical action was performed in WasteDB:</strong></p>
+              
+              <div class="metadata">
+                <div class="metadata-item">
+                  <span class="label">Action:</span> ${entry.action.toUpperCase()}
+                </div>
+                <div class="metadata-item">
+                  <span class="label">Entity Type:</span> ${entry.entityType}
+                </div>
+                <div class="metadata-item">
+                  <span class="label">Entity ID:</span> ${entry.entityId}
+                </div>
+                <div class="metadata-item">
+                  <span class="label">Performed By:</span> ${entry.userEmail}
+                </div>
+                <div class="metadata-item">
+                  <span class="label">Timestamp:</span> ${new Date(entry.timestamp).toLocaleString()}
+                </div>
+                ${entry.ipAddress ? `<div class="metadata-item"><span class="label">IP Address:</span> ${entry.ipAddress}</div>` : ''}
+              </div>
+              
+              ${entry.changes.length > 0 ? `
+                <div class="changes">
+                  <strong>Changes:</strong>
+                  <ul style="margin: 10px 0;">
+                    ${changesHtml}
+                  </ul>
+                </div>
+              ` : ''}
+              
+              <p style="margin-top: 20px;">
+                <a href="https://wastedb.app/admin/audit-logs" style="background: #f59e0b; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; display: inline-block;">
+                  View Audit Logs
+                </a>
+              </p>
+            </div>
+            <div class="footer">
+              <p>This is an automated notification from WasteDB.</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+    
+    const text = `
+WasteDB Audit Alert
+
+A critical action was performed in WasteDB:
+
+Action: ${entry.action.toUpperCase()}
+Entity Type: ${entry.entityType}
+Entity ID: ${entry.entityId}
+Performed By: ${entry.userEmail}
+Timestamp: ${new Date(entry.timestamp).toLocaleString()}
+${entry.ipAddress ? `IP Address: ${entry.ipAddress}` : ''}
+
+Changes:
+${entry.changes.map(c => `- ${c}`).join('\n')}
+
+View full audit logs at: https://wastedb.app/admin/audit-logs
+    `;
+    
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'WasteDB Audit <audit@wastefull.org>',
+        to: adminEmails,
+        subject: `🚨 WasteDB Audit Alert: ${entry.action} ${entry.entityType}`,
+        html,
+        text,
+      }),
+    });
+    
+    if (response.ok) {
+      const result = await response.json();
+      console.log(`📧 Audit email notification sent: ${result.id}`);
+    } else {
+      const errorText = await response.text();
+      console.error('❌ Failed to send audit email notification:', errorText);
+    }
+  } catch (error) {
+    console.error('❌ Error sending audit email notification:', error);
+    // Don't throw - audit logging should continue even if email fails
+  }
+}
+
+// Helper function to create audit log entry
+async function createAuditLog(params: {
+  userId: string;
+  userEmail: string;
+  entityType: string;
+  entityId: string;
+  action: 'create' | 'update' | 'delete';
+  before?: any;
+  after?: any;
+  req?: any;
+}): Promise<string> {
+  const auditId = `audit:${Date.now()}:${crypto.randomUUID()}`;
+  
+  // Calculate changes
+  const changes: string[] = [];
+  if (params.action === 'create') {
+    changes.push('Entity created');
+  } else if (params.action === 'delete') {
+    changes.push('Entity deleted');
+  } else if (params.action === 'update' && params.before && params.after) {
+    // Find differences
+    const beforeKeys = Object.keys(params.before);
+    const afterKeys = Object.keys(params.after);
+    const allKeys = new Set([...beforeKeys, ...afterKeys]);
+    
+    for (const key of allKeys) {
+      const beforeVal = params.before[key];
+      const afterVal = params.after[key];
+      
+      if (JSON.stringify(beforeVal) !== JSON.stringify(afterVal)) {
+        changes.push(`Changed ${key}: ${JSON.stringify(beforeVal)} → ${JSON.stringify(afterVal)}`);
+      }
+    }
+  }
+  
+  const entry: AuditLogEntry = {
+    id: auditId,
+    timestamp: new Date().toISOString(),
+    userId: params.userId,
+    userEmail: params.userEmail,
+    entityType: params.entityType,
+    entityId: params.entityId,
+    action: params.action,
+    before: params.before || null,
+    after: params.after || null,
+    changes,
+    ipAddress: params.req ? getClientId(params.req).split(':')[0] : undefined,
+    userAgent: params.req ? params.req.req.header('user-agent') || 'unknown' : undefined,
+  };
+  
+  await kv.set(auditId, entry);
+  console.log(`📝 Audit log created: ${auditId} - ${params.action} ${params.entityType}:${params.entityId} by ${params.userEmail}`);
+  
+  // Send email notification for critical events
+  await sendAuditEmailNotification(entry);
+  
+  return auditId;
+}
+
+// POST /make-server-17cae920/audit/log - Create audit log entry
+app.post('/make-server-17cae920/audit/log', verifyAuth, async (c) => {
+  try {
+    const body = await c.req.json();
+    const { entityType, entityId, action, before, after } = body;
+    
+    if (!entityType || !entityId || !action) {
+      return c.json({ error: 'Missing required fields: entityType, entityId, action' }, 400);
+    }
+    
+    if (!['create', 'update', 'delete'].includes(action)) {
+      return c.json({ error: 'Invalid action. Must be create, update, or delete' }, 400);
+    }
+    
+    const auditId = await createAuditLog({
+      userId: c.get('userId'),
+      userEmail: c.get('userEmail'),
+      entityType,
+      entityId,
+      action,
+      before,
+      after,
+      req: c,
+    });
+    
+    return c.json({ success: true, auditId });
+  } catch (error) {
+    console.error('Error creating audit log:', error);
+    return c.json({ error: 'Failed to create audit log', details: String(error) }, 500);
+  }
+});
+
+// GET /make-server-17cae920/audit/logs - Get audit logs with filtering
+app.get('/make-server-17cae920/audit/logs', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const entityType = c.req.query('entityType');
+    const entityId = c.req.query('entityId');
+    const userId = c.req.query('userId');
+    const action = c.req.query('action');
+    const startDate = c.req.query('startDate');
+    const endDate = c.req.query('endDate');
+    const limit = parseInt(c.req.query('limit') || '100');
+    const offset = parseInt(c.req.query('offset') || '0');
+    
+    // Get all audit logs
+    const allLogs = await kv.getByPrefix('audit:');
+    
+    // Filter logs
+    let filteredLogs = allLogs.filter((log: AuditLogEntry) => {
+      if (entityType && log.entityType !== entityType) return false;
+      if (entityId && log.entityId !== entityId) return false;
+      if (userId && log.userId !== userId) return false;
+      if (action && log.action !== action) return false;
+      if (startDate && new Date(log.timestamp) < new Date(startDate)) return false;
+      if (endDate && new Date(log.timestamp) > new Date(endDate)) return false;
+      return true;
+    });
+    
+    // Sort by timestamp (newest first)
+    filteredLogs.sort((a: AuditLogEntry, b: AuditLogEntry) => 
+      new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    );
+    
+    // Paginate
+    const total = filteredLogs.length;
+    const paginatedLogs = filteredLogs.slice(offset, offset + limit);
+    
+    return c.json({ 
+      logs: paginatedLogs,
+      total,
+      offset,
+      limit,
+    });
+  } catch (error) {
+    console.error('Error fetching audit logs:', error);
+    return c.json({ error: 'Failed to fetch audit logs', details: String(error) }, 500);
+  }
+});
+
+// GET /make-server-17cae920/audit/logs/:id - Get specific audit log
+app.get('/make-server-17cae920/audit/logs/:id', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const id = c.req.param('id');
+    const log = await kv.get(id);
+    
+    if (!log) {
+      return c.json({ error: 'Audit log not found' }, 404);
+    }
+    
+    return c.json({ log });
+  } catch (error) {
+    console.error('Error fetching audit log:', error);
+    return c.json({ error: 'Failed to fetch audit log', details: String(error) }, 500);
+  }
+});
+
+// GET /make-server-17cae920/audit/stats - Get audit statistics
+app.get('/make-server-17cae920/audit/stats', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const allLogs = await kv.getByPrefix('audit:');
+    
+    // Calculate statistics
+    const stats = {
+      total: allLogs.length,
+      byEntityType: {} as Record<string, number>,
+      byAction: {} as Record<string, number>,
+      byUser: {} as Record<string, { email: string; count: number }>,
+      recentActivity: allLogs
+        .sort((a: AuditLogEntry, b: AuditLogEntry) => 
+          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+        )
+        .slice(0, 10),
+    };
+    
+    allLogs.forEach((log: AuditLogEntry) => {
+      // Count by entity type
+      stats.byEntityType[log.entityType] = (stats.byEntityType[log.entityType] || 0) + 1;
+      
+      // Count by action
+      stats.byAction[log.action] = (stats.byAction[log.action] || 0) + 1;
+      
+      // Count by user
+      if (!stats.byUser[log.userId]) {
+        stats.byUser[log.userId] = { email: log.userEmail, count: 0 };
+      }
+      stats.byUser[log.userId].count++;
+    });
+    
+    return c.json({ stats });
+  } catch (error) {
+    console.error('Error fetching audit stats:', error);
+    return c.json({ error: 'Failed to fetch audit stats', details: String(error) }, 500);
   }
 });
 

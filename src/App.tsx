@@ -44,6 +44,7 @@ import { LicensesView } from './components/LicensesView';
 import { TakedownRequestForm } from './components/TakedownRequestForm';
 import { TakedownStatusView } from './components/TakedownStatusView';
 import { AdminTakedownList } from './components/AdminTakedownList';
+import { AuditLogViewer } from './components/AuditLogViewer';
 import { Phase9TestingPage } from './components/Phase9TestingPage';
 import { TransformVersionManager } from './components/TransformVersionManager';
 import { AdminDashboard } from './components/AdminDashboard';
@@ -191,7 +192,7 @@ function AdminModeButton({ currentView, onViewChange }: { currentView: any; onVi
   
   const handleAdminToggle = () => {
     // If turning off admin mode and currently on admin-only pages, go back to materials
-    if (settings.adminMode && (currentView.type === 'data-management' || currentView.type === 'user-management' || currentView.type === 'scientific-editor' || currentView.type === 'whitepaper-sync' || currentView.type === 'review-center' || currentView.type === 'admin-dashboard')) {
+    if (settings.adminMode && (currentView.type === 'data-management' || currentView.type === 'user-management' || currentView.type === 'scientific-editor' || currentView.type === 'whitepaper-sync' || currentView.type === 'review-center' || currentView.type === 'admin-dashboard' || currentView.type === 'audit-log')) {
       onViewChange({ type: 'materials' });
     }
     toggleAdminMode();
@@ -2716,7 +2717,7 @@ function DataManagementView({
 
 function AppContent() {
   const { settings, toggleAdminMode } = useAccessibility();
-  const { currentView, navigateTo, navigateToMaterials, navigateToSearchResults, navigateToMaterialDetail, navigateToArticles, navigateToArticleDetail, navigateToMethodologyList, navigateToWhitepaper, navigateToAdminDashboard, navigateToDataManagement, navigateToUserManagement, navigateToScientificEditor, navigateToExport, navigateToUserProfile, navigateToMySubmissions, navigateToReviewCenter, navigateToWhitepaperSync, navigateToApiDocs, navigateToLicenses, navigateToLegalHub, navigateToScienceHub, navigateToTakedownForm, navigateToAdminTakedownList, navigateToPhase9Testing, navigateToTransformManager, navigateToWhitepapersManagement, navigateToAssetsManagement, navigateToMathTools, navigateToChartsPerformance, navigateToRoadmap, navigateToRoadmapOverview, navigateToSourceLibrary, navigateToSourceComparison, navigateToEvidenceLab, navigateToTransformTesting } = useNavigationContext();
+  const { currentView, navigateTo, navigateToMaterials, navigateToSearchResults, navigateToMaterialDetail, navigateToArticles, navigateToArticleDetail, navigateToMethodologyList, navigateToWhitepaper, navigateToAdminDashboard, navigateToDataManagement, navigateToUserManagement, navigateToScientificEditor, navigateToExport, navigateToUserProfile, navigateToMySubmissions, navigateToReviewCenter, navigateToWhitepaperSync, navigateToApiDocs, navigateToLicenses, navigateToLegalHub, navigateToScienceHub, navigateToTakedownForm, navigateToAdminTakedownList, navigateToAuditLog, navigateToPhase9Testing, navigateToTransformManager, navigateToWhitepapersManagement, navigateToAssetsManagement, navigateToMathTools, navigateToChartsPerformance, navigateToRoadmap, navigateToRoadmapOverview, navigateToSourceLibrary, navigateToSourceComparison, navigateToEvidenceLab, navigateToTransformTesting } = useNavigationContext();
   const { user, userRole, isAuthenticated, signIn, signOut, updateUserRole } = useAuthContext();
   
   // Phase 3B Complete: MaterialsContext is the single source of truth for all material data
@@ -3289,6 +3290,7 @@ function AppContent() {
               onNavigateToTransformManager={() => navigateToMathTools('transform-manager')}
               onNavigateToPhase9Testing={navigateToPhase9Testing}
               onNavigateToAdminTakedownList={navigateToAdminTakedownList}
+              onNavigateToAuditLog={navigateToAuditLog}
               onNavigateToWhitepapers={navigateToWhitepapersManagement}
               onNavigateToAssets={navigateToAssetsManagement}
               onNavigateToMath={navigateToMathTools}
@@ -3408,6 +3410,8 @@ function AppContent() {
             <div className="p-6">
               <AdminTakedownList />
             </div>
+          ) : currentView.type === 'audit-log' ? (
+            <AuditLogViewer onBack={navigateToAdminDashboard} />
           ) : currentView.type === 'phase9-testing' ? (
             <Phase9TestingPage />
           ) : currentView.type === 'transform-manager' ? (

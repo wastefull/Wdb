@@ -15,6 +15,7 @@ interface AdminDashboardProps {
   onNavigateToTransformManager?: () => void;
   onNavigateToPhase9Testing?: () => void;
   onNavigateToAdminTakedownList?: () => void;
+  onNavigateToAuditLog?: () => void;
   onNavigateToWhitepapers?: () => void;
   onNavigateToAssets?: () => void;
   onNavigateToMath?: () => void;
@@ -36,6 +37,7 @@ export function AdminDashboard({
   onNavigateToTransformManager,
   onNavigateToPhase9Testing,
   onNavigateToAdminTakedownList,
+  onNavigateToAuditLog,
   onNavigateToWhitepapers,
   onNavigateToAssets,
   onNavigateToMath,
@@ -90,6 +92,14 @@ export function AdminDashboard({
                     className="w-full text-left font-['Sniglet'] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white transition-colors py-2 px-3 rounded-md hover:bg-[#ffb3ba]/20"
                   >
                     Takedown Requests
+                  </button>
+                )}
+                {onNavigateToAuditLog && (
+                  <button
+                    onClick={onNavigateToAuditLog}
+                    className="w-full text-left font-['Sniglet'] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white transition-colors py-2 px-3 rounded-md hover:bg-[#ffb3ba]/20"
+                  >
+                    Audit Log
                   </button>
                 )}
               </div>

@@ -508,6 +508,53 @@ export async function batchSaveSources(sources: Source[]): Promise<{ success: bo
   return data;
 }
 
+// Check for duplicate sources (public endpoint)
+export async function checkSourceDuplicate(params: { doi?: string; title?: string }): Promise<{
+  success: boolean;
+  isDuplicate: boolean;
+  matchType?: 'doi' | 'title';
+  confidence?: number;
+  similarity?: number;
+  existingSource?: {
+    id: string;
+    title: string;
+    doi?: string;
+    year?: number;
+    authors?: string[];
+  };
+  message: string;
+}> {
+  const response = await fetch(`${API_BASE_URL}/sources/check-duplicate`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${publicAnonKey}`,
+    },
+    body: JSON.stringify(params),
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(error || 'Failed to check for duplicates');
+  }
+
+  return await response.json();
+}
+
+// Merge duplicate sources (admin only)
+export async function mergeSources(primarySourceId: string, duplicateSourceId: string): Promise<{
+  success: boolean;
+  primarySource: Source;
+  miusMigrated: number;
+  message: string;
+}> {
+  const data = await apiCall('/sources/merge', {
+    method: 'POST',
+    body: JSON.stringify({ primarySourceId, duplicateSourceId }),
+  });
+  return data;
+}
+
 // Upload PDF for a source (admin only)
 export async function uploadSourcePdf(file: File, sourceId: string): Promise<{ success: boolean; fileName: string }> {
   logger.log('📄 Starting PDF upload:', {

@@ -14,6 +14,7 @@ import { toast } from 'sonner@2.0.3';
 import { Source, SOURCE_LIBRARY } from '../data/sources';
 import * as api from '../utils/api';
 import { logger } from '../utils/logger';
+import { DuplicateSourceWarning } from './DuplicateSourceWarning';
 
 interface Material {
   id: string;
@@ -52,6 +53,9 @@ export function SourceLibraryManager({ onBack, materials, isAuthenticated, isAdm
   const [cloudSynced, setCloudSynced] = useState(false);
   const [loading, setLoading] = useState(true);
   const [uploadingPdf, setUploadingPdf] = useState<string | null>(null); // sourceId of PDF being uploaded
+  const [duplicateWarning, setDuplicateWarning] = useState<any>(null);
+  const [showDuplicateWarning, setShowDuplicateWarning] = useState(false);
+  const [pendingSource, setPendingSource] = useState<Source | null>(null);
   const [formData, setFormData] = useState<Partial<Source>>({
     title: '',
     authors: '',
@@ -142,21 +146,7 @@ export function SourceLibraryManager({ onBack, materials, isAuthenticated, isAdm
       return;
     }
 
-    // Check for duplicates by DOI or title
-    const duplicate = sources.find(s => 
-      (formData.doi && s.doi && s.doi.toLowerCase() === formData.doi.toLowerCase()) ||
-      (s.title.toLowerCase().trim() === formData.title.toLowerCase().trim())
-    );
-
-    if (duplicate) {
-      if (formData.doi && duplicate.doi) {
-        toast.error(`Duplicate DOI: Source "${duplicate.title}" already exists`);
-      } else {
-        toast.error(`Duplicate title: A source with this title already exists`);
-      }
-      return;
-    }
-
+    // Create the source object
     const newSource: Source = {
       id: `custom-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       title: formData.title.trim(),
@@ -170,6 +160,31 @@ export function SourceLibraryManager({ onBack, materials, isAuthenticated, isAdm
       tags: formData.tags || []
     };
 
+    // Check for duplicates using backend API
+    try {
+      const duplicateCheck = await api.checkSourceDuplicate({
+        doi: formData.doi?.trim(),
+        title: formData.title.trim()
+      });
+
+      if (duplicateCheck.isDuplicate) {
+        // Show warning modal
+        setDuplicateWarning(duplicateCheck);
+        setPendingSource(newSource);
+        setShowDuplicateWarning(true);
+        return;
+      }
+    } catch (error) {
+      console.error('Duplicate check failed:', error);
+      toast.error('Failed to check for duplicates. Please try again.');
+      return;
+    }
+
+    // No duplicates, proceed with adding
+    await finalizeAddSource(newSource);
+  };
+
+  const finalizeAddSource = async (newSource: Source) => {
     // Update local state
     setSources([...sources, newSource]);
 
@@ -188,6 +203,21 @@ export function SourceLibraryManager({ onBack, materials, isAuthenticated, isAdm
     }
     
     resetForm();
+  };
+
+  const handleAddAnyway = async () => {
+    if (pendingSource) {
+      await finalizeAddSource(pendingSource);
+      setShowDuplicateWarning(false);
+      setDuplicateWarning(null);
+      setPendingSource(null);
+    }
+  };
+
+  const handleMergeSource = async () => {
+    // This would handle merging - for now just show message
+    toast.info('Merge functionality coming soon');
+    setShowDuplicateWarning(false);
   };
 
   const handleEdit = (source: Source) => {
@@ -1046,6 +1076,22 @@ export function SourceLibraryManager({ onBack, materials, isAuthenticated, isAdm
           </Alert>
         )}
       </div>
+
+      {/* Duplicate Source Warning Modal */}
+      {showDuplicateWarning && duplicateWarning && (
+        <DuplicateSourceWarning
+          isOpen={showDuplicateWarning}
+          onClose={() => {
+            setShowDuplicateWarning(false);
+            setDuplicateWarning(null);
+            setPendingSource(null);
+          }}
+          onAddAnyway={handleAddAnyway}
+          onMerge={isAdmin ? handleMergeSource : undefined}
+          duplicateInfo={duplicateWarning}
+          isAdmin={isAdmin}
+        />
+      )}
     </div>
   );
 }
