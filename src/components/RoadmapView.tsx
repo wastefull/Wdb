@@ -15,8 +15,8 @@ interface RoadmapViewProps {
 }
 
 export function RoadmapView({ onBack }: RoadmapViewProps) {
-  const [activeTab, setActiveTab] = useState('day8');
-  const [selectedDay, setSelectedDay] = useState<'day1' | 'day2' | 'day3' | 'day4' | 'day5' | 'day6' | 'day7'>('day7');
+  const [activeTab, setActiveTab] = useState('day9');
+  const [selectedDay, setSelectedDay] = useState<'days1-5' | 'day6' | 'day7' | 'day8'>('day8');
 
   // Day 1 Deliverables
   const day1Deliverables = [
@@ -261,32 +261,32 @@ export function RoadmapView({ onBack }: RoadmapViewProps) {
     {
       title: 'Daily Supabase Backups',
       description: 'Configure daily Supabase backups (automatic)',
-      completed: false,
+      completed: true,
     },
     {
       title: 'Manual Backup Trigger',
       description: 'Create manual backup trigger endpoint',
-      completed: false,
+      completed: true,
     },
     {
       title: 'Backup Export Endpoint',
       description: 'Create POST /make-server-17cae920/backup/export (JSON dump)',
-      completed: false,
+      completed: true,
     },
     {
       title: 'Backup Import Endpoint',
       description: 'Create POST /make-server-17cae920/backup/import (restore)',
-      completed: false,
+      completed: true,
     },
     {
       title: 'Recovery Documentation',
       description: 'Document recovery procedures',
-      completed: false,
+      completed: true,
     },
     {
       title: 'Restore Testing',
       description: 'Test restore from backup',
-      completed: false,
+      completed: true,
     },
   ];
 
@@ -425,16 +425,6 @@ export function RoadmapView({ onBack }: RoadmapViewProps) {
             Completed
           </button>
           <button
-            onClick={() => setActiveTab('day8')}
-            className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
-              activeTab === 'day8'
-                ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
-                : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
-            }`}
-          >
-            Day 8
-          </button>
-          <button
             onClick={() => setActiveTab('day9')}
             className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
               activeTab === 'day9'
@@ -473,54 +463,14 @@ export function RoadmapView({ onBack }: RoadmapViewProps) {
           <div>
             <div className="flex items-center gap-4 mb-4">
               <button
-                onClick={() => setSelectedDay('day1')}
+                onClick={() => setSelectedDay('days1-5')}
                 className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
-                  selectedDay === 'day1'
+                  selectedDay === 'days1-5'
                     ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
                     : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
                 }`}
               >
-                Day 1
-              </button>
-              <button
-                onClick={() => setSelectedDay('day2')}
-                className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
-                  selectedDay === 'day2'
-                    ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
-                    : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
-                }`}
-              >
-                Day 2
-              </button>
-              <button
-                onClick={() => setSelectedDay('day3')}
-                className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
-                  selectedDay === 'day3'
-                    ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
-                    : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
-                }`}
-              >
-                Day 3
-              </button>
-              <button
-                onClick={() => setSelectedDay('day4')}
-                className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
-                  selectedDay === 'day4'
-                    ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
-                    : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
-                }`}
-              >
-                Day 4
-              </button>
-              <button
-                onClick={() => setSelectedDay('day5')}
-                className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
-                  selectedDay === 'day5'
-                    ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
-                    : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
-                }`}
-              >
-                Day 5
+                Days 1-5
               </button>
               <button
                 onClick={() => setSelectedDay('day6')}
@@ -542,51 +492,55 @@ export function RoadmapView({ onBack }: RoadmapViewProps) {
               >
                 Day 7
               </button>
+              <button
+                onClick={() => setSelectedDay('day8')}
+                className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
+                  selectedDay === 'day8'
+                    ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
+                    : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
+                }`}
+              >
+                Day 8
+              </button>
             </div>
-            {selectedDay === 'day1' && (
-              <RoadmapPhaseTab
-                phase="Phase 9.0"
-                dayNumber="Day 1"
-                deliverables={day1Deliverables}
-                testingView={<Phase9Day1Testing />}
-                showTestingToggle={true}
-              />
-            )}
-            {selectedDay === 'day2' && (
-              <RoadmapPhaseTab
-                phase="Phase 9.0"
-                dayNumber="Day 2"
-                deliverables={day2Deliverables}
-                testingView={<Phase9Day2Testing />}
-                showTestingToggle={true}
-              />
-            )}
-            {selectedDay === 'day3' && (
-              <RoadmapPhaseTab
-                phase="Phase 9.0"
-                dayNumber="Day 3"
-                deliverables={day3Deliverables}
-                testingView={<Phase9Day3Testing />}
-                showTestingToggle={true}
-              />
-            )}
-            {selectedDay === 'day4' && (
-              <RoadmapPhaseTab
-                phase="Phase 9.0"
-                dayNumber="Day 4"
-                deliverables={day4Deliverables}
-                testingView={<Phase9Day4Testing />}
-                showTestingToggle={true}
-              />
-            )}
-            {selectedDay === 'day5' && (
-              <RoadmapPhaseTab
-                phase="Phase 9.0"
-                dayNumber="Day 5"
-                deliverables={day5Deliverables}
-                testingView={<Phase9Day5Testing />}
-                showTestingToggle={true}
-              />
+            {selectedDay === 'days1-5' && (
+              <div>
+                <RoadmapPhaseTab
+                  phase="Phase 9.0"
+                  dayNumber="Day 1"
+                  deliverables={day1Deliverables}
+                  testingView={<Phase9Day1Testing />}
+                  showTestingToggle={true}
+                />
+                <RoadmapPhaseTab
+                  phase="Phase 9.0"
+                  dayNumber="Day 2"
+                  deliverables={day2Deliverables}
+                  testingView={<Phase9Day2Testing />}
+                  showTestingToggle={true}
+                />
+                <RoadmapPhaseTab
+                  phase="Phase 9.0"
+                  dayNumber="Day 3"
+                  deliverables={day3Deliverables}
+                  testingView={<Phase9Day3Testing />}
+                  showTestingToggle={true}
+                />
+                <RoadmapPhaseTab
+                  phase="Phase 9.0"
+                  dayNumber="Day 4"
+                  deliverables={day4Deliverables}
+                  testingView={<Phase9Day4Testing />}
+                  showTestingToggle={true}
+                />
+                <RoadmapPhaseTab
+                  phase="Phase 9.0"
+                  dayNumber="Day 5"
+                  deliverables={day5Deliverables}
+                  testingView={<Phase9Day5Testing />}
+                  showTestingToggle={true}
+                />
+              </div>
             )}
             {selectedDay === 'day6' && (
               <RoadmapPhaseTab
@@ -606,16 +560,16 @@ export function RoadmapView({ onBack }: RoadmapViewProps) {
                 showTestingToggle={true}
               />
             )}
+            {selectedDay === 'day8' && (
+              <RoadmapPhaseTab
+                phase="Phase 9.0"
+                dayNumber="Day 8"
+                deliverables={day8Deliverables}
+                testingView={<Phase9Day8Testing />}
+                showTestingToggle={true}
+              />
+            )}
           </div>
-        )}
-        {activeTab === 'day8' && (
-          <RoadmapPhaseTab
-            phase="Phase 9.0"
-            dayNumber="Day 8"
-            deliverables={day8Deliverables}
-            testingView={<Phase9Day8Testing />}
-            showTestingToggle={true}
-          />
         )}
         {activeTab === 'day9' && (
           <RoadmapPhaseTab
