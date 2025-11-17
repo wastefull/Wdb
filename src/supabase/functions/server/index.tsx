@@ -5755,8 +5755,8 @@ app.post('/make-server-17cae920/evidence', verifyAuth, verifyAdmin, async (c) =>
   }
 });
 
-// Get evidence points for a material (all users)
-app.get('/make-server-17cae920/evidence/material/:materialId', async (c) => {
+// Get evidence points for a material (authenticated users only)
+app.get('/make-server-17cae920/evidence/material/:materialId', verifyAuth, async (c) => {
   try {
     const materialId = c.req.param('materialId');
     
@@ -5794,8 +5794,8 @@ app.get('/make-server-17cae920/evidence/material/:materialId', async (c) => {
   }
 });
 
-// Get single evidence point (all users)
-app.get('/make-server-17cae920/evidence/:evidenceId', async (c) => {
+// Get single evidence point (authenticated users only)
+app.get('/make-server-17cae920/evidence/:evidenceId', verifyAuth, async (c) => {
   try {
     const evidenceId = c.req.param('evidenceId');
     

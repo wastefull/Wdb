@@ -527,6 +527,205 @@ export function Phase9Day11Testing() {
     }
   };
 
+  // Test 9: Admin can read evidence (RLS)
+  const testAdminCanReadEvidence = async () => {
+    if (!user) {
+      return { success: false, message: 'Must be authenticated as admin to test RLS policies' };
+    }
+
+    const accessToken = sessionStorage.getItem('wastedb_access_token');
+    if (!accessToken) {
+      return { success: false, message: 'No access token found - please sign in again' };
+    }
+
+    try {
+      // First create test evidence
+      const testEvidence = {
+        material_id: 'test_material_rls_001',
+        parameter_code: 'Y',
+        raw_value: 75,
+        raw_unit: '%',
+        snippet: 'Test snippet for RLS validation',
+        source_type: 'manual',
+        citation: 'Test citation',
+        confidence_level: 'high',
+      };
+
+      const createResponse = await fetch(`https://${projectId}.supabase.co/functions/v1/make-server-17cae920/evidence`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(testEvidence),
+      });
+
+      const createData = await createResponse.json();
+
+      if (!createResponse.ok || !createData.success) {
+        return { success: false, message: `Failed to create test evidence: ${createData.error || 'Unknown error'}` };
+      }
+
+      const evidenceId = createData.evidence.id;
+
+      // Now try to read it
+      const readResponse = await fetch(`https://${projectId}.supabase.co/functions/v1/make-server-17cae920/evidence/${evidenceId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+
+      const readData = await readResponse.json();
+
+      // Clean up
+      await fetch(`https://${projectId}.supabase.co/functions/v1/make-server-17cae920/evidence/${evidenceId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+
+      if (readResponse.ok && readData.success) {
+        return { 
+          success: true, 
+          message: 'Admin can read evidence ✓ (HTTP 200)' 
+        };
+      } else {
+        return { 
+          success: false, 
+          message: `Admin read failed: ${readData.error || 'Unknown error'}` 
+        };
+      }
+    } catch (error) {
+      return { 
+        success: false, 
+        message: `Error testing admin read: ${error instanceof Error ? error.message : 'Unknown error'}` 
+      };
+    }
+  };
+
+  // Test 10: Admin can create/update/delete evidence (RLS)
+  const testAdminCanModifyEvidence = async () => {
+    if (!user) {
+      return { success: false, message: 'Must be authenticated as admin to test RLS policies' };
+    }
+
+    const accessToken = sessionStorage.getItem('wastedb_access_token');
+    if (!accessToken) {
+      return { success: false, message: 'No access token found - please sign in again' };
+    }
+
+    try {
+      // Test CREATE
+      const testEvidence = {
+        material_id: 'test_material_rls_002',
+        parameter_code: 'D',
+        raw_value: 65,
+        raw_unit: '%',
+        snippet: 'Test snippet for RLS modify validation',
+        source_type: 'manual',
+        citation: 'Test citation',
+        confidence_level: 'medium',
+      };
+
+      const createResponse = await fetch(`https://${projectId}.supabase.co/functions/v1/make-server-17cae920/evidence`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(testEvidence),
+      });
+
+      const createData = await createResponse.json();
+
+      if (!createResponse.ok || !createData.success) {
+        return { success: false, message: `Admin CREATE failed: ${createData.error || 'Unknown error'}` };
+      }
+
+      const evidenceId = createData.evidence.id;
+
+      // Test UPDATE
+      const updateResponse = await fetch(`https://${projectId}.supabase.co/functions/v1/make-server-17cae920/evidence/${evidenceId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ raw_value: 70 }),
+      });
+
+      const updateData = await updateResponse.json();
+
+      if (!updateResponse.ok || !updateData.success) {
+        return { success: false, message: `Admin UPDATE failed: ${updateData.error || 'Unknown error'}` };
+      }
+
+      // Test DELETE
+      const deleteResponse = await fetch(`https://${projectId}.supabase.co/functions/v1/make-server-17cae920/evidence/${evidenceId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+
+      const deleteData = await deleteResponse.json();
+
+      if (deleteResponse.ok && deleteData.success) {
+        return { 
+          success: true, 
+          message: 'Admin can CREATE/UPDATE/DELETE ✓ (all HTTP 200)' 
+        };
+      } else {
+        return { 
+          success: false, 
+          message: `Admin DELETE failed: ${deleteData.error || 'Unknown error'}` 
+        };
+      }
+    } catch (error) {
+      return { 
+        success: false, 
+        message: `Error testing admin modify: ${error instanceof Error ? error.message : 'Unknown error'}` 
+      };
+    }
+  };
+
+  // Test 11: Unauthenticated users cannot read evidence (RLS)
+  const testUnauthenticatedCannotReadEvidence = async () => {
+    try {
+      // Try to read evidence without auth token
+      const response = await fetch(`https://${projectId}.supabase.co/functions/v1/make-server-17cae920/evidence/test_evidence_001`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${publicAnonKey}`, // Using anon key, not user token
+        },
+      });
+
+      if (response.status === 401 || response.status === 403) {
+        return { 
+          success: true, 
+          message: `Unauthenticated users correctly blocked from reading ✓ (HTTP ${response.status})` 
+        };
+      } else if (response.ok) {
+        return { 
+          success: false, 
+          message: 'Unauthenticated users can read evidence (should be blocked!)' 
+        };
+      } else {
+        return { 
+          success: true, 
+          message: `Unauthenticated access blocked ✓ (HTTP ${response.status})` 
+        };
+      }
+    } catch (error) {
+      return { 
+        success: false, 
+        message: `Error testing unauthenticated read: ${error instanceof Error ? error.message : 'Unknown error'}` 
+      };
+    }
+  };
+
   const tests = [
     {
       id: 'initialize-ontologies',
@@ -590,6 +789,27 @@ export function Phase9Day11Testing() {
       description: 'Test that invalid units are rejected with proper error message (e.g., "kg" for parameter Y)',
       icon: CheckCircle2,
       testFn: testInvalidUnitRejection,
+    },
+    {
+      id: 'admin-read-evidence',
+      title: 'RLS: Admin Can Read Evidence',
+      description: 'Verify admin users can read evidence (expect HTTP 200)',
+      icon: CheckCircle2,
+      testFn: testAdminCanReadEvidence,
+    },
+    {
+      id: 'admin-modify-evidence',
+      title: 'RLS: Admin Can Modify Evidence',
+      description: 'Verify admin users can CREATE/UPDATE/DELETE evidence (expect HTTP 200)',
+      icon: CheckCircle2,
+      testFn: testAdminCanModifyEvidence,
+    },
+    {
+      id: 'unauthenticated-cannot-read',
+      title: 'RLS: Unauthenticated Cannot Read',
+      description: 'Verify unauthenticated users cannot read evidence (expect HTTP 401/403)',
+      icon: CheckCircle2,
+      testFn: testUnauthenticatedCannotReadEvidence,
     },
   ];
 

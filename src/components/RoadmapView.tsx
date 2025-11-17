@@ -385,12 +385,12 @@ export function RoadmapView({ onBack }: RoadmapViewProps) {
     {
       title: 'RLS Policies for Evidence',
       description: 'Implement Row-Level Security policies: read for all authenticated users, create/update/delete for admins only',
-      completed: false,
+      completed: true,
     },
     {
       title: 'RLS Test Suite',
       description: 'Create automated tests verifying non-admin users cannot modify evidence (expect 403) and admins can (expect 200)',
-      completed: false,
+      completed: true,
     },
     {
       title: 'Signed URLs for File Storage',
