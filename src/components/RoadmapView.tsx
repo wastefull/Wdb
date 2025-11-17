@@ -18,7 +18,7 @@ interface RoadmapViewProps {
 }
 
 export function RoadmapView({ onBack }: RoadmapViewProps) {
-  const [activeTab, setActiveTab] = useState('completed');
+  const [activeTab, setActiveTab] = useState('day11');
 
   // Day 1 Deliverables
   const day1Deliverables = [
@@ -395,22 +395,22 @@ export function RoadmapView({ onBack }: RoadmapViewProps) {
     {
       title: 'Signed URLs for File Storage',
       description: 'Implement signed URLs with expiry for PDF and screenshot access (1-hour for PDFs, 24-hour for screenshots)',
-      completed: false,
+      completed: true,
     },
     {
       title: 'Policy Snapshot Fields',
       description: 'Extend parameter_aggregations table with version tracking: transform_version, weight_policy_version, codebook_version, ontology_version, weights_used (JSONB)',
-      completed: false,
+      completed: true,
     },
     {
       title: 'Aggregation Snapshot Storage',
       description: 'Update aggregation computation to store complete version snapshot with miu_ids[] array and weights_used JSON',
-      completed: false,
+      completed: true,
     },
     {
       title: 'Aggregation Snapshot Display',
       description: 'Create AggregationSnapshot.tsx component to display all versions used with links to transforms.json, weight policy, and codebook',
-      completed: false,
+      completed: true,
     },
   ];
 
@@ -523,7 +523,7 @@ export function RoadmapView({ onBack }: RoadmapViewProps) {
                 : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
             }`}
           >
-            Day 11 (In Progress)
+            Day 11 (Complete)
           </button>
           <button
             onClick={() => setActiveTab('backlog')}

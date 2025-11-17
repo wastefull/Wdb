@@ -1709,7 +1709,12 @@ app.get('/make-server-17cae920/source-pdfs/:fileName', verifyAuth, async (c) => 
       .createSignedUrl(fileName, 3600);
 
     if (error) {
-      console.error('❌ Error creating signed URL:', error);
+      // Don't log as error if file simply doesn't exist (expected for test cases)
+      if (error.message?.includes('Object not found') || error.statusCode === '404') {
+        console.log(`📄 PDF not found: ${fileName} (this is expected for test files)`);
+      } else {
+        console.error('❌ Error creating signed URL:', error);
+      }
       return c.json({ error: 'Failed to get PDF URL', details: error.message }, 500);
     }
 
@@ -1753,6 +1758,165 @@ app.delete('/make-server-17cae920/source-pdfs/:fileName', verifyAuth, verifyAdmi
   } catch (error) {
     console.error('Error in source PDF deletion:', error);
     return c.json({ error: 'Failed to delete PDF', details: String(error) }, 500);
+  }
+});
+
+// ==================== SCREENSHOT STORAGE ROUTES ====================
+
+// Helper function to generate signed URL for screenshots (24-hour expiry)
+async function getScreenshotSignedUrl(fileName: string): Promise<{ signedUrl: string | null; error?: string }> {
+  try {
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+    );
+
+    const bucketName = 'make-17cae920-screenshots';
+
+    // Ensure bucket exists
+    const { data: buckets } = await supabase.storage.listBuckets();
+    const bucketExists = buckets?.some(bucket => bucket.name === bucketName);
+    
+    if (!bucketExists) {
+      await supabase.storage.createBucket(bucketName, { public: false });
+    }
+
+    // Generate signed URL valid for 24 hours (86400 seconds)
+    const { data, error } = await supabase.storage
+      .from(bucketName)
+      .createSignedUrl(fileName, 86400);
+
+    if (error) {
+      // Don't log as error if file simply doesn't exist (expected for test cases)
+      if (error.message?.includes('Object not found') || error.statusCode === '404') {
+        console.log(`📸 Screenshot not found: ${fileName} (this is expected for test files)`);
+      } else {
+        console.error('Error creating screenshot signed URL:', error);
+      }
+      return { signedUrl: null, error: error.message };
+    }
+
+    return { signedUrl: data.signedUrl };
+  } catch (error) {
+    console.error('Exception in screenshot signed URL generation:', error);
+    return { signedUrl: null, error: String(error) };
+  }
+}
+
+// Get signed URL for a screenshot (authenticated users)
+app.get('/make-server-17cae920/screenshots/:fileName', verifyAuth, async (c) => {
+  try {
+    const fileName = c.req.param('fileName');
+    console.log(`📸 Request for screenshot URL: ${fileName}`);
+
+    const result = await getScreenshotSignedUrl(fileName);
+
+    if (result.error || !result.signedUrl) {
+      return c.json({ error: 'Failed to get screenshot URL', details: result.error }, 500);
+    }
+
+    console.log(`✅ Screenshot signed URL created (24-hour expiry)`);
+
+    return c.json({ 
+      signedUrl: result.signedUrl,
+      expiresIn: 86400 // 24 hours in seconds
+    });
+  } catch (error) {
+    console.error('Exception in screenshot URL retrieval:', error);
+    return c.json({ error: 'Failed to get screenshot URL', details: String(error) }, 500);
+  }
+});
+
+// Upload screenshot (admin only)
+app.post('/make-server-17cae920/screenshots/upload', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const formData = await c.req.formData();
+    const file = formData.get('file') as File;
+    
+    if (!file) {
+      return c.json({ error: 'No file provided' }, 400);
+    }
+
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+    );
+
+    const bucketName = 'make-17cae920-screenshots';
+
+    // Ensure bucket exists
+    const { data: buckets } = await supabase.storage.listBuckets();
+    const bucketExists = buckets?.some(bucket => bucket.name === bucketName);
+    
+    if (!bucketExists) {
+      await supabase.storage.createBucket(bucketName, { public: false });
+    }
+
+    // Generate unique filename
+    const timestamp = Date.now();
+    const randomStr = Math.random().toString(36).substring(2, 9);
+    const extension = file.name.split('.').pop() || 'png';
+    const fileName = `screenshot_${timestamp}_${randomStr}.${extension}`;
+
+    // Upload file
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = new Uint8Array(arrayBuffer);
+
+    const { error: uploadError } = await supabase.storage
+      .from(bucketName)
+      .upload(fileName, buffer, {
+        contentType: file.type || 'image/png',
+      });
+
+    if (uploadError) {
+      console.error('Error uploading screenshot:', uploadError);
+      return c.json({ error: 'Failed to upload screenshot', details: uploadError.message }, 500);
+    }
+
+    console.log(`✅ Screenshot uploaded: ${fileName}`);
+
+    // Return signed URL
+    const result = await getScreenshotSignedUrl(fileName);
+
+    return c.json({ 
+      success: true, 
+      fileName,
+      signedUrl: result.signedUrl,
+      expiresIn: 86400
+    });
+  } catch (error) {
+    console.error('Error in screenshot upload:', error);
+    return c.json({ error: 'Failed to upload screenshot', details: String(error) }, 500);
+  }
+});
+
+// Delete screenshot (admin only)
+app.delete('/make-server-17cae920/screenshots/:fileName', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const fileName = c.req.param('fileName');
+
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+    );
+
+    const bucketName = 'make-17cae920-screenshots';
+
+    const { error } = await supabase.storage
+      .from(bucketName)
+      .remove([fileName]);
+
+    if (error) {
+      console.error('Error deleting screenshot:', error);
+      return c.json({ error: 'Failed to delete screenshot', details: error.message }, 500);
+    }
+
+    console.log(`✅ Screenshot deleted: ${fileName}`);
+
+    return c.json({ success: true });
+  } catch (error) {
+    console.error('Error in screenshot deletion:', error);
+    return c.json({ error: 'Failed to delete screenshot', details: String(error) }, 500);
   }
 });
 
@@ -5963,6 +6127,245 @@ app.delete('/make-server-17cae920/evidence/:evidenceId', verifyAuth, verifyAdmin
   } catch (error) {
     console.error('Error deleting evidence:', error);
     return c.json({ success: false, error: 'Failed to delete evidence', details: String(error) }, 500);
+  }
+});
+
+// ==================== AGGREGATION ENDPOINTS ====================
+
+/**
+ * Compute aggregation for a specific material and parameter
+ * This endpoint computes a weighted mean and stores a complete version snapshot
+ * including transform_version, ontology_version, weights_used, and miu_ids
+ */
+app.post('/make-server-17cae920/aggregations/compute', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const { material_id, parameter_code } = await c.req.json();
+
+    if (!material_id || !parameter_code) {
+      return c.json({ 
+        success: false, 
+        error: 'Missing required fields: material_id, parameter_code' 
+      }, 400);
+    }
+
+    // Validate parameter_code
+    const transform = TRANSFORMS_DATA.transforms.find(t => t.parameter === parameter_code);
+    if (!transform) {
+      return c.json({ 
+        success: false, 
+        error: `Invalid parameter_code: ${parameter_code}. Must be one of: ${TRANSFORMS_DATA.transforms.map(t => t.parameter).join(', ')}` 
+      }, 400);
+    }
+
+    // Get all evidence for this material+parameter
+    const evidenceRefs = await kv.getByPrefix(`evidence_by_material:${material_id}:${parameter_code}:`);
+    
+    if (!evidenceRefs || evidenceRefs.length === 0) {
+      return c.json({ 
+        success: false, 
+        error: `No evidence found for material ${material_id}, parameter ${parameter_code}` 
+      }, 404);
+    }
+
+    // Fetch full evidence objects
+    const evidencePromises = evidenceRefs.map(async (ref: any) => {
+      const evidenceId = ref.value;
+      const evidence = await kv.get(`evidence:${evidenceId}`);
+      return evidence;
+    });
+
+    const evidencePoints = (await Promise.all(evidencePromises)).filter(e => e !== null);
+
+    if (evidencePoints.length === 0) {
+      return c.json({ 
+        success: false, 
+        error: `No valid evidence found for material ${material_id}, parameter ${parameter_code}` 
+      }, 404);
+    }
+
+    // Confidence weights mapping
+    const confidenceWeights: Record<string, number> = {
+      'high': 1.0,
+      'medium': 0.7,
+      'low': 0.4,
+    };
+
+    // Compute weighted mean
+    let weightedSum = 0;
+    let totalWeight = 0;
+    const miu_ids: string[] = [];
+    const weights_used: Array<{ miu_id: string; confidence_level: string; weight: number }> = [];
+
+    for (const evidence of evidencePoints as any[]) {
+      // Validate evidence has required fields
+      if (!evidence || typeof evidence !== 'object') {
+        console.warn(`Skipping invalid evidence object:`, evidence);
+        continue;
+      }
+      
+      if (!evidence.id || evidence.raw_value === undefined || !evidence.confidence_level) {
+        console.warn(`Skipping evidence with missing fields:`, evidence);
+        continue;
+      }
+
+      const weight = confidenceWeights[evidence.confidence_level] || 0.5;
+      weightedSum += evidence.raw_value * weight;
+      totalWeight += weight;
+      miu_ids.push(evidence.id);
+      weights_used.push({
+        miu_id: evidence.id,
+        confidence_level: evidence.confidence_level,
+        weight,
+      });
+    }
+
+    // Check if we have any valid evidence after filtering
+    if (miu_ids.length === 0 || totalWeight === 0) {
+      return c.json({ 
+        success: false, 
+        error: `No valid evidence with required fields found for material ${material_id}, parameter ${parameter_code}` 
+      }, 404);
+    }
+
+    const aggregated_value = totalWeight > 0 ? weightedSum / totalWeight : 0;
+
+    // Get current ontology version
+    let ontology_version = '1.0'; // Default
+    try {
+      const unitsData = await kv.get('ontology:units') as any;
+      if (unitsData && unitsData.version) {
+        ontology_version = unitsData.version;
+      }
+    } catch (error) {
+      console.warn('Could not load ontology version, using default 1.0');
+    }
+
+    // Create aggregation snapshot with version tracking
+    const aggregationId = `aggregation_${material_id}_${parameter_code}_${Date.now()}`;
+    const aggregation = {
+      id: aggregationId,
+      material_id,
+      parameter_code,
+      aggregated_value,
+      miu_count: evidencePoints.length,
+      miu_ids,
+      weights_used,
+      
+      // Version tracking (Policy Snapshot Fields - Task 8)
+      transform_version: transform.version,
+      ontology_version,
+      weight_policy_version: '1.0', // Weight policy: high=1.0, medium=0.7, low=0.4
+      codebook_version: '1.0', // Codebook for confidence levels
+      
+      computed_at: new Date().toISOString(),
+      computed_by: c.get('userId'),
+    };
+
+    // Store aggregation
+    await kv.set(`aggregation:${aggregationId}`, aggregation);
+    
+    // Store latest aggregation reference for this material+parameter
+    await kv.set(`aggregation_latest:${material_id}:${parameter_code}`, aggregationId);
+
+    console.log(`✓ Computed aggregation for material ${material_id}, parameter ${parameter_code}: ${aggregated_value.toFixed(2)} (${evidencePoints.length} MIUs)`);
+
+    // Audit log
+    await createAuditLog({
+      userId: c.get('userId'),
+      userEmail: c.get('userEmail'),
+      entityType: 'aggregation',
+      entityId: aggregationId,
+      action: 'compute',
+      after: aggregation,
+      req: c,
+    });
+
+    return c.json({ 
+      success: true, 
+      aggregation,
+      message: `Aggregation computed successfully (${evidencePoints.length} MIUs)` 
+    });
+  } catch (error) {
+    console.error('Error computing aggregation:', error);
+    return c.json({ success: false, error: 'Failed to compute aggregation', details: String(error) }, 500);
+  }
+});
+
+/**
+ * Get aggregation for a specific material and parameter
+ * Returns the latest computed aggregation with full version snapshot
+ */
+app.get('/make-server-17cae920/aggregations/:materialId/:parameterCode', verifyAuth, async (c) => {
+  try {
+    const materialId = c.req.param('materialId');
+    const parameterCode = c.req.param('parameterCode');
+
+    // Get latest aggregation ID
+    const aggregationId = await kv.get(`aggregation_latest:${materialId}:${parameterCode}`) as string;
+
+    if (!aggregationId) {
+      return c.json({ 
+        success: false, 
+        error: `No aggregation found for material ${materialId}, parameter ${parameterCode}` 
+      }, 404);
+    }
+
+    // Get aggregation data
+    const aggregation = await kv.get(`aggregation:${aggregationId}`);
+
+    if (!aggregation) {
+      return c.json({ 
+        success: false, 
+        error: 'Aggregation data not found' 
+      }, 404);
+    }
+
+    return c.json({ 
+      success: true, 
+      aggregation 
+    });
+  } catch (error) {
+    console.error('Error retrieving aggregation:', error);
+    return c.json({ success: false, error: 'Failed to retrieve aggregation', details: String(error) }, 500);
+  }
+});
+
+/**
+ * Get all aggregations for a material
+ * Returns all parameter aggregations for the given material
+ */
+app.get('/make-server-17cae920/aggregations/material/:materialId', verifyAuth, async (c) => {
+  try {
+    const materialId = c.req.param('materialId');
+
+    // Get all aggregation_latest references for this material
+    const latestRefs = await kv.getByPrefix(`aggregation_latest:${materialId}:`);
+
+    if (!latestRefs || latestRefs.length === 0) {
+      return c.json({ 
+        success: true, 
+        aggregations: [],
+        count: 0 
+      });
+    }
+
+    // Fetch all aggregations
+    const aggregationPromises = latestRefs.map(async (ref: any) => {
+      const aggregationId = ref.value;
+      const aggregation = await kv.get(`aggregation:${aggregationId}`);
+      return aggregation;
+    });
+
+    const aggregations = (await Promise.all(aggregationPromises)).filter(a => a !== null);
+
+    return c.json({ 
+      success: true, 
+      aggregations,
+      count: aggregations.length 
+    });
+  } catch (error) {
+    console.error('Error retrieving aggregations:', error);
+    return c.json({ success: false, error: 'Failed to retrieve aggregations', details: String(error) }, 500);
   }
 });
 
