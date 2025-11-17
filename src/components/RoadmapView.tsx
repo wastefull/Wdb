@@ -16,7 +16,6 @@ interface RoadmapViewProps {
 
 export function RoadmapView({ onBack }: RoadmapViewProps) {
   const [activeTab, setActiveTab] = useState('day9');
-  const [selectedDay, setSelectedDay] = useState<'days1-5' | 'day6' | 'day7' | 'day8'>('day8');
 
   // Day 1 Deliverables
   const day1Deliverables = [
@@ -461,114 +460,65 @@ export function RoadmapView({ onBack }: RoadmapViewProps) {
       <div className="bg-white dark:bg-[#1a1917] rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] p-6">
         {activeTab === 'completed' && (
           <div>
-            <div className="flex items-center gap-4 mb-4">
-              <button
-                onClick={() => setSelectedDay('days1-5')}
-                className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
-                  selectedDay === 'days1-5'
-                    ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
-                    : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
-                }`}
-              >
-                Days 1-5
-              </button>
-              <button
-                onClick={() => setSelectedDay('day6')}
-                className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
-                  selectedDay === 'day6'
-                    ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
-                    : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
-                }`}
-              >
-                Day 6
-              </button>
-              <button
-                onClick={() => setSelectedDay('day7')}
-                className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
-                  selectedDay === 'day7'
-                    ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
-                    : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
-                }`}
-              >
-                Day 7
-              </button>
-              <button
-                onClick={() => setSelectedDay('day8')}
-                className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
-                  selectedDay === 'day8'
-                    ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
-                    : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
-                }`}
-              >
-                Day 8
-              </button>
-            </div>
-            {selectedDay === 'days1-5' && (
-              <div>
-                <RoadmapPhaseTab
-                  phase="Phase 9.0"
-                  dayNumber="Day 1"
-                  deliverables={day1Deliverables}
-                  testingView={<Phase9Day1Testing />}
-                  showTestingToggle={true}
-                />
-                <RoadmapPhaseTab
-                  phase="Phase 9.0"
-                  dayNumber="Day 2"
-                  deliverables={day2Deliverables}
-                  testingView={<Phase9Day2Testing />}
-                  showTestingToggle={true}
-                />
-                <RoadmapPhaseTab
-                  phase="Phase 9.0"
-                  dayNumber="Day 3"
-                  deliverables={day3Deliverables}
-                  testingView={<Phase9Day3Testing />}
-                  showTestingToggle={true}
-                />
-                <RoadmapPhaseTab
-                  phase="Phase 9.0"
-                  dayNumber="Day 4"
-                  deliverables={day4Deliverables}
-                  testingView={<Phase9Day4Testing />}
-                  showTestingToggle={true}
-                />
-                <RoadmapPhaseTab
-                  phase="Phase 9.0"
-                  dayNumber="Day 5"
-                  deliverables={day5Deliverables}
-                  testingView={<Phase9Day5Testing />}
-                  showTestingToggle={true}
-                />
-              </div>
-            )}
-            {selectedDay === 'day6' && (
-              <RoadmapPhaseTab
-                phase="Phase 9.0"
-                dayNumber="Day 6"
-                deliverables={day6Deliverables}
-                testingView={<Phase9Day6Testing />}
-                showTestingToggle={true}
-              />
-            )}
-            {selectedDay === 'day7' && (
-              <RoadmapPhaseTab
-                phase="Phase 9.0"
-                dayNumber="Day 7"
-                deliverables={day7Deliverables}
-                testingView={<Phase9Day7Testing />}
-                showTestingToggle={true}
-              />
-            )}
-            {selectedDay === 'day8' && (
-              <RoadmapPhaseTab
-                phase="Phase 9.0"
-                dayNumber="Day 8"
-                deliverables={day8Deliverables}
-                testingView={<Phase9Day8Testing />}
-                showTestingToggle={true}
-              />
-            )}
+            <h3 className="font-['Sniglet'] text-[14px] text-black dark:text-white mb-6">
+              Days 1-8: Complete Infrastructure Implementation
+            </h3>
+            <RoadmapPhaseTab
+              phase="Phase 9.0"
+              dayNumber="Day 1"
+              deliverables={day1Deliverables}
+              testingView={<Phase9Day1Testing />}
+              showTestingToggle={true}
+            />
+            <RoadmapPhaseTab
+              phase="Phase 9.0"
+              dayNumber="Day 2"
+              deliverables={day2Deliverables}
+              testingView={<Phase9Day2Testing />}
+              showTestingToggle={true}
+            />
+            <RoadmapPhaseTab
+              phase="Phase 9.0"
+              dayNumber="Day 3"
+              deliverables={day3Deliverables}
+              testingView={<Phase9Day3Testing />}
+              showTestingToggle={true}
+            />
+            <RoadmapPhaseTab
+              phase="Phase 9.0"
+              dayNumber="Day 4"
+              deliverables={day4Deliverables}
+              testingView={<Phase9Day4Testing />}
+              showTestingToggle={true}
+            />
+            <RoadmapPhaseTab
+              phase="Phase 9.0"
+              dayNumber="Day 5"
+              deliverables={day5Deliverables}
+              testingView={<Phase9Day5Testing />}
+              showTestingToggle={true}
+            />
+            <RoadmapPhaseTab
+              phase="Phase 9.0"
+              dayNumber="Day 6"
+              deliverables={day6Deliverables}
+              testingView={<Phase9Day6Testing />}
+              showTestingToggle={true}
+            />
+            <RoadmapPhaseTab
+              phase="Phase 9.0"
+              dayNumber="Day 7"
+              deliverables={day7Deliverables}
+              testingView={<Phase9Day7Testing />}
+              showTestingToggle={true}
+            />
+            <RoadmapPhaseTab
+              phase="Phase 9.0"
+              dayNumber="Day 8"
+              deliverables={day8Deliverables}
+              testingView={<Phase9Day8Testing />}
+              showTestingToggle={true}
+            />
           </div>
         )}
         {activeTab === 'day9' && (
