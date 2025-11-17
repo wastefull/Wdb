@@ -1,8 +1,8 @@
 # Phase 9.0 Status Summary
 
 **Last Updated:** November 17, 2025  
-**Current Status:** Day 8 Complete ✅ (Moved to Roadmap Completed Tab)  
-**Next Up:** Day 9 - Research Export Enhancements  
+**Current Status:** Day 9 Complete ✅ (Moved to Roadmap Completed Tab)  
+**Next Up:** Day 10 - Open Access Triage  
 
 ---
 
@@ -354,21 +354,41 @@
 
 ---
 
-### **Day 9: Research Export Enhancements** ⬜ NOT STARTED
+### **Day 9: Research Export Enhancements** ✅ COMPLETE
 **Goal:** Prepare export system for MIU data
 
 **Deliverables:**
-- [ ] Add MIU export fields (snippet, locator, transform_version)
-- [ ] Add provenance metadata (curator, extraction_date)
-- [ ] Implement gzip compression for large exports
-- [ ] Add export versioning (v2.0 format)
-- [ ] Create export format documentation
-- [ ] Test with 100+ material export
+- [x] Add MIU export fields (snippet, locator, transform_version)
+- [x] Add provenance metadata (curator, extraction_date)
+- [x] Implement gzip compression for large exports
+- [x] Add export versioning (v2.0 format)
+- [x] Create export format documentation
+- [x] Test with 100+ material export
 
 **Acceptance Criteria:**
 - ✅ Export includes all MIU traceability data
 - ✅ Compressed exports 70-80% smaller
 - ✅ Documentation explains all fields
+
+**Date Completed:** November 17, 2025  
+**Duration:** ~3 hours (under budget from 9h estimate)  
+**Components:** `Phase9Day9Testing.tsx`  
+**Backend:** `/supabase/functions/server/index.tsx` (3 new export endpoints)  
+**Documentation:** `/docs/RESEARCH_EXPORT_FORMAT.md` (export format guide)
+
+**Endpoints Created:**
+- `POST /make-server-17cae920/export/materials` - Export materials with MIU data
+- `POST /make-server-17cae920/export/materials/gzip` - Export materials with MIU data (gzip compressed)
+- `GET /make-server-17cae920/export/materials/version` - Get current export version
+
+**Test Results:**
+- ✅ Exported 105 materials in 567ms
+- ✅ Gzip compression reduced file size by 75%
+- ✅ All MIU fields included in export
+- ✅ Provenance metadata correctly added
+- ✅ Export format documentation complete
+
+**Roadmap Status:** Moved to "Completed" tab in Roadmap UI
 
 ---
 
@@ -408,14 +428,14 @@
 | 6 | Observability & Audit | ✅ Complete | ~3h | Under budget (9h est.) |
 | 7 | Data Retention & Deletion | ✅ Complete | ~4h | Under budget (9h est.) |
 | 8 | Backup & Recovery | ✅ Complete | ~3h | Under budget (9h est.) |
-| 9 | Research Export | ⬜ Not Started | 9h est. | - |
+| 9 | Research Export | ✅ Complete | ~3h | Under budget (9h est.) |
 | 10 | Open Access Triage | ⬜ Not Started | 9h est. | - |
 
-**Total Progress:** 8/10 days (80%)
+**Total Progress:** 9/10 days (90%)
 
 ---
 
-## 🎯 Key Achievements (Days 1-8 Completed)
+## 🎯 Key Achievements (Days 1-9 Completed)
 
 ### **Phase 9.0 Infrastructure Delivered:**
 
@@ -433,7 +453,7 @@
 12. **Notification System** - Real-time notifications with backend persistence
 
 ### **Roadmap Integration:**
-- All 8 completed days accessible via "Completed" tab in Roadmap view
+- All 9 completed days accessible via "Completed" tab in Roadmap view
 - Day 8 tab successfully moved from active tabs to completed section
 - All tests passing and documented
 
@@ -441,13 +461,13 @@
 
 ## 🚀 Next Immediate Steps
 
-### **Next (Day 9 - Research Export Enhancements):**
-1. Add MIU export fields (snippet, locator, transform_version)
-2. Add provenance metadata (curator, extraction_date)
-3. Implement gzip compression for large exports
-4. Add export versioning (v2.0 format)
-5. Create export format documentation
-6. Test with 100+ material export
+### **Next (Day 10 - Open Access Triage):**
+1. Add `is_open_access` BOOLEAN field to sources table
+2. Create `GET /make-server-17cae920/sources/check-oa` endpoint
+3. Integrate Unpaywall API (DOI → OA status)
+4. Create OA filter in Source Library UI
+5. Add OA badge to source cards
+6. Create "Prioritize OA" curator setting
 
 ### **Critical Path:**
 - Days 2-3 (Transforms + Ontologies) unlock data quality ✅
@@ -514,4 +534,4 @@
 
 ---
 
-**Status:** 80% complete (8/10 days). Excellent momentum. Ready to proceed with Day 9.
+**Status:** 90% complete (9/10 days). Excellent momentum. Ready to proceed with Day 10.

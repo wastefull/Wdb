@@ -4,6 +4,7 @@ import { logger } from "npm:hono/logger";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import * as kv from "./kv_store.tsx";
 import { normalizeDOI, calculateSimilarity, areTitlesSimilar } from "./string-utils.tsx";
+import { handlePublicExport, handleResearchExport } from "./exports.tsx";
 
 // WasteDB Server - v1.1.0 (Hardened Security)
 const app = new Hono();
@@ -2362,69 +2363,19 @@ function arrayToCSV(headers: string[], rows: any[][]): string {
 
 // Public export endpoint - lay-friendly data (0-100 scale)
 app.get('/make-server-17cae920/export/public', async (c) => {
-  try {
-    const format = c.req.query('format') || 'json'; // 'json' or 'csv'
-    
-    // Get all materials
-    const materials = await kv.getByPrefix('material:');
-    
-    if (!materials || materials.length === 0) {
-      if (format === 'csv') {
-        return c.text('', 200, { 'Content-Type': 'text/csv' });
-      }
-      return c.json({ materials: [] });
-    }
-    
-    // Convert to public format
-    const publicData = materials.map(convertToPublicFormat);
-    
-    if (format === 'csv') {
-      const headers = [
-        'ID', 'Name', 'Category', 'Description',
-        'Compostability', 'Recyclability', 'Reusability',
-        'Is Estimated', 'Confidence Level', 'Last Updated', 'Whitepaper Version'
-      ];
-      
-      const rows = publicData.map(m => [
-        m.id,
-        m.name,
-        m.category,
-        m.description,
-        m.compostability,
-        m.recyclability,
-        m.reusability,
-        m.isEstimated ? 'Yes' : 'No',
-        m.confidenceLevel,
-        m.lastUpdated,
-        m.whitepaperVersion
-      ]);
-      
-      const csv = arrayToCSV(headers, rows);
-      
-      return c.text(csv, 200, {
-        'Content-Type': 'text/csv',
-        'Content-Disposition': `attachment; filename="wastedb-public-${new Date().toISOString().split('T')[0]}.csv"`
-      });
-    }
-    
-    // Return JSON by default
-    return c.json({
-      exportDate: new Date().toISOString(),
-      format: 'public',
-      scale: '0-100',
-      count: publicData.length,
-      materials: publicData
-    });
-  } catch (error) {
-    console.error('Error exporting public data:', error);
-    return c.json({ error: 'Failed to export data', details: String(error) }, 500);
-  }
+  return handlePublicExport(c);
 });
 
-// Full research export endpoint - raw scientific data
+// Full research export endpoint - raw scientific data with v2.0 MIU evidence
 app.get('/make-server-17cae920/export/full', async (c) => {
+  return handleResearchExport(c);
+});
+
+// TEMP - OLD VERSION TO DELETE
+app.get('/make-server-17cae920/export/full-OLD', async (c) => {
   try {
     const format = c.req.query('format') || 'json'; // 'json' or 'csv'
+    const compress = c.req.query('compress') === 'true'; // gzip compression flag
     
     // Get all materials
     const materials = await kv.getByPrefix('material:');
@@ -2434,6 +2385,20 @@ app.get('/make-server-17cae920/export/full', async (c) => {
         return c.text('', 200, { 'Content-Type': 'text/csv' });
       }
       return c.json({ materials: [] });
+    }
+    
+    // Get all evidence points for MIU traceability (NEW in v2.0)
+    const allEvidence = await kv.getByPrefix('evidence:');
+    console.log(`📊 Retrieved ${allEvidence.length} evidence points for export`);
+    
+    // Organize evidence by material ID
+    const evidenceByMaterial = new Map();
+    for (const evidence of allEvidence) {
+      const materialId = evidence.material_id;
+      if (!evidenceByMaterial.has(materialId)) {
+        evidenceByMaterial.set(materialId, []);
+      }
+      evidenceByMaterial.get(materialId).push(evidence);
     }
     
     if (format === 'csv') {
@@ -2453,59 +2418,64 @@ app.get('/make-server-17cae920/export/full', async (c) => {
         'RU Theoretical Mean', 'RU Theoretical CI Lower', 'RU Theoretical CI Upper',
         // Public scores and metadata
         'Compostability (0-100)', 'Recyclability (0-100)', 'Reusability (0-100)',
-        'Confidence Level', 'Source Count', 'Whitepaper Version', 'Method Version',
+        'Confidence Level', 'Source Count', 'Evidence Count', 'Whitepaper Version', 'Method Version',
         'Calculation Timestamp'
       ];
       
-      const rows = materials.map(m => [
-        m.id,
-        m.name,
-        m.category,
-        m.description || '',
-        // CR parameters
-        m.Y_value?.toFixed(4) || '',
-        m.D_value?.toFixed(4) || '',
-        m.C_value?.toFixed(4) || '',
-        m.M_value?.toFixed(4) || '',
-        m.E_value?.toFixed(4) || '',
-        m.CR_practical_mean?.toFixed(4) || '',
-        m.CR_practical_CI95?.lower?.toFixed(4) || '',
-        m.CR_practical_CI95?.upper?.toFixed(4) || '',
-        m.CR_theoretical_mean?.toFixed(4) || '',
-        m.CR_theoretical_CI95?.lower?.toFixed(4) || '',
-        m.CR_theoretical_CI95?.upper?.toFixed(4) || '',
-        // CC parameters
-        m.B_value?.toFixed(4) || '',
-        m.N_value?.toFixed(4) || '',
-        m.T_value?.toFixed(4) || '',
-        m.H_value?.toFixed(4) || '',
-        m.CC_practical_mean?.toFixed(4) || '',
-        m.CC_practical_CI95?.lower?.toFixed(4) || '',
-        m.CC_practical_CI95?.upper?.toFixed(4) || '',
-        m.CC_theoretical_mean?.toFixed(4) || '',
-        m.CC_theoretical_CI95?.lower?.toFixed(4) || '',
-        m.CC_theoretical_CI95?.upper?.toFixed(4) || '',
-        // RU parameters
-        m.L_value?.toFixed(4) || '',
-        m.R_value?.toFixed(4) || '',
-        m.U_value?.toFixed(4) || '',
-        m.C_RU_value?.toFixed(4) || '',
-        m.RU_practical_mean?.toFixed(4) || '',
-        m.RU_practical_CI95?.lower?.toFixed(4) || '',
-        m.RU_practical_CI95?.upper?.toFixed(4) || '',
-        m.RU_theoretical_mean?.toFixed(4) || '',
-        m.RU_theoretical_CI95?.lower?.toFixed(4) || '',
-        m.RU_theoretical_CI95?.upper?.toFixed(4) || '',
-        // Public scores and metadata
-        m.compostability || '',
-        m.recyclability || '',
-        m.reusability || '',
-        m.confidence_level || '',
-        m.sources?.length || '0',
-        m.whitepaper_version || '',
-        m.method_version || '',
-        m.calculation_timestamp || ''
-      ]);
+      const rows = materials.map(m => {
+        const evidenceCount = evidenceByMaterial.get(m.id)?.length || 0;
+        
+        return [
+          m.id,
+          m.name,
+          m.category,
+          m.description || '',
+          // CR parameters
+          m.Y_value?.toFixed(4) || '',
+          m.D_value?.toFixed(4) || '',
+          m.C_value?.toFixed(4) || '',
+          m.M_value?.toFixed(4) || '',
+          m.E_value?.toFixed(4) || '',
+          m.CR_practical_mean?.toFixed(4) || '',
+          m.CR_practical_CI95?.lower?.toFixed(4) || '',
+          m.CR_practical_CI95?.upper?.toFixed(4) || '',
+          m.CR_theoretical_mean?.toFixed(4) || '',
+          m.CR_theoretical_CI95?.lower?.toFixed(4) || '',
+          m.CR_theoretical_CI95?.upper?.toFixed(4) || '',
+          // CC parameters
+          m.B_value?.toFixed(4) || '',
+          m.N_value?.toFixed(4) || '',
+          m.T_value?.toFixed(4) || '',
+          m.H_value?.toFixed(4) || '',
+          m.CC_practical_mean?.toFixed(4) || '',
+          m.CC_practical_CI95?.lower?.toFixed(4) || '',
+          m.CC_practical_CI95?.upper?.toFixed(4) || '',
+          m.CC_theoretical_mean?.toFixed(4) || '',
+          m.CC_theoretical_CI95?.lower?.toFixed(4) || '',
+          m.CC_theoretical_CI95?.upper?.toFixed(4) || '',
+          // RU parameters
+          m.L_value?.toFixed(4) || '',
+          m.R_value?.toFixed(4) || '',
+          m.U_value?.toFixed(4) || '',
+          m.C_RU_value?.toFixed(4) || '',
+          m.RU_practical_mean?.toFixed(4) || '',
+          m.RU_practical_CI95?.lower?.toFixed(4) || '',
+          m.RU_practical_CI95?.upper?.toFixed(4) || '',
+          m.RU_theoretical_mean?.toFixed(4) || '',
+          m.RU_theoretical_CI95?.lower?.toFixed(4) || '',
+          m.RU_theoretical_CI95?.upper?.toFixed(4) || '',
+          // Public scores and metadata
+          m.compostability || '',
+          m.recyclability || '',
+          m.reusability || '',
+          m.confidence_level || '',
+          m.sources?.length || '0',
+          evidenceCount.toString(),
+          m.whitepaper_version || '',
+          m.method_version || '',
+          m.calculation_timestamp || ''
+        ];
+      });
       
       const csv = arrayToCSV(headers, rows);
       
@@ -2572,6 +2542,7 @@ app.get('/make-server-17cae920/export/full', async (c) => {
     return c.json({ error: 'Failed to export data', details: String(error) }, 500);
   }
 });
+// END TEMP - can delete above old endpoint
 
 // ==================== SOURCE LIBRARY ROUTES ====================
 

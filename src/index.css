@@ -2170,6 +2170,10 @@
     background-color: var(--color-gray-200);
   }
 
+  .bg-gray-300 {
+    background-color: var(--color-gray-300);
+  }
+
   .bg-gray-500\/20 {
     background-color: color-mix(in srgb, oklch(.551 .027 264.364) 20%, transparent);
   }

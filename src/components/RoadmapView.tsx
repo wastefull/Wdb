@@ -9,13 +9,14 @@ import { Phase9Day5Testing } from './Phase9Day5Testing';
 import { Phase9Day6Testing } from './Phase9Day6Testing';
 import { Phase9Day7Testing } from './Phase9Day7Testing';
 import { Phase9Day8Testing } from './Phase9Day8Testing';
+import { Phase9Day9Testing } from './Phase9Day9Testing';
 
 interface RoadmapViewProps {
   onBack: () => void;
 }
 
 export function RoadmapView({ onBack }: RoadmapViewProps) {
-  const [activeTab, setActiveTab] = useState('day9');
+  const [activeTab, setActiveTab] = useState('day10');
 
   // Day 1 Deliverables
   const day1Deliverables = [
@@ -294,32 +295,32 @@ export function RoadmapView({ onBack }: RoadmapViewProps) {
     {
       title: 'MIU Export Fields',
       description: 'Add MIU export fields (snippet, locator, transform_version)',
-      completed: false,
+      completed: true,
     },
     {
       title: 'Provenance Metadata',
       description: 'Add provenance metadata (curator, extraction_date)',
-      completed: false,
+      completed: true,
     },
     {
       title: 'Gzip Compression',
       description: 'Implement gzip compression for large exports',
-      completed: false,
+      completed: true,
     },
     {
       title: 'Export Versioning',
       description: 'Add export versioning (v2.0 format)',
-      completed: false,
+      completed: true,
     },
     {
       title: 'Export Format Documentation',
       description: 'Create export format documentation',
-      completed: false,
+      completed: true,
     },
     {
       title: 'Large Export Testing',
       description: 'Test with 100+ material export',
-      completed: false,
+      completed: true,
     },
   ];
 
@@ -424,16 +425,6 @@ export function RoadmapView({ onBack }: RoadmapViewProps) {
             Completed
           </button>
           <button
-            onClick={() => setActiveTab('day9')}
-            className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
-              activeTab === 'day9'
-                ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
-                : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
-            }`}
-          >
-            Day 9
-          </button>
-          <button
             onClick={() => setActiveTab('day10')}
             className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
               activeTab === 'day10'
@@ -461,7 +452,7 @@ export function RoadmapView({ onBack }: RoadmapViewProps) {
         {activeTab === 'completed' && (
           <div>
             <h3 className="font-['Sniglet'] text-[14px] text-black dark:text-white mb-6">
-              Days 1-8: Complete Infrastructure Implementation
+              Days 1-9: Complete Infrastructure Implementation
             </h3>
             <RoadmapPhaseTab
               phase="Phase 9.0"
@@ -519,15 +510,14 @@ export function RoadmapView({ onBack }: RoadmapViewProps) {
               testingView={<Phase9Day8Testing />}
               showTestingToggle={true}
             />
+            <RoadmapPhaseTab
+              phase="Phase 9.0"
+              dayNumber="Day 9"
+              deliverables={day9Deliverables}
+              testingView={<Phase9Day9Testing />}
+              showTestingToggle={true}
+            />
           </div>
-        )}
-        {activeTab === 'day9' && (
-          <RoadmapPhaseTab
-            phase="Phase 9.0"
-            dayNumber="Day 9"
-            deliverables={day9Deliverables}
-            showTestingToggle={false}
-          />
         )}
         {activeTab === 'day10' && (
           <RoadmapPhaseTab
