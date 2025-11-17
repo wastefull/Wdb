@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { RoadmapPhaseTab } from './RoadmapPhaseTab';
 import { Phase9Day1Testing } from './Phase9Day1Testing';
@@ -7,6 +7,7 @@ import { Phase9Day3Testing } from './Phase9Day3Testing';
 import { Phase9Day4Testing } from './Phase9Day4Testing';
 import { Phase9Day5Testing } from './Phase9Day5Testing';
 import { Phase9Day6Testing } from './Phase9Day6Testing';
+import { Phase9Day7Testing } from './Phase9Day7Testing';
 
 interface RoadmapViewProps {
   onBack: () => void;
@@ -14,7 +15,7 @@ interface RoadmapViewProps {
 
 export function RoadmapView({ onBack }: RoadmapViewProps) {
   const [activeTab, setActiveTab] = useState('completed');
-  const [selectedDay, setSelectedDay] = useState<'day1' | 'day2' | 'day3' | 'day4' | 'day5'>('day5');
+  const [selectedDay, setSelectedDay] = useState<'day1' | 'day2' | 'day3' | 'day4' | 'day5' | 'day6'>('day6');
 
   // Day 1 Deliverables
   const day1Deliverables = [
@@ -368,6 +369,26 @@ export function RoadmapView({ onBack }: RoadmapViewProps) {
       description: 'Final UX improvements: keyboard shortcuts, search/filter in admin views, performance optimizations',
       completed: false,
     },
+    {
+      title: 'Cleanup for Expired Audit Logs',
+      description: 'Add cleanup endpoint and UI for expired audit logs (similar to screenshot cleanup)',
+      completed: false,
+    },
+    {
+      title: 'Admin Dashboard for Retention Statistics',
+      description: 'Create admin dashboard showing retention statistics and cleanup actions in a unified interface',
+      completed: false,
+    },
+    {
+      title: 'Bulk Deletion for Sources',
+      description: 'Implement bulk deletion for sources without evidence dependencies',
+      completed: false,
+    },
+    {
+      title: 'Retention Policy Configuration',
+      description: 'Add UI to customize the 7-year retention threshold for different data types',
+      completed: false,
+    },
   ];
 
   return (
@@ -401,16 +422,6 @@ export function RoadmapView({ onBack }: RoadmapViewProps) {
             }`}
           >
             Completed
-          </button>
-          <button
-            onClick={() => setActiveTab('day6')}
-            className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
-              activeTab === 'day6'
-                ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
-                : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
-            }`}
-          >
-            Day 6
           </button>
           <button
             onClick={() => setActiveTab('day7')}
@@ -520,6 +531,16 @@ export function RoadmapView({ onBack }: RoadmapViewProps) {
               >
                 Day 5
               </button>
+              <button
+                onClick={() => setSelectedDay('day6')}
+                className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
+                  selectedDay === 'day6'
+                    ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
+                    : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
+                }`}
+              >
+                Day 6
+              </button>
             </div>
             {selectedDay === 'day1' && (
               <RoadmapPhaseTab
@@ -566,23 +587,24 @@ export function RoadmapView({ onBack }: RoadmapViewProps) {
                 showTestingToggle={true}
               />
             )}
+            {selectedDay === 'day6' && (
+              <RoadmapPhaseTab
+                phase="Phase 9.0"
+                dayNumber="Day 6"
+                deliverables={day6Deliverables}
+                testingView={<Phase9Day6Testing />}
+                showTestingToggle={true}
+              />
+            )}
           </div>
-        )}
-        {activeTab === 'day6' && (
-          <RoadmapPhaseTab
-            phase="Phase 9.0"
-            dayNumber="Day 6"
-            deliverables={day6Deliverables}
-            testingView={<Phase9Day6Testing />}
-            showTestingToggle={true}
-          />
         )}
         {activeTab === 'day7' && (
           <RoadmapPhaseTab
             phase="Phase 9.0"
             dayNumber="Day 7"
             deliverables={day7Deliverables}
-            showTestingToggle={false}
+            testingView={<Phase9Day7Testing />}
+            showTestingToggle={true}
           />
         )}
         {activeTab === 'day8' && (
@@ -610,23 +632,12 @@ export function RoadmapView({ onBack }: RoadmapViewProps) {
           />
         )}
         {activeTab === 'backlog' && (
-          <div>
-            <h3 className="font-['Fredoka_One'] text-[18px] text-black dark:text-white mb-4">
-              Backlog (Future Enhancements)
-            </h3>
-            <ul className="list-disc pl-6">
-              {backlogItems.map((item, index) => (
-                <li key={index} className="mb-2">
-                  <strong className="font-['Sniglet'] text-[14px] text-black dark:text-white">
-                    {item.title}
-                  </strong>
-                  <p className="font-['Sniglet'] text-[12px] text-black/60 dark:text-white/60">
-                    {item.description}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <RoadmapPhaseTab
+            phase="Phase 9.0"
+            dayNumber="Backlog"
+            deliverables={backlogItems}
+            showTestingToggle={false}
+          />
         )}
       </div>
     </div>

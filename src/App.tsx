@@ -45,6 +45,7 @@ import { TakedownRequestForm } from './components/TakedownRequestForm';
 import { TakedownStatusView } from './components/TakedownStatusView';
 import { AdminTakedownList } from './components/AdminTakedownList';
 import { AuditLogViewer } from './components/AuditLogViewer';
+import { DataRetentionManager } from './components/DataRetentionManager';
 import { Phase9TestingPage } from './components/Phase9TestingPage';
 import { TransformVersionManager } from './components/TransformVersionManager';
 import { AdminDashboard } from './components/AdminDashboard';
@@ -2717,7 +2718,7 @@ function DataManagementView({
 
 function AppContent() {
   const { settings, toggleAdminMode } = useAccessibility();
-  const { currentView, navigateTo, navigateToMaterials, navigateToSearchResults, navigateToMaterialDetail, navigateToArticles, navigateToArticleDetail, navigateToMethodologyList, navigateToWhitepaper, navigateToAdminDashboard, navigateToDataManagement, navigateToUserManagement, navigateToScientificEditor, navigateToExport, navigateToUserProfile, navigateToMySubmissions, navigateToReviewCenter, navigateToWhitepaperSync, navigateToApiDocs, navigateToLicenses, navigateToLegalHub, navigateToScienceHub, navigateToTakedownForm, navigateToAdminTakedownList, navigateToAuditLog, navigateToPhase9Testing, navigateToTransformManager, navigateToWhitepapersManagement, navigateToAssetsManagement, navigateToMathTools, navigateToChartsPerformance, navigateToRoadmap, navigateToRoadmapOverview, navigateToSourceLibrary, navigateToSourceComparison, navigateToEvidenceLab, navigateToTransformTesting } = useNavigationContext();
+  const { currentView, navigateTo, navigateToMaterials, navigateToSearchResults, navigateToMaterialDetail, navigateToArticles, navigateToArticleDetail, navigateToMethodologyList, navigateToWhitepaper, navigateToAdminDashboard, navigateToDataManagement, navigateToUserManagement, navigateToScientificEditor, navigateToExport, navigateToUserProfile, navigateToMySubmissions, navigateToReviewCenter, navigateToWhitepaperSync, navigateToApiDocs, navigateToLicenses, navigateToLegalHub, navigateToScienceHub, navigateToTakedownForm, navigateToAdminTakedownList, navigateToAuditLog, navigateToDataRetention, navigateToPhase9Testing, navigateToTransformManager, navigateToWhitepapersManagement, navigateToAssetsManagement, navigateToMathTools, navigateToChartsPerformance, navigateToRoadmap, navigateToRoadmapOverview, navigateToSourceLibrary, navigateToSourceComparison, navigateToEvidenceLab, navigateToTransformTesting } = useNavigationContext();
   const { user, userRole, isAuthenticated, signIn, signOut, updateUserRole } = useAuthContext();
   
   // Phase 3B Complete: MaterialsContext is the single source of truth for all material data
@@ -3291,6 +3292,7 @@ function AppContent() {
               onNavigateToPhase9Testing={navigateToPhase9Testing}
               onNavigateToAdminTakedownList={navigateToAdminTakedownList}
               onNavigateToAuditLog={navigateToAuditLog}
+              onNavigateToDataRetention={navigateToDataRetention}
               onNavigateToWhitepapers={navigateToWhitepapersManagement}
               onNavigateToAssets={navigateToAssetsManagement}
               onNavigateToMath={navigateToMathTools}
@@ -3412,6 +3414,10 @@ function AppContent() {
             </div>
           ) : currentView.type === 'audit-log' ? (
             <AuditLogViewer onBack={navigateToAdminDashboard} />
+          ) : currentView.type === 'data-retention' ? (
+            <div className="p-6">
+              <DataRetentionManager />
+            </div>
           ) : currentView.type === 'phase9-testing' ? (
             <Phase9TestingPage />
           ) : currentView.type === 'transform-manager' ? (

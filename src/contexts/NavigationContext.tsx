@@ -40,6 +40,7 @@ export type ViewType =
   | { type: 'takedown-status'; requestId: string }
   | { type: 'admin-takedown-list' }
   | { type: 'audit-log' }
+  | { type: 'data-retention' }
   | { type: 'phase9-testing' }
   | { type: 'transform-manager' }
   | { type: 'whitepapers-management' }
@@ -85,6 +86,7 @@ interface NavigationContextType {
   navigateToTakedownStatus: (requestId: string) => void;
   navigateToAdminTakedownList: () => void;
   navigateToAuditLog: () => void;
+  navigateToDataRetention: () => void;
   navigateToPhase9Testing: () => void;
   navigateToTransformManager: () => void;
   navigateToWhitepapersManagement: () => void;
@@ -236,6 +238,10 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
     navigateTo({ type: 'audit-log' });
   };
 
+  const navigateToDataRetention = () => {
+    navigateTo({ type: 'data-retention' });
+  };
+
   const navigateToPhase9Testing = () => {
     navigateTo({ type: 'phase9-testing' });
   };
@@ -314,6 +320,7 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
     navigateToTakedownStatus,
     navigateToAdminTakedownList,
     navigateToAuditLog,
+    navigateToDataRetention,
     navigateToPhase9Testing,
     navigateToTransformManager,
     navigateToWhitepapersManagement,

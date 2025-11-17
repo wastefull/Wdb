@@ -3921,8 +3921,30 @@ app.delete('/make-server-17cae920/sources/:id', verifyAuth, verifyAdmin, async (
       return c.json({ error: 'Source not found' }, 404);
     }
     
+    // ===== REFERENTIAL INTEGRITY CHECK =====
+    // Check if any evidence points reference this source
+    const allEvidence = await kv.getByPrefix('evidence:');
+    const dependentEvidence = allEvidence.filter((evidence: any) => 
+      evidence && evidence.source_id === id
+    );
+    
+    if (dependentEvidence.length > 0) {
+      console.warn(`⛔ Cannot delete source ${id}: ${dependentEvidence.length} evidence points reference this source`);
+      return c.json({ 
+        error: 'Cannot delete source with dependent evidence',
+        message: `This source is referenced by ${dependentEvidence.length} evidence point(s). Delete the evidence first, or mark the source as deprecated.`,
+        dependentCount: dependentEvidence.length,
+        dependentEvidence: dependentEvidence.map((e: any) => ({
+          id: e.id,
+          material_id: e.material_id,
+          parameter_code: e.parameter_code,
+          created_at: e.created_at
+        }))
+      }, 400);
+    }
+    
     await kv.del(`source:${id}`);
-    console.log(`Source deleted: ${id} by user ${userId}`);
+    console.log(`✓ Source deleted: ${id} by user ${userId}`);
     
     // Audit log
     await createAuditLog({
@@ -6287,6 +6309,246 @@ app.get('/make-server-17cae920/audit/stats', verifyAuth, verifyAdmin, async (c) 
   } catch (error) {
     console.error('Error fetching audit stats:', error);
     return c.json({ error: 'Failed to fetch audit stats', details: String(error) }, 500);
+  }
+});
+
+// ==================== DATA RETENTION & DELETION ENDPOINTS ====================
+
+// Get retention statistics (admin only)
+app.get('/make-server-17cae920/admin/retention/stats', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const SEVEN_YEARS_MS = 7 * 365 * 24 * 60 * 60 * 1000;
+    const now = new Date().getTime();
+    const sevenYearsAgo = new Date(now - SEVEN_YEARS_MS);
+    
+    // Get all sources with screenshots
+    const allSources = await kv.getByPrefix('source:');
+    const sourcesWithScreenshots = allSources.filter((source: any) => 
+      source && source.screenshot_url
+    );
+    
+    // Identify expired screenshots (older than 7 years)
+    const expiredScreenshots = sourcesWithScreenshots.filter((source: any) => {
+      if (!source.created_at) return false;
+      const createdDate = new Date(source.created_at);
+      return createdDate < sevenYearsAgo;
+    });
+    
+    // Get all evidence points
+    const allEvidence = await kv.getByPrefix('evidence:');
+    
+    // Get all audit logs
+    const allAuditLogs = await kv.getByPrefix('auditlog:');
+    const expiredAuditLogs = allAuditLogs.filter((log: any) => {
+      if (!log.timestamp) return false;
+      const logDate = new Date(log.timestamp);
+      return logDate < sevenYearsAgo;
+    });
+    
+    const stats = {
+      screenshots: {
+        total: sourcesWithScreenshots.length,
+        expired: expiredScreenshots.length,
+        expiredSources: expiredScreenshots.map((s: any) => ({
+          id: s.id,
+          title: s.title,
+          created_at: s.created_at,
+          screenshot_url: s.screenshot_url
+        }))
+      },
+      auditLogs: {
+        total: allAuditLogs.length,
+        expired: expiredAuditLogs.length,
+        oldestLog: allAuditLogs.length > 0 
+          ? allAuditLogs.reduce((oldest: any, current: any) => {
+              if (!oldest || !oldest.timestamp) return current;
+              if (!current.timestamp) return oldest;
+              return new Date(current.timestamp) < new Date(oldest.timestamp) ? current : oldest;
+            })
+          : null
+      },
+      evidence: {
+        total: allEvidence.length
+      },
+      lastChecked: new Date().toISOString()
+    };
+    
+    return c.json({ stats });
+  } catch (error) {
+    console.error('Error fetching retention stats:', error);
+    return c.json({ error: 'Failed to fetch retention stats', details: String(error) }, 500);
+  }
+});
+
+// Clean up expired screenshots (admin only)
+app.post('/make-server-17cae920/admin/retention/cleanup-screenshots', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const SEVEN_YEARS_MS = 7 * 365 * 24 * 60 * 60 * 1000;
+    const now = new Date().getTime();
+    const sevenYearsAgo = new Date(now - SEVEN_YEARS_MS);
+    
+    // Get all sources with screenshots
+    const allSources = await kv.getByPrefix('source:');
+    const sourcesWithScreenshots = allSources.filter((source: any) => 
+      source && source.screenshot_url
+    );
+    
+    // Identify expired screenshots
+    const expiredScreenshots = sourcesWithScreenshots.filter((source: any) => {
+      if (!source.created_at) return false;
+      const createdDate = new Date(source.created_at);
+      return createdDate < sevenYearsAgo;
+    });
+    
+    // Clean up expired screenshots
+    const cleanedSources = [];
+    for (const source of expiredScreenshots) {
+      const updatedSource = {
+        ...source,
+        screenshot_url: null,
+        screenshot_expired_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        updated_by: c.get('userId')
+      };
+      
+      await kv.set(`source:${source.id}`, updatedSource);
+      cleanedSources.push({
+        id: source.id,
+        title: source.title,
+        created_at: source.created_at,
+        screenshot_url: source.screenshot_url
+      });
+      
+      // Audit log
+      await createAuditLog({
+        userId: c.get('userId'),
+        userEmail: c.get('userEmail'),
+        entityType: 'source',
+        entityId: source.id,
+        action: 'update',
+        before: source,
+        after: updatedSource,
+        req: c,
+      });
+      
+      console.log(`✓ Expired screenshot removed from source ${source.id} (created ${source.created_at})`);
+    }
+    
+    return c.json({ 
+      success: true,
+      cleanedCount: cleanedSources.length,
+      cleanedSources
+    });
+  } catch (error) {
+    console.error('Error cleaning up screenshots:', error);
+    return c.json({ error: 'Failed to clean up screenshots', details: String(error) }, 500);
+  }
+});
+
+// Clean up expired audit logs (admin only)
+app.post('/make-server-17cae920/admin/retention/cleanup-audit-logs', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const SEVEN_YEARS_MS = 7 * 365 * 24 * 60 * 60 * 1000;
+    const now = new Date().getTime();
+    const sevenYearsAgo = new Date(now - SEVEN_YEARS_MS);
+    
+    // Get all audit logs
+    const allAuditLogs = await kv.getByPrefix('auditlog:');
+    const expiredAuditLogs = allAuditLogs.filter((log: any) => {
+      if (!log.timestamp) return false;
+      const logDate = new Date(log.timestamp);
+      return logDate < sevenYearsAgo;
+    });
+    
+    // Delete expired logs
+    const deletedLogs = [];
+    for (const log of expiredAuditLogs) {
+      await kv.del(`auditlog:${log.id}`);
+      deletedLogs.push({
+        id: log.id,
+        timestamp: log.timestamp,
+        entityType: log.entityType,
+        action: log.action
+      });
+      
+      console.log(`✓ Expired audit log deleted: ${log.id} (timestamp ${log.timestamp})`);
+    }
+    
+    return c.json({ 
+      success: true,
+      deletedCount: deletedLogs.length,
+      deletedLogs
+    });
+  } catch (error) {
+    console.error('Error cleaning up audit logs:', error);
+    return c.json({ error: 'Failed to clean up audit logs', details: String(error) }, 500);
+  }
+});
+
+// Create test evidence with source_id for testing (admin only)
+app.post('/make-server-17cae920/admin/retention/test-evidence', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const { evidenceId, sourceId, materialId } = await c.req.json();
+    
+    if (!evidenceId || !sourceId || !materialId) {
+      return c.json({ error: 'Missing required fields: evidenceId, sourceId, materialId' }, 400);
+    }
+    
+    // Create minimal evidence record with source_id for testing referential integrity
+    const testEvidence = {
+      id: evidenceId,
+      material_id: materialId,
+      parameter_code: 'Y',
+      source_id: sourceId, // Key field for referential integrity testing
+      snippet: 'Test snippet for referential integrity check',
+      citation: `Test Source: ${sourceId}`,
+      confidence_level: 'high',
+      created_at: new Date().toISOString(),
+      created_by: c.get('userId'),
+    };
+    
+    // Store evidence in KV
+    await kv.set(`evidence:${evidenceId}`, testEvidence);
+    console.log(`✓ Test evidence created: ${evidenceId} for source ${sourceId}`);
+    
+    return c.json({ success: true, evidence: testEvidence });
+  } catch (error) {
+    console.error('Error creating test evidence:', error);
+    return c.json({ error: 'Failed to create test evidence', details: String(error) }, 500);
+  }
+});
+
+// Check referential integrity for a source (admin only)
+app.get('/make-server-17cae920/admin/retention/check-source/:id', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const id = c.req.param('id');
+    
+    const source = await kv.get(`source:${id}`);
+    if (!source) {
+      return c.json({ error: 'Source not found' }, 404);
+    }
+    
+    // Check for dependent evidence
+    const allEvidence = await kv.getByPrefix('evidence:');
+    const dependentEvidence = allEvidence.filter((evidence: any) => 
+      evidence && evidence.source_id === id
+    );
+    
+    return c.json({ 
+      source,
+      canDelete: dependentEvidence.length === 0,
+      dependentCount: dependentEvidence.length,
+      dependentEvidence: dependentEvidence.map((e: any) => ({
+        id: e.id,
+        material_id: e.material_id,
+        parameter_code: e.parameter_code,
+        created_at: e.created_at,
+        created_by: e.created_by
+      }))
+    });
+  } catch (error) {
+    console.error('Error checking source referential integrity:', error);
+    return c.json({ error: 'Failed to check referential integrity', details: String(error) }, 500);
   }
 });
 

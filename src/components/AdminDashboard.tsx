@@ -16,6 +16,7 @@ interface AdminDashboardProps {
   onNavigateToPhase9Testing?: () => void;
   onNavigateToAdminTakedownList?: () => void;
   onNavigateToAuditLog?: () => void;
+  onNavigateToDataRetention?: () => void;
   onNavigateToWhitepapers?: () => void;
   onNavigateToAssets?: () => void;
   onNavigateToMath?: () => void;
@@ -38,6 +39,7 @@ export function AdminDashboard({
   onNavigateToPhase9Testing,
   onNavigateToAdminTakedownList,
   onNavigateToAuditLog,
+  onNavigateToDataRetention,
   onNavigateToWhitepapers,
   onNavigateToAssets,
   onNavigateToMath,
@@ -100,6 +102,14 @@ export function AdminDashboard({
                     className="w-full text-left font-['Sniglet'] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white transition-colors py-2 px-3 rounded-md hover:bg-[#ffb3ba]/20"
                   >
                     Audit Log
+                  </button>
+                )}
+                {onNavigateToDataRetention && (
+                  <button
+                    onClick={onNavigateToDataRetention}
+                    className="w-full text-left font-['Sniglet'] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white transition-colors py-2 px-3 rounded-md hover:bg-[#ffb3ba]/20"
+                  >
+                    Data Retention
                   </button>
                 )}
               </div>
