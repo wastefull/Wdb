@@ -899,7 +899,7 @@ export function Phase9Day11Testing() {
       } else {
         return { 
           success: false, 
-          message: `Failed to compute aggregation: ${computeData.error || 'Unknown error'}` 
+          message: `Failed to compute aggregation: ${computeData.error || 'Unknown error'}${computeData.debug ? ` | Debug: ${JSON.stringify(computeData.debug)}` : ''}` 
         };
       }
     } catch (error) {

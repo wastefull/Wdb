@@ -6168,13 +6168,16 @@ app.post('/make-server-17cae920/aggregations/compute', verifyAuth, verifyAdmin, 
     }
 
     // Fetch full evidence objects
-    const evidencePromises = evidenceRefs.map(async (ref: any) => {
-      const evidenceId = ref.value;
+    console.log(`Found ${evidenceRefs.length} evidence refs for material ${material_id}, parameter ${parameter_code}`);
+    const evidencePromises = evidenceRefs.map(async (evidenceId: string) => {
+      console.log(`Fetching evidence: ${evidenceId}`);
       const evidence = await kv.get(`evidence:${evidenceId}`);
+      console.log(`Evidence ${evidenceId}:`, evidence ? 'found' : 'NOT FOUND', evidence ? JSON.stringify(evidence).substring(0, 200) : '');
       return evidence;
     });
 
     const evidencePoints = (await Promise.all(evidencePromises)).filter(e => e !== null);
+    console.log(`Fetched ${evidencePoints.length} valid evidence points`);
 
     if (evidencePoints.length === 0) {
       return c.json({ 
@@ -6203,8 +6206,12 @@ app.post('/make-server-17cae920/aggregations/compute', verifyAuth, verifyAdmin, 
         continue;
       }
       
+      console.log(`Processing evidence - id: ${evidence.id}, raw_value: ${evidence.raw_value}, confidence_level: ${evidence.confidence_level}`);
+      console.log(`Evidence keys:`, Object.keys(evidence));
+      
       if (!evidence.id || evidence.raw_value === undefined || !evidence.confidence_level) {
-        console.warn(`Skipping evidence with missing fields:`, evidence);
+        console.warn(`Skipping evidence with missing fields - id: ${evidence.id}, raw_value: ${evidence.raw_value}, confidence_level: ${evidence.confidence_level}`);
+        console.warn(`Full evidence object:`, JSON.stringify(evidence));
         continue;
       }
 
@@ -6221,9 +6228,21 @@ app.post('/make-server-17cae920/aggregations/compute', verifyAuth, verifyAdmin, 
 
     // Check if we have any valid evidence after filtering
     if (miu_ids.length === 0 || totalWeight === 0) {
+      // Collect diagnostic info
+      const diagnostics = evidencePoints.map((e: any) => ({
+        id: e?.id || 'missing',
+        raw_value: e?.raw_value !== undefined ? e.raw_value : 'missing',
+        confidence_level: e?.confidence_level || 'missing',
+        keys: e ? Object.keys(e) : []
+      }));
+      
       return c.json({ 
         success: false, 
-        error: `No valid evidence with required fields found for material ${material_id}, parameter ${parameter_code}` 
+        error: `No valid evidence with required fields found for material ${material_id}, parameter ${parameter_code}`,
+        debug: {
+          evidencePoints_count: evidencePoints.length,
+          diagnostics
+        }
       }, 404);
     }
 

@@ -18,7 +18,7 @@ interface RoadmapViewProps {
 }
 
 export function RoadmapView({ onBack }: RoadmapViewProps) {
-  const [activeTab, setActiveTab] = useState('day11');
+  const [activeTab, setActiveTab] = useState('completed');
 
   // Day 1 Deliverables
   const day1Deliverables = [
@@ -513,17 +513,7 @@ export function RoadmapView({ onBack }: RoadmapViewProps) {
                 : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
             }`}
           >
-            Completed (Days 1-10)
-          </button>
-          <button
-            onClick={() => setActiveTab('day11')}
-            className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
-              activeTab === 'day11'
-                ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
-                : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
-            }`}
-          >
-            Day 11 (Complete)
+            Completed (Days 1-11)
           </button>
           <button
             onClick={() => setActiveTab('backlog')}
@@ -543,7 +533,7 @@ export function RoadmapView({ onBack }: RoadmapViewProps) {
         {activeTab === 'completed' && (
           <div>
             <h3 className="font-['Sniglet'] text-[14px] text-black dark:text-white mb-6">
-              Days 1-10: Complete Infrastructure Implementation
+              Days 1-11: Complete Infrastructure Implementation
             </h3>
             <RoadmapPhaseTab
               phase="Phase 9.0"
@@ -615,13 +605,6 @@ export function RoadmapView({ onBack }: RoadmapViewProps) {
               testingView={<Phase9Day10Testing />}
               showTestingToggle={true}
             />
-          </div>
-        )}
-        {activeTab === 'day11' && (
-          <div>
-            <h3 className="font-['Sniglet'] text-[14px] text-black dark:text-white mb-6">
-              Day 11: Critical Infrastructure Gaps
-            </h3>
             <RoadmapPhaseTab
               phase="Phase 9.0"
               dayNumber="Day 11"
