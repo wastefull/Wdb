@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import svgPaths from "./imports/svg-qhqftidoeu";
-import { Plus, Edit2, Trash2, Search, ArrowLeft, Upload, Image as ImageIcon, ChevronDown, Copy, Check, Type, Eye, RotateCcw, Moon, Save, X, Download, FileUp, Cloud, CloudOff, LogOut, User, Code, AlertCircle, FlaskConical } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, ArrowLeft, Upload, Image as ImageIcon, ChevronDown, Copy, Check, Type, Eye, RotateCcw, Moon, Save, X, Download, FileUp, Cloud, CloudOff, LogOut, User, Code, AlertCircle, FlaskConical, Unlock } from 'lucide-react';
 import * as api from './utils/api';
 import { logger, setTestMode, getTestMode, loggerInfo } from './utils/logger';
 import { AuthView } from './components/AuthView';
@@ -47,6 +47,7 @@ import { AdminTakedownList } from './components/AdminTakedownList';
 import { AuditLogViewer } from './components/AuditLogViewer';
 import { DataRetentionManager } from './components/DataRetentionManager';
 import { Phase9TestingPage } from './components/Phase9TestingPage';
+import { Phase9Day10TestingPage } from './components/Phase9Day10TestingPage';
 import { TransformVersionManager } from './components/TransformVersionManager';
 import { AdminDashboard } from './components/AdminDashboard';
 import { RoadmapView } from './components/RoadmapView';
@@ -229,7 +230,7 @@ function AdminModeButton({ currentView, onViewChange }: { currentView: any; onVi
 }
 
 function RetroButtons({ title }: { title: string }) {
-  const { settings, setFontSize, toggleHighContrast, toggleNoPastel, toggleReduceMotion, toggleDarkMode, resetSettings } = useAccessibility();
+  const { settings, setFontSize, toggleHighContrast, toggleNoPastel, toggleReduceMotion, toggleDarkMode, togglePrioritizeOA, resetSettings } = useAccessibility();
   const [redOpen, setRedOpen] = useState(false);
   const [yellowOpen, setYellowOpen] = useState(false);
   const [blueOpen, setBlueOpen] = useState(false);
@@ -414,6 +415,21 @@ function RetroButtons({ title }: { title: string }) {
                               checked={settings.reduceMotion} 
                               onCheckedChange={toggleReduceMotion}
                             />
+                          </div>
+                          <div className="border-t border-[#211f1c]/10 dark:border-white/10 pt-3 mt-3">
+                            <div className="flex items-center justify-between">
+                              <label className="font-['Sniglet:Regular',_sans-serif] text-[12px] flex items-center gap-2">
+                                <Unlock size={14} />
+                                Prioritize Open Access
+                              </label>
+                              <Switch 
+                                checked={settings.prioritizeOA} 
+                                onCheckedChange={togglePrioritizeOA}
+                              />
+                            </div>
+                            <p className="font-['Sniglet:Regular',_sans-serif] text-[9px] text-black/60 dark:text-white/60 mt-1">
+                              Curator preference: show OA sources first
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -2718,7 +2734,7 @@ function DataManagementView({
 
 function AppContent() {
   const { settings, toggleAdminMode } = useAccessibility();
-  const { currentView, navigateTo, navigateToMaterials, navigateToSearchResults, navigateToMaterialDetail, navigateToArticles, navigateToArticleDetail, navigateToMethodologyList, navigateToWhitepaper, navigateToAdminDashboard, navigateToDataManagement, navigateToUserManagement, navigateToScientificEditor, navigateToExport, navigateToUserProfile, navigateToMySubmissions, navigateToReviewCenter, navigateToWhitepaperSync, navigateToApiDocs, navigateToLicenses, navigateToLegalHub, navigateToScienceHub, navigateToTakedownForm, navigateToAdminTakedownList, navigateToAuditLog, navigateToDataRetention, navigateToPhase9Testing, navigateToTransformManager, navigateToWhitepapersManagement, navigateToAssetsManagement, navigateToMathTools, navigateToChartsPerformance, navigateToRoadmap, navigateToRoadmapOverview, navigateToSourceLibrary, navigateToSourceComparison, navigateToEvidenceLab, navigateToTransformTesting } = useNavigationContext();
+  const { currentView, navigateTo, navigateToMaterials, navigateToSearchResults, navigateToMaterialDetail, navigateToArticles, navigateToArticleDetail, navigateToMethodologyList, navigateToWhitepaper, navigateToAdminDashboard, navigateToDataManagement, navigateToUserManagement, navigateToScientificEditor, navigateToExport, navigateToUserProfile, navigateToMySubmissions, navigateToReviewCenter, navigateToWhitepaperSync, navigateToApiDocs, navigateToLicenses, navigateToLegalHub, navigateToScienceHub, navigateToTakedownForm, navigateToAdminTakedownList, navigateToAuditLog, navigateToDataRetention, navigateToPhase9Testing, navigateToPhase9Day10Testing, navigateToTransformManager, navigateToWhitepapersManagement, navigateToAssetsManagement, navigateToMathTools, navigateToChartsPerformance, navigateToRoadmap, navigateToRoadmapOverview, navigateToSourceLibrary, navigateToSourceComparison, navigateToEvidenceLab, navigateToTransformTesting } = useNavigationContext();
   const { user, userRole, isAuthenticated, signIn, signOut, updateUserRole } = useAuthContext();
   
   // Phase 3B Complete: MaterialsContext is the single source of truth for all material data
@@ -3290,6 +3306,7 @@ function AppContent() {
               onNavigateToWhitepaperSync={navigateToWhitepaperSync}
               onNavigateToTransformManager={() => navigateToMathTools('transform-manager')}
               onNavigateToPhase9Testing={navigateToPhase9Testing}
+              onNavigateToPhase9Day10Testing={navigateToPhase9Day10Testing}
               onNavigateToAdminTakedownList={navigateToAdminTakedownList}
               onNavigateToAuditLog={navigateToAuditLog}
               onNavigateToDataRetention={navigateToDataRetention}
@@ -3420,6 +3437,8 @@ function AppContent() {
             </div>
           ) : currentView.type === 'phase9-testing' ? (
             <Phase9TestingPage />
+          ) : currentView.type === 'phase9-day10-testing' ? (
+            <Phase9Day10TestingPage />
           ) : currentView.type === 'transform-manager' ? (
             <div className="p-6">
               <TransformVersionManager />

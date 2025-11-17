@@ -14,6 +14,7 @@ interface AdminDashboardProps {
   onNavigateToWhitepaperSync?: () => void;
   onNavigateToTransformManager?: () => void;
   onNavigateToPhase9Testing?: () => void;
+  onNavigateToPhase9Day10Testing?: () => void;
   onNavigateToAdminTakedownList?: () => void;
   onNavigateToAuditLog?: () => void;
   onNavigateToDataRetention?: () => void;
@@ -37,6 +38,7 @@ export function AdminDashboard({
   onNavigateToWhitepaperSync,
   onNavigateToTransformManager,
   onNavigateToPhase9Testing,
+  onNavigateToPhase9Day10Testing,
   onNavigateToAdminTakedownList,
   onNavigateToAuditLog,
   onNavigateToDataRetention,

@@ -25,6 +25,9 @@ export interface Source {
   abstract?: string;
   tags?: string[]; // e.g., ['cardboard', 'paper', 'recyclability', 'composting']
   pdfFileName?: string; // Filename of uploaded PDF in Supabase Storage
+  is_open_access?: boolean; // Open Access status (from Unpaywall API)
+  oa_status?: string | null; // OA status: 'gold', 'green', 'hybrid', 'bronze', 'closed'
+  best_oa_url?: string | null; // Best OA location URL (if available)
 }
 
 export const SOURCE_LIBRARY: Source[] = [

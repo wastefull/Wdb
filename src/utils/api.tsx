@@ -455,6 +455,10 @@ export interface Source {
   type: 'peer-reviewed' | 'government' | 'industrial' | 'ngo' | 'internal';
   abstract?: string;
   tags?: string[];
+  pdfFileName?: string;
+  is_open_access?: boolean; // Open Access status (from Unpaywall API)
+  oa_status?: string | null; // OA status: 'gold', 'green', 'hybrid', 'bronze', 'closed'
+  best_oa_url?: string | null; // Best OA location URL (if available)
 }
 
 // Get all sources (public, no auth required)
@@ -506,6 +510,35 @@ export async function batchSaveSources(sources: Source[]): Promise<{ success: bo
     body: JSON.stringify({ sources }),
   });
   return data;
+}
+
+// Check Open Access status for a DOI
+export async function checkOAStatus(doi: string): Promise<{
+  is_open_access: boolean;
+  doi: string;
+  oa_status?: string | null;
+  best_oa_location?: {
+    url: string;
+    url_for_pdf?: string;
+    version?: string;
+    license?: string;
+  } | null;
+  publisher?: string | null;
+  journal?: string | null;
+  message?: string;
+}> {
+  const response = await fetch(`${API_BASE_URL}/sources/check-oa?doi=${encodeURIComponent(doi)}`, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${publicAnonKey}`,
+    },
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to check Open Access status');
+  }
+  
+  return await response.json();
 }
 
 // Check for duplicate sources (public endpoint)

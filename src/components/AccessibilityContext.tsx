@@ -7,6 +7,7 @@ interface AccessibilitySettings {
   reduceMotion: boolean;
   darkMode: boolean;
   adminMode: boolean;
+  prioritizeOA: boolean; // Curator preference to prioritize Open Access sources
 }
 
 interface AccessibilityContextType {
@@ -17,6 +18,7 @@ interface AccessibilityContextType {
   toggleReduceMotion: () => void;
   toggleDarkMode: () => void;
   toggleAdminMode: () => void;
+  togglePrioritizeOA: () => void;
   resetSettings: () => void;
 }
 
@@ -27,6 +29,7 @@ const defaultSettings: AccessibilitySettings = {
   reduceMotion: false,
   darkMode: false,
   adminMode: false,
+  prioritizeOA: false,
 };
 
 const AccessibilityContext = createContext<AccessibilityContextType | undefined>(undefined);
@@ -143,6 +146,10 @@ export function AccessibilityProvider({ children }: { children: React.ReactNode 
     setSettings(prev => ({ ...prev, adminMode: !prev.adminMode }));
   };
 
+  const togglePrioritizeOA = () => {
+    setSettings(prev => ({ ...prev, prioritizeOA: !prev.prioritizeOA }));
+  };
+
   const resetSettings = () => {
     setSettings(defaultSettings);
   };
@@ -157,6 +164,7 @@ export function AccessibilityProvider({ children }: { children: React.ReactNode 
         toggleReduceMotion,
         toggleDarkMode,
         toggleAdminMode,
+        togglePrioritizeOA,
         resetSettings,
       }}
     >

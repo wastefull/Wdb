@@ -42,6 +42,7 @@ export type ViewType =
   | { type: 'audit-log' }
   | { type: 'data-retention' }
   | { type: 'phase9-testing' }
+  | { type: 'phase9-day10-testing' }
   | { type: 'transform-manager' }
   | { type: 'whitepapers-management' }
   | { type: 'assets-management' }
@@ -88,6 +89,7 @@ interface NavigationContextType {
   navigateToAuditLog: () => void;
   navigateToDataRetention: () => void;
   navigateToPhase9Testing: () => void;
+  navigateToPhase9Day10Testing: () => void;
   navigateToTransformManager: () => void;
   navigateToWhitepapersManagement: () => void;
   navigateToAssetsManagement: () => void;
@@ -246,6 +248,10 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
     navigateTo({ type: 'phase9-testing' });
   };
 
+  const navigateToPhase9Day10Testing = () => {
+    navigateTo({ type: 'phase9-day10-testing' });
+  };
+
   const navigateToTransformManager = () => {
     navigateTo({ type: 'transform-manager' });
   };
@@ -322,6 +328,7 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
     navigateToAuditLog,
     navigateToDataRetention,
     navigateToPhase9Testing,
+    navigateToPhase9Day10Testing,
     navigateToTransformManager,
     navigateToWhitepapersManagement,
     navigateToAssetsManagement,

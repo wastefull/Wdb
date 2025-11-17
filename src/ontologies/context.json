@@ -1,0 +1,237 @@
+{
+  "version": "1.0",
+  "effective_date": "2025-11-17",
+  "description": "Controlled vocabularies for evidence context fields",
+  "vocabularies": {
+    "process": {
+      "description": "Type of waste processing method",
+      "values": [
+        {
+          "code": "mechanical",
+          "label": "Mechanical Separation",
+          "description": "Physical separation methods (sorting, shredding, magnetic separation)"
+        },
+        {
+          "code": "chemical",
+          "label": "Chemical Processing",
+          "description": "Chemical breakdown or transformation (hydrolysis, solvolysis)"
+        },
+        {
+          "code": "thermal",
+          "label": "Thermal Treatment",
+          "description": "Heat-based processing (pyrolysis, gasification, incineration)"
+        },
+        {
+          "code": "biological",
+          "label": "Biological Treatment",
+          "description": "Microbial degradation (composting, anaerobic digestion)"
+        },
+        {
+          "code": "manual",
+          "label": "Manual Sorting",
+          "description": "Hand-sorting and manual separation"
+        },
+        {
+          "code": "automated",
+          "label": "Automated Processing",
+          "description": "Robotic or AI-driven sorting and processing"
+        },
+        {
+          "code": "hybrid",
+          "label": "Hybrid Process",
+          "description": "Combination of multiple processing methods"
+        },
+        {
+          "code": "other",
+          "label": "Other",
+          "description": "Process not listed above"
+        }
+      ]
+    },
+    "stream": {
+      "description": "Waste stream origin and composition",
+      "values": [
+        {
+          "code": "post-consumer",
+          "label": "Post-Consumer",
+          "description": "Waste from end-of-life consumer products"
+        },
+        {
+          "code": "post-industrial",
+          "label": "Post-Industrial",
+          "description": "Manufacturing scrap and industrial waste"
+        },
+        {
+          "code": "pre-consumer",
+          "label": "Pre-Consumer",
+          "description": "Production waste before reaching consumers"
+        },
+        {
+          "code": "mixed",
+          "label": "Mixed Municipal Solid Waste",
+          "description": "Unseparated municipal waste stream"
+        },
+        {
+          "code": "source-separated",
+          "label": "Source-Separated",
+          "description": "Pre-sorted at point of generation"
+        },
+        {
+          "code": "commercial",
+          "label": "Commercial Waste",
+          "description": "Waste from commercial establishments"
+        },
+        {
+          "code": "institutional",
+          "label": "Institutional Waste",
+          "description": "Waste from schools, hospitals, government facilities"
+        },
+        {
+          "code": "construction",
+          "label": "Construction & Demolition",
+          "description": "Building and demolition waste"
+        },
+        {
+          "code": "agricultural",
+          "label": "Agricultural Waste",
+          "description": "Crop residues and farming waste"
+        },
+        {
+          "code": "other",
+          "label": "Other",
+          "description": "Stream not listed above"
+        }
+      ]
+    },
+    "region": {
+      "description": "Geographic region where data was collected",
+      "values": [
+        {
+          "code": "north-america",
+          "label": "North America",
+          "description": "United States, Canada, Mexico"
+        },
+        {
+          "code": "europe",
+          "label": "Europe",
+          "description": "European Union and surrounding countries"
+        },
+        {
+          "code": "asia-pacific",
+          "label": "Asia-Pacific",
+          "description": "East Asia, Southeast Asia, Australia, New Zealand"
+        },
+        {
+          "code": "latin-america",
+          "label": "Latin America",
+          "description": "Central and South America"
+        },
+        {
+          "code": "middle-east",
+          "label": "Middle East",
+          "description": "Middle Eastern countries"
+        },
+        {
+          "code": "africa",
+          "label": "Africa",
+          "description": "African continent"
+        },
+        {
+          "code": "global",
+          "label": "Global",
+          "description": "Multi-region or worldwide study"
+        },
+        {
+          "code": "other",
+          "label": "Other",
+          "description": "Region not listed above"
+        }
+      ]
+    },
+    "scale": {
+      "description": "Scale of operation or study",
+      "values": [
+        {
+          "code": "lab",
+          "label": "Laboratory Scale",
+          "description": "Controlled laboratory experiments (<1 kg/day)"
+        },
+        {
+          "code": "bench",
+          "label": "Bench Scale",
+          "description": "Small-scale laboratory experiments (1-10 kg/day)"
+        },
+        {
+          "code": "pilot",
+          "label": "Pilot Scale",
+          "description": "Demonstration facilities (10-1000 kg/day)"
+        },
+        {
+          "code": "commercial",
+          "label": "Commercial Scale",
+          "description": "Full-scale industrial operations (>1 ton/day)"
+        },
+        {
+          "code": "municipal",
+          "label": "Municipal Scale",
+          "description": "City or county-level facilities (100+ tons/day)"
+        },
+        {
+          "code": "theoretical",
+          "label": "Theoretical/Modeled",
+          "description": "Computational models or theoretical predictions"
+        },
+        {
+          "code": "other",
+          "label": "Other",
+          "description": "Scale not listed above"
+        }
+      ]
+    },
+    "confidence_level": {
+      "description": "Curator's confidence in the evidence quality",
+      "values": [
+        {
+          "code": "high",
+          "label": "High Confidence",
+          "description": "Peer-reviewed, replicated, well-documented"
+        },
+        {
+          "code": "medium",
+          "label": "Medium Confidence",
+          "description": "Published but limited replication or documentation"
+        },
+        {
+          "code": "low",
+          "label": "Low Confidence",
+          "description": "Preliminary, anecdotal, or poorly documented"
+        }
+      ]
+    },
+    "source_type": {
+      "description": "Type of evidence source",
+      "values": [
+        {
+          "code": "whitepaper",
+          "label": "WasteDB Whitepaper",
+          "description": "Internal WasteDB methodology document"
+        },
+        {
+          "code": "article",
+          "label": "WasteDB Article",
+          "description": "Internal WasteDB knowledge base article"
+        },
+        {
+          "code": "external",
+          "label": "External Source",
+          "description": "Third-party peer-reviewed publication"
+        },
+        {
+          "code": "manual",
+          "label": "Manual Entry",
+          "description": "Curator-entered data without source document"
+        }
+      ]
+    }
+  }
+}

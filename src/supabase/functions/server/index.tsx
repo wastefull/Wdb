@@ -3737,6 +3737,68 @@ app.get('/make-server-17cae920/sources', async (c) => {
   }
 });
 
+// Check Open Access status via Unpaywall API
+// IMPORTANT: This route must be defined BEFORE /sources/:id to avoid route conflicts
+app.get('/make-server-17cae920/sources/check-oa', async (c) => {
+  try {
+    const doi = c.req.query('doi');
+    
+    if (!doi) {
+      return c.json({ error: 'DOI parameter is required' }, 400);
+    }
+
+    // Normalize DOI (remove https://, http://, doi:, etc.)
+    const normalizedDoi = doi
+      .replace(/^https?:\/\/(dx\.)?doi\.org\//, '')
+      .replace(/^doi:/, '')
+      .trim();
+
+    if (!normalizedDoi) {
+      return c.json({ error: 'Invalid DOI format' }, 400);
+    }
+
+    // Call Unpaywall API
+    // Free API, no key required, just need to provide email
+    const unpaywallUrl = `https://api.unpaywall.org/v2/${encodeURIComponent(normalizedDoi)}?email=natto@wastefull.org`;
+    
+    const response = await fetch(unpaywallUrl);
+    
+    if (!response.ok) {
+      if (response.status === 404) {
+        return c.json({ 
+          is_open_access: false, 
+          doi: normalizedDoi,
+          message: 'DOI not found in Unpaywall database' 
+        });
+      }
+      throw new Error(`Unpaywall API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    return c.json({
+      is_open_access: data.is_oa || false,
+      doi: normalizedDoi,
+      oa_status: data.oa_status || null,
+      best_oa_location: data.best_oa_location ? {
+        url: data.best_oa_location.url,
+        url_for_pdf: data.best_oa_location.url_for_pdf,
+        version: data.best_oa_location.version,
+        license: data.best_oa_location.license,
+      } : null,
+      publisher: data.publisher || null,
+      journal: data.journal_name || null,
+    });
+  } catch (error) {
+    console.error('Error checking Open Access status:', error);
+    return c.json({ 
+      error: 'Failed to check Open Access status', 
+      details: String(error),
+      is_open_access: null // Unknown status
+    }, 500);
+  }
+});
+
 // Get single source
 app.get('/make-server-17cae920/sources/:id', async (c) => {
   try {
@@ -5200,6 +5262,131 @@ app.post('/make-server-17cae920/transforms/recompute', verifyAuth, verifyAdmin, 
   }
 });
 
+// ==================== ONTOLOGY ENDPOINTS ====================
+
+// Initialize ontologies (admin only) - Seeds KV store with ontology data
+app.post('/make-server-17cae920/ontologies/initialize', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const { type } = await c.req.json();
+    
+    if (!type || !['units', 'context', 'all'].includes(type)) {
+      return c.json({ error: 'Invalid type. Must be: units, context, or all' }, 400);
+    }
+
+    const UNITS_ONTOLOGY = {
+      "version": "1.0",
+      "effective_date": "2025-11-17",
+      "description": "Canonical units and conversion rules for all WasteDB parameters",
+      "parameters": {
+        "Y": {"name": "Yield", "canonical_unit": "ratio", "allowed_units": ["%", "ratio", "kg/kg"], "conversions": {"%": {"to_canonical": "value / 100", "description": "Convert percentage to ratio"}, "ratio": {"to_canonical": "value", "description": "Identity conversion (already canonical)"}, "kg/kg": {"to_canonical": "value", "description": "Mass ratio is equivalent to dimensionless ratio"}}, "validation": {"min": 0, "max": 1, "description": "Yield must be between 0 and 1 (0-100%)"}},
+        "D": {"name": "Degradation Rate", "canonical_unit": "ratio", "allowed_units": ["%", "ratio", "fraction"], "conversions": {"%": {"to_canonical": "value / 100", "description": "Convert percentage to ratio"}, "ratio": {"to_canonical": "value", "description": "Identity conversion"}, "fraction": {"to_canonical": "value", "description": "Fraction is equivalent to ratio"}}, "validation": {"min": 0, "max": 1, "description": "Degradation rate must be between 0 and 1"}},
+        "C": {"name": "Contamination Level", "canonical_unit": "ppm", "allowed_units": ["ppm", "mg/kg", "%", "ppb"], "conversions": {"ppm": {"to_canonical": "value", "description": "Identity conversion"}, "mg/kg": {"to_canonical": "value", "description": "mg/kg is equivalent to ppm"}, "%": {"to_canonical": "value * 10000", "description": "Convert percentage to ppm (1% = 10,000 ppm)"}, "ppb": {"to_canonical": "value / 1000", "description": "Convert parts per billion to ppm"}}, "validation": {"min": 0, "description": "Contamination level must be non-negative"}},
+        "M": {"name": "Market Demand Index", "canonical_unit": "index", "allowed_units": ["index", "score", "unitless"], "conversions": {"index": {"to_canonical": "value", "description": "Identity conversion"}, "score": {"to_canonical": "value", "description": "Score is equivalent to index"}, "unitless": {"to_canonical": "value", "description": "Dimensionless value"}}, "validation": {"min": 0, "max": 100, "description": "Market demand index typically 0-100"}},
+        "E": {"name": "Energy Intensity", "canonical_unit": "MJ/kg", "allowed_units": ["MJ/kg", "kWh/kg", "GJ/ton", "BTU/lb"], "conversions": {"MJ/kg": {"to_canonical": "value", "description": "Identity conversion"}, "kWh/kg": {"to_canonical": "value * 3.6", "description": "Convert kWh to MJ (1 kWh = 3.6 MJ)"}, "GJ/ton": {"to_canonical": "value", "description": "GJ/ton is equivalent to MJ/kg"}, "BTU/lb": {"to_canonical": "value * 0.002326", "description": "Convert BTU/lb to MJ/kg"}}, "validation": {"min": 0, "description": "Energy intensity must be non-negative"}},
+        "B": {"name": "Biodegradability", "canonical_unit": "ratio", "allowed_units": ["%", "ratio", "fraction"], "conversions": {"%": {"to_canonical": "value / 100", "description": "Convert percentage to ratio"}, "ratio": {"to_canonical": "value", "description": "Identity conversion"}, "fraction": {"to_canonical": "value", "description": "Fraction is equivalent to ratio"}}, "validation": {"min": 0, "max": 1, "description": "Biodegradability must be between 0 and 1"}},
+        "N": {"name": "Nutrient Value", "canonical_unit": "kg/kg", "allowed_units": ["kg/kg", "%", "g/kg", "ratio"], "conversions": {"kg/kg": {"to_canonical": "value", "description": "Identity conversion"}, "%": {"to_canonical": "value / 100", "description": "Convert percentage to mass ratio"}, "g/kg": {"to_canonical": "value / 1000", "description": "Convert g/kg to kg/kg"}, "ratio": {"to_canonical": "value", "description": "Mass ratio"}}, "validation": {"min": 0, "max": 1, "description": "Nutrient value must be between 0 and 1"}},
+        "T": {"name": "Toxicity Level", "canonical_unit": "LD50_mg/kg", "allowed_units": ["LD50_mg/kg", "mg/kg", "g/kg"], "conversions": {"LD50_mg/kg": {"to_canonical": "value", "description": "Identity conversion (LD50 in mg/kg)"}, "mg/kg": {"to_canonical": "value", "description": "Concentration in mg/kg"}, "g/kg": {"to_canonical": "value * 1000", "description": "Convert g/kg to mg/kg"}}, "validation": {"min": 0, "description": "Toxicity must be non-negative (lower LD50 = more toxic)"}},
+        "H": {"name": "Health Impact Score", "canonical_unit": "DALY", "allowed_units": ["DALY", "QALY", "score"], "conversions": {"DALY": {"to_canonical": "value", "description": "Disability-Adjusted Life Years"}, "QALY": {"to_canonical": "value * -1", "description": "Quality-Adjusted Life Years (inverted scale)"}, "score": {"to_canonical": "value", "description": "Generic health impact score"}}, "validation": {"min": 0, "description": "Health impact must be non-negative"}},
+        "L": {"name": "Labor Intensity", "canonical_unit": "hours/kg", "allowed_units": ["hours/kg", "hours/ton", "FTE/year", "person-hours/kg"], "conversions": {"hours/kg": {"to_canonical": "value", "description": "Identity conversion"}, "hours/ton": {"to_canonical": "value / 1000", "description": "Convert hours/ton to hours/kg"}, "FTE/year": {"to_canonical": "value", "description": "Full-time equivalent per year"}, "person-hours/kg": {"to_canonical": "value", "description": "Equivalent to hours/kg"}}, "validation": {"min": 0, "description": "Labor intensity must be non-negative"}},
+        "R": {"name": "Resource Recovery Rate", "canonical_unit": "ratio", "allowed_units": ["%", "ratio", "kg/kg"], "conversions": {"%": {"to_canonical": "value / 100", "description": "Convert percentage to ratio"}, "ratio": {"to_canonical": "value", "description": "Identity conversion"}, "kg/kg": {"to_canonical": "value", "description": "Mass ratio"}}, "validation": {"min": 0, "max": 1, "description": "Resource recovery rate must be between 0 and 1"}},
+        "U": {"name": "Utility Retention", "canonical_unit": "ratio", "allowed_units": ["%", "ratio", "score"], "conversions": {"%": {"to_canonical": "value / 100", "description": "Convert percentage to ratio"}, "ratio": {"to_canonical": "value", "description": "Identity conversion"}, "score": {"to_canonical": "value / 100", "description": "Convert 0-100 score to 0-1 ratio"}}, "validation": {"min": 0, "max": 1, "description": "Utility retention must be between 0 and 1"}},
+        "C_RU": {"name": "Reusability Contamination", "canonical_unit": "ppm", "allowed_units": ["ppm", "mg/kg", "%", "ppb"], "conversions": {"ppm": {"to_canonical": "value", "description": "Identity conversion"}, "mg/kg": {"to_canonical": "value", "description": "mg/kg is equivalent to ppm"}, "%": {"to_canonical": "value * 10000", "description": "Convert percentage to ppm (1% = 10,000 ppm)"}, "ppb": {"to_canonical": "value / 1000", "description": "Convert parts per billion to ppm"}}, "validation": {"min": 0, "description": "Contamination must be non-negative"}}
+      }
+    };
+
+    const CONTEXT_ONTOLOGY = {
+      "version": "1.0",
+      "effective_date": "2025-11-17",
+      "description": "Controlled vocabularies for evidence context fields",
+      "vocabularies": {
+        "process": {"description": "Type of waste processing method", "values": [{"code": "mechanical", "label": "Mechanical Separation", "description": "Physical separation methods (sorting, shredding, magnetic separation)"}, {"code": "chemical", "label": "Chemical Processing", "description": "Chemical breakdown or transformation (hydrolysis, solvolysis)"}, {"code": "thermal", "label": "Thermal Treatment", "description": "Heat-based processing (pyrolysis, gasification, incineration)"}, {"code": "biological", "label": "Biological Treatment", "description": "Microbial degradation (composting, anaerobic digestion)"}, {"code": "manual", "label": "Manual Sorting", "description": "Hand-sorting and manual separation"}, {"code": "automated", "label": "Automated Processing", "description": "Robotic or AI-driven sorting and processing"}, {"code": "hybrid", "label": "Hybrid Process", "description": "Combination of multiple processing methods"}, {"code": "other", "label": "Other", "description": "Process not listed above"}]},
+        "stream": {"description": "Waste stream origin and composition", "values": [{"code": "post-consumer", "label": "Post-Consumer", "description": "Waste from end-of-life consumer products"}, {"code": "post-industrial", "label": "Post-Industrial", "description": "Manufacturing scrap and industrial waste"}, {"code": "pre-consumer", "label": "Pre-Consumer", "description": "Production waste before reaching consumers"}, {"code": "mixed", "label": "Mixed Municipal Solid Waste", "description": "Unseparated municipal waste stream"}, {"code": "source-separated", "label": "Source-Separated", "description": "Pre-sorted at point of generation"}, {"code": "commercial", "label": "Commercial Waste", "description": "Waste from commercial establishments"}, {"code": "institutional", "label": "Institutional Waste", "description": "Waste from schools, hospitals, government facilities"}, {"code": "construction", "label": "Construction & Demolition", "description": "Building and demolition waste"}, {"code": "agricultural", "label": "Agricultural Waste", "description": "Crop residues and farming waste"}, {"code": "other", "label": "Other", "description": "Stream not listed above"}]},
+        "region": {"description": "Geographic region where data was collected", "values": [{"code": "north-america", "label": "North America", "description": "United States, Canada, Mexico"}, {"code": "europe", "label": "Europe", "description": "European Union and surrounding countries"}, {"code": "asia-pacific", "label": "Asia-Pacific", "description": "East Asia, Southeast Asia, Australia, New Zealand"}, {"code": "latin-america", "label": "Latin America", "description": "Central and South America"}, {"code": "middle-east", "label": "Middle East", "description": "Middle Eastern countries"}, {"code": "africa", "label": "Africa", "description": "African continent"}, {"code": "global", "label": "Global", "description": "Multi-region or worldwide study"}, {"code": "other", "label": "Other", "description": "Region not listed above"}]},
+        "scale": {"description": "Scale of operation or study", "values": [{"code": "lab", "label": "Laboratory Scale", "description": "Controlled laboratory experiments (<1 kg/day)"}, {"code": "bench", "label": "Bench Scale", "description": "Small-scale laboratory experiments (1-10 kg/day)"}, {"code": "pilot", "label": "Pilot Scale", "description": "Demonstration facilities (10-1000 kg/day)"}, {"code": "commercial", "label": "Commercial Scale", "description": "Full-scale industrial operations (>1 ton/day)"}, {"code": "municipal", "label": "Municipal Scale", "description": "City or county-level facilities (100+ tons/day)"}, {"code": "theoretical", "label": "Theoretical/Modeled", "description": "Computational models or theoretical predictions"}, {"code": "other", "label": "Other", "description": "Scale not listed above"}]},
+        "confidence_level": {"description": "Curator's confidence in the evidence quality", "values": [{"code": "high", "label": "High Confidence", "description": "Peer-reviewed, replicated, well-documented"}, {"code": "medium", "label": "Medium Confidence", "description": "Published but limited replication or documentation"}, {"code": "low", "label": "Low Confidence", "description": "Preliminary, anecdotal, or poorly documented"}]},
+        "source_type": {"description": "Type of evidence source", "values": [{"code": "whitepaper", "label": "WasteDB Whitepaper", "description": "Internal WasteDB methodology document"}, {"code": "article", "label": "WasteDB Article", "description": "Internal WasteDB knowledge base article"}, {"code": "external", "label": "External Source", "description": "Third-party peer-reviewed publication"}, {"code": "manual", "label": "Manual Entry", "description": "Curator-entered data without source document"}]}
+      }
+    };
+
+    let initialized: string[] = [];
+
+    if (type === 'units' || type === 'all') {
+      await kv.set('ontology:units:v1.0', UNITS_ONTOLOGY);
+      await kv.set('ontology:units:current', 'v1.0');
+      initialized.push('units');
+    }
+
+    if (type === 'context' || type === 'all') {
+      await kv.set('ontology:context:v1.0', CONTEXT_ONTOLOGY);
+      await kv.set('ontology:context:current', 'v1.0');
+      initialized.push('context');
+    }
+
+    console.log(`Ontologies initialized: ${initialized.join(', ')}`);
+
+    return c.json({
+      success: true,
+      initialized,
+      message: `Successfully initialized ${initialized.join(' and ')} ontolog${initialized.length > 1 ? 'ies' : 'y'}`
+    });
+  } catch (error) {
+    console.error('Error initializing ontologies:', error);
+    return c.json({ error: 'Failed to initialize ontologies', details: String(error) }, 500);
+  }
+});
+
+// Get units ontology
+app.get('/make-server-17cae920/ontologies/units', async (c) => {
+  try {
+    const currentVersion = await kv.get('ontology:units:current');
+    
+    if (!currentVersion) {
+      return c.json({ 
+        error: 'Units ontology not initialized. Admin must call POST /ontologies/initialize first.' 
+      }, 404);
+    }
+
+    const unitsOntology = await kv.get(`ontology:units:${currentVersion}`);
+    
+    if (!unitsOntology) {
+      return c.json({ 
+        error: `Units ontology version ${currentVersion} not found` 
+      }, 404);
+    }
+
+    return c.json(unitsOntology);
+  } catch (error) {
+    console.error('Error fetching units ontology:', error);
+    return c.json({ error: 'Failed to fetch units ontology', details: String(error) }, 500);
+  }
+});
+
+// Get context ontology
+app.get('/make-server-17cae920/ontologies/context', async (c) => {
+  try {
+    const currentVersion = await kv.get('ontology:context:current');
+    
+    if (!currentVersion) {
+      return c.json({ 
+        error: 'Context ontology not initialized. Admin must call POST /ontologies/initialize first.' 
+      }, 404);
+    }
+
+    const contextOntology = await kv.get(`ontology:context:${currentVersion}`);
+    
+    if (!contextOntology) {
+      return c.json({ 
+        error: `Context ontology version ${currentVersion} not found` 
+      }, 404);
+    }
+
+    return c.json(contextOntology);
+  } catch (error) {
+    console.error('Error fetching context ontology:', error);
+    return c.json({ error: 'Failed to fetch context ontology', details: String(error) }, 500);
+  }
+});
+
 // ==================== NOTIFICATION ROUTES ====================
 
 // Create a notification (protected - admin or system only)
@@ -5404,6 +5591,43 @@ app.put("/make-server-17cae920/notifications/:userId/read-all", verifyAuth, asyn
 
 // ==================== EVIDENCE POINT ENDPOINTS ====================
 
+// Unit validation helper - validates units against ontology
+async function validateUnit(parameterCode: string, unit: string): Promise<{ valid: boolean; error?: string }> {
+  try {
+    // Fetch units ontology
+    const currentVersion = await kv.get('ontology:units:current');
+    
+    if (!currentVersion) {
+      return { valid: false, error: 'Units ontology not initialized. Contact system administrator.' };
+    }
+
+    const unitsOntology = await kv.get(`ontology:units:${currentVersion}`) as any;
+    
+    if (!unitsOntology) {
+      return { valid: false, error: `Units ontology version ${currentVersion} not found` };
+    }
+
+    // Check if parameter exists in ontology
+    const parameterDef = unitsOntology.parameters[parameterCode];
+    if (!parameterDef) {
+      return { valid: false, error: `Parameter ${parameterCode} not found in units ontology` };
+    }
+
+    // Check if unit is allowed for this parameter
+    if (!parameterDef.allowed_units.includes(unit)) {
+      return { 
+        valid: false, 
+        error: `Invalid unit "${unit}" for parameter ${parameterCode}. Allowed units: ${parameterDef.allowed_units.join(', ')}` 
+      };
+    }
+
+    return { valid: true };
+  } catch (error) {
+    console.error('Error validating unit:', error);
+    return { valid: false, error: `Unit validation failed: ${String(error)}` };
+  }
+}
+
 // Create evidence point (admin only)
 app.post('/make-server-17cae920/evidence', verifyAuth, verifyAdmin, async (c) => {
   try {
@@ -5461,6 +5685,15 @@ app.post('/make-server-17cae920/evidence', verifyAuth, verifyAdmin, async (c) =>
       return c.json({ 
         success: false, 
         error: 'source_type must be one of: whitepaper, article, external, manual' 
+      }, 400);
+    }
+
+    // Validate unit against ontology
+    const unitValidation = await validateUnit(parameter_code, raw_unit);
+    if (!unitValidation.valid) {
+      return c.json({ 
+        success: false, 
+        error: unitValidation.error 
       }, 400);
     }
 
@@ -5637,6 +5870,18 @@ app.put('/make-server-17cae920/evidence/:evidenceId', verifyAuth, verifyAdmin, a
         success: false, 
         error: 'source_type must be one of: whitepaper, article, external, manual' 
       }, 400);
+    }
+
+    // Validate unit if being updated
+    if (updates.raw_unit) {
+      const parameterCode = updates.parameter_code || existing.parameter_code;
+      const unitValidation = await validateUnit(parameterCode, updates.raw_unit);
+      if (!unitValidation.valid) {
+        return c.json({ 
+          success: false, 
+          error: unitValidation.error 
+        }, 400);
+      }
     }
 
     // Update evidence point

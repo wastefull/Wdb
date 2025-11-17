@@ -10,13 +10,15 @@ import { Phase9Day6Testing } from './Phase9Day6Testing';
 import { Phase9Day7Testing } from './Phase9Day7Testing';
 import { Phase9Day8Testing } from './Phase9Day8Testing';
 import { Phase9Day9Testing } from './Phase9Day9Testing';
+import { Phase9Day10Testing } from './Phase9Day10Testing';
+import { Phase9Day11Testing } from './Phase9Day11Testing';
 
 interface RoadmapViewProps {
   onBack: () => void;
 }
 
 export function RoadmapView({ onBack }: RoadmapViewProps) {
-  const [activeTab, setActiveTab] = useState('day10');
+  const [activeTab, setActiveTab] = useState('completed');
 
   // Day 1 Deliverables
   const day1Deliverables = [
@@ -329,37 +331,126 @@ export function RoadmapView({ onBack }: RoadmapViewProps) {
     {
       title: 'Open Access Field',
       description: 'Add is_open_access BOOLEAN field to sources table',
-      completed: false,
+      completed: true,
     },
     {
       title: 'OA Check Endpoint',
       description: 'Create GET /make-server-17cae920/sources/check-oa endpoint',
-      completed: false,
+      completed: true,
     },
     {
       title: 'Unpaywall API Integration',
       description: 'Integrate Unpaywall API (DOI → OA status)',
-      completed: false,
+      completed: true,
     },
     {
       title: 'OA Filter UI',
       description: 'Create OA filter in Source Library UI',
-      completed: false,
+      completed: true,
     },
     {
-      title: 'OA Badge',
-      description: 'Add OA badge to source cards',
-      completed: false,
+      title: 'OA Badges',
+      description: 'Display OA badges on source cards',
+      completed: true,
     },
     {
       title: 'Prioritize OA Setting',
-      description: 'Create "Prioritize OA" curator setting',
+      description: 'Add "Prioritize OA" curator preference',
+      completed: true,
+    },
+  ];
+
+  // Day 11 Deliverables (Critical Infrastructure Gaps)
+  const day11Deliverables = [
+    {
+      title: 'Controlled Vocabularies: units.json',
+      description: 'Create /ontologies/units.json with canonical units and conversion rules for all 13 parameters (Y, D, C, M, E, B, N, T, H, L, R, U, C_RU)',
+      completed: true,
+    },
+    {
+      title: 'Controlled Vocabularies: context.json',
+      description: 'Create /ontologies/context.json with controlled vocabularies for process, stream, region, and scale fields',
+      completed: true,
+    },
+    {
+      title: 'Ontology API Endpoints',
+      description: 'Implement GET /make-server-17cae920/ontologies/units and GET /make-server-17cae920/ontologies/context endpoints',
+      completed: true,
+    },
+    {
+      title: 'Server-Side Unit Validation',
+      description: 'Add validation middleware to check units match parameter definitions from ontology before accepting evidence',
+      completed: true,
+    },
+    {
+      title: 'RLS Policies for Evidence',
+      description: 'Implement Row-Level Security policies: read for all authenticated users, create/update/delete for admins only',
+      completed: false,
+    },
+    {
+      title: 'RLS Test Suite',
+      description: 'Create automated tests verifying non-admin users cannot modify evidence (expect 403) and admins can (expect 200)',
+      completed: false,
+    },
+    {
+      title: 'Signed URLs for File Storage',
+      description: 'Implement signed URLs with expiry for PDF and screenshot access (1-hour for PDFs, 24-hour for screenshots)',
+      completed: false,
+    },
+    {
+      title: 'Policy Snapshot Fields',
+      description: 'Extend parameter_aggregations table with version tracking: transform_version, weight_policy_version, codebook_version, ontology_version, weights_used (JSONB)',
+      completed: false,
+    },
+    {
+      title: 'Aggregation Snapshot Storage',
+      description: 'Update aggregation computation to store complete version snapshot with miu_ids[] array and weights_used JSON',
+      completed: false,
+    },
+    {
+      title: 'Aggregation Snapshot Display',
+      description: 'Create AggregationSnapshot.tsx component to display all versions used with links to transforms.json, weight policy, and codebook',
       completed: false,
     },
   ];
 
   // Backlog (Future Enhancements)
   const backlogItems = [
+    {
+      title: 'Automated Cron Backups',
+      description: 'Implement Deno cron scheduled nightly backups at 2 AM UTC with retention policy (7 daily, 4 weekly, 12 monthly) and failure alerts',
+      completed: false,
+    },
+    {
+      title: 'Observability Dashboard',
+      description: 'Comprehensive monitoring dashboard with metrics (error rate, latency percentiles, failed jobs), alert rules (CI width >0.3, stale aggregations), and structured logging with Winston',
+      completed: false,
+    },
+    {
+      title: 'KV-Backed Pages Manager',
+      description: 'Explore KV-backed JSON storage pattern (similar to ontologies) for Pages Manager - store page content in KV store with versioning, serve via API endpoints, maintain JSON files as source of truth for version control',
+      completed: false,
+    },
+    {
+      title: 'Curation Queue & Claim Workflow',
+      description: 'Priority queue showing materials with <3 MIUs per parameter, with OA filter, claim workflow to prevent duplicate work, and time estimates',
+      completed: false,
+    },
+    {
+      title: 'Evidence Heatmap (Coverage Matrix)',
+      description: 'Visual matrix showing evidence coverage gaps: rows = materials, columns = parameters, color-coded by MIU count (green ≥3, yellow 1-2, red 0)',
+      completed: false,
+    },
+    {
+      title: 'Release Management System',
+      description: 'ReleaseManager UI for creating versioned releases with SHA-256 checksumming, changelog generation, and immutable release artifacts',
+      completed: false,
+    },
+    {
+      title: 'MIU Deduplication',
+      description: 'Duplicate detection for evidence points (MIUs) based on source + locator + parameter + value, with near-match detection (ε=0.05)',
+      completed: false,
+    },
     {
       title: 'Guest Role Refactoring',
       description: 'Change unauthenticated role from "user" to "guest" for clearer semantic distinction between logged-out and authenticated states',
@@ -422,17 +513,17 @@ export function RoadmapView({ onBack }: RoadmapViewProps) {
                 : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
             }`}
           >
-            Completed
+            Completed (Days 1-10)
           </button>
           <button
-            onClick={() => setActiveTab('day10')}
+            onClick={() => setActiveTab('day11')}
             className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
-              activeTab === 'day10'
+              activeTab === 'day11'
                 ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
                 : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
             }`}
           >
-            Day 10
+            Day 11 (In Progress)
           </button>
           <button
             onClick={() => setActiveTab('backlog')}
@@ -452,7 +543,7 @@ export function RoadmapView({ onBack }: RoadmapViewProps) {
         {activeTab === 'completed' && (
           <div>
             <h3 className="font-['Sniglet'] text-[14px] text-black dark:text-white mb-6">
-              Days 1-9: Complete Infrastructure Implementation
+              Days 1-10: Complete Infrastructure Implementation
             </h3>
             <RoadmapPhaseTab
               phase="Phase 9.0"
@@ -517,15 +608,28 @@ export function RoadmapView({ onBack }: RoadmapViewProps) {
               testingView={<Phase9Day9Testing />}
               showTestingToggle={true}
             />
+            <RoadmapPhaseTab
+              phase="Phase 9.0"
+              dayNumber="Day 10"
+              deliverables={day10Deliverables}
+              testingView={<Phase9Day10Testing />}
+              showTestingToggle={true}
+            />
           </div>
         )}
-        {activeTab === 'day10' && (
-          <RoadmapPhaseTab
-            phase="Phase 9.0"
-            dayNumber="Day 10"
-            deliverables={day10Deliverables}
-            showTestingToggle={false}
-          />
+        {activeTab === 'day11' && (
+          <div>
+            <h3 className="font-['Sniglet'] text-[14px] text-black dark:text-white mb-6">
+              Day 11: Critical Infrastructure Gaps
+            </h3>
+            <RoadmapPhaseTab
+              phase="Phase 9.0"
+              dayNumber="Day 11"
+              deliverables={day11Deliverables}
+              testingView={<Phase9Day11Testing />}
+              showTestingToggle={true}
+            />
+          </div>
         )}
         {activeTab === 'backlog' && (
           <RoadmapPhaseTab

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Plus, Edit2, Trash2, Search, BookOpen, ExternalLink, Save, X, AlertCircle, Cloud, CloudOff, Download, Upload, RefreshCw, GraduationCap } from 'lucide-react';
+import { ArrowLeft, Plus, Edit2, Trash2, Search, BookOpen, ExternalLink, Save, X, AlertCircle, Cloud, CloudOff, Download, Upload, RefreshCw, GraduationCap, Unlock, Lock } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
@@ -48,6 +48,9 @@ export function SourceLibraryManager({ onBack, materials, isAuthenticated, isAdm
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState<string>('all');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [showOAOnly, setShowOAOnly] = useState(false); // Open Access filter
+  const [checkingOA, setCheckingOA] = useState<Set<string>>(new Set()); // Track which sources are being checked
+  const [oaStatus, setOaStatus] = useState<Map<string, any>>(new Map()); // Track OA status for each source
   const [editingSource, setEditingSource] = useState<Source | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [cloudSynced, setCloudSynced] = useState(false);
@@ -111,7 +114,9 @@ export function SourceLibraryManager({ onBack, materials, isAuthenticated, isAdm
     const matchesTags = selectedTags.length === 0 || 
       selectedTags.every(tag => source.tags?.includes(tag));
 
-    return matchesSearch && matchesType && matchesTags;
+    const matchesOA = !showOAOnly || source.doi !== undefined;
+
+    return matchesSearch && matchesType && matchesTags && matchesOA;
   });
 
   // Get usage statistics for a source
@@ -480,6 +485,50 @@ export function SourceLibraryManager({ onBack, materials, isAuthenticated, isAdm
     toast.success('Sources refreshed from cloud');
   };
 
+  // Check Open Access status for a source
+  const checkOAStatus = async (sourceId: string, doi: string) => {
+    if (!doi) return;
+
+    // Mark as checking
+    setCheckingOA(prev => new Set(prev).add(sourceId));
+
+    try {
+      const response = await fetch(
+        `https://${api.projectId}.supabase.co/functions/v1/make-server-17cae920/sources/check-oa?doi=${encodeURIComponent(doi)}`,
+        {
+          method: 'GET',
+          headers: { 'Authorization': `Bearer ${api.publicAnonKey}` },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      // Store OA status
+      setOaStatus(prev => new Map(prev).set(sourceId, data));
+      
+      // Show success message
+      if (data.is_open_access) {
+        toast.success(`✓ Open Access: ${data.oa_status || 'Available'}`);
+      } else {
+        toast.info('⊘ Closed Access - Not openly available');
+      }
+    } catch (error) {
+      console.error('Failed to check OA status:', error);
+      toast.error('Failed to check Open Access status');
+    } finally {
+      // Remove from checking set
+      setCheckingOA(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(sourceId);
+        return newSet;
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto">
@@ -664,7 +713,32 @@ export function SourceLibraryManager({ onBack, materials, isAuthenticated, isAdm
             </div>
           </div>
           
-          {(selectedType !== 'all' || selectedTags.length > 0 || searchQuery) && (
+          {/* Open Access Filter Toggle */}
+          <div className="mt-3 flex items-center gap-2">
+            <Button
+              variant={showOAOnly ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setShowOAOnly(!showOAOnly)}
+              className={showOAOnly ? 'bg-green-600 hover:bg-green-700 text-white' : ''}
+            >
+              {showOAOnly ? (
+                <>
+                  <Unlock className="w-3 h-3 mr-2" />
+                  Open Access Only
+                </>
+              ) : (
+                <>
+                  <Unlock className="w-3 h-3 mr-2" />
+                  Show All Sources
+                </>
+              )}
+            </Button>
+            <p className="text-[9px] text-black/60 dark:text-white/60">
+              {showOAOnly ? 'Showing only sources with DOIs' : 'Toggle to filter Open Access sources'}
+            </p>
+          </div>
+          
+          {(selectedType !== 'all' || selectedTags.length > 0 || searchQuery || showOAOnly) && (
             <div className="mt-3 flex items-center justify-between">
               <p className="text-[11px] text-black/60 dark:text-white/60">
                 Showing {filteredSources.length} of {sources.length} sources
@@ -676,6 +750,7 @@ export function SourceLibraryManager({ onBack, materials, isAuthenticated, isAdm
                   setSearchQuery('');
                   setSelectedType('all');
                   setSelectedTags([]);
+                  setShowOAOnly(false);
                 }}
               >
                 Clear Filters
@@ -720,14 +795,58 @@ export function SourceLibraryManager({ onBack, materials, isAuthenticated, isAdm
                               </Badge>
                             )}
                             {source.doi ? (
-                              <a
-                                href={`https://doi.org/${source.doi}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-[9px] text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
-                              >
-                                DOI <ExternalLink className="w-2 h-2" />
-                              </a>
+                              <>
+                                <a
+                                  href={`https://doi.org/${source.doi}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-[9px] text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+                                >
+                                  DOI <ExternalLink className="w-2 h-2" />
+                                </a>
+                                {/* OA Status Badge */}
+                                {oaStatus.has(source.id) ? (
+                                  oaStatus.get(source.id)?.is_open_access ? (
+                                    <Badge
+                                      className="text-[8px] bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300 cursor-pointer"
+                                      title={`Open Access: ${oaStatus.get(source.id)?.oa_status || 'Available'}`}
+                                      onClick={() => {
+                                        const url = oaStatus.get(source.id)?.best_oa_location?.url;
+                                        if (url) window.open(url, '_blank');
+                                      }}
+                                    >
+                                      <Unlock className="w-2 h-2 mr-1" />
+                                      OA
+                                    </Badge>
+                                  ) : (
+                                    <Badge
+                                      className="text-[8px] bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
+                                      title="Closed Access - Not openly available"
+                                    >
+                                      <Lock className="w-2 h-2 mr-1" />
+                                      Closed
+                                    </Badge>
+                                  )
+                                ) : (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-5 px-2 text-[8px]"
+                                    onClick={() => checkOAStatus(source.id, source.doi!)}
+                                    disabled={checkingOA.has(source.id)}
+                                    title="Check Open Access status"
+                                  >
+                                    {checkingOA.has(source.id) ? (
+                                      <RefreshCw className="w-2 h-2 animate-spin" />
+                                    ) : (
+                                      <>
+                                        <Unlock className="w-2 h-2 mr-1" />
+                                        Check OA
+                                      </>
+                                    )}
+                                  </Button>
+                                )}
+                              </>
                             ) : source.pdfFileName ? (
                               <div className="flex items-center gap-2">
                                 <a
