@@ -8,14 +8,15 @@ import { Phase9Day4Testing } from './Phase9Day4Testing';
 import { Phase9Day5Testing } from './Phase9Day5Testing';
 import { Phase9Day6Testing } from './Phase9Day6Testing';
 import { Phase9Day7Testing } from './Phase9Day7Testing';
+import { Phase9Day8Testing } from './Phase9Day8Testing';
 
 interface RoadmapViewProps {
   onBack: () => void;
 }
 
 export function RoadmapView({ onBack }: RoadmapViewProps) {
-  const [activeTab, setActiveTab] = useState('completed');
-  const [selectedDay, setSelectedDay] = useState<'day1' | 'day2' | 'day3' | 'day4' | 'day5' | 'day6'>('day6');
+  const [activeTab, setActiveTab] = useState('day8');
+  const [selectedDay, setSelectedDay] = useState<'day1' | 'day2' | 'day3' | 'day4' | 'day5' | 'day6' | 'day7'>('day7');
 
   // Day 1 Deliverables
   const day1Deliverables = [
@@ -226,32 +227,32 @@ export function RoadmapView({ onBack }: RoadmapViewProps) {
     {
       title: 'Data Retention Policy Document',
       description: 'Create data retention policy document',
-      completed: false,
+      completed: true,
     },
     {
       title: 'Delete Source Endpoint',
-      description: 'Create DELETE /make-server-17cae920/sources/:id endpoint',
-      completed: false,
+      description: 'Create DELETE /make-server-17cae920/sources/:id endpoint with referential integrity checks',
+      completed: true,
     },
     {
       title: 'Referential Integrity Checks',
       description: 'Implement checks to prevent deletion if MIUs exist',
-      completed: false,
+      completed: true,
     },
     {
-      title: 'Screenshot Cleanup Cron Job',
-      description: 'Create screenshot cleanup cron job (7-year policy)',
-      completed: false,
+      title: 'Screenshot Cleanup Endpoint',
+      description: 'Create screenshot cleanup endpoint (7-year policy)',
+      completed: true,
     },
     {
-      title: 'Data Retention Manager UI',
-      description: 'Create DataRetentionManager.tsx admin UI',
-      completed: false,
+      title: 'Retention Statistics Endpoint',
+      description: 'Create GET /admin/retention/stats endpoint for retention tracking',
+      completed: true,
     },
     {
       title: 'Deletion Testing',
-      description: 'Test deletion with dependent MIUs',
-      completed: false,
+      description: 'Test deletion with dependent MIUs - 6 comprehensive tests',
+      completed: true,
     },
   ];
 
@@ -424,16 +425,6 @@ export function RoadmapView({ onBack }: RoadmapViewProps) {
             Completed
           </button>
           <button
-            onClick={() => setActiveTab('day7')}
-            className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
-              activeTab === 'day7'
-                ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
-                : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
-            }`}
-          >
-            Day 7
-          </button>
-          <button
             onClick={() => setActiveTab('day8')}
             className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
               activeTab === 'day8'
@@ -541,6 +532,16 @@ export function RoadmapView({ onBack }: RoadmapViewProps) {
               >
                 Day 6
               </button>
+              <button
+                onClick={() => setSelectedDay('day7')}
+                className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
+                  selectedDay === 'day7'
+                    ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
+                    : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
+                }`}
+              >
+                Day 7
+              </button>
             </div>
             {selectedDay === 'day1' && (
               <RoadmapPhaseTab
@@ -596,23 +597,24 @@ export function RoadmapView({ onBack }: RoadmapViewProps) {
                 showTestingToggle={true}
               />
             )}
+            {selectedDay === 'day7' && (
+              <RoadmapPhaseTab
+                phase="Phase 9.0"
+                dayNumber="Day 7"
+                deliverables={day7Deliverables}
+                testingView={<Phase9Day7Testing />}
+                showTestingToggle={true}
+              />
+            )}
           </div>
-        )}
-        {activeTab === 'day7' && (
-          <RoadmapPhaseTab
-            phase="Phase 9.0"
-            dayNumber="Day 7"
-            deliverables={day7Deliverables}
-            testingView={<Phase9Day7Testing />}
-            showTestingToggle={true}
-          />
         )}
         {activeTab === 'day8' && (
           <RoadmapPhaseTab
             phase="Phase 9.0"
             dayNumber="Day 8"
             deliverables={day8Deliverables}
-            showTestingToggle={false}
+            testingView={<Phase9Day8Testing />}
+            showTestingToggle={true}
           />
         )}
         {activeTab === 'day9' && (

@@ -6552,6 +6552,281 @@ app.get('/make-server-17cae920/admin/retention/check-source/:id', verifyAuth, ve
   }
 });
 
+// ==================== BACKUP & RECOVERY ENDPOINTS ====================
+
+// Export all data as JSON backup (admin only)
+app.post('/make-server-17cae920/backup/export', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const startTime = Date.now();
+    console.log('📦 Starting backup export...');
+    
+    // Export all data categories from KV store
+    const materials = await kv.getByPrefix('material:');
+    const sources = await kv.getByPrefix('source:');
+    const whitepapers = await kv.getByPrefix('whitepaper:');
+    const evidence = await kv.getByPrefix('evidence:');
+    const users = await kv.getByPrefix('user:');
+    const auditLogs = await kv.getByPrefix('audit:');
+    const notifications = await kv.getByPrefix('notification:');
+    const takedownRequests = await kv.getByPrefix('takedown:');
+    const recomputeJobs = await kv.getByPrefix('recompute-job:');
+    const submissions = await kv.getByPrefix('submission:');
+    
+    // Create backup manifest
+    const backup = {
+      metadata: {
+        version: '1.0',
+        timestamp: new Date().toISOString(),
+        exported_by: c.get('userId'),
+        database_name: 'WasteDB',
+        total_records: materials.length + sources.length + whitepapers.length + 
+                       evidence.length + users.length + auditLogs.length + 
+                       notifications.length + takedownRequests.length + 
+                       recomputeJobs.length + submissions.length,
+        export_duration_ms: 0 // Will be updated below
+      },
+      data: {
+        materials,
+        sources,
+        whitepapers,
+        evidence,
+        users: users.map((u: any) => ({
+          ...u,
+          // Don't export sensitive password data
+          password: undefined,
+          session_token: undefined
+        })),
+        audit_logs: auditLogs,
+        notifications,
+        takedown_requests: takedownRequests,
+        recompute_jobs: recomputeJobs,
+        submissions
+      },
+      // Include transform definitions for reference
+      transforms: TRANSFORMS_DATA
+    };
+    
+    const endTime = Date.now();
+    backup.metadata.export_duration_ms = endTime - startTime;
+    
+    console.log(`✓ Backup export completed in ${backup.metadata.export_duration_ms}ms`);
+    console.log(`✓ Total records exported: ${backup.metadata.total_records}`);
+    
+    // Create audit log for backup export
+    await createAuditLog({
+      entity_type: 'backup',
+      entity_id: 'export',
+      action: 'export',
+      user_id: c.get('userId'),
+      user_email: c.get('userEmail'),
+      changes: {
+        total_records: backup.metadata.total_records,
+        duration_ms: backup.metadata.export_duration_ms
+      },
+      ip_address: c.req.header('x-forwarded-for') || c.req.header('x-real-ip') || 'unknown'
+    });
+    
+    return c.json(backup);
+  } catch (error) {
+    console.error('Error exporting backup:', error);
+    return c.json({ error: 'Failed to export backup', details: String(error) }, 500);
+  }
+});
+
+// Import/restore data from JSON backup (admin only)
+app.post('/make-server-17cae920/backup/import', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const startTime = Date.now();
+    const body = await c.req.json();
+    const { backup, mode = 'merge' } = body; // mode: 'merge' or 'replace'
+    
+    console.log(`📥 Starting backup import in ${mode} mode...`);
+    
+    // Validate backup structure
+    if (!backup || !backup.metadata || !backup.data) {
+      return c.json({ error: 'Invalid backup format' }, 400);
+    }
+    
+    console.log(`📋 Backup metadata:`, {
+      version: backup.metadata.version,
+      timestamp: backup.metadata.timestamp,
+      total_records: backup.metadata.total_records
+    });
+    
+    let importedCount = 0;
+    let skippedCount = 0;
+    let errorCount = 0;
+    
+    // If replace mode, we would need to clear existing data first
+    // For safety, we'll only support merge mode for now
+    if (mode === 'replace') {
+      return c.json({ 
+        error: 'Replace mode not supported for safety reasons. Use merge mode instead.',
+        hint: 'Merge mode will update existing records and add new ones without deleting.'
+      }, 400);
+    }
+    
+    // Import each data category
+    const categories = [
+      { name: 'materials', data: backup.data.materials || [], prefix: 'material:' },
+      { name: 'sources', data: backup.data.sources || [], prefix: 'source:' },
+      { name: 'whitepapers', data: backup.data.whitepapers || [], prefix: 'whitepaper:' },
+      { name: 'evidence', data: backup.data.evidence || [], prefix: 'evidence:' },
+      { name: 'users', data: backup.data.users || [], prefix: 'user:' },
+      { name: 'audit_logs', data: backup.data.audit_logs || [], prefix: 'audit:' },
+      { name: 'notifications', data: backup.data.notifications || [], prefix: 'notification:' },
+      { name: 'takedown_requests', data: backup.data.takedown_requests || [], prefix: 'takedown:' },
+      { name: 'recompute_jobs', data: backup.data.recompute_jobs || [], prefix: 'recompute-job:' },
+      { name: 'submissions', data: backup.data.submissions || [], prefix: 'submission:' }
+    ];
+    
+    for (const category of categories) {
+      console.log(`📂 Importing ${category.name}: ${category.data.length} records...`);
+      
+      for (const record of category.data) {
+        try {
+          if (record && record.id) {
+            await kv.set(`${category.prefix}${record.id}`, record);
+            importedCount++;
+          } else {
+            console.warn(`⚠️ Skipping invalid record in ${category.name}:`, record);
+            skippedCount++;
+          }
+        } catch (err) {
+          console.error(`❌ Error importing record in ${category.name}:`, err);
+          errorCount++;
+        }
+      }
+    }
+    
+    const endTime = Date.now();
+    const duration = endTime - startTime;
+    
+    console.log(`✓ Backup import completed in ${duration}ms`);
+    console.log(`✓ Imported: ${importedCount}, Skipped: ${skippedCount}, Errors: ${errorCount}`);
+    
+    // Create audit log for backup import
+    await createAuditLog({
+      entity_type: 'backup',
+      entity_id: 'import',
+      action: 'import',
+      user_id: c.get('userId'),
+      user_email: c.get('userEmail'),
+      changes: {
+        mode,
+        imported_count: importedCount,
+        skipped_count: skippedCount,
+        error_count: errorCount,
+        duration_ms: duration,
+        backup_metadata: backup.metadata
+      },
+      ip_address: c.req.header('x-forwarded-for') || c.req.header('x-real-ip') || 'unknown'
+    });
+    
+    return c.json({
+      success: true,
+      imported: importedCount,
+      skipped: skippedCount,
+      errors: errorCount,
+      duration_ms: duration,
+      backup_info: {
+        version: backup.metadata.version,
+        timestamp: backup.metadata.timestamp,
+        original_total: backup.metadata.total_records
+      }
+    });
+  } catch (error) {
+    console.error('Error importing backup:', error);
+    return c.json({ error: 'Failed to import backup', details: String(error) }, 500);
+  }
+});
+
+// Validate backup file integrity (admin only)
+app.post('/make-server-17cae920/backup/validate', verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const body = await c.req.json();
+    const { backup } = body;
+    
+    const issues: string[] = [];
+    const warnings: string[] = [];
+    
+    // Check backup structure
+    if (!backup) {
+      issues.push('Backup object is missing');
+      return c.json({ valid: false, issues, warnings });
+    }
+    
+    if (!backup.metadata) {
+      issues.push('Backup metadata is missing');
+    } else {
+      if (!backup.metadata.version) warnings.push('Backup version not specified');
+      if (!backup.metadata.timestamp) warnings.push('Backup timestamp not specified');
+      if (!backup.metadata.exported_by) warnings.push('Export user not specified');
+    }
+    
+    if (!backup.data) {
+      issues.push('Backup data is missing');
+      return c.json({ valid: false, issues, warnings });
+    }
+    
+    // Check data categories
+    const expectedCategories = [
+      'materials', 'sources', 'whitepapers', 'evidence', 'users',
+      'audit_logs', 'notifications', 'takedown_requests', 'recompute_jobs', 'submissions'
+    ];
+    
+    let totalRecords = 0;
+    const categoryStats: Record<string, number> = {};
+    
+    for (const category of expectedCategories) {
+      if (!backup.data[category]) {
+        warnings.push(`Category '${category}' is missing`);
+        categoryStats[category] = 0;
+      } else if (!Array.isArray(backup.data[category])) {
+        issues.push(`Category '${category}' is not an array`);
+        categoryStats[category] = 0;
+      } else {
+        categoryStats[category] = backup.data[category].length;
+        totalRecords += backup.data[category].length;
+        
+        // Validate that each record has an ID
+        const invalidRecords = backup.data[category].filter((r: any) => !r || !r.id);
+        if (invalidRecords.length > 0) {
+          warnings.push(`Category '${category}' has ${invalidRecords.length} records without IDs`);
+        }
+      }
+    }
+    
+    // Check if total matches metadata
+    if (backup.metadata.total_records && backup.metadata.total_records !== totalRecords) {
+      warnings.push(
+        `Total record count mismatch: metadata says ${backup.metadata.total_records}, ` +
+        `but found ${totalRecords}`
+      );
+    }
+    
+    const valid = issues.length === 0;
+    
+    return c.json({
+      valid,
+      issues,
+      warnings,
+      stats: {
+        total_records: totalRecords,
+        categories: categoryStats,
+        metadata: backup.metadata
+      }
+    });
+  } catch (error) {
+    console.error('Error validating backup:', error);
+    return c.json({ 
+      valid: false, 
+      issues: ['Failed to parse backup file: ' + String(error)],
+      warnings: []
+    }, 400);
+  }
+});
+
 // Catch-all 404 handler for debugging - MUST be last route
 app.all('*', (c) => {
   console.log(`❌ 404 - Unmatched route: ${c.req.method} ${c.req.url}`);
