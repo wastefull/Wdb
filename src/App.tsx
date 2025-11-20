@@ -3456,7 +3456,7 @@ function AppContent() {
           ) : currentView.type === 'roadmap' ? (
             <RoadmapView onBack={navigateToAdminDashboard} />
           ) : currentView.type === 'roadmap-overview' ? (
-            <SimplifiedRoadmap onBack={navigateToAdminDashboard} />
+            <SimplifiedRoadmap onBack={navigateToAdminDashboard} defaultTab={currentView.defaultTab} />
           ) : null}
           
           {/* Footer - inside rounded container */}

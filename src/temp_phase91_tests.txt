@@ -1,0 +1,71 @@
+
+    // ==================== PHASE 9.1 TESTS ====================
+    // Evidence Points and Parameter Aggregations
+    
+    {
+      id: 'phase9-1-create-evidence',
+      name: 'Create Evidence Point',
+      description: 'Verify creating a new evidence point with Phase 9.1 fields',
+      phase: '9.1',
+      category: 'Evidence',
+      testFn: async () => {
+        if (!user) {
+          return { success: false, message: 'Must be authenticated as admin to create evidence' };
+        }
+
+        const accessToken = sessionStorage.getItem('wastedb_access_token');
+        if (!accessToken) {
+          return { success: false, message: 'No access token found - please sign in again' };
+        }
+
+        try {
+          const testMaterialId = `test-material-91-${Date.now()}`;
+          const testSourceRef = `test-source-91-${Date.now()}`;
+          
+          const response = await fetch(`https://${projectId}.supabase.co/functions/v1/make-server-17cae920/evidence`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              material_id: testMaterialId,
+              parameter_code: 'Y',
+              raw_value: 85.5,
+              raw_unit: '%',
+              snippet: 'The yield was measured at 85.5% under standard conditions.',
+              source_type: 'whitepaper',
+              citation: 'Test Source 2025',
+              confidence_level: 'high',
+              notes: 'Test evidence point for Phase 9.1',
+              page_number: 42,
+              source_ref: testSourceRef,
+              source_weight: 1.0,
+              restricted_content: false,
+            }),
+          });
+
+          if (!response.ok) {
+            const data = await response.json();
+            return { success: false, message: data.error || 'Failed to create evidence point' };
+          }
+
+          const data = await response.json();
+          
+          // Store for later tests
+          sessionStorage.setItem('test_evidence_id_91', data.evidence.id);
+          sessionStorage.setItem('test_material_id_91', testMaterialId);
+          sessionStorage.setItem('test_source_ref_91', testSourceRef);
+
+          return { 
+            success: true, 
+            message: `Evidence point created ✓ (ID: ${data.evidence.id})` 
+          };
+        } catch (error) {
+          return { 
+            success: false, 
+            message: `Error creating evidence point: ${error instanceof Error ? error.message : 'Unknown error'}` 
+          };
+        }
+      }
+    },

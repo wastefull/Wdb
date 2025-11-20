@@ -3,6 +3,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/
 import { Badge } from './ui/badge';
 import { CheckCircle2, Circle, Clock } from 'lucide-react';
 import { PageTemplate } from './PageTemplate';
+import { TestSuite } from './TestSuite';
+import { PhaseFilteredTests } from './PhaseFilteredTests';
+import { PHASE_CONFIG } from '../config/phaseConfig';
 
 interface PhaseData {
   number: number;
@@ -15,9 +18,84 @@ interface PhaseData {
 
 interface SimplifiedRoadmapProps {
   onBack?: () => void;
+  defaultTab?: 'overview' | '9.1' | '9.2' | '9.3' | '9.4' | '9.5' | '10' | 'tests' | 'backlog';
 }
 
-export function SimplifiedRoadmap({ onBack }: SimplifiedRoadmapProps) {
+export function SimplifiedRoadmap({ onBack, defaultTab }: SimplifiedRoadmapProps) {
+  // Use PHASE_CONFIG.tabId as default if defaultTab not provided
+  const [activeTab, setActiveTab] = React.useState<'overview' | '9.1' | '9.2' | '9.3' | '9.4' | '9.5' | '10' | 'tests' | 'backlog'>(
+    defaultTab || (PHASE_CONFIG.tabId as any) || '9.1'
+  );
+
+  // Define available phase tabs in order - the first one is automatically the active phase
+  const phaseTabs = [
+    { id: '9.1', label: '9.1', fullName: 'Phase 9.1: Evidence & Aggregations' },
+    { id: '9.2', label: '9.2', fullName: 'Phase 9.2: Curation Workbench UI' },
+    { id: '9.3', label: '9.3', fullName: 'Phase 9.3' },
+    { id: '9.4', label: '9.4', fullName: 'Phase 9.4' },
+    { id: '9.5', label: '9.5', fullName: 'Phase 9.5' },
+    { id: '10', label: '10', fullName: 'Phase 10: Advanced Optimization' },
+  ];
+
+  // The active phase is always the first phase tab
+  const activePhase = phaseTabs[0];
+
+  // Backlog (Future Enhancements)
+  const backlogItems = [
+    {
+      title: 'Automated Cron Backups',
+      description: 'Implement Deno cron scheduled nightly backups at 2 AM UTC with retention policy (7 daily, 4 weekly, 12 monthly) and failure alerts',
+    },
+    {
+      title: 'Observability Dashboard',
+      description: 'Comprehensive monitoring dashboard with metrics (error rate, latency percentiles, failed jobs), alert rules (CI width >0.3, stale aggregations), and structured logging with Winston',
+    },
+    {
+      title: 'KV-Backed Pages Manager',
+      description: 'Explore KV-backed JSON storage pattern (similar to ontologies) for Pages Manager - store page content in KV store with versioning, serve via API endpoints, maintain JSON files as source of truth for version control',
+    },
+    {
+      title: 'Curation Queue & Claim Workflow',
+      description: 'Priority queue showing materials with <3 MIUs per parameter, with OA filter, claim workflow to prevent duplicate work, and time estimates',
+    },
+    {
+      title: 'Evidence Heatmap (Coverage Matrix)',
+      description: 'Visual matrix showing evidence coverage gaps: rows = materials, columns = parameters, color-coded by MIU count (green ≥3, yellow 1-2, red 0)',
+    },
+    {
+      title: 'Release Management System',
+      description: 'ReleaseManager UI for creating versioned releases with SHA-256 checksumming, changelog generation, and immutable release artifacts',
+    },
+    {
+      title: 'MIU Deduplication',
+      description: 'Duplicate detection for evidence points (MIUs) based on source + locator + parameter + value, with near-match detection (ε=0.05)',
+    },
+    {
+      title: 'Guest Role Refactoring',
+      description: 'Change unauthenticated role from "user" to "guest" for clearer semantic distinction between logged-out and authenticated states',
+    },
+    {
+      title: 'Admin Dashboard Polish',
+      description: 'Final UX improvements: keyboard shortcuts, search/filter in admin views, performance optimizations',
+    },
+    {
+      title: 'Cleanup for Expired Audit Logs',
+      description: 'Add cleanup endpoint and UI for expired audit logs (similar to screenshot cleanup)',
+    },
+    {
+      title: 'Admin Dashboard for Retention Statistics',
+      description: 'Create admin dashboard showing retention statistics and cleanup actions in a unified interface',
+    },
+    {
+      title: 'Bulk Deletion for Sources',
+      description: 'Implement bulk deletion for sources without evidence dependencies',
+    },
+    {
+      title: 'Retention Policy Configuration',
+      description: 'Add UI to customize the 7-year retention threshold for different data types',
+    },
+  ];
+
   const phases: PhaseData[] = [
     {
       number: 1,
@@ -174,6 +252,114 @@ export function SimplifiedRoadmap({ onBack }: SimplifiedRoadmapProps) {
       onBack={onBack}
       maxWidth="5xl"
     >
+      {/* Active Phase Badge - first phase tab is always the active one */}
+      <div className="mb-6 flex items-center gap-3">
+        <span className="text-sm font-['Sniglet'] text-muted-foreground">Active Phase:</span>
+        <Badge className="bg-[#bae1ff] text-black hover:bg-[#9dd1ff] font-['Sniglet'] px-3 py-1">
+          {activePhase.fullName}
+        </Badge>
+        <span className="text-xs text-muted-foreground font-['Sniglet']">
+          (When complete, remove this tab to advance to the next phase)
+        </span>
+      </div>
+
+      {/* Tabs */}
+      <div className="mb-6">
+        <div className="flex gap-2 border-b border-[#211f1c]/20 dark:border-white/20">
+          <button
+            onClick={() => setActiveTab('overview')}
+            className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
+              activeTab === 'overview'
+                ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
+                : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
+            }`}
+          >
+            Overview
+          </button>
+          <button
+            onClick={() => setActiveTab('9.1')}
+            className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
+              activeTab === '9.1'
+                ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
+                : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
+            }`}
+          >
+            9.1
+          </button>
+          <button
+            onClick={() => setActiveTab('9.2')}
+            className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
+              activeTab === '9.2'
+                ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
+                : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
+            }`}
+          >
+            9.2
+          </button>
+          <button
+            onClick={() => setActiveTab('9.3')}
+            className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
+              activeTab === '9.3'
+                ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
+                : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
+            }`}
+          >
+            9.3
+          </button>
+          <button
+            onClick={() => setActiveTab('9.4')}
+            className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
+              activeTab === '9.4'
+                ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
+                : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
+            }`}
+          >
+            9.4
+          </button>
+          <button
+            onClick={() => setActiveTab('9.5')}
+            className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
+              activeTab === '9.5'
+                ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
+                : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
+            }`}
+          >
+            9.5
+          </button>
+          <button
+            onClick={() => setActiveTab('10')}
+            className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
+              activeTab === '10'
+                ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
+                : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
+            }`}
+          >
+            10
+          </button>
+          <button
+            onClick={() => setActiveTab('tests')}
+            className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
+              activeTab === 'tests'
+                ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
+                : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
+            }`}
+          >
+            Tests
+          </button>
+          <button
+            onClick={() => setActiveTab('backlog')}
+            className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
+              activeTab === 'backlog'
+                ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
+                : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
+            }`}
+          >
+            Backlog
+          </button>
+        </div>
+      </div>
+
+      {activeTab === 'overview' && (
       <div className="space-y-8">
         {/* Progress Overview */}
         <Card className="border-2">
@@ -283,6 +469,217 @@ export function SimplifiedRoadmap({ onBack }: SimplifiedRoadmapProps) {
           </CardContent>
         </Card>
       </div>
+      )}
+
+      {activeTab === 'tests' && (
+        <div className="space-y-8">
+          <TestSuite />
+        </div>
+      )}
+
+      {activeTab === '9.1' && (
+        <div className="space-y-8">
+          <Card className="border-2">
+            <CardHeader>
+              <CardTitle>Phase 9.1: Database Schema & Backend</CardTitle>
+              <CardDescription>Evidence Points Database Infrastructure</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-muted-foreground">
+                Transform WasteDB from a parameter-entry system to an evidence-extraction platform where every numeric value is traceable to specific passages, figures, and tables in peer-reviewed literature using Minimally Interpretable Units (MIUs).
+              </p>
+
+              <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-md p-4">
+                <p className="text-sm text-blue-900 dark:text-blue-100">
+                  <strong>Note:</strong> Refer to{' '}
+                  <code className="text-xs bg-blue-100 dark:bg-blue-900 px-1.5 py-0.5 rounded">
+                    docs/PHASE_9_0_STATUS_SUMMARY.md
+                  </code>{' '}
+                  to see what infrastructure has already been put in place during Phase 9.0.
+                </p>
+              </div>
+              
+              <div>
+                <h4 className="text-sm font-semibold mb-2">Tasks:</h4>
+                <ul className="space-y-2">
+                  <li className="flex items-start gap-2 text-sm">
+                    <span className="text-green-600 mt-0.5">✅</span>
+                    <span>Create <code className="text-xs bg-background px-1.5 py-0.5 rounded">public.evidence_points</code> table (KV-backed schema documented)</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm">
+                    <span className="text-green-600 mt-0.5">✅</span>
+                    <span>Create <code className="text-xs bg-background px-1.5 py-0.5 rounded">public.parameter_aggregations</code> table (KV-backed schema documented)</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm">
+                    <span className="text-green-600 mt-0.5">✅</span>
+                    <span>Add indexes, views, and RLS policies (KV indexes + view helpers implemented)</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm">
+                    <span className="text-green-600 mt-0.5">✅</span>
+                    <span>Implement evidence/aggregation API endpoints (8 endpoints working)</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm">
+                    <span className="text-green-600 mt-0.5">✅</span>
+                    <span>Add data guards (prevent source deletion with MIU references)</span>
+                  </li>
+                </ul>
+                
+                <div className="mt-4 p-3 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-md">
+                  <p className="text-sm text-green-900 dark:text-green-100">
+                    <strong>✅ Phase 9.1 Complete!</strong> All 5 tasks finished. Schema documented in{' '}
+                    <code className="text-xs bg-green-100 dark:bg-green-900 px-1.5 py-0.5 rounded">
+                      /docs/PHASE_9_1_SCHEMA.md
+                    </code>
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* Show testing console in active phase tab */}
+          {PHASE_CONFIG.tabId === '9.1' && (
+            <PhaseFilteredTests 
+              phase="9.1"
+              title="Phase 9.1 Tests"
+              description="Evidence Points and Parameter Aggregations"
+            />
+          )}
+        </div>
+      )}
+
+      {activeTab === '9.2' && (
+        <div className="space-y-8">
+          <Card className="border-2">
+            <CardHeader>
+              <CardTitle>Phase 9.2 - Coming Soon</CardTitle>
+              <CardDescription>Curation Workbench UI</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">
+                This phase is currently in planning. Content will be added as development progresses.
+              </p>
+            </CardContent>
+          </Card>
+          
+          {/* Show testing console for this phase */}
+          <PhaseFilteredTests 
+            phase="9.2"
+            title="Phase 9.2 Tests"
+            description="Curation Workbench UI Tests"
+          />
+        </div>
+      )}
+
+      {activeTab === '9.3' && (
+        <div className="space-y-8">
+          <Card className="border-2">
+            <CardHeader>
+              <CardTitle>Phase 9.3 - Coming Soon</CardTitle>
+              <CardDescription>Future Phase</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">
+                This phase is currently in planning. Content will be added as development progresses.
+              </p>
+            </CardContent>
+          </Card>
+          
+          {/* Show testing console for this phase */}
+          <PhaseFilteredTests 
+            phase="9.3"
+            title="Phase 9.3 Tests"
+          />
+        </div>
+      )}
+
+      {activeTab === '9.4' && (
+        <div className="space-y-8">
+          <Card className="border-2">
+            <CardHeader>
+              <CardTitle>Phase 9.4 - Coming Soon</CardTitle>
+              <CardDescription>Future Phase</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">
+                This phase is currently in planning. Content will be added as development progresses.
+              </p>
+            </CardContent>
+          </Card>
+          
+          {/* Show testing console for this phase */}
+          <PhaseFilteredTests 
+            phase="9.4"
+            title="Phase 9.4 Tests"
+          />
+        </div>
+      )}
+
+      {activeTab === '9.5' && (
+        <div className="space-y-8">
+          <Card className="border-2">
+            <CardHeader>
+              <CardTitle>Phase 9.5 - Coming Soon</CardTitle>
+              <CardDescription>Future Phase</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">
+                This phase is currently in planning. Content will be added as development progresses.
+              </p>
+            </CardContent>
+          </Card>
+          
+          {/* Show testing console for this phase */}
+          <PhaseFilteredTests 
+            phase="9.5"
+            title="Phase 9.5 Tests"
+          />
+        </div>
+      )}
+
+      {activeTab === '10' && (
+        <div className="space-y-8">
+          <Card className="border-2">
+            <CardHeader>
+              <CardTitle>Phase 10 - Coming Soon</CardTitle>
+              <CardDescription>Advanced Performance & Data Optimization</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">
+                This phase is currently in planning. Content will be added as development progresses.
+              </p>
+            </CardContent>
+          </Card>
+          
+          {/* Show testing console for this phase */}
+          <PhaseFilteredTests 
+            phase="10"
+            title="Phase 10 Tests"
+            description="Advanced Optimization Tests"
+          />
+        </div>
+      )}
+
+      {activeTab === 'backlog' && (
+        <div className="space-y-8">
+          <h2 className="text-2xl">Backlog (Future Enhancements)</h2>
+          <div className="space-y-6">
+            {backlogItems.map((item, index) => (
+              <Card key={index} className="flex-1 mb-2">
+                <CardHeader>
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <CardTitle className="text-xl">{item.title}</CardTitle>
+                      <CardDescription className="mt-1">
+                        {item.description}
+                      </CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
     </PageTemplate>
   );
 }

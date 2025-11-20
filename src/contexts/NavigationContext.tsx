@@ -49,7 +49,7 @@ export type ViewType =
   | { type: 'math-tools'; defaultTab?: 'overview' | 'transform-manager' }
   | { type: 'charts-performance' }
   | { type: 'roadmap' }
-  | { type: 'roadmap-overview' };
+  | { type: 'roadmap-overview'; defaultTab?: 'overview' | '9.1' | '9.2' | '9.3' | '9.4' | '9.5' | '10' | 'tests' | 'backlog' };
 
 interface NavigationContextType {
   // State
@@ -96,7 +96,7 @@ interface NavigationContextType {
   navigateToMathTools: (defaultTab?: 'overview' | 'transform-manager') => void;
   navigateToChartsPerformance: () => void;
   navigateToRoadmap: () => void;
-  navigateToRoadmapOverview: () => void;
+  navigateToRoadmapOverview: (defaultTab?: 'overview' | '9.1' | '9.2' | '9.3' | '9.4' | '9.5' | '10' | 'tests' | 'backlog') => void;
   goBack: () => void;
 }
 
@@ -276,8 +276,8 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
     navigateTo({ type: 'roadmap' });
   };
 
-  const navigateToRoadmapOverview = () => {
-    navigateTo({ type: 'roadmap-overview' });
+  const navigateToRoadmapOverview = (defaultTab?: 'overview' | '9.1' | '9.2' | '9.3' | '9.4' | '9.5' | '10' | 'tests' | 'backlog') => {
+    navigateTo({ type: 'roadmap-overview', defaultTab });
   };
 
   const goBack = () => {

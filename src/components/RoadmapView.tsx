@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { RoadmapPhaseTab } from './RoadmapPhaseTab';
 import { Phase9Day1Testing } from './Phase9Day1Testing';
@@ -18,7 +18,8 @@ interface RoadmapViewProps {
 }
 
 export function RoadmapView({ onBack }: RoadmapViewProps) {
-  const [activeTab, setActiveTab] = useState('completed');
+  // No longer need activeTab state - Phase 9.0 view only shows completed work
+  // Backlog has been moved to Admin > Testing > Roadmap > Overview > Backlog tab
 
   // Day 1 Deliverables
   const day1Deliverables = [
@@ -414,75 +415,6 @@ export function RoadmapView({ onBack }: RoadmapViewProps) {
     },
   ];
 
-  // Backlog (Future Enhancements)
-  const backlogItems = [
-    {
-      title: 'Automated Cron Backups',
-      description: 'Implement Deno cron scheduled nightly backups at 2 AM UTC with retention policy (7 daily, 4 weekly, 12 monthly) and failure alerts',
-      completed: false,
-    },
-    {
-      title: 'Observability Dashboard',
-      description: 'Comprehensive monitoring dashboard with metrics (error rate, latency percentiles, failed jobs), alert rules (CI width >0.3, stale aggregations), and structured logging with Winston',
-      completed: false,
-    },
-    {
-      title: 'KV-Backed Pages Manager',
-      description: 'Explore KV-backed JSON storage pattern (similar to ontologies) for Pages Manager - store page content in KV store with versioning, serve via API endpoints, maintain JSON files as source of truth for version control',
-      completed: false,
-    },
-    {
-      title: 'Curation Queue & Claim Workflow',
-      description: 'Priority queue showing materials with <3 MIUs per parameter, with OA filter, claim workflow to prevent duplicate work, and time estimates',
-      completed: false,
-    },
-    {
-      title: 'Evidence Heatmap (Coverage Matrix)',
-      description: 'Visual matrix showing evidence coverage gaps: rows = materials, columns = parameters, color-coded by MIU count (green ≥3, yellow 1-2, red 0)',
-      completed: false,
-    },
-    {
-      title: 'Release Management System',
-      description: 'ReleaseManager UI for creating versioned releases with SHA-256 checksumming, changelog generation, and immutable release artifacts',
-      completed: false,
-    },
-    {
-      title: 'MIU Deduplication',
-      description: 'Duplicate detection for evidence points (MIUs) based on source + locator + parameter + value, with near-match detection (ε=0.05)',
-      completed: false,
-    },
-    {
-      title: 'Guest Role Refactoring',
-      description: 'Change unauthenticated role from "user" to "guest" for clearer semantic distinction between logged-out and authenticated states',
-      completed: false,
-    },
-    {
-      title: 'Admin Dashboard Polish',
-      description: 'Final UX improvements: keyboard shortcuts, search/filter in admin views, performance optimizations',
-      completed: false,
-    },
-    {
-      title: 'Cleanup for Expired Audit Logs',
-      description: 'Add cleanup endpoint and UI for expired audit logs (similar to screenshot cleanup)',
-      completed: false,
-    },
-    {
-      title: 'Admin Dashboard for Retention Statistics',
-      description: 'Create admin dashboard showing retention statistics and cleanup actions in a unified interface',
-      completed: false,
-    },
-    {
-      title: 'Bulk Deletion for Sources',
-      description: 'Implement bulk deletion for sources without evidence dependencies',
-      completed: false,
-    },
-    {
-      title: 'Retention Policy Configuration',
-      description: 'Add UI to customize the 7-year retention threshold for different data types',
-      completed: false,
-    },
-  ];
-
   return (
     <div className="p-6">
       <div className="flex items-center gap-4 mb-6">
@@ -502,126 +434,90 @@ export function RoadmapView({ onBack }: RoadmapViewProps) {
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="mb-6">
-        <div className="flex gap-2 border-b border-[#211f1c]/20 dark:border-white/20">
-          <button
-            onClick={() => setActiveTab('completed')}
-            className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
-              activeTab === 'completed'
-                ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
-                : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
-            }`}
-          >
-            Completed (Days 1-11)
-          </button>
-          <button
-            onClick={() => setActiveTab('backlog')}
-            className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
-              activeTab === 'backlog'
-                ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
-                : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
-            }`}
-          >
-            Backlog
-          </button>
-        </div>
-      </div>
-
       {/* Content */}
       <div className="bg-white dark:bg-[#1a1917] rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] p-6">
-        {activeTab === 'completed' && (
-          <div>
-            <h3 className="font-['Sniglet'] text-[14px] text-black dark:text-white mb-6">
-              Days 1-11: Complete Infrastructure Implementation
-            </h3>
-            <RoadmapPhaseTab
-              phase="Phase 9.0"
-              dayNumber="Day 1"
-              deliverables={day1Deliverables}
-              testingView={<Phase9Day1Testing />}
-              showTestingToggle={true}
-            />
-            <RoadmapPhaseTab
-              phase="Phase 9.0"
-              dayNumber="Day 2"
-              deliverables={day2Deliverables}
-              testingView={<Phase9Day2Testing />}
-              showTestingToggle={true}
-            />
-            <RoadmapPhaseTab
-              phase="Phase 9.0"
-              dayNumber="Day 3"
-              deliverables={day3Deliverables}
-              testingView={<Phase9Day3Testing />}
-              showTestingToggle={true}
-            />
-            <RoadmapPhaseTab
-              phase="Phase 9.0"
-              dayNumber="Day 4"
-              deliverables={day4Deliverables}
-              testingView={<Phase9Day4Testing />}
-              showTestingToggle={true}
-            />
-            <RoadmapPhaseTab
-              phase="Phase 9.0"
-              dayNumber="Day 5"
-              deliverables={day5Deliverables}
-              testingView={<Phase9Day5Testing />}
-              showTestingToggle={true}
-            />
-            <RoadmapPhaseTab
-              phase="Phase 9.0"
-              dayNumber="Day 6"
-              deliverables={day6Deliverables}
-              testingView={<Phase9Day6Testing />}
-              showTestingToggle={true}
-            />
-            <RoadmapPhaseTab
-              phase="Phase 9.0"
-              dayNumber="Day 7"
-              deliverables={day7Deliverables}
-              testingView={<Phase9Day7Testing />}
-              showTestingToggle={true}
-            />
-            <RoadmapPhaseTab
-              phase="Phase 9.0"
-              dayNumber="Day 8"
-              deliverables={day8Deliverables}
-              testingView={<Phase9Day8Testing />}
-              showTestingToggle={true}
-            />
-            <RoadmapPhaseTab
-              phase="Phase 9.0"
-              dayNumber="Day 9"
-              deliverables={day9Deliverables}
-              testingView={<Phase9Day9Testing />}
-              showTestingToggle={true}
-            />
-            <RoadmapPhaseTab
-              phase="Phase 9.0"
-              dayNumber="Day 10"
-              deliverables={day10Deliverables}
-              testingView={<Phase9Day10Testing />}
-              showTestingToggle={true}
-            />
-            <RoadmapPhaseTab
-              phase="Phase 9.0"
-              dayNumber="Day 11"
-              deliverables={day11Deliverables}
-              testingView={<Phase9Day11Testing />}
-              showTestingToggle={true}
-            />
-          </div>
-        )}
-        {activeTab === 'backlog' && (
+        <div>
+          <h3 className="font-['Sniglet'] text-[14px] text-black dark:text-white mb-6">
+            Days 1-11: Complete Infrastructure Implementation
+          </h3>
           <RoadmapPhaseTab
             phase="Phase 9.0"
-            dayNumber="Backlog"
-            deliverables={backlogItems}
-            showTestingToggle={false}
+            dayNumber="Day 1"
+            deliverables={day1Deliverables}
+            testingView={<Phase9Day1Testing />}
+            showTestingToggle={true}
           />
-        )}
+          <RoadmapPhaseTab
+            phase="Phase 9.0"
+            dayNumber="Day 2"
+            deliverables={day2Deliverables}
+            testingView={<Phase9Day2Testing />}
+            showTestingToggle={true}
+          />
+          <RoadmapPhaseTab
+            phase="Phase 9.0"
+            dayNumber="Day 3"
+            deliverables={day3Deliverables}
+            testingView={<Phase9Day3Testing />}
+            showTestingToggle={true}
+          />
+          <RoadmapPhaseTab
+            phase="Phase 9.0"
+            dayNumber="Day 4"
+            deliverables={day4Deliverables}
+            testingView={<Phase9Day4Testing />}
+            showTestingToggle={true}
+          />
+          <RoadmapPhaseTab
+            phase="Phase 9.0"
+            dayNumber="Day 5"
+            deliverables={day5Deliverables}
+            testingView={<Phase9Day5Testing />}
+            showTestingToggle={true}
+          />
+          <RoadmapPhaseTab
+            phase="Phase 9.0"
+            dayNumber="Day 6"
+            deliverables={day6Deliverables}
+            testingView={<Phase9Day6Testing />}
+            showTestingToggle={true}
+          />
+          <RoadmapPhaseTab
+            phase="Phase 9.0"
+            dayNumber="Day 7"
+            deliverables={day7Deliverables}
+            testingView={<Phase9Day7Testing />}
+            showTestingToggle={true}
+          />
+          <RoadmapPhaseTab
+            phase="Phase 9.0"
+            dayNumber="Day 8"
+            deliverables={day8Deliverables}
+            testingView={<Phase9Day8Testing />}
+            showTestingToggle={true}
+          />
+          <RoadmapPhaseTab
+            phase="Phase 9.0"
+            dayNumber="Day 9"
+            deliverables={day9Deliverables}
+            testingView={<Phase9Day9Testing />}
+            showTestingToggle={true}
+          />
+          <RoadmapPhaseTab
+            phase="Phase 9.0"
+            dayNumber="Day 10"
+            deliverables={day10Deliverables}
+            testingView={<Phase9Day10Testing />}
+            showTestingToggle={true}
+          />
+          <RoadmapPhaseTab
+            phase="Phase 9.0"
+            dayNumber="Day 11"
+            deliverables={day11Deliverables}
+            testingView={<Phase9Day11Testing />}
+            showTestingToggle={true}
+          />
+        </div>
       </div>
     </div>
   );

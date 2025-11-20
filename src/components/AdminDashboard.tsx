@@ -1,10 +1,12 @@
-import { ArrowLeft, FileText, Database, Users, FileSync, Settings, FlaskConical, AlertTriangle, FileBarChart, Map } from 'lucide-react';
+import React from 'react';
+import { ArrowLeft, AlertTriangle, Users, Database, FlaskConical } from 'lucide-react';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from './ui/accordion';
+import { PHASE_CONFIG } from '../config/phaseConfig';
 
 interface AdminDashboardProps {
   onBack: () => void;
@@ -23,7 +25,7 @@ interface AdminDashboardProps {
   onNavigateToMath?: () => void;
   onNavigateToCharts?: () => void;
   onNavigateToRoadmap?: () => void;
-  onNavigateToRoadmapOverview?: () => void;
+  onNavigateToRoadmapOverview?: (section?: string) => void;
   onNavigateToSourceLibrary?: () => void;
   onNavigateToSourceComparison?: () => void;
   onNavigateToEvidenceLab?: () => void;
@@ -274,6 +276,22 @@ export function AdminDashboard({
                         className="w-full text-left font-['Sniglet'] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white transition-colors py-2 px-3 pl-6 rounded-md hover:bg-[#bae1ff]/20"
                       >
                         Overview
+                      </button>
+                    )}
+                    {onNavigateToRoadmapOverview && (
+                      <button
+                        onClick={() => onNavigateToRoadmapOverview('tests')}
+                        className="w-full text-left font-['Sniglet'] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white transition-colors py-2 px-3 pl-8 rounded-md hover:bg-[#bae1ff]/20"
+                      >
+                        ↳ Tests
+                      </button>
+                    )}
+                    {onNavigateToRoadmapOverview && (
+                      <button
+                        onClick={() => onNavigateToRoadmapOverview(PHASE_CONFIG.tabId)}
+                        className="w-full text-left font-['Sniglet'] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white transition-colors py-2 px-3 pl-8 rounded-md hover:bg-[#bae1ff]/20"
+                      >
+                        ↳ Active Phase
                       </button>
                     )}
                     {onNavigateToRoadmap && (

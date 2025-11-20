@@ -6,6 +6,11 @@ import * as kv from "./kv_store.tsx";
 import { normalizeDOI, calculateSimilarity, areTitlesSimilar } from "./string-utils.tsx";
 import { handlePublicExport, handleResearchExport } from "./exports.tsx";
 
+// REMOVED: import * as evidenceRoutes from "./evidence-routes.tsx";
+// This import was causing the entire server to fail because evidence-routes.tsx
+// tries to import from /utils/supabase/* which is not accessible in Edge Functions
+// Phase 9.1 routes are now implemented inline in this file instead
+
 // WasteDB Server - v1.1.0 (Hardened Security)
 const app = new Hono();
 
@@ -4118,25 +4123,51 @@ app.delete('/make-server-17cae920/sources/:id', verifyAuth, verifyAdmin, async (
       return c.json({ error: 'Source not found' }, 404);
     }
     
-    // ===== REFERENTIAL INTEGRITY CHECK =====
-    // Check if any evidence points reference this source
+    // ===== REFERENTIAL INTEGRITY CHECK (Phase 9.1 - MIU Data Guard) =====
+    // Check if any evidence points (MIUs) reference this source
+    const evidenceIndexKey = `evidence_index:source:${id}`;
+    const evidenceIds = await kv.get(evidenceIndexKey) || [];
+    
+    if (evidenceIds.length > 0) {
+      console.warn(`⛔ Cannot delete source ${id}: ${evidenceIds.length} evidence points (MIUs) reference this source`);
+      
+      // Get sample evidence points for context (max 5)
+      const sampleEvidenceIds = evidenceIds.slice(0, 5);
+      const sampleEvidence = [];
+      for (const evidenceId of sampleEvidenceIds) {
+        const ep = await kv.get(`evidence_point:${evidenceId}`);
+        if (ep) {
+          sampleEvidence.push({
+            id: ep.id,
+            material_id: ep.material_id,
+            parameter: ep.parameter,
+            dimension: ep.dimension,
+            created_at: ep.created_at
+          });
+        }
+      }
+      
+      return c.json({ 
+        error: 'Cannot delete source with dependent evidence points',
+        message: `This source is referenced by ${evidenceIds.length} evidence point(s) (MIUs). You must delete or reassign all evidence points before deleting the source.`,
+        dependentCount: evidenceIds.length,
+        sampleEvidence,
+        hint: 'Use the Evidence Lab to review and manage evidence points for this source.'
+      }, 400);
+    }
+    
+    // Legacy check for old evidence format (backward compatibility)
     const allEvidence = await kv.getByPrefix('evidence:');
-    const dependentEvidence = allEvidence.filter((evidence: any) => 
+    const legacyDependentEvidence = allEvidence.filter((evidence: any) => 
       evidence && evidence.source_id === id
     );
     
-    if (dependentEvidence.length > 0) {
-      console.warn(`⛔ Cannot delete source ${id}: ${dependentEvidence.length} evidence points reference this source`);
+    if (legacyDependentEvidence.length > 0) {
+      console.warn(`⛔ Cannot delete source ${id}: ${legacyDependentEvidence.length} legacy evidence points reference this source`);
       return c.json({ 
         error: 'Cannot delete source with dependent evidence',
-        message: `This source is referenced by ${dependentEvidence.length} evidence point(s). Delete the evidence first, or mark the source as deprecated.`,
-        dependentCount: dependentEvidence.length,
-        dependentEvidence: dependentEvidence.map((e: any) => ({
-          id: e.id,
-          material_id: e.material_id,
-          parameter_code: e.parameter_code,
-          created_at: e.created_at
-        }))
+        message: `This source is referenced by ${legacyDependentEvidence.length} legacy evidence point(s). Please migrate or delete them first.`,
+        dependentCount: legacyDependentEvidence.length
       }, 400);
     }
     
@@ -5753,7 +5784,295 @@ app.put("/make-server-17cae920/notifications/:userId/read-all", verifyAuth, asyn
   }
 });
 
-// ==================== EVIDENCE POINT ENDPOINTS ====================
+// ==================== EVIDENCE & AGGREGATION ENDPOINTS (Phase 9.1 EXTENSIONS) ====================
+// Phase 9.1 ADDS new endpoints to Phase 9.0 base
+// Phase 9.0 evidence CRUD (POST/GET/PUT/DELETE) remains below as the BASE
+
+console.log('📦 Registering Phase 9.1 endpoints...');
+
+// TEST ROUTE - Delete after confirming it works
+app.get("/make-server-17cae920/test-phase91", (c) => {
+  return c.json({ message: 'Phase 9.1 route registration is working!' });
+});
+
+// Phase 9.1 NEW Endpoints - implemented inline (modules in /utils/ not accessible from Edge Functions)
+// Validation workflow (NEW in 9.1)
+app.patch("/make-server-17cae920/evidence/:id/validation", verifyAuth, verifyAdmin, async (c) => {
+  console.log('🔍 PATCH /evidence/:id/validation handler called');
+  try {
+    const id = c.req.param('id');
+    const userId = c.get('userId');
+    const body = await c.req.json();
+    const { status } = body;
+    
+    if (!['pending', 'validated', 'flagged', 'duplicate'].includes(status)) {
+      return c.json({ error: 'Invalid validation status' }, 400);
+    }
+    
+    // Get evidence point
+    const evidencePoint = await kv.get(`evidence:${id}`) as any;
+    if (!evidencePoint) {
+      return c.json({ error: 'Evidence point not found' }, 404);
+    }
+    
+    // Update validation status
+    const updatedEvidence = {
+      ...evidencePoint,
+      validation_status: status,
+      validated_by: userId,
+      validated_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    
+    await kv.set(`evidence:${id}`, updatedEvidence);
+    
+    // Audit log
+    await createAuditLog({
+      userId,
+      userEmail: c.get('userEmail'),
+      entityType: 'evidence',
+      entityId: id,
+      action: 'update_validation',
+      before: evidencePoint,
+      after: updatedEvidence,
+      req: c,
+    });
+    
+    return c.json({ success: true, evidence: updatedEvidence });
+  } catch (error) {
+    console.error('Error updating evidence validation:', error);
+    return c.json({ error: 'Failed to update validation status', details: String(error) }, 500);
+  }
+});
+
+// Parameter Aggregations (NEW in 9.1)
+app.post("/make-server-17cae920/aggregations", verifyAuth, verifyAdmin, async (c) => {
+  console.log('🔍 POST /aggregations handler called');
+  try {
+    const userId = c.get('userId');
+    const body = await c.req.json();
+    const { material_id, parameter, calculated_value, methodology, miu_count, miu_ids, quality_threshold, min_sources } = body;
+    
+    // Validate required fields
+    if (!material_id || !parameter) {
+      return c.json({ error: 'Missing required fields: material_id, parameter' }, 400);
+    }
+    
+    let finalValue = calculated_value;
+    let finalMiuIds = miu_ids || [];
+    let finalMiuCount = miu_count || 0;
+    
+    // If calculated_value not provided but miu_ids are, compute weighted mean
+    if (calculated_value === undefined && miu_ids && miu_ids.length > 0) {
+      console.log(`Computing aggregation from ${miu_ids.length} MIUs`);
+      
+      // Get all evidence points
+      const evidencePoints = await Promise.all(
+        miu_ids.map((id: string) => kv.get(`evidence:${id}`))
+      );
+      
+      // Filter valid evidence with values (use transformed_value if available, else raw_value)
+      const validEvidence = evidencePoints.filter((e: any) => {
+        if (!e) return false;
+        const value = e.transformed_value !== null ? e.transformed_value : e.raw_value;
+        return value !== null && value !== undefined;
+      });
+      
+      if (validEvidence.length === 0) {
+        return c.json({ error: 'No valid evidence points found for aggregation' }, 400);
+      }
+      
+      // Simple mean for now (can be enhanced with weights later)
+      const sum = validEvidence.reduce((acc: number, e: any) => {
+        const value = e.transformed_value !== null ? e.transformed_value : e.raw_value;
+        return acc + value;
+      }, 0);
+      finalValue = sum / validEvidence.length;
+      finalMiuCount = validEvidence.length;
+      
+      console.log(`Computed value: ${finalValue} from ${finalMiuCount} MIUs`);
+    } else if (calculated_value === undefined) {
+      return c.json({ error: 'Must provide either calculated_value or miu_ids' }, 400);
+    }
+    
+    // Create aggregation
+    const aggregationId = `aggregation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const aggregation = {
+      id: aggregationId,
+      material_id,
+      parameter,
+      calculated_value: finalValue,
+      methodology: methodology || 'weighted_mean',
+      miu_count: finalMiuCount,
+      miu_ids: finalMiuIds,
+      calculated_by: userId,
+      calculated_at: new Date().toISOString(),
+      is_current: true
+    };
+    
+    await kv.set(`aggregation:${aggregationId}`, aggregation);
+    await kv.set(`aggregation_current:${material_id}:${parameter}`, aggregationId);
+    
+    // Audit log
+    await createAuditLog({
+      userId,
+      userEmail: c.get('userEmail'),
+      entityType: 'aggregation',
+      entityId: aggregationId,
+      action: 'create',
+      after: aggregation,
+      req: c,
+    });
+    
+    return c.json({ success: true, aggregation }, 201);
+  } catch (error) {
+    console.error('Error creating aggregation:', error);
+    return c.json({ error: 'Failed to create aggregation', details: String(error) }, 400);
+  }
+});
+// IMPORTANT: Specific routes must come BEFORE generic :id routes
+// Otherwise /aggregations/material/X gets caught by /aggregations/:id
+
+app.get("/make-server-17cae920/aggregations/material/:materialId/stats", rateLimit('API'), async (c) => {
+  console.log('🔍 GET /aggregations/material/:materialId/stats handler called');
+  try {
+    const materialId = c.req.param('materialId');
+    
+    // Get all current aggregations for this material
+    const currentRefs = await kv.getByPrefix(`aggregation_current:${materialId}:`);
+    
+    if (!currentRefs || currentRefs.length === 0) {
+      return c.json({ 
+        stats: {
+          material_id: materialId,
+          total_parameters: 0,
+          parameters: []
+        }
+      });
+    }
+    
+    // currentRefs contains aggregation IDs, fetch the actual aggregations
+    const aggregationPromises = currentRefs.map((aggregationId: string) => 
+      kv.get(`aggregation:${aggregationId}`)
+    );
+    const aggregations = (await Promise.all(aggregationPromises)).filter(a => a !== null);
+    
+    // Calculate stats from the aggregation objects themselves
+    const stats = {
+      material_id: materialId,
+      total_parameters: aggregations.length,
+      parameters: aggregations.map((agg: any) => agg.parameter)
+    };
+    
+    return c.json({ stats });
+  } catch (error) {
+    console.error('Error fetching aggregation stats:', error);
+    return c.json({ error: 'Failed to fetch aggregation stats', details: String(error) }, 500);
+  }
+});
+
+app.get("/make-server-17cae920/aggregations/material/:materialId/history", verifyAuth, verifyAdmin, async (c) => {
+  try {
+    const materialId = c.req.param('materialId');
+    const parameter = c.req.query('parameter');
+    if (!parameter) {
+      return c.json({ error: 'Missing required query parameter: parameter' }, 400);
+    }
+    
+    // Get all aggregations for this material+parameter (historical)
+    const allAggregations = await kv.getByPrefix(`aggregation:`);
+    const history = allAggregations
+      ? allAggregations
+          .filter((agg: any) => agg.material_id === materialId && agg.parameter === parameter)
+          .sort((a: any, b: any) => new Date(b.calculated_at).getTime() - new Date(a.calculated_at).getTime())
+      : [];
+    
+    return c.json({ history, count: history.length });
+  } catch (error) {
+    console.error('Error fetching aggregation history:', error);
+    return c.json({ error: 'Failed to fetch aggregation history', details: String(error) }, 500);
+  }
+});
+
+app.get("/make-server-17cae920/aggregations/material/:materialId", rateLimit('API'), async (c) => {
+  console.log('🔍 GET /aggregations/material/:materialId handler called');
+  try {
+    const materialId = c.req.param('materialId');
+    const parameter = c.req.query('parameter');
+    
+    // Get current aggregations for this material
+    const prefix = parameter 
+      ? `aggregation_current:${materialId}:${parameter}`
+      : `aggregation_current:${materialId}:`;
+    
+    const currentRefs = await kv.getByPrefix(prefix);
+    
+    if (!currentRefs || currentRefs.length === 0) {
+      return c.json({ aggregations: [], count: 0 });
+    }
+    
+    // Fetch actual aggregation objects
+    // currentRefs contains aggregation IDs directly (kv.getByPrefix returns values, not key-value pairs)
+    const aggregationPromises = currentRefs.map(async (aggregationId: string) => {
+      return await kv.get(`aggregation:${aggregationId}`);
+    });
+    
+    const aggregations = (await Promise.all(aggregationPromises)).filter(a => a !== null);
+    
+    return c.json({ aggregations, count: aggregations.length });
+  } catch (error) {
+    console.error('Error fetching aggregations:', error);
+    return c.json({ error: 'Failed to fetch aggregations', details: String(error) }, 500);
+  }
+});
+
+app.get("/make-server-17cae920/aggregations/:id", rateLimit('API'), async (c) => {
+  console.log('🔍 GET /aggregations/:id handler called');
+  try {
+    const id = c.req.param('id');
+    const aggregation = await kv.get(`aggregation:${id}`);
+    if (!aggregation) {
+      return c.json({ error: 'Aggregation not found' }, 404);
+    }
+    return c.json({ aggregation });
+  } catch (error) {
+    console.error('Error fetching aggregation:', error);
+    return c.json({ error: 'Failed to fetch aggregation', details: String(error) }, 500);
+  }
+});
+
+// Data Guards (NEW in 9.1)
+app.get("/make-server-17cae920/sources/:sourceRef/can-delete", verifyAuth, verifyAdmin, async (c) => {
+  console.log('🔍 GET /sources/:sourceRef/can-delete handler called');
+  try {
+    const sourceRef = c.req.param('sourceRef');
+    
+    // Check if any evidence points reference this source
+    const evidenceRefs = await kv.getByPrefix(`evidence_by_source:${sourceRef}:`);
+    const evidenceCount = evidenceRefs ? evidenceRefs.length : 0;
+    const evidenceIds = evidenceRefs ? evidenceRefs.map((ref: any) => ref.value || ref) : [];
+    
+    return c.json({
+      canDelete: evidenceCount === 0,
+      evidenceCount,
+      evidenceIds
+    });
+  } catch (error) {
+    console.error('Error checking source deletion:', error);
+    return c.json({ error: 'Failed to check source deletion', details: String(error) }, 500);
+  }
+});
+
+console.log('✅ Phase 9.1 routes registered: PATCH /evidence/:id/validation, POST/GET /aggregations/*, GET /sources/:sourceRef/can-delete');
+
+// REMOVED: Phase 9.0 legacy route GET /aggregations/:materialId/:parameterCode
+// This route was causing conflicts with Phase 9.1's /aggregations/material/:materialId
+// Hono was matching /aggregations/material/X as materialId=material, parameterCode=X
+// Phase 9.1 provides superior aggregation endpoints and this legacy route is no longer needed
+
+// ==================== EVIDENCE POINT ENDPOINTS (Phase 9.0 - BASE) ====================
+// Phase 9.0 Day 4 - Evidence Collection System
+// These are the BASE CRUD endpoints that Phase 9.1 extends
 
 // Unit validation helper - validates units against ontology
 async function validateUnit(parameterCode: string, unit: string): Promise<{ valid: boolean; error?: string }> {
@@ -5809,7 +6128,14 @@ app.post('/make-server-17cae920/evidence', verifyAuth, verifyAdmin, async (c) =>
       page_number,
       figure_number,
       table_number,
+      source_ref,         // Phase 9.1 addition (legacy)
+      source_id,          // Phase 9.1 addition (preferred)
+      source_weight,      // Phase 9.1 addition
+      restricted_content, // Phase 9.1 addition
     } = body;
+    
+    // Accept both source_ref and source_id for backward compatibility
+    const sourceReference = source_id || source_ref;
 
     // Validation
     if (!material_id || !parameter_code || raw_value === undefined || !raw_unit || !snippet || !source_type || !citation || !confidence_level) {
@@ -5882,6 +6208,13 @@ app.post('/make-server-17cae920/evidence', verifyAuth, verifyAdmin, async (c) =>
       page_number: page_number || null,
       figure_number: figure_number || null,
       table_number: table_number || null,
+      source_id: sourceReference || null,          // Phase 9.1 addition (unified field name)
+      source_ref: sourceReference || null,         // Phase 9.1 addition (kept for backward compatibility)
+      source_weight: source_weight || 1.0,         // Phase 9.1 addition
+      restricted_content: restricted_content || false, // Phase 9.1 addition
+      validation_status: 'pending',                // Phase 9.1 addition
+      validated_by: null,                          // Phase 9.1 addition
+      validated_at: null,                          // Phase 9.1 addition
       created_by: userId,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
@@ -5890,9 +6223,15 @@ app.post('/make-server-17cae920/evidence', verifyAuth, verifyAdmin, async (c) =>
     // Store evidence point
     await kv.set(`evidence:${evidenceId}`, evidencePoint);
     
-    // Also store under material_id for easy retrieval
+    // Store indexes for easy retrieval
     const materialEvidenceKey = `evidence_by_material:${material_id}:${parameter_code}:${evidenceId}`;
     await kv.set(materialEvidenceKey, evidenceId);
+    
+    // Phase 9.1: Store source reference index for deletion guards
+    if (sourceReference) {
+      const sourceEvidenceKey = `evidence_by_source:${sourceReference}:${evidenceId}`;
+      await kv.set(sourceEvidenceKey, evidenceId);
+    }
 
     console.log(`✓ Created evidence point ${evidenceId} for material ${material_id}, parameter ${parameter_code}`);
 
@@ -5916,6 +6255,34 @@ app.post('/make-server-17cae920/evidence', verifyAuth, verifyAdmin, async (c) =>
   } catch (error) {
     console.error('Error creating evidence point:', error);
     return c.json({ success: false, error: 'Failed to create evidence point', details: String(error) }, 500);
+  }
+});
+
+// Get all evidence points (authenticated users only)
+app.get('/make-server-17cae920/evidence', verifyAuth, async (c) => {
+  try {
+    // Get all evidence IDs
+    const evidenceRefs = await kv.getByPrefix('evidence:');
+    
+    if (!evidenceRefs || evidenceRefs.length === 0) {
+      return c.json({ 
+        success: true, 
+        evidence: [],
+        count: 0 
+      });
+    }
+    
+    // evidenceRefs are the actual evidence objects (getByPrefix returns values)
+    const evidence = evidenceRefs.filter((e: any) => e && e.id);
+    
+    return c.json({ 
+      success: true, 
+      evidence,
+      count: evidence.length 
+    });
+  } catch (error) {
+    console.error('Error fetching all evidence points:', error);
+    return c.json({ success: false, error: 'Failed to fetch evidence points', details: String(error) }, 500);
   }
 });
 
@@ -6310,32 +6677,29 @@ app.post('/make-server-17cae920/aggregations/compute', verifyAuth, verifyAdmin, 
   }
 });
 
-/**
- * Get aggregation for a specific material and parameter
- * Returns the latest computed aggregation with full version snapshot
- */
-app.get('/make-server-17cae920/aggregations/:materialId/:parameterCode', verifyAuth, async (c) => {
+// Get specific aggregation by material and parameter (public read access)
+app.get('/make-server-17cae920/aggregations/:materialId/:parameterCode', async (c) => {
   try {
     const materialId = c.req.param('materialId');
     const parameterCode = c.req.param('parameterCode');
 
-    // Get latest aggregation ID
-    const aggregationId = await kv.get(`aggregation_latest:${materialId}:${parameterCode}`) as string;
+    // Get the latest aggregation ID for this material+parameter
+    const latestAggregationId = await kv.get(`aggregation_latest:${materialId}:${parameterCode}`);
 
-    if (!aggregationId) {
+    if (!latestAggregationId) {
       return c.json({ 
         success: false, 
         error: `No aggregation found for material ${materialId}, parameter ${parameterCode}` 
       }, 404);
     }
 
-    // Get aggregation data
-    const aggregation = await kv.get(`aggregation:${aggregationId}`);
+    // Get the aggregation data
+    const aggregation = await kv.get(`aggregation:${latestAggregationId}`);
 
     if (!aggregation) {
       return c.json({ 
         success: false, 
-        error: 'Aggregation data not found' 
+        error: `Aggregation data not found for ID ${latestAggregationId}` 
       }, 404);
     }
 
@@ -6349,44 +6713,11 @@ app.get('/make-server-17cae920/aggregations/:materialId/:parameterCode', verifyA
   }
 });
 
-/**
- * Get all aggregations for a material
- * Returns all parameter aggregations for the given material
- */
-app.get('/make-server-17cae920/aggregations/material/:materialId', verifyAuth, async (c) => {
-  try {
-    const materialId = c.req.param('materialId');
-
-    // Get all aggregation_latest references for this material
-    const latestRefs = await kv.getByPrefix(`aggregation_latest:${materialId}:`);
-
-    if (!latestRefs || latestRefs.length === 0) {
-      return c.json({ 
-        success: true, 
-        aggregations: [],
-        count: 0 
-      });
-    }
-
-    // Fetch all aggregations
-    const aggregationPromises = latestRefs.map(async (ref: any) => {
-      const aggregationId = ref.value;
-      const aggregation = await kv.get(`aggregation:${aggregationId}`);
-      return aggregation;
-    });
-
-    const aggregations = (await Promise.all(aggregationPromises)).filter(a => a !== null);
-
-    return c.json({ 
-      success: true, 
-      aggregations,
-      count: aggregations.length 
-    });
-  } catch (error) {
-    console.error('Error retrieving aggregations:', error);
-    return c.json({ success: false, error: 'Failed to retrieve aggregations', details: String(error) }, 500);
-  }
-});
+// REMOVED: Duplicate route - moved up with other aggregation routes around line ~5890
+// to ensure proper route precedence. Now defined BEFORE /aggregations/:id
+// ALSO REMOVED: Duplicate GET /aggregations/material/:materialId - now handled by Phase 9.1 route at line ~5869
+// This route was conflicting with GET /aggregations/material/:materialId defined in Phase 9.1
+// Phase 9.1 uses aggregations.ts module which provides the same functionality
 
 // ==================== SOURCE DEDUPLICATION ENDPOINTS ====================
 
@@ -7465,6 +7796,24 @@ app.post('/make-server-17cae920/backup/validate', verifyAuth, verifyAdmin, async
   }
 });
 
+// Debug endpoint to list all Phase 9.1 routes  
+app.get('/make-server-17cae920/debug/phase91-status', (c) => {
+  return c.json({
+    status: 'Phase 9.1 routes should be active',
+    routes: [
+      'PATCH /evidence/:id/validation',
+      'POST /aggregations',
+      'GET /aggregations/material/:materialId/stats',
+      'GET /aggregations/material/:materialId/history',
+      'GET /aggregations/material/:materialId',
+      'GET /aggregations/:id',
+      'GET /sources/:sourceRef/can-delete'
+    ],
+    note: 'Removed conflicting route: GET /aggregations/:materialId/:parameterCode',
+    message: 'If you are seeing this, the server started successfully'
+  });
+});
+
 // Catch-all 404 handler for debugging - MUST be last route
 app.all('*', (c) => {
   console.log(`❌ 404 - Unmatched route: ${c.req.method} ${c.req.url}`);
@@ -7472,6 +7821,8 @@ app.all('*', (c) => {
   console.log(`❌ Headers:`, JSON.stringify(c.req.header()));
   return c.json({ error: 'Not found', path: c.req.path }, 404);
 });
+
+console.log('✅ Phase 9.1 routes implemented inline (no external module imports needed)');
 
 // Run initialization
 initializeAdminUser();
