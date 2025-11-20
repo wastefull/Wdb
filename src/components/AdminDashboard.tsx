@@ -1,12 +1,11 @@
-import React from 'react';
-import { ArrowLeft, AlertTriangle, Users, Database, FlaskConical } from 'lucide-react';
+import { Briefcase, Users, FileText, Database, TestTube, MapPin, LineChart, ArrowLeft, AlertTriangle, FlaskConical } from 'lucide-react';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from './ui/accordion';
-import { PHASE_CONFIG } from '../config/phaseConfig';
+import { PHASE_TABS } from './SimplifiedRoadmap';
 
 interface AdminDashboardProps {
   onBack: () => void;
@@ -288,7 +287,7 @@ export function AdminDashboard({
                     )}
                     {onNavigateToRoadmapOverview && (
                       <button
-                        onClick={() => onNavigateToRoadmapOverview(PHASE_CONFIG.tabId)}
+                        onClick={() => onNavigateToRoadmapOverview(PHASE_TABS[0].id)}
                         className="w-full text-left font-['Sniglet'] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white transition-colors py-2 px-3 pl-8 rounded-md hover:bg-[#bae1ff]/20"
                       >
                         ↳ Active Phase

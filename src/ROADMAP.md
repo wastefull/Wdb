@@ -241,7 +241,7 @@ WasteDB will:
 
 ---
 
-### **9. Evidence Pipeline & Curation System** 📋 PLANNED
+### **9. Evidence Pipeline & Curation System** ✅ IN PROGRESS
 
 **Goal:** Enable granular, auditable evidence extraction from sources with reproducible aggregation into material parameters.
 
@@ -249,14 +249,16 @@ WasteDB will:
 
 **Deliverables**
 
-**Phase 9.1: Database Schema & Backend** ⬜ NOT STARTED
-* ⬜ Create `public.evidence_points` table (MIUs)
-* ⬜ Create `public.parameter_aggregations` table
-* ⬜ Add indexes, views, and RLS policies
-* ⬜ Implement 6 evidence/aggregation API endpoints
-* ⬜ Add data guards (prevent source deletion with MIU references)
+**Phase 9.1: Database Schema & Backend** ✅ COMPLETE
+* ✅ Create `public.evidence_points` table (KV-backed schema documented)
+* ✅ Create `public.parameter_aggregations` table (KV-backed schema documented)
+* ✅ Add indexes, views, and RLS policies (KV indexes + view helpers implemented)
+* ✅ Implement 8 evidence/aggregation API endpoints (all working with data guards)
+* ✅ Add data guards (prevent source deletion with MIU references)
+* ✅ Comprehensive test suite (all Phase 9.1 tests passing)
+* 📄 Documentation: `/docs/PHASE_9_1_SCHEMA.md`
 
-**Phase 9.2: Curation Workbench (Pilot - CR Only)** ⬜ NOT STARTED
+**Phase 9.2: Curation Workbench (Pilot - CR Only)** 🔄 IN PROGRESS
 * ⬜ Build split-pane UI (Source Viewer + Evidence Wizard)
 * ⬜ Implement 5-step MIU creation flow
 * ⬜ Pilot with 3 materials (Aluminum, PET, Cardboard)

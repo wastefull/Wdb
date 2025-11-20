@@ -687,10 +687,10 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                   <SelectValue placeholder="Select a source type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="whitepaper">Whitepaper</SelectItem>
-                  <SelectItem value="article">Article</SelectItem>
-                  <SelectItem value="external">External</SelectItem>
-                  <SelectItem value="manual">Manual</SelectItem>
+                  <SelectItem key="whitepaper" value="whitepaper">Whitepaper</SelectItem>
+                  <SelectItem key="article" value="article">Article</SelectItem>
+                  <SelectItem key="external" value="external">External</SelectItem>
+                  <SelectItem key="manual" value="manual">Manual</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -713,9 +713,9 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                   <SelectValue placeholder="Select a confidence level" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="low">Low</SelectItem>
+                  <SelectItem key="high" value="high">High</SelectItem>
+                  <SelectItem key="medium" value="medium">Medium</SelectItem>
+                  <SelectItem key="low" value="low">Low</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -852,10 +852,10 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                   <SelectValue placeholder="Select a source type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="whitepaper">Whitepaper</SelectItem>
-                  <SelectItem value="article">Article</SelectItem>
-                  <SelectItem value="external">External</SelectItem>
-                  <SelectItem value="manual">Manual</SelectItem>
+                  <SelectItem key="whitepaper" value="whitepaper">Whitepaper</SelectItem>
+                  <SelectItem key="article" value="article">Article</SelectItem>
+                  <SelectItem key="external" value="external">External</SelectItem>
+                  <SelectItem key="manual" value="manual">Manual</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -878,9 +878,9 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                   <SelectValue placeholder="Select a confidence level" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="low">Low</SelectItem>
+                  <SelectItem key="high" value="high">High</SelectItem>
+                  <SelectItem key="medium" value="medium">Medium</SelectItem>
+                  <SelectItem key="low" value="low">Low</SelectItem>
                 </SelectContent>
               </Select>
             </div>
