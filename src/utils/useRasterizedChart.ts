@@ -32,7 +32,7 @@ interface RasterizedChartResult {
   dataUrl: string | null;
   isLoading: boolean;
   error: Error | null;
-  svgRef: React.RefObject<SVGSVGElement>;
+  svgRef: React.RefObject<SVGSVGElement | null>;
   rasterize: () => Promise<void>;
 }
 

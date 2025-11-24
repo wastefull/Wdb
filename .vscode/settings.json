@@ -2,5 +2,5 @@
   "deno.enable": false,
   "deno.enablePaths": ["./src/supabase/functions"],
   "deno.lint": true,
-  "deno.unstable": false
+  "deno.unstable": []
 }

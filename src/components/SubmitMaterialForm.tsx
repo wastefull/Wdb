@@ -1,21 +1,27 @@
-import { useState } from 'react';
-import { X } from 'lucide-react';
-import { toast } from 'sonner@2.0.3';
-import * as api from '../utils/api';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Textarea } from './ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { useState } from "react";
+import { X } from "lucide-react";
+import { toast } from "sonner";
+import * as api from "../utils/api";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Textarea } from "./ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 
 const CATEGORIES = [
-  'Packaging',
-  'Textiles',
-  'Electronics',
-  'Construction',
-  'Food & Organic',
-  'Plastics',
-  'Metals',
-  'Other'
+  "Packaging",
+  "Textiles",
+  "Electronics",
+  "Construction",
+  "Food & Organic",
+  "Plastics",
+  "Metals",
+  "Other",
 ];
 
 interface SubmitMaterialFormProps {
@@ -23,22 +29,25 @@ interface SubmitMaterialFormProps {
   onSubmitSuccess: () => void;
 }
 
-export function SubmitMaterialForm({ onClose, onSubmitSuccess }: SubmitMaterialFormProps) {
-  const [name, setName] = useState('');
-  const [category, setCategory] = useState('');
-  const [description, setDescription] = useState('');
+export function SubmitMaterialForm({
+  onClose,
+  onSubmitSuccess,
+}: SubmitMaterialFormProps) {
+  const [name, setName] = useState("");
+  const [category, setCategory] = useState("");
+  const [description, setDescription] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!name.trim()) {
-      toast.error('Please enter a material name');
+      toast.error("Please enter a material name");
       return;
     }
 
     if (!category) {
-      toast.error('Please select a category');
+      toast.error("Please select a category");
       return;
     }
 
@@ -47,7 +56,7 @@ export function SubmitMaterialForm({ onClose, onSubmitSuccess }: SubmitMaterialF
 
       // Create submission for new material
       await api.createSubmission({
-        type: 'new_material',
+        type: "new_material",
         content_data: {
           name: name.trim(),
           category,
@@ -55,16 +64,18 @@ export function SubmitMaterialForm({ onClose, onSubmitSuccess }: SubmitMaterialF
           // Default values for new submissions
           recyclability: 0,
           compostability: 0,
-          reusability: 0
-        }
+          reusability: 0,
+        },
       });
 
-      toast.success('Material submitted for review! You\'ll be notified when it\'s reviewed.');
+      toast.success(
+        "Material submitted for review! You'll be notified when it's reviewed."
+      );
       onSubmitSuccess();
       onClose();
     } catch (error) {
-      console.error('Error submitting material:', error);
-      toast.error('Failed to submit material');
+      console.error("Error submitting material:", error);
+      toast.error("Failed to submit material");
     } finally {
       setSubmitting(false);
     }
@@ -88,13 +99,17 @@ export function SubmitMaterialForm({ onClose, onSubmitSuccess }: SubmitMaterialF
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div className="bg-[#e4e3ac] dark:bg-[#3a3825] border border-[#211f1c] dark:border-white/20 rounded-md p-3 mb-4">
             <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white">
-              💡 <strong>Note:</strong> Your submission will be reviewed by an admin before it appears in the database. 
-              You only need to provide basic information—admins will add sustainability scores.
+              💡 <strong>Note:</strong> Your submission will be reviewed by an
+              admin before it appears in the database. You only need to provide
+              basic information—admins will add sustainability scores.
             </p>
           </div>
 
           <div>
-            <Label htmlFor="material-name" className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
+            <Label
+              htmlFor="material-name"
+              className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white"
+            >
               Material Name *
             </Label>
             <Input
@@ -108,16 +123,26 @@ export function SubmitMaterialForm({ onClose, onSubmitSuccess }: SubmitMaterialF
           </div>
 
           <div>
-            <Label htmlFor="material-category" className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
+            <Label
+              htmlFor="material-category"
+              className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white"
+            >
               Category *
             </Label>
             <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger id="material-category" className="mt-1 font-['Sniglet:Regular',_sans-serif]">
+              <SelectTrigger
+                id="material-category"
+                className="mt-1 font-['Sniglet:Regular',_sans-serif]"
+              >
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
               <SelectContent>
                 {CATEGORIES.map((cat) => (
-                  <SelectItem key={cat} value={cat} className="font-['Sniglet:Regular',_sans-serif]">
+                  <SelectItem
+                    key={cat}
+                    value={cat}
+                    className="font-['Sniglet:Regular',_sans-serif]"
+                  >
                     {cat}
                   </SelectItem>
                 ))}
@@ -126,7 +151,10 @@ export function SubmitMaterialForm({ onClose, onSubmitSuccess }: SubmitMaterialF
           </div>
 
           <div>
-            <Label htmlFor="material-description" className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
+            <Label
+              htmlFor="material-description"
+              className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white"
+            >
               Description (optional)
             </Label>
             <Textarea
@@ -156,7 +184,7 @@ export function SubmitMaterialForm({ onClose, onSubmitSuccess }: SubmitMaterialF
               className="flex-1 h-[40px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#c8e5c8] hover:shadow-[3px_4px_0px_-1px_#000000] dark:hover:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[12px] text-black disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={submitting}
             >
-              {submitting ? 'Submitting...' : 'Submit for Review'}
+              {submitting ? "Submitting..." : "Submit for Review"}
             </button>
           </div>
         </form>

@@ -2,20 +2,23 @@
  * Reusability Tab - RU parameters and composite scores
  */
 
-import { useState } from 'react';
-import { Calculator } from 'lucide-react';
-import { Card } from '../ui/card';
-import { Label } from '../ui/label';
-import { Input } from '../ui/input';
-import { Button } from '../ui/button';
-import { toast } from 'sonner@2.0.3';
-import { calculateReusability, type ReusabilityParams } from '../../utils/api';
-import type { DimensionTabProps } from './types';
+import { useState } from "react";
+import { Calculator } from "lucide-react";
+import { Card } from "../ui/card";
+import { Label } from "../ui/label";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
+import { toast } from "sonner";
+import { calculateReusability, type ReusabilityParams } from "../../utils/api";
+import type { DimensionTabProps } from "./types";
 
-export function ReusabilityTab({ formData, onParameterChange }: DimensionTabProps) {
+export function ReusabilityTab({
+  formData,
+  onParameterChange,
+}: DimensionTabProps) {
   const [calculating, setCalculating] = useState(false);
 
-  const handleCalculateRU = async (mode: 'theoretical' | 'practical') => {
+  const handleCalculateRU = async (mode: "theoretical" | "practical") => {
     setCalculating(true);
     try {
       const params: ReusabilityParams = {
@@ -26,31 +29,33 @@ export function ReusabilityTab({ formData, onParameterChange }: DimensionTabProp
         M: formData.M_value,
         mode,
       };
-      
+
       const result = await calculateReusability(params);
-      
+
       // Calculate 10% confidence intervals
-      const margin = result.mean * 0.10;
-      
-      if (mode === 'practical') {
-        onParameterChange('RU_practical_mean', result.mean);
-        onParameterChange('RU_practical_CI95', {
+      const margin = result.mean * 0.1;
+
+      if (mode === "practical") {
+        onParameterChange("RU_practical_mean", result.mean);
+        onParameterChange("RU_practical_CI95", {
           lower: Math.max(0, result.mean - margin),
           upper: Math.min(1, result.mean + margin),
         });
-        onParameterChange('reusability', result.public);
+        onParameterChange("reusability", result.public);
         toast.success(`RU Practical calculated: ${result.public}/100`);
       } else {
-        onParameterChange('RU_theoretical_mean', result.mean);
-        onParameterChange('RU_theoretical_CI95', {
+        onParameterChange("RU_theoretical_mean", result.mean);
+        onParameterChange("RU_theoretical_CI95", {
           lower: Math.max(0, result.mean - margin),
           upper: Math.min(1, result.mean + margin),
         });
         toast.success(`RU Theoretical calculated: ${result.public}/100`);
       }
     } catch (error) {
-      console.error('Error calculating reusability:', error);
-      toast.error('Failed to calculate reusability: ' + (error as Error).message);
+      console.error("Error calculating reusability:", error);
+      toast.error(
+        "Failed to calculate reusability: " + (error as Error).message
+      );
     } finally {
       setCalculating(false);
     }
@@ -63,7 +68,7 @@ export function ReusabilityTab({ formData, onParameterChange }: DimensionTabProp
         <h3 className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white mb-3">
           Reusability Parameters (RU-v1)
         </h3>
-        
+
         <div className="grid grid-cols-2 gap-4">
           <div>
             <Label className="text-[11px]">Lifetime (L)</Label>
@@ -72,11 +77,15 @@ export function ReusabilityTab({ formData, onParameterChange }: DimensionTabProp
               min="0"
               max="1"
               step="0.01"
-              value={formData.L_value || ''}
-              onChange={(e) => onParameterChange('L_value', parseFloat(e.target.value) || 0)}
+              value={formData.L_value || ""}
+              onChange={(e) =>
+                onParameterChange("L_value", parseFloat(e.target.value) || 0)
+              }
               className="text-[12px]"
             />
-            <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">Average functional cycles</p>
+            <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">
+              Average functional cycles
+            </p>
           </div>
 
           <div>
@@ -86,11 +95,15 @@ export function ReusabilityTab({ formData, onParameterChange }: DimensionTabProp
               min="0"
               max="1"
               step="0.01"
-              value={formData.R_value || ''}
-              onChange={(e) => onParameterChange('R_value', parseFloat(e.target.value) || 0)}
+              value={formData.R_value || ""}
+              onChange={(e) =>
+                onParameterChange("R_value", parseFloat(e.target.value) || 0)
+              }
               className="text-[12px]"
             />
-            <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">Ease of disassembly / repair</p>
+            <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">
+              Ease of disassembly / repair
+            </p>
           </div>
 
           <div>
@@ -100,54 +113,70 @@ export function ReusabilityTab({ formData, onParameterChange }: DimensionTabProp
               min="0"
               max="1"
               step="0.01"
-              value={formData.U_value || ''}
-              onChange={(e) => onParameterChange('U_value', parseFloat(e.target.value) || 0)}
+              value={formData.U_value || ""}
+              onChange={(e) =>
+                onParameterChange("U_value", parseFloat(e.target.value) || 0)
+              }
               className="text-[12px]"
             />
-            <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">Ease of adaptation / repurposing</p>
+            <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">
+              Ease of adaptation / repurposing
+            </p>
           </div>
 
           <div>
-            <Label className="text-[11px]">Contamination Susceptibility (C)</Label>
+            <Label className="text-[11px]">
+              Contamination Susceptibility (C)
+            </Label>
             <Input
               type="number"
               min="0"
               max="1"
               step="0.01"
-              value={formData.C_RU_value || ''}
-              onChange={(e) => onParameterChange('C_RU_value', parseFloat(e.target.value) || 0)}
+              value={formData.C_RU_value || ""}
+              onChange={(e) =>
+                onParameterChange("C_RU_value", parseFloat(e.target.value) || 0)
+              }
               className="text-[12px]"
             />
-            <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">Probability of functional loss</p>
+            <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">
+              Probability of functional loss
+            </p>
           </div>
 
           <div>
-            <Label className="text-[11px]">Infrastructure Maturity (M) - Shared</Label>
+            <Label className="text-[11px]">
+              Infrastructure Maturity (M) - Shared
+            </Label>
             <Input
               type="number"
               min="0"
               max="1"
               step="0.01"
-              value={formData.M_value || ''}
-              onChange={(e) => onParameterChange('M_value', parseFloat(e.target.value) || 0)}
+              value={formData.M_value || ""}
+              onChange={(e) =>
+                onParameterChange("M_value", parseFloat(e.target.value) || 0)
+              }
               className="text-[12px]"
             />
-            <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">Market reuse infrastructure</p>
+            <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">
+              Market reuse infrastructure
+            </p>
           </div>
         </div>
 
         {/* Calculate Buttons */}
         <div className="grid grid-cols-2 gap-3 mt-4">
-          <Button 
-            onClick={() => handleCalculateRU('practical')}
+          <Button
+            onClick={() => handleCalculateRU("practical")}
             disabled={calculating}
             className="bg-[#b5bec6] hover:bg-[#a5aeb6] text-black"
           >
             <Calculator className="w-4 h-4 mr-2" />
             Calculate Practical RU
           </Button>
-          <Button 
-            onClick={() => handleCalculateRU('theoretical')}
+          <Button
+            onClick={() => handleCalculateRU("theoretical")}
             disabled={calculating}
             className="bg-[#5a7a8f] hover:bg-[#4a6a7f] text-white"
           >
@@ -168,7 +197,7 @@ export function ReusabilityTab({ formData, onParameterChange }: DimensionTabProp
           <h4 className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white mb-2">
             Practical (Market Reality)
           </h4>
-          
+
           <div className="grid grid-cols-3 gap-3">
             <div>
               <Label className="text-[10px]">Mean (0-1)</Label>
@@ -177,8 +206,13 @@ export function ReusabilityTab({ formData, onParameterChange }: DimensionTabProp
                 min="0"
                 max="1"
                 step="0.01"
-                value={formData.RU_practical_mean || ''}
-                onChange={(e) => onParameterChange('RU_practical_mean', parseFloat(e.target.value) || 0)}
+                value={formData.RU_practical_mean || ""}
+                onChange={(e) =>
+                  onParameterChange(
+                    "RU_practical_mean",
+                    parseFloat(e.target.value) || 0
+                  )
+                }
                 className="text-[12px]"
               />
             </div>
@@ -190,12 +224,14 @@ export function ReusabilityTab({ formData, onParameterChange }: DimensionTabProp
                 min="0"
                 max="1"
                 step="0.01"
-                value={formData.RU_practical_CI95?.lower || ''}
-                onChange={(e) => onParameterChange('RU_practical_CI95', {
-                  ...formData.RU_practical_CI95,
-                  lower: parseFloat(e.target.value) || 0,
-                  upper: formData.RU_practical_CI95?.upper || 0,
-                })}
+                value={formData.RU_practical_CI95?.lower || ""}
+                onChange={(e) =>
+                  onParameterChange("RU_practical_CI95", {
+                    ...formData.RU_practical_CI95,
+                    lower: parseFloat(e.target.value) || 0,
+                    upper: formData.RU_practical_CI95?.upper || 0,
+                  })
+                }
                 className="text-[12px]"
               />
             </div>
@@ -207,20 +243,25 @@ export function ReusabilityTab({ formData, onParameterChange }: DimensionTabProp
                 min="0"
                 max="1"
                 step="0.01"
-                value={formData.RU_practical_CI95?.upper || ''}
-                onChange={(e) => onParameterChange('RU_practical_CI95', {
-                  ...formData.RU_practical_CI95,
-                  lower: formData.RU_practical_CI95?.lower || 0,
-                  upper: parseFloat(e.target.value) || 0,
-                })}
+                value={formData.RU_practical_CI95?.upper || ""}
+                onChange={(e) =>
+                  onParameterChange("RU_practical_CI95", {
+                    ...formData.RU_practical_CI95,
+                    lower: formData.RU_practical_CI95?.lower || 0,
+                    upper: parseFloat(e.target.value) || 0,
+                  })
+                }
                 className="text-[12px]"
               />
             </div>
           </div>
-          
+
           {formData.RU_practical_mean !== undefined && (
             <div className="mt-2 text-[11px] text-black/60 dark:text-white/60">
-              Public Score: <strong>{Math.round(formData.RU_practical_mean * 100)}/100</strong>
+              Public Score:{" "}
+              <strong>
+                {Math.round(formData.RU_practical_mean * 100)}/100
+              </strong>
             </div>
           )}
         </div>
@@ -230,7 +271,7 @@ export function ReusabilityTab({ formData, onParameterChange }: DimensionTabProp
           <h4 className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white mb-2">
             Theoretical (Design Intent)
           </h4>
-          
+
           <div className="grid grid-cols-3 gap-3">
             <div>
               <Label className="text-[10px]">Mean (0-1)</Label>
@@ -239,8 +280,13 @@ export function ReusabilityTab({ formData, onParameterChange }: DimensionTabProp
                 min="0"
                 max="1"
                 step="0.01"
-                value={formData.RU_theoretical_mean || ''}
-                onChange={(e) => onParameterChange('RU_theoretical_mean', parseFloat(e.target.value) || 0)}
+                value={formData.RU_theoretical_mean || ""}
+                onChange={(e) =>
+                  onParameterChange(
+                    "RU_theoretical_mean",
+                    parseFloat(e.target.value) || 0
+                  )
+                }
                 className="text-[12px]"
               />
             </div>
@@ -252,12 +298,14 @@ export function ReusabilityTab({ formData, onParameterChange }: DimensionTabProp
                 min="0"
                 max="1"
                 step="0.01"
-                value={formData.RU_theoretical_CI95?.lower || ''}
-                onChange={(e) => onParameterChange('RU_theoretical_CI95', {
-                  ...formData.RU_theoretical_CI95,
-                  lower: parseFloat(e.target.value) || 0,
-                  upper: formData.RU_theoretical_CI95?.upper || 0,
-                })}
+                value={formData.RU_theoretical_CI95?.lower || ""}
+                onChange={(e) =>
+                  onParameterChange("RU_theoretical_CI95", {
+                    ...formData.RU_theoretical_CI95,
+                    lower: parseFloat(e.target.value) || 0,
+                    upper: formData.RU_theoretical_CI95?.upper || 0,
+                  })
+                }
                 className="text-[12px]"
               />
             </div>
@@ -269,20 +317,25 @@ export function ReusabilityTab({ formData, onParameterChange }: DimensionTabProp
                 min="0"
                 max="1"
                 step="0.01"
-                value={formData.RU_theoretical_CI95?.upper || ''}
-                onChange={(e) => onParameterChange('RU_theoretical_CI95', {
-                  ...formData.RU_theoretical_CI95,
-                  lower: formData.RU_theoretical_CI95?.lower || 0,
-                  upper: parseFloat(e.target.value) || 0,
-                })}
+                value={formData.RU_theoretical_CI95?.upper || ""}
+                onChange={(e) =>
+                  onParameterChange("RU_theoretical_CI95", {
+                    ...formData.RU_theoretical_CI95,
+                    lower: formData.RU_theoretical_CI95?.lower || 0,
+                    upper: parseFloat(e.target.value) || 0,
+                  })
+                }
                 className="text-[12px]"
               />
             </div>
           </div>
-          
+
           {formData.RU_theoretical_mean !== undefined && (
             <div className="mt-2 text-[11px] text-black/60 dark:text-white/60">
-              Public Score: <strong>{Math.round(formData.RU_theoretical_mean * 100)}/100</strong>
+              Public Score:{" "}
+              <strong>
+                {Math.round(formData.RU_theoretical_mean * 100)}/100
+              </strong>
             </div>
           )}
         </div>

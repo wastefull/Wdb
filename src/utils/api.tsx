@@ -1,6 +1,7 @@
 import { projectId, publicAnonKey } from "./supabase/info";
 import { logger } from "./logger";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
+import { Material } from "../types/material";
 
 // Export projectId for use in other modules
 export { projectId };
@@ -13,92 +14,6 @@ let onSessionExpired: (() => void) | null = null;
 
 export function setSessionExpiredCallback(callback: () => void) {
   onSessionExpired = callback;
-}
-
-interface Material {
-  id: string;
-  name: string;
-  category: string;
-  compostability: number;
-  recyclability: number;
-  reusability: number;
-  description?: string;
-  articles: {
-    compostability: any[];
-    recyclability: any[];
-    reusability: any[];
-  };
-
-  // ========== RECYCLABILITY (CR-v1) ==========
-  Y_value?: number; // Yield (recovery rate)
-  D_value?: number; // Degradation (quality loss)
-  C_value?: number; // Contamination tolerance
-  M_value?: number; // Maturity (infrastructure availability) - shared across all dimensions
-  E_value?: number; // Energy demand (normalized)
-
-  // Calculated composite recyclability scores
-  CR_practical_mean?: number; // Practical recyclability (0-1)
-  CR_theoretical_mean?: number; // Theoretical recyclability (0-1)
-  CR_practical_CI95?: {
-    // 95% confidence interval
-    lower: number;
-    upper: number;
-  };
-  CR_theoretical_CI95?: {
-    lower: number;
-    upper: number;
-  };
-
-  // ========== COMPOSTABILITY (CC-v1) ==========
-  B_value?: number; // Biodegradation rate constant
-  N_value?: number; // Nutrient balance
-  T_value?: number; // Toxicity / Residue index
-  H_value?: number; // Habitat adaptability
-
-  CC_practical_mean?: number;
-  CC_theoretical_mean?: number;
-  CC_practical_CI95?: {
-    lower: number;
-    upper: number;
-  };
-  CC_theoretical_CI95?: {
-    lower: number;
-    upper: number;
-  };
-
-  // ========== REUSABILITY (RU-v1) ==========
-  L_value?: number; // Lifetime
-  R_value?: number; // Repairability
-  U_value?: number; // Upgradability
-  C_RU_value?: number; // Contamination susceptibility (renamed to avoid conflict)
-
-  RU_practical_mean?: number;
-  RU_theoretical_mean?: number;
-  RU_practical_CI95?: {
-    lower: number;
-    upper: number;
-  };
-  RU_theoretical_CI95?: {
-    lower: number;
-    upper: number;
-  };
-
-  // Confidence and provenance
-  confidence_level?: "High" | "Medium" | "Low"; // Based on data quality
-  sources?: Array<{
-    // Citation metadata
-    title: string;
-    authors?: string;
-    year?: number;
-    doi?: string;
-    url?: string;
-    weight?: number; // Source weight in aggregation
-  }>;
-
-  // Versioning and audit trail
-  whitepaper_version?: string; // e.g., "2025.1"
-  calculation_timestamp?: string; // ISO 8601 timestamp
-  method_version?: string; // e.g., "CR-v1"
 }
 
 interface AuthResponse {
@@ -216,7 +131,9 @@ export async function apiCall(endpoint: string, options: RequestInit = {}) {
         logger.log("🔄 Triggering session expired callback");
         // Delay slightly to ensure toast is visible
         setTimeout(() => {
-          onSessionExpired();
+          if (onSessionExpired) {
+            onSessionExpired();
+          }
         }, 100);
       }
 
@@ -390,7 +307,12 @@ export async function deleteUser(userId: string): Promise<void> {
 // Update user details (admin only)
 export async function updateUser(
   userId: string,
-  updates: { name?: string; email?: string; password?: string }
+  updates: {
+    name?: string;
+    email?: string;
+    password?: string;
+    active?: boolean;
+  }
 ): Promise<void> {
   await apiCall(`/users/${userId}`, {
     method: "PUT",

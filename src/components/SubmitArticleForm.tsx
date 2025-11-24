@@ -1,14 +1,20 @@
-import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
-import { toast } from 'sonner@2.0.3';
-import * as api from '../utils/api';
-import { Material } from '../types/material';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Textarea } from './ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { useState, useEffect } from "react";
+import { X } from "lucide-react";
+import { toast } from "sonner";
+import * as api from "../utils/api";
+import { Material } from "../types/material";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Textarea } from "./ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 
-const ARTICLE_CATEGORIES = ['Compostability', 'Recyclability', 'Reusability'];
+const ARTICLE_CATEGORIES = ["Compostability", "Recyclability", "Reusability"];
 
 interface SubmitArticleFormProps {
   onClose: () => void;
@@ -17,16 +23,16 @@ interface SubmitArticleFormProps {
   preselectedMaterialId?: string;
 }
 
-export function SubmitArticleForm({ 
-  onClose, 
+export function SubmitArticleForm({
+  onClose,
   onSubmitSuccess,
   preselectedCategory,
-  preselectedMaterialId
+  preselectedMaterialId,
 }: SubmitArticleFormProps) {
-  const [title, setTitle] = useState('');
-  const [category, setCategory] = useState(preselectedCategory || '');
-  const [materialId, setMaterialId] = useState(preselectedMaterialId || '');
-  const [content, setContent] = useState('');
+  const [title, setTitle] = useState("");
+  const [category, setCategory] = useState(preselectedCategory || "");
+  const [materialId, setMaterialId] = useState(preselectedMaterialId || "");
+  const [content, setContent] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [materials, setMaterials] = useState<Material[]>([]);
   const [loadingMaterials, setLoadingMaterials] = useState(false);
@@ -41,8 +47,8 @@ export function SubmitArticleForm({
       const allMaterials = await api.getMaterials();
       setMaterials(allMaterials);
     } catch (error) {
-      console.error('Error loading materials:', error);
-      toast.error('Failed to load materials');
+      console.error("Error loading materials:", error);
+      toast.error("Failed to load materials");
     } finally {
       setLoadingMaterials(false);
     }
@@ -52,22 +58,22 @@ export function SubmitArticleForm({
     e.preventDefault();
 
     if (!title.trim()) {
-      toast.error('Please enter an article title');
+      toast.error("Please enter an article title");
       return;
     }
 
     if (!category) {
-      toast.error('Please select a category');
+      toast.error("Please select a category");
       return;
     }
 
     if (!materialId) {
-      toast.error('Please select a material');
+      toast.error("Please select a material");
       return;
     }
 
     if (!content.trim()) {
-      toast.error('Please enter article content');
+      toast.error("Please enter article content");
       return;
     }
 
@@ -76,27 +82,29 @@ export function SubmitArticleForm({
 
       // Create submission for new article
       await api.createSubmission({
-        type: 'new_article',
+        type: "new_article",
         content_data: {
           title: title.trim(),
           category,
           material_id: materialId,
-          content: content.trim()
-        }
+          content: content.trim(),
+        },
       });
 
-      toast.success('Article submitted for review! You\'ll be notified when it\'s reviewed.');
+      toast.success(
+        "Article submitted for review! You'll be notified when it's reviewed."
+      );
       onSubmitSuccess();
       onClose();
     } catch (error) {
-      console.error('Error submitting article:', error);
-      toast.error('Failed to submit article');
+      console.error("Error submitting article:", error);
+      toast.error("Failed to submit article");
     } finally {
       setSubmitting(false);
     }
   };
 
-  const selectedMaterial = materials.find(m => m.id === materialId);
+  const selectedMaterial = materials.find((m) => m.id === materialId);
 
   return (
     <div className="fixed inset-0 bg-black/30 dark:bg-black/60 flex items-center justify-center p-4 z-50">
@@ -116,13 +124,17 @@ export function SubmitArticleForm({
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div className="bg-[#e4e3ac] dark:bg-[#3a3825] border border-[#211f1c] dark:border-white/20 rounded-md p-3 mb-4">
             <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white">
-              📝 <strong>Note:</strong> Your article will be reviewed by an admin before publication. 
-              You can use Markdown formatting in the content field.
+              📝 <strong>Note:</strong> Your article will be reviewed by an
+              admin before publication. You can use Markdown formatting in the
+              content field.
             </p>
           </div>
 
           <div>
-            <Label htmlFor="article-title" className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
+            <Label
+              htmlFor="article-title"
+              className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white"
+            >
               Article Title *
             </Label>
             <Input
@@ -137,16 +149,26 @@ export function SubmitArticleForm({
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="article-category" className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
+              <Label
+                htmlFor="article-category"
+                className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white"
+              >
                 Category *
               </Label>
               <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger id="article-category" className="mt-1 font-['Sniglet:Regular',_sans-serif]">
+                <SelectTrigger
+                  id="article-category"
+                  className="mt-1 font-['Sniglet:Regular',_sans-serif]"
+                >
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
                   {ARTICLE_CATEGORIES.map((cat) => (
-                    <SelectItem key={cat} value={cat} className="font-['Sniglet:Regular',_sans-serif]">
+                    <SelectItem
+                      key={cat}
+                      value={cat}
+                      className="font-['Sniglet:Regular',_sans-serif]"
+                    >
                       {cat}
                     </SelectItem>
                   ))}
@@ -155,16 +177,34 @@ export function SubmitArticleForm({
             </div>
 
             <div>
-              <Label htmlFor="article-material" className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
+              <Label
+                htmlFor="article-material"
+                className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white"
+              >
                 Related Material *
               </Label>
-              <Select value={materialId} onValueChange={setMaterialId} disabled={loadingMaterials}>
-                <SelectTrigger id="article-material" className="mt-1 font-['Sniglet:Regular',_sans-serif]">
-                  <SelectValue placeholder={loadingMaterials ? "Loading..." : "Select material"} />
+              <Select
+                value={materialId}
+                onValueChange={setMaterialId}
+                disabled={loadingMaterials}
+              >
+                <SelectTrigger
+                  id="article-material"
+                  className="mt-1 font-['Sniglet:Regular',_sans-serif]"
+                >
+                  <SelectValue
+                    placeholder={
+                      loadingMaterials ? "Loading..." : "Select material"
+                    }
+                  />
                 </SelectTrigger>
                 <SelectContent>
                   {materials.map((material) => (
-                    <SelectItem key={material.id} value={material.id} className="font-['Sniglet:Regular',_sans-serif]">
+                    <SelectItem
+                      key={material.id}
+                      value={material.id}
+                      className="font-['Sniglet:Regular',_sans-serif]"
+                    >
                       {material.name}
                     </SelectItem>
                   ))}
@@ -176,14 +216,21 @@ export function SubmitArticleForm({
           {selectedMaterial && (
             <div className="bg-[#b8c8cb]/30 dark:bg-[#2a3235]/30 border border-[#211f1c]/20 dark:border-white/10 rounded-md p-2">
               <p className="font-['Sniglet:Regular',_sans-serif] text-[10px] text-black/70 dark:text-white/70">
-                <strong>Selected:</strong> {selectedMaterial.name} ({selectedMaterial.category})
+                <strong>Selected:</strong> {selectedMaterial.name} (
+                {selectedMaterial.category})
               </p>
             </div>
           )}
 
           <div>
-            <Label htmlFor="article-content" className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
-              Article Content * <span className="text-[10px] text-black/50 dark:text-white/50">(Markdown supported)</span>
+            <Label
+              htmlFor="article-content"
+              className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white"
+            >
+              Article Content *{" "}
+              <span className="text-[10px] text-black/50 dark:text-white/50">
+                (Markdown supported)
+              </span>
             </Label>
             <Textarea
               id="article-content"
@@ -195,7 +242,8 @@ export function SubmitArticleForm({
               required
             />
             <p className="mt-1 font-['Sniglet:Regular',_sans-serif] text-[10px] text-black/50 dark:text-white/50">
-              Use **bold**, *italic*, headings (##), lists (-), and links ([text](url))
+              Use **bold**, *italic*, headings (##), lists (-), and links
+              ([text](url))
             </p>
           </div>
 
@@ -213,7 +261,7 @@ export function SubmitArticleForm({
               className="flex-1 h-[40px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#c8e5c8] hover:shadow-[3px_4px_0px_-1px_#000000] dark:hover:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[12px] text-black disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={submitting}
             >
-              {submitting ? 'Submitting...' : 'Submit for Review'}
+              {submitting ? "Submitting..." : "Submit for Review"}
             </button>
           </div>
         </form>

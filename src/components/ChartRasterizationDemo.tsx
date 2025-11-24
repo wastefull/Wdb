@@ -1,60 +1,60 @@
 /**
  * ChartRasterizationDemo Component
- * 
+ *
  * Testing and demonstration interface for chart rasterization system.
  * Shows side-by-side comparison, cache statistics, and performance metrics.
- * 
+ *
  * Phase 8: Performance & Scalability - Testing Tool
  */
 
-import { useState, useEffect } from 'react';
-import { Button } from './ui/button';
-import { Card } from './ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { RefreshCw, Zap, Image as ImageIcon, Activity } from 'lucide-react';
-import { QuantileVisualization } from './QuantileVisualization';
-import { RasterizedQuantileVisualization } from './RasterizedQuantileVisualization';
-import { ChartCacheManager } from './ChartCacheManager';
-import { toast } from 'sonner@2.0.3';
+import { useState, useEffect } from "react";
+import { Button } from "./ui/button";
+import { Card } from "./ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { RefreshCw, Zap, Image as ImageIcon, Activity } from "lucide-react";
+import { QuantileVisualization } from "./QuantileVisualization";
+import { RasterizedQuantileVisualization } from "./RasterizedQuantileVisualization";
+import { ChartCacheManager } from "./ChartCacheManager";
+import { toast } from "sonner";
 
 // Sample test data for different visualization modes
 const TEST_DATA = {
   overlap: {
-    id: 'test-overlap',
-    name: 'Overlap Mode Test',
+    id: "test-overlap",
+    name: "Overlap Mode Test",
     data: {
       practical_mean: 0.65,
       theoretical_mean: 0.68,
-      practical_CI95: { lower: 0.60, upper: 0.70 },
+      practical_CI95: { lower: 0.6, upper: 0.7 },
       theoretical_CI95: { lower: 0.63, upper: 0.73 },
-      confidence_level: 'High' as const,
+      confidence_level: "High" as const,
     },
   },
   nearOverlap: {
-    id: 'test-near-overlap',
-    name: 'Near-Overlap Mode Test',
+    id: "test-near-overlap",
+    name: "Near-Overlap Mode Test",
     data: {
       practical_mean: 0.55,
       theoretical_mean: 0.62,
-      practical_CI95: { lower: 0.50, upper: 0.60 },
+      practical_CI95: { lower: 0.5, upper: 0.6 },
       theoretical_CI95: { lower: 0.57, upper: 0.67 },
-      confidence_level: 'Medium' as const,
+      confidence_level: "Medium" as const,
     },
   },
   gap: {
-    id: 'test-gap',
-    name: 'Gap Mode Test',
+    id: "test-gap",
+    name: "Gap Mode Test",
     data: {
-      practical_mean: 0.40,
+      practical_mean: 0.4,
       theoretical_mean: 0.75,
       practical_CI95: { lower: 0.35, upper: 0.45 },
-      theoretical_CI95: { lower: 0.70, upper: 0.80 },
-      confidence_level: 'High' as const,
+      theoretical_CI95: { lower: 0.7, upper: 0.8 },
+      confidence_level: "High" as const,
     },
   },
   simplified: {
-    id: 'test-simplified',
-    name: 'Simplified Bar Test',
+    id: "test-simplified",
+    name: "Simplified Bar Test",
     data: {},
     fallbackScore: 72,
   },
@@ -66,8 +66,8 @@ export function ChartRasterizationDemo() {
   const [rasterRenderTime, setRasterRenderTime] = useState<number | null>(null);
 
   const handleRefresh = () => {
-    setRenderCount(prev => prev + 1);
-    toast.success('Charts refreshed');
+    setRenderCount((prev) => prev + 1);
+    toast.success("Charts refreshed");
   };
 
   return (
@@ -75,12 +75,18 @@ export function ChartRasterizationDemo() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h2 className="text-xl md:text-2xl font-['Fredoka_One',_cursive]">Chart Rasterization Demo</h2>
+          <h2 className="text-xl md:text-2xl font-['Fredoka_One',_cursive]">
+            Chart Rasterization Demo
+          </h2>
           <p className="text-xs md:text-sm text-black/60 dark:text-white/60 mt-1">
             Test and compare rasterized vs. live SVG chart performance
           </p>
         </div>
-        <Button onClick={handleRefresh} variant="outline" className="text-[11px] md:text-sm">
+        <Button
+          onClick={handleRefresh}
+          variant="outline"
+          className="text-[11px] md:text-sm"
+        >
           <RefreshCw className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
           <span className="whitespace-nowrap">Refresh</span>
         </Button>
@@ -88,10 +94,18 @@ export function ChartRasterizationDemo() {
 
       <Tabs defaultValue="comparison" className="w-full">
         <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 h-auto">
-          <TabsTrigger value="comparison" className="text-[10px] md:text-sm">Side-by-Side</TabsTrigger>
-          <TabsTrigger value="performance" className="text-[10px] md:text-sm">Performance</TabsTrigger>
-          <TabsTrigger value="cache" className="text-[10px] md:text-sm">Cache</TabsTrigger>
-          <TabsTrigger value="stress" className="text-[10px] md:text-sm">Stress Test</TabsTrigger>
+          <TabsTrigger value="comparison" className="text-[10px] md:text-sm">
+            Side-by-Side
+          </TabsTrigger>
+          <TabsTrigger value="performance" className="text-[10px] md:text-sm">
+            Performance
+          </TabsTrigger>
+          <TabsTrigger value="cache" className="text-[10px] md:text-sm">
+            Cache
+          </TabsTrigger>
+          <TabsTrigger value="stress" className="text-[10px] md:text-sm">
+            Stress Test
+          </TabsTrigger>
         </TabsList>
 
         {/* Side-by-Side Comparison */}
@@ -101,9 +115,9 @@ export function ChartRasterizationDemo() {
               Visual Comparison
             </h3>
             <p className="text-sm text-black/60 dark:text-white/60 mb-6">
-              Compare live SVG rendering (left) with rasterized cached version (right). 
-              On first load, both should look identical. On refresh, the rasterized version 
-              loads from cache instantly.
+              Compare live SVG rendering (left) with rasterized cached version
+              (right). On first load, both should look identical. On refresh,
+              the rasterized version loads from cache instantly.
             </p>
 
             {Object.entries(TEST_DATA).map(([key, test]) => (
@@ -124,7 +138,7 @@ export function ChartRasterizationDemo() {
                       key={`svg-${key}-${renderCount}`}
                       scoreType="recyclability"
                       data={test.data}
-                      simplified={key === 'simplified'}
+                      simplified={key === "simplified"}
                       fallbackScore={(test as any).fallbackScore}
                       width={300}
                       height={60}
@@ -145,7 +159,7 @@ export function ChartRasterizationDemo() {
                       materialId={test.id}
                       scoreType="recyclability"
                       data={test.data}
-                      simplified={key === 'simplified'}
+                      simplified={key === "simplified"}
                       fallbackScore={(test as any).fallbackScore}
                       width={300}
                       height={60}
@@ -159,13 +173,32 @@ export function ChartRasterizationDemo() {
           </Card>
 
           <Card className="p-6 bg-yellow-50 dark:bg-yellow-900/20">
-            <h4 className="font-['Sniglet:Regular',_sans-serif] mb-2">Testing Instructions</h4>
+            <h4 className="font-['Sniglet:Regular',_sans-serif] mb-2">
+              Testing Instructions
+            </h4>
             <ol className="text-sm space-y-2 list-decimal list-inside text-black/70 dark:text-white/70">
-              <li><strong>First Load:</strong> Both columns render fresh. Rasterized charts convert SVG to PNG and cache.</li>
-              <li><strong>Click "Refresh All":</strong> Live SVG re-renders from scratch. Rasterized loads instantly from cache.</li>
-              <li><strong>Open DevTools → Network:</strong> See no network requests for cached images.</li>
-              <li><strong>Open DevTools → Application → IndexedDB → wastedb-chart-cache:</strong> View cached PNGs.</li>
-              <li><strong>Check Performance Tab:</strong> Rasterized should show significantly fewer DOM nodes.</li>
+              <li>
+                <strong>First Load:</strong> Both columns render fresh.
+                Rasterized charts convert SVG to PNG and cache.
+              </li>
+              <li>
+                <strong>Click "Refresh All":</strong> Live SVG re-renders from
+                scratch. Rasterized loads instantly from cache.
+              </li>
+              <li>
+                <strong>Open DevTools → Network:</strong> See no network
+                requests for cached images.
+              </li>
+              <li>
+                <strong>
+                  Open DevTools → Application → IndexedDB → wastedb-chart-cache:
+                </strong>{" "}
+                View cached PNGs.
+              </li>
+              <li>
+                <strong>Check Performance Tab:</strong> Rasterized should show
+                significantly fewer DOM nodes.
+              </li>
             </ol>
           </Card>
         </TabsContent>
@@ -210,7 +243,7 @@ function PerformanceTest() {
       const svgStart = performance.now();
       for (let i = 0; i < testCount; i++) {
         // Simulate SVG render cost
-        await new Promise(resolve => setTimeout(resolve, 1));
+        await new Promise((resolve) => setTimeout(resolve, 1));
       }
       const svgEnd = performance.now();
       const svgTime = svgEnd - svgStart;
@@ -218,7 +251,7 @@ function PerformanceTest() {
       const rasterStart = performance.now();
       for (let i = 0; i < testCount; i++) {
         // Simulate cached image render (much faster)
-        await new Promise(resolve => setTimeout(resolve, 0.1));
+        await new Promise((resolve) => setTimeout(resolve, 0.1));
       }
       const rasterEnd = performance.now();
       const rasterTime = rasterEnd - rasterStart;
@@ -231,9 +264,9 @@ function PerformanceTest() {
         improvement,
       });
 
-      toast.success('Performance test complete');
+      toast.success("Performance test complete");
     } catch (error) {
-      toast.error('Performance test failed');
+      toast.error("Performance test failed");
     } finally {
       setIsRunning(false);
     }
@@ -245,10 +278,12 @@ function PerformanceTest() {
         <h3 className="font-['Sniglet:Regular',_sans-serif] text-lg mb-4">
           Render Performance Test
         </h3>
-        
+
         <div className="space-y-4">
           <div>
-            <label className="block text-sm mb-2">Number of charts to render:</label>
+            <label className="block text-sm mb-2">
+              Number of charts to render:
+            </label>
             <input
               type="number"
               value={testCount}
@@ -259,11 +294,7 @@ function PerformanceTest() {
             />
           </div>
 
-          <Button 
-            onClick={runTest} 
-            disabled={isRunning}
-            className="w-full"
-          >
+          <Button onClick={runTest} disabled={isRunning} className="w-full">
             {isRunning ? (
               <>
                 <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
@@ -281,18 +312,28 @@ function PerformanceTest() {
 
       {results && (
         <Card className="p-6 bg-green-50 dark:bg-green-900/20">
-          <h4 className="font-['Sniglet:Regular',_sans-serif] mb-4">Test Results</h4>
+          <h4 className="font-['Sniglet:Regular',_sans-serif] mb-4">
+            Test Results
+          </h4>
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <p className="text-sm text-black/60 dark:text-white/60 mb-1">Live SVG</p>
+              <p className="text-sm text-black/60 dark:text-white/60 mb-1">
+                Live SVG
+              </p>
               <p className="text-2xl font-bold">{results.svg.toFixed(2)}ms</p>
             </div>
             <div>
-              <p className="text-sm text-black/60 dark:text-white/60 mb-1">Rasterized</p>
-              <p className="text-2xl font-bold">{results.rasterized.toFixed(2)}ms</p>
+              <p className="text-sm text-black/60 dark:text-white/60 mb-1">
+                Rasterized
+              </p>
+              <p className="text-2xl font-bold">
+                {results.rasterized.toFixed(2)}ms
+              </p>
             </div>
             <div>
-              <p className="text-sm text-black/60 dark:text-white/60 mb-1">Improvement</p>
+              <p className="text-sm text-black/60 dark:text-white/60 mb-1">
+                Improvement
+              </p>
               <p className="text-2xl font-bold text-green-600 dark:text-green-400">
                 {results.improvement.toFixed(1)}%
               </p>
@@ -302,12 +343,15 @@ function PerformanceTest() {
       )}
 
       <Card className="p-6 bg-blue-50 dark:bg-blue-900/20">
-        <h4 className="font-['Sniglet:Regular',_sans-serif] mb-2">About This Test</h4>
+        <h4 className="font-['Sniglet:Regular',_sans-serif] mb-2">
+          About This Test
+        </h4>
         <p className="text-sm text-black/70 dark:text-white/70">
-          This simulated test demonstrates the performance difference between rendering
-          live SVG charts and displaying cached rasterized images. In real-world usage
-          with complex visualizations, the improvement can be even more significant,
-          especially when scrolling through lists of 50+ materials.
+          This simulated test demonstrates the performance difference between
+          rendering live SVG charts and displaying cached rasterized images. In
+          real-world usage with complex visualizations, the improvement can be
+          even more significant, especially when scrolling through lists of 50+
+          materials.
         </p>
       </Card>
     </div>
@@ -330,13 +374,15 @@ function StressTest() {
 
   const charts = Array.from({ length: rendering ? chartCount : 0 }, (_, i) => ({
     id: `stress-test-${i}`,
-    scoreType: (['recyclability', 'compostability', 'reusability'] as const)[i % 3],
+    scoreType: (["recyclability", "compostability", "reusability"] as const)[
+      i % 3
+    ],
     data: {
-      practical_mean: 0.3 + (Math.random() * 0.5),
-      theoretical_mean: 0.4 + (Math.random() * 0.5),
+      practical_mean: 0.3 + Math.random() * 0.5,
+      theoretical_mean: 0.4 + Math.random() * 0.5,
       practical_CI95: { lower: 0.3, upper: 0.6 },
       theoretical_CI95: { lower: 0.4, upper: 0.7 },
-      confidence_level: 'Medium' as const,
+      confidence_level: "Medium" as const,
     },
   }));
 
@@ -382,9 +428,9 @@ function StressTest() {
           </Button>
 
           {rendering && (
-            <Button 
-              onClick={() => setRendering(false)} 
-              variant="outline" 
+            <Button
+              onClick={() => setRendering(false)}
+              variant="outline"
               className="w-full"
             >
               Clear Charts
@@ -397,16 +443,20 @@ function StressTest() {
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
             <h4 className="font-['Sniglet:Regular',_sans-serif]">
-              Rendering {chartCount} Charts ({useRasterization ? 'Rasterized' : 'Live SVG'})
+              Rendering {chartCount} Charts (
+              {useRasterization ? "Rasterized" : "Live SVG"})
             </h4>
             <span className="text-sm text-black/60 dark:text-white/60">
               Watch performance in DevTools
             </span>
           </div>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[600px] overflow-y-auto">
             {charts.map((chart, i) => (
-              <div key={i} className="p-3 bg-white dark:bg-gray-800 rounded-lg border border-black/10 dark:border-white/10">
+              <div
+                key={i}
+                className="p-3 bg-white dark:bg-gray-800 rounded-lg border border-black/10 dark:border-white/10"
+              >
                 {useRasterization ? (
                   <RasterizedQuantileVisualization
                     materialId={chart.id}
@@ -431,7 +481,9 @@ function StressTest() {
       )}
 
       <Card className="p-6 bg-yellow-50 dark:bg-yellow-900/20">
-        <h4 className="font-['Sniglet:Regular',_sans-serif] mb-2">Performance Tips</h4>
+        <h4 className="font-['Sniglet:Regular',_sans-serif] mb-2">
+          Performance Tips
+        </h4>
         <ul className="text-sm space-y-1 list-disc list-inside text-black/70 dark:text-white/70">
           <li>Open DevTools → Performance to see frame rate</li>
           <li>Open DevTools → Rendering → Paint flashing to see repaints</li>

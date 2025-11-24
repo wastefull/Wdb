@@ -1,36 +1,66 @@
-import { useState, useEffect } from 'react';
-import { ArrowLeft, Edit2, Trash2, Shield, User as UserIcon, UserX } from 'lucide-react';
-import * as api from '../utils/api';
-import { toast } from 'sonner@2.0.3';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
+import { useState, useEffect } from "react";
+import {
+  ArrowLeft,
+  Edit2,
+  Trash2,
+  Shield,
+  User as UserIcon,
+  UserX,
+} from "lucide-react";
+import * as api from "../utils/api";
+import { toast } from "sonner";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "./ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "./ui/alert-dialog";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
 
 interface User {
   id: string;
   email: string;
   name: string;
-  role: 'user' | 'admin';
+  role: "user" | "admin";
   active?: boolean;
   created_at: string;
   last_sign_in_at?: string;
 }
 
-export function UserManagementView({ 
-  onBack, 
-  currentUserId 
-}: { 
+export function UserManagementView({
+  onBack,
+  currentUserId,
+}: {
   onBack: () => void;
   currentUserId: string;
 }) {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [editName, setEditName] = useState('');
-  const [editEmail, setEditEmail] = useState('');
-  const [editPassword, setEditPassword] = useState('');
+  const [editName, setEditName] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [editPassword, setEditPassword] = useState("");
 
   useEffect(() => {
     loadUsers();
@@ -42,54 +72,57 @@ export function UserManagementView({
       const fetchedUsers = await api.getAllUsers();
       setUsers(fetchedUsers);
     } catch (error) {
-      console.error('Error loading users:', error);
-      toast.error('Failed to load users');
+      console.error("Error loading users:", error);
+      toast.error("Failed to load users");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleRoleChange = async (userId: string, newRole: 'user' | 'admin') => {
+  const handleRoleChange = async (
+    userId: string,
+    newRole: "user" | "admin"
+  ) => {
     try {
       await api.updateUserRole(userId, newRole);
       toast.success(`Role updated to ${newRole}`);
       loadUsers();
     } catch (error) {
-      console.error('Error updating role:', error);
-      toast.error('Failed to update role');
+      console.error("Error updating role:", error);
+      toast.error("Failed to update role");
     }
   };
 
   const handleInactivateUser = async (userId: string) => {
     try {
       await api.updateUser(userId, { active: false });
-      toast.success('User inactivated successfully');
+      toast.success("User inactivated successfully");
       loadUsers();
     } catch (error) {
-      console.error('Error inactivating user:', error);
-      toast.error('Failed to inactivate user');
+      console.error("Error inactivating user:", error);
+      toast.error("Failed to inactivate user");
     }
   };
 
   const handleActivateUser = async (userId: string) => {
     try {
       await api.updateUser(userId, { active: true });
-      toast.success('User reactivated successfully');
+      toast.success("User reactivated successfully");
       loadUsers();
     } catch (error) {
-      console.error('Error reactivating user:', error);
-      toast.error('Failed to reactivate user');
+      console.error("Error reactivating user:", error);
+      toast.error("Failed to reactivate user");
     }
   };
 
   const handleDeleteUser = async (userId: string) => {
     try {
       await api.deleteUser(userId);
-      toast.success('User deleted successfully');
+      toast.success("User deleted successfully");
       loadUsers();
     } catch (error) {
-      console.error('Error deleting user:', error);
-      toast.error('Failed to delete user');
+      console.error("Error deleting user:", error);
+      toast.error("Failed to delete user");
     }
   };
 
@@ -97,7 +130,7 @@ export function UserManagementView({
     setEditingUser(user);
     setEditName(user.name);
     setEditEmail(user.email);
-    setEditPassword('');
+    setEditPassword("");
   };
 
   const handleSaveEdit = async () => {
@@ -111,24 +144,24 @@ export function UserManagementView({
 
       if (Object.keys(updates).length > 0) {
         await api.updateUser(editingUser.id, updates);
-        toast.success('User updated successfully');
+        toast.success("User updated successfully");
         loadUsers();
       }
-      
+
       setEditingUser(null);
-      setEditName('');
-      setEditEmail('');
-      setEditPassword('');
+      setEditName("");
+      setEditEmail("");
+      setEditPassword("");
     } catch (error) {
-      console.error('Error updating user:', error);
-      toast.error('Failed to update user');
+      console.error("Error updating user:", error);
+      toast.error("Failed to update user");
     }
   };
 
   const formatDate = (dateString?: string) => {
-    if (!dateString) return 'Never';
+    if (!dateString) return "Never";
     const date = new Date(dateString);
-    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+    return date.toLocaleDateString() + " " + date.toLocaleTimeString();
   };
 
   return (
@@ -156,12 +189,24 @@ export function UserManagementView({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">Email</TableHead>
-                <TableHead className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">Name</TableHead>
-                <TableHead className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">Role</TableHead>
-                <TableHead className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">Created</TableHead>
-                <TableHead className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">Last Sign In</TableHead>
-                <TableHead className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white text-right">Actions</TableHead>
+                <TableHead className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">
+                  Email
+                </TableHead>
+                <TableHead className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">
+                  Name
+                </TableHead>
+                <TableHead className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">
+                  Role
+                </TableHead>
+                <TableHead className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">
+                  Created
+                </TableHead>
+                <TableHead className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">
+                  Last Sign In
+                </TableHead>
+                <TableHead className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white text-right">
+                  Actions
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -170,10 +215,14 @@ export function UserManagementView({
                   <TableCell className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
                     {user.email}
                     {user.id === currentUserId && (
-                      <span className="ml-2 text-[10px] text-black/50 dark:text-white/50">(You)</span>
+                      <span className="ml-2 text-[10px] text-black/50 dark:text-white/50">
+                        (You)
+                      </span>
                     )}
                     {user.active === false && (
-                      <span className="ml-2 px-2 py-0.5 text-[9px] bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded">Inactive</span>
+                      <span className="ml-2 px-2 py-0.5 text-[9px] bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded">
+                        Inactive
+                      </span>
                     )}
                   </TableCell>
                   <TableCell className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
@@ -182,7 +231,9 @@ export function UserManagementView({
                   <TableCell>
                     <Select
                       value={user.role}
-                      onValueChange={(value: 'user' | 'admin') => handleRoleChange(user.id, value)}
+                      onValueChange={(value: "user" | "admin") =>
+                        handleRoleChange(user.id, value)
+                      }
                       disabled={user.id === currentUserId}
                     >
                       <SelectTrigger className="w-[100px] h-8 font-['Sniglet:Regular',_sans-serif] text-[11px]">
@@ -224,7 +275,7 @@ export function UserManagementView({
                           {user.active !== false ? (
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
-                                <button 
+                                <button
                                   className="p-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#f4d3a0] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
                                   title="Inactivate user"
                                 >
@@ -237,7 +288,9 @@ export function UserManagementView({
                                     Inactivate User
                                   </AlertDialogTitle>
                                   <AlertDialogDescription className="font-['Sniglet:Regular',_sans-serif] text-black/70 dark:text-white/70">
-                                    Inactivate {user.email}? They won't be able to log in, but their data will be preserved. You can reactivate them later.
+                                    Inactivate {user.email}? They won't be able
+                                    to log in, but their data will be preserved.
+                                    You can reactivate them later.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
@@ -245,7 +298,9 @@ export function UserManagementView({
                                     Cancel
                                   </AlertDialogCancel>
                                   <AlertDialogAction
-                                    onClick={() => handleInactivateUser(user.id)}
+                                    onClick={() =>
+                                      handleInactivateUser(user.id)
+                                    }
                                     className="bg-[#f4d3a0] text-black hover:bg-[#e5c591] font-['Sniglet:Regular',_sans-serif]"
                                   >
                                     Inactivate
@@ -264,7 +319,7 @@ export function UserManagementView({
                           )}
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
-                              <button 
+                              <button
                                 className="p-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#e6beb5] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
                                 title="Delete user"
                               >
@@ -277,7 +332,8 @@ export function UserManagementView({
                                   Delete User
                                 </AlertDialogTitle>
                                 <AlertDialogDescription className="font-['Sniglet:Regular',_sans-serif] text-black/70 dark:text-white/70">
-                                  Are you sure you want to delete {user.email}? This action cannot be undone.
+                                  Are you sure you want to delete {user.email}?
+                                  This action cannot be undone.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
@@ -306,7 +362,10 @@ export function UserManagementView({
 
       {/* Edit User Dialog */}
       {editingUser && (
-        <AlertDialog open={!!editingUser} onOpenChange={() => setEditingUser(null)}>
+        <AlertDialog
+          open={!!editingUser}
+          onOpenChange={() => setEditingUser(null)}
+        >
           <AlertDialogContent className="bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20">
             <AlertDialogHeader>
               <AlertDialogTitle className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">
@@ -315,7 +374,10 @@ export function UserManagementView({
             </AlertDialogHeader>
             <div className="space-y-4 py-4">
               <div>
-                <Label htmlFor="edit-name" className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
+                <Label
+                  htmlFor="edit-name"
+                  className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white"
+                >
                   Name
                 </Label>
                 <Input
@@ -326,7 +388,10 @@ export function UserManagementView({
                 />
               </div>
               <div>
-                <Label htmlFor="edit-email" className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
+                <Label
+                  htmlFor="edit-email"
+                  className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white"
+                >
                   Email
                 </Label>
                 <Input
@@ -338,7 +403,10 @@ export function UserManagementView({
                 />
               </div>
               <div>
-                <Label htmlFor="edit-password" className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
+                <Label
+                  htmlFor="edit-password"
+                  className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white"
+                >
                   New Password (leave blank to keep current)
                 </Label>
                 <Input

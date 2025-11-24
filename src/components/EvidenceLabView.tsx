@@ -1,17 +1,41 @@
-import { useState, useEffect } from 'react';
-import { ArrowLeft, Search, Plus, Filter, BookOpen, Database, FileText, Link as LinkIcon, Edit, Trash2 } from 'lucide-react';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Badge } from './ui/badge';
-import { ScrollArea } from './ui/scroll-area';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from './ui/dialog';
-import { Label } from './ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Textarea } from './ui/textarea';
-import { toast } from 'sonner@2.0.3';
-import { projectId, publicAnonKey } from '../utils/supabase/info';
-import { useAuthContext } from '../contexts/AuthContext';
-import { useMaterialsContext } from '../contexts/MaterialsContext';
+import { useState, useEffect } from "react";
+import {
+  ArrowLeft,
+  Search,
+  Plus,
+  Filter,
+  BookOpen,
+  Database,
+  FileText,
+  Link as LinkIcon,
+  Edit,
+  Trash2,
+} from "lucide-react";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Badge } from "./ui/badge";
+import { ScrollArea } from "./ui/scroll-area";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
+import { Label } from "./ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+import { Textarea } from "./ui/textarea";
+import { toast } from "sonner";
+import { projectId, publicAnonKey } from "../utils/supabase/info";
+import { useAuthContext } from "../contexts/AuthContext";
+import { useMaterialsContext } from "../contexts/MaterialsContext";
 
 interface EvidenceLabViewProps {
   onBack: () => void;
@@ -27,9 +51,9 @@ interface MIU {
   transformed_value: number | null;
   transform_version: string;
   snippet: string;
-  source_type: 'whitepaper' | 'article' | 'external' | 'manual';
+  source_type: "whitepaper" | "article" | "external" | "manual";
   citation: string;
-  confidence_level: 'high' | 'medium' | 'low';
+  confidence_level: "high" | "medium" | "low";
   notes?: string | null;
   page_number?: number | null;
   figure_number?: string | null;
@@ -42,9 +66,11 @@ interface MIU {
 export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
   const { user } = useAuthContext();
   const { materials } = useMaterialsContext();
-  const [selectedParameter, setSelectedParameter] = useState<string | null>(null);
+  const [selectedParameter, setSelectedParameter] = useState<string | null>(
+    null
+  );
   const [selectedMIU, setSelectedMIU] = useState<MIU | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [evidencePoints, setEvidencePoints] = useState<MIU[]>([]);
   const [loading, setLoading] = useState(false);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -52,35 +78,35 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
 
   // Form state for create/edit
   const [formData, setFormData] = useState({
-    material_id: '',
-    parameter_code: '',
-    raw_value: '',
-    raw_unit: '',
-    snippet: '',
-    source_type: 'manual' as 'whitepaper' | 'article' | 'external' | 'manual',
-    citation: '',
-    confidence_level: 'medium' as 'high' | 'medium' | 'low',
-    notes: '',
-    page_number: '',
-    figure_number: '',
-    table_number: '',
+    material_id: "",
+    parameter_code: "",
+    raw_value: "",
+    raw_unit: "",
+    snippet: "",
+    source_type: "manual" as "whitepaper" | "article" | "external" | "manual",
+    citation: "",
+    confidence_level: "medium" as "high" | "medium" | "low",
+    notes: "",
+    page_number: "",
+    figure_number: "",
+    table_number: "",
   });
 
   // Parameter definitions
   const parameters = [
-    { code: 'Y', name: 'Years to Degrade', color: '#e6beb5' },
-    { code: 'D', name: 'Degradability', color: '#b8c8cb' },
-    { code: 'C', name: 'Compostability', color: '#a8d5ba' },
-    { code: 'M', name: 'Methane Production', color: '#f4d5a6' },
-    { code: 'E', name: 'Ecotoxicity', color: '#d4a5a5' },
-    { code: 'B', name: 'Biodegradability', color: '#c4b5d5' },
-    { code: 'N', name: 'Novelty', color: '#f5e6d3' },
-    { code: 'T', name: 'Toxicity', color: '#e5c3c6' },
-    { code: 'H', name: 'Human Health Impact', color: '#d4e4f7' },
-    { code: 'L', name: 'Leachate Potential', color: '#d5e8d4' },
-    { code: 'R', name: 'Recyclability', color: '#fff2cc' },
-    { code: 'U', name: 'Reusability', color: '#ffe6cc' },
-    { code: 'C_RU', name: 'Combined R+U', color: '#e1d5e7' },
+    { code: "Y", name: "Years to Degrade", color: "#e6beb5" },
+    { code: "D", name: "Degradability", color: "#b8c8cb" },
+    { code: "C", name: "Compostability", color: "#a8d5ba" },
+    { code: "M", name: "Methane Production", color: "#f4d5a6" },
+    { code: "E", name: "Ecotoxicity", color: "#d4a5a5" },
+    { code: "B", name: "Biodegradability", color: "#c4b5d5" },
+    { code: "N", name: "Novelty", color: "#f5e6d3" },
+    { code: "T", name: "Toxicity", color: "#e5c3c6" },
+    { code: "H", name: "Human Health Impact", color: "#d4e4f7" },
+    { code: "L", name: "Leachate Potential", color: "#d5e8d4" },
+    { code: "R", name: "Recyclability", color: "#fff2cc" },
+    { code: "U", name: "Reusability", color: "#ffe6cc" },
+    { code: "C_RU", name: "Combined R+U", color: "#e1d5e7" },
   ];
 
   // Load evidence points for selected material and parameter
@@ -92,35 +118,37 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
 
   const loadEvidenceForAllMaterials = async () => {
     if (!selectedParameter) return;
-    
+
     setLoading(true);
     try {
       // Load evidence for all materials and filter by parameter
       const allEvidence: MIU[] = [];
-      
+
       for (const material of materials) {
         const response = await fetch(
           `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/evidence/material/${material.id}`,
           {
             headers: {
-              'Authorization': `Bearer ${publicAnonKey}`,
+              Authorization: `Bearer ${publicAnonKey}`,
             },
           }
         );
-        
+
         if (response.ok) {
           const data = await response.json();
           if (data.success && data.evidence) {
-            const paramEvidence = data.evidence.filter((e: MIU) => e.parameter_code === selectedParameter);
+            const paramEvidence = data.evidence.filter(
+              (e: MIU) => e.parameter_code === selectedParameter
+            );
             allEvidence.push(...paramEvidence);
           }
         }
       }
-      
+
       setEvidencePoints(allEvidence);
     } catch (error) {
-      console.error('Error loading evidence:', error);
-      toast.error('Failed to load evidence points');
+      console.error("Error loading evidence:", error);
+      toast.error("Failed to load evidence points");
     } finally {
       setLoading(false);
     }
@@ -128,19 +156,19 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
 
   const handleCreateEvidence = async () => {
     try {
-      const accessToken = sessionStorage.getItem('wastedb_access_token');
+      const accessToken = sessionStorage.getItem("wastedb_access_token");
       if (!accessToken) {
-        toast.error('Please sign in again to create evidence points');
+        toast.error("Please sign in again to create evidence points");
         return;
       }
 
       const response = await fetch(
         `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/evidence`,
         {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             material_id: formData.material_id,
@@ -152,7 +180,9 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
             citation: formData.citation,
             confidence_level: formData.confidence_level,
             notes: formData.notes || null,
-            page_number: formData.page_number ? parseInt(formData.page_number) : null,
+            page_number: formData.page_number
+              ? parseInt(formData.page_number)
+              : null,
             figure_number: formData.figure_number || null,
             table_number: formData.table_number || null,
           }),
@@ -162,16 +192,16 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        toast.success('Evidence point created successfully');
+        toast.success("Evidence point created successfully");
         setShowCreateDialog(false);
         resetForm();
         loadEvidenceForAllMaterials();
       } else {
-        toast.error(data.error || 'Failed to create evidence point');
+        toast.error(data.error || "Failed to create evidence point");
       }
     } catch (error) {
-      console.error('Error creating evidence:', error);
-      toast.error('Failed to create evidence point');
+      console.error("Error creating evidence:", error);
+      toast.error("Failed to create evidence point");
     }
   };
 
@@ -179,19 +209,19 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
     if (!selectedMIU) return;
 
     try {
-      const accessToken = sessionStorage.getItem('wastedb_access_token');
+      const accessToken = sessionStorage.getItem("wastedb_access_token");
       if (!accessToken) {
-        toast.error('Please sign in again to update evidence points');
+        toast.error("Please sign in again to update evidence points");
         return;
       }
 
       const response = await fetch(
         `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/evidence/${selectedMIU.id}`,
         {
-          method: 'PUT',
+          method: "PUT",
           headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             raw_value: parseFloat(formData.raw_value),
@@ -201,7 +231,9 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
             citation: formData.citation,
             confidence_level: formData.confidence_level,
             notes: formData.notes || null,
-            page_number: formData.page_number ? parseInt(formData.page_number) : null,
+            page_number: formData.page_number
+              ? parseInt(formData.page_number)
+              : null,
             figure_number: formData.figure_number || null,
             table_number: formData.table_number || null,
           }),
@@ -211,36 +243,40 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        toast.success('Evidence point updated successfully');
+        toast.success("Evidence point updated successfully");
         setShowEditDialog(false);
         setSelectedMIU(null);
         resetForm();
         loadEvidenceForAllMaterials();
       } else {
-        toast.error(data.error || 'Failed to update evidence point');
+        toast.error(data.error || "Failed to update evidence point");
       }
     } catch (error) {
-      console.error('Error updating evidence:', error);
-      toast.error('Failed to update evidence point');
+      console.error("Error updating evidence:", error);
+      toast.error("Failed to update evidence point");
     }
   };
 
   const handleDeleteEvidence = async () => {
-    if (!selectedMIU || !confirm('Are you sure you want to delete this evidence point?')) return;
+    if (
+      !selectedMIU ||
+      !confirm("Are you sure you want to delete this evidence point?")
+    )
+      return;
 
     try {
-      const accessToken = sessionStorage.getItem('wastedb_access_token');
+      const accessToken = sessionStorage.getItem("wastedb_access_token");
       if (!accessToken) {
-        toast.error('Please sign in again to delete evidence points');
+        toast.error("Please sign in again to delete evidence points");
         return;
       }
 
       const response = await fetch(
         `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/evidence/${selectedMIU.id}`,
         {
-          method: 'DELETE',
+          method: "DELETE",
           headers: {
-            'Authorization': `Bearer ${accessToken}`,
+            Authorization: `Bearer ${accessToken}`,
           },
         }
       );
@@ -248,32 +284,32 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        toast.success('Evidence point deleted successfully');
+        toast.success("Evidence point deleted successfully");
         setSelectedMIU(null);
         loadEvidenceForAllMaterials();
       } else {
-        toast.error(data.error || 'Failed to delete evidence point');
+        toast.error(data.error || "Failed to delete evidence point");
       }
     } catch (error) {
-      console.error('Error deleting evidence:', error);
-      toast.error('Failed to delete evidence point');
+      console.error("Error deleting evidence:", error);
+      toast.error("Failed to delete evidence point");
     }
   };
 
   const resetForm = () => {
     setFormData({
-      material_id: '',
-      parameter_code: '',
-      raw_value: '',
-      raw_unit: '',
-      snippet: '',
-      source_type: 'manual',
-      citation: '',
-      confidence_level: 'medium',
-      notes: '',
-      page_number: '',
-      figure_number: '',
-      table_number: '',
+      material_id: "",
+      parameter_code: "",
+      raw_value: "",
+      raw_unit: "",
+      snippet: "",
+      source_type: "manual",
+      citation: "",
+      confidence_level: "medium",
+      notes: "",
+      page_number: "",
+      figure_number: "",
+      table_number: "",
     });
   };
 
@@ -287,24 +323,25 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
       source_type: miu.source_type,
       citation: miu.citation,
       confidence_level: miu.confidence_level,
-      notes: miu.notes || '',
-      page_number: miu.page_number?.toString() || '',
-      figure_number: miu.figure_number || '',
-      table_number: miu.table_number || '',
+      notes: miu.notes || "",
+      page_number: miu.page_number?.toString() || "",
+      figure_number: miu.figure_number || "",
+      table_number: miu.table_number || "",
     });
     setShowEditDialog(true);
   };
 
   // Count evidence points per parameter
   const getEvidenceCount = (paramCode: string) => {
-    return evidencePoints.filter(e => e.parameter_code === paramCode).length;
+    return evidencePoints.filter((e) => e.parameter_code === paramCode).length;
   };
 
-  const filteredEvidence = evidencePoints.filter(e => 
-    e.parameter_code === selectedParameter &&
-    (searchQuery === '' || 
-     e.citation.toLowerCase().includes(searchQuery.toLowerCase()) ||
-     e.snippet.toLowerCase().includes(searchQuery.toLowerCase()))
+  const filteredEvidence = evidencePoints.filter(
+    (e) =>
+      e.parameter_code === selectedParameter &&
+      (searchQuery === "" ||
+        e.citation.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        e.snippet.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   return (
@@ -325,7 +362,10 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
             Collect and organize scientific evidence for material parameters
           </p>
         </div>
-        <Button className="bg-[#e6beb5] hover:bg-[#e6beb5]/90 border border-[#211f1c] dark:border-white/20" onClick={() => setShowCreateDialog(true)}>
+        <Button
+          className="bg-[#e6beb5] hover:bg-[#e6beb5]/90 border border-[#211f1c] dark:border-white/20"
+          onClick={() => setShowCreateDialog(true)}
+        >
           <Plus size={16} className="mr-2" />
           New Evidence Point
         </Button>
@@ -338,7 +378,10 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
           {/* Search */}
           <div className="p-4 border-b border-[#211f1c]/20 dark:border-white/20">
             <div className="relative">
-              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40" />
+              <Search
+                size={14}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40"
+              />
               <Input
                 placeholder="Search parameters..."
                 value={searchQuery}
@@ -357,8 +400,8 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                   onClick={() => setSelectedParameter(param.code)}
                   className={`w-full p-3 rounded-lg border transition-all text-left ${
                     selectedParameter === param.code
-                      ? 'border-[#211f1c] dark:border-white bg-[#e5e4dc] dark:bg-[#3a3835] shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]'
-                      : 'border-[#211f1c]/20 dark:border-white/20 hover:border-[#211f1c]/40 dark:hover:border-white/40'
+                      ? "border-[#211f1c] dark:border-white bg-[#e5e4dc] dark:bg-[#3a3835] shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]"
+                      : "border-[#211f1c]/20 dark:border-white/20 hover:border-[#211f1c]/40 dark:hover:border-white/40"
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1">
@@ -373,7 +416,10 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                         {param.name}
                       </span>
                     </div>
-                    <Badge variant="secondary" className="font-['Sniglet'] text-[9px]">
+                    <Badge
+                      variant="secondary"
+                      className="font-['Sniglet'] text-[9px]"
+                    >
                       {getEvidenceCount(param.code)} MIUs
                     </Badge>
                   </div>
@@ -391,7 +437,8 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
               <div className="p-4 border-b border-[#211f1c]/20 dark:border-white/20">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="font-['Fredoka_One'] text-[16px] text-black dark:text-white">
-                    Evidence Points for {parameters.find(p => p.code === selectedParameter)?.name}
+                    Evidence Points for{" "}
+                    {parameters.find((p) => p.code === selectedParameter)?.name}
                   </h3>
                   <Button variant="outline" size="sm">
                     <Filter size={14} className="mr-2" />
@@ -412,13 +459,16 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                       onClick={() => setSelectedMIU(miu)}
                       className={`w-full p-4 rounded-lg border transition-all text-left ${
                         selectedMIU?.id === miu.id
-                          ? 'border-[#211f1c] dark:border-white bg-[#e5e4dc] dark:bg-[#3a3835] shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]'
-                          : 'border-[#211f1c]/20 dark:border-white/20 hover:border-[#211f1c]/40 dark:hover:border-white/40'
+                          ? "border-[#211f1c] dark:border-white bg-[#e5e4dc] dark:bg-[#3a3835] shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]"
+                          : "border-[#211f1c]/20 dark:border-white/20 hover:border-[#211f1c]/40 dark:hover:border-white/40"
                       }`}
                     >
                       {/* Source Title */}
                       <div className="flex items-start gap-2 mb-2">
-                        <BookOpen size={14} className="text-black/40 dark:text-white/40 mt-0.5 flex-shrink-0" />
+                        <BookOpen
+                          size={14}
+                          className="text-black/40 dark:text-white/40 mt-0.5 flex-shrink-0"
+                        />
                         <span className="font-['Sniglet'] text-[12px] text-black dark:text-white">
                           {miu.citation}
                         </span>
@@ -426,12 +476,19 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
 
                       {/* Value */}
                       <div className="flex items-center gap-2 mb-2">
-                        <Database size={14} className="text-black/40 dark:text-white/40" />
+                        <Database
+                          size={14}
+                          className="text-black/40 dark:text-white/40"
+                        />
                         <span className="font-['Fredoka_One'] text-[14px] text-black dark:text-white">
                           {miu.raw_value} {miu.raw_unit}
                         </span>
                         <Badge
-                          variant={miu.confidence_level === 'high' ? 'default' : 'secondary'}
+                          variant={
+                            miu.confidence_level === "high"
+                              ? "default"
+                              : "secondary"
+                          }
                           className="font-['Sniglet'] text-[9px] ml-auto"
                         >
                           {miu.confidence_level}
@@ -463,12 +520,16 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
           ) : (
             <div className="flex-1 flex items-center justify-center p-8">
               <div className="text-center">
-                <Database size={48} className="mx-auto mb-4 text-black/20 dark:text-white/20" />
+                <Database
+                  size={48}
+                  className="mx-auto mb-4 text-black/20 dark:text-white/20"
+                />
                 <h3 className="font-['Fredoka_One'] text-[16px] text-black dark:text-white mb-2">
                   Select a Parameter
                 </h3>
                 <p className="font-['Sniglet'] text-[12px] text-black/60 dark:text-white/60 max-w-xs">
-                  Choose a parameter from the left to view and manage its evidence points
+                  Choose a parameter from the left to view and manage its
+                  evidence points
                 </p>
               </div>
             </div>
@@ -499,13 +560,19 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                     </label>
                     <div className="p-3 rounded-lg bg-[#e5e4dc] dark:bg-[#1a1917] border border-[#211f1c]/20 dark:border-white/20">
                       <div className="flex items-start gap-2 mb-2">
-                        <BookOpen size={14} className="text-black/60 dark:text-white/60 mt-0.5" />
+                        <BookOpen
+                          size={14}
+                          className="text-black/60 dark:text-white/60 mt-0.5"
+                        />
                         <span className="font-['Sniglet'] text-[12px] text-black dark:text-white">
                           {selectedMIU.citation}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <FileText size={12} className="text-black/40 dark:text-white/40" />
+                        <FileText
+                          size={12}
+                          className="text-black/40 dark:text-white/40"
+                        />
                         <span className="font-['Sniglet'] text-[10px] text-black/60 dark:text-white/60">
                           Page {selectedMIU.page_number}
                         </span>
@@ -543,7 +610,11 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                       CONFIDENCE LEVEL
                     </label>
                     <Badge
-                      variant={selectedMIU.confidence_level === 'high' ? 'default' : 'secondary'}
+                      variant={
+                        selectedMIU.confidence_level === "high"
+                          ? "default"
+                          : "secondary"
+                      }
                       className="font-['Sniglet'] text-[11px]"
                     >
                       {selectedMIU.confidence_level.toUpperCase()}
@@ -569,7 +640,9 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                           Created at
                         </span>
                         <span className="font-['Sniglet'] text-[11px] text-black dark:text-white">
-                          {new Date(selectedMIU.created_at).toLocaleDateString()}
+                          {new Date(
+                            selectedMIU.created_at
+                          ).toLocaleDateString()}
                         </span>
                       </div>
                     </div>
@@ -577,10 +650,20 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
 
                   {/* Actions */}
                   <div className="flex gap-2 pt-4">
-                    <Button variant="outline" size="sm" className="flex-1" onClick={() => openEditDialog(selectedMIU)}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => openEditDialog(selectedMIU)}
+                    >
                       Edit
                     </Button>
-                    <Button variant="outline" size="sm" className="flex-1" onClick={handleDeleteEvidence}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                      onClick={handleDeleteEvidence}
+                    >
                       Delete
                     </Button>
                   </div>
@@ -590,7 +673,10 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
           ) : (
             <div className="flex-1 flex items-center justify-center p-8">
               <div className="text-center">
-                <FileText size={48} className="mx-auto mb-4 text-black/20 dark:text-white/20" />
+                <FileText
+                  size={48}
+                  className="mx-auto mb-4 text-black/20 dark:text-white/20"
+                />
                 <h3 className="font-['Fredoka_One'] text-[16px] text-black dark:text-white mb-2">
                   No Selection
                 </h3>
@@ -617,13 +703,15 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
               <Label htmlFor="material_id">Material</Label>
               <Select
                 value={formData.material_id}
-                onValueChange={(value) => setFormData({ ...formData, material_id: value })}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, material_id: value })
+                }
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a material" />
                 </SelectTrigger>
                 <SelectContent>
-                  {materials.map(material => (
+                  {materials.map((material) => (
                     <SelectItem key={material.id} value={material.id}>
                       {material.name}
                     </SelectItem>
@@ -635,13 +723,15 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
               <Label htmlFor="parameter_code">Parameter</Label>
               <Select
                 value={formData.parameter_code}
-                onValueChange={(value) => setFormData({ ...formData, parameter_code: value })}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, parameter_code: value })
+                }
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a parameter" />
                 </SelectTrigger>
                 <SelectContent>
-                  {parameters.map(param => (
+                  {parameters.map((param) => (
                     <SelectItem key={param.code} value={param.code}>
                       {param.name}
                     </SelectItem>
@@ -655,7 +745,9 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                 id="raw_value"
                 type="number"
                 value={formData.raw_value}
-                onChange={(e) => setFormData({ ...formData, raw_value: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, raw_value: e.target.value })
+                }
                 className="w-full"
               />
             </div>
@@ -664,7 +756,9 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
               <Input
                 id="raw_unit"
                 value={formData.raw_unit}
-                onChange={(e) => setFormData({ ...formData, raw_unit: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, raw_unit: e.target.value })
+                }
                 className="w-full"
               />
             </div>
@@ -673,7 +767,9 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
               <Textarea
                 id="snippet"
                 value={formData.snippet}
-                onChange={(e) => setFormData({ ...formData, snippet: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, snippet: e.target.value })
+                }
                 className="w-full"
               />
             </div>
@@ -681,16 +777,26 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
               <Label htmlFor="source_type">Source Type</Label>
               <Select
                 value={formData.source_type}
-                onValueChange={(value) => setFormData({ ...formData, source_type: value })}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, source_type: value })
+                }
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a source type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem key="whitepaper" value="whitepaper">Whitepaper</SelectItem>
-                  <SelectItem key="article" value="article">Article</SelectItem>
-                  <SelectItem key="external" value="external">External</SelectItem>
-                  <SelectItem key="manual" value="manual">Manual</SelectItem>
+                  <SelectItem key="whitepaper" value="whitepaper">
+                    Whitepaper
+                  </SelectItem>
+                  <SelectItem key="article" value="article">
+                    Article
+                  </SelectItem>
+                  <SelectItem key="external" value="external">
+                    External
+                  </SelectItem>
+                  <SelectItem key="manual" value="manual">
+                    Manual
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -699,7 +805,9 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
               <Input
                 id="citation"
                 value={formData.citation}
-                onChange={(e) => setFormData({ ...formData, citation: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, citation: e.target.value })
+                }
                 className="w-full"
               />
             </div>
@@ -707,15 +815,23 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
               <Label htmlFor="confidence_level">Confidence Level</Label>
               <Select
                 value={formData.confidence_level}
-                onValueChange={(value) => setFormData({ ...formData, confidence_level: value })}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, confidence_level: value })
+                }
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a confidence level" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem key="high" value="high">High</SelectItem>
-                  <SelectItem key="medium" value="medium">Medium</SelectItem>
-                  <SelectItem key="low" value="low">Low</SelectItem>
+                  <SelectItem key="high" value="high">
+                    High
+                  </SelectItem>
+                  <SelectItem key="medium" value="medium">
+                    Medium
+                  </SelectItem>
+                  <SelectItem key="low" value="low">
+                    Low
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -724,7 +840,9 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
               <Textarea
                 id="notes"
                 value={formData.notes}
-                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, notes: e.target.value })
+                }
                 className="w-full"
               />
             </div>
@@ -734,7 +852,9 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                 id="page_number"
                 type="number"
                 value={formData.page_number}
-                onChange={(e) => setFormData({ ...formData, page_number: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, page_number: e.target.value })
+                }
                 className="w-full"
               />
             </div>
@@ -743,7 +863,9 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
               <Input
                 id="figure_number"
                 value={formData.figure_number}
-                onChange={(e) => setFormData({ ...formData, figure_number: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, figure_number: e.target.value })
+                }
                 className="w-full"
               />
             </div>
@@ -752,13 +874,19 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
               <Input
                 id="table_number"
                 value={formData.table_number}
-                onChange={(e) => setFormData({ ...formData, table_number: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, table_number: e.target.value })
+                }
                 className="w-full"
               />
             </div>
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setShowCreateDialog(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowCreateDialog(false)}
+            >
               Cancel
             </Button>
             <Button type="button" onClick={handleCreateEvidence}>
@@ -782,13 +910,15 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
               <Label htmlFor="material_id">Material</Label>
               <Select
                 value={formData.material_id}
-                onValueChange={(value) => setFormData({ ...formData, material_id: value })}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, material_id: value })
+                }
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a material" />
                 </SelectTrigger>
                 <SelectContent>
-                  {materials.map(material => (
+                  {materials.map((material) => (
                     <SelectItem key={material.id} value={material.id}>
                       {material.name}
                     </SelectItem>
@@ -800,13 +930,15 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
               <Label htmlFor="parameter_code">Parameter</Label>
               <Select
                 value={formData.parameter_code}
-                onValueChange={(value) => setFormData({ ...formData, parameter_code: value })}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, parameter_code: value })
+                }
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a parameter" />
                 </SelectTrigger>
                 <SelectContent>
-                  {parameters.map(param => (
+                  {parameters.map((param) => (
                     <SelectItem key={param.code} value={param.code}>
                       {param.name}
                     </SelectItem>
@@ -820,7 +952,9 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                 id="raw_value"
                 type="number"
                 value={formData.raw_value}
-                onChange={(e) => setFormData({ ...formData, raw_value: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, raw_value: e.target.value })
+                }
                 className="w-full"
               />
             </div>
@@ -829,7 +963,9 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
               <Input
                 id="raw_unit"
                 value={formData.raw_unit}
-                onChange={(e) => setFormData({ ...formData, raw_unit: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, raw_unit: e.target.value })
+                }
                 className="w-full"
               />
             </div>
@@ -838,7 +974,9 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
               <Textarea
                 id="snippet"
                 value={formData.snippet}
-                onChange={(e) => setFormData({ ...formData, snippet: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, snippet: e.target.value })
+                }
                 className="w-full"
               />
             </div>
@@ -846,16 +984,26 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
               <Label htmlFor="source_type">Source Type</Label>
               <Select
                 value={formData.source_type}
-                onValueChange={(value) => setFormData({ ...formData, source_type: value })}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, source_type: value })
+                }
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a source type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem key="whitepaper" value="whitepaper">Whitepaper</SelectItem>
-                  <SelectItem key="article" value="article">Article</SelectItem>
-                  <SelectItem key="external" value="external">External</SelectItem>
-                  <SelectItem key="manual" value="manual">Manual</SelectItem>
+                  <SelectItem key="whitepaper" value="whitepaper">
+                    Whitepaper
+                  </SelectItem>
+                  <SelectItem key="article" value="article">
+                    Article
+                  </SelectItem>
+                  <SelectItem key="external" value="external">
+                    External
+                  </SelectItem>
+                  <SelectItem key="manual" value="manual">
+                    Manual
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -864,7 +1012,9 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
               <Input
                 id="citation"
                 value={formData.citation}
-                onChange={(e) => setFormData({ ...formData, citation: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, citation: e.target.value })
+                }
                 className="w-full"
               />
             </div>
@@ -872,15 +1022,23 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
               <Label htmlFor="confidence_level">Confidence Level</Label>
               <Select
                 value={formData.confidence_level}
-                onValueChange={(value) => setFormData({ ...formData, confidence_level: value })}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, confidence_level: value })
+                }
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a confidence level" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem key="high" value="high">High</SelectItem>
-                  <SelectItem key="medium" value="medium">Medium</SelectItem>
-                  <SelectItem key="low" value="low">Low</SelectItem>
+                  <SelectItem key="high" value="high">
+                    High
+                  </SelectItem>
+                  <SelectItem key="medium" value="medium">
+                    Medium
+                  </SelectItem>
+                  <SelectItem key="low" value="low">
+                    Low
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -889,7 +1047,9 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
               <Textarea
                 id="notes"
                 value={formData.notes}
-                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, notes: e.target.value })
+                }
                 className="w-full"
               />
             </div>
@@ -899,7 +1059,9 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                 id="page_number"
                 type="number"
                 value={formData.page_number}
-                onChange={(e) => setFormData({ ...formData, page_number: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, page_number: e.target.value })
+                }
                 className="w-full"
               />
             </div>
@@ -908,7 +1070,9 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
               <Input
                 id="figure_number"
                 value={formData.figure_number}
-                onChange={(e) => setFormData({ ...formData, figure_number: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, figure_number: e.target.value })
+                }
                 className="w-full"
               />
             </div>
@@ -917,13 +1081,19 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
               <Input
                 id="table_number"
                 value={formData.table_number}
-                onChange={(e) => setFormData({ ...formData, table_number: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, table_number: e.target.value })
+                }
                 className="w-full"
               />
             </div>
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setShowEditDialog(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowEditDialog(false)}
+            >
               Cancel
             </Button>
             <Button type="button" onClick={handleUpdateEvidence}>

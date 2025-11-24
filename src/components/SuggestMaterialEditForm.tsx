@@ -1,22 +1,28 @@
-import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
-import { toast } from 'sonner@2.0.3';
-import * as api from '../utils/api';
-import { Material } from '../types/material';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Textarea } from './ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { useState, useEffect } from "react";
+import { X } from "lucide-react";
+import { toast } from "sonner";
+import * as api from "../utils/api";
+import { Material } from "../types/material";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Textarea } from "./ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 
 const CATEGORIES = [
-  'Packaging',
-  'Textiles',
-  'Electronics',
-  'Construction',
-  'Food & Organic',
-  'Plastics',
-  'Metals',
-  'Other'
+  "Packaging",
+  "Textiles",
+  "Electronics",
+  "Construction",
+  "Food & Organic",
+  "Plastics",
+  "Metals",
+  "Other",
 ];
 
 interface SuggestMaterialEditFormProps {
@@ -25,24 +31,28 @@ interface SuggestMaterialEditFormProps {
   onSubmitSuccess: () => void;
 }
 
-export function SuggestMaterialEditForm({ material, onClose, onSubmitSuccess }: SuggestMaterialEditFormProps) {
+export function SuggestMaterialEditForm({
+  material,
+  onClose,
+  onSubmitSuccess,
+}: SuggestMaterialEditFormProps) {
   const [name, setName] = useState(material.name);
   const [category, setCategory] = useState(material.category);
-  const [description, setDescription] = useState(material.description || '');
-  const [changeReason, setChangeReason] = useState('');
+  const [description, setDescription] = useState(material.description || "");
+  const [changeReason, setChangeReason] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     setName(material.name);
     setCategory(material.category);
-    setDescription(material.description || '');
+    setDescription(material.description || "");
   }, [material]);
 
   const hasChanges = () => {
     return (
       name.trim() !== material.name ||
       category !== material.category ||
-      description.trim() !== (material.description || '')
+      description.trim() !== (material.description || "")
     );
   };
 
@@ -50,12 +60,12 @@ export function SuggestMaterialEditForm({ material, onClose, onSubmitSuccess }: 
     e.preventDefault();
 
     if (!hasChanges()) {
-      toast.error('No changes detected');
+      toast.error("No changes detected");
       return;
     }
 
     if (!changeReason.trim()) {
-      toast.error('Please explain why you\'re suggesting this change');
+      toast.error("Please explain why you're suggesting this change");
       return;
     }
 
@@ -64,22 +74,24 @@ export function SuggestMaterialEditForm({ material, onClose, onSubmitSuccess }: 
 
       // Create submission for material edit
       await api.createSubmission({
-        type: 'edit_material',
+        type: "edit_material",
         content_data: {
           name: name.trim(),
           category,
           description: description.trim() || undefined,
-          change_reason: changeReason.trim()
+          change_reason: changeReason.trim(),
         },
-        original_content_id: material.id
+        original_content_id: material.id,
       });
 
-      toast.success('Edit suggestion submitted! You\'ll be notified when it\'s reviewed.');
+      toast.success(
+        "Edit suggestion submitted! You'll be notified when it's reviewed."
+      );
       onSubmitSuccess();
       onClose();
     } catch (error) {
-      console.error('Error submitting edit:', error);
-      toast.error('Failed to submit edit suggestion');
+      console.error("Error submitting edit:", error);
+      toast.error("Failed to submit edit suggestion");
     } finally {
       setSubmitting(false);
     }
@@ -106,12 +118,16 @@ export function SuggestMaterialEditForm({ material, onClose, onSubmitSuccess }: 
               ✏️ <strong>Editing:</strong> {material.name}
             </p>
             <p className="font-['Sniglet:Regular',_sans-serif] text-[10px] text-black/70 dark:text-white/70 mt-1">
-              Your suggested changes will be reviewed by an admin before being applied.
+              Your suggested changes will be reviewed by an admin before being
+              applied.
             </p>
           </div>
 
           <div>
-            <Label htmlFor="edit-name" className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
+            <Label
+              htmlFor="edit-name"
+              className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white"
+            >
               Material Name *
             </Label>
             <Input
@@ -124,16 +140,26 @@ export function SuggestMaterialEditForm({ material, onClose, onSubmitSuccess }: 
           </div>
 
           <div>
-            <Label htmlFor="edit-category" className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
+            <Label
+              htmlFor="edit-category"
+              className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white"
+            >
               Category *
             </Label>
             <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger id="edit-category" className="mt-1 font-['Sniglet:Regular',_sans-serif]">
+              <SelectTrigger
+                id="edit-category"
+                className="mt-1 font-['Sniglet:Regular',_sans-serif]"
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {CATEGORIES.map((cat) => (
-                  <SelectItem key={cat} value={cat} className="font-['Sniglet:Regular',_sans-serif]">
+                  <SelectItem
+                    key={cat}
+                    value={cat}
+                    className="font-['Sniglet:Regular',_sans-serif]"
+                  >
                     {cat}
                   </SelectItem>
                 ))}
@@ -142,7 +168,10 @@ export function SuggestMaterialEditForm({ material, onClose, onSubmitSuccess }: 
           </div>
 
           <div>
-            <Label htmlFor="edit-description" className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
+            <Label
+              htmlFor="edit-description"
+              className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white"
+            >
               Description
             </Label>
             <Textarea
@@ -155,7 +184,10 @@ export function SuggestMaterialEditForm({ material, onClose, onSubmitSuccess }: 
           </div>
 
           <div className="pt-2 border-t border-[#211f1c]/20 dark:border-white/10">
-            <Label htmlFor="change-reason" className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
+            <Label
+              htmlFor="change-reason"
+              className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white"
+            >
               Reason for Change *
             </Label>
             <Textarea
@@ -186,7 +218,7 @@ export function SuggestMaterialEditForm({ material, onClose, onSubmitSuccess }: 
               className="flex-1 h-[40px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#b8c8cb] hover:shadow-[3px_4px_0px_-1px_#000000] dark:hover:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[12px] text-black disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={submitting || !hasChanges()}
             >
-              {submitting ? 'Submitting...' : 'Submit Suggestion'}
+              {submitting ? "Submitting..." : "Submit Suggestion"}
             </button>
           </div>
         </form>

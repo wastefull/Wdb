@@ -1,10 +1,5 @@
 import React, { useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "./ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import {
@@ -17,12 +12,9 @@ import {
   CheckSquare,
   Square,
 } from "lucide-react";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 import { useAuthContext } from "../contexts/AuthContext";
-import {
-  getAllTestDefinitions,
-  Test,
-} from "../config/tests/testDefinitions";
+import { getAllTestDefinitions, Test } from "../config/tests/testDefinitions";
 
 interface TestResult {
   status: "idle" | "loading" | "success" | "error";
@@ -31,13 +23,11 @@ interface TestResult {
 
 export function TestSuite() {
   const { user } = useAuthContext();
-  const [testResults, setTestResults] = useState<
-    Record<string, TestResult>
-  >({});
+  const [testResults, setTestResults] = useState<Record<string, TestResult>>(
+    {}
+  );
   const [runningAll, setRunningAll] = useState(false);
-  const [selectedPhases, setSelectedPhases] = useState<
-    Set<string>
-  >(new Set());
+  const [selectedPhases, setSelectedPhases] = useState<Set<string>>(new Set());
 
   // Get all tests from centralized test definitions
   const tests: Test[] = getAllTestDefinitions(user);
@@ -55,9 +45,7 @@ export function TestSuite() {
   };
 
   const selectAllPhases = () => {
-    const uniquePhases = Array.from(
-      new Set(tests.map((t) => t.phase)),
-    );
+    const uniquePhases = Array.from(new Set(tests.map((t) => t.phase)));
     setSelectedPhases(new Set(uniquePhases));
   };
 
@@ -70,7 +58,7 @@ export function TestSuite() {
     testFn: () => Promise<{
       success: boolean;
       message: string;
-    }>,
+    }>
   ) => {
     setTestResults((prev) => ({
       ...prev,
@@ -93,10 +81,7 @@ export function TestSuite() {
         toast.error(result.message);
       }
     } catch (error) {
-      const errorMsg =
-        error instanceof Error
-          ? error.message
-          : "Unknown error";
+      const errorMsg = error instanceof Error ? error.message : "Unknown error";
       setTestResults((prev) => ({
         ...prev,
         [testId]: { status: "error", message: errorMsg },
@@ -114,9 +99,7 @@ export function TestSuite() {
       if (test) {
         await runTest(testId, test.testFn);
         // Small delay between tests to avoid overwhelming the server
-        await new Promise((resolve) =>
-          setTimeout(resolve, 500),
-        );
+        await new Promise((resolve) => setTimeout(resolve, 500));
       }
     }
 
@@ -125,23 +108,21 @@ export function TestSuite() {
       selectedPhases.size === 0
         ? ""
         : selectedPhases.size === uniquePhases.length
-          ? ""
-          : ` (${selectedPhases.size} phase${selectedPhases.size > 1 ? "s" : ""})`;
+        ? ""
+        : ` (${selectedPhases.size} phase${
+            selectedPhases.size > 1 ? "s" : ""
+          })`;
     toast.success(`All tests completed${phaseText}`);
   };
 
   const getStatusIcon = (status: TestResult["status"]) => {
     switch (status) {
       case "success":
-        return (
-          <CheckCircle2 className="size-5 text-green-600" />
-        );
+        return <CheckCircle2 className="size-5 text-green-600" />;
       case "error":
         return <XCircle className="size-5 text-red-600" />;
       case "loading":
-        return (
-          <Loader2 className="size-5 text-blue-600 animate-spin" />
-        );
+        return <Loader2 className="size-5 text-blue-600 animate-spin" />;
       default:
         return <AlertCircle className="size-5 text-gray-400" />;
     }
@@ -151,17 +132,13 @@ export function TestSuite() {
     switch (status) {
       case "success":
         return (
-          <Badge className="bg-green-600 hover:bg-green-700">
-            Passed
-          </Badge>
+          <Badge className="bg-green-600 hover:bg-green-700">Passed</Badge>
         );
       case "error":
         return <Badge variant="destructive">Failed</Badge>;
       case "loading":
         return (
-          <Badge className="bg-blue-600 hover:bg-blue-700">
-            Running...
-          </Badge>
+          <Badge className="bg-blue-600 hover:bg-blue-700">Running...</Badge>
         );
       default:
         return <Badge variant="outline">Not Run</Badge>;
@@ -169,9 +146,7 @@ export function TestSuite() {
   };
 
   // Get unique phases for filter
-  const uniquePhases = Array.from(
-    new Set(tests.map((t) => t.phase)),
-  ).sort();
+  const uniquePhases = Array.from(new Set(tests.map((t) => t.phase))).sort();
 
   // Filter tests by selected phases (if none selected, show all)
   const filteredTests =
@@ -181,17 +156,15 @@ export function TestSuite() {
 
   const totalTests = filteredTests.length;
   const passedTests = filteredTests.filter(
-    (t) => testResults[t.id]?.status === "success",
+    (t) => testResults[t.id]?.status === "success"
   ).length;
   const failedTests = filteredTests.filter(
-    (t) => testResults[t.id]?.status === "error",
+    (t) => testResults[t.id]?.status === "error"
   ).length;
 
   const copyFailedTests = async () => {
     const failedTestData = filteredTests
-      .filter(
-        (test) => testResults[test.id]?.status === "error",
-      )
+      .filter((test) => testResults[test.id]?.status === "error")
       .map((test) => {
         const result = testResults[test.id];
         return {
@@ -219,9 +192,7 @@ export function TestSuite() {
       "Result",
     ];
     const rows = failedTestData.map((test) =>
-      headers
-        .map((header) => test[header as keyof typeof test])
-        .join("\t"),
+      headers.map((header) => test[header as keyof typeof test]).join("\t")
     );
     const text = [headers.join("\t"), ...rows].join("\n");
 
@@ -240,7 +211,7 @@ export function TestSuite() {
 
       if (successful) {
         toast.success(
-          `Copied ${failedTestData.length} failed test(s) to clipboard`,
+          `Copied ${failedTestData.length} failed test(s) to clipboard`
         );
       } else {
         toast.error("Failed to copy to clipboard");
@@ -305,11 +276,7 @@ export function TestSuite() {
                 ))}
               </div>
             </div>
-            <Button
-              onClick={runAllTests}
-              disabled={runningAll}
-              size="lg"
-            >
+            <Button onClick={runAllTests} disabled={runningAll} size="lg">
               {runningAll ? (
                 <>
                   <Loader2 className="size-4 mr-2 animate-spin" />
@@ -328,28 +295,18 @@ export function TestSuite() {
           <div className="flex items-center justify-between">
             <div className="flex gap-6">
               <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">
-                  Total:
-                </span>
+                <span className="text-sm text-muted-foreground">Total:</span>
                 <span className="font-bold">{totalTests}</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="size-4 text-green-600" />
-                <span className="text-sm text-muted-foreground">
-                  Passed:
-                </span>
-                <span className="font-bold text-green-600">
-                  {passedTests}
-                </span>
+                <span className="text-sm text-muted-foreground">Passed:</span>
+                <span className="font-bold text-green-600">{passedTests}</span>
               </div>
               <div className="flex items-center gap-2">
                 <XCircle className="size-4 text-red-600" />
-                <span className="text-sm text-muted-foreground">
-                  Failed:
-                </span>
-                <span className="font-bold text-red-600">
-                  {failedTests}
-                </span>
+                <span className="text-sm text-muted-foreground">Failed:</span>
+                <span className="font-bold text-red-600">{failedTests}</span>
               </div>
             </div>
             {failedTests > 0 && (
@@ -402,7 +359,11 @@ export function TestSuite() {
                   return (
                     <tr
                       key={test.id}
-                      className={`border-t ${index % 2 === 0 ? "bg-white dark:bg-[#1a1917]" : "bg-muted/20"}`}
+                      className={`border-t ${
+                        index % 2 === 0
+                          ? "bg-white dark:bg-[#1a1917]"
+                          : "bg-muted/20"
+                      }`}
                     >
                       <td className="p-4">
                         <div className="flex items-center gap-2">
@@ -434,7 +395,11 @@ export function TestSuite() {
                         </div>
                         {result.message && (
                           <div
-                            className={`text-xs mt-1 ${result.status === "success" ? "text-green-600" : "text-red-600"}`}
+                            className={`text-xs mt-1 ${
+                              result.status === "success"
+                                ? "text-green-600"
+                                : "text-red-600"
+                            }`}
                           >
                             {result.message}
                           </div>
@@ -444,9 +409,7 @@ export function TestSuite() {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() =>
-                            runTest(test.id, test.testFn)
-                          }
+                          onClick={() => runTest(test.id, test.testFn)}
                           disabled={result.status === "loading"}
                         >
                           {result.status === "loading" ? (

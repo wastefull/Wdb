@@ -6,7 +6,7 @@
 
 import React, { createContext, useContext, useState, ReactNode } from "react";
 import { navigationLogger } from "../utils/loggerFactories";
-import { CategoryType } from "../types/material";
+import { CategoryType } from "../types/article";
 
 // View types that the app can navigate to
 export type ViewType =
@@ -27,6 +27,7 @@ export type ViewType =
       materialId: string;
       category: CategoryType;
     }
+  | { type: "all-articles"; category: CategoryType }
   | { type: "methodology-list" }
   | { type: "whitepaper"; whitepaperSlug: string }
   | { type: "admin-dashboard" }

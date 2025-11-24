@@ -1,12 +1,18 @@
-import { useState, useEffect } from 'react';
-import { ArrowLeft, Edit2, Save, X, ExternalLink } from 'lucide-react';
-import * as api from '../utils/api';
-import { toast } from 'sonner@2.0.3';
-import { Input } from './ui/input';
-import { Textarea } from './ui/textarea';
-import { Label } from './ui/label';
-import { Button } from './ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { useState, useEffect } from "react";
+import { ArrowLeft, Edit2, Save, X, ExternalLink } from "lucide-react";
+import * as api from "../utils/api";
+import { toast } from "sonner";
+import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
+import { Label } from "./ui/label";
+import { Button } from "./ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
 
 interface UserProfileViewProps {
   userId: string;
@@ -19,7 +25,7 @@ interface Profile {
   user_id: string;
   email: string;
   name: string;
-  role: 'user' | 'admin';
+  role: "user" | "admin";
   bio?: string;
   social_link?: string;
   avatar_url?: string;
@@ -27,13 +33,18 @@ interface Profile {
   created_at: string;
 }
 
-export function UserProfileView({ userId, onBack, isOwnProfile, onNavigateToMySubmissions }: UserProfileViewProps) {
+export function UserProfileView({
+  userId,
+  onBack,
+  isOwnProfile,
+  onNavigateToMySubmissions,
+}: UserProfileViewProps) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
-  const [editedBio, setEditedBio] = useState('');
-  const [editedSocialLink, setEditedSocialLink] = useState('');
-  const [editedAvatarUrl, setEditedAvatarUrl] = useState('');
+  const [editedBio, setEditedBio] = useState("");
+  const [editedSocialLink, setEditedSocialLink] = useState("");
+  const [editedAvatarUrl, setEditedAvatarUrl] = useState("");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -45,12 +56,12 @@ export function UserProfileView({ userId, onBack, isOwnProfile, onNavigateToMySu
       setLoading(true);
       const fetchedProfile = await api.getUserProfile(userId);
       setProfile(fetchedProfile);
-      setEditedBio(fetchedProfile.bio || '');
-      setEditedSocialLink(fetchedProfile.social_link || '');
-      setEditedAvatarUrl(fetchedProfile.avatar_url || '');
+      setEditedBio(fetchedProfile.bio || "");
+      setEditedSocialLink(fetchedProfile.social_link || "");
+      setEditedAvatarUrl(fetchedProfile.avatar_url || "");
     } catch (error) {
-      console.error('Error loading profile:', error);
-      toast.error('Failed to load profile');
+      console.error("Error loading profile:", error);
+      toast.error("Failed to load profile");
     } finally {
       setLoading(false);
     }
@@ -66,19 +77,19 @@ export function UserProfileView({ userId, onBack, isOwnProfile, onNavigateToMySu
       });
       setProfile(updatedProfile);
       setEditing(false);
-      toast.success('Profile updated successfully');
+      toast.success("Profile updated successfully");
     } catch (error) {
-      console.error('Error saving profile:', error);
-      toast.error('Failed to save profile');
+      console.error("Error saving profile:", error);
+      toast.error("Failed to save profile");
     } finally {
       setSaving(false);
     }
   };
 
   const handleCancel = () => {
-    setEditedBio(profile?.bio || '');
-    setEditedSocialLink(profile?.social_link || '');
-    setEditedAvatarUrl(profile?.avatar_url || '');
+    setEditedBio(profile?.bio || "");
+    setEditedSocialLink(profile?.social_link || "");
+    setEditedAvatarUrl(profile?.avatar_url || "");
     setEditing(false);
   };
 
@@ -87,7 +98,9 @@ export function UserProfileView({ userId, onBack, isOwnProfile, onNavigateToMySu
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#211f1c] dark:border-white mx-auto mb-4"></div>
-          <p className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">Loading profile...</p>
+          <p className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">
+            Loading profile...
+          </p>
         </div>
       </div>
     );
@@ -103,7 +116,9 @@ export function UserProfileView({ userId, onBack, isOwnProfile, onNavigateToMySu
           <ArrowLeft size={16} />
           <span className="font-['Sniglet:Regular',_sans-serif]">Back</span>
         </button>
-        <p className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">Profile not found</p>
+        <p className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">
+          Profile not found
+        </p>
       </div>
     );
   }
@@ -142,7 +157,7 @@ export function UserProfileView({ userId, onBack, isOwnProfile, onNavigateToMySu
                   alt={profile.name}
                   className="w-full h-full object-cover"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none';
+                    (e.target as HTMLImageElement).style.display = "none";
                   }}
                 />
               ) : (
@@ -156,7 +171,7 @@ export function UserProfileView({ userId, onBack, isOwnProfile, onNavigateToMySu
             <div className="flex-1 min-w-0">
               <CardTitle className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white mb-1 break-words">
                 {profile.name}
-                {profile.role === 'admin' && (
+                {profile.role === "admin" && (
                   <span className="ml-2 px-2 py-0.5 text-[10px] bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded whitespace-nowrap">
                     Admin
                   </span>
@@ -166,9 +181,10 @@ export function UserProfileView({ userId, onBack, isOwnProfile, onNavigateToMySu
                 {profile.email}
               </CardDescription>
               <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/50 dark:text-white/50 mt-2">
-                Member since {new Date(profile.created_at).toLocaleDateString('en-US', { 
-                  month: 'long', 
-                  year: 'numeric' 
+                Member since{" "}
+                {new Date(profile.created_at).toLocaleDateString("en-US", {
+                  month: "long",
+                  year: "numeric",
                 })}
               </p>
             </div>
@@ -179,7 +195,10 @@ export function UserProfileView({ userId, onBack, isOwnProfile, onNavigateToMySu
           {/* Avatar URL (editing only) */}
           {editing && (
             <div className="space-y-2">
-              <Label htmlFor="avatar_url" className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">
+              <Label
+                htmlFor="avatar_url"
+                className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white"
+              >
                 Avatar URL
               </Label>
               <Input
@@ -198,7 +217,10 @@ export function UserProfileView({ userId, onBack, isOwnProfile, onNavigateToMySu
 
           {/* Bio */}
           <div className="space-y-2">
-            <Label htmlFor="bio" className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">
+            <Label
+              htmlFor="bio"
+              className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white"
+            >
               Bio
             </Label>
             {editing ? (
@@ -212,14 +234,21 @@ export function UserProfileView({ userId, onBack, isOwnProfile, onNavigateToMySu
               />
             ) : (
               <p className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black dark:text-white whitespace-pre-wrap">
-                {profile.bio || <span className="text-black/50 dark:text-white/50 italic">No bio yet</span>}
+                {profile.bio || (
+                  <span className="text-black/50 dark:text-white/50 italic">
+                    No bio yet
+                  </span>
+                )}
               </p>
             )}
           </div>
 
           {/* Social Link */}
           <div className="space-y-2">
-            <Label htmlFor="social_link" className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">
+            <Label
+              htmlFor="social_link"
+              className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white"
+            >
               Website / Social Link
             </Label>
             {editing ? (
@@ -231,22 +260,20 @@ export function UserProfileView({ userId, onBack, isOwnProfile, onNavigateToMySu
                 placeholder="https://twitter.com/yourhandle"
                 className="font-['Sniglet:Regular',_sans-serif] text-[13px]"
               />
+            ) : profile.social_link ? (
+              <a
+                href={profile.social_link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 font-['Sniglet:Regular',_sans-serif] text-[13px] text-blue-600 dark:text-blue-400 hover:underline"
+              >
+                {profile.social_link}
+                <ExternalLink size={12} />
+              </a>
             ) : (
-              profile.social_link ? (
-                <a
-                  href={profile.social_link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 font-['Sniglet:Regular',_sans-serif] text-[13px] text-blue-600 dark:text-blue-400 hover:underline"
-                >
-                  {profile.social_link}
-                  <ExternalLink size={12} />
-                </a>
-              ) : (
-                <p className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black/50 dark:text-white/50 italic">
-                  No link added
-                </p>
-              )
+              <p className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black/50 dark:text-white/50 italic">
+                No link added
+              </p>
             )}
           </div>
 
@@ -259,7 +286,7 @@ export function UserProfileView({ userId, onBack, isOwnProfile, onNavigateToMySu
                 className="flex items-center justify-center gap-2 bg-[#c8e5c8] text-black hover:bg-[#b8d5b8] border border-[#211f1c] dark:border-white/20 w-full sm:w-auto"
               >
                 <Save size={14} />
-                {saving ? 'Saving...' : 'Save Changes'}
+                {saving ? "Saving..." : "Save Changes"}
               </Button>
               <Button
                 onClick={handleCancel}

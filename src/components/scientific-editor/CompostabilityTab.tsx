@@ -2,20 +2,26 @@
  * Compostability Tab - CC parameters and composite scores
  */
 
-import { useState } from 'react';
-import { Calculator } from 'lucide-react';
-import { Card } from '../ui/card';
-import { Label } from '../ui/label';
-import { Input } from '../ui/input';
-import { Button } from '../ui/button';
-import { toast } from 'sonner@2.0.3';
-import { calculateCompostability, type CompostabilityParams } from '../../utils/api';
-import type { DimensionTabProps } from './types';
+import { useState } from "react";
+import { Calculator } from "lucide-react";
+import { Card } from "../ui/card";
+import { Label } from "../ui/label";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
+import { toast } from "sonner";
+import {
+  calculateCompostability,
+  type CompostabilityParams,
+} from "../../utils/api";
+import type { DimensionTabProps } from "./types";
 
-export function CompostabilityTab({ formData, onParameterChange }: DimensionTabProps) {
+export function CompostabilityTab({
+  formData,
+  onParameterChange,
+}: DimensionTabProps) {
   const [calculating, setCalculating] = useState(false);
 
-  const handleCalculateCC = async (mode: 'theoretical' | 'practical') => {
+  const handleCalculateCC = async (mode: "theoretical" | "practical") => {
     setCalculating(true);
     try {
       const params: CompostabilityParams = {
@@ -26,31 +32,33 @@ export function CompostabilityTab({ formData, onParameterChange }: DimensionTabP
         M: formData.M_value,
         mode,
       };
-      
+
       const result = await calculateCompostability(params);
-      
+
       // Calculate 10% confidence intervals
-      const margin = result.mean * 0.10;
-      
-      if (mode === 'practical') {
-        onParameterChange('CC_practical_mean', result.mean);
-        onParameterChange('CC_practical_CI95', {
+      const margin = result.mean * 0.1;
+
+      if (mode === "practical") {
+        onParameterChange("CC_practical_mean", result.mean);
+        onParameterChange("CC_practical_CI95", {
           lower: Math.max(0, result.mean - margin),
           upper: Math.min(1, result.mean + margin),
         });
-        onParameterChange('compostability', result.public);
+        onParameterChange("compostability", result.public);
         toast.success(`CC Practical calculated: ${result.public}/100`);
       } else {
-        onParameterChange('CC_theoretical_mean', result.mean);
-        onParameterChange('CC_theoretical_CI95', {
+        onParameterChange("CC_theoretical_mean", result.mean);
+        onParameterChange("CC_theoretical_CI95", {
           lower: Math.max(0, result.mean - margin),
           upper: Math.min(1, result.mean + margin),
         });
         toast.success(`CC Theoretical calculated: ${result.public}/100`);
       }
     } catch (error) {
-      console.error('Error calculating compostability:', error);
-      toast.error('Failed to calculate compostability: ' + (error as Error).message);
+      console.error("Error calculating compostability:", error);
+      toast.error(
+        "Failed to calculate compostability: " + (error as Error).message
+      );
     } finally {
       setCalculating(false);
     }
@@ -63,7 +71,7 @@ export function CompostabilityTab({ formData, onParameterChange }: DimensionTabP
         <h3 className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white mb-3">
           Compostability Parameters (CC-v1)
         </h3>
-        
+
         <div className="grid grid-cols-2 gap-4">
           <div>
             <Label className="text-[11px]">Biodegradation (B)</Label>
@@ -72,11 +80,15 @@ export function CompostabilityTab({ formData, onParameterChange }: DimensionTabP
               min="0"
               max="1"
               step="0.01"
-              value={formData.B_value || ''}
-              onChange={(e) => onParameterChange('B_value', parseFloat(e.target.value) || 0)}
+              value={formData.B_value || ""}
+              onChange={(e) =>
+                onParameterChange("B_value", parseFloat(e.target.value) || 0)
+              }
               className="text-[12px]"
             />
-            <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">Biodegradation rate constant</p>
+            <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">
+              Biodegradation rate constant
+            </p>
           </div>
 
           <div>
@@ -86,11 +98,15 @@ export function CompostabilityTab({ formData, onParameterChange }: DimensionTabP
               min="0"
               max="1"
               step="0.01"
-              value={formData.N_value || ''}
-              onChange={(e) => onParameterChange('N_value', parseFloat(e.target.value) || 0)}
+              value={formData.N_value || ""}
+              onChange={(e) =>
+                onParameterChange("N_value", parseFloat(e.target.value) || 0)
+              }
               className="text-[12px]"
             />
-            <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">C:N:P ratio suitability</p>
+            <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">
+              C:N:P ratio suitability
+            </p>
           </div>
 
           <div>
@@ -100,11 +116,15 @@ export function CompostabilityTab({ formData, onParameterChange }: DimensionTabP
               min="0"
               max="1"
               step="0.01"
-              value={formData.T_value || ''}
-              onChange={(e) => onParameterChange('T_value', parseFloat(e.target.value) || 0)}
+              value={formData.T_value || ""}
+              onChange={(e) =>
+                onParameterChange("T_value", parseFloat(e.target.value) || 0)
+              }
               className="text-[12px]"
             />
-            <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">Toxicity / residue index</p>
+            <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">
+              Toxicity / residue index
+            </p>
           </div>
 
           <div>
@@ -114,40 +134,50 @@ export function CompostabilityTab({ formData, onParameterChange }: DimensionTabP
               min="0"
               max="1"
               step="0.01"
-              value={formData.H_value || ''}
-              onChange={(e) => onParameterChange('H_value', parseFloat(e.target.value) || 0)}
+              value={formData.H_value || ""}
+              onChange={(e) =>
+                onParameterChange("H_value", parseFloat(e.target.value) || 0)
+              }
               className="text-[12px]"
             />
-            <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">Fraction of composting systems</p>
+            <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">
+              Fraction of composting systems
+            </p>
           </div>
 
           <div>
-            <Label className="text-[11px]">Infrastructure Maturity (M) - Shared</Label>
+            <Label className="text-[11px]">
+              Infrastructure Maturity (M) - Shared
+            </Label>
             <Input
               type="number"
               min="0"
               max="1"
               step="0.01"
-              value={formData.M_value || ''}
-              onChange={(e) => onParameterChange('M_value', parseFloat(e.target.value) || 0)}
+              value={formData.M_value || ""}
+              onChange={(e) =>
+                onParameterChange("M_value", parseFloat(e.target.value) || 0)
+              }
               className="text-[12px]"
             />
-            <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">Composting facility availability</p>
+            <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">
+              Composting facility availability
+            </p>
           </div>
         </div>
 
         {/* Calculate Buttons */}
         <div className="grid grid-cols-2 gap-3 mt-4">
-          <Button 
-            onClick={() => handleCalculateCC('practical')}
+          <Button
+            onClick={() => handleCalculateCC("practical")}
             disabled={calculating}
             className="bg-[#e6beb5] hover:bg-[#d6aea5] text-black"
           >
             <Calculator className="w-4 h-4 mr-2" />
             Calculate Practical CC
           </Button>
-          <Button 
-            onClick={() => handleCalculateCC('theoretical')}
+          <Button
+            onClick={() => handleCalculateCC("theoretical")}
             disabled={calculating}
             className="bg-[#c74444] hover:bg-[#b73434] text-white"
           >
@@ -168,7 +198,7 @@ export function CompostabilityTab({ formData, onParameterChange }: DimensionTabP
           <h4 className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white mb-2">
             Practical (Regional Facilities)
           </h4>
-          
+
           <div className="grid grid-cols-3 gap-3">
             <div>
               <Label className="text-[10px]">Mean (0-1)</Label>
@@ -177,8 +207,13 @@ export function CompostabilityTab({ formData, onParameterChange }: DimensionTabP
                 min="0"
                 max="1"
                 step="0.01"
-                value={formData.CC_practical_mean || ''}
-                onChange={(e) => onParameterChange('CC_practical_mean', parseFloat(e.target.value) || 0)}
+                value={formData.CC_practical_mean || ""}
+                onChange={(e) =>
+                  onParameterChange(
+                    "CC_practical_mean",
+                    parseFloat(e.target.value) || 0
+                  )
+                }
                 className="text-[12px]"
               />
             </div>
@@ -190,12 +225,14 @@ export function CompostabilityTab({ formData, onParameterChange }: DimensionTabP
                 min="0"
                 max="1"
                 step="0.01"
-                value={formData.CC_practical_CI95?.lower || ''}
-                onChange={(e) => onParameterChange('CC_practical_CI95', {
-                  ...formData.CC_practical_CI95,
-                  lower: parseFloat(e.target.value) || 0,
-                  upper: formData.CC_practical_CI95?.upper || 0,
-                })}
+                value={formData.CC_practical_CI95?.lower || ""}
+                onChange={(e) =>
+                  onParameterChange("CC_practical_CI95", {
+                    ...formData.CC_practical_CI95,
+                    lower: parseFloat(e.target.value) || 0,
+                    upper: formData.CC_practical_CI95?.upper || 0,
+                  })
+                }
                 className="text-[12px]"
               />
             </div>
@@ -207,20 +244,25 @@ export function CompostabilityTab({ formData, onParameterChange }: DimensionTabP
                 min="0"
                 max="1"
                 step="0.01"
-                value={formData.CC_practical_CI95?.upper || ''}
-                onChange={(e) => onParameterChange('CC_practical_CI95', {
-                  ...formData.CC_practical_CI95,
-                  lower: formData.CC_practical_CI95?.lower || 0,
-                  upper: parseFloat(e.target.value) || 0,
-                })}
+                value={formData.CC_practical_CI95?.upper || ""}
+                onChange={(e) =>
+                  onParameterChange("CC_practical_CI95", {
+                    ...formData.CC_practical_CI95,
+                    lower: formData.CC_practical_CI95?.lower || 0,
+                    upper: parseFloat(e.target.value) || 0,
+                  })
+                }
                 className="text-[12px]"
               />
             </div>
           </div>
-          
+
           {formData.CC_practical_mean !== undefined && (
             <div className="mt-2 text-[11px] text-black/60 dark:text-white/60">
-              Public Score: <strong>{Math.round(formData.CC_practical_mean * 100)}/100</strong>
+              Public Score:{" "}
+              <strong>
+                {Math.round(formData.CC_practical_mean * 100)}/100
+              </strong>
             </div>
           )}
         </div>
@@ -230,7 +272,7 @@ export function CompostabilityTab({ formData, onParameterChange }: DimensionTabP
           <h4 className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white mb-2">
             Theoretical (Ideal Conditions)
           </h4>
-          
+
           <div className="grid grid-cols-3 gap-3">
             <div>
               <Label className="text-[10px]">Mean (0-1)</Label>
@@ -239,8 +281,13 @@ export function CompostabilityTab({ formData, onParameterChange }: DimensionTabP
                 min="0"
                 max="1"
                 step="0.01"
-                value={formData.CC_theoretical_mean || ''}
-                onChange={(e) => onParameterChange('CC_theoretical_mean', parseFloat(e.target.value) || 0)}
+                value={formData.CC_theoretical_mean || ""}
+                onChange={(e) =>
+                  onParameterChange(
+                    "CC_theoretical_mean",
+                    parseFloat(e.target.value) || 0
+                  )
+                }
                 className="text-[12px]"
               />
             </div>
@@ -252,12 +299,14 @@ export function CompostabilityTab({ formData, onParameterChange }: DimensionTabP
                 min="0"
                 max="1"
                 step="0.01"
-                value={formData.CC_theoretical_CI95?.lower || ''}
-                onChange={(e) => onParameterChange('CC_theoretical_CI95', {
-                  ...formData.CC_theoretical_CI95,
-                  lower: parseFloat(e.target.value) || 0,
-                  upper: formData.CC_theoretical_CI95?.upper || 0,
-                })}
+                value={formData.CC_theoretical_CI95?.lower || ""}
+                onChange={(e) =>
+                  onParameterChange("CC_theoretical_CI95", {
+                    ...formData.CC_theoretical_CI95,
+                    lower: parseFloat(e.target.value) || 0,
+                    upper: formData.CC_theoretical_CI95?.upper || 0,
+                  })
+                }
                 className="text-[12px]"
               />
             </div>
@@ -269,20 +318,25 @@ export function CompostabilityTab({ formData, onParameterChange }: DimensionTabP
                 min="0"
                 max="1"
                 step="0.01"
-                value={formData.CC_theoretical_CI95?.upper || ''}
-                onChange={(e) => onParameterChange('CC_theoretical_CI95', {
-                  ...formData.CC_theoretical_CI95,
-                  lower: formData.CC_theoretical_CI95?.lower || 0,
-                  upper: parseFloat(e.target.value) || 0,
-                })}
+                value={formData.CC_theoretical_CI95?.upper || ""}
+                onChange={(e) =>
+                  onParameterChange("CC_theoretical_CI95", {
+                    ...formData.CC_theoretical_CI95,
+                    lower: formData.CC_theoretical_CI95?.lower || 0,
+                    upper: parseFloat(e.target.value) || 0,
+                  })
+                }
                 className="text-[12px]"
               />
             </div>
           </div>
-          
+
           {formData.CC_theoretical_mean !== undefined && (
             <div className="mt-2 text-[11px] text-black/60 dark:text-white/60">
-              Public Score: <strong>{Math.round(formData.CC_theoretical_mean * 100)}/100</strong>
+              Public Score:{" "}
+              <strong>
+                {Math.round(formData.CC_theoretical_mean * 100)}/100
+              </strong>
             </div>
           )}
         </div>

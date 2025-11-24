@@ -45,6 +45,22 @@ import {
   CollapsibleTrigger,
   CollapsibleContent,
 } from "./components/ui/collapsible";
+import { Material } from "./types/material";
+import {
+  Article,
+  ArticleSection,
+  CategoryType,
+  ArticleFormProps,
+} from "./types/article";
+import {
+  getArticlesByCategory,
+  getArticleCount,
+  addArticleToMaterial,
+  updateArticleInMaterial,
+  removeArticleFromMaterial,
+  getAllArticles,
+  getTotalArticleCount,
+} from "./utils/materialArticles";
 import {
   RadialBarChart,
   RadialBar,
@@ -146,140 +162,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./components/ui/select";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 import { Toaster } from "./components/ui/sonner";
 import { Textarea } from "./components/ui/textarea";
 import { ErrorBoundary } from "./components/ErrorBoundary";
-
-interface ArticleSection {
-  image?: string; // base64 encoded image
-  content: string;
-}
-
-interface Article {
-  id: string;
-  title: string;
-  category: "DIY" | "Industrial" | "Experimental";
-  overview: {
-    image?: string;
-  };
-  introduction: ArticleSection;
-  supplies: ArticleSection;
-  step1: ArticleSection;
-  dateAdded: string;
-
-  // Content attribution
-  created_by?: string; // User ID of original creator
-  edited_by?: string; // User ID of editor (if edited directly by admin)
-  writer_name?: string; // Display name of original writer
-  editor_name?: string; // Display name of editor
-}
-
-interface Material {
-  id: string;
-  name: string;
-  category:
-    | "Plastics"
-    | "Metals"
-    | "Glass"
-    | "Paper & Cardboard"
-    | "Fabrics & Textiles"
-    | "Electronics & Batteries"
-    | "Building Materials"
-    | "Organic/Natural Waste";
-  compostability: number;
-  recyclability: number;
-  reusability: number;
-  description?: string;
-  articles: {
-    compostability: Article[];
-    recyclability: Article[];
-    reusability: Article[];
-  };
-
-  // Scientific parameters (normalized 0-1)
-  // Recyclability (CR)
-  Y_value?: number; // Yield (recovery rate)
-  D_value?: number; // Degradation (quality loss)
-  C_value?: number; // Contamination tolerance
-  M_value?: number; // Maturity (infrastructure availability) - shared across all dimensions
-  E_value?: number; // Energy demand (normalized)
-
-  // Compostability (CC)
-  B_value?: number; // Biodegradation rate
-  N_value?: number; // Nutrient balance
-  T_value?: number; // Toxicity / Residue index
-  H_value?: number; // Habitat adaptability
-
-  // Reusability (RU)
-  L_value?: number; // Lifetime - functional cycles
-  R_value?: number; // Repairability
-  U_value?: number; // Upgradability
-  C_RU_value?: number; // Contamination susceptibility (for reusability)
-
-  // Calculated composite scores - Recyclability
-  CR_practical_mean?: number; // Practical recyclability (0-1)
-  CR_theoretical_mean?: number; // Theoretical recyclability (0-1)
-  CR_practical_CI95?: {
-    // 95% confidence interval
-    lower: number;
-    upper: number;
-  };
-  CR_theoretical_CI95?: {
-    lower: number;
-    upper: number;
-  };
-
-  // Calculated composite scores - Compostability
-  CC_practical_mean?: number;
-  CC_theoretical_mean?: number;
-  CC_practical_CI95?: {
-    lower: number;
-    upper: number;
-  };
-  CC_theoretical_CI95?: {
-    lower: number;
-    upper: number;
-  };
-
-  // Calculated composite scores - Reusability
-  RU_practical_mean?: number;
-  RU_theoretical_mean?: number;
-  RU_practical_CI95?: {
-    lower: number;
-    upper: number;
-  };
-  RU_theoretical_CI95?: {
-    lower: number;
-    upper: number;
-  };
-
-  // Confidence and provenance
-  confidence_level?: "High" | "Medium" | "Low"; // Based on data quality
-  sources?: Array<{
-    // Citation metadata
-    title: string;
-    authors?: string;
-    year?: number;
-    doi?: string;
-    url?: string;
-    weight?: number; // Source weight in aggregation
-    parameters?: string[]; // Which parameters this source contributed to
-  }>;
-
-  // Versioning and audit trail
-  whitepaper_version?: string; // e.g., "2025.1"
-  calculation_timestamp?: string; // ISO 8601 timestamp
-  method_version?: string; // e.g., "CR-v1"
-
-  // Content attribution
-  created_by?: string; // User ID of original creator
-  edited_by?: string; // User ID of editor (if edited directly by admin)
-  writer_name?: string; // Display name of original writer
-  editor_name?: string; // Display name of editor
-}
-
-type CategoryType = "compostability" | "recyclability" | "reusability";
 
 function AdminModeButton({
   currentView,
@@ -667,7 +553,7 @@ function StatusBar({
   currentView: any;
   onViewChange: (view: any) => void;
   syncStatus?: "synced" | "syncing" | "offline" | "error";
-  user?: { id: string; email: string; name?: string };
+  user?: { id: string; email: string; name?: string } | null;
   userRole?: "user" | "admin";
   onLogout?: () => void;
   onSignIn?: () => void;
@@ -1117,7 +1003,7 @@ function MaterialCard({
           }
           height={50}
           onClick={() => onViewArticles("compostability")}
-          articleCount={material.articles.compostability.length}
+          articleCount={material.articles?.compostability.length}
         />
         <RasterizedQuantileVisualization
           materialId={material.id}
@@ -1136,7 +1022,7 @@ function MaterialCard({
           }
           height={50}
           onClick={() => onViewArticles("recyclability")}
-          articleCount={material.articles.recyclability.length}
+          articleCount={material.articles?.recyclability.length}
         />
         <RasterizedQuantileVisualization
           materialId={material.id}
@@ -1155,7 +1041,7 @@ function MaterialCard({
           }
           height={50}
           onClick={() => onViewArticles("reusability")}
-          articleCount={material.articles.reusability.length}
+          articleCount={material.articles?.reusability.length}
         />
       </div>
 
@@ -1523,19 +1409,24 @@ function ArticleCard({
   );
 }
 
-function ArticleForm({
-  article,
-  onSave,
-  onCancel,
-}: {
-  article?: Article;
-  onSave: (article: Omit<Article, "id" | "dateAdded">) => void;
-  onCancel: () => void;
-}) {
+function ArticleForm({ article, onSave, onCancel }: ArticleFormProps) {
   const [formData, setFormData] = useState({
     title: article?.title || "",
-    category:
-      article?.category || ("DIY" as "DIY" | "Industrial" | "Experimental"),
+    slug: article?.slug || "",
+    article_type:
+      article?.article_type ||
+      article?.category ||
+      ("DIY" as "DIY" | "Industrial" | "Experimental"),
+    sustainability_category:
+      article?.sustainability_category ||
+      ("recyclability" as "compostability" | "recyclability" | "reusability"),
+    content_markdown: article?.content_markdown || "",
+    material_id: article?.material_id || "",
+    author_id: article?.author_id || "",
+    status: article?.status || ("draft" as "draft" | "published" | "archived"),
+    version: article?.version || 1,
+    created_at: article?.created_at || new Date().toISOString(),
+    updated_at: article?.updated_at || new Date().toISOString(),
     overview: {
       image: article?.overview.image || undefined,
     },
@@ -1605,14 +1496,14 @@ function ArticleForm({
               </div>
               <div>
                 <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black block mb-1">
-                  Category
+                  Article Type
                 </label>
                 <select
-                  value={formData.category}
+                  value={formData.article_type}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      category: e.target.value as
+                      article_type: e.target.value as
                         | "DIY"
                         | "Industrial"
                         | "Experimental",
@@ -1623,6 +1514,28 @@ function ArticleForm({
                   <option value="DIY">DIY</option>
                   <option value="Industrial">Industrial</option>
                   <option value="Experimental">Experimental</option>
+                </select>
+              </div>
+              <div>
+                <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black block mb-1">
+                  Sustainability Category
+                </label>
+                <select
+                  value={formData.sustainability_category}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      sustainability_category: e.target.value as
+                        | "compostability"
+                        | "recyclability"
+                        | "reusability",
+                    })
+                  }
+                  className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[14px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all"
+                >
+                  <option value="compostability">Compostability</option>
+                  <option value="recyclability">Recyclability</option>
+                  <option value="reusability">Reusability</option>
                 </select>
               </div>
             </div>
@@ -1797,7 +1710,7 @@ function ArticlesView({
     reusability: "Reusability",
   };
 
-  const articles = material.articles[category];
+  const articles = getArticlesByCategory(material, category);
 
   const handleAddArticle = (articleData: Omit<Article, "id" | "dateAdded">) => {
     const newArticle: Article = {
@@ -1806,13 +1719,11 @@ function ArticlesView({
       dateAdded: new Date().toISOString(),
     };
 
-    const updatedMaterial = {
-      ...material,
-      articles: {
-        ...material.articles,
-        [category]: [...material.articles[category], newArticle],
-      },
-    };
+    const updatedMaterial = addArticleToMaterial(
+      material,
+      category,
+      newArticle
+    );
 
     onUpdateMaterial(updatedMaterial);
     setShowForm(false);
@@ -1823,19 +1734,12 @@ function ArticlesView({
   ) => {
     if (!editingArticle) return;
 
-    const updatedArticles = material.articles[category].map((a) =>
-      a.id === editingArticle.id
-        ? { ...articleData, id: a.id, dateAdded: a.dateAdded }
-        : a
+    const updatedMaterial = updateArticleInMaterial(
+      material,
+      category,
+      editingArticle.id,
+      (a) => ({ ...articleData, id: a.id, dateAdded: a.dateAdded })
     );
-
-    const updatedMaterial = {
-      ...material,
-      articles: {
-        ...material.articles,
-        [category]: updatedArticles,
-      },
-    };
 
     onUpdateMaterial(updatedMaterial);
     setEditingArticle(null);
@@ -1844,13 +1748,7 @@ function ArticlesView({
 
   const handleDeleteArticle = (id: string) => {
     if (confirm("Are you sure you want to delete this article?")) {
-      const updatedMaterial = {
-        ...material,
-        articles: {
-          ...material.articles,
-          [category]: material.articles[category].filter((a) => a.id !== id),
-        },
-      };
+      const updatedMaterial = removeArticleFromMaterial(material, category, id);
 
       onUpdateMaterial(updatedMaterial);
     }
@@ -1994,20 +1892,7 @@ function MaterialDetailView({
     reusability: "#b8c8cb",
   };
 
-  const allArticles = [
-    ...material.articles.compostability.map((a) => ({
-      article: a,
-      category: "compostability" as CategoryType,
-    })),
-    ...material.articles.recyclability.map((a) => ({
-      article: a,
-      category: "recyclability" as CategoryType,
-    })),
-    ...material.articles.reusability.map((a) => ({
-      article: a,
-      category: "reusability" as CategoryType,
-    })),
-  ].sort(
+  const allArticles = getAllArticles(material).sort(
     (a, b) =>
       new Date(b.article.dateAdded).getTime() -
       new Date(a.article.dateAdded).getTime()
@@ -2017,15 +1902,11 @@ function MaterialDetailView({
 
   const handleDeleteArticle = (articleId: string, category: CategoryType) => {
     if (confirm("Are you sure you want to delete this article?")) {
-      const updatedMaterial = {
-        ...material,
-        articles: {
-          ...material.articles,
-          [category]: material.articles[category].filter(
-            (a) => a.id !== articleId
-          ),
-        },
-      };
+      const updatedMaterial = removeArticleFromMaterial(
+        material,
+        category,
+        articleId
+      );
       onUpdateMaterial(updatedMaterial);
     }
   };
@@ -2041,20 +1922,12 @@ function MaterialDetailView({
   ) => {
     if (!editingArticle) return;
 
-    const updatedArticles = material.articles[editingArticle.category].map(
-      (a) =>
-        a.id === editingArticle.article.id
-          ? { ...articleData, id: a.id, dateAdded: a.dateAdded }
-          : a
+    const updatedMaterial = updateArticleInMaterial(
+      material,
+      editingArticle.category,
+      editingArticle.article.id,
+      (a) => ({ ...articleData, id: a.id, dateAdded: a.dateAdded })
     );
-
-    const updatedMaterial = {
-      ...material,
-      articles: {
-        ...material.articles,
-        [editingArticle.category]: updatedArticles,
-      },
-    };
 
     onUpdateMaterial(updatedMaterial);
     setEditingArticle(null);
@@ -2115,7 +1988,7 @@ function MaterialDetailView({
             }
             height={50}
             onClick={() => onViewArticles("compostability")}
-            articleCount={material.articles.compostability.length}
+            articleCount={getArticleCount(material, "compostability")}
           />
           <RasterizedQuantileVisualization
             materialId={material.id}
@@ -2134,7 +2007,7 @@ function MaterialDetailView({
             }
             height={50}
             onClick={() => onViewArticles("recyclability")}
-            articleCount={material.articles.recyclability.length}
+            articleCount={getArticleCount(material, "recyclability")}
           />
           <RasterizedQuantileVisualization
             materialId={material.id}
@@ -2153,7 +2026,7 @@ function MaterialDetailView({
             }
             height={50}
             onClick={() => onViewArticles("reusability")}
-            articleCount={material.articles.reusability.length}
+            articleCount={getArticleCount(material, "reusability")}
           />
         </div>
       </div>
@@ -2467,8 +2340,10 @@ Where:
                     {...props}
                   />
                 ),
-                code: ({ node, inline, ...props }) =>
-                  inline ? (
+                code: ({ node, ...props }) => {
+                  const isInline =
+                    node?.position?.start.line === node?.position?.end.line;
+                  return isInline ? (
                     <code
                       className="bg-[#211f1c]/5 px-1.5 py-0.5 rounded border border-[#211f1c]/20 text-black"
                       style={{
@@ -2488,7 +2363,8 @@ Where:
                       }}
                       {...props}
                     />
-                  ),
+                  );
+                },
                 pre: ({ node, ...props }) => (
                   <pre
                     className="bg-[#211f1c]/5 border-[1.5px] border-[#211f1c] rounded-[8px] p-4 mb-4 overflow-x-auto"
@@ -3127,15 +3003,18 @@ function DataManagementView({
                           {isEditing ? (
                             <Select
                               value={editData.category || material.category}
-                              onValueChange={(value) =>
-                                setEditData({ ...editData, category: value })
+                              onValueChange={(value: string) =>
+                                setEditData({
+                                  ...editData,
+                                  category: value as Material["category"],
+                                })
                               }
                             >
                               <SelectTrigger className="h-7 text-[9px] font-['Sniglet:Regular',_sans-serif] border-[#211f1c] dark:border-white/20">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent className="font-['Sniglet:Regular',_sans-serif] bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
-                                {categoryOptions.map((cat) => (
+                                {categoryOptions.map((cat: string) => (
                                   <SelectItem
                                     key={cat}
                                     value={cat}
@@ -3279,9 +3158,9 @@ function DataManagementView({
                         </TableCell>
                         <TableCell className="text-center">
                           <span className="font-['Sniglet:Regular',_sans-serif] text-[9px] text-black dark:text-white">
-                            {material.articles.compostability.length} /{" "}
-                            {material.articles.recyclability.length} /{" "}
-                            {material.articles.reusability.length}
+                            {getArticleCount(material, "compostability")} /{" "}
+                            {getArticleCount(material, "recyclability")} /{" "}
+                            {getArticleCount(material, "reusability")}
                           </span>
                         </TableCell>
                         <TableCell className="text-center">
@@ -3482,11 +3361,6 @@ function AppContent() {
       isLoadingMaterials_ctx: isLoadingMaterials,
       syncStatus_ctx: syncStatus,
       supabaseAvailable_ctx: supabaseAvailable,
-      context_functions_available: !!(
-        addMaterial &&
-        updateMaterial &&
-        deleteMaterial
-      ),
     });
   }, [materials.length, isLoadingMaterials, syncStatus, supabaseAvailable]);
 
@@ -3577,6 +3451,7 @@ function AppContent() {
     if (articleToOpen && materials.length > 0) {
       // Find the article in all materials
       for (const material of materials) {
+        if (!material.articles) continue;
         for (const category of [
           "compostability",
           "recyclability",
@@ -3586,7 +3461,7 @@ function AppContent() {
             (a) => a.id === articleToOpen
           );
           if (article) {
-            setCurrentView({
+            navigateTo({
               type: "article-standalone",
               articleId: articleToOpen,
               materialId: material.id,
@@ -3600,7 +3475,7 @@ function AppContent() {
         }
       }
     }
-  }, [articleToOpen, materials]);
+  }, [articleToOpen, materials, navigateTo]);
 
   const handleAddMaterial = async (materialData: Omit<Material, "id">) => {
     const newMaterial: Material = {
@@ -3708,7 +3583,11 @@ function AppContent() {
       : null;
 
   // Admin mode is only active if user is authenticated, has admin role, AND has toggled admin mode on
-  const isAdminModeActive = user && userRole === "admin" && settings.adminMode;
+  const isAdminModeActive = !!(
+    user &&
+    userRole === "admin" &&
+    settings.adminMode
+  );
 
   return (
     <>
@@ -3740,7 +3619,7 @@ function AppContent() {
               title="WasteDB"
               currentView={currentView}
               onViewChange={navigateTo}
-              syncStatus={syncStatus}
+              syncStatus={syncStatus === "idle" ? undefined : syncStatus}
               user={user}
               userRole={userRole}
               onLogout={handleLogout}
@@ -3845,7 +3724,7 @@ function AppContent() {
                             ),
                             articleCount: materials.reduce(
                               (sum, m) =>
-                                sum + m.articles.compostability.length,
+                                sum + getArticleCount(m, "compostability"),
                               0
                             ),
                             fill: "#e8a593",
@@ -3861,7 +3740,8 @@ function AppContent() {
                               ) / materials.length
                             ),
                             articleCount: materials.reduce(
-                              (sum, m) => sum + m.articles.recyclability.length,
+                              (sum, m) =>
+                                sum + getArticleCount(m, "recyclability"),
                               0
                             ),
                             fill: "#f0e68c",
@@ -3877,7 +3757,8 @@ function AppContent() {
                               ) / materials.length
                             ),
                             articleCount: materials.reduce(
-                              (sum, m) => sum + m.articles.reusability.length,
+                              (sum, m) =>
+                                sum + getArticleCount(m, "reusability"),
                               0
                             ),
                             fill: "#a8c5d8",
@@ -3935,11 +3816,7 @@ function AppContent() {
                         materials and{" "}
                         <span className="font-bold">
                           {materials.reduce(
-                            (sum, m) =>
-                              sum +
-                              m.articles.compostability.length +
-                              m.articles.recyclability.length +
-                              m.articles.reusability.length,
+                            (sum, m) => sum + getTotalArticleCount(m),
                             0
                           )}
                         </span>{" "}
@@ -4107,9 +3984,10 @@ function AppContent() {
             ) : currentMaterial && currentView.type === "article-standalone" ? (
               <StandaloneArticleView
                 article={
-                  currentMaterial.articles[currentView.category].find(
-                    (a) => a.id === currentView.articleId
-                  )!
+                  getArticlesByCategory(
+                    currentMaterial,
+                    currentView.category
+                  ).find((a) => a.id === currentView.articleId)!
                 }
                 sustainabilityCategory={{
                   label:
@@ -4135,15 +4013,11 @@ function AppContent() {
                   if (
                     confirm("Are you sure you want to delete this article?")
                   ) {
-                    const updatedMaterial = {
-                      ...currentMaterial,
-                      articles: {
-                        ...currentMaterial.articles,
-                        [currentView.category]: currentMaterial.articles[
-                          currentView.category
-                        ].filter((a) => a.id !== currentView.articleId),
-                      },
-                    };
+                    const updatedMaterial = removeArticleFromMaterial(
+                      currentMaterial,
+                      currentView.category,
+                      currentView.articleId
+                    );
                     handleUpdateMaterial(updatedMaterial);
                     navigateToMaterialDetail(currentMaterial.id);
                   }
@@ -4178,7 +4052,9 @@ function AppContent() {
                 onNavigateToMath={navigateToMathTools}
                 onNavigateToCharts={navigateToChartsPerformance}
                 onNavigateToRoadmap={navigateToRoadmap}
-                onNavigateToRoadmapOverview={navigateToRoadmapOverview}
+                onNavigateToRoadmapOverview={
+                  navigateToRoadmapOverview as (section?: string) => void
+                }
                 onNavigateToSourceLibrary={navigateToSourceLibrary}
                 onNavigateToSourceComparison={navigateToSourceComparison}
                 onNavigateToEvidenceLab={navigateToEvidenceLab}
@@ -4214,9 +4090,9 @@ function AppContent() {
               <WhitepaperSyncTool onBack={navigateToMaterials} />
             ) : currentView.type === "scientific-editor" && currentMaterial ? (
               <ScientificDataEditor
-                material={currentMaterial}
+                material={currentMaterial as any}
                 onSave={(updatedMaterial) => {
-                  handleUpdateMaterial(updatedMaterial);
+                  handleUpdateMaterial(updatedMaterial as Material);
                   navigateToMaterials();
                 }}
                 onCancel={navigateToMaterials}
@@ -4302,7 +4178,7 @@ function AppContent() {
               </div>
             ) : currentView.type === "whitepapers-management" ? (
               <div className="p-6">
-                <WhitepaperSyncTool />
+                <WhitepaperSyncTool onBack={navigateToAdminDashboard} />
               </div>
             ) : currentView.type === "assets-management" ? (
               <AssetsManagementPage />

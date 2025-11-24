@@ -1,15 +1,5 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
-
-interface Material {
-  id: string;
-  name: string;
-  category: string;
-  description?: string;
-  compostability: number;
-  recyclability: number;
-  reusability: number;
-  [key: string]: any;
-}
+import { useEffect, useRef, useState, useCallback } from "react";
+import { Material } from "../types/material";
 
 interface VirtualizedMaterialListProps {
   materials: Material[];
@@ -24,7 +14,7 @@ export function VirtualizedMaterialList({
   renderMaterial,
   itemHeight = 400, // Approximate height of MaterialCard
   overscan = 3, // Number of items to render outside viewport
-  className = ''
+  className = "",
 }: VirtualizedMaterialListProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [scrollTop, setScrollTop] = useState(0);
@@ -42,15 +32,15 @@ export function VirtualizedMaterialList({
       setContainerHeight(container.clientHeight);
     };
 
-    container.addEventListener('scroll', handleScroll);
-    window.addEventListener('resize', handleResize);
-    
+    container.addEventListener("scroll", handleScroll);
+    window.addEventListener("resize", handleResize);
+
     // Initial height
     setContainerHeight(container.clientHeight);
 
     return () => {
-      container.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleResize);
+      container.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
@@ -69,15 +59,13 @@ export function VirtualizedMaterialList({
     <div
       ref={containerRef}
       className={`overflow-y-auto ${className}`}
-      style={{ height: '100%', position: 'relative' }}
+      style={{ height: "100%", position: "relative" }}
     >
-      <div
-        style={{ height: `${totalHeight}px`, position: 'relative' }}
-      >
+      <div style={{ height: `${totalHeight}px`, position: "relative" }}>
         <div
           style={{
             transform: `translateY(${offsetY}px)`,
-            position: 'absolute',
+            position: "absolute",
             top: 0,
             left: 0,
             right: 0,
@@ -116,7 +104,7 @@ export function VirtualizedMaterialGrid({
   rowHeight = 400,
   gap = 16,
   overscan = 2,
-  className = ''
+  className = "",
 }: VirtualizedMaterialGridProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [scrollTop, setScrollTop] = useState(0);
@@ -148,16 +136,16 @@ export function VirtualizedMaterialGrid({
       updateColumns();
     };
 
-    container.addEventListener('scroll', handleScroll);
-    window.addEventListener('resize', handleResize);
-    
+    container.addEventListener("scroll", handleScroll);
+    window.addEventListener("resize", handleResize);
+
     // Initial setup
     setContainerHeight(container.clientHeight);
     updateColumns();
 
     return () => {
-      container.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleResize);
+      container.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleResize);
     };
   }, [columns]);
 
@@ -166,14 +154,20 @@ export function VirtualizedMaterialGrid({
   const effectiveRowHeight = rowHeight + gap;
 
   // Calculate which rows to render
-  const startRow = Math.max(0, Math.floor(scrollTop / effectiveRowHeight) - overscan);
+  const startRow = Math.max(
+    0,
+    Math.floor(scrollTop / effectiveRowHeight) - overscan
+  );
   const endRow = Math.min(
     totalRows - 1,
     Math.ceil((scrollTop + containerHeight) / effectiveRowHeight) + overscan
   );
 
   const startIndex = startRow * actualColumns;
-  const endIndex = Math.min(materials.length - 1, (endRow + 1) * actualColumns - 1);
+  const endIndex = Math.min(
+    materials.length - 1,
+    (endRow + 1) * actualColumns - 1
+  );
 
   const visibleMaterials = materials.slice(startIndex, endIndex + 1);
   const totalHeight = totalRows * effectiveRowHeight;
@@ -183,15 +177,13 @@ export function VirtualizedMaterialGrid({
     <div
       ref={containerRef}
       className={`overflow-y-auto ${className}`}
-      style={{ height: '100%', position: 'relative' }}
+      style={{ height: "100%", position: "relative" }}
     >
-      <div
-        style={{ height: `${totalHeight}px`, position: 'relative' }}
-      >
+      <div style={{ height: `${totalHeight}px`, position: "relative" }}>
         <div
           style={{
             transform: `translateY(${offsetY}px)`,
-            position: 'absolute',
+            position: "absolute",
             top: 0,
             left: 0,
             right: 0,
@@ -204,9 +196,7 @@ export function VirtualizedMaterialGrid({
             }}
           >
             {visibleMaterials.map((material) => (
-              <div key={material.id}>
-                {renderMaterial(material)}
-              </div>
+              <div key={material.id}>{renderMaterial(material)}</div>
             ))}
           </div>
         </div>

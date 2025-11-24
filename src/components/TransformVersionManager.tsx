@@ -1,11 +1,17 @@
-import { useState, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card';
-import { Button } from './ui/button';
-import { Badge } from './ui/badge';
-import { Alert, AlertDescription } from './ui/alert';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Textarea } from './ui/textarea';
+import { useState, useEffect } from "react";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "./ui/card";
+import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
+import { Alert, AlertDescription } from "./ui/alert";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Textarea } from "./ui/textarea";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -14,10 +20,10 @@ import {
   RefreshCw,
   Info,
   GitBranch,
-  History
-} from 'lucide-react';
-import { toast } from 'sonner@2.0.3';
-import { apiCall } from '../utils/api';
+  History,
+} from "lucide-react";
+import { toast } from "sonner";
+import { apiCall } from "../utils/api";
 
 interface Transform {
   id: string;
@@ -47,7 +53,7 @@ interface RecomputeJob {
   oldTransformVersion: string;
   newTransformVersion: string;
   reason: string;
-  status: 'pending' | 'running' | 'completed' | 'failed';
+  status: "pending" | "running" | "completed" | "failed";
   createdAt: string;
   createdBy: string;
   completedAt: string | null;
@@ -60,10 +66,12 @@ export function TransformVersionManager() {
   const [jobs, setJobs] = useState<RecomputeJob[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshingJobs, setRefreshingJobs] = useState(false);
-  const [selectedTransform, setSelectedTransform] = useState<Transform | null>(null);
+  const [selectedTransform, setSelectedTransform] = useState<Transform | null>(
+    null
+  );
   const [showRecomputeDialog, setShowRecomputeDialog] = useState(false);
-  const [newVersion, setNewVersion] = useState('');
-  const [reason, setReason] = useState('');
+  const [newVersion, setNewVersion] = useState("");
+  const [reason, setReason] = useState("");
   const [recomputeLoading, setRecomputeLoading] = useState(false);
 
   useEffect(() => {
@@ -73,11 +81,11 @@ export function TransformVersionManager() {
 
   const loadTransforms = async () => {
     try {
-      const data = await apiCall('/transforms', { method: 'GET' });
+      const data = await apiCall("/transforms", { method: "GET" });
       setTransforms(data);
     } catch (error) {
-      console.error('Failed to load transforms:', error);
-      toast.error('Failed to load transform definitions');
+      console.error("Failed to load transforms:", error);
+      toast.error("Failed to load transform definitions");
     } finally {
       setLoading(false);
     }
@@ -85,17 +93,19 @@ export function TransformVersionManager() {
 
   const loadJobs = async () => {
     try {
-      const data = await apiCall('/transforms/recompute', { method: 'GET' });
+      const data = await apiCall("/transforms/recompute", { method: "GET" });
       setJobs(data.jobs || []);
-      
+
       // Show toast only when manually refreshing
       if (refreshingJobs) {
-        toast.success(`Refreshed job list - ${data.jobs?.length || 0} job(s) found`);
+        toast.success(
+          `Refreshed job list - ${data.jobs?.length || 0} job(s) found`
+        );
       }
     } catch (error) {
-      console.error('Failed to load recompute jobs:', error);
+      console.error("Failed to load recompute jobs:", error);
       if (refreshingJobs) {
-        toast.error('Failed to refresh job list');
+        toast.error("Failed to refresh job list");
       }
     } finally {
       setRefreshingJobs(false);
@@ -104,32 +114,31 @@ export function TransformVersionManager() {
 
   const handleRecompute = async () => {
     if (!selectedTransform || !newVersion.trim()) {
-      toast.error('Please provide a new version number');
+      toast.error("Please provide a new version number");
       return;
     }
 
     setRecomputeLoading(true);
-    
+
     try {
-      const result = await apiCall('/transforms/recompute', {
-        method: 'POST',
+      const result = await apiCall("/transforms/recompute", {
+        method: "POST",
         body: JSON.stringify({
           parameter: selectedTransform.parameter,
           newTransformVersion: newVersion.trim(),
-          reason: reason.trim() || 'Manual recompute triggered'
-        })
+          reason: reason.trim() || "Manual recompute triggered",
+        }),
       });
 
       toast.success(`Recompute job created: ${result.jobId}`);
       setShowRecomputeDialog(false);
       setSelectedTransform(null);
-      setNewVersion('');
-      setReason('');
+      setNewVersion("");
+      setReason("");
       loadJobs();
-      
     } catch (error) {
-      console.error('Failed to create recompute job:', error);
-      toast.error('Failed to create recompute job');
+      console.error("Failed to create recompute job:", error);
+      toast.error("Failed to create recompute job");
     } finally {
       setRecomputeLoading(false);
     }
@@ -137,11 +146,11 @@ export function TransformVersionManager() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'completed':
+      case "completed":
         return <CheckCircle2 className="w-4 h-4 text-green-600" />;
-      case 'running':
+      case "running":
         return <RefreshCw className="w-4 h-4 text-blue-600 animate-spin" />;
-      case 'failed':
+      case "failed":
         return <XCircle className="w-4 h-4 text-red-600" />;
       default:
         return <Clock className="w-4 h-4 text-yellow-600" />;
@@ -150,27 +159,27 @@ export function TransformVersionManager() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed':
-        return 'bg-green-100 text-green-800 border-green-300';
-      case 'running':
-        return 'bg-blue-100 text-blue-800 border-blue-300';
-      case 'failed':
-        return 'bg-red-100 text-red-800 border-red-300';
+      case "completed":
+        return "bg-green-100 text-green-800 border-green-300";
+      case "running":
+        return "bg-blue-100 text-blue-800 border-blue-300";
+      case "failed":
+        return "bg-red-100 text-red-800 border-red-300";
       default:
-        return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+        return "bg-yellow-100 text-yellow-800 border-yellow-300";
     }
   };
 
   const getDimensionColor = (dimension: string) => {
     switch (dimension) {
-      case 'CR':
-        return 'bg-blue-100 text-blue-800 border-blue-300';
-      case 'CC':
-        return 'bg-green-100 text-green-800 border-green-300';
-      case 'RU':
-        return 'bg-purple-100 text-purple-800 border-purple-300';
+      case "CR":
+        return "bg-blue-100 text-blue-800 border-blue-300";
+      case "CC":
+        return "bg-green-100 text-green-800 border-green-300";
+      case "RU":
+        return "bg-purple-100 text-purple-800 border-purple-300";
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-300';
+        return "bg-gray-100 text-gray-800 border-gray-300";
     }
   };
 
@@ -190,7 +199,8 @@ export function TransformVersionManager() {
           Transform Version Manager
         </h1>
         <p className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black/70 dark:text-white/70">
-          Manage versioned transforms and trigger recomputation for all 13 parameters
+          Manage versioned transforms and trigger recomputation for all 13
+          parameters
         </p>
       </div>
 
@@ -198,8 +208,10 @@ export function TransformVersionManager() {
       <Alert className="bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-700">
         <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
         <AlertDescription className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-blue-900 dark:text-blue-100">
-          <strong>Transform Governance:</strong> When you update a transform formula, all MIUs using the old version
-          must be recomputed to maintain data consistency. Recompute jobs will run automatically once MIUs are created in Phase 9.2.
+          <strong>Transform Governance:</strong> When you update a transform
+          formula, all MIUs using the old version must be recomputed to maintain
+          data consistency. Recompute jobs will run automatically once MIUs are
+          created in Phase 9.2.
         </AlertDescription>
       </Alert>
 
@@ -213,7 +225,8 @@ export function TransformVersionManager() {
                   Transform Definitions
                 </CardTitle>
                 <CardDescription className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/60 dark:text-white/60">
-                  Version {transforms.version} • Updated {new Date(transforms.last_updated).toLocaleDateString()}
+                  Version {transforms.version} • Updated{" "}
+                  {new Date(transforms.last_updated).toLocaleDateString()}
                 </CardDescription>
               </div>
               <Badge className="bg-green-100 text-green-800 border-green-300">
@@ -224,9 +237,11 @@ export function TransformVersionManager() {
           <CardContent>
             <div className="space-y-3">
               {/* Group by dimension */}
-              {['CR', 'CC', 'RU'].map(dimension => {
-                const dimensionTransforms = transforms.transforms.filter(t => t.dimension === dimension);
-                
+              {["CR", "CC", "RU"].map((dimension) => {
+                const dimensionTransforms = transforms.transforms.filter(
+                  (t) => t.dimension === dimension
+                );
+
                 return (
                   <div key={dimension}>
                     <h3 className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white mb-2 flex items-center gap-2">
@@ -234,14 +249,14 @@ export function TransformVersionManager() {
                         {dimension}
                       </Badge>
                       <span>
-                        {dimension === 'CR' && 'Recyclability'}
-                        {dimension === 'CC' && 'Compostability'}
-                        {dimension === 'RU' && 'Reusability'}
+                        {dimension === "CR" && "Recyclability"}
+                        {dimension === "CC" && "Compostability"}
+                        {dimension === "RU" && "Reusability"}
                       </span>
                     </h3>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                      {dimensionTransforms.map(transform => (
+                      {dimensionTransforms.map((transform) => (
                         <Card
                           key={transform.id}
                           className="bg-[#f5f3f0] dark:bg-[#1a1918] border-[#211f1c] dark:border-white/20 hover:border-[#211f1c]/50 dark:hover:border-white/40 transition-all cursor-pointer"
@@ -265,15 +280,17 @@ export function TransformVersionManager() {
                                 v{transform.version}
                               </Badge>
                             </div>
-                            
+
                             <div className="bg-white dark:bg-[#2a2825] rounded p-2 mb-2 border border-[#211f1c]/20 dark:border-white/10">
                               <code className="font-mono text-[10px] text-black dark:text-white">
                                 {transform.formula}
                               </code>
                             </div>
-                            
+
                             <div className="flex items-center gap-2 text-[10px] text-black/60 dark:text-white/60">
-                              <span>{transform.unit_input} → {transform.unit_output}</span>
+                              <span>
+                                {transform.unit_input} → {transform.unit_output}
+                              </span>
                             </div>
                           </CardContent>
                         </Card>
@@ -307,8 +324,8 @@ export function TransformVersionManager() {
                 onClick={() => {
                   setShowRecomputeDialog(false);
                   setSelectedTransform(null);
-                  setNewVersion('');
-                  setReason('');
+                  setNewVersion("");
+                  setReason("");
                 }}
               >
                 Cancel
@@ -319,8 +336,10 @@ export function TransformVersionManager() {
             <Alert className="bg-orange-50 dark:bg-orange-900/20 border-orange-300 dark:border-orange-700">
               <AlertTriangle className="h-4 w-4 text-orange-600 dark:text-orange-400" />
               <AlertDescription className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-orange-900 dark:text-orange-100">
-                <strong>Warning:</strong> Changing a transform formula will trigger recomputation of all MIUs
-                using this parameter. This operation may take several minutes and will update material values.
+                <strong>Warning:</strong> Changing a transform formula will
+                trigger recomputation of all MIUs using this parameter. This
+                operation may take several minutes and will update material
+                values.
               </AlertDescription>
             </Alert>
 
@@ -346,7 +365,10 @@ export function TransformVersionManager() {
 
               <div className="space-y-3">
                 <div>
-                  <Label htmlFor="newVersion" className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
+                  <Label
+                    htmlFor="newVersion"
+                    className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white"
+                  >
                     New Version Number
                   </Label>
                   <Input
@@ -359,7 +381,10 @@ export function TransformVersionManager() {
                 </div>
 
                 <div>
-                  <Label htmlFor="reason" className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
+                  <Label
+                    htmlFor="reason"
+                    className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white"
+                  >
                     Reason for Change
                   </Label>
                   <Textarea
@@ -416,8 +441,12 @@ export function TransformVersionManager() {
               }}
               disabled={refreshingJobs}
             >
-              <RefreshCw className={`w-4 h-4 mr-2 ${refreshingJobs ? 'animate-spin' : ''}`} />
-              {refreshingJobs ? 'Refreshing...' : 'Refresh'}
+              <RefreshCw
+                className={`w-4 h-4 mr-2 ${
+                  refreshingJobs ? "animate-spin" : ""
+                }`}
+              />
+              {refreshingJobs ? "Refreshing..." : "Refresh"}
             </Button>
           </div>
         </CardHeader>
@@ -426,8 +455,10 @@ export function TransformVersionManager() {
             <Alert className="mb-4 bg-yellow-50 dark:bg-yellow-900/20 border-yellow-300 dark:border-yellow-700">
               <Clock className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
               <AlertDescription className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-yellow-900 dark:text-yellow-100">
-                <strong>Note:</strong> Job processing is not yet implemented. All jobs will remain in "pending" status until 
-                Phase 9.2 when MIU (Material Impact Units) are added. At that point, jobs will automatically process and update material scores.
+                <strong>Note:</strong> Job processing is not yet implemented.
+                All jobs will remain in "pending" status until Phase 9.2 when
+                MIU (Material Impact Units) are added. At that point, jobs will
+                automatically process and update material scores.
               </AlertDescription>
             </Alert>
           )}
@@ -440,7 +471,7 @@ export function TransformVersionManager() {
             </div>
           ) : (
             <div className="space-y-3">
-              {jobs.map(job => (
+              {jobs.map((job) => (
                 <div
                   key={job.id}
                   className="bg-[#f5f3f0] dark:bg-[#1a1918] rounded-lg p-4 border border-[#211f1c]/20 dark:border-white/10"
@@ -468,9 +499,13 @@ export function TransformVersionManager() {
 
                   <div className="flex items-center gap-4 text-[10px] text-black/60 dark:text-white/60">
                     <span>Job ID: {job.id}</span>
-                    <span>Created: {new Date(job.createdAt).toLocaleString()}</span>
+                    <span>
+                      Created: {new Date(job.createdAt).toLocaleString()}
+                    </span>
                     {job.completedAt && (
-                      <span>Completed: {new Date(job.completedAt).toLocaleString()}</span>
+                      <span>
+                        Completed: {new Date(job.completedAt).toLocaleString()}
+                      </span>
                     )}
                   </div>
 

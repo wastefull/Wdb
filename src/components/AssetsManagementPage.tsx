@@ -1,13 +1,19 @@
-import { useState, useEffect } from 'react';
-import { Button } from './ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { toast } from 'sonner@2.0.3';
-import { Upload, Trash2, Copy, ExternalLink, Image } from 'lucide-react';
-import { projectId, publicAnonKey } from '../utils/supabase/info';
-import { PageTemplate } from './PageTemplate';
-import { useNavigationContext } from '../contexts/NavigationContext';
+import { useState, useEffect } from "react";
+import { Button } from "./ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { toast } from "sonner";
+import { Upload, Trash2, Copy, ExternalLink, Image } from "lucide-react";
+import { projectId, publicAnonKey } from "../utils/supabase/info";
+import { PageTemplate } from "./PageTemplate";
+import { useNavigationContext } from "../contexts/NavigationContext";
 
 interface Asset {
   name: string;
@@ -22,7 +28,7 @@ export function AssetsManagementPage() {
   const [uploading, setUploading] = useState(false);
   const [assets, setAssets] = useState<Asset[]>([]);
   const [loading, setLoading] = useState(true);
-  const accessToken = sessionStorage.getItem('wastedb_access_token');
+  const accessToken = sessionStorage.getItem("wastedb_access_token");
 
   useEffect(() => {
     if (accessToken) {
@@ -42,14 +48,14 @@ export function AssetsManagementPage() {
       );
 
       if (!response.ok) {
-        throw new Error('Failed to fetch assets');
+        throw new Error("Failed to fetch assets");
       }
 
       const data = await response.json();
       setAssets(data.assets || []);
     } catch (error) {
-      console.error('Error fetching assets:', error);
-      toast.error('Failed to load assets');
+      console.error("Error fetching assets:", error);
+      toast.error("Failed to load assets");
     } finally {
       setLoading(false);
     }
@@ -60,15 +66,21 @@ export function AssetsManagementPage() {
     if (!file) return;
 
     // Validate file type
-    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml', 'image/webp'];
+    const allowedTypes = [
+      "image/png",
+      "image/jpeg",
+      "image/jpg",
+      "image/svg+xml",
+      "image/webp",
+    ];
     if (!allowedTypes.includes(file.type)) {
-      toast.error('Invalid file type. Only images are allowed.');
+      toast.error("Invalid file type. Only images are allowed.");
       return;
     }
 
     // Validate file size (5MB)
     if (file.size > 5242880) {
-      toast.error('File too large. Maximum size is 5MB.');
+      toast.error("File too large. Maximum size is 5MB.");
       return;
     }
 
@@ -76,12 +88,12 @@ export function AssetsManagementPage() {
 
     try {
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append("file", file);
 
       const response = await fetch(
         `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/assets/upload`,
         {
-          method: 'POST',
+          method: "POST",
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
@@ -91,20 +103,20 @@ export function AssetsManagementPage() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Upload failed');
+        throw new Error(error.error || "Upload failed");
       }
 
       const data = await response.json();
-      toast.success('Asset uploaded successfully');
-      
+      toast.success("Asset uploaded successfully");
+
       // Refresh asset list
       await fetchAssets();
-      
+
       // Reset file input
-      e.target.value = '';
+      e.target.value = "";
     } catch (error: any) {
-      console.error('Upload error:', error);
-      toast.error(error.message || 'Failed to upload asset');
+      console.error("Upload error:", error);
+      toast.error(error.message || "Failed to upload asset");
     } finally {
       setUploading(false);
     }
@@ -117,9 +129,11 @@ export function AssetsManagementPage() {
 
     try {
       const response = await fetch(
-        `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/assets/${encodeURIComponent(assetName)}`,
+        `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/assets/${encodeURIComponent(
+          assetName
+        )}`,
         {
-          method: 'DELETE',
+          method: "DELETE",
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
@@ -127,44 +141,44 @@ export function AssetsManagementPage() {
       );
 
       if (!response.ok) {
-        throw new Error('Failed to delete asset');
+        throw new Error("Failed to delete asset");
       }
 
-      toast.success('Asset deleted successfully');
+      toast.success("Asset deleted successfully");
       await fetchAssets();
     } catch (error) {
-      console.error('Delete error:', error);
-      toast.error('Failed to delete asset');
+      console.error("Delete error:", error);
+      toast.error("Failed to delete asset");
     }
   };
 
   const copyToClipboard = (url: string) => {
     try {
       // Use fallback method directly since Clipboard API is blocked in this environment
-      const input = document.createElement('input');
+      const input = document.createElement("input");
       input.value = url;
-      input.style.position = 'fixed';
-      input.style.opacity = '0';
+      input.style.position = "fixed";
+      input.style.opacity = "0";
       document.body.appendChild(input);
       input.select();
       input.setSelectionRange(0, 99999); // For mobile devices
-      
-      const successful = document.execCommand('copy');
+
+      const successful = document.execCommand("copy");
       document.body.removeChild(input);
-      
+
       if (successful) {
-        toast.success('URL copied to clipboard');
+        toast.success("URL copied to clipboard");
       } else {
-        throw new Error('Copy command failed');
+        throw new Error("Copy command failed");
       }
     } catch (error) {
-      console.error('Copy error:', error);
-      toast.error('Failed to copy URL. Please copy manually.');
+      console.error("Copy error:", error);
+      toast.error("Failed to copy URL. Please copy manually.");
     }
   };
 
   const formatFileSize = (bytes?: number) => {
-    if (!bytes) return 'Unknown size';
+    if (!bytes) return "Unknown size";
     const mb = bytes / (1024 * 1024);
     return `${mb.toFixed(2)} MB`;
   };
@@ -217,7 +231,8 @@ export function AssetsManagementPage() {
               <div>
                 <CardTitle>Uploaded Assets</CardTitle>
                 <CardDescription>
-                  {assets.length} asset{assets.length !== 1 ? 's' : ''} in storage
+                  {assets.length} asset{assets.length !== 1 ? "s" : ""} in
+                  storage
                 </CardDescription>
               </div>
             </div>
@@ -226,7 +241,9 @@ export function AssetsManagementPage() {
             {loading ? (
               <p className="text-sm text-muted-foreground">Loading assets...</p>
             ) : assets.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No assets uploaded yet</p>
+              <p className="text-sm text-muted-foreground">
+                No assets uploaded yet
+              </p>
             ) : (
               <div className="space-y-4">
                 {assets.map((asset) => (
@@ -269,7 +286,7 @@ export function AssetsManagementPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => window.open(asset.publicUrl, '_blank')}
+                        onClick={() => window.open(asset.publicUrl, "_blank")}
                         title="Open in new tab"
                       >
                         <ExternalLink className="size-4" />

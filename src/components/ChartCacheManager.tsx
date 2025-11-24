@@ -1,22 +1,22 @@
 /**
  * ChartCacheManager Component
- * 
+ *
  * Admin tool for managing the chart rasterization cache.
  * Provides cache statistics, manual clearing, and maintenance controls.
- * 
+ *
  * Phase 8: Performance & Scalability
  */
 
-import { useState, useEffect } from 'react';
-import { Button } from './ui/button';
-import { Card } from './ui/card';
-import { Trash2, RefreshCw, HardDrive, Clock, Image } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { Button } from "./ui/button";
+import { Card } from "./ui/card";
+import { Trash2, RefreshCw, HardDrive, Clock, Image } from "lucide-react";
 import {
   getCacheStats,
   clearAllCaches,
   clearExpiredCaches,
-} from '../utils/chartCache';
-import { toast } from 'sonner@2.0.3';
+} from "../utils/chartCache";
+import { toast } from "sonner";
 
 interface CacheStats {
   totalCount: number;
@@ -36,8 +36,8 @@ export function ChartCacheManager() {
       const cacheStats = await getCacheStats();
       setStats(cacheStats);
     } catch (error) {
-      console.error('Error loading cache stats:', error);
-      toast.error('Failed to load cache statistics');
+      console.error("Error loading cache stats:", error);
+      toast.error("Failed to load cache statistics");
     } finally {
       setIsLoading(false);
     }
@@ -48,18 +48,22 @@ export function ChartCacheManager() {
   }, []);
 
   const handleClearAll = async () => {
-    if (!confirm('Are you sure you want to clear all cached charts? This cannot be undone.')) {
+    if (
+      !confirm(
+        "Are you sure you want to clear all cached charts? This cannot be undone."
+      )
+    ) {
       return;
     }
 
     setIsClearing(true);
     try {
       await clearAllCaches();
-      toast.success('All cached charts cleared');
+      toast.success("All cached charts cleared");
       await loadStats();
     } catch (error) {
-      console.error('Error clearing cache:', error);
-      toast.error('Failed to clear cache');
+      console.error("Error clearing cache:", error);
+      toast.error("Failed to clear cache");
     } finally {
       setIsClearing(false);
     }
@@ -69,32 +73,34 @@ export function ChartCacheManager() {
     setIsClearing(true);
     try {
       const deletedCount = await clearExpiredCaches();
-      toast.success(`Cleared ${deletedCount} expired chart${deletedCount !== 1 ? 's' : ''}`);
+      toast.success(
+        `Cleared ${deletedCount} expired chart${deletedCount !== 1 ? "s" : ""}`
+      );
       await loadStats();
     } catch (error) {
-      console.error('Error clearing expired caches:', error);
-      toast.error('Failed to clear expired caches');
+      console.error("Error clearing expired caches:", error);
+      toast.error("Failed to clear expired caches");
     } finally {
       setIsClearing(false);
     }
   };
 
   const formatBytes = (bytes: number): string => {
-    if (bytes === 0) return '0 Bytes';
+    if (bytes === 0) return "0 Bytes";
     const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
   };
 
   const formatDate = (timestamp: number): string => {
-    if (!timestamp) return 'N/A';
-    return new Date(timestamp).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    if (!timestamp) return "N/A";
+    return new Date(timestamp).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -112,14 +118,18 @@ export function ChartCacheManager() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-['Sniglet:Regular',_sans-serif]">Chart Cache Management</h3>
+        <h3 className="text-lg font-['Sniglet:Regular',_sans-serif]">
+          Chart Cache Management
+        </h3>
         <Button
           onClick={loadStats}
           variant="outline"
           size="sm"
           disabled={isLoading}
         >
-          <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+          <RefreshCw
+            className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`}
+          />
           Refresh
         </Button>
       </div>
@@ -132,7 +142,9 @@ export function ChartCacheManager() {
               <Image className="h-5 w-5 text-blue-600 dark:text-blue-300" />
             </div>
             <div>
-              <p className="text-sm text-black/60 dark:text-white/60">Cached Charts</p>
+              <p className="text-sm text-black/60 dark:text-white/60">
+                Cached Charts
+              </p>
               <p className="text-2xl font-bold">{stats?.totalCount || 0}</p>
             </div>
           </div>
@@ -144,8 +156,12 @@ export function ChartCacheManager() {
               <HardDrive className="h-5 w-5 text-purple-600 dark:text-purple-300" />
             </div>
             <div>
-              <p className="text-sm text-black/60 dark:text-white/60">Cache Size</p>
-              <p className="text-2xl font-bold">{formatBytes(stats?.totalSize || 0)}</p>
+              <p className="text-sm text-black/60 dark:text-white/60">
+                Cache Size
+              </p>
+              <p className="text-2xl font-bold">
+                {formatBytes(stats?.totalSize || 0)}
+              </p>
             </div>
           </div>
         </Card>
@@ -156,8 +172,12 @@ export function ChartCacheManager() {
               <Clock className="h-5 w-5 text-green-600 dark:text-green-300" />
             </div>
             <div>
-              <p className="text-sm text-black/60 dark:text-white/60">Oldest Cache</p>
-              <p className="text-xs font-bold">{formatDate(stats?.oldestTimestamp || 0)}</p>
+              <p className="text-sm text-black/60 dark:text-white/60">
+                Oldest Cache
+              </p>
+              <p className="text-xs font-bold">
+                {formatDate(stats?.oldestTimestamp || 0)}
+              </p>
             </div>
           </div>
         </Card>
@@ -168,8 +188,12 @@ export function ChartCacheManager() {
               <Clock className="h-5 w-5 text-orange-600 dark:text-orange-300" />
             </div>
             <div>
-              <p className="text-sm text-black/60 dark:text-white/60">Newest Cache</p>
-              <p className="text-xs font-bold">{formatDate(stats?.newestTimestamp || 0)}</p>
+              <p className="text-sm text-black/60 dark:text-white/60">
+                Newest Cache
+              </p>
+              <p className="text-xs font-bold">
+                {formatDate(stats?.newestTimestamp || 0)}
+              </p>
             </div>
           </div>
         </Card>
@@ -177,7 +201,9 @@ export function ChartCacheManager() {
 
       {/* Actions */}
       <Card className="p-6">
-        <h4 className="font-['Sniglet:Regular',_sans-serif] mb-4">Cache Maintenance</h4>
+        <h4 className="font-['Sniglet:Regular',_sans-serif] mb-4">
+          Cache Maintenance
+        </h4>
         <div className="space-y-3">
           <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
             <div>
@@ -217,17 +243,27 @@ export function ChartCacheManager() {
 
       {/* Information */}
       <Card className="p-6 bg-blue-50 dark:bg-blue-900/20">
-        <h4 className="font-['Sniglet:Regular',_sans-serif] mb-2">About Chart Caching</h4>
+        <h4 className="font-['Sniglet:Regular',_sans-serif] mb-2">
+          About Chart Caching
+        </h4>
         <div className="text-sm space-y-2 text-black/70 dark:text-white/70">
           <p>
-            Chart rasterization converts SVG visualizations to cached images, improving performance
-            especially when displaying many materials with complex visualizations.
+            Chart rasterization converts SVG visualizations to cached images,
+            improving performance especially when displaying many materials with
+            complex visualizations.
           </p>
           <ul className="list-disc list-inside space-y-1 ml-2">
-            <li>Caches are automatically invalidated when material data changes</li>
+            <li>
+              Caches are automatically invalidated when material data changes
+            </li>
             <li>Caches expire after 7 days and are automatically cleaned up</li>
-            <li>Caches are stored in IndexedDB and persist across browser sessions</li>
-            <li>All accessibility features (ARIA labels, keyboard navigation) are preserved</li>
+            <li>
+              Caches are stored in IndexedDB and persist across browser sessions
+            </li>
+            <li>
+              All accessibility features (ARIA labels, keyboard navigation) are
+              preserved
+            </li>
           </ul>
         </div>
       </Card>

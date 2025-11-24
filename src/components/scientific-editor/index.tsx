@@ -3,17 +3,17 @@
  * Manages multi-dimensional scientific data entry for CR, CC, and RU
  */
 
-import { useState } from 'react';
-import { Save, X, AlertCircle } from 'lucide-react';
-import { Button } from '../ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
-import { Alert, AlertDescription } from '../ui/alert';
-import { toast } from 'sonner@2.0.3';
-import { RecyclabilityTab } from './RecyclabilityTab';
-import { CompostabilityTab } from './CompostabilityTab';
-import { ReusabilityTab } from './ReusabilityTab';
-import { SourcesTab } from './SourcesTab';
-import type { Material, Source } from './types';
+import { useState } from "react";
+import { Save, X, AlertCircle } from "lucide-react";
+import { Button } from "../ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { Alert, AlertDescription } from "../ui/alert";
+import { toast } from "sonner";
+import { RecyclabilityTab } from "./RecyclabilityTab";
+import { CompostabilityTab } from "./CompostabilityTab";
+import { ReusabilityTab } from "./ReusabilityTab";
+import { SourcesTab } from "./SourcesTab";
+import type { Material, Source } from "./types";
 
 interface ScientificDataEditorProps {
   material: Material;
@@ -21,25 +21,42 @@ interface ScientificDataEditorProps {
   onCancel: () => void;
 }
 
-export function ScientificDataEditor({ material, onSave, onCancel }: ScientificDataEditorProps) {
+export function ScientificDataEditor({
+  material,
+  onSave,
+  onCancel,
+}: ScientificDataEditorProps) {
   const [formData, setFormData] = useState<Material>({ ...material });
   const [sources, setSources] = useState<Source[]>(material.sources || []);
 
   const handleParameterChange = (key: keyof Material, value: any) => {
-    setFormData(prev => ({ ...prev, [key]: value }));
+    setFormData((prev) => ({ ...prev, [key]: value }));
   };
 
   const handleSave = () => {
     // Validate parameters are in range 0-1
     const params = [
-      'Y_value', 'D_value', 'C_value', 'M_value', 'E_value', 
-      'CR_practical_mean', 'CR_theoretical_mean',
-      'B_value', 'N_value', 'T_value', 'H_value',
-      'CC_practical_mean', 'CC_theoretical_mean',
-      'L_value', 'R_value', 'U_value', 'C_RU_value',
-      'RU_practical_mean', 'RU_theoretical_mean'
+      "Y_value",
+      "D_value",
+      "C_value",
+      "M_value",
+      "E_value",
+      "CR_practical_mean",
+      "CR_theoretical_mean",
+      "B_value",
+      "N_value",
+      "T_value",
+      "H_value",
+      "CC_practical_mean",
+      "CC_theoretical_mean",
+      "L_value",
+      "R_value",
+      "U_value",
+      "C_RU_value",
+      "RU_practical_mean",
+      "RU_theoretical_mean",
     ] as const;
-    
+
     for (const param of params) {
       const value = formData[param];
       if (value !== undefined && (value < 0 || value > 1)) {
@@ -47,35 +64,39 @@ export function ScientificDataEditor({ material, onSave, onCancel }: ScientificD
         return;
       }
     }
-    
+
     // Validate all confidence intervals
     const ciFields = [
-      { name: 'CR practical', field: formData.CR_practical_CI95 },
-      { name: 'CR theoretical', field: formData.CR_theoretical_CI95 },
-      { name: 'CC practical', field: formData.CC_practical_CI95 },
-      { name: 'CC theoretical', field: formData.CC_theoretical_CI95 },
-      { name: 'RU practical', field: formData.RU_practical_CI95 },
-      { name: 'RU theoretical', field: formData.RU_theoretical_CI95 },
+      { name: "CR practical", field: formData.CR_practical_CI95 },
+      { name: "CR theoretical", field: formData.CR_theoretical_CI95 },
+      { name: "CC practical", field: formData.CC_practical_CI95 },
+      { name: "CC theoretical", field: formData.CC_theoretical_CI95 },
+      { name: "RU practical", field: formData.RU_practical_CI95 },
+      { name: "RU theoretical", field: formData.RU_theoretical_CI95 },
     ];
-    
+
     for (const ci of ciFields) {
       if (ci.field) {
-        if (ci.field.lower < 0 || ci.field.upper > 1 || ci.field.lower > ci.field.upper) {
+        if (
+          ci.field.lower < 0 ||
+          ci.field.upper > 1 ||
+          ci.field.lower > ci.field.upper
+        ) {
           toast.error(`Invalid ${ci.name} confidence interval`);
           return;
         }
       }
     }
-    
+
     // Update material with sources and timestamp
     const updatedMaterial = {
       ...formData,
       sources,
       calculation_timestamp: new Date().toISOString(),
     };
-    
+
     onSave(updatedMaterial);
-    toast.success('Scientific data saved');
+    toast.success("Scientific data saved");
   };
 
   return (
@@ -85,15 +106,15 @@ export function ScientificDataEditor({ material, onSave, onCancel }: ScientificD
           Scientific Data Editor: {material.name}
         </h2>
         <div className="flex gap-2">
-          <Button 
-            onClick={onCancel} 
+          <Button
+            onClick={onCancel}
             variant="outline"
             className="border-[#211f1c] dark:border-white/20"
           >
             <X className="w-4 h-4 mr-2" />
             Cancel
           </Button>
-          <Button 
+          <Button
             onClick={handleSave}
             className="bg-[#e4e3ac] hover:bg-[#d4d39c] text-black border-[#211f1c] dark:border-white/20"
           >
@@ -106,7 +127,8 @@ export function ScientificDataEditor({ material, onSave, onCancel }: ScientificD
       <Alert className="mb-4 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
         <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
         <AlertDescription className="text-[11px] text-blue-800 dark:text-blue-200">
-          All parameter values should be normalized to 0-1 scale. M_value (Infrastructure Maturity) is shared across all three dimensions.
+          All parameter values should be normalized to 0-1 scale. M_value
+          (Infrastructure Maturity) is shared across all three dimensions.
         </AlertDescription>
       </Alert>
 
@@ -119,23 +141,23 @@ export function ScientificDataEditor({ material, onSave, onCancel }: ScientificD
         </TabsList>
 
         <TabsContent value="recyclability">
-          <RecyclabilityTab 
-            formData={formData} 
-            onParameterChange={handleParameterChange} 
+          <RecyclabilityTab
+            formData={formData}
+            onParameterChange={handleParameterChange}
           />
         </TabsContent>
 
         <TabsContent value="compostability">
-          <CompostabilityTab 
-            formData={formData} 
-            onParameterChange={handleParameterChange} 
+          <CompostabilityTab
+            formData={formData}
+            onParameterChange={handleParameterChange}
           />
         </TabsContent>
 
         <TabsContent value="reusability">
-          <ReusabilityTab 
-            formData={formData} 
-            onParameterChange={handleParameterChange} 
+          <ReusabilityTab
+            formData={formData}
+            onParameterChange={handleParameterChange}
           />
         </TabsContent>
 

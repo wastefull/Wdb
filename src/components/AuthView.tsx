@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import { LogIn, UserPlus, Eye, EyeOff, Mail, ArrowLeft, X } from 'lucide-react';
-import * as api from '../utils/api';
-import { toast } from 'sonner@2.0.3';
-import { isFigmaMake, logEnvironmentInfo } from '../utils/environment';
-import { logger } from '../utils/logger';
+import { useState, useEffect } from "react";
+import { LogIn, UserPlus, Eye, EyeOff, Mail, ArrowLeft, X } from "lucide-react";
+import * as api from "../utils/api";
+import { toast } from "sonner";
+import { isFigmaMake, logEnvironmentInfo } from "../utils/environment";
+import { logger } from "../utils/logger";
 
 interface AuthViewProps {
   onAuthSuccess: (user: { id: string; email: string; name?: string }) => void;
@@ -11,35 +11,38 @@ interface AuthViewProps {
 }
 
 export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [honeypot, setHoneypot] = useState(''); // Anti-bot honeypot field
+  const [honeypot, setHoneypot] = useState(""); // Anti-bot honeypot field
   // Detect environment and set initial auth mode
   const showPasswordAuth = isFigmaMake();
-  const [authMode, setAuthMode] = useState<'traditional' | 'magic-link' | 'magic-link-sent'>(
-    showPasswordAuth ? 'traditional' : 'magic-link'
-  );
-  
+  const [authMode, setAuthMode] = useState<
+    "traditional" | "magic-link" | "magic-link-sent"
+  >(showPasswordAuth ? "traditional" : "magic-link");
+
   // Log environment info on mount
   useEffect(() => {
     logEnvironmentInfo();
-    logger.log('🔐 Auth View - Password auth enabled:', showPasswordAuth);
-    logger.log('🔐 Initial auth mode:', showPasswordAuth ? 'traditional' : 'magic-link');
+    logger.log("🔐 Auth View - Password auth enabled:", showPasswordAuth);
+    logger.log(
+      "🔐 Initial auth mode:",
+      showPasswordAuth ? "traditional" : "magic-link"
+    );
   }, [showPasswordAuth]);
-  
+
   // Auto-redirect to correct mode based on environment
   useEffect(() => {
-    if (showPasswordAuth && authMode === 'magic-link') {
+    if (showPasswordAuth && authMode === "magic-link") {
       // In Figma Make, default to password
-      logger.log('🔄 Figma Make environment - using Password auth');
-      setAuthMode('traditional');
-    } else if (!showPasswordAuth && authMode === 'traditional') {
+      logger.log("🔄 Figma Make environment - using Password auth");
+      setAuthMode("traditional");
+    } else if (!showPasswordAuth && authMode === "traditional") {
       // In production, default to magic link
-      logger.log('🔄 Production environment - switching to Magic Link auth');
-      setAuthMode('magic-link');
+      logger.log("🔄 Production environment - switching to Magic Link auth");
+      setAuthMode("magic-link");
     }
   }, [showPasswordAuth, authMode]);
 
@@ -52,7 +55,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
 
   const handleSignIn = async () => {
     if (!email || !password) {
-      toast.error('Please enter email and password');
+      toast.error("Please enter email and password");
       return;
     }
 
@@ -62,18 +65,21 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
       toast.success(`Welcome back, ${data.user.name || data.user.email}!`);
       onAuthSuccess(data.user);
     } catch (error: any) {
-      console.error('Sign in error:', error);
-      
+      console.error("Sign in error:", error);
+
       // Display user-friendly error messages
-      const errorMsg = error.message || 'Failed to sign in';
-      if (errorMsg.includes('confirm your email')) {
-        toast.error('Please confirm your email address before signing in. Check your inbox for the confirmation link.', {
-          duration: 6000,
-        });
-      } else if (errorMsg.includes('Rate limit')) {
-        toast.error('Too many attempts. Please wait a moment and try again.');
-      } else if (errorMsg.includes('failed login')) {
-        toast.error('Too many failed attempts. Account temporarily locked.');
+      const errorMsg = error.message || "Failed to sign in";
+      if (errorMsg.includes("confirm your email")) {
+        toast.error(
+          "Please confirm your email address before signing in. Check your inbox for the confirmation link.",
+          {
+            duration: 6000,
+          }
+        );
+      } else if (errorMsg.includes("Rate limit")) {
+        toast.error("Too many attempts. Please wait a moment and try again.");
+      } else if (errorMsg.includes("failed login")) {
+        toast.error("Too many failed attempts. Account temporarily locked.");
       } else {
         toast.error(errorMsg);
       }
@@ -84,12 +90,12 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
 
   const handleSignUp = async () => {
     if (!email || !password) {
-      toast.error('Please enter email and password');
+      toast.error("Please enter email and password");
       return;
     }
 
     if (password.length < 8) {
-      toast.error('Password must be at least 8 characters');
+      toast.error("Password must be at least 8 characters");
       return;
     }
 
@@ -97,29 +103,32 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
     try {
       // Sign up
       const signupData = await api.signUp(email, password, name, honeypot);
-      
+
       // Show confirmation message
-      toast.success('Account created! Please check your email to confirm your account.', {
-        duration: 6000,
-      });
-      
+      toast.success(
+        "Account created! Please check your email to confirm your account.",
+        {
+          duration: 6000,
+        }
+      );
+
       // Clear form
-      setEmail('');
-      setPassword('');
-      setName('');
-      
+      setEmail("");
+      setPassword("");
+      setName("");
+
       // Note: Do NOT auto sign-in - user must confirm email first
     } catch (error: any) {
-      console.error('Sign up error:', error);
-      
+      console.error("Sign up error:", error);
+
       // Display user-friendly error messages
-      const errorMsg = error.message || 'Failed to sign up';
-      if (errorMsg.includes('Rate limit')) {
-        toast.error('Too many signup attempts. Please try again later.');
-      } else if (errorMsg.includes('too weak')) {
-        toast.error('Password is too weak. Please use a stronger password.');
-      } else if (errorMsg.includes('already created')) {
-        toast.error('Account already exists. Please try signing in instead.');
+      const errorMsg = error.message || "Failed to sign up";
+      if (errorMsg.includes("Rate limit")) {
+        toast.error("Too many signup attempts. Please try again later.");
+      } else if (errorMsg.includes("too weak")) {
+        toast.error("Password is too weak. Please use a stronger password.");
+      } else if (errorMsg.includes("already created")) {
+        toast.error("Account already exists. Please try signing in instead.");
       } else {
         toast.error(errorMsg);
       }
@@ -130,21 +139,21 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
 
   const handleSendMagicLink = async () => {
     if (!email) {
-      toast.error('Please enter your email address');
+      toast.error("Please enter your email address");
       return;
     }
 
     setLoading(true);
     try {
       await api.sendMagicLink(email, honeypot);
-      toast.success('Magic link sent! Check your email.');
-      setAuthMode('magic-link-sent');
+      toast.success("Magic link sent! Check your email.");
+      setAuthMode("magic-link-sent");
     } catch (error: any) {
-      console.error('Magic link error:', error);
-      
-      const errorMsg = error.message || 'Failed to send magic link';
-      if (errorMsg.includes('Rate limit')) {
-        toast.error('Too many requests. Please wait a moment and try again.');
+      console.error("Magic link error:", error);
+
+      const errorMsg = error.message || "Failed to send magic link";
+      if (errorMsg.includes("Rate limit")) {
+        toast.error("Too many requests. Please wait a moment and try again.");
       } else {
         toast.error(errorMsg);
       }
@@ -160,15 +169,13 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
       toast.success(`Welcome, ${data.user.name || data.user.email}!`);
       onAuthSuccess(data.user);
     } catch (error: any) {
-      console.error('Magic link verification error:', error);
-      toast.error(error.message || 'Failed to verify magic link');
-      setAuthMode('magic-link');
+      console.error("Magic link verification error:", error);
+      toast.error(error.message || "Failed to verify magic link");
+      setAuthMode("magic-link");
     } finally {
       setLoading(false);
     }
   };
-
-
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
@@ -183,8 +190,19 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
               className="group absolute left-2 w-[11px] h-[11px] cursor-pointer"
             >
               <div className="absolute inset-[-8.333%]">
-                <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 14 14">
-                  <circle cx="7" cy="7" fill="#E6BCB5" r="6.5" stroke="#211F1C" />
+                <svg
+                  className="block size-full"
+                  fill="none"
+                  preserveAspectRatio="none"
+                  viewBox="0 0 14 14"
+                >
+                  <circle
+                    cx="7"
+                    cy="7"
+                    fill="#E6BCB5"
+                    r="6.5"
+                    stroke="#211F1C"
+                  />
                 </svg>
               </div>
               {/* X appears on hover */}
@@ -200,187 +218,201 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
 
           {/* Form Content */}
           <div className="p-6 bg-[#faf7f2]/90 dark:bg-[#2a2825]/90">
-          {authMode === 'magic-link-sent' ? (
-            <div className="text-center space-y-3">
-              <div className="p-5 bg-[#e4e3ac]/30 dark:bg-[#e4e3ac]/10 border border-[#211f1c]/20 dark:border-white/20 rounded-[8px]">
-                <Mail size={28} className="mx-auto mb-2 text-black dark:text-white" />
-                <h3 className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white mb-2">
-                  Magic Link Sent!
-                </h3>
-                <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70 mb-3">
-                  We've sent a secure sign-in link to <strong>{email}</strong>.
-                  Click the link in your email to sign in instantly.
-                </p>
-                <p className="font-['Sniglet:Regular',_sans-serif] text-[10px] text-black/50 dark:text-white/50">
-                  The link will expire in 1 hour for security.
-                </p>
+            {authMode === "magic-link-sent" ? (
+              <div className="text-center space-y-3">
+                <div className="p-5 bg-[#e4e3ac]/30 dark:bg-[#e4e3ac]/10 border border-[#211f1c]/20 dark:border-white/20 rounded-[8px]">
+                  <Mail
+                    size={28}
+                    className="mx-auto mb-2 text-black dark:text-white"
+                  />
+                  <h3 className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white mb-2">
+                    Magic Link Sent!
+                  </h3>
+                  <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70 mb-3">
+                    We've sent a secure sign-in link to <strong>{email}</strong>
+                    . Click the link in your email to sign in instantly.
+                  </p>
+                  <p className="font-['Sniglet:Regular',_sans-serif] text-[10px] text-black/50 dark:text-white/50">
+                    The link will expire in 1 hour for security.
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => setAuthMode("magic-link")}
+                  className="w-full bg-[#b8c8cb] h-[36px] rounded-[8px] border border-[#211f1c] dark:border-white/20 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all flex items-center justify-center gap-2"
+                >
+                  <ArrowLeft size={14} />
+                  Send Another Link
+                </button>
               </div>
-              
-              <button
-                onClick={() => setAuthMode('magic-link')}
-                className="w-full bg-[#b8c8cb] h-[36px] rounded-[8px] border border-[#211f1c] dark:border-white/20 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all flex items-center justify-center gap-2"
-              >
-                <ArrowLeft size={14} />
-                Send Another Link
-              </button>
-            </div>
-          ) : authMode === 'magic-link' ? (
-            <div className="space-y-3">
-              <div>
-                <label className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white block mb-1">
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  onKeyDownCapture={handleKeyDown}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      handleSendMagicLink();
-                    }
-                  }}
-                  placeholder="you@example.com"
-                  className="w-full px-3 py-2 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[13px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50 outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
-                />
-              </div>
-
-              {/* Honeypot field - hidden from users, catches bots */}
-              <input
-                type="text"
-                value={honeypot}
-                onChange={(e) => setHoneypot(e.target.value)}
-                style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px' }}
-                tabIndex={-1}
-                autoComplete="off"
-                aria-hidden="true"
-              />
-
-              <button
-                onClick={handleSendMagicLink}
-                disabled={loading}
-                className="w-full bg-[#e4e3ac] h-[40px] rounded-[8px] border border-[#211f1c] dark:border-white/20 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[13px] text-black hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
-              >
-                <Mail size={16} />
-                {loading ? 'Sending...' : 'Send Magic Link'}
-              </button>
-            </div>
-          ) : authMode === 'traditional' && showPasswordAuth ? (
-            <div className="space-y-3">
-              <div>
-                <label className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white block mb-1">
-                  Name (optional)
-                </label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  onKeyDownCapture={handleKeyDown}
-                  placeholder="Your name"
-                  className="w-full px-3 py-2 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[13px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50 outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
-                />
-                <p className="font-['Sniglet:Regular',_sans-serif] text-[9px] text-black/50 dark:text-white/50 mt-1">
-                  Only used when creating a new account
-                </p>
-              </div>
-
-              <div>
-                <label className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white block mb-1">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  onKeyDownCapture={handleKeyDown}
-                  placeholder="you@example.com"
-                  className="w-full px-3 py-2 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[13px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50 outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
-                />
-              </div>
-
-              {/* Honeypot field - hidden from users, catches bots */}
-              <input
-                type="text"
-                value={honeypot}
-                onChange={(e) => setHoneypot(e.target.value)}
-                style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px' }}
-                tabIndex={-1}
-                autoComplete="off"
-                aria-hidden="true"
-              />
-
-              <div>
-                <label className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white block mb-1">
-                  Password
-                </label>
-                <div className="relative">
+            ) : authMode === "magic-link" ? (
+              <div className="space-y-3">
+                <div>
+                  <label className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white block mb-1">
+                    Email Address
+                  </label>
                   <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     onKeyDownCapture={handleKeyDown}
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        handleSignIn();
+                      if (e.key === "Enter") {
+                        handleSendMagicLink();
                       }
                     }}
-                    placeholder="At least 8 characters"
-                    className="w-full px-3 py-2 pr-10 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[13px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50 outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                    placeholder="you@example.com"
+                    className="w-full px-3 py-2 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[13px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50 outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
                   />
+                </div>
+
+                {/* Honeypot field - hidden from users, catches bots */}
+                <input
+                  type="text"
+                  value={honeypot}
+                  onChange={(e) => setHoneypot(e.target.value)}
+                  style={{
+                    position: "absolute",
+                    left: "-9999px",
+                    width: "1px",
+                    height: "1px",
+                  }}
+                  tabIndex={-1}
+                  autoComplete="off"
+                  aria-hidden="true"
+                />
+
+                <button
+                  onClick={handleSendMagicLink}
+                  disabled={loading}
+                  className="w-full bg-[#e4e3ac] h-[40px] rounded-[8px] border border-[#211f1c] dark:border-white/20 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[13px] text-black hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
+                >
+                  <Mail size={16} />
+                  {loading ? "Sending..." : "Send Magic Link"}
+                </button>
+              </div>
+            ) : authMode === "traditional" && showPasswordAuth ? (
+              <div className="space-y-3">
+                <div>
+                  <label className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white block mb-1">
+                    Name (optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    onKeyDownCapture={handleKeyDown}
+                    placeholder="Your name"
+                    className="w-full px-3 py-2 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[13px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50 outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                  />
+                  <p className="font-['Sniglet:Regular',_sans-serif] text-[9px] text-black/50 dark:text-white/50 mt-1">
+                    Only used when creating a new account
+                  </p>
+                </div>
+
+                <div>
+                  <label className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white block mb-1">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    onKeyDownCapture={handleKeyDown}
+                    placeholder="you@example.com"
+                    className="w-full px-3 py-2 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[13px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50 outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                  />
+                </div>
+
+                {/* Honeypot field - hidden from users, catches bots */}
+                <input
+                  type="text"
+                  value={honeypot}
+                  onChange={(e) => setHoneypot(e.target.value)}
+                  style={{
+                    position: "absolute",
+                    left: "-9999px",
+                    width: "1px",
+                    height: "1px",
+                  }}
+                  tabIndex={-1}
+                  autoComplete="off"
+                  aria-hidden="true"
+                />
+
+                <div>
+                  <label className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white block mb-1">
+                    Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      onKeyDownCapture={handleKeyDown}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          handleSignIn();
+                        }
+                      }}
+                      placeholder="At least 8 characters"
+                      className="w-full px-3 py-2 pr-10 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[13px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50 outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white transition-colors"
+                    >
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Email Confirmation Notice */}
+                <div className="p-2.5 bg-blue-50 dark:bg-blue-900/20 border border-blue-300 dark:border-blue-700 rounded-[8px]">
+                  <p className="font-['Sniglet:Regular',_sans-serif] text-[10px] text-blue-800 dark:text-blue-200">
+                    📧 New accounts require email confirmation. You'll receive a
+                    confirmation link after signing up.
+                  </p>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-2 pt-1">
                   <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white transition-colors"
+                    onClick={handleSignIn}
+                    disabled={loading}
+                    className="flex-1 bg-[#b8c8cb] h-[40px] rounded-[8px] border border-[#211f1c] dark:border-white/20 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[13px] text-black hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
                   >
-                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    <LogIn size={16} />
+                    {loading ? "Loading..." : "Sign In"}
+                  </button>
+                  <button
+                    onClick={handleSignUp}
+                    disabled={loading}
+                    className="flex-1 bg-[#e4e3ac] h-[40px] rounded-[8px] border border-[#211f1c] dark:border-white/20 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[13px] text-black hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
+                  >
+                    <UserPlus size={16} />
+                    {loading ? "Loading..." : "Sign Up"}
                   </button>
                 </div>
               </div>
-
-              {/* Email Confirmation Notice */}
-              <div className="p-2.5 bg-blue-50 dark:bg-blue-900/20 border border-blue-300 dark:border-blue-700 rounded-[8px]">
-                <p className="font-['Sniglet:Regular',_sans-serif] text-[10px] text-blue-800 dark:text-blue-200">
-                  📧 New accounts require email confirmation. You'll receive a confirmation link after signing up.
-                </p>
+            ) : (
+              /* Fallback: If password auth is disabled but mode is traditional, show magic link */
+              <div className="space-y-3">
+                <div className="p-3 bg-[#e4e3ac]/40 dark:bg-[#e4e3ac]/20 border-2 border-[#211f1c]/30 dark:border-white/30 rounded-[8px]">
+                  <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white text-center mb-2">
+                    Password authentication is not available in production.
+                  </p>
+                  <button
+                    onClick={() => setAuthMode("magic-link")}
+                    className="w-full bg-[#e4e3ac] h-[36px] rounded-[8px] border border-[#211f1c] dark:border-white/20 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all flex items-center justify-center gap-2"
+                  >
+                    <Mail size={14} />
+                    Use Magic Link Instead
+                  </button>
+                </div>
               </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-2 pt-1">
-                <button
-                  onClick={handleSignIn}
-                  disabled={loading}
-                  className="flex-1 bg-[#b8c8cb] h-[40px] rounded-[8px] border border-[#211f1c] dark:border-white/20 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[13px] text-black hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
-                >
-                  <LogIn size={16} />
-                  {loading ? 'Loading...' : 'Sign In'}
-                </button>
-                <button
-                  onClick={handleSignUp}
-                  disabled={loading}
-                  className="flex-1 bg-[#e4e3ac] h-[40px] rounded-[8px] border border-[#211f1c] dark:border-white/20 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[13px] text-black hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
-                >
-                  <UserPlus size={16} />
-                  {loading ? 'Loading...' : 'Sign Up'}
-                </button>
-              </div>
-            </div>
-          ) : (
-            /* Fallback: If password auth is disabled but mode is traditional, show magic link */
-            <div className="space-y-3">
-              <div className="p-3 bg-[#e4e3ac]/40 dark:bg-[#e4e3ac]/20 border-2 border-[#211f1c]/30 dark:border-white/30 rounded-[8px]">
-                <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white text-center mb-2">
-                  Password authentication is not available in production.
-                </p>
-                <button
-                  onClick={() => setAuthMode('magic-link')}
-                  className="w-full bg-[#e4e3ac] h-[36px] rounded-[8px] border border-[#211f1c] dark:border-white/20 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all flex items-center justify-center gap-2"
-                >
-                  <Mail size={14} />
-                  Use Magic Link Instead
-                </button>
-              </div>
-            </div>
-          )}
+            )}
           </div>
         </div>
       </div>

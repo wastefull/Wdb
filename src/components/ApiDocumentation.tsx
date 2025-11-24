@@ -1,20 +1,34 @@
 /**
  * API Documentation Component
- * 
+ *
  * Provides comprehensive documentation for the WasteDB Research API,
  * including endpoint descriptions, parameters, examples, and interactive testing.
  */
 
-import { useState } from 'react';
-import { Copy, Check, ExternalLink, Database, Code, BookOpen, Activity } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { Badge } from './ui/badge';
-import { Button } from './ui/button';
-import { Separator } from './ui/separator';
-import { toast } from 'sonner@2.0.3';
-import { projectId } from '../utils/supabase/info';
-import { PageTemplate } from './PageTemplate';
+import { useState } from "react";
+import {
+  Copy,
+  Check,
+  ExternalLink,
+  Database,
+  Code,
+  BookOpen,
+  Activity,
+} from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import { Separator } from "./ui/separator";
+import { toast } from "sonner";
+import { projectId } from "../utils/supabase/info";
+import { PageTemplate } from "./PageTemplate";
 
 interface EndpointExample {
   description: string;
@@ -31,7 +45,7 @@ interface EndpointParam {
 }
 
 interface ApiEndpoint {
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  method: "GET" | "POST" | "PUT" | "DELETE";
   path: string;
   description: string;
   params?: EndpointParam[];
@@ -44,7 +58,9 @@ interface ApiDocumentationProps {
   onBack?: () => void;
 }
 
-export const ApiDocumentation: React.FC<ApiDocumentationProps> = ({ onBack }) => {
+export const ApiDocumentation: React.FC<ApiDocumentationProps> = ({
+  onBack,
+}) => {
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
 
   const baseUrl = `https://${projectId}.supabase.co/functions/v1/make-server-17cae920`;
@@ -52,31 +68,69 @@ export const ApiDocumentation: React.FC<ApiDocumentationProps> = ({ onBack }) =>
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
     setCopiedUrl(label);
-    toast.success('Copied to clipboard!');
+    toast.success("Copied to clipboard!");
     setTimeout(() => setCopiedUrl(null), 2000);
   };
 
   const endpoints: Record<string, ApiEndpoint[]> = {
     materials: [
       {
-        method: 'GET',
-        path: '/api/v1/materials',
-        description: 'Retrieve a paginated list of all materials with optional filtering and sorting.',
+        method: "GET",
+        path: "/api/v1/materials",
+        description:
+          "Retrieve a paginated list of all materials with optional filtering and sorting.",
         queryParams: [
-          { name: 'category', type: 'string', required: false, description: 'Filter by material category', example: 'Plastics' },
-          { name: 'search', type: 'string', required: false, description: 'Search in material names and descriptions', example: 'PET' },
-          { name: 'sort', type: 'string', required: false, description: 'Field to sort by: name, recyclability, compostability, reusability', example: 'recyclability' },
-          { name: 'order', type: 'string', required: false, description: 'Sort order: asc or desc', example: 'desc' },
-          { name: 'limit', type: 'number', required: false, description: 'Maximum number of results (max 100)', example: '20' },
-          { name: 'offset', type: 'number', required: false, description: 'Number of results to skip for pagination', example: '0' },
+          {
+            name: "category",
+            type: "string",
+            required: false,
+            description: "Filter by material category",
+            example: "Plastics",
+          },
+          {
+            name: "search",
+            type: "string",
+            required: false,
+            description: "Search in material names and descriptions",
+            example: "PET",
+          },
+          {
+            name: "sort",
+            type: "string",
+            required: false,
+            description:
+              "Field to sort by: name, recyclability, compostability, reusability",
+            example: "recyclability",
+          },
+          {
+            name: "order",
+            type: "string",
+            required: false,
+            description: "Sort order: asc or desc",
+            example: "desc",
+          },
+          {
+            name: "limit",
+            type: "number",
+            required: false,
+            description: "Maximum number of results (max 100)",
+            example: "20",
+          },
+          {
+            name: "offset",
+            type: "number",
+            required: false,
+            description: "Number of results to skip for pagination",
+            example: "0",
+          },
         ],
         examples: [
           {
-            description: 'Get all materials',
+            description: "Get all materials",
             url: `${baseUrl}/api/v1/materials`,
           },
           {
-            description: 'Get plastics sorted by recyclability (descending)',
+            description: "Get plastics sorted by recyclability (descending)",
             url: `${baseUrl}/api/v1/materials?category=Plastics&sort=recyclability&order=desc`,
           },
           {
@@ -116,15 +170,22 @@ export const ApiDocumentation: React.FC<ApiDocumentationProps> = ({ onBack }) =>
 }`,
       },
       {
-        method: 'GET',
-        path: '/api/v1/materials/:id',
-        description: 'Retrieve detailed information about a specific material by its ID.',
+        method: "GET",
+        path: "/api/v1/materials/:id",
+        description:
+          "Retrieve detailed information about a specific material by its ID.",
         params: [
-          { name: 'id', type: 'string', required: true, description: 'Unique material identifier', example: 'pet-plastic' },
+          {
+            name: "id",
+            type: "string",
+            required: true,
+            description: "Unique material identifier",
+            example: "pet-plastic",
+          },
         ],
         examples: [
           {
-            description: 'Get material by ID',
+            description: "Get material by ID",
             url: `${baseUrl}/api/v1/materials/pet-plastic`,
           },
         ],
@@ -144,12 +205,13 @@ export const ApiDocumentation: React.FC<ApiDocumentationProps> = ({ onBack }) =>
     ],
     statistics: [
       {
-        method: 'GET',
-        path: '/api/v1/stats',
-        description: 'Get aggregate statistics across all materials in the database.',
+        method: "GET",
+        path: "/api/v1/stats",
+        description:
+          "Get aggregate statistics across all materials in the database.",
         examples: [
           {
-            description: 'Get database statistics',
+            description: "Get database statistics",
             url: `${baseUrl}/api/v1/stats`,
           },
         ],
@@ -175,12 +237,12 @@ export const ApiDocumentation: React.FC<ApiDocumentationProps> = ({ onBack }) =>
 }`,
       },
       {
-        method: 'GET',
-        path: '/api/v1/categories',
-        description: 'Get the list of all material categories.',
+        method: "GET",
+        path: "/api/v1/categories",
+        description: "Get the list of all material categories.",
         examples: [
           {
-            description: 'Get all categories',
+            description: "Get all categories",
             url: `${baseUrl}/api/v1/categories`,
           },
         ],
@@ -200,12 +262,12 @@ export const ApiDocumentation: React.FC<ApiDocumentationProps> = ({ onBack }) =>
     ],
     methodology: [
       {
-        method: 'GET',
-        path: '/api/v1/methodology',
-        description: 'Get information about the WasteDB scoring methodology.',
+        method: "GET",
+        path: "/api/v1/methodology",
+        description: "Get information about the WasteDB scoring methodology.",
         examples: [
           {
-            description: 'Get methodology information',
+            description: "Get methodology information",
             url: `${baseUrl}/api/v1/methodology`,
           },
         ],
@@ -234,12 +296,12 @@ export const ApiDocumentation: React.FC<ApiDocumentationProps> = ({ onBack }) =>
 }`,
       },
       {
-        method: 'GET',
-        path: '/api/v1/whitepapers',
-        description: 'Get a list of all methodology whitepapers.',
+        method: "GET",
+        path: "/api/v1/whitepapers",
+        description: "Get a list of all methodology whitepapers.",
         examples: [
           {
-            description: 'Get all whitepapers',
+            description: "Get all whitepapers",
             url: `${baseUrl}/api/v1/whitepapers`,
           },
         ],
@@ -255,15 +317,22 @@ export const ApiDocumentation: React.FC<ApiDocumentationProps> = ({ onBack }) =>
 }`,
       },
       {
-        method: 'GET',
-        path: '/api/v1/whitepapers/:slug',
-        description: 'Get the full content of a specific methodology whitepaper.',
+        method: "GET",
+        path: "/api/v1/whitepapers/:slug",
+        description:
+          "Get the full content of a specific methodology whitepaper.",
         params: [
-          { name: 'slug', type: 'string', required: true, description: 'Whitepaper slug identifier', example: 'recyclability' },
+          {
+            name: "slug",
+            type: "string",
+            required: true,
+            description: "Whitepaper slug identifier",
+            example: "recyclability",
+          },
         ],
         examples: [
           {
-            description: 'Get recyclability methodology',
+            description: "Get recyclability methodology",
             url: `${baseUrl}/api/v1/whitepapers/recyclability`,
           },
         ],
@@ -279,20 +348,34 @@ export const ApiDocumentation: React.FC<ApiDocumentationProps> = ({ onBack }) =>
     ],
     articles: [
       {
-        method: 'GET',
-        path: '/api/v1/articles',
-        description: 'Get published articles, optionally filtered by material or category.',
+        method: "GET",
+        path: "/api/v1/articles",
+        description:
+          "Get published articles, optionally filtered by material or category.",
         queryParams: [
-          { name: 'material_id', type: 'string', required: false, description: 'Filter by material ID', example: 'pet-plastic' },
-          { name: 'category', type: 'string', required: false, description: 'Filter by category: compostability, recyclability, or reusability', example: 'recyclability' },
+          {
+            name: "material_id",
+            type: "string",
+            required: false,
+            description: "Filter by material ID",
+            example: "pet-plastic",
+          },
+          {
+            name: "category",
+            type: "string",
+            required: false,
+            description:
+              "Filter by category: compostability, recyclability, or reusability",
+            example: "recyclability",
+          },
         ],
         examples: [
           {
-            description: 'Get all published articles',
+            description: "Get all published articles",
             url: `${baseUrl}/api/v1/articles`,
           },
           {
-            description: 'Get recyclability articles for a specific material',
+            description: "Get recyclability articles for a specific material",
             url: `${baseUrl}/api/v1/articles?material_id=pet-plastic&category=recyclability`,
           },
         ],
@@ -316,19 +399,26 @@ export const ApiDocumentation: React.FC<ApiDocumentationProps> = ({ onBack }) =>
 
   const renderEndpoint = (endpoint: ApiEndpoint) => {
     const fullPath = `${baseUrl}${endpoint.path}`;
-    
+
     return (
       <Card key={endpoint.path} className="mb-6">
         <CardHeader>
           <div className="flex items-start justify-between">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 md:gap-3 mb-2 flex-wrap">
-                <Badge variant={endpoint.method === 'GET' ? 'default' : 'secondary'} className="shrink-0">
+                <Badge
+                  variant={endpoint.method === "GET" ? "default" : "secondary"}
+                  className="shrink-0"
+                >
                   {endpoint.method}
                 </Badge>
-                <code className="text-xs md:text-sm bg-muted px-2 py-1 rounded break-all">{endpoint.path}</code>
+                <code className="text-xs md:text-sm bg-muted px-2 py-1 rounded break-all">
+                  {endpoint.path}
+                </code>
               </div>
-              <CardDescription className="mt-2">{endpoint.description}</CardDescription>
+              <CardDescription className="mt-2">
+                {endpoint.description}
+              </CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -339,8 +429,13 @@ export const ApiDocumentation: React.FC<ApiDocumentationProps> = ({ onBack }) =>
               <h4 className="mb-2">Path Parameters</h4>
               <div className="bg-muted/50 rounded p-3 space-y-2">
                 {endpoint.params.map((param) => (
-                  <div key={param.name} className="flex items-start gap-2 flex-wrap">
-                    <code className="text-xs md:text-sm bg-background px-2 py-1 rounded shrink-0">{param.name}</code>
+                  <div
+                    key={param.name}
+                    className="flex items-start gap-2 flex-wrap"
+                  >
+                    <code className="text-xs md:text-sm bg-background px-2 py-1 rounded shrink-0">
+                      {param.name}
+                    </code>
                     <Badge variant="outline" className="text-xs shrink-0">
                       {param.type}
                     </Badge>
@@ -349,7 +444,9 @@ export const ApiDocumentation: React.FC<ApiDocumentationProps> = ({ onBack }) =>
                         required
                       </Badge>
                     )}
-                    <span className="text-xs md:text-sm text-muted-foreground flex-1 basis-full md:basis-auto">{param.description}</span>
+                    <span className="text-xs md:text-sm text-muted-foreground flex-1 basis-full md:basis-auto">
+                      {param.description}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -362,8 +459,13 @@ export const ApiDocumentation: React.FC<ApiDocumentationProps> = ({ onBack }) =>
               <h4 className="mb-2">Query Parameters</h4>
               <div className="bg-muted/50 rounded p-3 space-y-2">
                 {endpoint.queryParams.map((param) => (
-                  <div key={param.name} className="flex items-start gap-2 flex-wrap">
-                    <code className="text-xs md:text-sm bg-background px-2 py-1 rounded shrink-0">{param.name}</code>
+                  <div
+                    key={param.name}
+                    className="flex items-start gap-2 flex-wrap"
+                  >
+                    <code className="text-xs md:text-sm bg-background px-2 py-1 rounded shrink-0">
+                      {param.name}
+                    </code>
                     <Badge variant="outline" className="text-xs shrink-0">
                       {param.type}
                     </Badge>
@@ -392,7 +494,9 @@ export const ApiDocumentation: React.FC<ApiDocumentationProps> = ({ onBack }) =>
             <div className="space-y-2">
               {endpoint.examples.map((example, idx) => (
                 <div key={idx} className="bg-muted/50 rounded p-3">
-                  <p className="text-xs md:text-sm mb-2">{example.description}</p>
+                  <p className="text-xs md:text-sm mb-2">
+                    {example.description}
+                  </p>
                   <div className="flex items-start gap-2 flex-col sm:flex-row">
                     <code className="text-xs bg-background px-2 py-1 rounded flex-1 overflow-x-auto w-full break-all">
                       {example.url}
@@ -401,7 +505,9 @@ export const ApiDocumentation: React.FC<ApiDocumentationProps> = ({ onBack }) =>
                       <Button
                         size="sm"
                         variant="ghost"
-                        onClick={() => copyToClipboard(example.url, example.url)}
+                        onClick={() =>
+                          copyToClipboard(example.url, example.url)
+                        }
                       >
                         {copiedUrl === example.url ? (
                           <Check className="h-4 w-4 text-green-600" />
@@ -412,7 +518,7 @@ export const ApiDocumentation: React.FC<ApiDocumentationProps> = ({ onBack }) =>
                       <Button
                         size="sm"
                         variant="ghost"
-                        onClick={() => window.open(example.url, '_blank')}
+                        onClick={() => window.open(example.url, "_blank")}
                       >
                         <ExternalLink className="h-4 w-4" />
                       </Button>
@@ -501,7 +607,7 @@ curl "${baseUrl}/api/v1/methodology"`,
   };
 
   return (
-    <PageTemplate 
+    <PageTemplate
       title="Research API Documentation"
       description="The WasteDB Research API provides programmatic access to our comprehensive materials sustainability database. All endpoints are public and do not require authentication."
       onBack={onBack}
@@ -525,10 +631,10 @@ curl "${baseUrl}/api/v1/methodology"`,
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => copyToClipboard(baseUrl, 'baseUrl')}
+                onClick={() => copyToClipboard(baseUrl, "baseUrl")}
                 className="shrink-0"
               >
-                {copiedUrl === 'baseUrl' ? (
+                {copiedUrl === "baseUrl" ? (
                   <Check className="h-4 w-4 text-green-600" />
                 ) : (
                   <Copy className="h-4 w-4" />
@@ -536,16 +642,18 @@ curl "${baseUrl}/api/v1/methodology"`,
               </Button>
             </div>
           </div>
-          
+
           <Separator />
-          
+
           <div>
             <h4 className="mb-2">Key Features</h4>
             <ul className="list-disc list-inside space-y-1 text-xs md:text-sm text-muted-foreground">
               <li>No authentication required - fully open access</li>
               <li>RESTful JSON API with pagination support</li>
               <li>Comprehensive filtering and sorting options</li>
-              <li>Access to 1000+ materials with detailed sustainability scores</li>
+              <li>
+                Access to 1000+ materials with detailed sustainability scores
+              </li>
               <li>Scientific methodology documentation and whitepapers</li>
               <li>Rate limiting: 100 requests per minute</li>
             </ul>
@@ -581,7 +689,7 @@ curl "${baseUrl}/api/v1/methodology"`,
         <TabsContent value="materials" className="mt-6">
           <h2 className="mb-4">Materials Endpoints</h2>
           {endpoints.materials.map((endpoint) => renderEndpoint(endpoint))}
-          
+
           <h3 className="mb-4 mt-6">Articles Endpoints</h3>
           {endpoints.articles.map((endpoint) => renderEndpoint(endpoint))}
         </TabsContent>
@@ -598,7 +706,7 @@ curl "${baseUrl}/api/v1/methodology"`,
 
         <TabsContent value="code" className="mt-6">
           <h2 className="mb-4">Code Examples</h2>
-          
+
           <div className="space-y-6">
             {/* JavaScript */}
             <Card>
@@ -617,9 +725,11 @@ curl "${baseUrl}/api/v1/methodology"`,
                     size="sm"
                     variant="outline"
                     className="absolute top-2 right-2"
-                    onClick={() => copyToClipboard(codeExamples.javascript, 'js')}
+                    onClick={() =>
+                      copyToClipboard(codeExamples.javascript, "js")
+                    }
                   >
-                    {copiedUrl === 'js' ? (
+                    {copiedUrl === "js" ? (
                       <Check className="h-4 w-4 text-green-600" />
                     ) : (
                       <Copy className="h-4 w-4" />
@@ -646,9 +756,9 @@ curl "${baseUrl}/api/v1/methodology"`,
                     size="sm"
                     variant="outline"
                     className="absolute top-2 right-2"
-                    onClick={() => copyToClipboard(codeExamples.python, 'py')}
+                    onClick={() => copyToClipboard(codeExamples.python, "py")}
                   >
-                    {copiedUrl === 'py' ? (
+                    {copiedUrl === "py" ? (
                       <Check className="h-4 w-4 text-green-600" />
                     ) : (
                       <Copy className="h-4 w-4" />
@@ -675,9 +785,9 @@ curl "${baseUrl}/api/v1/methodology"`,
                     size="sm"
                     variant="outline"
                     className="absolute top-2 right-2"
-                    onClick={() => copyToClipboard(codeExamples.curl, 'curl')}
+                    onClick={() => copyToClipboard(codeExamples.curl, "curl")}
                   >
-                    {copiedUrl === 'curl' ? (
+                    {copiedUrl === "curl" ? (
                       <Check className="h-4 w-4 text-green-600" />
                     ) : (
                       <Copy className="h-4 w-4" />
@@ -697,23 +807,28 @@ curl "${baseUrl}/api/v1/methodology"`,
         </CardHeader>
         <CardContent className="space-y-3 text-xs md:text-sm">
           <p>
-            <strong>Data Attribution:</strong> When using WasteDB data in publications or applications,
-            please cite: "WasteDB by Wastefull (db.wastefull.org)"
+            <strong>Data Attribution:</strong> When using WasteDB data in
+            publications or applications, please cite: "WasteDB by Wastefull
+            (db.wastefull.org)"
           </p>
           <p>
-            <strong>Support:</strong> For API support, feature requests, or to report issues,
-            please contact us at{' '}
-            <a href="mailto:api@wastefull.org" className="text-primary hover:underline break-all">
+            <strong>Support:</strong> For API support, feature requests, or to
+            report issues, please contact us at{" "}
+            <a
+              href="mailto:api@wastefull.org"
+              className="text-primary hover:underline break-all"
+            >
               api@wastefull.org
             </a>
           </p>
           <p>
-            <strong>Rate Limits:</strong> The API is currently rate-limited to 100 requests per minute
-            per IP address. Contact us if you need higher limits for research purposes.
+            <strong>Rate Limits:</strong> The API is currently rate-limited to
+            100 requests per minute per IP address. Contact us if you need
+            higher limits for research purposes.
           </p>
           <p className="text-muted-foreground">
-            This API is provided as-is for research and educational purposes. All data is licensed
-            under Creative Commons BY-SA 4.0.
+            This API is provided as-is for research and educational purposes.
+            All data is licensed under Creative Commons BY-SA 4.0.
           </p>
         </CardContent>
       </Card>

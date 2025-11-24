@@ -1,9 +1,17 @@
-import { useState, useRef } from 'react';
-import { Upload, CheckCircle, XCircle, Loader2, FileText, ArrowLeft, FolderOpen } from 'lucide-react';
-import { Button } from './ui/button';
-import { Card } from './ui/card';
-import { toast } from 'sonner@2.0.3';
-import * as api from '../utils/api';
+import { useState, useRef } from "react";
+import {
+  Upload,
+  CheckCircle,
+  XCircle,
+  Loader2,
+  FileText,
+  ArrowLeft,
+  FolderOpen,
+} from "lucide-react";
+import { Button } from "./ui/button";
+import { Card } from "./ui/card";
+import { toast } from "sonner";
+import * as api from "../utils/api";
 
 interface WhitepaperSyncToolProps {
   onBack: () => void;
@@ -19,36 +27,41 @@ interface WhitepaperFile {
 }
 
 // Mapping of filenames to whitepaper metadata
-const WHITEPAPER_MAPPINGS: { [key: string]: { slug: string; title: string } } = {
-  'Recyclability.md': {
-    slug: 'recyclability',
-    title: 'Recyclability Methodology'
-  },
-  'CC-v1.md': {
-    slug: 'compostability',
-    title: 'Compostability Methodology (CC-v1)'
-  },
-  'RU-v1.md': {
-    slug: 'reusability',
-    title: 'Reusability Methodology (RU-v1)'
-  },
-  'VIZ-v1.md': {
-    slug: 'visualization',
-    title: 'Visualization Methodology (VIZ-v1)'
-  },
-  'Calculation_Methodology.md': {
-    slug: 'calculation-methodology',
-    title: 'Calculation Methodology'
-  }
-};
+const WHITEPAPER_MAPPINGS: { [key: string]: { slug: string; title: string } } =
+  {
+    "Recyclability.md": {
+      slug: "recyclability",
+      title: "Recyclability Methodology",
+    },
+    "CC-v1.md": {
+      slug: "compostability",
+      title: "Compostability Methodology (CC-v1)",
+    },
+    "RU-v1.md": {
+      slug: "reusability",
+      title: "Reusability Methodology (RU-v1)",
+    },
+    "VIZ-v1.md": {
+      slug: "visualization",
+      title: "Visualization Methodology (VIZ-v1)",
+    },
+    "Calculation_Methodology.md": {
+      slug: "calculation-methodology",
+      title: "Calculation Methodology",
+    },
+  };
 
 export function WhitepaperSyncTool({ onBack }: WhitepaperSyncToolProps) {
   const [syncing, setSyncing] = useState(false);
   const [whitepapers, setWhitepapers] = useState<WhitepaperFile[]>([]);
-  const [syncResults, setSyncResults] = useState<{ [key: string]: 'success' | 'error' | 'pending' }>({});
+  const [syncResults, setSyncResults] = useState<{
+    [key: string]: "success" | "error" | "pending";
+  }>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
@@ -57,9 +70,9 @@ export function WhitepaperSyncTool({ onBack }: WhitepaperSyncToolProps) {
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      
+
       // Check if it's a markdown file
-      if (!file.name.endsWith('.md')) {
+      if (!file.name.endsWith(".md")) {
         errors.push(`${file.name} is not a markdown file`);
         continue;
       }
@@ -74,7 +87,7 @@ export function WhitepaperSyncTool({ onBack }: WhitepaperSyncToolProps) {
       try {
         // Read the file content
         const content = await readFileAsText(file);
-        
+
         if (!content || content.length === 0) {
           errors.push(`${file.name} is empty`);
           continue;
@@ -85,13 +98,19 @@ export function WhitepaperSyncTool({ onBack }: WhitepaperSyncToolProps) {
           title: mapping.title,
           filename: file.name,
           content: content,
-          size: file.size
+          size: file.size,
         });
 
-        console.log(`✅ Loaded ${file.name} (${(file.size / 1024).toFixed(1)} KB)`);
+        console.log(
+          `✅ Loaded ${file.name} (${(file.size / 1024).toFixed(1)} KB)`
+        );
       } catch (error) {
         console.error(`❌ Error reading ${file.name}:`, error);
-        errors.push(`Failed to read ${file.name}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        errors.push(
+          `Failed to read ${file.name}: ${
+            error instanceof Error ? error.message : "Unknown error"
+          }`
+        );
       }
     }
 
@@ -99,16 +118,20 @@ export function WhitepaperSyncTool({ onBack }: WhitepaperSyncToolProps) {
 
     // Show summary
     if (loadedWhitepapers.length > 0) {
-      toast.success(`Loaded ${loadedWhitepapers.length} whitepaper${loadedWhitepapers.length > 1 ? 's' : ''}`);
+      toast.success(
+        `Loaded ${loadedWhitepapers.length} whitepaper${
+          loadedWhitepapers.length > 1 ? "s" : ""
+        }`
+      );
     }
-    
+
     if (errors.length > 0) {
-      errors.forEach(error => toast.error(error));
+      errors.forEach((error) => toast.error(error));
     }
 
     // Reset file input
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.value = "";
     }
   };
 
@@ -117,29 +140,29 @@ export function WhitepaperSyncTool({ onBack }: WhitepaperSyncToolProps) {
       const reader = new FileReader();
       reader.onload = (e) => {
         const content = e.target?.result;
-        if (typeof content === 'string') {
+        if (typeof content === "string") {
           resolve(content);
         } else {
-          reject(new Error('Failed to read file as text'));
+          reject(new Error("Failed to read file as text"));
         }
       };
-      reader.onerror = () => reject(new Error('File read error'));
+      reader.onerror = () => reject(new Error("File read error"));
       reader.readAsText(file);
     });
   };
 
   const handleSyncAll = async () => {
     if (whitepapers.length === 0) {
-      toast.error('No whitepapers loaded. Please upload files first.');
+      toast.error("No whitepapers loaded. Please upload files first.");
       return;
     }
 
     setSyncing(true);
-    const results: { [key: string]: 'success' | 'error' | 'pending' } = {};
+    const results: { [key: string]: "success" | "error" | "pending" } = {};
 
     // Initialize all as pending
-    whitepapers.forEach(wp => {
-      results[wp.slug] = 'pending';
+    whitepapers.forEach((wp) => {
+      results[wp.slug] = "pending";
     });
     setSyncResults({ ...results });
 
@@ -147,23 +170,29 @@ export function WhitepaperSyncTool({ onBack }: WhitepaperSyncToolProps) {
     for (const whitepaper of whitepapers) {
       try {
         console.log(`Syncing whitepaper: ${whitepaper.slug}...`);
-        console.log('  - Title:', whitepaper.title);
-        console.log('  - Filename:', whitepaper.filename);
-        console.log('  - Content length:', whitepaper.content.length);
-        console.log('  - Content preview:', whitepaper.content.substring(0, Math.min(100, whitepaper.content.length)));
-        
+        console.log("  - Title:", whitepaper.title);
+        console.log("  - Filename:", whitepaper.filename);
+        console.log("  - Content length:", whitepaper.content.length);
+        console.log(
+          "  - Content preview:",
+          whitepaper.content.substring(
+            0,
+            Math.min(100, whitepaper.content.length)
+          )
+        );
+
         await api.saveWhitepaper({
           slug: whitepaper.slug,
           title: whitepaper.title,
-          content: whitepaper.content
+          content: whitepaper.content,
         });
 
-        results[whitepaper.slug] = 'success';
+        results[whitepaper.slug] = "success";
         setSyncResults({ ...results });
         console.log(`✅ Successfully synced: ${whitepaper.slug}`);
       } catch (error) {
         console.error(`❌ Error syncing ${whitepaper.slug}:`, error);
-        results[whitepaper.slug] = 'error';
+        results[whitepaper.slug] = "error";
         setSyncResults({ ...results });
       }
     }
@@ -171,8 +200,12 @@ export function WhitepaperSyncTool({ onBack }: WhitepaperSyncToolProps) {
     setSyncing(false);
 
     // Show summary toast
-    const successCount = Object.values(results).filter(r => r === 'success').length;
-    const errorCount = Object.values(results).filter(r => r === 'error').length;
+    const successCount = Object.values(results).filter(
+      (r) => r === "success"
+    ).length;
+    const errorCount = Object.values(results).filter(
+      (r) => r === "error"
+    ).length;
 
     if (errorCount === 0) {
       toast.success(`All ${successCount} whitepapers synced successfully!`);
@@ -181,12 +214,14 @@ export function WhitepaperSyncTool({ onBack }: WhitepaperSyncToolProps) {
     }
   };
 
-  const getStatusIcon = (status: 'success' | 'error' | 'pending' | undefined) => {
-    if (status === 'success') {
+  const getStatusIcon = (
+    status: "success" | "error" | "pending" | undefined
+  ) => {
+    if (status === "success") {
       return <CheckCircle className="w-5 h-5 text-green-600" />;
-    } else if (status === 'error') {
+    } else if (status === "error") {
       return <XCircle className="w-5 h-5 text-red-600" />;
-    } else if (status === 'pending') {
+    } else if (status === "pending") {
       return <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />;
     }
     return <FileText className="w-5 h-5 text-gray-400" />;
@@ -219,7 +254,9 @@ export function WhitepaperSyncTool({ onBack }: WhitepaperSyncToolProps) {
             About This Tool
           </h2>
           <p className="text-[12px] text-black/70 dark:text-white/70 mb-3">
-            Upload whitepaper markdown files from your computer to sync them to the Supabase KV store, making them available in the Methodology & Whitepapers section.
+            Upload whitepaper markdown files from your computer to sync them to
+            the Supabase KV store, making them available in the Methodology &
+            Whitepapers section.
           </p>
           <div className="bg-[#e4e3ac] dark:bg-[#211f1c] p-3 rounded-md mb-3">
             <p className="text-[11px] text-black/80 dark:text-white/80 mb-2">
@@ -234,7 +271,8 @@ export function WhitepaperSyncTool({ onBack }: WhitepaperSyncToolProps) {
             </ul>
           </div>
           <p className="text-[11px] text-black/60 dark:text-white/60">
-            <strong>Admin only:</strong> This operation requires admin privileges.
+            <strong>Admin only:</strong> This operation requires admin
+            privileges.
           </p>
         </Card>
 
@@ -243,7 +281,7 @@ export function WhitepaperSyncTool({ onBack }: WhitepaperSyncToolProps) {
           <h2 className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black dark:text-white mb-4">
             Upload Files
           </h2>
-          
+
           <div className="flex flex-col items-center justify-center py-8 border-2 border-dashed border-[#211f1c] dark:border-white/20 rounded-md bg-[#faf9f6] dark:bg-[#1a1918]">
             <FolderOpen className="w-12 h-12 text-black/30 dark:text-white/30 mb-4" />
             <p className="text-[12px] text-black/60 dark:text-white/60 mb-4">
@@ -298,7 +336,8 @@ export function WhitepaperSyncTool({ onBack }: WhitepaperSyncToolProps) {
                       {wp.title}
                     </h3>
                     <p className="text-[10px] text-black/60 dark:text-white/60">
-                      {wp.filename} → whitepaper:{wp.slug} ({(wp.size / 1024).toFixed(1)} KB)
+                      {wp.filename} → whitepaper:{wp.slug} (
+                      {(wp.size / 1024).toFixed(1)} KB)
                     </p>
                   </div>
                 </div>
@@ -317,12 +356,19 @@ export function WhitepaperSyncTool({ onBack }: WhitepaperSyncToolProps) {
             {syncing ? (
               <>
                 <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                Syncing {Object.values(syncResults).filter(r => r === 'success').length}/{whitepapers.length}...
+                Syncing{" "}
+                {
+                  Object.values(syncResults).filter((r) => r === "success")
+                    .length
+                }
+                /{whitepapers.length}...
               </>
             ) : (
               <>
                 <Upload className="w-5 h-5 mr-2" />
-                {whitepapers.length === 0 ? 'Upload Files First' : 'Sync All Whitepapers to Cloud'}
+                {whitepapers.length === 0
+                  ? "Upload Files First"
+                  : "Sync All Whitepapers to Cloud"}
               </>
             )}
           </Button>
@@ -337,21 +383,33 @@ export function WhitepaperSyncTool({ onBack }: WhitepaperSyncToolProps) {
             <div className="grid grid-cols-3 gap-4">
               <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-md border border-green-200 dark:border-green-800">
                 <div className="text-[24px] font-bold text-green-600 dark:text-green-400">
-                  {Object.values(syncResults).filter(r => r === 'success').length}
+                  {
+                    Object.values(syncResults).filter((r) => r === "success")
+                      .length
+                  }
                 </div>
-                <div className="text-[11px] text-green-700 dark:text-green-300">Success</div>
+                <div className="text-[11px] text-green-700 dark:text-green-300">
+                  Success
+                </div>
               </div>
               <div className="text-center p-4 bg-red-50 dark:bg-red-900/20 rounded-md border border-red-200 dark:border-red-800">
                 <div className="text-[24px] font-bold text-red-600 dark:text-red-400">
-                  {Object.values(syncResults).filter(r => r === 'error').length}
+                  {
+                    Object.values(syncResults).filter((r) => r === "error")
+                      .length
+                  }
                 </div>
-                <div className="text-[11px] text-red-700 dark:text-red-300">Failed</div>
+                <div className="text-[11px] text-red-700 dark:text-red-300">
+                  Failed
+                </div>
               </div>
               <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-md border border-blue-200 dark:border-blue-800">
                 <div className="text-[24px] font-bold text-blue-600 dark:text-blue-400">
                   {whitepapers.length}
                 </div>
-                <div className="text-[11px] text-blue-700 dark:text-blue-300">Total</div>
+                <div className="text-[11px] text-blue-700 dark:text-blue-300">
+                  Total
+                </div>
               </div>
             </div>
           </Card>
