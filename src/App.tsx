@@ -1,73 +1,155 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import svgPaths from "./imports/svg-qhqftidoeu";
-import { Plus, Edit2, Trash2, Search, ArrowLeft, Upload, Image as ImageIcon, ChevronDown, Copy, Check, Type, Eye, RotateCcw, Moon, Save, X, Download, FileUp, Cloud, CloudOff, LogOut, User, Code, AlertCircle, FlaskConical, Unlock } from 'lucide-react';
-import * as api from './utils/api';
-import { logger, setTestMode, getTestMode, loggerInfo } from './utils/logger';
-import { AuthView } from './components/AuthView';
-import { NavigationProvider, useNavigationContext } from './contexts/NavigationContext';
-import { AuthProvider, useAuthContext } from './contexts/AuthContext';
-import { MaterialsProvider, useMaterialsContext } from './contexts/MaterialsContext';
-import { Collapsible, CollapsibleTrigger, CollapsibleContent } from './components/ui/collapsible';
-import { RadialBarChart, RadialBar, ResponsiveContainer, Legend, Tooltip, PolarAngleAxis, Cell, Text } from 'recharts';
-import ReactMarkdown from 'react-markdown';
-import remarkMath from 'remark-math';
-import remarkGfm from 'remark-gfm';
-import rehypeKatex from 'rehype-katex';
-import { MethodologyListView, WhitepaperView } from './components/WhitepaperViews';
-import { AnimatedWasteChart } from './components/AnimatedWasteChart';
-import { AccessibilityProvider, useAccessibility } from './components/AccessibilityContext';
-import { UserManagementView } from './components/UserManagementView';
-import { LoadingPlaceholder } from './components/LoadingPlaceholder';
-import { ScientificMetadataView } from './components/ScientificMetadataView';
-import { NotificationBell } from './components/NotificationBell';
-import { UserProfileView } from './components/UserProfileView';
-import { LegalHubView } from './components/LegalHubView';
-import { ScienceHubView } from './components/ScienceHubView';
-import { ScientificDataEditor } from './components/scientific-editor';
-import { PublicExportView } from './components/PublicExportView';
-import { SourceLibraryManager } from './components/SourceLibraryManager';
-import { SourceDataComparison } from './components/SourceDataComparison';
-import { AssetsManagementPage } from './components/AssetsManagementPage';
-import { RasterizedQuantileVisualization } from './components/RasterizedQuantileVisualization';
-import { useIsMobile } from './components/ui/use-mobile';
-import { ChartRasterizationDemo } from './components/ChartRasterizationDemo';
-import { WhitepaperSyncTool } from './components/WhitepaperSyncTool';
-import { SOURCE_LIBRARY, getSourcesByTag } from './data/sources';
-import { CookieConsent } from './components/CookieConsent';
-import { SubmitMaterialForm } from './components/SubmitMaterialForm';
-import { SuggestMaterialEditForm } from './components/SuggestMaterialEditForm';
-import { SubmitArticleForm } from './components/SubmitArticleForm';
-import { MySubmissionsView } from './components/MySubmissionsView';
-import { ContentReviewCenter } from './components/ContentReviewCenter';
-import { ApiDocumentation } from './components/ApiDocumentation';
-import { LicensesView } from './components/LicensesView';
-import { TakedownRequestForm } from './components/TakedownRequestForm';
-import { TakedownStatusView } from './components/TakedownStatusView';
-import { AdminTakedownList } from './components/AdminTakedownList';
-import { AuditLogViewer } from './components/AuditLogViewer';
-import { DataRetentionManager } from './components/DataRetentionManager';
-import { Phase9TestingPage } from './components/Phase9TestingPage';
-import { Phase9Day10TestingPage } from './components/Phase9Day10TestingPage';
-import { TransformVersionManager } from './components/TransformVersionManager';
-import { AdminDashboard } from './components/AdminDashboard';
-import { RoadmapView } from './components/RoadmapView';
-import { SimplifiedRoadmap } from './components/SimplifiedRoadmap';
-import { MathView } from './components/MathView';
-import { ChartsPerformanceView } from './components/ChartsPerformanceView';
-import { EvidenceLabView } from './components/EvidenceLabView';
-import { TransformFormulaTesting } from './components/TransformFormulaTesting';
-import { Popover, PopoverContent, PopoverTrigger } from './components/ui/popover';
-import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './components/ui/tooltip';
-import { Switch } from './components/ui/switch';
-import { motion } from 'motion/react';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './components/ui/table';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './components/ui/alert-dialog';
-import { Input } from './components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './components/ui/select';
-import { toast } from 'sonner@2.0.3';
-import { Toaster } from './components/ui/sonner';
-import { Textarea } from './components/ui/textarea';
-import { ErrorBoundary } from './components/ErrorBoundary';
+import {
+  Plus,
+  Edit2,
+  Trash2,
+  Search,
+  ArrowLeft,
+  Upload,
+  Image as ImageIcon,
+  ChevronDown,
+  Copy,
+  Check,
+  Type,
+  Eye,
+  RotateCcw,
+  Moon,
+  Save,
+  X,
+  Download,
+  FileUp,
+  Cloud,
+  CloudOff,
+  LogOut,
+  User,
+  Code,
+  AlertCircle,
+  FlaskConical,
+  Unlock,
+} from "lucide-react";
+import * as api from "./utils/api";
+import { logger, setTestMode, getTestMode, loggerInfo } from "./utils/logger";
+import { AuthView } from "./components/AuthView";
+import {
+  NavigationProvider,
+  useNavigationContext,
+} from "./contexts/NavigationContext";
+import { AuthProvider, useAuthContext } from "./contexts/AuthContext";
+import {
+  MaterialsProvider,
+  useMaterialsContext,
+} from "./contexts/MaterialsContext";
+import {
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+} from "./components/ui/collapsible";
+import {
+  RadialBarChart,
+  RadialBar,
+  ResponsiveContainer,
+  Legend,
+  Tooltip,
+  PolarAngleAxis,
+  Cell,
+  Text,
+} from "recharts";
+import ReactMarkdown from "react-markdown";
+import remarkMath from "remark-math";
+import remarkGfm from "remark-gfm";
+import rehypeKatex from "rehype-katex";
+import {
+  MethodologyListView,
+  WhitepaperView,
+} from "./components/WhitepaperViews";
+import { AnimatedWasteChart } from "./components/AnimatedWasteChart";
+import {
+  AccessibilityProvider,
+  useAccessibility,
+} from "./components/AccessibilityContext";
+import { UserManagementView } from "./components/UserManagementView";
+import { LoadingPlaceholder } from "./components/LoadingPlaceholder";
+import { ScientificMetadataView } from "./components/ScientificMetadataView";
+import { NotificationBell } from "./components/NotificationBell";
+import { UserProfileView } from "./components/UserProfileView";
+import { LegalHubView } from "./components/LegalHubView";
+import { ScienceHubView } from "./components/ScienceHubView";
+import { ScientificDataEditor } from "./components/scientific-editor";
+import { PublicExportView } from "./components/PublicExportView";
+import { SourceLibraryManager } from "./components/SourceLibraryManager";
+import { SourceDataComparison } from "./components/SourceDataComparison";
+import { AssetsManagementPage } from "./components/AssetsManagementPage";
+import { RasterizedQuantileVisualization } from "./components/RasterizedQuantileVisualization";
+import { useIsMobile } from "./components/ui/use-mobile";
+import { ChartRasterizationDemo } from "./components/ChartRasterizationDemo";
+import { WhitepaperSyncTool } from "./components/WhitepaperSyncTool";
+import { SOURCE_LIBRARY, getSourcesByTag } from "./data/sources";
+import { CookieConsent } from "./components/CookieConsent";
+import { SubmitMaterialForm } from "./components/SubmitMaterialForm";
+import { SuggestMaterialEditForm } from "./components/SuggestMaterialEditForm";
+import { SubmitArticleForm } from "./components/SubmitArticleForm";
+import { MySubmissionsView } from "./components/MySubmissionsView";
+import { ContentReviewCenter } from "./components/ContentReviewCenter";
+import { ApiDocumentation } from "./components/ApiDocumentation";
+import { LicensesView } from "./components/LicensesView";
+import { TakedownRequestForm } from "./components/TakedownRequestForm";
+import { TakedownStatusView } from "./components/TakedownStatusView";
+import { AdminTakedownList } from "./components/AdminTakedownList";
+import { AuditLogViewer } from "./components/AuditLogViewer";
+import { DataRetentionManager } from "./components/DataRetentionManager";
+import { TransformVersionManager } from "./components/TransformVersionManager";
+import { AdminDashboard } from "./components/AdminDashboard";
+import { RoadmapView } from "./components/RoadmapView";
+import { SimplifiedRoadmap } from "./components/SimplifiedRoadmap";
+import { MathView } from "./components/MathView";
+import { ChartsPerformanceView } from "./components/ChartsPerformanceView";
+import { EvidenceLabView } from "./components/EvidenceLabView";
+import { TransformFormulaTesting } from "./components/TransformFormulaTesting";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "./components/ui/popover";
+import {
+  Tooltip as UITooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "./components/ui/tooltip";
+import { Switch } from "./components/ui/switch";
+import { motion } from "motion/react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "./components/ui/table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "./components/ui/alert-dialog";
+import { Input } from "./components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./components/ui/select";
+import { toast } from "sonner@2.0.3";
+import { Toaster } from "./components/ui/sonner";
+import { Textarea } from "./components/ui/textarea";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 
 interface ArticleSection {
   image?: string; // base64 encoded image
@@ -77,7 +159,7 @@ interface ArticleSection {
 interface Article {
   id: string;
   title: string;
-  category: 'DIY' | 'Industrial' | 'Experimental';
+  category: "DIY" | "Industrial" | "Experimental";
   overview: {
     image?: string;
   };
@@ -85,18 +167,26 @@ interface Article {
   supplies: ArticleSection;
   step1: ArticleSection;
   dateAdded: string;
-  
+
   // Content attribution
-  created_by?: string;               // User ID of original creator
-  edited_by?: string;                // User ID of editor (if edited directly by admin)
-  writer_name?: string;              // Display name of original writer
-  editor_name?: string;              // Display name of editor
+  created_by?: string; // User ID of original creator
+  edited_by?: string; // User ID of editor (if edited directly by admin)
+  writer_name?: string; // Display name of original writer
+  editor_name?: string; // Display name of editor
 }
 
 interface Material {
   id: string;
   name: string;
-  category: 'Plastics' | 'Metals' | 'Glass' | 'Paper & Cardboard' | 'Fabrics & Textiles' | 'Electronics & Batteries' | 'Building Materials' | 'Organic/Natural Waste';
+  category:
+    | "Plastics"
+    | "Metals"
+    | "Glass"
+    | "Paper & Cardboard"
+    | "Fabrics & Textiles"
+    | "Electronics & Batteries"
+    | "Building Materials"
+    | "Organic/Natural Waste";
   compostability: number;
   recyclability: number;
   reusability: number;
@@ -106,31 +196,32 @@ interface Material {
     recyclability: Article[];
     reusability: Article[];
   };
-  
+
   // Scientific parameters (normalized 0-1)
   // Recyclability (CR)
-  Y_value?: number;  // Yield (recovery rate)
-  D_value?: number;  // Degradation (quality loss)
-  C_value?: number;  // Contamination tolerance
-  M_value?: number;  // Maturity (infrastructure availability) - shared across all dimensions
-  E_value?: number;  // Energy demand (normalized)
-  
+  Y_value?: number; // Yield (recovery rate)
+  D_value?: number; // Degradation (quality loss)
+  C_value?: number; // Contamination tolerance
+  M_value?: number; // Maturity (infrastructure availability) - shared across all dimensions
+  E_value?: number; // Energy demand (normalized)
+
   // Compostability (CC)
-  B_value?: number;  // Biodegradation rate
-  N_value?: number;  // Nutrient balance
-  T_value?: number;  // Toxicity / Residue index
-  H_value?: number;  // Habitat adaptability
-  
+  B_value?: number; // Biodegradation rate
+  N_value?: number; // Nutrient balance
+  T_value?: number; // Toxicity / Residue index
+  H_value?: number; // Habitat adaptability
+
   // Reusability (RU)
-  L_value?: number;  // Lifetime - functional cycles
-  R_value?: number;  // Repairability
-  U_value?: number;  // Upgradability
-  C_RU_value?: number;  // Contamination susceptibility (for reusability)
-  
+  L_value?: number; // Lifetime - functional cycles
+  R_value?: number; // Repairability
+  U_value?: number; // Upgradability
+  C_RU_value?: number; // Contamination susceptibility (for reusability)
+
   // Calculated composite scores - Recyclability
-  CR_practical_mean?: number;      // Practical recyclability (0-1)
-  CR_theoretical_mean?: number;    // Theoretical recyclability (0-1)
-  CR_practical_CI95?: {            // 95% confidence interval
+  CR_practical_mean?: number; // Practical recyclability (0-1)
+  CR_theoretical_mean?: number; // Theoretical recyclability (0-1)
+  CR_practical_CI95?: {
+    // 95% confidence interval
     lower: number;
     upper: number;
   };
@@ -138,7 +229,7 @@ interface Material {
     lower: number;
     upper: number;
   };
-  
+
   // Calculated composite scores - Compostability
   CC_practical_mean?: number;
   CC_theoretical_mean?: number;
@@ -150,7 +241,7 @@ interface Material {
     lower: number;
     upper: number;
   };
-  
+
   // Calculated composite scores - Reusability
   RU_practical_mean?: number;
   RU_theoretical_mean?: number;
@@ -162,54 +253,72 @@ interface Material {
     lower: number;
     upper: number;
   };
-  
+
   // Confidence and provenance
-  confidence_level?: 'High' | 'Medium' | 'Low';  // Based on data quality
-  sources?: Array<{                               // Citation metadata
+  confidence_level?: "High" | "Medium" | "Low"; // Based on data quality
+  sources?: Array<{
+    // Citation metadata
     title: string;
     authors?: string;
     year?: number;
     doi?: string;
     url?: string;
-    weight?: number;  // Source weight in aggregation
-    parameters?: string[];  // Which parameters this source contributed to
+    weight?: number; // Source weight in aggregation
+    parameters?: string[]; // Which parameters this source contributed to
   }>;
-  
+
   // Versioning and audit trail
-  whitepaper_version?: string;      // e.g., "2025.1"
-  calculation_timestamp?: string;   // ISO 8601 timestamp
-  method_version?: string;           // e.g., "CR-v1"
-  
+  whitepaper_version?: string; // e.g., "2025.1"
+  calculation_timestamp?: string; // ISO 8601 timestamp
+  method_version?: string; // e.g., "CR-v1"
+
   // Content attribution
-  created_by?: string;               // User ID of original creator
-  edited_by?: string;                // User ID of editor (if edited directly by admin)
-  writer_name?: string;              // Display name of original writer
-  editor_name?: string;              // Display name of editor
+  created_by?: string; // User ID of original creator
+  edited_by?: string; // User ID of editor (if edited directly by admin)
+  writer_name?: string; // Display name of original writer
+  editor_name?: string; // Display name of editor
 }
 
-type CategoryType = 'compostability' | 'recyclability' | 'reusability';
+type CategoryType = "compostability" | "recyclability" | "reusability";
 
-function AdminModeButton({ currentView, onViewChange }: { currentView: any; onViewChange: (view: any) => void }) {
+function AdminModeButton({
+  currentView,
+  onViewChange,
+}: {
+  currentView: any;
+  onViewChange: (view: any) => void;
+}) {
   const { settings, toggleAdminMode } = useAccessibility();
-  
+
   const handleAdminToggle = () => {
     // If turning off admin mode and currently on admin-only pages, go back to materials
-    if (settings.adminMode && (currentView.type === 'data-management' || currentView.type === 'user-management' || currentView.type === 'scientific-editor' || currentView.type === 'whitepaper-sync' || currentView.type === 'review-center' || currentView.type === 'admin-dashboard' || currentView.type === 'audit-log')) {
-      onViewChange({ type: 'materials' });
+    if (
+      settings.adminMode &&
+      (currentView.type === "data-management" ||
+        currentView.type === "user-management" ||
+        currentView.type === "scientific-editor" ||
+        currentView.type === "whitepaper-sync" ||
+        currentView.type === "review-center" ||
+        currentView.type === "admin-dashboard" ||
+        currentView.type === "audit-log")
+    ) {
+      onViewChange({ type: "materials" });
     }
     toggleAdminMode();
   };
 
   const handleNavigateToDashboard = () => {
-    onViewChange({ type: 'admin-dashboard' });
+    onViewChange({ type: "admin-dashboard" });
   };
 
   return (
-    <div className={`flex items-center gap-1 rounded-md border border-[#211f1c] dark:border-white/20 overflow-hidden ${
-      settings.adminMode 
-        ? 'bg-[#bdd4b7] dark:bg-[#2a2f27] shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]' 
-        : 'bg-[#e6beb5]'
-    }`}>
+    <div
+      className={`flex items-center gap-1 rounded-md border border-[#211f1c] dark:border-white/20 overflow-hidden ${
+        settings.adminMode
+          ? "bg-[#bdd4b7] dark:bg-[#2a2f27] shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]"
+          : "bg-[#e6beb5]"
+      }`}
+    >
       <button
         onClick={handleNavigateToDashboard}
         className="px-2 py-1 font-['Sniglet:Regular',_sans-serif] text-[10px] text-black dark:text-white uppercase hover:opacity-70 transition-opacity"
@@ -218,11 +327,13 @@ function AdminModeButton({ currentView, onViewChange }: { currentView: any; onVi
       </button>
       <div className="w-px h-4 bg-[#211f1c]/20 dark:bg-white/20" />
       <div className="px-1.5 py-1">
-        <Switch 
+        <Switch
           checked={settings.adminMode}
           onCheckedChange={handleAdminToggle}
           className="scale-75"
-          aria-label={settings.adminMode ? "Disable admin mode" : "Enable admin mode"}
+          aria-label={
+            settings.adminMode ? "Disable admin mode" : "Enable admin mode"
+          }
         />
       </div>
     </div>
@@ -230,7 +341,16 @@ function AdminModeButton({ currentView, onViewChange }: { currentView: any; onVi
 }
 
 function RetroButtons({ title }: { title: string }) {
-  const { settings, setFontSize, toggleHighContrast, toggleNoPastel, toggleReduceMotion, toggleDarkMode, togglePrioritizeOA, resetSettings } = useAccessibility();
+  const {
+    settings,
+    setFontSize,
+    toggleHighContrast,
+    toggleNoPastel,
+    toggleReduceMotion,
+    toggleDarkMode,
+    togglePrioritizeOA,
+    resetSettings,
+  } = useAccessibility();
   const [redOpen, setRedOpen] = useState(false);
   const [yellowOpen, setYellowOpen] = useState(false);
   const [blueOpen, setBlueOpen] = useState(false);
@@ -243,210 +363,289 @@ function RetroButtons({ title }: { title: string }) {
             <div className="flex flex-row gap-[4px] md:gap-[10px] items-center h-full">
               {/* Red Button - Reset Settings */}
               <UITooltip>
-              <TooltipTrigger asChild>
-                <div className="relative shrink-0 w-[11px] h-[11px] md:w-[13px] md:h-[13px] overflow-visible flex items-center justify-center">
-                  <Popover open={redOpen} onOpenChange={setRedOpen}>
-                    <PopoverTrigger 
-                      className="relative size-full hover:scale-110 transition-transform cursor-pointer"
-                      aria-label="Reset accessibility settings"
-                    >
-                      <div className="absolute inset-[-8.333%]" style={{ 
-                        "--fill-0": settings.noPastel ? "rgba(168, 108, 103, 1)" : "rgba(230, 188, 181, 1)", 
-                        "--stroke-0": "rgba(33, 31, 28, 1)" 
-                      } as React.CSSProperties}>
-                        <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 14 14">
-                          <circle cx="7" cy="7" fill="var(--fill-0, #E6BCB5)" r="6.5" stroke="var(--stroke-0, #211F1C)" />
-                        </svg>
-                      </div>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-64 p-4 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] rounded-[11.464px] shadow-[3px_4px_0px_-1px_#000000]">
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2">
-                          <RotateCcw size={16} />
-                          <h3 className="font-['Sniglet:Regular',_sans-serif] text-[14px]">Reset Settings</h3>
-                        </div>
-                        <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/70 dark:text-white/70">
-                          Reset all accessibility settings to default
-                        </p>
-                        <button
-                          onClick={() => {
-                            resetSettings();
-                            setRedOpen(false);
-                          }}
-                          className="w-full bg-[#e6beb5] h-[36px] rounded-[6px] border border-[#211f1c] shadow-[2px_2px_0px_0px_#000000] font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] transition-all flex items-center justify-center"
+                <TooltipTrigger asChild>
+                  <div className="relative shrink-0 w-[11px] h-[11px] md:w-[13px] md:h-[13px] overflow-visible flex items-center justify-center">
+                    <Popover open={redOpen} onOpenChange={setRedOpen}>
+                      <PopoverTrigger
+                        className="relative size-full hover:scale-110 transition-transform cursor-pointer"
+                        aria-label="Reset accessibility settings"
+                      >
+                        <div
+                          className="absolute inset-[-8.333%]"
+                          style={
+                            {
+                              "--fill-0": settings.noPastel
+                                ? "rgba(168, 108, 103, 1)"
+                                : "rgba(230, 188, 181, 1)",
+                              "--stroke-0": "rgba(33, 31, 28, 1)",
+                            } as React.CSSProperties
+                          }
                         >
-                          Reset All
-                        </button>
-                      </div>
-                    </PopoverContent>
-                  </Popover>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="bg-black text-white border-black">
-                <p className="font-['Sniglet:Regular',_sans-serif] text-[11px]">Reset accessibility</p>
-              </TooltipContent>
-            </UITooltip>
-
-            {/* Yellow Button - Font Size */}
-            <UITooltip>
-              <TooltipTrigger asChild>
-                <div className="relative shrink-0 w-[11px] h-[11px] md:w-[13px] md:h-[13px] overflow-visible flex items-center justify-center">
-                  <Popover open={yellowOpen} onOpenChange={setYellowOpen}>
-                    <PopoverTrigger 
-                      className="relative size-full hover:scale-110 transition-transform cursor-pointer"
-                      aria-label="Font size settings"
-                    >
-                      <div className="absolute inset-[-8.333%]" style={{ 
-                        "--fill-0": settings.noPastel ? "rgba(200, 180, 122, 1)" : "rgba(228, 227, 172, 1)", 
-                        "--stroke-0": "rgba(33, 31, 28, 1)" 
-                      } as React.CSSProperties}>
-                        <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 14 14">
-                          <circle cx="7" cy="7" fill="var(--fill-0, #E4E3AC)" r="6.5" stroke="var(--stroke-0, #211F1C)" />
-                        </svg>
-                      </div>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-64 p-4 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] rounded-[11.464px] shadow-[3px_4px_0px_-1px_#000000]">
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2">
-                          <Type size={16} />
-                          <h3 className="font-['Sniglet:Regular',_sans-serif] text-[14px]">Font Size</h3>
-                        </div>
-                        <div className="space-y-2">
-                          <button
-                            onClick={() => setFontSize('normal')}
-                            className={`w-full h-[36px] rounded-[6px] border border-[#211f1c] font-['Sniglet:Regular',_sans-serif] text-[12px] dark:text-white transition-all flex items-center justify-center ${
-                              settings.fontSize === 'normal' 
-                                ? 'bg-[#e4e3ac] text-black shadow-[2px_2px_0px_0px_#000000]' 
-                                : 'bg-white dark:bg-[#2a2825] hover:bg-[#e4e3ac]/20'
-                            }`}
+                          <svg
+                            className="block size-full"
+                            fill="none"
+                            preserveAspectRatio="none"
+                            viewBox="0 0 14 14"
                           >
-                            Normal
-                          </button>
-                          <button
-                            onClick={() => setFontSize('large')}
-                            className={`w-full h-[36px] rounded-[6px] border border-[#211f1c] font-['Sniglet:Regular',_sans-serif] text-[13px] dark:text-white transition-all flex items-center justify-center ${
-                              settings.fontSize === 'large' 
-                                ? 'bg-[#e4e3ac] text-black shadow-[2px_2px_0px_0px_#000000]' 
-                                : 'bg-white dark:bg-[#2a2825] hover:bg-[#e4e3ac]/20'
-                            }`}
-                          >
-                            Large
-                          </button>
-                          <button
-                            onClick={() => setFontSize('xlarge')}
-                            className={`w-full h-[36px] rounded-[6px] border border-[#211f1c] font-['Sniglet:Regular',_sans-serif] text-[14px] dark:text-white transition-all flex items-center justify-center ${
-                              settings.fontSize === 'xlarge' 
-                                ? 'bg-[#e4e3ac] text-black shadow-[2px_2px_0px_0px_#000000]' 
-                                : 'bg-white dark:bg-[#2a2825] hover:bg-[#e4e3ac]/20'
-                            }`}
-                          >
-                            Extra Large
-                          </button>
+                            <circle
+                              cx="7"
+                              cy="7"
+                              fill="var(--fill-0, #E6BCB5)"
+                              r="6.5"
+                              stroke="var(--stroke-0, #211F1C)"
+                            />
+                          </svg>
                         </div>
-                      </div>
-                    </PopoverContent>
-                  </Popover>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="bg-black text-white border-black">
-                <p className="font-['Sniglet:Regular',_sans-serif] text-[11px]">Font size</p>
-              </TooltipContent>
-            </UITooltip>
-
-            {/* Blue Button - Display Controls */}
-            <UITooltip>
-              <TooltipTrigger asChild>
-                <div className="relative shrink-0 w-[11px] h-[11px] md:w-[13px] md:h-[13px] overflow-visible flex items-center justify-center">
-                  <Popover open={blueOpen} onOpenChange={setBlueOpen}>
-                    <PopoverTrigger 
-                      className="relative size-full hover:scale-110 transition-transform cursor-pointer"
-                      aria-label="Display settings"
-                    >
-                      <div className="absolute inset-[-8.333%]" style={{ 
-                        "--fill-0": settings.noPastel ? "rgba(126, 159, 108, 1)" : "rgba(184, 200, 203, 1)", 
-                        "--stroke-0": "rgba(33, 31, 28, 1)" 
-                      } as React.CSSProperties}>
-                        <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 14 14">
-                          <circle cx="7" cy="7" fill="var(--fill-0, #B8C8CB)" r="6.5" stroke="var(--stroke-0, #211F1C)" />
-                        </svg>
-                      </div>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-64 p-4 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] rounded-[11.464px] shadow-[3px_4px_0px_-1px_#000000]">
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2">
-                          <Eye size={16} />
-                          <h3 className="font-['Sniglet:Regular',_sans-serif] text-[14px]">Display</h3>
-                        </div>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-64 p-4 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] rounded-[11.464px] shadow-[3px_4px_0px_-1px_#000000]">
                         <div className="space-y-3">
-                          <div className="flex items-center justify-between">
-                            <label className="font-['Sniglet:Regular',_sans-serif] text-[12px] flex items-center gap-2">
-                              <Moon size={14} />
-                              Dark Mode
-                            </label>
-                            <Switch 
-                              checked={settings.darkMode} 
-                              onCheckedChange={toggleDarkMode}
-                            />
+                          <div className="flex items-center gap-2">
+                            <RotateCcw size={16} />
+                            <h3 className="font-['Sniglet:Regular',_sans-serif] text-[14px]">
+                              Reset Settings
+                            </h3>
                           </div>
-                          <div className="flex items-center justify-between">
-                            <label className="font-['Sniglet:Regular',_sans-serif] text-[12px]">
-                              High Contrast
-                            </label>
-                            <Switch 
-                              checked={settings.highContrast} 
-                              onCheckedChange={toggleHighContrast}
+                          <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/70 dark:text-white/70">
+                            Reset all accessibility settings to default
+                          </p>
+                          <button
+                            onClick={() => {
+                              resetSettings();
+                              setRedOpen(false);
+                            }}
+                            className="w-full bg-[#e6beb5] h-[36px] rounded-[6px] border border-[#211f1c] shadow-[2px_2px_0px_0px_#000000] font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] transition-all flex items-center justify-center"
+                          >
+                            Reset All
+                          </button>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent
+                  side="bottom"
+                  className="bg-black text-white border-black"
+                >
+                  <p className="font-['Sniglet:Regular',_sans-serif] text-[11px]">
+                    Reset accessibility
+                  </p>
+                </TooltipContent>
+              </UITooltip>
+
+              {/* Yellow Button - Font Size */}
+              <UITooltip>
+                <TooltipTrigger asChild>
+                  <div className="relative shrink-0 w-[11px] h-[11px] md:w-[13px] md:h-[13px] overflow-visible flex items-center justify-center">
+                    <Popover open={yellowOpen} onOpenChange={setYellowOpen}>
+                      <PopoverTrigger
+                        className="relative size-full hover:scale-110 transition-transform cursor-pointer"
+                        aria-label="Font size settings"
+                      >
+                        <div
+                          className="absolute inset-[-8.333%]"
+                          style={
+                            {
+                              "--fill-0": settings.noPastel
+                                ? "rgba(200, 180, 122, 1)"
+                                : "rgba(228, 227, 172, 1)",
+                              "--stroke-0": "rgba(33, 31, 28, 1)",
+                            } as React.CSSProperties
+                          }
+                        >
+                          <svg
+                            className="block size-full"
+                            fill="none"
+                            preserveAspectRatio="none"
+                            viewBox="0 0 14 14"
+                          >
+                            <circle
+                              cx="7"
+                              cy="7"
+                              fill="var(--fill-0, #E4E3AC)"
+                              r="6.5"
+                              stroke="var(--stroke-0, #211F1C)"
                             />
+                          </svg>
+                        </div>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-64 p-4 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] rounded-[11.464px] shadow-[3px_4px_0px_-1px_#000000]">
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2">
+                            <Type size={16} />
+                            <h3 className="font-['Sniglet:Regular',_sans-serif] text-[14px]">
+                              Font Size
+                            </h3>
                           </div>
-                          <div className="flex items-center justify-between">
-                            <label className="font-['Sniglet:Regular',_sans-serif] text-[12px]">
-                              No Pastel
-                            </label>
-                            <Switch 
-                              checked={settings.noPastel} 
-                              onCheckedChange={toggleNoPastel}
-                              disabled={settings.highContrast}
+                          <div className="space-y-2">
+                            <button
+                              onClick={() => setFontSize("normal")}
+                              className={`w-full h-[36px] rounded-[6px] border border-[#211f1c] font-['Sniglet:Regular',_sans-serif] text-[12px] dark:text-white transition-all flex items-center justify-center ${
+                                settings.fontSize === "normal"
+                                  ? "bg-[#e4e3ac] text-black shadow-[2px_2px_0px_0px_#000000]"
+                                  : "bg-white dark:bg-[#2a2825] hover:bg-[#e4e3ac]/20"
+                              }`}
+                            >
+                              Normal
+                            </button>
+                            <button
+                              onClick={() => setFontSize("large")}
+                              className={`w-full h-[36px] rounded-[6px] border border-[#211f1c] font-['Sniglet:Regular',_sans-serif] text-[13px] dark:text-white transition-all flex items-center justify-center ${
+                                settings.fontSize === "large"
+                                  ? "bg-[#e4e3ac] text-black shadow-[2px_2px_0px_0px_#000000]"
+                                  : "bg-white dark:bg-[#2a2825] hover:bg-[#e4e3ac]/20"
+                              }`}
+                            >
+                              Large
+                            </button>
+                            <button
+                              onClick={() => setFontSize("xlarge")}
+                              className={`w-full h-[36px] rounded-[6px] border border-[#211f1c] font-['Sniglet:Regular',_sans-serif] text-[14px] dark:text-white transition-all flex items-center justify-center ${
+                                settings.fontSize === "xlarge"
+                                  ? "bg-[#e4e3ac] text-black shadow-[2px_2px_0px_0px_#000000]"
+                                  : "bg-white dark:bg-[#2a2825] hover:bg-[#e4e3ac]/20"
+                              }`}
+                            >
+                              Extra Large
+                            </button>
+                          </div>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent
+                  side="bottom"
+                  className="bg-black text-white border-black"
+                >
+                  <p className="font-['Sniglet:Regular',_sans-serif] text-[11px]">
+                    Font size
+                  </p>
+                </TooltipContent>
+              </UITooltip>
+
+              {/* Blue Button - Display Controls */}
+              <UITooltip>
+                <TooltipTrigger asChild>
+                  <div className="relative shrink-0 w-[11px] h-[11px] md:w-[13px] md:h-[13px] overflow-visible flex items-center justify-center">
+                    <Popover open={blueOpen} onOpenChange={setBlueOpen}>
+                      <PopoverTrigger
+                        className="relative size-full hover:scale-110 transition-transform cursor-pointer"
+                        aria-label="Display settings"
+                      >
+                        <div
+                          className="absolute inset-[-8.333%]"
+                          style={
+                            {
+                              "--fill-0": settings.noPastel
+                                ? "rgba(126, 159, 108, 1)"
+                                : "rgba(184, 200, 203, 1)",
+                              "--stroke-0": "rgba(33, 31, 28, 1)",
+                            } as React.CSSProperties
+                          }
+                        >
+                          <svg
+                            className="block size-full"
+                            fill="none"
+                            preserveAspectRatio="none"
+                            viewBox="0 0 14 14"
+                          >
+                            <circle
+                              cx="7"
+                              cy="7"
+                              fill="var(--fill-0, #B8C8CB)"
+                              r="6.5"
+                              stroke="var(--stroke-0, #211F1C)"
                             />
+                          </svg>
+                        </div>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-64 p-4 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] rounded-[11.464px] shadow-[3px_4px_0px_-1px_#000000]">
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2">
+                            <Eye size={16} />
+                            <h3 className="font-['Sniglet:Regular',_sans-serif] text-[14px]">
+                              Display
+                            </h3>
                           </div>
-                          <div className="flex items-center justify-between">
-                            <label className="font-['Sniglet:Regular',_sans-serif] text-[12px]">
-                              Reduce Motion
-                            </label>
-                            <Switch 
-                              checked={settings.reduceMotion} 
-                              onCheckedChange={toggleReduceMotion}
-                            />
-                          </div>
-                          <div className="border-t border-[#211f1c]/10 dark:border-white/10 pt-3 mt-3">
+                          <div className="space-y-3">
                             <div className="flex items-center justify-between">
                               <label className="font-['Sniglet:Regular',_sans-serif] text-[12px] flex items-center gap-2">
-                                <Unlock size={14} />
-                                Prioritize Open Access
+                                <Moon size={14} />
+                                Dark Mode
                               </label>
-                              <Switch 
-                                checked={settings.prioritizeOA} 
-                                onCheckedChange={togglePrioritizeOA}
+                              <Switch
+                                checked={settings.darkMode}
+                                onCheckedChange={toggleDarkMode}
                               />
                             </div>
-                            <p className="font-['Sniglet:Regular',_sans-serif] text-[9px] text-black/60 dark:text-white/60 mt-1">
-                              Curator preference: show OA sources first
-                            </p>
+                            <div className="flex items-center justify-between">
+                              <label className="font-['Sniglet:Regular',_sans-serif] text-[12px]">
+                                High Contrast
+                              </label>
+                              <Switch
+                                checked={settings.highContrast}
+                                onCheckedChange={toggleHighContrast}
+                              />
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <label className="font-['Sniglet:Regular',_sans-serif] text-[12px]">
+                                No Pastel
+                              </label>
+                              <Switch
+                                checked={settings.noPastel}
+                                onCheckedChange={toggleNoPastel}
+                                disabled={settings.highContrast}
+                              />
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <label className="font-['Sniglet:Regular',_sans-serif] text-[12px]">
+                                Reduce Motion
+                              </label>
+                              <Switch
+                                checked={settings.reduceMotion}
+                                onCheckedChange={toggleReduceMotion}
+                              />
+                            </div>
+                            <div className="border-t border-[#211f1c]/10 dark:border-white/10 pt-3 mt-3">
+                              <div className="flex items-center justify-between">
+                                <label className="font-['Sniglet:Regular',_sans-serif] text-[12px] flex items-center gap-2">
+                                  <Unlock size={14} />
+                                  Prioritize Open Access
+                                </label>
+                                <Switch
+                                  checked={settings.prioritizeOA}
+                                  onCheckedChange={togglePrioritizeOA}
+                                />
+                              </div>
+                              <p className="font-['Sniglet:Regular',_sans-serif] text-[9px] text-black/60 dark:text-white/60 mt-1">
+                                Curator preference: show OA sources first
+                              </p>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </PopoverContent>
-                  </Popover>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="bg-black text-white border-black">
-                <p className="font-['Sniglet:Regular',_sans-serif] text-[11px]">Display options</p>
-              </TooltipContent>
-            </UITooltip>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent
+                  side="bottom"
+                  className="bg-black text-white border-black"
+                >
+                  <p className="font-['Sniglet:Regular',_sans-serif] text-[11px]">
+                    Display options
+                  </p>
+                </TooltipContent>
+              </UITooltip>
             </div>
           </TooltipProvider>
 
           <div className="basis-0 grow min-h-px min-w-px flex items-center justify-center gap-1.5 md:gap-2">
-            <h1 className="font-['Sniglet:Regular',_sans-serif] leading-[25px] not-italic text-[18px] md:text-[28px] text-black dark:text-white text-center uppercase">{title}</h1>
-            <span className="font-['Sniglet:Regular',_sans-serif] text-[8px] md:text-[10px] px-1 md:px-1.5 py-0 md:py-0.5 rounded-full bg-[#bdd4b7] dark:bg-[#2a2f27] border border-[#211f1c] dark:border-white/20 text-black dark:text-white uppercase">Beta</span>
+            <h1 className="font-['Sniglet:Regular',_sans-serif] leading-[25px] not-italic text-[18px] md:text-[28px] text-black dark:text-white text-center uppercase">
+              {title}
+            </h1>
+            <span className="font-['Sniglet:Regular',_sans-serif] text-[8px] md:text-[10px] px-1 md:px-1.5 py-0 md:py-0.5 rounded-full bg-[#bdd4b7] dark:bg-[#2a2f27] border border-[#211f1c] dark:border-white/20 text-black dark:text-white uppercase">
+              Beta
+            </span>
           </div>
         </div>
       </div>
@@ -454,14 +653,38 @@ function RetroButtons({ title }: { title: string }) {
   );
 }
 
-function StatusBar({ title, currentView, onViewChange, syncStatus, user, userRole, onLogout, onSignIn }: { title: string; currentView: any; onViewChange: (view: any) => void; syncStatus?: 'synced' | 'syncing' | 'offline' | 'error'; user?: { id: string; email: string; name?: string }; userRole?: 'user' | 'admin'; onLogout?: () => void; onSignIn?: () => void }) {
+function StatusBar({
+  title,
+  currentView,
+  onViewChange,
+  syncStatus,
+  user,
+  userRole,
+  onLogout,
+  onSignIn,
+}: {
+  title: string;
+  currentView: any;
+  onViewChange: (view: any) => void;
+  syncStatus?: "synced" | "syncing" | "offline" | "error";
+  user?: { id: string; email: string; name?: string };
+  userRole?: "user" | "admin";
+  onLogout?: () => void;
+  onSignIn?: () => void;
+}) {
   return (
-    <header className="h-[42px] md:min-w-[400px] relative shrink-0 w-full" role="banner">
-      <div aria-hidden="true" className="absolute border-[#211f1c] dark:border-white/20 border-[0px_0px_1.5px] border-solid inset-0 pointer-events-none" />
+    <header
+      className="h-[42px] md:min-w-[400px] relative shrink-0 w-full"
+      role="banner"
+    >
+      <div
+        aria-hidden="true"
+        className="absolute border-[#211f1c] dark:border-white/20 border-[0px_0px_1.5px] border-solid inset-0 pointer-events-none"
+      />
       <div className="size-full">
         <div className="box-border content-stretch flex h-[42px] items-center justify-between px-[5px] py-0 relative w-full">
           <RetroButtons title={title} />
-          
+
           <div className="flex items-center gap-1 md:gap-2">
             {/* User Controls */}
             {!user && onSignIn && (
@@ -478,23 +701,39 @@ function StatusBar({ title, currentView, onViewChange, syncStatus, user, userRol
                   <UITooltip>
                     <TooltipTrigger asChild>
                       <button
-                        onClick={() => onViewChange({ type: 'user-profile', userId: user.id })}
+                        onClick={() =>
+                          onViewChange({
+                            type: "user-profile",
+                            userId: user.id,
+                          })
+                        }
                         className="flex items-center gap-1 px-1.5 md:px-2 py-1 bg-white/50 dark:bg-black/20 rounded-md border border-[#211f1c]/20 dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all cursor-pointer"
                       >
                         <User className="w-3 h-3 md:w-[12px] md:h-[12px] text-black dark:text-white" />
                         <span className="hidden md:inline font-['Sniglet:Regular',_sans-serif] text-[10px] text-black dark:text-white max-w-[100px] truncate">
-                          {user.name || user.email.split('@')[0]}
+                          {user.name || user.email.split("@")[0]}
                         </span>
                       </button>
                     </TooltipTrigger>
-                    <TooltipContent side="bottom" className="bg-black text-white border-black">
-                      <p className="font-['Sniglet:Regular',_sans-serif] text-[11px]">View profile</p>
+                    <TooltipContent
+                      side="bottom"
+                      className="bg-black text-white border-black"
+                    >
+                      <p className="font-['Sniglet:Regular',_sans-serif] text-[11px]">
+                        View profile
+                      </p>
                     </TooltipContent>
                   </UITooltip>
                 </TooltipProvider>
-                <NotificationBell userId={user.id} isAdmin={userRole === 'admin'} />
-                {userRole === 'admin' && (
-                  <AdminModeButton currentView={currentView} onViewChange={onViewChange} />
+                <NotificationBell
+                  userId={user.id}
+                  isAdmin={userRole === "admin"}
+                />
+                {userRole === "admin" && (
+                  <AdminModeButton
+                    currentView={currentView}
+                    onViewChange={onViewChange}
+                  />
                 )}
                 {onLogout && (
                   <TooltipProvider delayDuration={300}>
@@ -508,8 +747,13 @@ function StatusBar({ title, currentView, onViewChange, syncStatus, user, userRol
                           <LogOut className="w-3 h-3 md:w-[12px] md:h-[12px] text-black" />
                         </button>
                       </TooltipTrigger>
-                      <TooltipContent side="bottom" className="bg-black text-white border-black">
-                        <p className="font-['Sniglet:Regular',_sans-serif] text-[11px]">Sign out</p>
+                      <TooltipContent
+                        side="bottom"
+                        className="bg-black text-white border-black"
+                      >
+                        <p className="font-['Sniglet:Regular',_sans-serif] text-[11px]">
+                          Sign out
+                        </p>
                       </TooltipContent>
                     </UITooltip>
                   </TooltipProvider>
@@ -521,20 +765,51 @@ function StatusBar({ title, currentView, onViewChange, syncStatus, user, userRol
             <div className="flex items-center justify-center gap-1 md:gap-2 px-1.5 md:px-3 h-full">
               <TooltipProvider delayDuration={300}>
                 <UITooltip>
-                  <TooltipTrigger 
-                    aria-label={`Sync status: ${syncStatus === 'synced' ? 'Synced to cloud' : syncStatus === 'syncing' ? 'Syncing' : syncStatus === 'offline' ? 'Working offline' : 'Sync error'}`}
+                  <TooltipTrigger
+                    aria-label={`Sync status: ${
+                      syncStatus === "synced"
+                        ? "Synced to cloud"
+                        : syncStatus === "syncing"
+                        ? "Syncing"
+                        : syncStatus === "offline"
+                        ? "Working offline"
+                        : "Sync error"
+                    }`}
                   >
-                    {syncStatus === 'synced' && <Cloud className="w-3 h-3 md:w-[14px] md:h-[14px] text-[#4a90a4] dark:text-[#6bb6d0]" aria-hidden="true" />}
-                    {syncStatus === 'syncing' && <Cloud className="w-3 h-3 md:w-[14px] md:h-[14px] text-[#d4b400] dark:text-[#ffd700] animate-pulse" aria-hidden="true" />}
-                    {syncStatus === 'offline' && <CloudOff className="w-3 h-3 md:w-[14px] md:h-[14px] text-black/40 dark:text-white/40" aria-hidden="true" />}
-                    {syncStatus === 'error' && <CloudOff className="w-3 h-3 md:w-[14px] md:h-[14px] text-[#c74444] dark:text-[#ff6b6b]" aria-hidden="true" />}
+                    {syncStatus === "synced" && (
+                      <Cloud
+                        className="w-3 h-3 md:w-[14px] md:h-[14px] text-[#4a90a4] dark:text-[#6bb6d0]"
+                        aria-hidden="true"
+                      />
+                    )}
+                    {syncStatus === "syncing" && (
+                      <Cloud
+                        className="w-3 h-3 md:w-[14px] md:h-[14px] text-[#d4b400] dark:text-[#ffd700] animate-pulse"
+                        aria-hidden="true"
+                      />
+                    )}
+                    {syncStatus === "offline" && (
+                      <CloudOff
+                        className="w-3 h-3 md:w-[14px] md:h-[14px] text-black/40 dark:text-white/40"
+                        aria-hidden="true"
+                      />
+                    )}
+                    {syncStatus === "error" && (
+                      <CloudOff
+                        className="w-3 h-3 md:w-[14px] md:h-[14px] text-[#c74444] dark:text-[#ff6b6b]"
+                        aria-hidden="true"
+                      />
+                    )}
                   </TooltipTrigger>
-                  <TooltipContent side="bottom" className="bg-black text-white border-black">
+                  <TooltipContent
+                    side="bottom"
+                    className="bg-black text-white border-black"
+                  >
                     <p className="font-['Sniglet:Regular',_sans-serif] text-[11px]">
-                      {syncStatus === 'synced' && 'Synced to cloud'}
-                      {syncStatus === 'syncing' && 'Syncing...'}
-                      {syncStatus === 'offline' && 'Working offline'}
-                      {syncStatus === 'error' && 'Sync error - saved locally'}
+                      {syncStatus === "synced" && "Synced to cloud"}
+                      {syncStatus === "syncing" && "Syncing..."}
+                      {syncStatus === "offline" && "Working offline"}
+                      {syncStatus === "error" && "Sync error - saved locally"}
                     </p>
                   </TooltipContent>
                 </UITooltip>
@@ -551,7 +826,12 @@ function SearchIcon() {
   return (
     <div className="h-[16px] relative shrink-0 w-[18px]">
       <div className="absolute inset-[-3.11%_-4.26%_-1.44%_-2.92%]">
-        <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 20 18">
+        <svg
+          className="block size-full"
+          fill="none"
+          preserveAspectRatio="none"
+          viewBox="0 0 20 18"
+        >
           <g>
             <path d={svgPaths.p3623ed00} fill="var(--stroke-0, #211F1C)" />
             <path d={svgPaths.p3c786300} fill="var(--stroke-0, #211F1C)" />
@@ -562,26 +842,35 @@ function SearchIcon() {
   );
 }
 
-function SearchBar({ value, onChange, onSearch }: { value: string; onChange: (value: string) => void; onSearch?: (value: string) => void }) {
+function SearchBar({
+  value,
+  onChange,
+  onSearch,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  onSearch?: (value: string) => void;
+}) {
   const isMobile = useIsMobile();
-  
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     // Prevent Figma from intercepting text editing shortcuts
     if (e.metaKey || e.ctrlKey) {
       e.stopPropagation();
     }
-    
+
     // Trigger search on Enter key
-    if (e.key === 'Enter' && onSearch && value.trim()) {
+    if (e.key === "Enter" && onSearch && value.trim()) {
       onSearch(value.trim());
     }
   };
 
   return (
-    <div 
-      className="relative rounded-[11.46px] shrink-0 w-full bg-white dark:bg-[#2a2825]"
-    >
-      <div aria-hidden="true" className="absolute border-[#211f1c] dark:border-white/20 border-[1.5px] border-solid inset-[-0.75px] pointer-events-none rounded-[12.21px]" />
+    <div className="relative rounded-[11.46px] shrink-0 w-full bg-white dark:bg-[#2a2825]">
+      <div
+        aria-hidden="true"
+        className="absolute border-[#211f1c] dark:border-white/20 border-[1.5px] border-solid inset-[-0.75px] pointer-events-none rounded-[12.21px]"
+      />
       <div className="flex flex-row items-center justify-center size-full">
         <div className="box-border content-stretch flex gap-[15px] items-center justify-start px-[12px] py-[8px] relative w-full">
           <SearchIcon />
@@ -600,16 +889,16 @@ function SearchBar({ value, onChange, onSearch }: { value: string; onChange: (va
   );
 }
 
-function ScoreBar({ 
-  score, 
-  label, 
-  color, 
+function ScoreBar({
+  score,
+  label,
+  color,
   articleCount,
-  onClick 
-}: { 
-  score: number; 
-  label: string; 
-  color: string; 
+  onClick,
+}: {
+  score: number;
+  label: string;
+  color: string;
   articleCount?: number;
   onClick?: () => void;
 }) {
@@ -619,11 +908,11 @@ function ScoreBar({
   const getHighContrastColor = (originalColor: string): string => {
     const isDark = settings.darkMode;
     const colorMap: { [key: string]: { light: string; dark: string } } = {
-      '#e6beb5': { light: '#c74444', dark: '#ff6b6b' }, // Compostability
-      '#e4e3ac': { light: '#d4b400', dark: '#ffd700' }, // Recyclability
-      '#b8c8cb': { light: '#4a90a4', dark: '#6bb6d0' }, // Reusability
+      "#e6beb5": { light: "#c74444", dark: "#ff6b6b" }, // Compostability
+      "#e4e3ac": { light: "#d4b400", dark: "#ffd700" }, // Recyclability
+      "#b8c8cb": { light: "#4a90a4", dark: "#6bb6d0" }, // Reusability
     };
-    
+
     const mapping = colorMap[originalColor.toLowerCase()];
     if (mapping) {
       return isDark ? mapping.dark : mapping.light;
@@ -632,9 +921,10 @@ function ScoreBar({
   };
 
   // Use high-contrast color if high contrast or no pastel mode is enabled
-  const displayColor = (settings.highContrast || settings.noPastel) 
-    ? getHighContrastColor(color) 
-    : color;
+  const displayColor =
+    settings.highContrast || settings.noPastel
+      ? getHighContrastColor(color)
+      : color;
 
   return (
     <div className="flex flex-col gap-1 w-full">
@@ -642,16 +932,24 @@ function ScoreBar({
         <button
           onClick={onClick}
           className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white hover:underline cursor-pointer text-left flex items-center gap-1"
-          aria-label={`View ${label.toLowerCase()} articles (${articleCount || 0} articles, score: ${score})`}
+          aria-label={`View ${label.toLowerCase()} articles (${
+            articleCount || 0
+          } articles, score: ${score})`}
         >
-          <span className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white">{label}</span>
+          <span className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white">
+            {label}
+          </span>
           {articleCount !== undefined && articleCount > 0 && (
-            <span className="font-['Sniglet:Regular',_sans-serif] text-[9px] text-black/60 dark:text-white/60">({articleCount})</span>
+            <span className="font-['Sniglet:Regular',_sans-serif] text-[9px] text-black/60 dark:text-white/60">
+              ({articleCount})
+            </span>
           )}
         </button>
-        <span className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white">{score}</span>
+        <span className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white">
+          {score}
+        </span>
       </div>
-      <div 
+      <div
         className="h-[8px] bg-[#211f1c]/10 dark:bg-white/10 rounded-full overflow-hidden border border-[#211f1c] dark:border-white/20"
         role="progressbar"
         aria-valuenow={score}
@@ -670,16 +968,27 @@ function ScoreBar({
 
 // Custom label component for clickable chart labels
 const ClickableChartLabel = (props: any) => {
-  const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, value, name, categoryKey, onLabelClick } = props;
-  
+  const {
+    cx,
+    cy,
+    innerRadius,
+    outerRadius,
+    startAngle,
+    endAngle,
+    value,
+    name,
+    categoryKey,
+    onLabelClick,
+  } = props;
+
   // Calculate the middle of the radial bar
   const radius = innerRadius + (outerRadius - innerRadius) * 0.3; // Position closer to inner edge
   const angle = startAngle + (endAngle - startAngle) / 2;
   const angleInRadians = (Math.PI / 180) * -angle;
-  
+
   const x = cx + radius * Math.cos(angleInRadians);
   const y = cy + radius * Math.sin(angleInRadians);
-  
+
   return (
     <text
       x={x}
@@ -689,7 +998,7 @@ const ClickableChartLabel = (props: any) => {
       fontSize="13px"
       textAnchor="middle"
       dominantBaseline="middle"
-      style={{ cursor: 'pointer' }}
+      style={{ cursor: "pointer" }}
       onClick={(e) => {
         e.stopPropagation();
         if (onLabelClick && categoryKey) {
@@ -702,19 +1011,19 @@ const ClickableChartLabel = (props: any) => {
   );
 };
 
-function MaterialCard({ 
-  material, 
-  onEdit, 
+function MaterialCard({
+  material,
+  onEdit,
   onDelete,
   onViewArticles,
   onViewMaterial,
   onEditScientific,
   onSuggestEdit,
   isAdminModeActive,
-  isAuthenticated
-}: { 
-  material: Material; 
-  onEdit: () => void; 
+  isAuthenticated,
+}: {
+  material: Material;
+  onEdit: () => void;
   onDelete: () => void;
   onViewArticles: (category: CategoryType) => void;
   onViewMaterial: () => void;
@@ -734,7 +1043,7 @@ function MaterialCard({
           >
             {material.name}
           </button>
-          
+
           {/* Writer/Editor Attribution */}
           {(material.writer_name || material.editor_name) && (
             <div className="mt-1 flex items-center gap-1 flex-wrap font-['Sniglet:Regular',_sans-serif] text-[8px] text-black/40 dark:text-white/40">
@@ -783,11 +1092,13 @@ function MaterialCard({
           </button>
         ) : null}
       </div>
-      
+
       {material.description && (
-        <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/70 dark:text-white/70 mb-3 line-clamp-2">{material.description}</p>
+        <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/70 dark:text-white/70 mb-3 line-clamp-2">
+          {material.description}
+        </p>
       )}
-      
+
       <div className="flex flex-col gap-2 mb-3">
         <RasterizedQuantileVisualization
           materialId={material.id}
@@ -798,12 +1109,14 @@ function MaterialCard({
             practical_CI95: material.CC_practical_CI95,
             theoretical_CI95: material.CC_theoretical_CI95,
             confidence_level: material.confidence_level,
-            category: material.category
+            category: material.category,
           }}
           fallbackScore={material.compostability}
-          simplified={!material.CC_practical_mean || !material.CC_theoretical_mean}
+          simplified={
+            !material.CC_practical_mean || !material.CC_theoretical_mean
+          }
           height={50}
-          onClick={() => onViewArticles('compostability')}
+          onClick={() => onViewArticles("compostability")}
           articleCount={material.articles.compostability.length}
         />
         <RasterizedQuantileVisualization
@@ -815,12 +1128,14 @@ function MaterialCard({
             practical_CI95: material.CR_practical_CI95,
             theoretical_CI95: material.CR_theoretical_CI95,
             confidence_level: material.confidence_level,
-            category: material.category
+            category: material.category,
           }}
           fallbackScore={material.recyclability}
-          simplified={!material.CR_practical_mean || !material.CR_theoretical_mean}
+          simplified={
+            !material.CR_practical_mean || !material.CR_theoretical_mean
+          }
           height={50}
-          onClick={() => onViewArticles('recyclability')}
+          onClick={() => onViewArticles("recyclability")}
           articleCount={material.articles.recyclability.length}
         />
         <RasterizedQuantileVisualization
@@ -832,18 +1147,20 @@ function MaterialCard({
             practical_CI95: material.RU_practical_CI95,
             theoretical_CI95: material.RU_theoretical_CI95,
             confidence_level: material.confidence_level,
-            category: material.category
+            category: material.category,
           }}
           fallbackScore={material.reusability}
-          simplified={!material.RU_practical_mean || !material.RU_theoretical_mean}
+          simplified={
+            !material.RU_practical_mean || !material.RU_theoretical_mean
+          }
           height={50}
-          onClick={() => onViewArticles('reusability')}
+          onClick={() => onViewArticles("reusability")}
           articleCount={material.articles.reusability.length}
         />
       </div>
-      
-      <ScientificMetadataView 
-        material={material} 
+
+      <ScientificMetadataView
+        material={material}
         onEditScientific={onEditScientific}
         isAdminModeActive={isAdminModeActive}
       />
@@ -851,17 +1168,37 @@ function MaterialCard({
   );
 }
 
-function MaterialForm({ material, onSave, onCancel }: { material?: Material; onSave: (material: Omit<Material, 'id'>) => void; onCancel: () => void }) {
+function MaterialForm({
+  material,
+  onSave,
+  onCancel,
+}: {
+  material?: Material;
+  onSave: (material: Omit<Material, "id">) => void;
+  onCancel: () => void;
+}) {
   const [formData, setFormData] = useState({
-    name: material?.name || '',
-    category: material?.category || 'Plastics' as 'Plastics' | 'Metals' | 'Glass' | 'Paper & Cardboard' | 'Fabrics & Textiles' | 'Electronics & Batteries' | 'Building Materials' | 'Organic/Natural Waste',
+    name: material?.name || "",
+    category:
+      material?.category ||
+      ("Plastics" as
+        | "Plastics"
+        | "Metals"
+        | "Glass"
+        | "Paper & Cardboard"
+        | "Fabrics & Textiles"
+        | "Electronics & Batteries"
+        | "Building Materials"
+        | "Organic/Natural Waste"),
     compostability: material?.compostability || 0,
     recyclability: material?.recyclability || 0,
     reusability: material?.reusability || 0,
-    description: material?.description || '',
+    description: material?.description || "",
   });
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleKeyDown = (
+    e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     // Prevent Figma from intercepting text editing shortcuts
     if (e.metaKey || e.ctrlKey) {
       e.stopPropagation();
@@ -875,8 +1212,8 @@ function MaterialForm({ material, onSave, onCancel }: { material?: Material; onS
       articles: material?.articles || {
         compostability: [],
         recyclability: [],
-        reusability: []
-      }
+        reusability: [],
+      },
     });
   };
 
@@ -884,7 +1221,9 @@ function MaterialForm({ material, onSave, onCancel }: { material?: Material; onS
     <div className="bg-white relative rounded-[11.464px] p-6 border-[1.5px] border-[#211f1c]">
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div>
-          <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black block mb-1">Material Name</label>
+          <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black block mb-1">
+            Material Name
+          </label>
           <input
             type="text"
             value={formData.name}
@@ -896,10 +1235,17 @@ function MaterialForm({ material, onSave, onCancel }: { material?: Material; onS
         </div>
 
         <div>
-          <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black block mb-1">Category</label>
+          <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black block mb-1">
+            Category
+          </label>
           <select
             value={formData.category}
-            onChange={(e) => setFormData({ ...formData, category: e.target.value as typeof formData.category })}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                category: e.target.value as typeof formData.category,
+              })
+            }
             className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[14px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all"
           >
             <option value="Plastics">Plastics</option>
@@ -907,17 +1253,23 @@ function MaterialForm({ material, onSave, onCancel }: { material?: Material; onS
             <option value="Glass">Glass</option>
             <option value="Paper & Cardboard">Paper & Cardboard</option>
             <option value="Fabrics & Textiles">Fabrics & Textiles</option>
-            <option value="Electronics & Batteries">Electronics & Batteries</option>
+            <option value="Electronics & Batteries">
+              Electronics & Batteries
+            </option>
             <option value="Building Materials">Building Materials</option>
             <option value="Organic/Natural Waste">Organic/Natural Waste</option>
           </select>
         </div>
 
         <div>
-          <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black block mb-1">Description (optional)</label>
+          <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black block mb-1">
+            Description (optional)
+          </label>
           <textarea
             value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, description: e.target.value })
+            }
             onKeyDownCapture={handleKeyDown}
             rows={3}
             className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[12px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all resize-none"
@@ -927,7 +1279,9 @@ function MaterialForm({ material, onSave, onCancel }: { material?: Material; onS
         {/* Note about sustainability scores */}
         <div className="bg-[#e5e4dc] dark:bg-[#3a3835] rounded-[8px] p-3 border border-[#211f1c]/20 dark:border-white/20">
           <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/70 dark:text-white/70">
-            ℹ️ Sustainability scores (Compostability, Recyclability, Reusability) will be calculated by admins in the Data Management area based on scientific parameters.
+            ℹ️ Sustainability scores (Compostability, Recyclability,
+            Reusability) will be calculated by admins in the Data Management
+            area based on scientific parameters.
           </p>
         </div>
 
@@ -936,7 +1290,7 @@ function MaterialForm({ material, onSave, onCancel }: { material?: Material; onS
             type="submit"
             className="bg-[#e4e3ac] h-[40px] px-8 rounded-[6px] border border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] font-['Sniglet:Regular',_sans-serif] text-[14px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] transition-all"
           >
-            {material ? 'Update' : 'Create'}
+            {material ? "Update" : "Create"}
           </button>
           <button
             type="button"
@@ -951,19 +1305,19 @@ function MaterialForm({ material, onSave, onCancel }: { material?: Material; onS
   );
 }
 
-function ImageUploadArea({ 
-  image, 
+function ImageUploadArea({
+  image,
   onImageChange,
-  label 
-}: { 
-  image?: string; 
+  label,
+}: {
+  image?: string;
   onImageChange: (image: string | undefined) => void;
   label?: string;
 }) {
   const [isDragging, setIsDragging] = useState(false);
 
   const handleFileChange = (file: File) => {
-    if (file && file.type.startsWith('image/')) {
+    if (file && file.type.startsWith("image/")) {
       const reader = new FileReader();
       reader.onloadend = () => {
         onImageChange(reader.result as string);
@@ -991,23 +1345,25 @@ function ImageUploadArea({
   return (
     <div className="w-full">
       {label && (
-        <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black block mb-2">{label}</label>
+        <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black block mb-2">
+          {label}
+        </label>
       )}
       <div
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         className={`relative border-[1.5px] border-dashed rounded-[8px] p-4 transition-all ${
-          isDragging 
-            ? 'border-[#211f1c] bg-[#211f1c]/5' 
-            : 'border-[#211f1c]/30 bg-white'
+          isDragging
+            ? "border-[#211f1c] bg-[#211f1c]/5"
+            : "border-[#211f1c]/30 bg-white"
         }`}
       >
         {image ? (
           <div className="relative">
-            <img 
-              src={image} 
-              alt="Preview" 
+            <img
+              src={image}
+              alt="Preview"
               className="w-full h-auto rounded-[4px] border border-[#211f1c]"
             />
             <button
@@ -1027,7 +1383,9 @@ function ImageUploadArea({
             <input
               type="file"
               accept="image/*"
-              onChange={(e) => e.target.files?.[0] && handleFileChange(e.target.files[0])}
+              onChange={(e) =>
+                e.target.files?.[0] && handleFileChange(e.target.files[0])
+              }
               className="hidden"
             />
           </label>
@@ -1037,17 +1395,17 @@ function ImageUploadArea({
   );
 }
 
-function ArticleCard({ 
-  article, 
-  onEdit, 
+function ArticleCard({
+  article,
+  onEdit,
   onDelete,
   hideActions = false,
   sustainabilityCategory,
   onReadMore,
-  isAdminModeActive
-}: { 
-  article: Article; 
-  onEdit: () => void; 
+  isAdminModeActive,
+}: {
+  article: Article;
+  onEdit: () => void;
   onDelete: () => void;
   hideActions?: boolean;
   sustainabilityCategory?: { label: string; color: string };
@@ -1075,7 +1433,7 @@ function ArticleCard({
               {article.category}
             </span>
             {sustainabilityCategory && (
-              <span 
+              <span
                 className="inline-block px-2 py-0.5 rounded-md border border-[#211f1c] font-['Sniglet:Regular',_sans-serif] text-[9px] text-black"
                 style={{ backgroundColor: sustainabilityCategory.color }}
               >
@@ -1106,9 +1464,11 @@ function ArticleCard({
         {/* Overview Section */}
         {article.overview.image && (
           <div>
-            <h5 className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black mb-1">Overview</h5>
-            <img 
-              src={article.overview.image} 
+            <h5 className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black mb-1">
+              Overview
+            </h5>
+            <img
+              src={article.overview.image}
               alt="Overview"
               className="w-full h-auto rounded-[4px] border border-[#211f1c]"
             />
@@ -1117,10 +1477,12 @@ function ArticleCard({
 
         {/* Introduction Section */}
         <div>
-          <h5 className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black mb-1">Introduction</h5>
+          <h5 className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black mb-1">
+            Introduction
+          </h5>
           {article.introduction.image && (
-            <img 
-              src={article.introduction.image} 
+            <img
+              src={article.introduction.image}
               alt="Introduction"
               className="w-full h-auto rounded-[4px] border border-[#211f1c] mb-2"
             />
@@ -1132,10 +1494,12 @@ function ArticleCard({
 
         {/* Supplies Section */}
         <div>
-          <h5 className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black mb-1">Supplies</h5>
+          <h5 className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black mb-1">
+            Supplies
+          </h5>
           {article.supplies.image && (
-            <img 
-              src={article.supplies.image} 
+            <img
+              src={article.supplies.image}
               alt="Supplies"
               className="w-full h-auto rounded-[4px] border border-[#211f1c] mb-2"
             />
@@ -1159,36 +1523,39 @@ function ArticleCard({
   );
 }
 
-function ArticleForm({ 
-  article, 
-  onSave, 
-  onCancel 
-}: { 
-  article?: Article; 
-  onSave: (article: Omit<Article, 'id' | 'dateAdded'>) => void; 
+function ArticleForm({
+  article,
+  onSave,
+  onCancel,
+}: {
+  article?: Article;
+  onSave: (article: Omit<Article, "id" | "dateAdded">) => void;
   onCancel: () => void;
 }) {
   const [formData, setFormData] = useState({
-    title: article?.title || '',
-    category: article?.category || 'DIY' as 'DIY' | 'Industrial' | 'Experimental',
+    title: article?.title || "",
+    category:
+      article?.category || ("DIY" as "DIY" | "Industrial" | "Experimental"),
     overview: {
       image: article?.overview.image || undefined,
     },
     introduction: {
       image: article?.introduction.image || undefined,
-      content: article?.introduction.content || '',
+      content: article?.introduction.content || "",
     },
     supplies: {
       image: article?.supplies.image || undefined,
-      content: article?.supplies.content || '',
+      content: article?.supplies.content || "",
     },
     step1: {
       image: article?.step1.image || undefined,
-      content: article?.step1.content || '',
+      content: article?.step1.content || "",
     },
   });
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleKeyDown = (
+    e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     // Prevent Figma from intercepting text editing shortcuts
     if (e.metaKey || e.ctrlKey) {
       e.stopPropagation();
@@ -1205,34 +1572,52 @@ function ArticleForm({
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         {/* Overview Section */}
         <div className="bg-white rounded-[8px] border-[1.5px] border-[#211f1c] p-4">
-          <h3 className="font-['Sniglet:Regular',_sans-serif] text-[15px] text-black mb-4">Overview</h3>
+          <h3 className="font-['Sniglet:Regular',_sans-serif] text-[15px] text-black mb-4">
+            Overview
+          </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <ImageUploadArea
                 image={formData.overview.image}
-                onImageChange={(img) => setFormData({
-                  ...formData,
-                  overview: { ...formData.overview, image: img }
-                })}
+                onImageChange={(img) =>
+                  setFormData({
+                    ...formData,
+                    overview: { ...formData.overview, image: img },
+                  })
+                }
               />
             </div>
             <div className="flex flex-col gap-3">
               <div>
-                <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black block mb-1">Title</label>
+                <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black block mb-1">
+                  Title
+                </label>
                 <input
                   type="text"
                   value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, title: e.target.value })
+                  }
                   onKeyDownCapture={handleKeyDown}
                   required
                   className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[14px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all"
                 />
               </div>
               <div>
-                <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black block mb-1">Category</label>
+                <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black block mb-1">
+                  Category
+                </label>
                 <select
                   value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value as 'DIY' | 'Industrial' | 'Experimental' })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      category: e.target.value as
+                        | "DIY"
+                        | "Industrial"
+                        | "Experimental",
+                    })
+                  }
                   className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[14px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all"
                 >
                   <option value="DIY">DIY</option>
@@ -1246,23 +1631,34 @@ function ArticleForm({
 
         {/* Introduction Section */}
         <div className="bg-white rounded-[8px] border-[1.5px] border-[#211f1c] p-4">
-          <h3 className="font-['Sniglet:Regular',_sans-serif] text-[15px] text-black mb-4">Introduction</h3>
+          <h3 className="font-['Sniglet:Regular',_sans-serif] text-[15px] text-black mb-4">
+            Introduction
+          </h3>
           <div className="flex flex-col gap-4">
             <ImageUploadArea
               image={formData.introduction.image}
-              onImageChange={(img) => setFormData({
-                ...formData,
-                introduction: { ...formData.introduction, image: img }
-              })}
+              onImageChange={(img) =>
+                setFormData({
+                  ...formData,
+                  introduction: { ...formData.introduction, image: img },
+                })
+              }
             />
             <div>
-              <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black block mb-1">Content</label>
+              <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black block mb-1">
+                Content
+              </label>
               <textarea
                 value={formData.introduction.content}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  introduction: { ...formData.introduction, content: e.target.value }
-                })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    introduction: {
+                      ...formData.introduction,
+                      content: e.target.value,
+                    },
+                  })
+                }
                 onKeyDownCapture={handleKeyDown}
                 required
                 rows={6}
@@ -1275,23 +1671,31 @@ function ArticleForm({
 
         {/* Supplies Section */}
         <div className="bg-white rounded-[8px] border-[1.5px] border-[#211f1c] p-4">
-          <h3 className="font-['Sniglet:Regular',_sans-serif] text-[15px] text-black mb-4">Supplies</h3>
+          <h3 className="font-['Sniglet:Regular',_sans-serif] text-[15px] text-black mb-4">
+            Supplies
+          </h3>
           <div className="flex flex-col gap-4">
             <ImageUploadArea
               image={formData.supplies.image}
-              onImageChange={(img) => setFormData({
-                ...formData,
-                supplies: { ...formData.supplies, image: img }
-              })}
+              onImageChange={(img) =>
+                setFormData({
+                  ...formData,
+                  supplies: { ...formData.supplies, image: img },
+                })
+              }
             />
             <div>
-              <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black block mb-1">Content</label>
+              <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black block mb-1">
+                Content
+              </label>
               <textarea
                 value={formData.supplies.content}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  supplies: { ...formData.supplies, content: e.target.value }
-                })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    supplies: { ...formData.supplies, content: e.target.value },
+                  })
+                }
                 onKeyDownCapture={handleKeyDown}
                 required
                 rows={6}
@@ -1304,23 +1708,31 @@ function ArticleForm({
 
         {/* Step 1 Section */}
         <div className="bg-white rounded-[8px] border-[1.5px] border-[#211f1c] p-4">
-          <h3 className="font-['Sniglet:Regular',_sans-serif] text-[15px] text-black mb-4">Step 1</h3>
+          <h3 className="font-['Sniglet:Regular',_sans-serif] text-[15px] text-black mb-4">
+            Step 1
+          </h3>
           <div className="flex flex-col gap-4">
             <ImageUploadArea
               image={formData.step1.image}
-              onImageChange={(img) => setFormData({
-                ...formData,
-                step1: { ...formData.step1, image: img }
-              })}
+              onImageChange={(img) =>
+                setFormData({
+                  ...formData,
+                  step1: { ...formData.step1, image: img },
+                })
+              }
             />
             <div>
-              <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black block mb-1">Content</label>
+              <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black block mb-1">
+                Content
+              </label>
               <textarea
                 value={formData.step1.content}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  step1: { ...formData.step1, content: e.target.value }
-                })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    step1: { ...formData.step1, content: e.target.value },
+                  })
+                }
                 onKeyDownCapture={handleKeyDown}
                 required
                 rows={6}
@@ -1336,7 +1748,7 @@ function ArticleForm({
             type="submit"
             className="bg-[#e4e3ac] h-[40px] px-8 rounded-[6px] border border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] font-['Sniglet:Regular',_sans-serif] text-[14px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] transition-all"
           >
-            {article ? 'Update' : 'Add Article'}
+            {article ? "Update" : "Add Article"}
           </button>
           <button
             type="button"
@@ -1351,17 +1763,17 @@ function ArticleForm({
   );
 }
 
-function ArticlesView({ 
-  material, 
-  category, 
+function ArticlesView({
+  material,
+  category,
   onBack,
   onUpdateMaterial,
   onViewArticleStandalone,
   isAdminModeActive,
   user,
-  onSignUp
-}: { 
-  material: Material; 
+  onSignUp,
+}: {
+  material: Material;
   category: CategoryType;
   onBack: () => void;
   onUpdateMaterial: (material: Material) => void;
@@ -1374,70 +1786,72 @@ function ArticlesView({
   const [editingArticle, setEditingArticle] = useState<Article | null>(null);
 
   const categoryColors = {
-    compostability: '#e6beb5',
-    recyclability: '#e4e3ac',
-    reusability: '#b8c8cb',
+    compostability: "#e6beb5",
+    recyclability: "#e4e3ac",
+    reusability: "#b8c8cb",
   };
 
   const categoryLabels = {
-    compostability: 'Compostability',
-    recyclability: 'Recyclability',
-    reusability: 'Reusability',
+    compostability: "Compostability",
+    recyclability: "Recyclability",
+    reusability: "Reusability",
   };
 
   const articles = material.articles[category];
 
-  const handleAddArticle = (articleData: Omit<Article, 'id' | 'dateAdded'>) => {
+  const handleAddArticle = (articleData: Omit<Article, "id" | "dateAdded">) => {
     const newArticle: Article = {
       ...articleData,
       id: Date.now().toString(),
       dateAdded: new Date().toISOString(),
     };
-    
+
     const updatedMaterial = {
       ...material,
       articles: {
         ...material.articles,
-        [category]: [...material.articles[category], newArticle]
-      }
+        [category]: [...material.articles[category], newArticle],
+      },
     };
-    
+
     onUpdateMaterial(updatedMaterial);
     setShowForm(false);
   };
 
-  const handleUpdateArticle = (articleData: Omit<Article, 'id' | 'dateAdded'>) => {
+  const handleUpdateArticle = (
+    articleData: Omit<Article, "id" | "dateAdded">
+  ) => {
     if (!editingArticle) return;
-    
-    const updatedArticles = material.articles[category].map(a => 
-      a.id === editingArticle.id 
-        ? { ...articleData, id: a.id, dateAdded: a.dateAdded } 
+
+    const updatedArticles = material.articles[category].map((a) =>
+      a.id === editingArticle.id
+        ? { ...articleData, id: a.id, dateAdded: a.dateAdded }
         : a
     );
-    
+
     const updatedMaterial = {
       ...material,
       articles: {
         ...material.articles,
-        [category]: updatedArticles
-      }
+        [category]: updatedArticles,
+      },
     };
-    
+
     onUpdateMaterial(updatedMaterial);
     setEditingArticle(null);
     setShowForm(false);
   };
 
   const handleDeleteArticle = (id: string) => {
-    if (confirm('Are you sure you want to delete this article?')) {
+    if (confirm("Are you sure you want to delete this article?")) {
       const updatedMaterial = {
         ...material,
         articles: {
           ...material.articles,
-          [category]: material.articles[category].filter(a => a.id !== id)
-        }
+          [category]: material.articles[category].filter((a) => a.id !== id),
+        },
       };
-      
+
       onUpdateMaterial(updatedMaterial);
     }
   };
@@ -1456,7 +1870,7 @@ function ArticlesView({
             {material.name} - {categoryLabels[category]}
           </h2>
           <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/60 dark:text-white/60">
-            {articles.length} article{articles.length !== 1 ? 's' : ''}
+            {articles.length} article{articles.length !== 1 ? "s" : ""}
           </p>
         </div>
         {isAdminModeActive && (
@@ -1486,33 +1900,35 @@ function ArticlesView({
       )}
 
       {/* Recyclability Visualization - only for recyclability category */}
-      {category === 'recyclability' && material.CR_practical_mean && material.CR_theoretical_mean && (
-        <div className="mb-6 bg-white dark:bg-[#2a2825] rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 p-6 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)]">
-          <div className="max-w-2xl mx-auto">
-            <h3 className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black dark:text-white mb-4">
-              Recyclability Score Overview
-            </h3>
-            <RasterizedQuantileVisualization
-              materialId={material.id}
-              scoreType="recyclability"
-              data={{
-                practical_mean: material.CR_practical_mean,
-                theoretical_mean: material.CR_theoretical_mean,
-                practical_CI95: material.CR_practical_CI95,
-                theoretical_CI95: material.CR_theoretical_CI95,
-                confidence_level: material.confidence_level,
-                category: material.category
-              }}
-              width={600}
-              height={80}
-              articleCount={articles.length}
-            />
+      {category === "recyclability" &&
+        material.CR_practical_mean &&
+        material.CR_theoretical_mean && (
+          <div className="mb-6 bg-white dark:bg-[#2a2825] rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 p-6 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)]">
+            <div className="max-w-2xl mx-auto">
+              <h3 className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black dark:text-white mb-4">
+                Recyclability Score Overview
+              </h3>
+              <RasterizedQuantileVisualization
+                materialId={material.id}
+                scoreType="recyclability"
+                data={{
+                  practical_mean: material.CR_practical_mean,
+                  theoretical_mean: material.CR_theoretical_mean,
+                  practical_CI95: material.CR_practical_CI95,
+                  theoretical_CI95: material.CR_theoretical_CI95,
+                  confidence_level: material.confidence_level,
+                  category: material.category,
+                }}
+                width={600}
+                height={80}
+                articleCount={articles.length}
+              />
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {articles.map(article => (
+        {articles.map((article) => (
           <ArticleCard
             key={article.id}
             article={article}
@@ -1531,17 +1947,17 @@ function ArticlesView({
         <div className="text-center py-12">
           <p className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black/50">
             {user ? (
-              'No articles yet. Add your first one!'
+              "No articles yet. Add your first one!"
             ) : (
               <>
-                No articles yet.{' '}
+                No articles yet.{" "}
                 <button
                   onClick={onSignUp}
                   className="text-black dark:text-white underline hover:no-underline transition-all"
                 >
                   Sign up
-                </button>
-                {' '}to become a contributor!
+                </button>{" "}
+                to become a contributor!
               </>
             )}
           </p>
@@ -1557,7 +1973,7 @@ function MaterialDetailView({
   onViewArticles,
   onUpdateMaterial,
   onViewArticleStandalone,
-  isAdminModeActive
+  isAdminModeActive,
 }: {
   material: Material;
   onBack: () => void;
@@ -1567,58 +1983,79 @@ function MaterialDetailView({
   isAdminModeActive?: boolean;
 }) {
   const categoryLabels = {
-    compostability: 'Compostability',
-    recyclability: 'Recyclability',
-    reusability: 'Reusability',
+    compostability: "Compostability",
+    recyclability: "Recyclability",
+    reusability: "Reusability",
   };
 
   const categoryColors = {
-    compostability: '#e6beb5',
-    recyclability: '#e4e3ac',
-    reusability: '#b8c8cb',
+    compostability: "#e6beb5",
+    recyclability: "#e4e3ac",
+    reusability: "#b8c8cb",
   };
 
   const allArticles = [
-    ...material.articles.compostability.map(a => ({ article: a, category: 'compostability' as CategoryType })),
-    ...material.articles.recyclability.map(a => ({ article: a, category: 'recyclability' as CategoryType })),
-    ...material.articles.reusability.map(a => ({ article: a, category: 'reusability' as CategoryType })),
-  ].sort((a, b) => new Date(b.article.dateAdded).getTime() - new Date(a.article.dateAdded).getTime());
+    ...material.articles.compostability.map((a) => ({
+      article: a,
+      category: "compostability" as CategoryType,
+    })),
+    ...material.articles.recyclability.map((a) => ({
+      article: a,
+      category: "recyclability" as CategoryType,
+    })),
+    ...material.articles.reusability.map((a) => ({
+      article: a,
+      category: "reusability" as CategoryType,
+    })),
+  ].sort(
+    (a, b) =>
+      new Date(b.article.dateAdded).getTime() -
+      new Date(a.article.dateAdded).getTime()
+  );
 
   const totalArticles = allArticles.length;
 
   const handleDeleteArticle = (articleId: string, category: CategoryType) => {
-    if (confirm('Are you sure you want to delete this article?')) {
+    if (confirm("Are you sure you want to delete this article?")) {
       const updatedMaterial = {
         ...material,
         articles: {
           ...material.articles,
-          [category]: material.articles[category].filter(a => a.id !== articleId)
-        }
+          [category]: material.articles[category].filter(
+            (a) => a.id !== articleId
+          ),
+        },
       };
       onUpdateMaterial(updatedMaterial);
     }
   };
 
-  const [editingArticle, setEditingArticle] = useState<{ article: Article; category: CategoryType } | null>(null);
+  const [editingArticle, setEditingArticle] = useState<{
+    article: Article;
+    category: CategoryType;
+  } | null>(null);
   const [showForm, setShowForm] = useState(false);
 
-  const handleUpdateArticle = (articleData: Omit<Article, 'id' | 'dateAdded'>) => {
+  const handleUpdateArticle = (
+    articleData: Omit<Article, "id" | "dateAdded">
+  ) => {
     if (!editingArticle) return;
-    
-    const updatedArticles = material.articles[editingArticle.category].map(a => 
-      a.id === editingArticle.article.id 
-        ? { ...articleData, id: a.id, dateAdded: a.dateAdded } 
-        : a
+
+    const updatedArticles = material.articles[editingArticle.category].map(
+      (a) =>
+        a.id === editingArticle.article.id
+          ? { ...articleData, id: a.id, dateAdded: a.dateAdded }
+          : a
     );
-    
+
     const updatedMaterial = {
       ...material,
       articles: {
         ...material.articles,
-        [editingArticle.category]: updatedArticles
-      }
+        [editingArticle.category]: updatedArticles,
+      },
     };
-    
+
     onUpdateMaterial(updatedMaterial);
     setEditingArticle(null);
     setShowForm(false);
@@ -1642,7 +2079,7 @@ function MaterialDetailView({
               {material.category}
             </span>
             <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/60 dark:text-white/60">
-              {totalArticles} article{totalArticles !== 1 ? 's' : ''}
+              {totalArticles} article{totalArticles !== 1 ? "s" : ""}
             </p>
           </div>
         </div>
@@ -1650,12 +2087,16 @@ function MaterialDetailView({
 
       {material.description && (
         <div className="bg-white rounded-[11.464px] border-[1.5px] border-[#211f1c] p-4 mb-6">
-          <p className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black/80">{material.description}</p>
+          <p className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black/80">
+            {material.description}
+          </p>
         </div>
       )}
 
       <div className="bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 p-4 mb-6">
-        <h3 className="font-['Sniglet:Regular',_sans-serif] text-[15px] text-black dark:text-white mb-4">Sustainability Scores</h3>
+        <h3 className="font-['Sniglet:Regular',_sans-serif] text-[15px] text-black dark:text-white mb-4">
+          Sustainability Scores
+        </h3>
         <div className="flex flex-col gap-3">
           <RasterizedQuantileVisualization
             materialId={material.id}
@@ -1666,12 +2107,14 @@ function MaterialDetailView({
               practical_CI95: material.CC_practical_CI95,
               theoretical_CI95: material.CC_theoretical_CI95,
               confidence_level: material.confidence_level,
-              category: material.category
+              category: material.category,
             }}
             fallbackScore={material.compostability}
-            simplified={!material.CC_practical_mean || !material.CC_theoretical_mean}
+            simplified={
+              !material.CC_practical_mean || !material.CC_theoretical_mean
+            }
             height={50}
-            onClick={() => onViewArticles('compostability')}
+            onClick={() => onViewArticles("compostability")}
             articleCount={material.articles.compostability.length}
           />
           <RasterizedQuantileVisualization
@@ -1683,12 +2126,14 @@ function MaterialDetailView({
               practical_CI95: material.CR_practical_CI95,
               theoretical_CI95: material.CR_theoretical_CI95,
               confidence_level: material.confidence_level,
-              category: material.category
+              category: material.category,
             }}
             fallbackScore={material.recyclability}
-            simplified={!material.CR_practical_mean || !material.CR_theoretical_mean}
+            simplified={
+              !material.CR_practical_mean || !material.CR_theoretical_mean
+            }
             height={50}
-            onClick={() => onViewArticles('recyclability')}
+            onClick={() => onViewArticles("recyclability")}
             articleCount={material.articles.recyclability.length}
           />
           <RasterizedQuantileVisualization
@@ -1700,12 +2145,14 @@ function MaterialDetailView({
               practical_CI95: material.RU_practical_CI95,
               theoretical_CI95: material.RU_theoretical_CI95,
               confidence_level: material.confidence_level,
-              category: material.category
+              category: material.category,
             }}
             fallbackScore={material.reusability}
-            simplified={!material.RU_practical_mean || !material.RU_theoretical_mean}
+            simplified={
+              !material.RU_practical_mean || !material.RU_theoretical_mean
+            }
             height={50}
-            onClick={() => onViewArticles('reusability')}
+            onClick={() => onViewArticles("reusability")}
             articleCount={material.articles.reusability.length}
           />
         </div>
@@ -1724,7 +2171,9 @@ function MaterialDetailView({
 
       {totalArticles > 0 ? (
         <div>
-          <h3 className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black mb-4">All Articles</h3>
+          <h3 className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black mb-4">
+            All Articles
+          </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {allArticles.map(({ article, category }) => (
               <ArticleCard
@@ -1737,7 +2186,7 @@ function MaterialDetailView({
                 onDelete={() => handleDeleteArticle(article.id, category)}
                 sustainabilityCategory={{
                   label: categoryLabels[category],
-                  color: categoryColors[category]
+                  color: categoryColors[category],
                 }}
                 onReadMore={() => onViewArticleStandalone(article.id, category)}
                 isAdminModeActive={isAdminModeActive}
@@ -1756,30 +2205,30 @@ function MaterialDetailView({
   );
 }
 
-function AllArticlesView({ 
-  category, 
-  materials, 
+function AllArticlesView({
+  category,
+  materials,
   onBack,
-  onViewArticleStandalone
-}: { 
-  category: CategoryType; 
-  materials: Material[]; 
+  onViewArticleStandalone,
+}: {
+  category: CategoryType;
+  materials: Material[];
   onBack: () => void;
   onViewArticleStandalone: (articleId: string, materialId: string) => void;
 }) {
   const categoryLabels = {
-    compostability: 'Compost',
-    recyclability: 'Recycling',
-    reusability: 'Reuse'
+    compostability: "Compost",
+    recyclability: "Recycling",
+    reusability: "Reuse",
   };
 
   // Collect all articles for this category across all materials
-  const articlesWithMaterial = materials.flatMap(material => {
+  const articlesWithMaterial = materials.flatMap((material) => {
     const categoryArticles = material.articles?.[category];
     if (!categoryArticles || !Array.isArray(categoryArticles)) return [];
-    return categoryArticles.map(article => ({
+    return categoryArticles.map((article) => ({
       article,
-      material
+      material,
     }));
   });
 
@@ -1797,7 +2246,8 @@ function AllArticlesView({
             All {categoryLabels[category]} Articles
           </h2>
           <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/60">
-            {articlesWithMaterial.length} article{articlesWithMaterial.length !== 1 ? 's' : ''} across all materials
+            {articlesWithMaterial.length} article
+            {articlesWithMaterial.length !== 1 ? "s" : ""} across all materials
           </p>
         </div>
       </div>
@@ -1815,7 +2265,9 @@ function AllArticlesView({
               onEdit={() => {}}
               onDelete={() => {}}
               hideActions
-              onReadMore={() => onViewArticleStandalone(article.id, material.id)}
+              onReadMore={() =>
+                onViewArticleStandalone(article.id, material.id)
+              }
             />
           </div>
         ))}
@@ -1834,19 +2286,20 @@ function AllArticlesView({
 
 function RecyclabilityCalculationView({ onBack }: { onBack: () => void }) {
   const [isEditing, setIsEditing] = useState(false);
-  const [markdownContent, setMarkdownContent] = useState('');
+  const [markdownContent, setMarkdownContent] = useState("");
 
   useEffect(() => {
     // Add KaTeX CSS to document head
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css';
-    link.integrity = 'sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV';
-    link.crossOrigin = 'anonymous';
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css";
+    link.integrity =
+      "sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV";
+    link.crossOrigin = "anonymous";
     document.head.appendChild(link);
 
     // Load markdown content from localStorage or use default
-    const storedContent = localStorage.getItem('recyclabilityMarkdown');
+    const storedContent = localStorage.getItem("recyclabilityMarkdown");
     if (storedContent) {
       setMarkdownContent(storedContent);
     } else {
@@ -1882,13 +2335,13 @@ Where:
   };
 
   const handleSave = () => {
-    localStorage.setItem('recyclabilityMarkdown', markdownContent);
+    localStorage.setItem("recyclabilityMarkdown", markdownContent);
     setIsEditing(false);
   };
 
   const handleCancel = () => {
     // Reload from localStorage
-    const storedContent = localStorage.getItem('recyclabilityMarkdown');
+    const storedContent = localStorage.getItem("recyclabilityMarkdown");
     if (storedContent) {
       setMarkdownContent(storedContent);
     }
@@ -1953,30 +2406,98 @@ Where:
               remarkPlugins={[remarkMath, remarkGfm]}
               rehypePlugins={[rehypeKatex]}
               components={{
-                h1: ({node, ...props}) => <h1 className="font-['Sniglet:Regular',_sans-serif] text-[20px] text-black mb-4" {...props} />,
-                h2: ({node, ...props}) => <h2 className="font-['Sniglet:Regular',_sans-serif] text-[18px] text-black mb-3" {...props} />,
-                h3: ({node, ...props}) => <h3 className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black mb-2" {...props} />,
-                p: ({node, ...props}) => <p className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black/80 mb-4 leading-relaxed" {...props} />,
-                ul: ({node, ...props}) => <ul className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black/80 mb-4 list-disc pl-6" {...props} />,
-                li: ({node, ...props}) => <li className="mb-1" {...props} />,
-                table: ({node, ...props}) => (
+                h1: ({ node, ...props }) => (
+                  <h1
+                    className="font-['Sniglet:Regular',_sans-serif] text-[20px] text-black mb-4"
+                    {...props}
+                  />
+                ),
+                h2: ({ node, ...props }) => (
+                  <h2
+                    className="font-['Sniglet:Regular',_sans-serif] text-[18px] text-black mb-3"
+                    {...props}
+                  />
+                ),
+                h3: ({ node, ...props }) => (
+                  <h3
+                    className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black mb-2"
+                    {...props}
+                  />
+                ),
+                p: ({ node, ...props }) => (
+                  <p
+                    className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black/80 mb-4 leading-relaxed"
+                    {...props}
+                  />
+                ),
+                ul: ({ node, ...props }) => (
+                  <ul
+                    className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black/80 mb-4 list-disc pl-6"
+                    {...props}
+                  />
+                ),
+                li: ({ node, ...props }) => <li className="mb-1" {...props} />,
+                table: ({ node, ...props }) => (
                   <div className="overflow-x-auto mb-6">
-                    <table className="w-full border-[1.5px] border-[#211f1c] rounded-[8px]" {...props} />
+                    <table
+                      className="w-full border-[1.5px] border-[#211f1c] rounded-[8px]"
+                      {...props}
+                    />
                   </div>
                 ),
-                thead: ({node, ...props}) => <thead className="bg-[#e4e3ac] border-b-[1.5px] border-[#211f1c]" {...props} />,
-                tbody: ({node, ...props}) => <tbody {...props} />,
-                tr: ({node, ...props}) => <tr className="border-b border-[#211f1c]/20" {...props} />,
-                th: ({node, ...props}) => <th className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black px-3 py-2 text-left border-r border-[#211f1c]/20 last:border-r-0" {...props} />,
-                td: ({node, ...props}) => <td className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/80 px-3 py-2 border-r border-[#211f1c]/20 last:border-r-0" {...props} />,
-                code: ({node, inline, ...props}) => 
+                thead: ({ node, ...props }) => (
+                  <thead
+                    className="bg-[#e4e3ac] border-b-[1.5px] border-[#211f1c]"
+                    {...props}
+                  />
+                ),
+                tbody: ({ node, ...props }) => <tbody {...props} />,
+                tr: ({ node, ...props }) => (
+                  <tr className="border-b border-[#211f1c]/20" {...props} />
+                ),
+                th: ({ node, ...props }) => (
+                  <th
+                    className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black px-3 py-2 text-left border-r border-[#211f1c]/20 last:border-r-0"
+                    {...props}
+                  />
+                ),
+                td: ({ node, ...props }) => (
+                  <td
+                    className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/80 px-3 py-2 border-r border-[#211f1c]/20 last:border-r-0"
+                    {...props}
+                  />
+                ),
+                code: ({ node, inline, ...props }) =>
                   inline ? (
-                    <code className="bg-[#211f1c]/5 px-1.5 py-0.5 rounded border border-[#211f1c]/20 text-black" style={{ fontSize: '14px', fontFamily: 'DaddyTimeMono Nerd Font Mono, Press Start 2P, monospace' }} {...props} />
+                    <code
+                      className="bg-[#211f1c]/5 px-1.5 py-0.5 rounded border border-[#211f1c]/20 text-black"
+                      style={{
+                        fontSize: "14px",
+                        fontFamily:
+                          "DaddyTimeMono Nerd Font Mono, Press Start 2P, monospace",
+                      }}
+                      {...props}
+                    />
                   ) : (
-                    <code className="text-black block" style={{ fontSize: '12px', fontFamily: 'DaddyTimeMono Nerd Font Mono, Press Start 2P, monospace' }} {...props} />
+                    <code
+                      className="text-black block"
+                      style={{
+                        fontSize: "12px",
+                        fontFamily:
+                          "DaddyTimeMono Nerd Font Mono, Press Start 2P, monospace",
+                      }}
+                      {...props}
+                    />
                   ),
-                pre: ({node, ...props}) => (
-                  <pre className="bg-[#211f1c]/5 border-[1.5px] border-[#211f1c] rounded-[8px] p-4 mb-4 overflow-x-auto" style={{ fontFamily: 'DaddyTimeMono Nerd Font Mono, Press Start 2P, monospace' }} {...props} />
+                pre: ({ node, ...props }) => (
+                  <pre
+                    className="bg-[#211f1c]/5 border-[1.5px] border-[#211f1c] rounded-[8px] p-4 mb-4 overflow-x-auto"
+                    style={{
+                      fontFamily:
+                        "DaddyTimeMono Nerd Font Mono, Press Start 2P, monospace",
+                    }}
+                    {...props}
+                  />
                 ),
               }}
             >
@@ -1996,7 +2517,7 @@ function StandaloneArticleView({
   onBack,
   onEdit,
   onDelete,
-  isAdminModeActive
+  isAdminModeActive,
 }: {
   article: Article;
   sustainabilityCategory?: { label: string; color: string };
@@ -2034,7 +2555,7 @@ function StandaloneArticleView({
               {article.category}
             </span>
             {sustainabilityCategory && (
-              <span 
+              <span
                 className="inline-block px-2 py-0.5 rounded-md border border-[#211f1c] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[9px] text-black"
                 style={{ backgroundColor: sustainabilityCategory.color }}
               >
@@ -2071,9 +2592,11 @@ function StandaloneArticleView({
           {/* Overview Section */}
           {article.overview.image && (
             <div>
-              <h3 className="font-['Sniglet:Regular',_sans-serif] text-[15px] text-black mb-3">Overview</h3>
-              <img 
-                src={article.overview.image} 
+              <h3 className="font-['Sniglet:Regular',_sans-serif] text-[15px] text-black mb-3">
+                Overview
+              </h3>
+              <img
+                src={article.overview.image}
                 alt="Overview"
                 className="w-full h-auto rounded-[4px] border border-[#211f1c]"
               />
@@ -2082,10 +2605,12 @@ function StandaloneArticleView({
 
           {/* Introduction Section */}
           <div>
-            <h3 className="font-['Sniglet:Regular',_sans-serif] text-[15px] text-black mb-3">Introduction</h3>
+            <h3 className="font-['Sniglet:Regular',_sans-serif] text-[15px] text-black mb-3">
+              Introduction
+            </h3>
             {article.introduction.image && (
-              <img 
-                src={article.introduction.image} 
+              <img
+                src={article.introduction.image}
                 alt="Introduction"
                 className="w-full h-auto rounded-[4px] border border-[#211f1c] mb-3"
               />
@@ -2097,10 +2622,12 @@ function StandaloneArticleView({
 
           {/* Supplies Section */}
           <div>
-            <h3 className="font-['Sniglet:Regular',_sans-serif] text-[15px] text-black mb-3">Supplies</h3>
+            <h3 className="font-['Sniglet:Regular',_sans-serif] text-[15px] text-black mb-3">
+              Supplies
+            </h3>
             {article.supplies.image && (
-              <img 
-                src={article.supplies.image} 
+              <img
+                src={article.supplies.image}
                 alt="Supplies"
                 className="w-full h-auto rounded-[4px] border border-[#211f1c] mb-3"
               />
@@ -2112,10 +2639,12 @@ function StandaloneArticleView({
 
           {/* Step 1 Section */}
           <div>
-            <h3 className="font-['Sniglet:Regular',_sans-serif] text-[15px] text-black mb-3">Step 1</h3>
+            <h3 className="font-['Sniglet:Regular',_sans-serif] text-[15px] text-black mb-3">
+              Step 1
+            </h3>
             {article.step1.image && (
-              <img 
-                src={article.step1.image} 
+              <img
+                src={article.step1.image}
                 alt="Step 1"
                 className="w-full h-auto rounded-[4px] border border-[#211f1c] mb-3"
               />
@@ -2158,7 +2687,7 @@ function DataManagementView({
   onDeleteMaterial,
   onViewMaterial,
   user,
-  userRole
+  userRole,
 }: {
   materials: Material[];
   onBack: () => void;
@@ -2169,23 +2698,23 @@ function DataManagementView({
   onDeleteMaterial: (materialId: string) => void;
   onViewMaterial: (materialId: string) => void;
   user: any;
-  userRole: 'user' | 'admin';
+  userRole: "user" | "admin";
 }) {
-  const [activeTab, setActiveTab] = useState('materials');
+  const [activeTab, setActiveTab] = useState("materials");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editData, setEditData] = useState<Partial<Material>>({});
   const [showImportOptions, setShowImportOptions] = useState(false);
-  const [pasteData, setPasteData] = useState('');
+  const [pasteData, setPasteData] = useState("");
 
   const categoryOptions = [
-    'Plastics',
-    'Metals',
-    'Glass',
-    'Paper & Cardboard',
-    'Fabrics & Textiles',
-    'Electronics & Batteries',
-    'Building Materials',
-    'Organic/Natural Waste'
+    "Plastics",
+    "Metals",
+    "Glass",
+    "Paper & Cardboard",
+    "Fabrics & Textiles",
+    "Electronics & Batteries",
+    "Building Materials",
+    "Organic/Natural Waste",
   ];
 
   const handleEdit = (material: Material) => {
@@ -2196,23 +2725,23 @@ function DataManagementView({
       description: material.description,
       compostability: material.compostability,
       recyclability: material.recyclability,
-      reusability: material.reusability
+      reusability: material.reusability,
     });
   };
 
   const handleSave = () => {
     if (!editingId) return;
-    const material = materials.find(m => m.id === editingId);
+    const material = materials.find((m) => m.id === editingId);
     if (!material) return;
 
     const updatedMaterial = {
       ...material,
-      ...editData
+      ...editData,
     };
     onUpdateMaterial(updatedMaterial);
     setEditingId(null);
     setEditData({});
-    toast.success('Material updated successfully');
+    toast.success("Material updated successfully");
   };
 
   const handleCancel = () => {
@@ -2222,28 +2751,36 @@ function DataManagementView({
 
   const processCSVText = (text: string) => {
     try {
-      const lines = text.split('\n').filter(line => line.trim());
-        
+      const lines = text.split("\n").filter((line) => line.trim());
+
       if (lines.length < 2) {
-        toast.error('CSV must have headers and at least one row');
+        toast.error("CSV must have headers and at least one row");
         return;
       }
 
-      const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-      const requiredHeaders = ['name', 'category', 'compostability', 'recyclability', 'reusability'];
-      const hasRequired = requiredHeaders.every(h => headers.includes(h));
+      const headers = lines[0].split(",").map((h) => h.trim().toLowerCase());
+      const requiredHeaders = [
+        "name",
+        "category",
+        "compostability",
+        "recyclability",
+        "reusability",
+      ];
+      const hasRequired = requiredHeaders.every((h) => headers.includes(h));
 
       if (!hasRequired) {
-        toast.error('CSV must include: name, category, compostability, recyclability, reusability');
+        toast.error(
+          "CSV must include: name, category, compostability, recyclability, reusability"
+        );
         return;
       }
 
       const newMaterials: Material[] = [];
       for (let i = 1; i < lines.length; i++) {
-        const values = lines[i].split(',').map(v => v.trim());
+        const values = lines[i].split(",").map((v) => v.trim());
         const row: any = {};
         headers.forEach((header, index) => {
-          row[header] = values[index] || '';
+          row[header] = values[index] || "";
         });
 
         if (!row.name || !row.category) continue;
@@ -2252,15 +2789,24 @@ function DataManagementView({
           id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
           name: row.name,
           category: row.category,
-          description: row.description || '',
-          compostability: Math.min(100, Math.max(0, parseInt(row.compostability) || 0)),
-          recyclability: Math.min(100, Math.max(0, parseInt(row.recyclability) || 0)),
-          reusability: Math.min(100, Math.max(0, parseInt(row.reusability) || 0)),
+          description: row.description || "",
+          compostability: Math.min(
+            100,
+            Math.max(0, parseInt(row.compostability) || 0)
+          ),
+          recyclability: Math.min(
+            100,
+            Math.max(0, parseInt(row.recyclability) || 0)
+          ),
+          reusability: Math.min(
+            100,
+            Math.max(0, parseInt(row.reusability) || 0)
+          ),
           articles: {
             compostability: [],
             recyclability: [],
-            reusability: []
-          }
+            reusability: [],
+          },
         };
 
         newMaterials.push(newMaterial);
@@ -2269,22 +2815,26 @@ function DataManagementView({
       // Import all materials at once
       if (newMaterials.length > 0) {
         onBulkImport(newMaterials);
-        toast.success(`Imported ${newMaterials.length} material${newMaterials.length !== 1 ? 's' : ''}`);
+        toast.success(
+          `Imported ${newMaterials.length} material${
+            newMaterials.length !== 1 ? "s" : ""
+          }`
+        );
       } else {
-        toast.error('No valid materials found in CSV');
+        toast.error("No valid materials found in CSV");
       }
     } catch (error) {
-      toast.error('Failed to parse CSV data');
+      toast.error("Failed to parse CSV data");
     }
   };
 
   const handlePasteImport = () => {
     if (!pasteData.trim()) {
-      toast.error('Please paste CSV data first');
+      toast.error("Please paste CSV data first");
       return;
     }
     processCSVText(pasteData);
-    setPasteData('');
+    setPasteData("");
     setShowImportOptions(false);
   };
 
@@ -2296,34 +2846,43 @@ function DataManagementView({
     reader.onload = (e) => {
       const text = e.target?.result as string;
       processCSVText(text);
-      event.target.value = ''; // Reset file input
+      event.target.value = ""; // Reset file input
       setShowImportOptions(false);
     };
     reader.readAsText(file);
   };
 
   const handleExportCSV = () => {
-    const headers = ['name', 'category', 'description', 'compostability', 'recyclability', 'reusability'];
+    const headers = [
+      "name",
+      "category",
+      "description",
+      "compostability",
+      "recyclability",
+      "reusability",
+    ];
     const csvContent = [
-      headers.join(','),
-      ...materials.map(m => [
-        m.name,
-        m.category,
-        m.description || '',
-        m.compostability,
-        m.recyclability,
-        m.reusability
-      ].join(','))
-    ].join('\n');
+      headers.join(","),
+      ...materials.map((m) =>
+        [
+          m.name,
+          m.category,
+          m.description || "",
+          m.compostability,
+          m.recyclability,
+          m.reusability,
+        ].join(",")
+      ),
+    ].join("\n");
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const blob = new Blob([csvContent], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = `wastedb-export-${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = `wastedb-export-${new Date().toISOString().split("T")[0]}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success('Data exported successfully');
+    toast.success("Data exported successfully");
   };
 
   return (
@@ -2349,21 +2908,21 @@ function DataManagementView({
       <div className="mb-6">
         <div className="flex gap-1 md:gap-2 border-b border-[#211f1c]/20 dark:border-white/20 flex-wrap overflow-x-auto">
           <button
-            onClick={() => setActiveTab('materials')}
+            onClick={() => setActiveTab("materials")}
             className={`px-2 md:px-4 py-2 font-['Sniglet:Regular',_sans-serif] text-[10px] md:text-[12px] transition-colors whitespace-nowrap ${
-              activeTab === 'materials'
-                ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
-                : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
+              activeTab === "materials"
+                ? "text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white"
+                : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
             }`}
           >
             Materials
           </button>
           <button
-            onClick={() => setActiveTab('sources')}
+            onClick={() => setActiveTab("sources")}
             className={`px-2 md:px-4 py-2 font-['Sniglet:Regular',_sans-serif] text-[10px] md:text-[12px] transition-colors whitespace-nowrap ${
-              activeTab === 'sources' || activeTab === 'comparison'
-                ? 'text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white'
-                : 'text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white'
+              activeTab === "sources" || activeTab === "comparison"
+                ? "text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white"
+                : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
             }`}
           >
             Sources
@@ -2371,361 +2930,453 @@ function DataManagementView({
         </div>
       </div>
 
-      {activeTab === 'materials' ? (
+      {activeTab === "materials" ? (
         <div>
           <div className="flex items-center gap-4 mb-4">
             <div className="flex-1">
               <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/60 dark:text-white/60">
-                {materials.length} material{materials.length !== 1 ? 's' : ''} total
+                {materials.length} material{materials.length !== 1 ? "s" : ""}{" "}
+                total
               </p>
             </div>
-        
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={handleExportCSV}
-            className="bg-[#b8c8cb] h-[36px] px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[11px] md:text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-1 md:gap-2"
-          >
-            <Download size={14} className="text-black" />
-            <span className="whitespace-nowrap">Export CSV</span>
-          </button>
-          
-          <button
-            onClick={() => setShowImportOptions(!showImportOptions)}
-            className={`bg-[#e4e3ac] h-[36px] px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[11px] md:text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-1 md:gap-2 ${
-              showImportOptions ? 'translate-y-[1px] shadow-[1px_2px_0px_-1px_#000000]' : ''
-            }`}
-          >
-            <FileUp size={14} className="text-black" />
-            <span className="whitespace-nowrap">Import CSV</span>
-            <ChevronDown size={14} className={`text-black transition-transform ${showImportOptions ? 'rotate-180' : ''}`} />
-          </button>
 
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <button className="bg-[#e6beb5] h-[36px] px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[11px] md:text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-1 md:gap-2">
-                <Trash2 size={14} className="text-black" />
-                <span className="whitespace-nowrap">Delete All</span>
-              </button>
-            </AlertDialogTrigger>
-            <AlertDialogContent className="bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20">
-              <AlertDialogHeader>
-                <AlertDialogTitle className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">
-                  Delete All Data?
-                </AlertDialogTitle>
-                <AlertDialogDescription className="font-['Sniglet:Regular',_sans-serif] text-black/70 dark:text-white/70">
-                  This will permanently delete all {materials.length} material{materials.length !== 1 ? 's' : ''} and their associated articles. This action cannot be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel className="font-['Sniglet:Regular',_sans-serif] bg-[#b8c8cb] border-[#211f1c] dark:border-white/20">
-                  Cancel
-                </AlertDialogCancel>
-                <AlertDialogAction 
-                  onClick={onDeleteAllData}
-                  className="font-['Sniglet:Regular',_sans-serif] bg-[#e6beb5] text-black border-[1.5px] border-[#211f1c] dark:border-white/20 hover:bg-[#e6beb5]/80"
-                >
-                  Delete All
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
-      </div>
-
-      {/* Import Options */}
-      {showImportOptions && (
-        <div className="mb-4 bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 p-4">
-          <h3 className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white mb-4">
-            Import CSV Data
-          </h3>
-          
-          <div className="space-y-4">
-            {/* Paste CSV Option */}
-            <div className="space-y-2">
-              <label className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
-                Paste CSV Data
-              </label>
-              <Textarea
-                value={pasteData}
-                onChange={(e) => setPasteData(e.target.value)}
-                placeholder="name,category,description,compostability,recyclability,reusability&#10;PET Plastic,Plastics,Clear plastic bottles,0,85,40&#10;Aluminum Can,Metals,Beverage container,0,95,75"
-                className="font-['Sniglet:Regular',_sans-serif] text-[11px] min-h-[120px] border-[#211f1c] dark:border-white/20 dark:bg-[#1a1917] dark:text-white"
-              />
+            <div className="flex flex-wrap gap-2">
               <button
-                onClick={handlePasteImport}
-                className="w-full bg-[#b8c8cb] h-[36px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
+                onClick={handleExportCSV}
+                className="bg-[#b8c8cb] h-[36px] px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[11px] md:text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-1 md:gap-2"
               >
-                Import from Paste
+                <Download size={14} className="text-black" />
+                <span className="whitespace-nowrap">Export CSV</span>
               </button>
-            </div>
 
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-[#211f1c]/20 dark:border-white/20"></div>
-              </div>
-              <div className="relative flex justify-center">
-                <span className="bg-white dark:bg-[#2a2825] px-2 font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/60 dark:text-white/60">
-                  OR
-                </span>
-              </div>
-            </div>
-
-            {/* Upload File Option */}
-            <div className="space-y-2">
-              <label className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
-                Upload CSV File
-              </label>
-              <label className="w-full bg-[#e4e3ac] h-[36px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center justify-center gap-2 cursor-pointer">
-                <Upload size={14} className="text-black" />
-                Choose File
-                <input
-                  type="file"
-                  accept=".csv"
-                  onChange={handleBulkImport}
-                  className="hidden"
+              <button
+                onClick={() => setShowImportOptions(!showImportOptions)}
+                className={`bg-[#e4e3ac] h-[36px] px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[11px] md:text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-1 md:gap-2 ${
+                  showImportOptions
+                    ? "translate-y-[1px] shadow-[1px_2px_0px_-1px_#000000]"
+                    : ""
+                }`}
+              >
+                <FileUp size={14} className="text-black" />
+                <span className="whitespace-nowrap">Import CSV</span>
+                <ChevronDown
+                  size={14}
+                  className={`text-black transition-transform ${
+                    showImportOptions ? "rotate-180" : ""
+                  }`}
                 />
-              </label>
+              </button>
+
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <button className="bg-[#e6beb5] h-[36px] px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[11px] md:text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-1 md:gap-2">
+                    <Trash2 size={14} className="text-black" />
+                    <span className="whitespace-nowrap">Delete All</span>
+                  </button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">
+                      Delete All Data?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription className="font-['Sniglet:Regular',_sans-serif] text-black/70 dark:text-white/70">
+                      This will permanently delete all {materials.length}{" "}
+                      material{materials.length !== 1 ? "s" : ""} and their
+                      associated articles. This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel className="font-['Sniglet:Regular',_sans-serif] bg-[#b8c8cb] border-[#211f1c] dark:border-white/20">
+                      Cancel
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={onDeleteAllData}
+                      className="font-['Sniglet:Regular',_sans-serif] bg-[#e6beb5] text-black border-[1.5px] border-[#211f1c] dark:border-white/20 hover:bg-[#e6beb5]/80"
+                    >
+                      Delete All
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </div>
-        </div>
-      )}
 
-      <div className="bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 overflow-hidden">
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-b border-[#211f1c] dark:border-white/20 bg-[#e4e3ac]">
-                <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black">Name</TableHead>
-                <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black">Category</TableHead>
-                <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black">Description</TableHead>
-                <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black text-center">Compostability</TableHead>
-                <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black text-center">Recyclability</TableHead>
-                <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black text-center">Reusability</TableHead>
-                <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black text-center">Articles</TableHead>
-                <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black text-center">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {materials.map((material) => {
-                const isEditing = editingId === material.id;
-                return (
-                  <TableRow key={material.id} className="border-b border-[#211f1c]/20 dark:border-white/10 hover:bg-[#211f1c]/5 dark:hover:bg-white/5">
-                    <TableCell className="font-['Sniglet:Regular',_sans-serif] text-[11px]">
-                      {isEditing ? (
-                        <Input
-                          value={editData.name || ''}
-                          onChange={(e) => setEditData({ ...editData, name: e.target.value })}
-                          className="h-7 text-[11px] font-['Sniglet:Regular',_sans-serif] border-[#211f1c] dark:border-white/20"
-                        />
-                      ) : (
-                        <button
-                          onClick={() => onViewMaterial(material.id)}
-                          className="text-blue-600 dark:text-blue-400 hover:underline text-left flex items-center gap-1.5 group"
-                        >
-                          <Eye size={12} className="opacity-0 group-hover:opacity-60 transition-opacity" />
-                          {material.name}
-                        </button>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {isEditing ? (
-                        <Select
-                          value={editData.category || material.category}
-                          onValueChange={(value) => setEditData({ ...editData, category: value })}
-                        >
-                          <SelectTrigger className="h-7 text-[9px] font-['Sniglet:Regular',_sans-serif] border-[#211f1c] dark:border-white/20">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className="font-['Sniglet:Regular',_sans-serif] bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
-                            {categoryOptions.map(cat => (
-                              <SelectItem key={cat} value={cat} className="text-[9px]">
-                                {cat}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      ) : (
-                        <span className="inline-block px-2 py-0.5 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[9px] text-black">
-                          {material.category}
-                        </span>
-                      )}
-                    </TableCell>
-                    <TableCell className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/70 dark:text-white/70 max-w-xs">
-                      {isEditing ? (
-                        <Input
-                          value={editData.description || ''}
-                          onChange={(e) => setEditData({ ...editData, description: e.target.value })}
-                          className="h-7 text-[11px] font-['Sniglet:Regular',_sans-serif] border-[#211f1c] dark:border-white/20"
-                        />
-                      ) : (
-                        <span className="truncate block">{material.description || '-'}</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {isEditing ? (
-                        <Input
-                          type="number"
-                          min="0"
-                          max="100"
-                          value={editData.compostability ?? material.compostability}
-                          onChange={(e) => setEditData({ ...editData, compostability: Math.min(100, Math.max(0, parseInt(e.target.value) || 0)) })}
-                          className="h-7 w-16 text-[11px] font-['Sniglet:Regular',_sans-serif] border-[#211f1c] dark:border-white/20 text-center"
-                        />
-                      ) : (
-                        <div className="inline-flex items-center gap-1">
-                          <span className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white">
-                            {material.compostability}
-                          </span>
-                          <div className="w-12 h-1.5 bg-[#211f1c]/10 dark:bg-white/10 rounded-full overflow-hidden">
-                            <div 
-                              className="h-full bg-[#e6beb5] rounded-full"
-                              style={{ width: `${material.compostability}%` }}
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {isEditing ? (
-                        <Input
-                          type="number"
-                          min="0"
-                          max="100"
-                          value={editData.recyclability ?? material.recyclability}
-                          onChange={(e) => setEditData({ ...editData, recyclability: Math.min(100, Math.max(0, parseInt(e.target.value) || 0)) })}
-                          className="h-7 w-16 text-[11px] font-['Sniglet:Regular',_sans-serif] border-[#211f1c] dark:border-white/20 text-center"
-                        />
-                      ) : (
-                        <div className="inline-flex items-center gap-1">
-                          <span className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white">
-                            {material.recyclability}
-                          </span>
-                          <div className="w-12 h-1.5 bg-[#211f1c]/10 dark:bg-white/10 rounded-full overflow-hidden">
-                            <div 
-                              className="h-full bg-[#e4e3ac] rounded-full"
-                              style={{ width: `${material.recyclability}%` }}
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {isEditing ? (
-                        <Input
-                          type="number"
-                          min="0"
-                          max="100"
-                          value={editData.reusability ?? material.reusability}
-                          onChange={(e) => setEditData({ ...editData, reusability: Math.min(100, Math.max(0, parseInt(e.target.value) || 0)) })}
-                          className="h-7 w-16 text-[11px] font-['Sniglet:Regular',_sans-serif] border-[#211f1c] dark:border-white/20 text-center"
-                        />
-                      ) : (
-                        <div className="inline-flex items-center gap-1">
-                          <span className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white">
-                            {material.reusability}
-                          </span>
-                          <div className="w-12 h-1.5 bg-[#211f1c]/10 dark:bg-white/10 rounded-full overflow-hidden">
-                            <div 
-                              className="h-full bg-[#b8c8cb] rounded-full"
-                              style={{ width: `${material.reusability}%` }}
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <span className="font-['Sniglet:Regular',_sans-serif] text-[9px] text-black dark:text-white">
-                        {material.articles.compostability.length} / {material.articles.recyclability.length} / {material.articles.reusability.length}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {isEditing ? (
-                        <div className="flex gap-1 justify-center">
-                          <button
-                            onClick={handleSave}
-                            className="p-1.5 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all"
-                          >
-                            <Save size={12} className="text-black" />
-                          </button>
-                          <button
-                            onClick={handleCancel}
-                            className="p-1.5 bg-[#e6beb5] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all"
-                          >
-                            <X size={12} className="text-black" />
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="flex gap-1 justify-center">
-                          <button
-                            onClick={() => handleEdit(material)}
-                            className="p-1.5 bg-[#e4e3ac] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all"
-                            title="Edit material"
-                          >
-                            <Edit2 size={12} className="text-black" />
-                          </button>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <button
-                                className="p-1.5 bg-[#e6beb5] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all"
-                                title="Delete material"
-                              >
-                                <Trash2 size={12} className="text-black" />
-                              </button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent className="bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20">
-                              <AlertDialogHeader>
-                                <AlertDialogTitle className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">
-                                  Delete Material?
-                                </AlertDialogTitle>
-                                <AlertDialogDescription className="font-['Sniglet:Regular',_sans-serif] text-black/70 dark:text-white/70">
-                                  Are you sure you want to delete "{material.name}"? This will permanently remove the material and all its associated articles. This action cannot be undone.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel className="font-['Sniglet:Regular',_sans-serif] bg-[#b8c8cb] border-[#211f1c] dark:border-white/20">
-                                  Cancel
-                                </AlertDialogCancel>
-                                <AlertDialogAction 
-                                  onClick={() => onDeleteMaterial(material.id)}
-                                  className="font-['Sniglet:Regular',_sans-serif] bg-[#e6beb5] text-black border-[1.5px] border-[#211f1c] dark:border-white/20 hover:bg-[#e6beb5]/80"
-                                >
-                                  Delete
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </div>
-                      )}
-                    </TableCell>
+          {/* Import Options */}
+          {showImportOptions && (
+            <div className="mb-4 bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 p-4">
+              <h3 className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white mb-4">
+                Import CSV Data
+              </h3>
+
+              <div className="space-y-4">
+                {/* Paste CSV Option */}
+                <div className="space-y-2">
+                  <label className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
+                    Paste CSV Data
+                  </label>
+                  <Textarea
+                    value={pasteData}
+                    onChange={(e) => setPasteData(e.target.value)}
+                    placeholder="name,category,description,compostability,recyclability,reusability&#10;PET Plastic,Plastics,Clear plastic bottles,0,85,40&#10;Aluminum Can,Metals,Beverage container,0,95,75"
+                    className="font-['Sniglet:Regular',_sans-serif] text-[11px] min-h-[120px] border-[#211f1c] dark:border-white/20 dark:bg-[#1a1917] dark:text-white"
+                  />
+                  <button
+                    onClick={handlePasteImport}
+                    className="w-full bg-[#b8c8cb] h-[36px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
+                  >
+                    Import from Paste
+                  </button>
+                </div>
+
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-[#211f1c]/20 dark:border-white/20"></div>
+                  </div>
+                  <div className="relative flex justify-center">
+                    <span className="bg-white dark:bg-[#2a2825] px-2 font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/60 dark:text-white/60">
+                      OR
+                    </span>
+                  </div>
+                </div>
+
+                {/* Upload File Option */}
+                <div className="space-y-2">
+                  <label className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
+                    Upload CSV File
+                  </label>
+                  <label className="w-full bg-[#e4e3ac] h-[36px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center justify-center gap-2 cursor-pointer">
+                    <Upload size={14} className="text-black" />
+                    Choose File
+                    <input
+                      type="file"
+                      accept=".csv"
+                      onChange={handleBulkImport}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 overflow-hidden">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-b border-[#211f1c] dark:border-white/20 bg-[#e4e3ac]">
+                    <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black">
+                      Name
+                    </TableHead>
+                    <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black">
+                      Category
+                    </TableHead>
+                    <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black">
+                      Description
+                    </TableHead>
+                    <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black text-center">
+                      Compostability
+                    </TableHead>
+                    <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black text-center">
+                      Recyclability
+                    </TableHead>
+                    <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black text-center">
+                      Reusability
+                    </TableHead>
+                    <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black text-center">
+                      Articles
+                    </TableHead>
+                    <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black text-center">
+                      Actions
+                    </TableHead>
                   </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
+                </TableHeader>
+                <TableBody>
+                  {materials.map((material) => {
+                    const isEditing = editingId === material.id;
+                    return (
+                      <TableRow
+                        key={material.id}
+                        className="border-b border-[#211f1c]/20 dark:border-white/10 hover:bg-[#211f1c]/5 dark:hover:bg-white/5"
+                      >
+                        <TableCell className="font-['Sniglet:Regular',_sans-serif] text-[11px]">
+                          {isEditing ? (
+                            <Input
+                              value={editData.name || ""}
+                              onChange={(e) =>
+                                setEditData({
+                                  ...editData,
+                                  name: e.target.value,
+                                })
+                              }
+                              className="h-7 text-[11px] font-['Sniglet:Regular',_sans-serif] border-[#211f1c] dark:border-white/20"
+                            />
+                          ) : (
+                            <button
+                              onClick={() => onViewMaterial(material.id)}
+                              className="text-blue-600 dark:text-blue-400 hover:underline text-left flex items-center gap-1.5 group"
+                            >
+                              <Eye
+                                size={12}
+                                className="opacity-0 group-hover:opacity-60 transition-opacity"
+                              />
+                              {material.name}
+                            </button>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {isEditing ? (
+                            <Select
+                              value={editData.category || material.category}
+                              onValueChange={(value) =>
+                                setEditData({ ...editData, category: value })
+                              }
+                            >
+                              <SelectTrigger className="h-7 text-[9px] font-['Sniglet:Regular',_sans-serif] border-[#211f1c] dark:border-white/20">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent className="font-['Sniglet:Regular',_sans-serif] bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
+                                {categoryOptions.map((cat) => (
+                                  <SelectItem
+                                    key={cat}
+                                    value={cat}
+                                    className="text-[9px]"
+                                  >
+                                    {cat}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          ) : (
+                            <span className="inline-block px-2 py-0.5 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[9px] text-black">
+                              {material.category}
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/70 dark:text-white/70 max-w-xs">
+                          {isEditing ? (
+                            <Input
+                              value={editData.description || ""}
+                              onChange={(e) =>
+                                setEditData({
+                                  ...editData,
+                                  description: e.target.value,
+                                })
+                              }
+                              className="h-7 text-[11px] font-['Sniglet:Regular',_sans-serif] border-[#211f1c] dark:border-white/20"
+                            />
+                          ) : (
+                            <span className="truncate block">
+                              {material.description || "-"}
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {isEditing ? (
+                            <Input
+                              type="number"
+                              min="0"
+                              max="100"
+                              value={
+                                editData.compostability ??
+                                material.compostability
+                              }
+                              onChange={(e) =>
+                                setEditData({
+                                  ...editData,
+                                  compostability: Math.min(
+                                    100,
+                                    Math.max(0, parseInt(e.target.value) || 0)
+                                  ),
+                                })
+                              }
+                              className="h-7 w-16 text-[11px] font-['Sniglet:Regular',_sans-serif] border-[#211f1c] dark:border-white/20 text-center"
+                            />
+                          ) : (
+                            <div className="inline-flex items-center gap-1">
+                              <span className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white">
+                                {material.compostability}
+                              </span>
+                              <div className="w-12 h-1.5 bg-[#211f1c]/10 dark:bg-white/10 rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-[#e6beb5] rounded-full"
+                                  style={{
+                                    width: `${material.compostability}%`,
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {isEditing ? (
+                            <Input
+                              type="number"
+                              min="0"
+                              max="100"
+                              value={
+                                editData.recyclability ?? material.recyclability
+                              }
+                              onChange={(e) =>
+                                setEditData({
+                                  ...editData,
+                                  recyclability: Math.min(
+                                    100,
+                                    Math.max(0, parseInt(e.target.value) || 0)
+                                  ),
+                                })
+                              }
+                              className="h-7 w-16 text-[11px] font-['Sniglet:Regular',_sans-serif] border-[#211f1c] dark:border-white/20 text-center"
+                            />
+                          ) : (
+                            <div className="inline-flex items-center gap-1">
+                              <span className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white">
+                                {material.recyclability}
+                              </span>
+                              <div className="w-12 h-1.5 bg-[#211f1c]/10 dark:bg-white/10 rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-[#e4e3ac] rounded-full"
+                                  style={{
+                                    width: `${material.recyclability}%`,
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {isEditing ? (
+                            <Input
+                              type="number"
+                              min="0"
+                              max="100"
+                              value={
+                                editData.reusability ?? material.reusability
+                              }
+                              onChange={(e) =>
+                                setEditData({
+                                  ...editData,
+                                  reusability: Math.min(
+                                    100,
+                                    Math.max(0, parseInt(e.target.value) || 0)
+                                  ),
+                                })
+                              }
+                              className="h-7 w-16 text-[11px] font-['Sniglet:Regular',_sans-serif] border-[#211f1c] dark:border-white/20 text-center"
+                            />
+                          ) : (
+                            <div className="inline-flex items-center gap-1">
+                              <span className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white">
+                                {material.reusability}
+                              </span>
+                              <div className="w-12 h-1.5 bg-[#211f1c]/10 dark:bg-white/10 rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-[#b8c8cb] rounded-full"
+                                  style={{ width: `${material.reusability}%` }}
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <span className="font-['Sniglet:Regular',_sans-serif] text-[9px] text-black dark:text-white">
+                            {material.articles.compostability.length} /{" "}
+                            {material.articles.recyclability.length} /{" "}
+                            {material.articles.reusability.length}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {isEditing ? (
+                            <div className="flex gap-1 justify-center">
+                              <button
+                                onClick={handleSave}
+                                className="p-1.5 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                              >
+                                <Save size={12} className="text-black" />
+                              </button>
+                              <button
+                                onClick={handleCancel}
+                                className="p-1.5 bg-[#e6beb5] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                              >
+                                <X size={12} className="text-black" />
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="flex gap-1 justify-center">
+                              <button
+                                onClick={() => handleEdit(material)}
+                                className="p-1.5 bg-[#e4e3ac] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                                title="Edit material"
+                              >
+                                <Edit2 size={12} className="text-black" />
+                              </button>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <button
+                                    className="p-1.5 bg-[#e6beb5] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                                    title="Delete material"
+                                  >
+                                    <Trash2 size={12} className="text-black" />
+                                  </button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent className="bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20">
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">
+                                      Delete Material?
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription className="font-['Sniglet:Regular',_sans-serif] text-black/70 dark:text-white/70">
+                                      Are you sure you want to delete "
+                                      {material.name}"? This will permanently
+                                      remove the material and all its associated
+                                      articles. This action cannot be undone.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel className="font-['Sniglet:Regular',_sans-serif] bg-[#b8c8cb] border-[#211f1c] dark:border-white/20">
+                                      Cancel
+                                    </AlertDialogCancel>
+                                    <AlertDialogAction
+                                      onClick={() =>
+                                        onDeleteMaterial(material.id)
+                                      }
+                                      className="font-['Sniglet:Regular',_sans-serif] bg-[#e6beb5] text-black border-[1.5px] border-[#211f1c] dark:border-white/20 hover:bg-[#e6beb5]/80"
+                                    >
+                                      Delete
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </div>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
 
-        {materials.length === 0 && (
-          <div className="text-center py-12">
-            <p className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black/50 dark:text-white/50">
-              No materials in database yet.
-            </p>
+            {materials.length === 0 && (
+              <div className="text-center py-12">
+                <p className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black/50 dark:text-white/50">
+                  No materials in database yet.
+                </p>
+              </div>
+            )}
           </div>
-        )}
-      </div>
         </div>
-      ) : activeTab === 'sources' ? (
+      ) : activeTab === "sources" ? (
         <SourceLibraryManager
           onBack={() => {}} // Empty since we're in a tab
           materials={materials}
           isAuthenticated={!!user}
-          isAdmin={userRole === 'admin'}
+          isAdmin={userRole === "admin"}
         />
-      ) : activeTab === 'comparison' ? (
+      ) : activeTab === "comparison" ? (
         <SourceDataComparison
           onBack={() => {}} // Empty since we're in a tab
           materials={materials}
         />
-      ) : activeTab === 'charts' ? (
+      ) : activeTab === "charts" ? (
         <ChartRasterizationDemo />
       ) : null}
     </div>
@@ -2734,9 +3385,48 @@ function DataManagementView({
 
 function AppContent() {
   const { settings, toggleAdminMode } = useAccessibility();
-  const { currentView, navigateTo, navigateToMaterials, navigateToSearchResults, navigateToMaterialDetail, navigateToArticles, navigateToArticleDetail, navigateToMethodologyList, navigateToWhitepaper, navigateToAdminDashboard, navigateToDataManagement, navigateToUserManagement, navigateToScientificEditor, navigateToExport, navigateToUserProfile, navigateToMySubmissions, navigateToReviewCenter, navigateToWhitepaperSync, navigateToApiDocs, navigateToLicenses, navigateToLegalHub, navigateToScienceHub, navigateToTakedownForm, navigateToAdminTakedownList, navigateToAuditLog, navigateToDataRetention, navigateToPhase9Testing, navigateToPhase9Day10Testing, navigateToTransformManager, navigateToWhitepapersManagement, navigateToAssetsManagement, navigateToMathTools, navigateToChartsPerformance, navigateToRoadmap, navigateToRoadmapOverview, navigateToSourceLibrary, navigateToSourceComparison, navigateToEvidenceLab, navigateToTransformTesting } = useNavigationContext();
-  const { user, userRole, isAuthenticated, signIn, signOut, updateUserRole } = useAuthContext();
-  
+  const {
+    currentView,
+    navigateTo,
+    navigateToMaterials,
+    navigateToSearchResults,
+    navigateToMaterialDetail,
+    navigateToArticles,
+    navigateToArticleDetail,
+    navigateToMethodologyList,
+    navigateToWhitepaper,
+    navigateToAdminDashboard,
+    navigateToDataManagement,
+    navigateToUserManagement,
+    navigateToScientificEditor,
+    navigateToExport,
+    navigateToUserProfile,
+    navigateToMySubmissions,
+    navigateToReviewCenter,
+    navigateToWhitepaperSync,
+    navigateToApiDocs,
+    navigateToLicenses,
+    navigateToLegalHub,
+    navigateToScienceHub,
+    navigateToTakedownForm,
+    navigateToAdminTakedownList,
+    navigateToAuditLog,
+    navigateToDataRetention,
+    navigateToTransformManager,
+    navigateToWhitepapersManagement,
+    navigateToAssetsManagement,
+    navigateToMathTools,
+    navigateToChartsPerformance,
+    navigateToRoadmap,
+    navigateToRoadmapOverview,
+    navigateToSourceLibrary,
+    navigateToSourceComparison,
+    navigateToEvidenceLab,
+    navigateToTransformTesting,
+  } = useNavigationContext();
+  const { user, userRole, isAuthenticated, signIn, signOut, updateUserRole } =
+    useAuthContext();
+
   // Phase 3B Complete: MaterialsContext is the single source of truth for all material data
   const {
     materials,
@@ -2752,8 +3442,8 @@ function AppContent() {
     retrySync,
     getMaterialById,
   } = useMaterialsContext();
-  
-  const [searchQuery, setSearchQuery] = useState('');
+
+  const [searchQuery, setSearchQuery] = useState("");
   const [editingMaterial, setEditingMaterial] = useState<Material | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [articleToOpen, setArticleToOpen] = useState<string | null>(null);
@@ -2762,10 +3452,10 @@ function AppContent() {
   const [materialToEdit, setMaterialToEdit] = useState<Material | null>(null);
   const [showSubmitArticleForm, setShowSubmitArticleForm] = useState(false);
   const [showChart, setShowChart] = useState(false);
-  
+
   // Expose logger to window for browser console debugging
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       (window as any).wastedbLogger = {
         setTestMode,
         getTestMode,
@@ -2775,77 +3465,96 @@ function AppContent() {
         warn: logger.warn,
         debug: logger.debug,
       };
-      
+
       // Log initialization only if in test mode
       if (getTestMode()) {
-        logger.log('🪟 Logger exposed to window.wastedbLogger');
-        logger.log('   Usage: wastedbLogger.setTestMode(true/false)');
-        logger.log('   Info: wastedbLogger.info()');
+        logger.log("🪟 Logger exposed to window.wastedbLogger");
+        logger.log("   Usage: wastedbLogger.setTestMode(true/false)");
+        logger.log("   Info: wastedbLogger.info()");
       }
     }
   }, []);
-  
+
   // Phase 3A: Log context state for verification
   useEffect(() => {
-    logger.log('[Phase 3A] MaterialsContext Status:', {
+    logger.log("[Phase 3A] MaterialsContext Status:", {
       materials_count_ctx: materials.length,
       isLoadingMaterials_ctx: isLoadingMaterials,
       syncStatus_ctx: syncStatus,
       supabaseAvailable_ctx: supabaseAvailable,
-      context_functions_available: !!(addMaterial && updateMaterial && deleteMaterial)
+      context_functions_available: !!(
+        addMaterial &&
+        updateMaterial &&
+        deleteMaterial
+      ),
     });
   }, [materials.length, isLoadingMaterials, syncStatus, supabaseAvailable]);
-  
+
   // Handle magic link callback (AuthContext handles regular session restoration)
   useEffect(() => {
     const handleMagicLink = async () => {
       const urlParams = new URLSearchParams(window.location.search);
-      const magicToken = urlParams.get('magic_token');
-      
+      const magicToken = urlParams.get("magic_token");
+
       if (magicToken) {
         // Verify magic link token and get access token
-        logger.log('Detected magic token in URL, verifying...');
+        logger.log("Detected magic token in URL, verifying...");
         try {
           const response = await api.verifyMagicLink(magicToken);
-          logger.log('Magic link verification response:', response);
-          
+          logger.log("Magic link verification response:", response);
+
           if (response.access_token && response.user) {
             // Store access token (already done in verifyMagicLink, but do it again to be sure)
-            logger.log('App.tsx: Storing access token again:', response.access_token.substring(0, 8) + '...');
+            logger.log(
+              "App.tsx: Storing access token again:",
+              response.access_token.substring(0, 8) + "..."
+            );
             api.setAccessToken(response.access_token);
-            
+
             // Wait a tiny bit to ensure sessionStorage has committed
-            await new Promise(resolve => setTimeout(resolve, 100));
-            
+            await new Promise((resolve) => setTimeout(resolve, 100));
+
             // Verify token is stored
-            const storedToken = sessionStorage.getItem('wastedb_access_token');
-            logger.log('App.tsx: Verified token in storage before getUserRole:', storedToken?.substring(0, 8) + '...');
-            
+            const storedToken = sessionStorage.getItem("wastedb_access_token");
+            logger.log(
+              "App.tsx: Verified token in storage before getUserRole:",
+              storedToken?.substring(0, 8) + "..."
+            );
+
             // Sign in user via context (this will also fetch role)
             await signIn(response.user);
-            
+
             // Clear the URL parameters to avoid confusion
-            window.history.replaceState({}, document.title, window.location.pathname);
-            
-            logger.log('Magic link authentication successful');
+            window.history.replaceState(
+              {},
+              document.title,
+              window.location.pathname
+            );
+
+            logger.log("Magic link authentication successful");
             toast.success(`Welcome back, ${response.user.email}!`);
           } else {
-            logger.error('Invalid response structure:', response);
-            throw new Error('Invalid magic link response');
+            logger.error("Invalid response structure:", response);
+            throw new Error("Invalid magic link response");
           }
         } catch (error) {
-          logger.error('Error processing magic link:', error);
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          logger.error("Error processing magic link:", error);
+          const errorMessage =
+            error instanceof Error ? error.message : "Unknown error";
           toast.error(`Magic link verification failed: ${errorMessage}`);
           // Clear the URL parameters
-          window.history.replaceState({}, document.title, window.location.pathname);
+          window.history.replaceState(
+            {},
+            document.title,
+            window.location.pathname
+          );
         }
       }
     };
-    
+
     handleMagicLink();
   }, [signIn]);
-  
+
   // Ensure admin mode is off when not authenticated
   useEffect(() => {
     if (!isAuthenticated && settings.adminMode) {
@@ -2857,7 +3566,7 @@ function AppContent() {
   // Check for article permalink in URL
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const articleId = urlParams.get('article');
+    const articleId = urlParams.get("article");
     if (articleId) {
       setArticleToOpen(articleId);
     }
@@ -2868,13 +3577,24 @@ function AppContent() {
     if (articleToOpen && materials.length > 0) {
       // Find the article in all materials
       for (const material of materials) {
-        for (const category of ['compostability', 'recyclability', 'reusability'] as CategoryType[]) {
-          const article = material.articles[category].find(a => a.id === articleToOpen);
+        for (const category of [
+          "compostability",
+          "recyclability",
+          "reusability",
+        ] as CategoryType[]) {
+          const article = material.articles[category].find(
+            (a) => a.id === articleToOpen
+          );
           if (article) {
-            setCurrentView({ type: 'article-standalone', articleId: articleToOpen, materialId: material.id, category });
+            setCurrentView({
+              type: "article-standalone",
+              articleId: articleToOpen,
+              materialId: material.id,
+              category,
+            });
             setArticleToOpen(null);
             // Clear the URL parameter
-            window.history.replaceState({}, '', window.location.pathname);
+            window.history.replaceState({}, "", window.location.pathname);
             return;
           }
         }
@@ -2882,7 +3602,7 @@ function AppContent() {
     }
   }, [articleToOpen, materials]);
 
-  const handleAddMaterial = async (materialData: Omit<Material, 'id'>) => {
+  const handleAddMaterial = async (materialData: Omit<Material, "id">) => {
     const newMaterial: Material = {
       ...materialData,
       id: Date.now().toString(),
@@ -2892,10 +3612,14 @@ function AppContent() {
     toast.success(`Added ${materialData.name} successfully`);
   };
 
-  const handleUpdateMaterial = async (materialData: Omit<Material, 'id'> | Material) => {
-    if ('id' in materialData) {
+  const handleUpdateMaterial = async (
+    materialData: Omit<Material, "id"> | Material
+  ) => {
+    if ("id" in materialData) {
       // Direct update with full material (from ArticlesView or CSV import)
-      const existingIndex = materials.findIndex(m => m.id === materialData.id);
+      const existingIndex = materials.findIndex(
+        (m) => m.id === materialData.id
+      );
       if (existingIndex >= 0) {
         // Update existing material
         await updateMaterial(materialData);
@@ -2908,7 +3632,11 @@ function AppContent() {
     } else {
       // Update from form (preserves id and articles)
       if (!editingMaterial) return;
-      const updatedMaterial = { ...materialData, id: editingMaterial.id, articles: editingMaterial.articles };
+      const updatedMaterial = {
+        ...materialData,
+        id: editingMaterial.id,
+        articles: editingMaterial.articles,
+      };
       await updateMaterial(updatedMaterial);
       setEditingMaterial(null);
       setShowForm(false);
@@ -2917,8 +3645,8 @@ function AppContent() {
   };
 
   const handleDeleteMaterial = async (id: string) => {
-    const material = materials.find(m => m.id === id);
-    if (confirm('Are you sure you want to delete this material?')) {
+    const material = materials.find((m) => m.id === id);
+    if (confirm("Are you sure you want to delete this material?")) {
       await deleteMaterial(id);
       if (material) {
         toast.success(`Deleted ${material.name} successfully`);
@@ -2938,12 +3666,20 @@ function AppContent() {
     navigateToMaterialDetail(materialId);
   };
 
-  const handleViewArticleStandalone = (materialId: string, articleId: string, category: CategoryType) => {
-    navigateTo({ type: 'article-standalone', articleId, materialId, category });
+  const handleViewArticleStandalone = (
+    materialId: string,
+    articleId: string,
+    category: CategoryType
+  ) => {
+    navigateTo({ type: "article-standalone", articleId, materialId, category });
   };
 
   // Auth handlers
-  const handleAuthSuccess = async (userData: { id: string; email: string; name?: string }) => {
+  const handleAuthSuccess = async (userData: {
+    id: string;
+    email: string;
+    name?: string;
+  }) => {
     await signIn(userData);
   };
 
@@ -2957,17 +3693,22 @@ function AppContent() {
     navigateToMaterials();
   };
 
-  const filteredMaterials = materials.filter(m =>
-    m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    m.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredMaterials = materials.filter(
+    (m) =>
+      m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      m.description?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const currentMaterial = (currentView.type === 'articles' || currentView.type === 'material-detail' || currentView.type === 'article-standalone' || currentView.type === 'scientific-editor')
-    ? materials.find(m => m.id === currentView.materialId) 
-    : null;
+  const currentMaterial =
+    currentView.type === "articles" ||
+    currentView.type === "material-detail" ||
+    currentView.type === "article-standalone" ||
+    currentView.type === "scientific-editor"
+      ? materials.find((m) => m.id === currentView.materialId)
+      : null;
 
   // Admin mode is only active if user is authenticated, has admin role, AND has toggled admin mode on
-  const isAdminModeActive = user && userRole === 'admin' && settings.adminMode;
+  const isAdminModeActive = user && userRole === "admin" && settings.adminMode;
 
   return (
     <>
@@ -2975,7 +3716,7 @@ function AppContent() {
       {showAuthModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="relative max-w-md w-full">
-            <AuthView 
+            <AuthView
               onAuthSuccess={(userData) => {
                 handleAuthSuccess(userData);
                 setShowAuthModal(false);
@@ -2985,546 +3726,683 @@ function AppContent() {
           </div>
         </div>
       )}
-      
-      <div 
+
+      <div
         className="min-h-screen p-3 md:p-8 bg-[#faf7f2] dark:bg-[#2a2825]"
         style={{
           backgroundImage: `url("https://www.transparenttextures.com/patterns/3px-tile.png")`,
-          backgroundSize: '3px 3px'
+          backgroundSize: "3px 3px",
         }}
       >
         <div className="max-w-6xl mx-auto">
           <div className="bg-[#faf7f2] dark:bg-[#1a1917] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 overflow-hidden mb-6">
-            <StatusBar title="WasteDB" currentView={currentView} onViewChange={navigateTo} syncStatus={syncStatus} user={user} userRole={userRole} onLogout={handleLogout} onSignIn={() => setShowAuthModal(true)} />
-          
-          {currentView.type === 'materials' ? (
-            <div className="p-6">
-              {/* Sync error/offline banner - only show for authenticated users */}
-              {user && (syncStatus === 'error' || syncStatus === 'offline') && (
-                <div className="mb-4 p-3 bg-[#e6beb5] dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px] flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <CloudOff size={16} className="text-black dark:text-white" />
-                    <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
-                      {syncStatus === 'offline' ? 'Working offline - data saved locally only' : 'Failed to sync to cloud'}
-                    </p>
-                  </div>
-                  <button
-                    onClick={retrySync}
-                    className="px-3 py-1.5 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[11px] text-black flex items-center gap-1"
-                  >
-                    <Cloud size={12} />
-                    Retry Sync
-                  </button>
-                </div>
-              )}
-              {/* Centered content */}
-              <div className="flex flex-col items-center justify-center mb-6 max-w-2xl mx-auto px-4">
-                {/* All elements centered in a single column */}
-                <div className="w-full flex flex-col justify-center items-center gap-4">
-                  {/* Logo */}
-                  <button
-                    onClick={() => {
-                      setSearchQuery('');
-                      navigateTo({ type: 'materials' });
-                    }}
-                    className="transition-transform hover:scale-105"
-                    aria-label="Go to home page"
-                  >
-                    <img
-                      src={settings.darkMode 
-                        ? "https://bdvfwjmaufjeqmxphmtv.supabase.co/storage/v1/object/public/make-17cae920-assets/logo_darkmode-1763068549938.png"
-                        : "https://bdvfwjmaufjeqmxphmtv.supabase.co/storage/v1/object/public/make-17cae920-assets/uplogo_transparent-1761169051994.png"
-                      }
-                      alt="WasteDB Logo"
-                      className={settings.darkMode ? "h-52 lg:h-64 w-auto" : "h-36 lg:h-48 w-auto"}
-                    />
-                  </button>
-                  
-                  {/* Search bar - centered */}
-                  <div className="w-full max-w-xl">
-                    <SearchBar 
-                      value={searchQuery} 
-                      onChange={setSearchQuery}
-                      onSearch={(query) => navigateToSearchResults(query)}
-                    />
-                  </div>
-                  
-                  {/* Chart centered below search */}
-                  {materials.length > 0 && currentView.type === 'materials' && (() => {
-                    // Show eye icon in admin mode, show chart when clicked
-                    if (isAdminModeActive && !showChart) {
-                      return (
-                        <div className="mt-4 flex items-center justify-center">
-                          <button
-                            onClick={() => setShowChart(true)}
-                            className="p-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#e4e3ac] hover:bg-[#e4e3ac]/80 transition-all hover:shadow-[3px_4px_0px_-1px_#000000] dark:hover:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)]"
-                            aria-label="Show chart (work in progress)"
-                          >
-                            <Eye size={32} className="text-black" />
-                          </button>
-                        </div>
-                      );
-                    }
-                    
-                    if (!showChart) return null;
-                    
-                    // Compute chart data once so we can reference it in the label
-                    const chartData = [
-                      {
-                        name: 'Compostable',
-                        shortName: 'compostable',
-                        categoryKey: 'compostability',
-                        value: Math.round(materials.reduce((sum, m) => sum + m.compostability, 0) / materials.length),
-                        articleCount: materials.reduce((sum, m) => sum + m.articles.compostability.length, 0),
-                        fill: '#e8a593'
-                      },
-                      {
-                        name: 'Recyclable',
-                        shortName: 'recyclable',
-                        categoryKey: 'recyclability',
-                        value: Math.round(materials.reduce((sum, m) => sum + m.recyclability, 0) / materials.length),
-                        articleCount: materials.reduce((sum, m) => sum + m.articles.recyclability.length, 0),
-                        fill: '#f0e68c'
-                      },
-                      {
-                        name: 'Reusable',
-                        shortName: 'reusable',
-                        categoryKey: 'reusability',
-                        value: Math.round(materials.reduce((sum, m) => sum + m.reusability, 0) / materials.length),
-                        articleCount: materials.reduce((sum, m) => sum + m.articles.reusability.length, 0),
-                        fill: '#a8c5d8'
-                      }
-                    ];
-
-                    return (
-                      <div className="mt-6 w-full max-w-md">
-                        <AnimatedWasteChart
-                          chartData={chartData}
-                          onCategoryClick={(categoryKey) => navigateTo({ type: 'all-articles', category: categoryKey as CategoryType })}
-                        />
-                      </div>
-                    );
-                  })()}
-                </div>
-              </div>
-
-              {showForm && (
-                <div className="mb-6">
-                  <MaterialForm
-                    material={editingMaterial || undefined}
-                    onSave={editingMaterial ? handleUpdateMaterial : handleAddMaterial}
-                    onCancel={() => {
-                      setShowForm(false);
-                      setEditingMaterial(null);
-                    }}
-                  />
-                </div>
-              )}
-
-              {/* Welcome message when no search */}
-              {isLoadingMaterials ? (
-                <LoadingPlaceholder />
-              ) : (
-                <div className="text-center py-12 max-w-2xl mx-auto">
-                  {/* Beta contributor message */}
-                  <div className="mb-6 px-4">
-                    <p className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white mb-1">
-                      WasteDB is in beta and needs help from contributors like you.
-                    </p>
-                    <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/60 dark:text-white/60">
-                      The database currently has <span className="font-bold">{materials.length}</span> materials and{' '}
-                      <span className="font-bold">
-                        {materials.reduce((sum, m) => 
-                          sum + 
-                          m.articles.compostability.length + 
-                          m.articles.recyclability.length + 
-                          m.articles.reusability.length, 
-                          0
-                        )}
-                      </span> articles.
-                    </p>
-                  </div>
-
-                  {/* Submit Material button */}
-                  {user && (
-                    <button
-                      onClick={() => {
-                        if (isAdminModeActive) {
-                          setShowForm(true);
-                          setEditingMaterial(null);
-                        } else {
-                          setShowSubmitMaterialForm(true);
-                        }
-                      }}
-                      className={`h-[48px] px-6 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[14px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all inline-flex items-center justify-center gap-2 ${
-                        isAdminModeActive ? 'bg-[#b8c8cb]' : 'bg-[#c8e5c8]'
-                      }`}
-                      title={isAdminModeActive ? "Add a new material" : "Submit a new material"}
-                    >
-                      <Plus size={16} className="text-black" />
-                      <span>{isAdminModeActive ? 'Add' : 'Submit'} Material</span>
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
-          ) : currentView.type === 'search-results' ? (
-            <div className="p-6">
-              {/* Back button and search info */}
-              <div className="mb-6 flex items-center justify-between">
-                <button
-                  onClick={() => {
-                    setSearchQuery('');
-                    navigateToMaterials();
-                  }}
-                  className="flex items-center gap-2 px-4 py-2 bg-[#b8c8cb] rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
-                >
-                  <ArrowLeft size={16} className="text-black" />
-                  <span className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black">Back to Home</span>
-                </button>
-                <div className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white">
-                  Search results for: <span className="font-bold">"{currentView.query}"</span>
-                </div>
-              </div>
-
-              {/* Filter options placeholder */}
-              <div className="mb-6 p-4 bg-white dark:bg-[#2a2825] rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)]">
-                <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/50 dark:text-white/50 italic">
-                  Filter options coming soon...
-                </p>
-              </div>
-
-              {/* Materials grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {materials
-                  .filter(m =>
-                    m.name.toLowerCase().includes(currentView.query.toLowerCase()) ||
-                    m.description?.toLowerCase().includes(currentView.query.toLowerCase())
-                  )
-                  .map(material => (
-                    <MaterialCard
-                      key={material.id}
-                      material={material}
-                      onEdit={() => {
-                        setEditingMaterial(material);
-                        setShowForm(true);
-                      }}
-                      onDelete={() => handleDeleteMaterial(material.id)}
-                      onViewArticles={(category) => handleViewArticles(material.id, category)}
-                      onViewMaterial={() => handleViewMaterial(material.id)}
-                      onEditScientific={() => navigateToScientificEditor(material.id)}
-                      onSuggestEdit={() => setMaterialToEdit(material)}
-                      isAdminModeActive={isAdminModeActive}
-                      isAuthenticated={!!user}
-                    />
-                  ))}
-              </div>
-
-              {/* No results message */}
-              {materials.filter(m =>
-                m.name.toLowerCase().includes(currentView.query.toLowerCase()) ||
-                m.description?.toLowerCase().includes(currentView.query.toLowerCase())
-              ).length === 0 && (
-                <div className="text-center py-12">
-                  <p className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black/50 dark:text-white/50">
-                    No materials found matching your search.
-                  </p>
-                </div>
-              )}
-            </div>
-          ) : currentMaterial && currentView.type === 'articles' ? (
-            <ArticlesView
-              material={currentMaterial}
-              category={currentView.category}
-              onBack={navigateToMaterials}
-              onUpdateMaterial={handleUpdateMaterial}
-              onViewArticleStandalone={(articleId) => handleViewArticleStandalone(currentMaterial.id, articleId, currentView.category)}
-              isAdminModeActive={isAdminModeActive}
-              user={user}
-              onSignUp={() => setShowAuthModal(true)}
-            />
-          ) : currentView.type === 'all-articles' ? (
-            <AllArticlesView
-              category={currentView.category}
-              materials={materials}
-              onBack={navigateToMaterials}
-              onViewArticleStandalone={(articleId, materialId) => handleViewArticleStandalone(materialId, articleId, currentView.category)}
-            />
-          ) : currentMaterial && currentView.type === 'material-detail' ? (
-            <MaterialDetailView
-              material={currentMaterial}
-              onBack={navigateToMaterials}
-              onViewArticles={(category) => handleViewArticles(currentMaterial.id, category)}
-              onUpdateMaterial={handleUpdateMaterial}
-              onViewArticleStandalone={(articleId, category) => handleViewArticleStandalone(currentMaterial.id, articleId, category)}
-              isAdminModeActive={isAdminModeActive}
-            />
-          ) : currentMaterial && currentView.type === 'article-standalone' ? (
-            <StandaloneArticleView
-              article={currentMaterial.articles[currentView.category].find(a => a.id === currentView.articleId)!}
-              sustainabilityCategory={{
-                label: currentView.category === 'compostability' ? 'Compostability' : currentView.category === 'recyclability' ? 'Recyclability' : 'Reusability',
-                color: currentView.category === 'compostability' ? '#e6beb5' : currentView.category === 'recyclability' ? '#e4e3ac' : '#b8c8cb'
-              }}
-              materialName={currentMaterial.name}
-              onBack={() => navigateToMaterialDetail(currentMaterial.id)}
-              onEdit={() => {
-                // Navigate back to material detail with edit form open
-                navigateToMaterialDetail(currentMaterial.id);
-              }}
-              onDelete={() => {
-                if (confirm('Are you sure you want to delete this article?')) {
-                  const updatedMaterial = {
-                    ...currentMaterial,
-                    articles: {
-                      ...currentMaterial.articles,
-                      [currentView.category]: currentMaterial.articles[currentView.category].filter(a => a.id !== currentView.articleId)
-                    }
-                  };
-                  handleUpdateMaterial(updatedMaterial);
-                  navigateToMaterialDetail(currentMaterial.id);
-                }
-              }}
-              isAdminModeActive={isAdminModeActive}
-            />
-          ) : currentView.type === 'methodology-list' ? (
-            <MethodologyListView
-              onBack={navigateToScienceHub}
-              onSelectWhitepaper={navigateToWhitepaper}
-            />
-          ) : currentView.type === 'whitepaper' ? (
-            <WhitepaperView
-              whitepaperSlug={currentView.whitepaperSlug}
-              onBack={navigateToMethodologyList}
-            />
-          ) : currentView.type === 'admin-dashboard' ? (
-            <AdminDashboard
-              onBack={navigateToMaterials}
-              onNavigateToReviewCenter={navigateToReviewCenter}
-              onNavigateToDataManagement={navigateToDataManagement}
-              onNavigateToUserManagement={navigateToUserManagement}
-              onNavigateToWhitepaperSync={navigateToWhitepaperSync}
-              onNavigateToTransformManager={() => navigateToMathTools('transform-manager')}
-              onNavigateToPhase9Testing={navigateToPhase9Testing}
-              onNavigateToPhase9Day10Testing={navigateToPhase9Day10Testing}
-              onNavigateToAdminTakedownList={navigateToAdminTakedownList}
-              onNavigateToAuditLog={navigateToAuditLog}
-              onNavigateToDataRetention={navigateToDataRetention}
-              onNavigateToWhitepapers={navigateToWhitepapersManagement}
-              onNavigateToAssets={navigateToAssetsManagement}
-              onNavigateToMath={navigateToMathTools}
-              onNavigateToCharts={navigateToChartsPerformance}
-              onNavigateToRoadmap={navigateToRoadmap}
-              onNavigateToRoadmapOverview={navigateToRoadmapOverview}
-              onNavigateToSourceLibrary={navigateToSourceLibrary}
-              onNavigateToSourceComparison={navigateToSourceComparison}
-              onNavigateToEvidenceLab={navigateToEvidenceLab}
-              onNavigateToTransformTesting={navigateToTransformTesting}
-            />
-          ) : currentView.type === 'data-management' ? (
-            <DataManagementView
-              materials={materials}
-              onBack={navigateToMaterials}
-              onUpdateMaterial={handleUpdateMaterial}
-              onUpdateMaterials={updateMaterials}
-              onBulkImport={handleBulkImport}
-              onDeleteMaterial={handleDeleteMaterial}
-              onViewMaterial={navigateToMaterialDetail}
-              onDeleteAllData={async () => {
-                await deleteAllMaterials();
-                toast.success(supabaseAvailable ? 'All data deleted from cloud and locally' : 'All data deleted locally');
-                navigateToMaterials();
-              }}
+            <StatusBar
+              title="WasteDB"
+              currentView={currentView}
+              onViewChange={navigateTo}
+              syncStatus={syncStatus}
               user={user}
               userRole={userRole}
+              onLogout={handleLogout}
+              onSignIn={() => setShowAuthModal(true)}
             />
-          ) : currentView.type === 'user-management' ? (
-            <UserManagementView
-              onBack={navigateToMaterials}
-              currentUserId={user?.id || ''}
-            />
-          ) : currentView.type === 'whitepaper-sync' ? (
-            <WhitepaperSyncTool
-              onBack={navigateToMaterials}
-            />
-          ) : currentView.type === 'scientific-editor' && currentMaterial ? (
-            <ScientificDataEditor
-              material={currentMaterial}
-              onSave={(updatedMaterial) => {
-                handleUpdateMaterial(updatedMaterial);
-                navigateToMaterials();
-              }}
-              onCancel={navigateToMaterials}
-            />
-          ) : currentView.type === 'export' ? (
-            <PublicExportView
-              onBack={navigateToScienceHub}
-              materialsCount={materials.length}
-            />
-          ) : currentView.type === 'user-profile' ? (
-            <UserProfileView
-              userId={currentView.userId}
-              onBack={navigateToMaterials}
-              isOwnProfile={currentView.userId === user?.id}
-              onNavigateToMySubmissions={currentView.userId === user?.id ? navigateToMySubmissions : undefined}
-            />
-          ) : currentView.type === 'my-submissions' ? (
-            <MySubmissionsView
-              onBack={navigateToMaterials}
-            />
-          ) : currentView.type === 'review-center' ? (
-            <ContentReviewCenter
-              onBack={navigateToMaterials}
-              currentUserId={user?.id || ''}
-            />
-          ) : currentView.type === 'api-docs' ? (
-            <ApiDocumentation onBack={navigateToScienceHub} />
-          ) : currentView.type === 'source-library' ? (
-            <SourceLibraryManager
-              onBack={navigateToMaterials}
-              materials={materials}
-              isAuthenticated={!!user}
-              isAdmin={userRole === 'admin'}
-            />
-          ) : currentView.type === 'source-comparison' ? (
-            <SourceDataComparison
-              onBack={navigateToMaterials}
-              materials={materials}
-            />
-          ) : currentView.type === 'evidence-lab' ? (
-            <EvidenceLabView
-              onBack={navigateToAdminDashboard}
-            />
-          ) : currentView.type === 'transform-formula-testing' ? (
-            <TransformFormulaTesting
-              onBack={navigateToAdminDashboard}
-              materials={materials}
-            />
-          ) : currentView.type === 'licenses' ? (
-            <LicensesView
-              onBack={navigateToLegalHub}
-            />
-          ) : currentView.type === 'science-hub' ? (
-            <ScienceHubView
-              onBack={navigateToMaterials}
-              onNavigateToWhitePapers={navigateToMethodologyList}
-              onNavigateToOpenAccess={navigateToExport}
-              onNavigateToAPI={navigateToApiDocs}
-            />
-          ) : currentView.type === 'legal-hub' ? (
-            <LegalHubView
-              onBack={navigateToMaterials}
-              onNavigateToTakedownForm={navigateToTakedownForm}
-              onNavigateToLicenses={navigateToLicenses}
-            />
-          ) : currentView.type === 'takedown-form' ? (
-            <TakedownRequestForm
-              onBack={navigateToLegalHub}
-            />
-          ) : currentView.type === 'takedown-status' ? (
-            <div className="p-6">
-              <TakedownStatusView requestId={currentView.requestId} />
-            </div>
-          ) : currentView.type === 'admin-takedown-list' ? (
-            <div className="p-6">
-              <AdminTakedownList />
-            </div>
-          ) : currentView.type === 'audit-log' ? (
-            <AuditLogViewer onBack={navigateToAdminDashboard} />
-          ) : currentView.type === 'data-retention' ? (
-            <div className="p-6">
-              <DataRetentionManager />
-            </div>
-          ) : currentView.type === 'phase9-testing' ? (
-            <Phase9TestingPage />
-          ) : currentView.type === 'phase9-day10-testing' ? (
-            <Phase9Day10TestingPage />
-          ) : currentView.type === 'transform-manager' ? (
-            <div className="p-6">
-              <TransformVersionManager />
-            </div>
-          ) : currentView.type === 'whitepapers-management' ? (
-            <div className="p-6">
-              <WhitepaperSyncTool />
-            </div>
-          ) : currentView.type === 'assets-management' ? (
-            <AssetsManagementPage />
-          ) : currentView.type === 'math-tools' ? (
-            <MathView onBack={navigateToAdminDashboard} defaultTab={currentView.defaultTab} />
-          ) : currentView.type === 'charts-performance' ? (
-            <ChartsPerformanceView onBack={navigateToAdminDashboard} />
-          ) : currentView.type === 'roadmap' ? (
-            <RoadmapView onBack={navigateToAdminDashboard} />
-          ) : currentView.type === 'roadmap-overview' ? (
-            <SimplifiedRoadmap onBack={navigateToAdminDashboard} defaultTab={currentView.defaultTab} />
-          ) : null}
-          
-          {/* Footer - inside rounded container */}
-          <div className="p-6">
-            <footer className="mt-8 text-center border-t border-[#211f1c]/10 dark:border-white/10 pt-6">
-              {/* Science and Legal links */}
-              <div className="flex justify-center items-center gap-2 mb-6">
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.3 }}
-                  className="flex items-center gap-2"
-                >
-                  <button
-                    onClick={navigateToScienceHub}
-                    className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white md:hover:underline transition-colors flex items-center gap-1"
-                  >
-                    <FlaskConical className="w-5 h-5 md:w-3 md:h-3" />
-                    <span className="hidden md:inline">Science</span>
-                  </button>
-                  <span className="text-black/30 dark:text-white/30">•</span>
-                  <button
-                    onClick={navigateToLegalHub}
-                    className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white md:hover:underline transition-colors flex items-center gap-1"
-                  >
-                    <AlertCircle className="w-5 h-5 md:w-3 md:h-3" />
-                    <span className="hidden md:inline">Legal</span>
-                  </button>
-                </motion.div>
+
+            {currentView.type === "materials" ? (
+              <div className="p-6">
+                {/* Sync error/offline banner - only show for authenticated users */}
+                {user &&
+                  (syncStatus === "error" || syncStatus === "offline") && (
+                    <div className="mb-4 p-3 bg-[#e6beb5] dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px] flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <CloudOff
+                          size={16}
+                          className="text-black dark:text-white"
+                        />
+                        <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
+                          {syncStatus === "offline"
+                            ? "Working offline - data saved locally only"
+                            : "Failed to sync to cloud"}
+                        </p>
+                      </div>
+                      <button
+                        onClick={retrySync}
+                        className="px-3 py-1.5 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[11px] text-black flex items-center gap-1"
+                      >
+                        <Cloud size={12} />
+                        Retry Sync
+                      </button>
+                    </div>
+                  )}
+                {/* Centered content */}
+                <div className="flex flex-col items-center justify-center mb-6 max-w-2xl mx-auto px-4">
+                  {/* All elements centered in a single column */}
+                  <div className="w-full flex flex-col justify-center items-center gap-4">
+                    {/* Logo */}
+                    <button
+                      onClick={() => {
+                        setSearchQuery("");
+                        navigateTo({ type: "materials" });
+                      }}
+                      className="transition-transform hover:scale-105"
+                      aria-label="Go to home page"
+                    >
+                      <img
+                        src={
+                          settings.darkMode
+                            ? "https://bdvfwjmaufjeqmxphmtv.supabase.co/storage/v1/object/public/make-17cae920-assets/logo_darkmode-1763068549938.png"
+                            : "https://bdvfwjmaufjeqmxphmtv.supabase.co/storage/v1/object/public/make-17cae920-assets/uplogo_transparent-1761169051994.png"
+                        }
+                        alt="WasteDB Logo"
+                        className={
+                          settings.darkMode
+                            ? "h-52 lg:h-64 w-auto"
+                            : "h-36 lg:h-48 w-auto"
+                        }
+                      />
+                    </button>
+
+                    {/* Search bar - centered */}
+                    <div className="w-full max-w-xl">
+                      <SearchBar
+                        value={searchQuery}
+                        onChange={setSearchQuery}
+                        onSearch={(query) => navigateToSearchResults(query)}
+                      />
+                    </div>
+
+                    {/* Chart centered below search */}
+                    {materials.length > 0 &&
+                      currentView.type === "materials" &&
+                      (() => {
+                        // Show eye icon in admin mode, show chart when clicked
+                        if (isAdminModeActive && !showChart) {
+                          return (
+                            <div className="mt-4 flex items-center justify-center">
+                              <button
+                                onClick={() => setShowChart(true)}
+                                className="p-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#e4e3ac] hover:bg-[#e4e3ac]/80 transition-all hover:shadow-[3px_4px_0px_-1px_#000000] dark:hover:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)]"
+                                aria-label="Show chart (work in progress)"
+                              >
+                                <Eye size={32} className="text-black" />
+                              </button>
+                            </div>
+                          );
+                        }
+
+                        if (!showChart) return null;
+
+                        // Compute chart data once so we can reference it in the label
+                        const chartData = [
+                          {
+                            name: "Compostable",
+                            shortName: "compostable",
+                            categoryKey: "compostability",
+                            value: Math.round(
+                              materials.reduce(
+                                (sum, m) => sum + m.compostability,
+                                0
+                              ) / materials.length
+                            ),
+                            articleCount: materials.reduce(
+                              (sum, m) =>
+                                sum + m.articles.compostability.length,
+                              0
+                            ),
+                            fill: "#e8a593",
+                          },
+                          {
+                            name: "Recyclable",
+                            shortName: "recyclable",
+                            categoryKey: "recyclability",
+                            value: Math.round(
+                              materials.reduce(
+                                (sum, m) => sum + m.recyclability,
+                                0
+                              ) / materials.length
+                            ),
+                            articleCount: materials.reduce(
+                              (sum, m) => sum + m.articles.recyclability.length,
+                              0
+                            ),
+                            fill: "#f0e68c",
+                          },
+                          {
+                            name: "Reusable",
+                            shortName: "reusable",
+                            categoryKey: "reusability",
+                            value: Math.round(
+                              materials.reduce(
+                                (sum, m) => sum + m.reusability,
+                                0
+                              ) / materials.length
+                            ),
+                            articleCount: materials.reduce(
+                              (sum, m) => sum + m.articles.reusability.length,
+                              0
+                            ),
+                            fill: "#a8c5d8",
+                          },
+                        ];
+
+                        return (
+                          <div className="mt-6 w-full max-w-md">
+                            <AnimatedWasteChart
+                              chartData={chartData}
+                              onCategoryClick={(categoryKey) =>
+                                navigateTo({
+                                  type: "all-articles",
+                                  category: categoryKey as CategoryType,
+                                })
+                              }
+                            />
+                          </div>
+                        );
+                      })()}
+                  </div>
+                </div>
+
+                {showForm && (
+                  <div className="mb-6">
+                    <MaterialForm
+                      material={editingMaterial || undefined}
+                      onSave={
+                        editingMaterial
+                          ? handleUpdateMaterial
+                          : handleAddMaterial
+                      }
+                      onCancel={() => {
+                        setShowForm(false);
+                        setEditingMaterial(null);
+                      }}
+                    />
+                  </div>
+                )}
+
+                {/* Welcome message when no search */}
+                {isLoadingMaterials ? (
+                  <LoadingPlaceholder />
+                ) : (
+                  <div className="text-center py-12 max-w-2xl mx-auto">
+                    {/* Beta contributor message */}
+                    <div className="mb-6 px-4">
+                      <p className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white mb-1">
+                        WasteDB is in beta and needs help from contributors like
+                        you.
+                      </p>
+                      <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/60 dark:text-white/60">
+                        The database currently has{" "}
+                        <span className="font-bold">{materials.length}</span>{" "}
+                        materials and{" "}
+                        <span className="font-bold">
+                          {materials.reduce(
+                            (sum, m) =>
+                              sum +
+                              m.articles.compostability.length +
+                              m.articles.recyclability.length +
+                              m.articles.reusability.length,
+                            0
+                          )}
+                        </span>{" "}
+                        articles.
+                      </p>
+                    </div>
+
+                    {/* Submit Material button */}
+                    {user && (
+                      <button
+                        onClick={() => {
+                          if (isAdminModeActive) {
+                            setShowForm(true);
+                            setEditingMaterial(null);
+                          } else {
+                            setShowSubmitMaterialForm(true);
+                          }
+                        }}
+                        className={`h-[48px] px-6 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[14px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all inline-flex items-center justify-center gap-2 ${
+                          isAdminModeActive ? "bg-[#b8c8cb]" : "bg-[#c8e5c8]"
+                        }`}
+                        title={
+                          isAdminModeActive
+                            ? "Add a new material"
+                            : "Submit a new material"
+                        }
+                      >
+                        <Plus size={16} className="text-black" />
+                        <span>
+                          {isAdminModeActive ? "Add" : "Submit"} Material
+                        </span>
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
-              
-              <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] md:text-[12px] text-black/60 dark:text-white/60 max-w-3xl mx-auto px-4">
-                <a href="https://wastefull.org" target="_blank" rel="noopener noreferrer" className="hover:text-black dark:hover:text-white transition-colors underline">Wastefull, Inc.</a> is a registered California 501(c)(3) nonprofit organization. Donations to the organization may be tax deductible.
-              </p>
-            </footer>
+            ) : currentView.type === "search-results" ? (
+              <div className="p-6">
+                {/* Back button and search info */}
+                <div className="mb-6 flex items-center justify-between">
+                  <button
+                    onClick={() => {
+                      setSearchQuery("");
+                      navigateToMaterials();
+                    }}
+                    className="flex items-center gap-2 px-4 py-2 bg-[#b8c8cb] rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
+                  >
+                    <ArrowLeft size={16} className="text-black" />
+                    <span className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black">
+                      Back to Home
+                    </span>
+                  </button>
+                  <div className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white">
+                    Search results for:{" "}
+                    <span className="font-bold">"{currentView.query}"</span>
+                  </div>
+                </div>
+
+                {/* Filter options placeholder */}
+                <div className="mb-6 p-4 bg-white dark:bg-[#2a2825] rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)]">
+                  <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/50 dark:text-white/50 italic">
+                    Filter options coming soon...
+                  </p>
+                </div>
+
+                {/* Materials grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {materials
+                    .filter(
+                      (m) =>
+                        m.name
+                          .toLowerCase()
+                          .includes(currentView.query.toLowerCase()) ||
+                        m.description
+                          ?.toLowerCase()
+                          .includes(currentView.query.toLowerCase())
+                    )
+                    .map((material) => (
+                      <MaterialCard
+                        key={material.id}
+                        material={material}
+                        onEdit={() => {
+                          setEditingMaterial(material);
+                          setShowForm(true);
+                        }}
+                        onDelete={() => handleDeleteMaterial(material.id)}
+                        onViewArticles={(category) =>
+                          handleViewArticles(material.id, category)
+                        }
+                        onViewMaterial={() => handleViewMaterial(material.id)}
+                        onEditScientific={() =>
+                          navigateToScientificEditor(material.id)
+                        }
+                        onSuggestEdit={() => setMaterialToEdit(material)}
+                        isAdminModeActive={isAdminModeActive}
+                        isAuthenticated={!!user}
+                      />
+                    ))}
+                </div>
+
+                {/* No results message */}
+                {materials.filter(
+                  (m) =>
+                    m.name
+                      .toLowerCase()
+                      .includes(currentView.query.toLowerCase()) ||
+                    m.description
+                      ?.toLowerCase()
+                      .includes(currentView.query.toLowerCase())
+                ).length === 0 && (
+                  <div className="text-center py-12">
+                    <p className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black/50 dark:text-white/50">
+                      No materials found matching your search.
+                    </p>
+                  </div>
+                )}
+              </div>
+            ) : currentMaterial && currentView.type === "articles" ? (
+              <ArticlesView
+                material={currentMaterial}
+                category={currentView.category}
+                onBack={navigateToMaterials}
+                onUpdateMaterial={handleUpdateMaterial}
+                onViewArticleStandalone={(articleId) =>
+                  handleViewArticleStandalone(
+                    currentMaterial.id,
+                    articleId,
+                    currentView.category
+                  )
+                }
+                isAdminModeActive={isAdminModeActive}
+                user={user}
+                onSignUp={() => setShowAuthModal(true)}
+              />
+            ) : currentView.type === "all-articles" ? (
+              <AllArticlesView
+                category={currentView.category}
+                materials={materials}
+                onBack={navigateToMaterials}
+                onViewArticleStandalone={(articleId, materialId) =>
+                  handleViewArticleStandalone(
+                    materialId,
+                    articleId,
+                    currentView.category
+                  )
+                }
+              />
+            ) : currentMaterial && currentView.type === "material-detail" ? (
+              <MaterialDetailView
+                material={currentMaterial}
+                onBack={navigateToMaterials}
+                onViewArticles={(category) =>
+                  handleViewArticles(currentMaterial.id, category)
+                }
+                onUpdateMaterial={handleUpdateMaterial}
+                onViewArticleStandalone={(articleId, category) =>
+                  handleViewArticleStandalone(
+                    currentMaterial.id,
+                    articleId,
+                    category
+                  )
+                }
+                isAdminModeActive={isAdminModeActive}
+              />
+            ) : currentMaterial && currentView.type === "article-standalone" ? (
+              <StandaloneArticleView
+                article={
+                  currentMaterial.articles[currentView.category].find(
+                    (a) => a.id === currentView.articleId
+                  )!
+                }
+                sustainabilityCategory={{
+                  label:
+                    currentView.category === "compostability"
+                      ? "Compostability"
+                      : currentView.category === "recyclability"
+                      ? "Recyclability"
+                      : "Reusability",
+                  color:
+                    currentView.category === "compostability"
+                      ? "#e6beb5"
+                      : currentView.category === "recyclability"
+                      ? "#e4e3ac"
+                      : "#b8c8cb",
+                }}
+                materialName={currentMaterial.name}
+                onBack={() => navigateToMaterialDetail(currentMaterial.id)}
+                onEdit={() => {
+                  // Navigate back to material detail with edit form open
+                  navigateToMaterialDetail(currentMaterial.id);
+                }}
+                onDelete={() => {
+                  if (
+                    confirm("Are you sure you want to delete this article?")
+                  ) {
+                    const updatedMaterial = {
+                      ...currentMaterial,
+                      articles: {
+                        ...currentMaterial.articles,
+                        [currentView.category]: currentMaterial.articles[
+                          currentView.category
+                        ].filter((a) => a.id !== currentView.articleId),
+                      },
+                    };
+                    handleUpdateMaterial(updatedMaterial);
+                    navigateToMaterialDetail(currentMaterial.id);
+                  }
+                }}
+                isAdminModeActive={isAdminModeActive}
+              />
+            ) : currentView.type === "methodology-list" ? (
+              <MethodologyListView
+                onBack={navigateToScienceHub}
+                onSelectWhitepaper={navigateToWhitepaper}
+              />
+            ) : currentView.type === "whitepaper" ? (
+              <WhitepaperView
+                whitepaperSlug={currentView.whitepaperSlug}
+                onBack={navigateToMethodologyList}
+              />
+            ) : currentView.type === "admin-dashboard" ? (
+              <AdminDashboard
+                onBack={navigateToMaterials}
+                onNavigateToReviewCenter={navigateToReviewCenter}
+                onNavigateToDataManagement={navigateToDataManagement}
+                onNavigateToUserManagement={navigateToUserManagement}
+                onNavigateToWhitepaperSync={navigateToWhitepaperSync}
+                onNavigateToTransformManager={() =>
+                  navigateToMathTools("transform-manager")
+                }
+                onNavigateToAdminTakedownList={navigateToAdminTakedownList}
+                onNavigateToAuditLog={navigateToAuditLog}
+                onNavigateToDataRetention={navigateToDataRetention}
+                onNavigateToWhitepapers={navigateToWhitepapersManagement}
+                onNavigateToAssets={navigateToAssetsManagement}
+                onNavigateToMath={navigateToMathTools}
+                onNavigateToCharts={navigateToChartsPerformance}
+                onNavigateToRoadmap={navigateToRoadmap}
+                onNavigateToRoadmapOverview={navigateToRoadmapOverview}
+                onNavigateToSourceLibrary={navigateToSourceLibrary}
+                onNavigateToSourceComparison={navigateToSourceComparison}
+                onNavigateToEvidenceLab={navigateToEvidenceLab}
+                onNavigateToTransformTesting={navigateToTransformTesting}
+              />
+            ) : currentView.type === "data-management" ? (
+              <DataManagementView
+                materials={materials}
+                onBack={navigateToMaterials}
+                onUpdateMaterial={handleUpdateMaterial}
+                onUpdateMaterials={updateMaterials}
+                onBulkImport={handleBulkImport}
+                onDeleteMaterial={handleDeleteMaterial}
+                onViewMaterial={navigateToMaterialDetail}
+                onDeleteAllData={async () => {
+                  await deleteAllMaterials();
+                  toast.success(
+                    supabaseAvailable
+                      ? "All data deleted from cloud and locally"
+                      : "All data deleted locally"
+                  );
+                  navigateToMaterials();
+                }}
+                user={user}
+                userRole={userRole}
+              />
+            ) : currentView.type === "user-management" ? (
+              <UserManagementView
+                onBack={navigateToMaterials}
+                currentUserId={user?.id || ""}
+              />
+            ) : currentView.type === "whitepaper-sync" ? (
+              <WhitepaperSyncTool onBack={navigateToMaterials} />
+            ) : currentView.type === "scientific-editor" && currentMaterial ? (
+              <ScientificDataEditor
+                material={currentMaterial}
+                onSave={(updatedMaterial) => {
+                  handleUpdateMaterial(updatedMaterial);
+                  navigateToMaterials();
+                }}
+                onCancel={navigateToMaterials}
+              />
+            ) : currentView.type === "export" ? (
+              <PublicExportView
+                onBack={navigateToScienceHub}
+                materialsCount={materials.length}
+              />
+            ) : currentView.type === "user-profile" ? (
+              <UserProfileView
+                userId={currentView.userId}
+                onBack={navigateToMaterials}
+                isOwnProfile={currentView.userId === user?.id}
+                onNavigateToMySubmissions={
+                  currentView.userId === user?.id
+                    ? navigateToMySubmissions
+                    : undefined
+                }
+              />
+            ) : currentView.type === "my-submissions" ? (
+              <MySubmissionsView onBack={navigateToMaterials} />
+            ) : currentView.type === "review-center" ? (
+              <ContentReviewCenter
+                onBack={navigateToMaterials}
+                currentUserId={user?.id || ""}
+              />
+            ) : currentView.type === "api-docs" ? (
+              <ApiDocumentation onBack={navigateToScienceHub} />
+            ) : currentView.type === "source-library" ? (
+              <SourceLibraryManager
+                onBack={navigateToMaterials}
+                materials={materials}
+                isAuthenticated={!!user}
+                isAdmin={userRole === "admin"}
+              />
+            ) : currentView.type === "source-comparison" ? (
+              <SourceDataComparison
+                onBack={navigateToMaterials}
+                materials={materials}
+              />
+            ) : currentView.type === "evidence-lab" ? (
+              <EvidenceLabView onBack={navigateToAdminDashboard} />
+            ) : currentView.type === "transform-formula-testing" ? (
+              <TransformFormulaTesting
+                onBack={navigateToAdminDashboard}
+                materials={materials}
+              />
+            ) : currentView.type === "licenses" ? (
+              <LicensesView onBack={navigateToLegalHub} />
+            ) : currentView.type === "science-hub" ? (
+              <ScienceHubView
+                onBack={navigateToMaterials}
+                onNavigateToWhitePapers={navigateToMethodologyList}
+                onNavigateToOpenAccess={navigateToExport}
+                onNavigateToAPI={navigateToApiDocs}
+              />
+            ) : currentView.type === "legal-hub" ? (
+              <LegalHubView
+                onBack={navigateToMaterials}
+                onNavigateToTakedownForm={navigateToTakedownForm}
+                onNavigateToLicenses={navigateToLicenses}
+              />
+            ) : currentView.type === "takedown-form" ? (
+              <TakedownRequestForm onBack={navigateToLegalHub} />
+            ) : currentView.type === "takedown-status" ? (
+              <div className="p-6">
+                <TakedownStatusView requestId={currentView.requestId} />
+              </div>
+            ) : currentView.type === "admin-takedown-list" ? (
+              <div className="p-6">
+                <AdminTakedownList />
+              </div>
+            ) : currentView.type === "audit-log" ? (
+              <AuditLogViewer onBack={navigateToAdminDashboard} />
+            ) : currentView.type === "data-retention" ? (
+              <div className="p-6">
+                <DataRetentionManager />
+              </div>
+            ) : currentView.type === "transform-manager" ? (
+              <div className="p-6">
+                <TransformVersionManager />
+              </div>
+            ) : currentView.type === "whitepapers-management" ? (
+              <div className="p-6">
+                <WhitepaperSyncTool />
+              </div>
+            ) : currentView.type === "assets-management" ? (
+              <AssetsManagementPage />
+            ) : currentView.type === "math-tools" ? (
+              <MathView
+                onBack={navigateToAdminDashboard}
+                defaultTab={currentView.defaultTab}
+              />
+            ) : currentView.type === "charts-performance" ? (
+              <ChartsPerformanceView onBack={navigateToAdminDashboard} />
+            ) : currentView.type === "roadmap" ? (
+              <RoadmapView onBack={navigateToAdminDashboard} />
+            ) : currentView.type === "roadmap-overview" ? (
+              <SimplifiedRoadmap
+                onBack={navigateToAdminDashboard}
+                defaultTab={currentView.defaultTab}
+              />
+            ) : null}
+
+            {/* Footer - inside rounded container */}
+            <div className="p-6">
+              <footer className="mt-8 text-center border-t border-[#211f1c]/10 dark:border-white/10 pt-6">
+                {/* Science and Legal links */}
+                <div className="flex justify-center items-center gap-2 mb-6">
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.3 }}
+                    className="flex items-center gap-2"
+                  >
+                    <button
+                      onClick={navigateToScienceHub}
+                      className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white md:hover:underline transition-colors flex items-center gap-1"
+                    >
+                      <FlaskConical className="w-5 h-5 md:w-3 md:h-3" />
+                      <span className="hidden md:inline">Science</span>
+                    </button>
+                    <span className="text-black/30 dark:text-white/30">•</span>
+                    <button
+                      onClick={navigateToLegalHub}
+                      className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white md:hover:underline transition-colors flex items-center gap-1"
+                    >
+                      <AlertCircle className="w-5 h-5 md:w-3 md:h-3" />
+                      <span className="hidden md:inline">Legal</span>
+                    </button>
+                  </motion.div>
+                </div>
+
+                <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] md:text-[12px] text-black/60 dark:text-white/60 max-w-3xl mx-auto px-4">
+                  <a
+                    href="https://wastefull.org"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-black dark:hover:text-white transition-colors underline"
+                  >
+                    Wastefull, Inc.
+                  </a>{" "}
+                  is a registered California 501(c)(3) nonprofit organization.
+                  Donations to the organization may be tax deductible.
+                </p>
+              </footer>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Submission Forms */}
-      {showSubmitMaterialForm && (
-        <SubmitMaterialForm
-          onClose={() => setShowSubmitMaterialForm(false)}
-          onSubmitSuccess={() => {
-            // Optionally refresh submissions or show a notification
-            toast.success('Material submitted! Check "My Submissions" for updates.');
-          }}
-        />
-      )}
+        {/* Submission Forms */}
+        {showSubmitMaterialForm && (
+          <SubmitMaterialForm
+            onClose={() => setShowSubmitMaterialForm(false)}
+            onSubmitSuccess={() => {
+              // Optionally refresh submissions or show a notification
+              toast.success(
+                'Material submitted! Check "My Submissions" for updates.'
+              );
+            }}
+          />
+        )}
 
-      {materialToEdit && (
-        <SuggestMaterialEditForm
-          material={materialToEdit}
-          onClose={() => setMaterialToEdit(null)}
-          onSubmitSuccess={() => {
-            toast.success('Edit suggestion submitted! Check "My Submissions" for updates.');
-          }}
-        />
-      )}
+        {materialToEdit && (
+          <SuggestMaterialEditForm
+            material={materialToEdit}
+            onClose={() => setMaterialToEdit(null)}
+            onSubmitSuccess={() => {
+              toast.success(
+                'Edit suggestion submitted! Check "My Submissions" for updates.'
+              );
+            }}
+          />
+        )}
 
-      {showSubmitArticleForm && (
-        <SubmitArticleForm
-          onClose={() => setShowSubmitArticleForm(false)}
-          onSubmitSuccess={() => {
-            toast.success('Article submitted! Check "My Submissions" for updates.');
-          }}
-        />
-      )}
+        {showSubmitArticleForm && (
+          <SubmitArticleForm
+            onClose={() => setShowSubmitArticleForm(false)}
+            onSubmitSuccess={() => {
+              toast.success(
+                'Article submitted! Check "My Submissions" for updates.'
+              );
+            }}
+          />
+        )}
       </div>
     </>
   );
@@ -3533,7 +4411,7 @@ function AppContent() {
 // Wrapper to pass auth props to MaterialsProvider
 function AppWithMaterialsContext() {
   const { user, userRole } = useAuthContext();
-  
+
   return (
     <MaterialsProvider user={user} userRole={userRole}>
       <AppContent />
@@ -3559,11 +4437,11 @@ export default function App() {
 // Wrapper to provide session expiry callback to AuthProvider
 function AppWithAuth() {
   const navigation = useNavigationContext();
-  
+
   const handleSessionExpired = () => {
     navigation.navigateToAuth();
   };
-  
+
   return (
     <AuthProvider onSessionExpired={handleSessionExpired}>
       <Toaster />

@@ -1,11 +1,22 @@
-import { Briefcase, Users, FileText, Database, TestTube, MapPin, LineChart, ArrowLeft, AlertTriangle, FlaskConical } from 'lucide-react';
+import {
+  Briefcase,
+  Users,
+  FileText,
+  Database,
+  TestTube,
+  MapPin,
+  LineChart,
+  ArrowLeft,
+  AlertTriangle,
+  FlaskConical,
+} from "lucide-react";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from './ui/accordion';
-import { PHASE_TABS } from './SimplifiedRoadmap';
+} from "./ui/accordion";
+import { PHASE_TABS } from "./SimplifiedRoadmap";
 
 interface AdminDashboardProps {
   onBack: () => void;
@@ -14,8 +25,6 @@ interface AdminDashboardProps {
   onNavigateToUserManagement?: () => void;
   onNavigateToWhitepaperSync?: () => void;
   onNavigateToTransformManager?: () => void;
-  onNavigateToPhase9Testing?: () => void;
-  onNavigateToPhase9Day10Testing?: () => void;
   onNavigateToAdminTakedownList?: () => void;
   onNavigateToAuditLog?: () => void;
   onNavigateToDataRetention?: () => void;
@@ -36,10 +45,7 @@ export function AdminDashboard({
   onNavigateToReviewCenter,
   onNavigateToDataManagement,
   onNavigateToUserManagement,
-  onNavigateToWhitepaperSync,
   onNavigateToTransformManager,
-  onNavigateToPhase9Testing,
-  onNavigateToPhase9Day10Testing,
   onNavigateToAdminTakedownList,
   onNavigateToAuditLog,
   onNavigateToDataRetention,
@@ -74,7 +80,10 @@ export function AdminDashboard({
 
         <Accordion type="multiple" className="w-full">
           {/* Moderation Section */}
-          <AccordionItem value="moderation" className="border-[#211f1c]/10 dark:border-white/10">
+          <AccordionItem
+            value="moderation"
+            className="border-[#211f1c]/10 dark:border-white/10"
+          >
             <AccordionTrigger className="font-['Sniglet'] text-[14px] text-black dark:text-white hover:no-underline">
               <div className="flex items-center gap-2">
                 <AlertTriangle size={16} />
@@ -121,7 +130,10 @@ export function AdminDashboard({
 
           {/* Admin Section */}
           {onNavigateToUserManagement && (
-            <AccordionItem value="admin" className="border-[#211f1c]/10 dark:border-white/10">
+            <AccordionItem
+              value="admin"
+              className="border-[#211f1c]/10 dark:border-white/10"
+            >
               <AccordionTrigger className="font-['Sniglet'] text-[14px] text-black dark:text-white hover:no-underline">
                 <div className="flex items-center gap-2">
                   <Users size={16} />
@@ -156,7 +168,10 @@ export function AdminDashboard({
           )}
 
           {/* Database Section */}
-          <AccordionItem value="database" className="border-[#211f1c]/10 dark:border-white/10">
+          <AccordionItem
+            value="database"
+            className="border-[#211f1c]/10 dark:border-white/10"
+          >
             <AccordionTrigger className="font-['Sniglet'] text-[14px] text-black dark:text-white hover:no-underline">
               <div className="flex items-center gap-2">
                 <Database size={16} />
@@ -174,7 +189,8 @@ export function AdminDashboard({
                   </button>
                 )}
                 {/* Sources with nested subtabs */}
-                {(onNavigateToSourceLibrary || onNavigateToSourceComparison) && (
+                {(onNavigateToSourceLibrary ||
+                  onNavigateToSourceComparison) && (
                   <div className="space-y-2">
                     <div className="font-['Sniglet'] text-[12px] text-black dark:text-white px-3 py-2">
                       Sources
@@ -234,7 +250,10 @@ export function AdminDashboard({
           </AccordionItem>
 
           {/* Testing Section */}
-          <AccordionItem value="testing" className="border-[#211f1c]/10 dark:border-white/10">
+          <AccordionItem
+            value="testing"
+            className="border-[#211f1c]/10 dark:border-white/10"
+          >
             <AccordionTrigger className="font-['Sniglet'] text-[14px] text-black dark:text-white hover:no-underline">
               <div className="flex items-center gap-2">
                 <FlaskConical size={16} />
@@ -271,7 +290,7 @@ export function AdminDashboard({
                     </div>
                     {onNavigateToRoadmapOverview && (
                       <button
-                        onClick={onNavigateToRoadmapOverview}
+                        onClick={() => onNavigateToRoadmapOverview}
                         className="w-full text-left font-['Sniglet'] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white transition-colors py-2 px-3 pl-6 rounded-md hover:bg-[#bae1ff]/20"
                       >
                         Overview
@@ -279,7 +298,7 @@ export function AdminDashboard({
                     )}
                     {onNavigateToRoadmapOverview && (
                       <button
-                        onClick={() => onNavigateToRoadmapOverview('tests')}
+                        onClick={() => onNavigateToRoadmapOverview("tests")}
                         className="w-full text-left font-['Sniglet'] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white transition-colors py-2 px-3 pl-8 rounded-md hover:bg-[#bae1ff]/20"
                       >
                         ↳ Tests
@@ -287,7 +306,9 @@ export function AdminDashboard({
                     )}
                     {onNavigateToRoadmapOverview && (
                       <button
-                        onClick={() => onNavigateToRoadmapOverview(PHASE_TABS[0].id)}
+                        onClick={() =>
+                          onNavigateToRoadmapOverview(PHASE_TABS[0].id)
+                        }
                         className="w-full text-left font-['Sniglet'] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white transition-colors py-2 px-3 pl-8 rounded-md hover:bg-[#bae1ff]/20"
                       >
                         ↳ Active Phase
@@ -310,10 +331,7 @@ export function AdminDashboard({
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 p-6 overflow-y-auto">
-        
-        
-      </main>
+      <main className="flex-1 p-6 overflow-y-auto"></main>
     </div>
   );
 }
