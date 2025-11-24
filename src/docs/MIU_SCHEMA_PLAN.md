@@ -1193,10 +1193,10 @@ async function canDeleteEvidencePoint(miuId: string): Promise<{ canDelete: boole
 
 ## 14. Related Documentation
 
-- `/docs/PHASE_9_EVIDENCE_PIPELINE.md` - Full Phase 9 specification
+- `/docs/PHASE_9_ROADMAP.md` - Phase 9 high-level roadmap
 - `/docs/NOV12_SOURCES.md` - Source integration specification
 - `/docs/SOURCE_SCHEMA.md` - Source Library interface
-- `/docs/PHASE_9_ADDENDUM_CRITICAL_INFRASTRUCTURE.md` - Phase 9.0 infrastructure
+- `/docs/PHASE_9_STATUS.md` - Phase 9 implementation status
 - `/ROADMAP.md` - Project roadmap
 
 ---

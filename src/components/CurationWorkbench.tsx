@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Check, ChevronRight, FileText, Target, Clipboard, Hash, Info, BookOpen } from 'lucide-react';
+import { ArrowLeft, Check, ChevronRight, FileText, Target, Clipboard, Hash, Info, BookOpen, AlertCircle } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Label } from './ui/label';
@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { toast } from 'sonner@2.0.3';
 import { projectId, publicAnonKey } from '../utils/supabase/info';
 import { useMaterialsContext } from '../contexts/MaterialsContext';
+import { Alert, AlertDescription } from './ui/alert';
 
 interface CurationWorkbenchProps {
   onBack: () => void;
@@ -44,12 +45,29 @@ interface MIUFormData {
   notes: string;
 }
 
+interface UnitsOntology {
+  version: string;
+  parameters: Record<string, {
+    name: string;
+    canonical_unit: string;
+    allowed_units: string[];
+    conversions: Record<string, any>;
+    validation: {
+      min?: number;
+      max?: number;
+      description: string;
+    };
+  }>;
+}
+
 export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
   const { materials } = useMaterialsContext();
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedSource, setSelectedSource] = useState<any>(null);
   const [sources, setSources] = useState<any[]>([]);
   const [loadingSources, setLoadingSources] = useState(true);
+  const [unitsOntology, setUnitsOntology] = useState<UnitsOntology | null>(null);
+  const [unitValidationError, setUnitValidationError] = useState<string>('');
   
   const [formData, setFormData] = useState<MIUFormData>({
     material_id: '',
@@ -74,6 +92,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
   // Load sources for the source viewer
   useEffect(() => {
     loadSources();
+    loadUnitsOntology();
   }, []);
 
   const loadSources = async () => {
@@ -99,6 +118,66 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
     } finally {
       setLoadingSources(false);
     }
+  };
+
+  const loadUnitsOntology = async () => {
+    try {
+      const response = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/ontologies/units`,
+        {
+          headers: {
+            'Authorization': `Bearer ${publicAnonKey}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.ontology) {
+          setUnitsOntology(data.ontology);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading units ontology:', error);
+      // Don't show error toast - validation will just be disabled
+    }
+  };
+
+  // Validate unit when parameter or unit changes
+  useEffect(() => {
+    if (!formData.parameter_code || !formData.raw_unit || !unitsOntology) {
+      setUnitValidationError('');
+      return;
+    }
+
+    const parameterDef = unitsOntology.parameters[formData.parameter_code];
+    if (!parameterDef) {
+      setUnitValidationError('');
+      return;
+    }
+
+    const isValidUnit = parameterDef.allowed_units.includes(formData.raw_unit);
+    if (!isValidUnit) {
+      setUnitValidationError(
+        `Invalid unit for parameter ${formData.parameter_code}. Allowed units: ${parameterDef.allowed_units.join(', ')}`
+      );
+    } else {
+      setUnitValidationError('');
+    }
+  }, [formData.parameter_code, formData.raw_unit, unitsOntology]);
+
+  // Get allowed units for the selected parameter
+  const getAllowedUnits = (parameterCode: string): string[] => {
+    if (!unitsOntology || !parameterCode) return [];
+    const parameterDef = unitsOntology.parameters[parameterCode];
+    return parameterDef?.allowed_units || [];
+  };
+
+  // Get canonical unit for the selected parameter
+  const getCanonicalUnit = (parameterCode: string): string => {
+    if (!unitsOntology || !parameterCode) return '';
+    const parameterDef = unitsOntology.parameters[parameterCode];
+    return parameterDef?.canonical_unit || '';
   };
 
   const handleSourceSelect = (source: any) => {
@@ -512,6 +591,9 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                       rows={4}
                       className="font-['Sniglet'] text-[11px]"
                     />
+                    <p className="text-[10px] text-muted-foreground font-['Sniglet']">
+                      {formData.snippet.length}/250 words • Must be verbatim from source
+                    </p>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
@@ -532,18 +614,63 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="raw_unit" className="font-['Sniglet'] text-[11px]">
-                        Unit
+                        Unit {formData.parameter_code && unitsOntology && (
+                          <Badge variant="outline" className="ml-2 text-[9px] font-normal">
+                            Canonical: {getCanonicalUnit(formData.parameter_code)}
+                          </Badge>
+                        )}
                       </Label>
-                      <Input
-                        id="raw_unit"
-                        placeholder="e.g. years, score"
-                        value={formData.raw_unit}
-                        onChange={(e) => setFormData({ ...formData, raw_unit: e.target.value })}
-                        disabled={currentStep !== 4}
-                        className="font-['Sniglet'] text-[11px]"
-                      />
+                      {formData.parameter_code && getAllowedUnits(formData.parameter_code).length > 0 ? (
+                        <Select
+                          value={formData.raw_unit}
+                          onValueChange={(value) => setFormData({ ...formData, raw_unit: value })}
+                          disabled={currentStep !== 4}
+                        >
+                          <SelectTrigger className="w-full font-['Sniglet'] text-[11px]">
+                            <SelectValue placeholder="Select unit..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {getAllowedUnits(formData.parameter_code).map((unit) => (
+                              <SelectItem key={unit} value={unit}>
+                                {unit}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <Input
+                          id="raw_unit"
+                          placeholder="e.g. years, %"
+                          value={formData.raw_unit}
+                          onChange={(e) => setFormData({ ...formData, raw_unit: e.target.value })}
+                          disabled={currentStep !== 4}
+                          className="font-['Sniglet'] text-[11px]"
+                        />
+                      )}
                     </div>
                   </div>
+
+                  {/* Unit validation error */}
+                  {unitValidationError && currentStep === 4 && (
+                    <Alert className="border-red-200 bg-red-50 dark:bg-red-950/20">
+                      <AlertCircle className="size-4 text-red-600" />
+                      <AlertDescription className="font-['Sniglet'] text-[11px] text-red-800 dark:text-red-200">
+                        {unitValidationError}
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
+                  {/* Unit info card */}
+                  {formData.parameter_code && unitsOntology && currentStep === 4 && !unitValidationError && (
+                    <div className="p-3 bg-[#e8f5e9] dark:bg-[#1b3a1f] border border-[#a5d6a7] dark:border-[#2e5a32] rounded-md">
+                      <p className="font-['Sniglet'] text-[10px] text-black/80 dark:text-white/80">
+                        ✅ <strong>Valid unit for {formData.parameter_code}</strong>
+                        {formData.raw_unit && formData.raw_unit !== getCanonicalUnit(formData.parameter_code) && (
+                          <> • Will be converted to {getCanonicalUnit(formData.parameter_code)}</>
+                        )}
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 

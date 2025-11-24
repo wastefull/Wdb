@@ -809,6 +809,10 @@
     margin-left: calc(var(--spacing) * 4);
   }
 
+  .ml-6 {
+    margin-left: calc(var(--spacing) * 6);
+  }
+
   .ml-auto {
     margin-left: auto;
   }
@@ -3365,7 +3369,7 @@
     animation-play-state: running !important;
   }
 
-  .fade-in-0 {
+  .fade-in, .fade-in-0 {
     --tw-enter-opacity: 0;
   }
 

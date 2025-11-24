@@ -256,7 +256,7 @@ WasteDB will:
 * ✅ Implement 8 evidence/aggregation API endpoints (all working with data guards)
 * ✅ Add data guards (prevent source deletion with MIU references)
 * ✅ Comprehensive test suite (all Phase 9.1 tests passing)
-* 📄 Documentation: `/docs/PHASE_9_1_SCHEMA.md`
+* 📄 Documentation: `/docs/PHASE_9_SCHEMA.md`
 
 **Phase 9.2: Curation Workbench (Pilot - CR Only)** 🔄 IN PROGRESS
 * ⬜ Build split-pane UI (Source Viewer + Evidence Wizard)
@@ -293,7 +293,7 @@ WasteDB will:
 * ✅ Median time-per-MIU <3 minutes
 * ✅ **ALL THREE DIMENSIONS (CR, CC, RU) FULLY SUPPORTED**
 
-**Status:** Specification complete (`/docs/PHASE_9_EVIDENCE_PIPELINE.md`). Implementation begins after Phase 8 completion. Estimated duration: 14 weeks.
+**Status:** Phase 9.0 and 9.1 complete. See `/docs/PHASE_9_STATUS.md` and `/docs/PHASE_9_ROADMAP.md` for details. Phase 9.2 (Curation Workbench) in progress.
 
 ---
 

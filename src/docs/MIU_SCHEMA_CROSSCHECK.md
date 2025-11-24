@@ -6,11 +6,11 @@
 
 ---
 
-## Documents Reviewed
+## Source Documents Reviewed
 
 1. `/docs/PHASE_9_0_IMPLEMENTATION_CHECKLIST.md` - Day-by-day implementation plan
-2. `/docs/PHASE_9_ADDENDUM_CRITICAL_INFRASTRUCTURE.md` - 11 critical requirements
-3. `/docs/PHASE_9_EVIDENCE_PIPELINE.md` - Full Phase 9 specification
+2. `/docs/PHASE_9_ROADMAP.md` - Phase 9 high-level roadmap
+3. `/docs/MIU_SCHEMA_PLAN.md` - Detailed MIU schema design
 4. `/docs/NOV12_SOURCES.md` - Foundation document (partially reviewed)
 
 ---

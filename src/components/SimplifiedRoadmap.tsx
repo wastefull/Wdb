@@ -43,56 +43,250 @@ export function SimplifiedRoadmap({ onBack, defaultTab }: SimplifiedRoadmapProps
   // Backlog (Future Enhancements)
   const backlogItems = [
     {
-      title: 'Automated Cron Backups',
-      description: 'Implement Deno cron scheduled nightly backups at 2 AM UTC with retention policy (7 daily, 4 weekly, 12 monthly) and failure alerts',
+      priority: 'high',
+      category: 'Data Retention & Lifecycle Management',
+      items: [
+        {
+          title: 'Audit Log Cleanup Enhancements',
+          description: 'Add date range selector, preview before deletion, export option, and filter by entity type',
+          effort: '2-3 hours',
+          status: 'Deferred from Phase 9.0 Day 7',
+        },
+        {
+          title: 'Retention Dashboard Integration',
+          description: 'Add visual charts, storage space indicators, last cleanup date tracking, and automated cleanup scheduling UI',
+          effort: '4-5 hours',
+          status: 'Deferred from Phase 9.0 Day 7',
+        },
+        {
+          title: 'Bulk Source Deletion',
+          description: 'Allow admins to delete multiple sources at once with referential integrity checks and batch operations',
+          effort: '5-6 hours',
+          status: 'Deferred from Phase 9.0 Day 7',
+        },
+        {
+          title: 'Configurable Retention Policies',
+          description: 'Allow admins to customize retention periods instead of hardcoded 7 years, with policy versioning',
+          effort: '6-8 hours',
+          status: 'Deferred from Phase 9.0 Day 7',
+        },
+      ],
     },
     {
-      title: 'Observability Dashboard',
-      description: 'Comprehensive monitoring dashboard with metrics (error rate, latency percentiles, failed jobs), alert rules (CI width >0.3, stale aggregations), and structured logging with Winston',
+      priority: 'medium',
+      category: 'Content Management',
+      items: [
+        {
+          title: 'Inline Diff Viewer for Article Updates',
+          description: 'Show color-coded diffs when reviewing article edits with visual diff component',
+          effort: '3-4 hours',
+          status: 'Deferred from Phase 6.4',
+        },
+      ],
     },
     {
-      title: 'KV-Backed Pages Manager',
-      description: 'Explore KV-backed JSON storage pattern (similar to ontologies) for Pages Manager - store page content in KV store with versioning, serve via API endpoints, maintain JSON files as source of truth for version control',
+      priority: 'medium',
+      category: 'Source Library',
+      items: [
+        {
+          title: 'BibTeX Import/Export',
+          description: 'Support BibTeX format for academic citation management with import/export endpoints',
+          effort: '4-5 hours',
+          status: 'Future work from Phase 9.0 Day 5',
+        },
+        {
+          title: 'DOI Auto-Lookup',
+          description: 'Automatically fetch citation metadata from DOI.org API to populate source fields',
+          effort: '2-3 hours',
+          status: 'Future work from Phase 9.0 Day 5',
+        },
+        {
+          title: 'Citation Generator',
+          description: 'Generate formatted citations in multiple styles (APA, MLA, Chicago)',
+          effort: '3-4 hours',
+          status: 'Future work from Phase 9.0 Day 5',
+        },
+        {
+          title: 'Source Versioning',
+          description: 'Track changes to source metadata over time with version comparison and revert functionality',
+          effort: '6-8 hours',
+          status: 'Future work from Phase 9.0 Day 5',
+        },
+        {
+          title: 'Advanced Search with Boolean Operators',
+          description: 'Support complex searches like (aluminum OR aluminium) AND recycling NOT contamination',
+          effort: '5-6 hours',
+          status: 'Future work from Phase 9.0 Day 5',
+        },
+      ],
     },
     {
-      title: 'Curation Queue & Claim Workflow',
-      description: 'Priority queue showing materials with <3 MIUs per parameter, with OA filter, claim workflow to prevent duplicate work, and time estimates',
+      priority: 'medium',
+      category: 'Audit Log Viewer',
+      items: [
+        {
+          title: 'Scroll-to-Focus Behavior',
+          description: 'Ensure modal is visible when opening audit log detail from bottom of list',
+          effort: '1 hour',
+          status: 'Deferred from Phase 9.0 Day 6',
+        },
+      ],
     },
     {
-      title: 'Evidence Heatmap (Coverage Matrix)',
-      description: 'Visual matrix showing evidence coverage gaps: rows = materials, columns = parameters, color-coded by MIU count (green ≥3, yellow 1-2, red 0)',
+      priority: 'low',
+      category: 'Authentication',
+      items: [
+        {
+          title: 'OAuth Providers (Google, GitHub)',
+          description: 'Add social sign-in options for improved user experience',
+          effort: '8-10 hours',
+          status: 'Future work from Phase 3.5',
+        },
+        {
+          title: 'Remember Device',
+          description: 'Trust this device for 30 days checkbox with device fingerprinting',
+          effort: '4-5 hours',
+          status: 'Future work from Phase 3.5',
+        },
+        {
+          title: 'Two-Factor Authentication',
+          description: 'TOTP with SMS backup codes and admin-only requirement option',
+          effort: '10-12 hours',
+          status: 'Future work from Phase 3.5',
+        },
+        {
+          title: 'Resend Confirmation Email Button',
+          description: 'Add to sign-in page for unconfirmed accounts',
+          effort: '1-2 hours',
+          status: 'Future work from Phase 3.5',
+        },
+      ],
     },
     {
-      title: 'Release Management System',
-      description: 'ReleaseManager UI for creating versioned releases with SHA-256 checksumming, changelog generation, and immutable release artifacts',
+      priority: 'low',
+      category: 'Visualization',
+      items: [
+        {
+          title: 'Animation Improvements',
+          description: 'Smooth fade-in for quantile visualizations and animated transitions',
+          effort: '2-3 hours',
+          status: 'Future work from Phase 4',
+        },
+        {
+          title: 'Tooltip Enhancements',
+          description: 'Add tooltips explaining each parameter tab with methodology references',
+          effort: '2-3 hours',
+          status: 'Future work from Phase 4',
+        },
+        {
+          title: 'Badge Indicators',
+          description: 'Show count of materials with scientific data and data completeness percentage',
+          effort: '1-2 hours',
+          status: 'Future work from Phase 4',
+        },
+        {
+          title: 'Keyboard Navigation',
+          description: 'Arrow keys to switch between CR/CC/RU tabs with localStorage memory',
+          effort: '1-2 hours',
+          status: 'Future work from Phase 4',
+        },
+      ],
     },
     {
-      title: 'MIU Deduplication',
-      description: 'Duplicate detection for evidence points (MIUs) based on source + locator + parameter + value, with near-match detection (ε=0.05)',
+      priority: 'low',
+      category: 'Performance',
+      items: [
+        {
+          title: 'Server-Side Chart Rendering',
+          description: 'Add server-side rendering option for static charts to reduce client computation',
+          effort: '8-10 hours',
+          status: 'Migrated to Phase 10',
+        },
+        {
+          title: 'Database Query Optimization',
+          description: 'Add pagination, query result caching, database indexes, and query plan analysis',
+          effort: '10-12 hours',
+          status: 'Migrated to Phase 10',
+        },
+        {
+          title: 'Progressive Data Loading',
+          description: 'Load scientific data editor tabs on-demand with lazy loading',
+          effort: '4-5 hours',
+          status: 'Migrated to Phase 10',
+        },
+      ],
     },
     {
-      title: 'Guest Role Refactoring',
-      description: 'Change unauthenticated role from "user" to "guest" for clearer semantic distinction between logged-out and authenticated states',
+      priority: 'low',
+      category: 'Logging & Monitoring',
+      items: [
+        {
+          title: 'Remote Logging Integration',
+          description: 'Integrate Sentry for error tracking and LogRocket for session replay',
+          effort: '6-8 hours',
+          status: 'Future work from Logger implementation',
+        },
+        {
+          title: 'Log Level Filtering',
+          description: 'UI controls to show only warnings/errors and filter by log category',
+          effort: '2-3 hours',
+          status: 'Future work from Logger implementation',
+        },
+        {
+          title: 'Persistent TEST_MODE Setting',
+          description: 'Store TEST_MODE preference in localStorage with toggle in developer tools',
+          effort: '1 hour',
+          status: 'Future work from Logger implementation',
+        },
+      ],
     },
     {
-      title: 'Admin Dashboard Polish',
-      description: 'Final UX improvements: keyboard shortcuts, search/filter in admin views, performance optimizations',
+      priority: 'low',
+      category: 'Parameter & Caching',
+      items: [
+        {
+          title: 'Persisted Cache',
+          description: 'Store parameter availability cache in localStorage to improve offline performance',
+          effort: '3-4 hours',
+          status: 'Future work from cache implementation',
+        },
+        {
+          title: 'Worker Thread Cache Building',
+          description: 'Move cache building to Web Worker to prevent UI blocking for large datasets',
+          effort: '5-6 hours',
+          status: 'Future work from cache implementation',
+        },
+        {
+          title: 'Incremental Cache Updates',
+          description: 'Update cache incrementally instead of full rebuild, tracking changed materials',
+          effort: '4-5 hours',
+          status: 'Future work from cache implementation',
+        },
+      ],
     },
     {
-      title: 'Cleanup for Expired Audit Logs',
-      description: 'Add cleanup endpoint and UI for expired audit logs (similar to screenshot cleanup)',
-    },
-    {
-      title: 'Admin Dashboard for Retention Statistics',
-      description: 'Create admin dashboard showing retention statistics and cleanup actions in a unified interface',
-    },
-    {
-      title: 'Bulk Deletion for Sources',
-      description: 'Implement bulk deletion for sources without evidence dependencies',
-    },
-    {
-      title: 'Retention Policy Configuration',
-      description: 'Add UI to customize the 7-year retention threshold for different data types',
+      priority: 'low',
+      category: 'API & Developer Tools',
+      items: [
+        {
+          title: 'Interactive API Testing',
+          description: 'Add "Try it" buttons to test endpoints in UI with live response data',
+          effort: '6-8 hours',
+          status: 'Future work from Phase 7',
+        },
+        {
+          title: 'API Rate Limiting',
+          description: 'Add rate limiting per IP/API key with status in headers',
+          effort: '3-4 hours',
+          status: 'Future work from Phase 7',
+        },
+        {
+          title: 'API Versioning',
+          description: 'Support /api/v1 and /api/v2 simultaneously with deprecation notices',
+          effort: '5-6 hours',
+          status: 'Future work from Phase 7',
+        },
+      ],
     },
   ];
 
@@ -469,15 +663,316 @@ export function SimplifiedRoadmap({ onBack, defaultTab }: SimplifiedRoadmapProps
 
       {activeTab === '9.2' && (
         <div className="space-y-8">
+          {/* Phase Header */}
           <Card className="border-2">
             <CardHeader>
-              <CardTitle>Phase 9.2 - Coming Soon</CardTitle>
-              <CardDescription>Curation Workbench UI</CardDescription>
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1">
+                  <CardTitle className="text-2xl">Phase 9.2: Curation Workbench UI</CardTitle>
+                  <CardDescription className="mt-2">
+                    Build UI for evidence extraction workflow with pilot implementation (CR dimension, 3 materials)
+                  </CardDescription>
+                </div>
+                <Badge className="bg-blue-600 hover:bg-blue-700 text-white">In Progress</Badge>
+              </div>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">
-                This phase is currently in planning. Content will be added as development progresses.
-              </p>
+              <div className="space-y-4">
+                <div>
+                  <h4 className="text-sm font-semibold mb-2">Scope:</h4>
+                  <ul className="space-y-1 text-sm text-muted-foreground">
+                    <li>• <strong>Pilot Dimension:</strong> CR (Recyclability) only</li>
+                    <li>• <strong>Materials:</strong> Aluminum, PET, Cardboard (3 high-priority materials)</li>
+                    <li>• <strong>Parameters:</strong> Y, D, C, M, E (5 CR parameters)</li>
+                    <li>• <strong>Duration:</strong> 1-2 weeks (estimated)</li>
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Deliverables */}
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold">Deliverables</h3>
+
+            {/* Curation Workbench */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <CheckCircle2 className="size-5 text-green-600" />
+                  Curation Workbench (Split-Pane Interface)
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-sm">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="size-4 text-green-600 mt-0.5 flex-shrink-0" />
+                    <span><strong>Split-pane layout:</strong> Source Viewer (left) + Evidence Wizard (right)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="size-4 text-green-600 mt-0.5 flex-shrink-0" />
+                    <span><strong>Source selection:</strong> Browse and select from Source Library Manager</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="size-4 text-green-600 mt-0.5 flex-shrink-0" />
+                    <span><strong>Source viewer:</strong> Display source metadata, abstract, DOI</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Circle className="size-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                    <span><strong>Smart context pre-fill:</strong> Auto-detect material/parameter from context (future enhancement)</span>
+                  </li>
+                </ul>
+                
+                <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-md">
+                  <p className="text-sm text-blue-900 dark:text-blue-100">
+                    <strong>Note:</strong> PDF annotation tools, figure zoom, and page navigation are <strong>deferred to Phase 9.4 Week 1</strong> (before scaling to all materials).
+                  </p>
+                  <p className="text-xs text-blue-800 dark:text-blue-200 mt-2">
+                    <strong>Rationale:</strong> Low volume in pilot (~45 MIUs) makes copy/paste workflow acceptable. Better ROI when scaling to 8 materials × 13 parameters (~300+ MIUs).
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Evidence Wizard */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <CheckCircle2 className="size-5 text-green-600" />
+                  Evidence Wizard (5-Step MIU Creation Flow)
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="text-sm font-semibold mb-2">Step 1: Select Source</h4>
+                    <ul className="space-y-1 text-sm text-muted-foreground ml-4">
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="size-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <span>Browse source library with search/filter</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="size-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <span>Auto-populate citation from selected source</span>
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  <div>
+                    <h4 className="text-sm font-semibold mb-2">Step 2: Choose Material</h4>
+                    <ul className="space-y-1 text-sm text-muted-foreground ml-4">
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="size-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <span>Select from pilot materials (Aluminum, PET, Cardboard)</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="size-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <span>Material badge indicates pilot status</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h4 className="text-sm font-semibold mb-2">Step 3: Pick Parameter</h4>
+                    <ul className="space-y-1 text-sm text-muted-foreground ml-4">
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="size-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <span>Select from CR parameters (Y, D, C, M, E)</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="size-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <span>Parameter descriptions with unit guidance</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h4 className="text-sm font-semibold mb-2">Step 4: Extract Value & Context</h4>
+                    <ul className="space-y-1 text-sm text-muted-foreground ml-4">
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="size-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <span>Paste text snippet from source (&lt;250 words)</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="size-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <span>Input raw value (numeric) and unit</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="size-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <span>Unit validation against ontology (future)</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h4 className="text-sm font-semibold mb-2">Step 5: Add Metadata</h4>
+                    <ul className="space-y-1 text-sm text-muted-foreground ml-4">
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="size-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <span>Specify locator (page, figure, or table number)</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="size-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <span>Set confidence level (high/medium/low)</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="size-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <span>Add optional curator notes</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="size-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <span>Submit creates MIU via POST /evidence endpoint</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Double-Extraction Validation */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Circle className="size-5 text-gray-400" />
+                  Double-Extraction Validation Workflow
+                </CardTitle>
+                <CardDescription>Planned for validation phase</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-start gap-2">
+                    <span className="text-muted-foreground mt-0.5">•</span>
+                    <span>Assign same source to 2 independent curators</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-muted-foreground mt-0.5">•</span>
+                    <span>Compute inter-rater reliability (Cohen's κ)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-muted-foreground mt-0.5">•</span>
+                    <span>Target: κ ≥ 0.7 (substantial agreement)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-muted-foreground mt-0.5">•</span>
+                    <span>Conflict resolution workflow for low κ values</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            {/* Performance Tracking */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Circle className="size-5 text-gray-400" />
+                  Performance Tracking
+                </CardTitle>
+                <CardDescription>Planned for Phase 9.3</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-start gap-2">
+                    <span className="text-muted-foreground mt-0.5">•</span>
+                    <span>Time-per-MIU metrics (target: &lt;3 minutes)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-muted-foreground mt-0.5">•</span>
+                    <span>Curator leaderboard (opt-in)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-muted-foreground mt-0.5">•</span>
+                    <span>Quality score tracking</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Success Criteria */}
+          <Card className="bg-muted/50">
+            <CardHeader>
+              <CardTitle className="text-lg">Success Criteria</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2 text-sm">
+                <li className="flex items-start gap-2">
+                  <span className="text-muted-foreground mt-0.5">•</span>
+                  <span>3 pilot materials have ≥3 MIUs per parameter (15 MIUs per material minimum)</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-muted-foreground mt-0.5">•</span>
+                  <span>κ ≥ 0.7 for all double-extracted sources</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-muted-foreground mt-0.5">•</span>
+                  <span>&lt;3 minutes average MIU creation time</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-muted-foreground mt-0.5">•</span>
+                  <span>All Phase 9.1 API endpoints successfully integrated</span>
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
+
+          {/* Implementation Status */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Implementation Status</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
+                    <CheckCircle2 className="size-4 text-green-600" />
+                    Completed
+                  </h4>
+                  <ul className="space-y-1 text-sm text-muted-foreground ml-6">
+                    <li>✅ CurationWorkbench.tsx component created</li>
+                    <li>✅ Split-pane layout with source viewer and wizard</li>
+                    <li>✅ 5-step progressive wizard with validation</li>
+                    <li>✅ Source selection from Source Library Manager</li>
+                    <li>✅ Material and parameter selection (pilot scope)</li>
+                    <li>✅ Form validation and error handling</li>
+                    <li>✅ Integration with POST /evidence endpoint</li>
+                    <li>✅ Sokpop-inspired retro design system</li>
+                    <li>✅ EvidenceListViewer.tsx component created</li>
+                    <li>✅ Filter by material and parameter (pilot scope)</li>
+                    <li>✅ Search functionality (snippets and citations)</li>
+                    <li>✅ MIU detail view modal with full metadata</li>
+                    <li>✅ Confidence level badges with color coding</li>
+                    <li>✅ Locator display (page/figure/table)</li>
+                    <li>✅ Integration with GET /evidence endpoint</li>
+                    <li>✅ Unit ontology validation integration</li>
+                    <li>✅ Real-time unit validation against allowed units</li>
+                    <li>✅ Unit dropdown with parameter-specific options</li>
+                    <li>✅ Canonical unit display and conversion hints</li>
+                    <li>✅ Validation error messages with allowed units</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
+                    <Clock className="size-4 text-blue-600" />
+                    In Progress / Refinements
+                  </h4>
+                  <ul className="space-y-1 text-sm text-muted-foreground ml-6">
+                    <li>🔄 Smart context pre-fill (detect material/parameter from text)</li>
+                    <li>🔄 MIU review and edit functionality</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
+                    <Circle className="size-4 text-gray-400" />
+                    Deferred to Production
+                  </h4>
+                  <ul className="space-y-1 text-sm text-muted-foreground ml-6">
+                    <li>⏸️ Integrated PDF viewer with text selection</li>
+                    <li>⏸️ PDF annotation and highlighting tools</li>
+                    <li>⏸️ Page jump and figure zoom navigation</li>
+                    <li>⏸️ OCR text extraction from PDF images</li>
+                  </ul>
+                </div>
+              </div>
             </CardContent>
           </Card>
           
@@ -494,18 +989,31 @@ export function SimplifiedRoadmap({ onBack, defaultTab }: SimplifiedRoadmapProps
         <div className="space-y-8">
           <h2 className="text-2xl">Backlog (Future Enhancements)</h2>
           <div className="space-y-6">
-            {backlogItems.map((item, index) => (
+            {backlogItems.map((category, index) => (
               <Card key={index} className="flex-1 mb-2">
                 <CardHeader>
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
-                      <CardTitle className="text-xl">{item.title}</CardTitle>
+                      <CardTitle className="text-xl">{category.category}</CardTitle>
                       <CardDescription className="mt-1">
-                        {item.description}
+                        {category.priority} Priority
                       </CardDescription>
                     </div>
                   </div>
                 </CardHeader>
+                <CardContent className="space-y-4">
+                  {category.items.map((item, i) => (
+                    <div key={i} className="flex items-start gap-2 text-sm">
+                      <span className="text-muted-foreground mt-0.5">•</span>
+                      <div>
+                        <CardTitle className="text-sm font-semibold">{item.title}</CardTitle>
+                        <CardDescription className="text-xs text-muted-foreground">{item.description}</CardDescription>
+                        <CardDescription className="text-xs text-muted-foreground">Effort: {item.effort}</CardDescription>
+                        <CardDescription className="text-xs text-muted-foreground">Status: {item.status}</CardDescription>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
               </Card>
             ))}
           </div>

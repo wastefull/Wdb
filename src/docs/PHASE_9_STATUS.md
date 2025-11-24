@@ -207,15 +207,65 @@ Efficient querying via prefix-based indexes:
 ## 🚧 Phase 9.2 In Progress (Curation Workbench UI)
 
 **Status:** Active development  
-**Purpose:** Build UI for evidence extraction workflow
+**Purpose:** Build UI for evidence extraction workflow with pilot implementation
 
-### Planned Deliverables
-- [ ] Evidence Wizard (5-step MIU creation flow)
-- [ ] Source Viewer (split-pane interface)
-- [ ] PDF annotation tools
-- [ ] Double-extraction validation workflow
-- [ ] Pilot with 3 materials (Aluminum, PET, Cardboard)
-- [ ] CR dimension parameters only (Y, D, C, M, E)
+### Completed Deliverables ✅
+
+#### Curation Workbench Component
+- ✅ CurationWorkbench.tsx component created
+- ✅ Split-pane layout with source viewer and evidence wizard
+- ✅ 5-step progressive wizard with validation
+- ✅ Source selection from Source Library Manager
+- ✅ Material and parameter selection (pilot scope: Aluminum, PET, Cardboard)
+- ✅ Form validation and error handling
+- ✅ Integration with POST /evidence endpoint
+- ✅ Sokpop-inspired retro design system
+
+#### Evidence List Viewer Component
+- ✅ EvidenceListViewer.tsx component created
+- ✅ Filter by material and parameter (pilot scope)
+- ✅ Search functionality (snippets and citations)
+- ✅ MIU detail view modal with full metadata
+- ✅ Confidence level badges with color coding
+- ✅ Locator display (page/figure/table)
+- ✅ Integration with GET /evidence endpoint
+
+#### Unit Ontology Validation
+- ✅ Unit ontology validation integration
+- ✅ Real-time unit validation against allowed units
+- ✅ Unit dropdown with parameter-specific options
+- ✅ Canonical unit display and conversion hints
+- ✅ Validation error messages with allowed units
+
+### In Progress 🔄
+- 🔄 Smart context pre-fill (detect material/parameter from text)
+- 🔄 MIU review and edit functionality
+
+### Deferred to Phase 9.4 ⏸️
+**Decision:** PDF annotation tools deferred to Phase 9.4 Week 1 (before scaling to all materials)
+- ⏸️ Integrated PDF viewer with text selection
+- ⏸️ PDF annotation and highlighting tools
+- ⏸️ Page jump and figure zoom navigation
+- ⏸️ OCR text extraction from PDF images (conditional based on scanned source prevalence)
+
+**Rationale:** Low volume in pilot (~45 MIUs) makes copy/paste workflow acceptable. Better ROI when scaling to 8 materials × 13 parameters (~300+ MIUs).
+
+### Remaining Work
+1. **MIU Edit Functionality** (3-4 hours) - REQUIRED
+   - Edit form with pre-populated data
+   - PATCH endpoint integration
+   - Validation status updates
+   - Delete operations
+
+2. **Double-Extraction Validation** (6-8 hours) - RECOMMENDED
+   - Task assignment system
+   - Inter-rater reliability (κ) calculation
+   - Conflict resolution workflow
+
+3. **Pilot Extraction** (10-15 hours curator time) - REQUIRED
+   - Extract 45+ MIUs (3 materials × 5 parameters × 3+ MIUs)
+   - Test workflow end-to-end
+   - Document pain points
 
 ### Backend Ready ✅
 All Phase 9.1 endpoints and data structures ready for UI to consume.

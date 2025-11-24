@@ -265,7 +265,7 @@ Consider specialized tools in Phase 9.3+:
 
 ## 📚 Related Documentation
 
-- **Phase 9.0 Status:** `/docs/PHASE_9_0_STATUS_SUMMARY.md`
+- **Phase 9.0 Status:** `/docs/PHASE_9_STATUS.md`
 - **Day 2 Report:** `/docs/PHASE_9_0_DAY_2_COMPLETE.md`
 - **Implementation Plan:** `/docs/PHASE_9_0_IMPLEMENTATION_CHECKLIST.md`
 

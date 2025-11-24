@@ -17,7 +17,7 @@ This document tracks all backlog items, future enhancements, and deferred work f
 ### Data Retention & Lifecycle Management
 
 **Status:** Deferred from Phase 9.0 Day 7  
-**Related:** `/docs/PHASE_9_0_STATUS_SUMMARY.md`
+**Related:** `/docs/PHASE_9_STATUS.md`
 
 1. **Audit Log Cleanup Enhancements**
    - **Description:** Extend the existing audit log cleanup functionality with more granular controls

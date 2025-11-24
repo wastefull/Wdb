@@ -446,7 +446,7 @@ This document outlines the backup and recovery procedures for the WasteDB platfo
 **For backup/recovery assistance:**
 - Email: natto@wastefull.org (Admin: Nao)
 - Supabase Support: https://supabase.com/support
-- WasteDB Documentation: `/docs/PHASE_9_0_STATUS_SUMMARY.md`
+- WasteDB Documentation: `/docs/PHASE_9_STATUS.md`
 
 ---
 
