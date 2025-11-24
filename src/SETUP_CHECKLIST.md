@@ -4,6 +4,20 @@ Use this checklist when setting up WasteDB from GitHub for the first time.
 
 ---
 
+## ⚠️ Important Note: Dotfiles in This Project
+
+**Figma Make cannot sync hidden files (dotfiles)** like `.gitignore` or `.env.example`.
+
+**What this means for you:**
+- ✅ `.gitignore` and `.env.example` exist in GitHub (manually created)
+- ✅ Reference copies exist as `gitignore.txt` and `env.example.txt` (Figma Make synced)
+- ✅ When you clone from GitHub, the real dotfiles will be there
+- ⚠️ If you need to update dotfiles, edit them directly in GitHub or locally
+
+📖 See [FIGMA_MAKE_DOTFILES_LIMITATION.md](/FIGMA_MAKE_DOTFILES_LIMITATION.md) for full details.
+
+---
+
 ## 📋 Pre-Setup Requirements
 
 ### System Requirements

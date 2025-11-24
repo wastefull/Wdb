@@ -1,0 +1,90 @@
+# WasteDB .gitignore
+# 
+# ⚠️ IMPORTANT: This file should be named ".gitignore" (without .txt extension)
+# Figma Make cannot create hidden files, so this is named gitignore.txt
+# 
+# SETUP INSTRUCTIONS:
+# 1. After pulling from GitHub, manually rename this file from "gitignore.txt" to ".gitignore"
+# 2. OR: Copy the contents below and paste into your existing .gitignore file
+#
+
+# =============================================================================
+# ENVIRONMENT & SECRETS
+# =============================================================================
+.env
+.env.local
+.env.production
+.env.development
+*.env
+
+# =============================================================================
+# DEPENDENCIES
+# =============================================================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# =============================================================================
+# BUILD OUTPUT
+# =============================================================================
+dist/
+build/
+.next/
+out/
+.cache/
+
+# =============================================================================
+# DEVELOPMENT
+# =============================================================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# =============================================================================
+# SUPABASE LOCAL
+# =============================================================================
+.supabase/
+supabase/.branches/
+supabase/.temp/
+
+# =============================================================================
+# LOGS
+# =============================================================================
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# =============================================================================
+# TEMPORARY FILES
+# =============================================================================
+tmp/
+temp/
+*.tmp
+*.bak
+
+# =============================================================================
+# TESTING
+# =============================================================================
+coverage/
+.nyc_output/
+*.test.js.snap
+
+# =============================================================================
+# KEEP THESE FILES (exceptions to rules above)
+# =============================================================================
+# These are safe to commit:
+!/utils/supabase/info.tsx
+!env.example.txt
+!README.md
+!ROADMAP.md
