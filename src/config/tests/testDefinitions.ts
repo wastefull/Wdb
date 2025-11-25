@@ -27,7 +27,10 @@ export function getAllTestDefinitions(user: any): Test[] {
  * @param user - Current authenticated user (or null)
  * @returns Array of tests for the specified phase
  */
-export function getTestDefinitionsByPhase(phase: string, user: any): Test[] {
+export function getTestDefinitionsByPhase(
+  phase: string,
+  user: any,
+): Test[] {
   return getTestsByPhase(phase, user);
 }
 

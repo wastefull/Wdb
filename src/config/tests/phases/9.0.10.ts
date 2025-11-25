@@ -4,7 +4,10 @@
  * Tests for Open Access status checking via Unpaywall API with DOI normalization.
  */
 
-import { projectId, publicAnonKey } from "../../../utils/supabase/info";
+import {
+  projectId,
+  publicAnonKey,
+} from "../../../utils/supabase/info";
 import { Test } from "../types";
 
 export function getPhase9010Tests(): Test[] {
@@ -12,7 +15,8 @@ export function getPhase9010Tests(): Test[] {
     {
       id: "phase9-day10-check-oa-single",
       name: "Check Single DOI for Open Access",
-      description: "Verify Open Access detection via Unpaywall API",
+      description:
+        "Verify Open Access detection via Unpaywall API",
       phase: "9.0.10",
       category: "Open Access",
       testFn: async () => {
@@ -20,19 +24,22 @@ export function getPhase9010Tests(): Test[] {
           const testDoi = "10.1016/j.biortech.2019.121577";
           const response = await fetch(
             `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/sources/check-oa?doi=${encodeURIComponent(
-              testDoi
+              testDoi,
             )}`,
             {
               method: "GET",
-              headers: { Authorization: `Bearer ${publicAnonKey}` },
-            }
+              headers: {
+                Authorization: `Bearer ${publicAnonKey}`,
+              },
+            },
           );
 
           if (!response.ok) {
             const data = await response.json();
             return {
               success: false,
-              message: data.error || "Failed to check OA status",
+              message:
+                data.error || "Failed to check OA status",
             };
           }
 
@@ -59,7 +66,9 @@ export function getPhase9010Tests(): Test[] {
           return {
             success: false,
             message: `Error checking OA status: ${
-              error instanceof Error ? error.message : "Unknown error"
+              error instanceof Error
+                ? error.message
+                : "Unknown error"
             }`,
           };
         }
@@ -68,7 +77,8 @@ export function getPhase9010Tests(): Test[] {
     {
       id: "phase9-day10-bulk-oa-check",
       name: "Bulk Open Access Check",
-      description: "Verify multiple DOI OA status checks in parallel",
+      description:
+        "Verify multiple DOI OA status checks in parallel",
       phase: "9.0.10",
       category: "Open Access",
       testFn: async () => {
@@ -84,12 +94,14 @@ export function getPhase9010Tests(): Test[] {
               try {
                 const response = await fetch(
                   `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/sources/check-oa?doi=${encodeURIComponent(
-                    doi
+                    doi,
                   )}`,
                   {
                     method: "GET",
-                    headers: { Authorization: `Bearer ${publicAnonKey}` },
-                  }
+                    headers: {
+                      Authorization: `Bearer ${publicAnonKey}`,
+                    },
+                  },
                 );
 
                 if (!response.ok) {
@@ -107,19 +119,23 @@ export function getPhase9010Tests(): Test[] {
                   oa_status: data.oa_status,
                 };
               } catch (error) {
-                return { doi, is_open_access: null, error: String(error) };
+                return {
+                  doi,
+                  is_open_access: null,
+                  error: String(error),
+                };
               }
-            })
+            }),
           );
 
           const oaCount = results.filter(
-            (r) => r.is_open_access === true
+            (r) => r.is_open_access === true,
           ).length;
           const closedCount = results.filter(
-            (r) => r.is_open_access === false
+            (r) => r.is_open_access === false,
           ).length;
           const errorCount = results.filter(
-            (r) => r.is_open_access === null
+            (r) => r.is_open_access === null,
           ).length;
 
           return {
@@ -130,7 +146,9 @@ export function getPhase9010Tests(): Test[] {
           return {
             success: false,
             message: `Error in bulk OA check: ${
-              error instanceof Error ? error.message : "Unknown error"
+              error instanceof Error
+                ? error.message
+                : "Unknown error"
             }`,
           };
         }
@@ -157,21 +175,24 @@ export function getPhase9010Tests(): Test[] {
             doiFormats.map(async (doi) => {
               const response = await fetch(
                 `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/sources/check-oa?doi=${encodeURIComponent(
-                  doi
+                  doi,
                 )}`,
                 {
                   method: "GET",
-                  headers: { Authorization: `Bearer ${publicAnonKey}` },
-                }
+                  headers: {
+                    Authorization: `Bearer ${publicAnonKey}`,
+                  },
+                },
               );
 
               const data = await response.json();
               return {
                 input: doi,
                 normalized: data.doi,
-                success: data.doi === "10.1016/j.biortech.2019.121577",
+                success:
+                  data.doi === "10.1016/j.biortech.2019.121577",
               };
-            })
+            }),
           );
 
           const allNormalized = results.every((r) => r.success);
@@ -186,7 +207,9 @@ export function getPhase9010Tests(): Test[] {
           return {
             success: false,
             message: `Error testing DOI normalization: ${
-              error instanceof Error ? error.message : "Unknown error"
+              error instanceof Error
+                ? error.message
+                : "Unknown error"
             }`,
           };
         }

@@ -51,7 +51,10 @@ export function buildAllTests(user: any): Test[] {
  * @param user - Current authenticated user (or null)
  * @returns Array of tests matching the specified phase
  */
-export function getTestsByPhase(phase: string, user: any): Test[] {
+export function getTestsByPhase(
+  phase: string,
+  user: any,
+): Test[] {
   const allTests = buildAllTests(user);
   return allTests.filter((test) => test.phase === phase);
 }

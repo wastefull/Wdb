@@ -12,7 +12,9 @@ logger.log("🔧 API_BASE_URL initialized:", API_BASE_URL);
 // Session expiry callback - will be set by AuthContext
 let onSessionExpired: (() => void) | null = null;
 
-export function setSessionExpiredCallback(callback: () => void) {
+export function setSessionExpiredCallback(
+  callback: () => void,
+) {
   onSessionExpired = callback;
 }
 
@@ -27,17 +29,23 @@ interface AuthResponse {
 
 // Get current access token from session storage
 function getAccessToken(): string {
-  const token = sessionStorage.getItem("wastedb_access_token") || publicAnonKey;
+  const token =
+    sessionStorage.getItem("wastedb_access_token") ||
+    publicAnonKey;
   logger.log(
     "getAccessToken called, returning:",
-    token === publicAnonKey ? "(anon key)" : "(authenticated token)"
+    token === publicAnonKey
+      ? "(anon key)"
+      : "(authenticated token)",
   );
   return token;
 }
 
 // Store access token in session storage
 export function setAccessToken(token: string) {
-  logger.log("setAccessToken called - storing authenticated token");
+  logger.log(
+    "setAccessToken called - storing authenticated token",
+  );
   sessionStorage.setItem("wastedb_access_token", token);
   logger.log("Token stored in sessionStorage successfully");
 }
@@ -57,7 +65,7 @@ export function isAuthenticated(): boolean {
 export async function apiCall(
   endpoint: string,
   options: RequestInit = {},
-  suppressAuthToast = false
+  suppressAuthToast = false,
 ) {
   const token = getAccessToken();
   const fullUrl = `${API_BASE_URL}${endpoint}`;
@@ -85,13 +93,16 @@ export async function apiCall(
     const errorData = await response.json().catch(() => ({}));
 
     // Handle authentication/authorization errors (401 Unauthorized, 403 Forbidden)
-    const isAuthError = response.status === 401 || response.status === 403;
+    const isAuthError =
+      response.status === 401 || response.status === 403;
     const isAuthEndpoint = endpoint.includes("/auth/");
-    const isNotificationEndpoint = endpoint.includes("/notifications");
+    const isNotificationEndpoint =
+      endpoint.includes("/notifications");
 
     // For suppressAuthToast endpoints, auth errors are expected (public endpoints for unauthenticated users)
     // Only log errors if they're unexpected
-    const isExpectedAuthFailure = isAuthError && suppressAuthToast;
+    const isExpectedAuthFailure =
+      isAuthError && suppressAuthToast;
     if (!isExpectedAuthFailure) {
       // Log error WITHOUT exposing full endpoint in production
       logger.error("API call failed:", {
@@ -113,7 +124,9 @@ export async function apiCall(
       !isNotificationEndpoint &&
       !suppressAuthToast
     ) {
-      logger.warn("🔐 Authentication error detected - clearing session");
+      logger.warn(
+        "🔐 Authentication error detected - clearing session",
+      );
       clearAccessToken();
       sessionStorage.removeItem("wastedb_user");
 
@@ -121,24 +134,35 @@ export async function apiCall(
       const errorMessage = errorData.error || "";
       if (response.status === 401) {
         if (
-          errorMessage.toLowerCase().includes("session expired") ||
+          errorMessage
+            .toLowerCase()
+            .includes("session expired") ||
           errorMessage.toLowerCase().includes("expired")
         ) {
-          toast.error("Your session has expired. Please sign in again.", {
-            duration: 5000,
-            id: "session-expired", // Prevent duplicate toasts
-          });
+          toast.error(
+            "Your session has expired. Please sign in again.",
+            {
+              duration: 5000,
+              id: "session-expired", // Prevent duplicate toasts
+            },
+          );
         } else {
-          toast.error("Authentication required. Please sign in to continue.", {
-            duration: 5000,
-            id: "auth-required",
-          });
+          toast.error(
+            "Authentication required. Please sign in to continue.",
+            {
+              duration: 5000,
+              id: "auth-required",
+            },
+          );
         }
       } else if (response.status === 403) {
-        toast.error("You do not have permission to perform this action.", {
-          duration: 5000,
-          id: "permission-denied",
-        });
+        toast.error(
+          "You do not have permission to perform this action.",
+          {
+            duration: 5000,
+            id: "permission-denied",
+          },
+        );
       }
 
       // Trigger the session expired callback (redirects to front page/login)
@@ -154,7 +178,8 @@ export async function apiCall(
 
       // Throw a user-friendly error (don't expose endpoint)
       throw new Error(
-        errorMessage || "Authentication required. Please sign in to continue."
+        errorMessage ||
+          "Authentication required. Please sign in to continue.",
       );
     }
 
@@ -175,7 +200,7 @@ export async function signUp(
   email: string,
   password: string,
   name?: string,
-  honeypot?: string
+  honeypot?: string,
 ): Promise<AuthResponse> {
   const data = await apiCall("/auth/signup", {
     method: "POST",
@@ -187,7 +212,7 @@ export async function signUp(
 export async function signIn(
   email: string,
   password: string,
-  honeypot?: string
+  honeypot?: string,
 ): Promise<AuthResponse> {
   const data = await apiCall("/auth/signin", {
     method: "POST",
@@ -204,7 +229,7 @@ export async function signIn(
 
 export async function sendMagicLink(
   email: string,
-  honeypot?: string
+  honeypot?: string,
 ): Promise<{ message: string; token?: string }> {
   const data = await apiCall("/auth/magic-link", {
     method: "POST",
@@ -213,7 +238,9 @@ export async function sendMagicLink(
   return data;
 }
 
-export async function verifyMagicLink(token: string): Promise<AuthResponse> {
+export async function verifyMagicLink(
+  token: string,
+): Promise<AuthResponse> {
   logger.log("Verifying magic link token");
   try {
     const data = await apiCall("/auth/verify-magic-link", {
@@ -224,11 +251,15 @@ export async function verifyMagicLink(token: string): Promise<AuthResponse> {
 
     // Store the access token
     if (data.access_token) {
-      logger.log("Storing access token from magic link verification");
+      logger.log(
+        "Storing access token from magic link verification",
+      );
       setAccessToken(data.access_token);
 
       // Verify it was stored
-      const stored = sessionStorage.getItem("wastedb_access_token");
+      const stored = sessionStorage.getItem(
+        "wastedb_access_token",
+      );
       logger.log("Token stored successfully:", !!stored);
     }
 
@@ -252,7 +283,9 @@ export async function getAllMaterials(): Promise<Material[]> {
 }
 
 // Save a single material to Supabase
-export async function saveMaterial(material: Material): Promise<Material> {
+export async function saveMaterial(
+  material: Material,
+): Promise<Material> {
   const data = await apiCall("/materials", {
     method: "POST",
     body: JSON.stringify(material),
@@ -261,7 +294,9 @@ export async function saveMaterial(material: Material): Promise<Material> {
 }
 
 // Batch save materials to Supabase
-export async function batchSaveMaterials(materials: Material[]): Promise<void> {
+export async function batchSaveMaterials(
+  materials: Material[],
+): Promise<void> {
   await apiCall("/materials/batch", {
     method: "POST",
     body: JSON.stringify({ materials }),
@@ -269,7 +304,9 @@ export async function batchSaveMaterials(materials: Material[]): Promise<void> {
 }
 
 // Update a material in Supabase
-export async function updateMaterial(material: Material): Promise<Material> {
+export async function updateMaterial(
+  material: Material,
+): Promise<Material> {
   const data = await apiCall(`/materials/${material.id}`, {
     method: "PUT",
     body: JSON.stringify(material),
@@ -278,7 +315,9 @@ export async function updateMaterial(material: Material): Promise<Material> {
 }
 
 // Delete a material from Supabase
-export async function deleteMaterial(id: string): Promise<void> {
+export async function deleteMaterial(
+  id: string,
+): Promise<void> {
   await apiCall(`/materials/${id}`, {
     method: "DELETE",
   });
@@ -306,7 +345,7 @@ export async function getAllUsers(): Promise<any[]> {
 // Update user role (admin only)
 export async function updateUserRole(
   userId: string,
-  role: "user" | "admin"
+  role: "user" | "admin",
 ): Promise<void> {
   await apiCall(`/users/${userId}/role`, {
     method: "PUT",
@@ -315,7 +354,9 @@ export async function updateUserRole(
 }
 
 // Delete user (admin only)
-export async function deleteUser(userId: string): Promise<void> {
+export async function deleteUser(
+  userId: string,
+): Promise<void> {
   await apiCall(`/users/${userId}`, {
     method: "DELETE",
   });
@@ -329,7 +370,7 @@ export async function updateUser(
     email?: string;
     password?: string;
     active?: boolean;
-  }
+  },
 ): Promise<void> {
   await apiCall(`/users/${userId}`, {
     method: "PUT",
@@ -347,7 +388,9 @@ interface Whitepaper {
 }
 
 // Get all whitepapers (public, no auth required)
-export async function getAllWhitepapers(): Promise<Whitepaper[]> {
+export async function getAllWhitepapers(): Promise<
+  Whitepaper[]
+> {
   logger.log("Fetching whitepapers from API");
   const response = await fetch(`${API_BASE_URL}/whitepapers`, {
     headers: {
@@ -371,19 +414,24 @@ export async function getAllWhitepapers(): Promise<Whitepaper[]> {
   logger.log(
     "Whitepapers fetched successfully:",
     data.whitepapers?.length || 0,
-    "whitepapers"
+    "whitepapers",
   );
   return data.whitepapers || [];
 }
 
 // Get a single whitepaper by slug (public, no auth required)
-export async function getWhitepaper(slug: string): Promise<Whitepaper | null> {
-  const response = await fetch(`${API_BASE_URL}/whitepapers/${slug}`, {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${publicAnonKey}`, // Required for Supabase edge functions
+export async function getWhitepaper(
+  slug: string,
+): Promise<Whitepaper | null> {
+  const response = await fetch(
+    `${API_BASE_URL}/whitepapers/${slug}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${publicAnonKey}`, // Required for Supabase edge functions
+      },
     },
-  });
+  );
 
   if (response.status === 404) {
     return null;
@@ -411,7 +459,9 @@ export async function saveWhitepaper(whitepaper: {
 }
 
 // Delete a whitepaper (admin only)
-export async function deleteWhitepaper(slug: string): Promise<void> {
+export async function deleteWhitepaper(
+  slug: string,
+): Promise<void> {
   await apiCall(`/whitepapers/${slug}`, {
     method: "DELETE",
   });
@@ -427,7 +477,12 @@ export interface Source {
   doi?: string;
   url?: string;
   weight?: number;
-  type: "peer-reviewed" | "government" | "industrial" | "ngo" | "internal";
+  type:
+    | "peer-reviewed"
+    | "government"
+    | "industrial"
+    | "ngo"
+    | "internal";
   abstract?: string;
   tags?: string[];
   pdfFileName?: string;
@@ -454,7 +509,9 @@ export async function getAllSources(): Promise<Source[]> {
 }
 
 // Create a new source (admin only)
-export async function createSource(source: Source): Promise<Source> {
+export async function createSource(
+  source: Source,
+): Promise<Source> {
   const data = await apiCall("/sources", {
     method: "POST",
     body: JSON.stringify(source),
@@ -465,7 +522,7 @@ export async function createSource(source: Source): Promise<Source> {
 // Update a source (admin only)
 export async function updateSource(
   id: string,
-  source: Source
+  source: Source,
 ): Promise<Source> {
   const data = await apiCall(`/sources/${id}`, {
     method: "PUT",
@@ -483,7 +540,7 @@ export async function deleteSource(id: string): Promise<void> {
 
 // Batch save sources (admin only)
 export async function batchSaveSources(
-  sources: Source[]
+  sources: Source[],
 ): Promise<{ success: boolean; count: number }> {
   const data = await apiCall("/sources/batch", {
     method: "POST",
@@ -514,7 +571,7 @@ export async function checkOAStatus(doi: string): Promise<{
         "Content-Type": "application/json",
         Authorization: `Bearer ${publicAnonKey}`,
       },
-    }
+    },
   );
 
   if (!response.ok) {
@@ -543,14 +600,17 @@ export async function checkSourceDuplicate(params: {
   };
   message: string;
 }> {
-  const response = await fetch(`${API_BASE_URL}/sources/check-duplicate`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${publicAnonKey}`,
+  const response = await fetch(
+    `${API_BASE_URL}/sources/check-duplicate`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${publicAnonKey}`,
+      },
+      body: JSON.stringify(params),
     },
-    body: JSON.stringify(params),
-  });
+  );
 
   if (!response.ok) {
     const error = await response.text();
@@ -563,7 +623,7 @@ export async function checkSourceDuplicate(params: {
 // Merge duplicate sources (admin only)
 export async function mergeSources(
   primarySourceId: string,
-  duplicateSourceId: string
+  duplicateSourceId: string,
 ): Promise<{
   success: boolean;
   primarySource: Source;
@@ -572,7 +632,10 @@ export async function mergeSources(
 }> {
   const data = await apiCall("/sources/merge", {
     method: "POST",
-    body: JSON.stringify({ primarySourceId, duplicateSourceId }),
+    body: JSON.stringify({
+      primarySourceId,
+      duplicateSourceId,
+    }),
   });
   return data;
 }
@@ -580,7 +643,7 @@ export async function mergeSources(
 // Upload PDF for a source (admin only)
 export async function uploadSourcePdf(
   file: File,
-  sourceId: string
+  sourceId: string,
 ): Promise<{ success: boolean; fileName: string }> {
   logger.log(" Starting PDF upload:", {
     fileName: file.name,
@@ -593,7 +656,9 @@ export async function uploadSourcePdf(
   formData.append("file", file);
   formData.append("sourceId", sourceId);
 
-  const token = sessionStorage.getItem("wastedb_access_token") || publicAnonKey;
+  const token =
+    sessionStorage.getItem("wastedb_access_token") ||
+    publicAnonKey;
   const isCustomToken = token !== publicAnonKey;
 
   logger.log("🔐 Auth state for PDF upload:", {
@@ -638,7 +703,8 @@ export async function uploadSourcePdf(
       }
 
       throw new Error(
-        errorData.error || `Upload failed: ${response.statusText}`
+        errorData.error ||
+          `Upload failed: ${response.statusText}`,
       );
     }
 
@@ -652,11 +718,16 @@ export async function uploadSourcePdf(
 }
 
 // Get signed URL for a source PDF (authenticated users)
-export async function getSourcePdfUrl(fileName: string): Promise<string> {
+export async function getSourcePdfUrl(
+  fileName: string,
+): Promise<string> {
   logger.log(" Fetching PDF URL for:", fileName);
   try {
     const data = await apiCall(`/source-pdfs/${fileName}`);
-    logger.log("Got signed URL:", data.signedUrl?.substring(0, 50) + "...");
+    logger.log(
+      "Got signed URL:",
+      data.signedUrl?.substring(0, 50) + "...",
+    );
     return data.signedUrl;
   } catch (error) {
     logger.error("Failed to get PDF URL:", error);
@@ -668,28 +739,35 @@ export async function getSourcePdfUrl(fileName: string): Promise<string> {
 // Returns the public Supabase Storage URL (no server endpoint needed since bucket is public)
 export function getSourcePdfViewUrl(fileName: string): string {
   const url = `https://${projectId}.supabase.co/storage/v1/object/public/make-17cae920-source-pdfs/${encodeURIComponent(
-    fileName
+    fileName,
   )}`;
-  logger.log(`🔗 Generated PDF view URL for "${fileName}":`, url);
+  logger.log(
+    `🔗 Generated PDF view URL for "${fileName}":`,
+    url,
+  );
   return url;
 }
 
 // Delete a source PDF (admin only)
-export async function deleteSourcePdf(fileName: string): Promise<void> {
+export async function deleteSourcePdf(
+  fileName: string,
+): Promise<void> {
   await apiCall(`/source-pdfs/${fileName}`, {
     method: "DELETE",
   });
 }
 
 // Get diagnostics for a source PDF (debug tool)
-export async function getSourcePdfDiagnostics(fileName: string): Promise<any> {
+export async function getSourcePdfDiagnostics(
+  fileName: string,
+): Promise<any> {
   logger.log(`🔍 Fetching diagnostics for PDF: ${fileName}`);
   try {
     const data = await apiCall(
       `/source-pdfs/${encodeURIComponent(fileName)}/debug`,
       {
         method: "GET",
-      }
+      },
     );
     logger.log(`Diagnostics received:`, data);
     return data;
@@ -731,7 +809,7 @@ export interface CalculationResult {
 
 // Calculate Compostability Index (CC)
 export async function calculateCompostability(
-  params: CompostabilityParams
+  params: CompostabilityParams,
 ): Promise<CalculationResult> {
   const data = await apiCall("/calculate/compostability", {
     method: "POST",
@@ -750,7 +828,7 @@ export async function calculateCompostability(
 
 // Calculate Reusability Index (RU)
 export async function calculateReusability(
-  params: ReusabilityParams
+  params: ReusabilityParams,
 ): Promise<CalculationResult> {
   const data = await apiCall("/calculate/reusability", {
     method: "POST",
@@ -768,7 +846,9 @@ export async function calculateReusability(
 }
 
 // Calculate all three dimensions (CR, CC, RU)
-export async function calculateAllDimensions(params: any): Promise<any> {
+export async function calculateAllDimensions(
+  params: any,
+): Promise<any> {
   const data = await apiCall("/calculate/all-dimensions", {
     method: "POST",
     body: JSON.stringify(params),
@@ -780,7 +860,9 @@ export async function calculateAllDimensions(params: any): Promise<any> {
 
 // ===== USER PROFILES =====
 
-export async function getUserProfile(userId: string): Promise<any> {
+export async function getUserProfile(
+  userId: string,
+): Promise<any> {
   const data = await apiCall(`/profile/${userId}`);
   return data.profile;
 }
@@ -791,7 +873,7 @@ export async function updateUserProfile(
     bio?: string;
     social_link?: string;
     avatar_url?: string;
-  }
+  },
 ): Promise<any> {
   const data = await apiCall(`/profile/${userId}`, {
     method: "PUT",
@@ -807,7 +889,8 @@ export async function getArticles(params?: {
   material_id?: string;
 }): Promise<any[]> {
   const queryParams = new URLSearchParams();
-  if (params?.status) queryParams.append("status", params.status);
+  if (params?.status)
+    queryParams.append("status", params.status);
   if (params?.material_id)
     queryParams.append("material_id", params.material_id);
 
@@ -837,7 +920,10 @@ export async function createArticle(article: {
   return data.article;
 }
 
-export async function updateArticle(id: string, updates: any): Promise<any> {
+export async function updateArticle(
+  id: string,
+  updates: any,
+): Promise<any> {
   const data = await apiCall(`/articles/${id}`, {
     method: "PUT",
     body: JSON.stringify(updates),
@@ -853,8 +939,12 @@ export async function deleteArticle(id: string): Promise<void> {
 
 // ===== SUBMISSIONS =====
 
-export async function getSubmissions(status?: string): Promise<any[]> {
-  const url = status ? `/submissions?status=${status}` : "/submissions";
+export async function getSubmissions(
+  status?: string,
+): Promise<any[]> {
+  const url = status
+    ? `/submissions?status=${status}`
+    : "/submissions";
   const data = await apiCall(url);
   return data.submissions;
 }
@@ -888,7 +978,7 @@ export async function updateSubmission(
     status?: string;
     feedback?: string;
     reviewed_by?: string;
-  }
+  },
 ): Promise<any> {
   const data = await apiCall(`/submissions/${id}`, {
     method: "PUT",
@@ -897,7 +987,9 @@ export async function updateSubmission(
   return data.submission;
 }
 
-export async function deleteSubmission(id: string): Promise<void> {
+export async function deleteSubmission(
+  id: string,
+): Promise<void> {
   await apiCall(`/submissions/${id}`, {
     method: "DELETE",
   });
@@ -924,7 +1016,9 @@ export async function createNotification(params: {
   return data.notification;
 }
 
-export async function getNotifications(userId: string): Promise<any[]> {
+export async function getNotifications(
+  userId: string,
+): Promise<any[]> {
   try {
     const data = await apiCall(`/notifications/${userId}`);
     return data.notifications;
@@ -935,7 +1029,9 @@ export async function getNotifications(userId: string): Promise<any[]> {
   }
 }
 
-export async function markNotificationAsRead(id: string): Promise<any> {
+export async function markNotificationAsRead(
+  id: string,
+): Promise<any> {
   try {
     const data = await apiCall(`/notifications/${id}/read`, {
       method: "PUT",
@@ -948,7 +1044,7 @@ export async function markNotificationAsRead(id: string): Promise<any> {
 }
 
 export async function markAllNotificationsAsRead(
-  userId: string
+  userId: string,
 ): Promise<void> {
   await apiCall(`/notifications/${userId}/read-all`, {
     method: "PUT",

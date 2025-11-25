@@ -13,12 +13,20 @@ import React, {
   ReactNode,
 } from "react";
 import { Material } from "../types/material";
-import { materialsLogger, syncLogger } from "../utils/loggerFactories";
+import {
+  materialsLogger,
+  syncLogger,
+} from "../utils/loggerFactories";
 import * as api from "../utils/api";
 import { toast } from "sonner";
 import { getSourcesByTag } from "../data/sources";
 
-type SyncStatus = "idle" | "syncing" | "synced" | "error" | "offline";
+type SyncStatus =
+  | "idle"
+  | "syncing"
+  | "synced"
+  | "error"
+  | "offline";
 
 interface MaterialsContextType {
   // State
@@ -29,7 +37,9 @@ interface MaterialsContextType {
 
   // CRUD Operations
   addMaterial: (materialData: Omit<Material, "id">) => void;
-  updateMaterial: (materialData: Omit<Material, "id"> | Material) => void;
+  updateMaterial: (
+    materialData: Omit<Material, "id"> | Material,
+  ) => void;
   deleteMaterial: (id: string) => void;
 
   // Batch Operations
@@ -44,15 +54,15 @@ interface MaterialsContextType {
   getMaterialById: (id: string) => Material | undefined;
 }
 
-const MaterialsContext = createContext<MaterialsContextType | undefined>(
-  undefined
-);
+const MaterialsContext = createContext<
+  MaterialsContextType | undefined
+>(undefined);
 
 export const useMaterialsContext = () => {
   const context = useContext(MaterialsContext);
   if (!context) {
     throw new Error(
-      "useMaterialsContext must be used within MaterialsProvider"
+      "useMaterialsContext must be used within MaterialsProvider",
     );
   }
   return context;
@@ -64,22 +74,26 @@ interface MaterialsProviderProps {
   userRole: "user" | "admin";
 }
 
-export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({
-  children,
-  user,
-  userRole,
-}) => {
+export const MaterialsProvider: React.FC<
+  MaterialsProviderProps
+> = ({ children, user, userRole }) => {
   const [materials, setMaterials] = useState<Material[]>([]);
-  const [isLoadingMaterials, setIsLoadingMaterials] = useState(true);
-  const [syncStatus, setSyncStatus] = useState<SyncStatus>("idle");
-  const [supabaseAvailable, setSupabaseAvailable] = useState(false);
+  const [isLoadingMaterials, setIsLoadingMaterials] =
+    useState(true);
+  const [syncStatus, setSyncStatus] =
+    useState<SyncStatus>("idle");
+  const [supabaseAvailable, setSupabaseAvailable] =
+    useState(false);
 
   // Initialize sample data
   const initializeSampleData = () => {
     materialsLogger.info("Initializing sample data...");
 
     // Get sources from library for initial data
-    const cardboardSources = getSourcesByTag("cardboard").slice(0, 4);
+    const cardboardSources = getSourcesByTag("cardboard").slice(
+      0,
+      4,
+    );
     const glassSources = getSourcesByTag("glass").slice(0, 4);
     const petSources = getSourcesByTag("pet").slice(0, 5);
 
@@ -120,7 +134,8 @@ export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({
         compostability: 0,
         recyclability: 90,
         reusability: 85,
-        description: "Transparent or translucent material made from silica.",
+        description:
+          "Transparent or translucent material made from silica.",
         Y_value: 0.75,
         D_value: 0.05,
         C_value: 0.6,
@@ -148,7 +163,8 @@ export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({
         compostability: 0,
         recyclability: 75,
         reusability: 60,
-        description: "Common plastic type used in bottles and containers.",
+        description:
+          "Common plastic type used in bottles and containers.",
         Y_value: 0.65,
         D_value: 0.25,
         C_value: 0.45,
@@ -181,21 +197,26 @@ export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({
     if (stored) {
       try {
         const parsedMaterials = JSON.parse(stored);
-        const materialsWithArticles = parsedMaterials.map((m: any) => ({
-          ...m,
-          category: m.category || "Plastics",
-          articles: m.articles || {
-            compostability: [],
-            recyclability: [],
-            reusability: [],
-          },
-        }));
+        const materialsWithArticles = parsedMaterials.map(
+          (m: any) => ({
+            ...m,
+            category: m.category || "Plastics",
+            articles: m.articles || {
+              compostability: [],
+              recyclability: [],
+              reusability: [],
+            },
+          }),
+        );
         setMaterials(materialsWithArticles);
         syncLogger.info(
-          `Loaded ${materialsWithArticles.length} materials from localStorage`
+          `Loaded ${materialsWithArticles.length} materials from localStorage`,
         );
       } catch (e) {
-        materialsLogger.error("Error parsing stored materials:", e);
+        materialsLogger.error(
+          "Error parsing stored materials:",
+          e,
+        );
         initializeSampleData();
       }
     } else {
@@ -214,27 +235,29 @@ export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({
 
         if (supabaseMaterials.length > 0) {
           // Ensure all materials have articles structure and category
-          const materialsWithArticles = supabaseMaterials.map((m: any) => ({
-            ...m,
-            category: m.category || "Plastics",
-            articles: m.articles || {
-              compostability: [],
-              recyclability: [],
-              reusability: [],
-            },
-          }));
+          const materialsWithArticles = supabaseMaterials.map(
+            (m: any) => ({
+              ...m,
+              category: m.category || "Plastics",
+              articles: m.articles || {
+                compostability: [],
+                recyclability: [],
+                reusability: [],
+              },
+            }),
+          );
           setMaterials(materialsWithArticles);
           // Sync to localStorage as cache
           localStorage.setItem(
             "materials",
-            JSON.stringify(materialsWithArticles)
+            JSON.stringify(materialsWithArticles),
           );
           if (user) {
             setSyncStatus("synced");
           }
           setSupabaseAvailable(true);
           syncLogger.info(
-            `Loaded ${materialsWithArticles.length} materials from Supabase`
+            `Loaded ${materialsWithArticles.length} materials from Supabase`,
           );
         } else {
           // If Supabase is empty, load from localStorage or initialize sample data
@@ -251,13 +274,18 @@ export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({
           error instanceof Error &&
           error.message.includes("Unauthorized");
         if (!isExpectedAuthError) {
-          materialsLogger.error("Failed to load from Supabase:", error);
+          materialsLogger.error(
+            "Failed to load from Supabase:",
+            error,
+          );
         }
         setSupabaseAvailable(false);
         loadFromLocalStorage();
         if (user) {
           setSyncStatus("offline");
-          toast.warning("Working offline - data stored locally only");
+          toast.warning(
+            "Working offline - data stored locally only",
+          );
         }
       } finally {
         setIsLoadingMaterials(false);
@@ -269,9 +297,14 @@ export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({
 
   // Save materials to localStorage and Supabase
   const saveMaterials = async (newMaterials: Material[]) => {
-    materialsLogger.info(`Saving ${newMaterials.length} materials...`);
+    materialsLogger.info(
+      `Saving ${newMaterials.length} materials...`,
+    );
     setMaterials(newMaterials);
-    localStorage.setItem("materials", JSON.stringify(newMaterials));
+    localStorage.setItem(
+      "materials",
+      JSON.stringify(newMaterials),
+    );
 
     // Sync to Supabase only if user is authenticated, has admin role, and supabase is available
     if (user && userRole === "admin" && supabaseAvailable) {
@@ -285,25 +318,32 @@ export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({
 
       for (let attempt = 0; attempt <= maxRetries; attempt++) {
         try {
-          const materialsWithArticles = newMaterials.map((m) => ({
-            ...m,
-            articles: m.articles || {
-              compostability: [],
-              recyclability: [],
-              reusability: [],
-            },
-          }));
+          const materialsWithArticles = newMaterials.map(
+            (m) => ({
+              ...m,
+              articles: m.articles || {
+                compostability: [],
+                recyclability: [],
+                reusability: [],
+              },
+            }),
+          );
           await api.batchSaveMaterials(materialsWithArticles);
           setSyncStatus("synced");
           syncLogger.info("Successfully synced to Supabase");
           return; // Success, exit early
         } catch (error) {
           lastError = error;
-          syncLogger.warn(`Sync attempt ${attempt + 1} failed:`, error);
+          syncLogger.warn(
+            `Sync attempt ${attempt + 1} failed:`,
+            error,
+          );
 
           // If not the last attempt, wait before retrying
           if (attempt < maxRetries) {
-            await new Promise((resolve) => setTimeout(resolve, retryDelay));
+            await new Promise((resolve) =>
+              setTimeout(resolve, retryDelay),
+            );
           }
         }
       }
@@ -327,35 +367,54 @@ export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({
     toast.success(`Added ${materialData.name} successfully`);
   };
 
-  const updateMaterial = (materialData: Omit<Material, "id"> | Material) => {
+  const updateMaterial = (
+    materialData: Omit<Material, "id"> | Material,
+  ) => {
     if ("id" in materialData) {
       // Direct update with full material
       const existingIndex = materials.findIndex(
-        (m) => m.id === materialData.id
+        (m) => m.id === materialData.id,
       );
       if (existingIndex >= 0) {
         // Update existing material
-        materialsLogger.info("Updating material:", materialData.name);
+        materialsLogger.info(
+          "Updating material:",
+          materialData.name,
+        );
         const updated = materials.map((m) =>
-          m.id === materialData.id ? materialData : m
+          m.id === materialData.id ? materialData : m,
         );
         saveMaterials(updated);
-        toast.success(`Updated ${materialData.name} successfully`);
+        toast.success(
+          `Updated ${materialData.name} successfully`,
+        );
       } else {
         // Add new material (e.g., from CSV import)
-        materialsLogger.info("Adding new material:", materialData.name);
+        materialsLogger.info(
+          "Adding new material:",
+          materialData.name,
+        );
         saveMaterials([...materials, materialData]);
-        toast.success(`Added ${materialData.name} successfully`);
+        toast.success(
+          `Added ${materialData.name} successfully`,
+        );
       }
     } else {
-      materialsLogger.warn("Update called without id - operation skipped");
+      materialsLogger.warn(
+        "Update called without id - operation skipped",
+      );
     }
   };
 
   const deleteMaterial = (id: string) => {
     const material = materials.find((m) => m.id === id);
-    if (confirm("Are you sure you want to delete this material?")) {
-      materialsLogger.info("Deleting material:", material?.name || id);
+    if (
+      confirm("Are you sure you want to delete this material?")
+    ) {
+      materialsLogger.info(
+        "Deleting material:",
+        material?.name || id,
+      );
       saveMaterials(materials.filter((m) => m.id !== id));
       if (material) {
         toast.success(`Deleted ${material.name} successfully`);
@@ -364,13 +423,19 @@ export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({
   };
 
   const bulkImport = (newMaterials: Material[]) => {
-    materialsLogger.info(`Bulk importing ${newMaterials.length} materials...`);
+    materialsLogger.info(
+      `Bulk importing ${newMaterials.length} materials...`,
+    );
     saveMaterials(newMaterials);
-    toast.success(`Imported ${newMaterials.length} materials successfully`);
+    toast.success(
+      `Imported ${newMaterials.length} materials successfully`,
+    );
   };
 
   const updateMaterials = (updatedMaterials: Material[]) => {
-    materialsLogger.info(`Updating ${updatedMaterials.length} materials...`);
+    materialsLogger.info(
+      `Updating ${updatedMaterials.length} materials...`,
+    );
     saveMaterials(updatedMaterials);
   };
 
@@ -381,9 +446,14 @@ export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({
     if (supabaseAvailable) {
       try {
         await api.deleteAllMaterials();
-        toast.success("All data deleted from cloud and locally");
+        toast.success(
+          "All data deleted from cloud and locally",
+        );
       } catch (error) {
-        materialsLogger.error("Failed to delete from cloud:", error);
+        materialsLogger.error(
+          "Failed to delete from cloud:",
+          error,
+        );
         toast.success("All data deleted locally");
       }
     } else {
@@ -425,7 +495,9 @@ export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({
     }
   };
 
-  const getMaterialById = (id: string): Material | undefined => {
+  const getMaterialById = (
+    id: string,
+  ): Material | undefined => {
     return materials.find((m) => m.id === id);
   };
 

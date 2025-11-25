@@ -12,22 +12,27 @@ export function getPhase904Tests(user: any): Test[] {
     {
       id: "phase9-day4-create-evidence",
       name: "Create Evidence Point",
-      description: "Verify evidence point creation for material parameters",
+      description:
+        "Verify evidence point creation for material parameters",
       phase: "9.0.4",
       category: "Evidence",
       testFn: async () => {
         if (!user) {
           return {
             success: false,
-            message: "Must be authenticated to create evidence points",
+            message:
+              "Must be authenticated to create evidence points",
           };
         }
 
-        const accessToken = sessionStorage.getItem("wastedb_access_token");
+        const accessToken = sessionStorage.getItem(
+          "wastedb_access_token",
+        );
         if (!accessToken) {
           return {
             success: false,
-            message: "No access token found - please sign in again",
+            message:
+              "No access token found - please sign in again",
           };
         }
 
@@ -45,20 +50,23 @@ export function getPhase904Tests(user: any): Test[] {
                 parameter_code: "Y",
                 raw_value: 85,
                 raw_unit: "%",
-                snippet: "Test snippet from automated test suite",
+                snippet:
+                  "Test snippet from automated test suite",
                 source_type: "manual",
                 citation: "Automated Test Citation",
                 confidence_level: "high",
-                notes: "Test evidence from automated test suite",
+                notes:
+                  "Test evidence from automated test suite",
               }),
-            }
+            },
           );
 
           if (!response.ok) {
             const data = await response.json();
             return {
               success: false,
-              message: data.error || "Failed to create evidence",
+              message:
+                data.error || "Failed to create evidence",
             };
           }
 
@@ -79,7 +87,9 @@ export function getPhase904Tests(user: any): Test[] {
           return {
             success: false,
             message: `Error creating evidence: ${
-              error instanceof Error ? error.message : "Unknown error"
+              error instanceof Error
+                ? error.message
+                : "Unknown error"
             }`,
           };
         }
@@ -88,22 +98,27 @@ export function getPhase904Tests(user: any): Test[] {
     {
       id: "phase9-day4-get-evidence-by-material",
       name: "Get Evidence by Material",
-      description: "Verify evidence retrieval for specific material",
+      description:
+        "Verify evidence retrieval for specific material",
       phase: "9.0.4",
       category: "Evidence",
       testFn: async () => {
         if (!user) {
           return {
             success: false,
-            message: "Must be authenticated to retrieve evidence",
+            message:
+              "Must be authenticated to retrieve evidence",
           };
         }
 
-        const accessToken = sessionStorage.getItem("wastedb_access_token");
+        const accessToken = sessionStorage.getItem(
+          "wastedb_access_token",
+        );
         if (!accessToken) {
           return {
             success: false,
-            message: "No access token found - please sign in again",
+            message:
+              "No access token found - please sign in again",
           };
         }
 
@@ -112,22 +127,29 @@ export function getPhase904Tests(user: any): Test[] {
             `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/evidence/material/1760747660232dxyk93nx8`,
             {
               method: "GET",
-              headers: { Authorization: `Bearer ${accessToken}` },
-            }
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            },
           );
 
           if (!response.ok) {
             const data = await response.json();
             return {
               success: false,
-              message: data.error || "Failed to retrieve evidence by material",
+              message:
+                data.error ||
+                "Failed to retrieve evidence by material",
             };
           }
 
           const data = await response.json();
 
           if (!data.evidence || !Array.isArray(data.evidence)) {
-            return { success: false, message: "Invalid response structure" };
+            return {
+              success: false,
+              message: "Invalid response structure",
+            };
           }
 
           return {
@@ -138,7 +160,9 @@ export function getPhase904Tests(user: any): Test[] {
           return {
             success: false,
             message: `Error retrieving evidence: ${
-              error instanceof Error ? error.message : "Unknown error"
+              error instanceof Error
+                ? error.message
+                : "Unknown error"
             }`,
           };
         }
@@ -147,22 +171,27 @@ export function getPhase904Tests(user: any): Test[] {
     {
       id: "phase9-day4-get-single-evidence",
       name: "Get Single Evidence Point",
-      description: "Verify retrieving a specific evidence point by ID",
+      description:
+        "Verify retrieving a specific evidence point by ID",
       phase: "9.0.4",
       category: "Evidence",
       testFn: async () => {
         if (!user) {
           return {
             success: false,
-            message: "Must be authenticated to get evidence points",
+            message:
+              "Must be authenticated to get evidence points",
           };
         }
 
-        const accessToken = sessionStorage.getItem("wastedb_access_token");
+        const accessToken = sessionStorage.getItem(
+          "wastedb_access_token",
+        );
         if (!accessToken) {
           return {
             success: false,
-            message: "No access token found - please sign in again",
+            message:
+              "No access token found - please sign in again",
           };
         }
 
@@ -171,8 +200,10 @@ export function getPhase904Tests(user: any): Test[] {
           const listResponse = await fetch(
             `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/evidence`,
             {
-              headers: { Authorization: `Bearer ${accessToken}` },
-            }
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            },
           );
 
           if (!listResponse.ok) {
@@ -184,7 +215,10 @@ export function getPhase904Tests(user: any): Test[] {
 
           const listData = await listResponse.json();
 
-          if (!listData.evidence || listData.evidence.length === 0) {
+          if (
+            !listData.evidence ||
+            listData.evidence.length === 0
+          ) {
             return {
               success: false,
               message:
@@ -198,15 +232,19 @@ export function getPhase904Tests(user: any): Test[] {
           const response = await fetch(
             `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/evidence/${testId}`,
             {
-              headers: { Authorization: `Bearer ${accessToken}` },
-            }
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            },
           );
 
           if (!response.ok) {
             const data = await response.json();
             return {
               success: false,
-              message: data.error || "Failed to retrieve evidence point",
+              message:
+                data.error ||
+                "Failed to retrieve evidence point",
             };
           }
 
@@ -215,7 +253,8 @@ export function getPhase904Tests(user: any): Test[] {
           if (!data.evidence || data.evidence.id !== testId) {
             return {
               success: false,
-              message: "Retrieved evidence does not match requested ID",
+              message:
+                "Retrieved evidence does not match requested ID",
             };
           }
 
@@ -227,7 +266,9 @@ export function getPhase904Tests(user: any): Test[] {
           return {
             success: false,
             message: `Error retrieving evidence point: ${
-              error instanceof Error ? error.message : "Unknown error"
+              error instanceof Error
+                ? error.message
+                : "Unknown error"
             }`,
           };
         }
@@ -243,15 +284,19 @@ export function getPhase904Tests(user: any): Test[] {
         if (!user) {
           return {
             success: false,
-            message: "Must be authenticated as admin to update evidence",
+            message:
+              "Must be authenticated as admin to update evidence",
           };
         }
 
-        const accessToken = sessionStorage.getItem("wastedb_access_token");
+        const accessToken = sessionStorage.getItem(
+          "wastedb_access_token",
+        );
         if (!accessToken) {
           return {
             success: false,
-            message: "No access token found - please sign in again",
+            message:
+              "No access token found - please sign in again",
           };
         }
 
@@ -276,7 +321,7 @@ export function getPhase904Tests(user: any): Test[] {
                 confidence_level: "high",
                 notes: "Original note for update test",
               }),
-            }
+            },
           );
 
           if (!createResponse.ok) {
@@ -313,20 +358,24 @@ export function getPhase904Tests(user: any): Test[] {
                 confidence_level: testEvidence.confidence_level,
                 notes: updatedNote,
               }),
-            }
+            },
           );
 
           if (!response.ok) {
             const data = await response.json();
             return {
               success: false,
-              message: data.error || "Failed to update evidence point",
+              message:
+                data.error || "Failed to update evidence point",
             };
           }
 
           const data = await response.json();
 
-          if (!data.evidence || data.evidence.notes !== updatedNote) {
+          if (
+            !data.evidence ||
+            data.evidence.notes !== updatedNote
+          ) {
             return {
               success: false,
               message: "Evidence was not updated correctly",
@@ -341,7 +390,9 @@ export function getPhase904Tests(user: any): Test[] {
           return {
             success: false,
             message: `Error updating evidence point: ${
-              error instanceof Error ? error.message : "Unknown error"
+              error instanceof Error
+                ? error.message
+                : "Unknown error"
             }`,
           };
         }
@@ -357,15 +408,19 @@ export function getPhase904Tests(user: any): Test[] {
         if (!user) {
           return {
             success: false,
-            message: "Must be authenticated as admin to delete evidence",
+            message:
+              "Must be authenticated as admin to delete evidence",
           };
         }
 
-        const accessToken = sessionStorage.getItem("wastedb_access_token");
+        const accessToken = sessionStorage.getItem(
+          "wastedb_access_token",
+        );
         if (!accessToken) {
           return {
             success: false,
-            message: "No access token found - please sign in again",
+            message:
+              "No access token found - please sign in again",
           };
         }
 
@@ -390,13 +445,14 @@ export function getPhase904Tests(user: any): Test[] {
                 confidence_level: "high",
                 notes: "Test evidence for deletion",
               }),
-            }
+            },
           );
 
           if (!createResponse.ok) {
             return {
               success: false,
-              message: "Failed to create test evidence for deletion",
+              message:
+                "Failed to create test evidence for deletion",
             };
           }
 
@@ -408,15 +464,18 @@ export function getPhase904Tests(user: any): Test[] {
             `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/evidence/${testId}`,
             {
               method: "DELETE",
-              headers: { Authorization: `Bearer ${accessToken}` },
-            }
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            },
           );
 
           if (!response.ok) {
             const data = await response.json();
             return {
               success: false,
-              message: data.error || "Failed to delete evidence point",
+              message:
+                data.error || "Failed to delete evidence point",
             };
           }
 
@@ -433,14 +492,17 @@ export function getPhase904Tests(user: any): Test[] {
           const verifyResponse = await fetch(
             `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/evidence/${testId}`,
             {
-              headers: { Authorization: `Bearer ${accessToken}` },
-            }
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            },
           );
 
           if (verifyResponse.ok) {
             return {
               success: false,
-              message: "Evidence point still exists after deletion",
+              message:
+                "Evidence point still exists after deletion",
             };
           }
 
@@ -452,7 +514,9 @@ export function getPhase904Tests(user: any): Test[] {
           return {
             success: false,
             message: `Error deleting evidence point: ${
-              error instanceof Error ? error.message : "Unknown error"
+              error instanceof Error
+                ? error.message
+                : "Unknown error"
             }`,
           };
         }

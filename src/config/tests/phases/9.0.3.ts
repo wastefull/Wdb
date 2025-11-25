@@ -12,22 +12,27 @@ export function getPhase903Tests(user: any): Test[] {
     {
       id: "phase9-day3-create-notification",
       name: "Create Notification",
-      description: "Verify notification creation with unique ID generation",
+      description:
+        "Verify notification creation with unique ID generation",
       phase: "9.0.3",
       category: "Notifications",
       testFn: async () => {
         if (!user) {
           return {
             success: false,
-            message: "Must be authenticated to create notifications",
+            message:
+              "Must be authenticated to create notifications",
           };
         }
 
-        const accessToken = sessionStorage.getItem("wastedb_access_token");
+        const accessToken = sessionStorage.getItem(
+          "wastedb_access_token",
+        );
         if (!accessToken) {
           return {
             success: false,
-            message: "No access token found - please sign in again",
+            message:
+              "No access token found - please sign in again",
           };
         }
 
@@ -45,16 +50,18 @@ export function getPhase903Tests(user: any): Test[] {
                 type: "article_published",
                 content_id: "test_article_automated",
                 content_type: "article",
-                message: "Test notification from automated test suite",
+                message:
+                  "Test notification from automated test suite",
               }),
-            }
+            },
           );
 
           if (!response.ok) {
             const data = await response.json();
             return {
               success: false,
-              message: data.error || "Failed to create notification",
+              message:
+                data.error || "Failed to create notification",
             };
           }
 
@@ -63,7 +70,8 @@ export function getPhase903Tests(user: any): Test[] {
           if (!data.notification || !data.notification.id) {
             return {
               success: false,
-              message: "Invalid response structure - missing notification ID",
+              message:
+                "Invalid response structure - missing notification ID",
             };
           }
 
@@ -75,7 +83,9 @@ export function getPhase903Tests(user: any): Test[] {
           return {
             success: false,
             message: `Error creating notification: ${
-              error instanceof Error ? error.message : "Unknown error"
+              error instanceof Error
+                ? error.message
+                : "Unknown error"
             }`,
           };
         }
@@ -84,22 +94,27 @@ export function getPhase903Tests(user: any): Test[] {
     {
       id: "phase9-day3-get-notifications",
       name: "Get User Notifications",
-      description: "Verify user-specific notification retrieval",
+      description:
+        "Verify user-specific notification retrieval",
       phase: "9.0.3",
       category: "Notifications",
       testFn: async () => {
         if (!user) {
           return {
             success: false,
-            message: "Must be authenticated to get notifications",
+            message:
+              "Must be authenticated to get notifications",
           };
         }
 
-        const accessToken = sessionStorage.getItem("wastedb_access_token");
+        const accessToken = sessionStorage.getItem(
+          "wastedb_access_token",
+        );
         if (!accessToken) {
           return {
             success: false,
-            message: "No access token found - please sign in again",
+            message:
+              "No access token found - please sign in again",
           };
         }
 
@@ -108,15 +123,19 @@ export function getPhase903Tests(user: any): Test[] {
             `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/notifications/${user.id}`,
             {
               method: "GET",
-              headers: { Authorization: `Bearer ${accessToken}` },
-            }
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            },
           );
 
           if (!response.ok) {
             const data = await response.json();
             return {
               success: false,
-              message: data.error || "Failed to retrieve notifications",
+              message:
+                data.error ||
+                "Failed to retrieve notifications",
             };
           }
 
@@ -130,7 +149,7 @@ export function getPhase903Tests(user: any): Test[] {
           }
 
           const unreadCount = data.notifications.filter(
-            (n: any) => !n.read
+            (n: any) => !n.read,
           ).length;
           return {
             success: true,
@@ -140,7 +159,9 @@ export function getPhase903Tests(user: any): Test[] {
           return {
             success: false,
             message: `Error retrieving notifications: ${
-              error instanceof Error ? error.message : "Unknown error"
+              error instanceof Error
+                ? error.message
+                : "Unknown error"
             }`,
           };
         }
@@ -149,22 +170,27 @@ export function getPhase903Tests(user: any): Test[] {
     {
       id: "phase9-day3-mark-notification-read",
       name: "Mark Notification as Read",
-      description: "Verify marking a single notification as read",
+      description:
+        "Verify marking a single notification as read",
       phase: "9.0.3",
       category: "Notifications",
       testFn: async () => {
         if (!user) {
           return {
             success: false,
-            message: "Must be authenticated to mark notifications as read",
+            message:
+              "Must be authenticated to mark notifications as read",
           };
         }
 
-        const accessToken = sessionStorage.getItem("wastedb_access_token");
+        const accessToken = sessionStorage.getItem(
+          "wastedb_access_token",
+        );
         if (!accessToken) {
           return {
             success: false,
-            message: "No access token found - please sign in again",
+            message:
+              "No access token found - please sign in again",
           };
         }
 
@@ -185,7 +211,7 @@ export function getPhase903Tests(user: any): Test[] {
                 content_type: "test",
                 message: "Test notification for mark as read",
               }),
-            }
+            },
           );
 
           if (!createResponse.ok) {
@@ -203,21 +229,28 @@ export function getPhase903Tests(user: any): Test[] {
             `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/notifications/${notificationId}/read`,
             {
               method: "PUT",
-              headers: { Authorization: `Bearer ${accessToken}` },
-            }
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            },
           );
 
           if (!readResponse.ok) {
             const data = await readResponse.json();
             return {
               success: false,
-              message: data.error || "Failed to mark notification as read",
+              message:
+                data.error ||
+                "Failed to mark notification as read",
             };
           }
 
           const readData = await readResponse.json();
 
-          if (!readData.notification || readData.notification.read !== true) {
+          if (
+            !readData.notification ||
+            readData.notification.read !== true
+          ) {
             return {
               success: false,
               message: "Notification was not marked as read",
@@ -232,7 +265,9 @@ export function getPhase903Tests(user: any): Test[] {
           return {
             success: false,
             message: `Error marking notification as read: ${
-              error instanceof Error ? error.message : "Unknown error"
+              error instanceof Error
+                ? error.message
+                : "Unknown error"
             }`,
           };
         }
@@ -241,22 +276,27 @@ export function getPhase903Tests(user: any): Test[] {
     {
       id: "phase9-day3-mark-all-notifications-read",
       name: "Mark All Notifications as Read",
-      description: "Verify marking all user notifications as read",
+      description:
+        "Verify marking all user notifications as read",
       phase: "9.0.3",
       category: "Notifications",
       testFn: async () => {
         if (!user) {
           return {
             success: false,
-            message: "Must be authenticated to mark all notifications as read",
+            message:
+              "Must be authenticated to mark all notifications as read",
           };
         }
 
-        const accessToken = sessionStorage.getItem("wastedb_access_token");
+        const accessToken = sessionStorage.getItem(
+          "wastedb_access_token",
+        );
         if (!accessToken) {
           return {
             success: false,
-            message: "No access token found - please sign in again",
+            message:
+              "No access token found - please sign in again",
           };
         }
 
@@ -265,22 +305,29 @@ export function getPhase903Tests(user: any): Test[] {
             `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/notifications/${user.id}/read-all`,
             {
               method: "PUT",
-              headers: { Authorization: `Bearer ${accessToken}` },
-            }
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            },
           );
 
           if (!response.ok) {
             const data = await response.json();
             return {
               success: false,
-              message: data.error || "Failed to mark all notifications as read",
+              message:
+                data.error ||
+                "Failed to mark all notifications as read",
             };
           }
 
           const data = await response.json();
 
           if (!data.success) {
-            return { success: false, message: "Operation did not succeed" };
+            return {
+              success: false,
+              message: "Operation did not succeed",
+            };
           }
 
           return {
@@ -293,7 +340,9 @@ export function getPhase903Tests(user: any): Test[] {
           return {
             success: false,
             message: `Error marking all notifications as read: ${
-              error instanceof Error ? error.message : "Unknown error"
+              error instanceof Error
+                ? error.message
+                : "Unknown error"
             }`,
           };
         }
@@ -302,7 +351,8 @@ export function getPhase903Tests(user: any): Test[] {
     {
       id: "phase9-day3-transform-definitions",
       name: "Validate Transform Definitions",
-      description: "Verify all 13 transform parameters are defined",
+      description:
+        "Verify all 13 transform parameters are defined",
       phase: "9.0.3",
       category: "Transforms",
       testFn: async () => {
@@ -315,7 +365,8 @@ export function getPhase903Tests(user: any): Test[] {
           if (!data || !data.transforms) {
             return {
               success: false,
-              message: "transforms data not loaded or invalid structure",
+              message:
+                "transforms data not loaded or invalid structure",
             };
           }
 
@@ -334,15 +385,17 @@ export function getPhase903Tests(user: any): Test[] {
             "U",
             "C_RU",
           ];
-          const actualParams = data.transforms.map((t: any) => t.parameter);
+          const actualParams = data.transforms.map(
+            (t: any) => t.parameter,
+          );
 
           const allPresent = expectedParams.every((p) =>
-            actualParams.includes(p)
+            actualParams.includes(p),
           );
 
           if (!allPresent) {
             const missing = expectedParams.filter(
-              (p) => !actualParams.includes(p)
+              (p) => !actualParams.includes(p),
             );
             return {
               success: false,
@@ -358,7 +411,9 @@ export function getPhase903Tests(user: any): Test[] {
           return {
             success: false,
             message: `Error loading transforms: ${
-              error instanceof Error ? error.message : "Unknown error"
+              error instanceof Error
+                ? error.message
+                : "Unknown error"
             }`,
           };
         }
@@ -380,13 +435,18 @@ export function getPhase903Tests(user: any): Test[] {
           const issues: string[] = [];
 
           data.transforms.forEach((t: any) => {
-            if (!t.parameter) issues.push(`Missing parameter field`);
-            if (!t.name) issues.push(`${t.parameter}: Missing name`);
-            if (!t.formula) issues.push(`${t.parameter}: Missing formula`);
+            if (!t.parameter)
+              issues.push(`Missing parameter field`);
+            if (!t.name)
+              issues.push(`${t.parameter}: Missing name`);
+            if (!t.formula)
+              issues.push(`${t.parameter}: Missing formula`);
             if (!t.input_unit)
               issues.push(`${t.parameter}: Missing input_unit`);
             if (!t.output_unit)
-              issues.push(`${t.parameter}: Missing output_unit`);
+              issues.push(
+                `${t.parameter}: Missing output_unit`,
+              );
           });
 
           if (issues.length > 0) {
@@ -404,7 +464,9 @@ export function getPhase903Tests(user: any): Test[] {
           return {
             success: false,
             message: `Error validating structure: ${
-              error instanceof Error ? error.message : "Unknown error"
+              error instanceof Error
+                ? error.message
+                : "Unknown error"
             }`,
           };
         }
