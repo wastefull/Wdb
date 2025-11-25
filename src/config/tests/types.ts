@@ -1,6 +1,6 @@
 /**
  * Test Type Definitions
- * 
+ *
  * Shared type definitions for the test suite.
  */
 

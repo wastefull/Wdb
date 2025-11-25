@@ -1,14 +1,14 @@
 /**
  * Test Definitions - Central Test Export
- * 
+ *
  * This module serves as the centralized source of truth for all test definitions.
  * It exports all tests and provides filtering functions used by:
  * - TestSuite.tsx (for unified test view)
  * - PhaseFilteredTests.tsx (for phase-specific test tabs)
  */
 
-import { Test } from './types';
-import { buildAllTests, getTestsByPhase } from './all';
+import { buildAllTests, getTestsByPhase } from "./all";
+import { Test } from "./types";
 
 /**
  * Get all test definitions

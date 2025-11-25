@@ -1,24 +1,24 @@
 /**
  * Unified Test Definitions
- * 
+ *
  * Centralized test registry that imports and aggregates all phase tests.
  * Provides functions to retrieve all tests or filter by phase.
  */
 
-import { Test } from './types';
-import { getPhase901Tests } from './phases/9.0.1';
-import { getPhase902Tests } from './phases/9.0.2';
-import { getPhase903Tests } from './phases/9.0.3';
-import { getPhase904Tests } from './phases/9.0.4';
-import { getPhase905Tests } from './phases/9.0.5';
-import { getPhase906Tests } from './phases/9.0.6';
-import { getPhase907Tests } from './phases/9.0.7';
-import { getPhase908Tests } from './phases/9.0.8';
-import { getPhase909Tests } from './phases/9.0.9';
-import { getPhase9010Tests } from './phases/9.0.10';
-import { getPhase9011Tests } from './phases/9.0.11';
-import { getPhase91Tests } from './phases/9.1';
-import { getPhase92Tests } from './phases/9.2';
+import { getPhase901Tests } from "./phases/9.0.1";
+import { getPhase9010Tests } from "./phases/9.0.10";
+import { getPhase9011Tests } from "./phases/9.0.11";
+import { getPhase902Tests } from "./phases/9.0.2";
+import { getPhase903Tests } from "./phases/9.0.3";
+import { getPhase904Tests } from "./phases/9.0.4";
+import { getPhase905Tests } from "./phases/9.0.5";
+import { getPhase906Tests } from "./phases/9.0.6";
+import { getPhase907Tests } from "./phases/9.0.7";
+import { getPhase908Tests } from "./phases/9.0.8";
+import { getPhase909Tests } from "./phases/9.0.9";
+import { getPhase91Tests } from "./phases/9.1";
+import { getPhase92Tests } from "./phases/9.2";
+import { Test } from "./types";
 
 /**
  * Build all test definitions
@@ -31,12 +31,12 @@ export function buildAllTests(user: any): Test[] {
     ...getPhase902Tests(user),
     ...getPhase903Tests(user),
     ...getPhase904Tests(user),
-    ...getPhase905Tests(user),
+    ...getPhase905Tests(),
     ...getPhase906Tests(user),
     ...getPhase907Tests(user),
     ...getPhase908Tests(user),
-    ...getPhase909Tests(user),
-    ...getPhase9010Tests(user),
+    ...getPhase909Tests(),
+    ...getPhase9010Tests(),
     ...getPhase9011Tests(user),
     ...getPhase91Tests(user),
     ...getPhase92Tests(user),
@@ -53,7 +53,7 @@ export function buildAllTests(user: any): Test[] {
  */
 export function getTestsByPhase(phase: string, user: any): Test[] {
   const allTests = buildAllTests(user);
-  return allTests.filter(test => test.phase === phase);
+  return allTests.filter((test) => test.phase === phase);
 }
 
 /**
@@ -63,7 +63,7 @@ export function getTestsByPhase(phase: string, user: any): Test[] {
  */
 export function getAllPhases(user: any): string[] {
   const allTests = buildAllTests(user);
-  const phases = new Set(allTests.map(test => test.phase));
+  const phases = new Set(allTests.map((test) => test.phase));
   return Array.from(phases).sort();
 }
 

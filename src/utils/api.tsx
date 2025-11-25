@@ -54,7 +54,11 @@ export function isAuthenticated(): boolean {
 }
 
 // Helper function to make API calls
-export async function apiCall(endpoint: string, options: RequestInit = {}) {
+export async function apiCall(
+  endpoint: string,
+  options: RequestInit = {},
+  suppressAuthToast = false
+) {
   const token = getAccessToken();
   const fullUrl = `${API_BASE_URL}${endpoint}`;
   const isCustomToken = token !== publicAnonKey;
@@ -97,7 +101,13 @@ export async function apiCall(endpoint: string, options: RequestInit = {}) {
 
     // Handle session expiry for non-auth, non-notification endpoints
     // Notification errors should NOT trigger session expiry (non-critical feature)
-    if (isAuthError && !isAuthEndpoint && !isNotificationEndpoint) {
+    // Also skip if suppressAuthToast is true (for public endpoints that may fail for unauthenticated users)
+    if (
+      isAuthError &&
+      !isAuthEndpoint &&
+      !isNotificationEndpoint &&
+      !suppressAuthToast
+    ) {
       logger.warn("🔐 Authentication error detected - clearing session");
       clearAccessToken();
       sessionStorage.removeItem("wastedb_user");
@@ -230,7 +240,9 @@ export function signOut() {
 
 // Get all materials from Supabase
 export async function getAllMaterials(): Promise<Material[]> {
-  const data = await apiCall("/materials");
+  // suppressAuthToast=true because this is called on page load for all users
+  // If unauthenticated, we silently fall back to localStorage in MaterialsContext
+  const data = await apiCall("/materials", {}, true);
   return data.materials || [];
 }
 

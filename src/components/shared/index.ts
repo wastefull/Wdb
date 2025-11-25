@@ -1,6 +1,5 @@
 // Accessibility
 export {
-  AccessibilityContext,
   AccessibilityProvider,
   useAccessibility,
 } from "./AccessibilityContext";
