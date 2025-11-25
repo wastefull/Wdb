@@ -1,4 +1,4 @@
-import { useAccessibility } from "../AccessibilityContext";
+import { useAccessibility } from "../shared/AccessibilityContext";
 import { Switch } from "../ui/switch";
 
 export interface AdminModeButtonProps {

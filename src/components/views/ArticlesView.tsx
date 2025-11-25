@@ -8,7 +8,7 @@ import {
   updateArticleInMaterial,
   removeArticleFromMaterial,
 } from "../../utils/materialArticles";
-import { RasterizedQuantileVisualization } from "../RasterizedQuantileVisualization";
+import { RasterizedQuantileVisualization } from "../charts/RasterizedQuantileVisualization";
 import { ArticleCard } from "../cards";
 import { ArticleForm } from "../forms";
 

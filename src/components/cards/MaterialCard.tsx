@@ -1,8 +1,8 @@
 import { Edit2, Trash2 } from "lucide-react";
 import { Material } from "../../types/material";
 import { CategoryType } from "../../types/article";
-import { RasterizedQuantileVisualization } from "../RasterizedQuantileVisualization";
-import { ScientificMetadataView } from "../ScientificMetadataView";
+import { RasterizedQuantileVisualization } from "../charts/RasterizedQuantileVisualization";
+import { ScientificMetadataView } from "../views/ScientificMetadataView";
 
 export interface MaterialCardProps {
   material: Material;

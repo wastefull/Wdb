@@ -1,4 +1,4 @@
-import { useAccessibility } from "../AccessibilityContext";
+import { useAccessibility } from "../shared/AccessibilityContext";
 
 export interface ScoreBarProps {
   score: number;

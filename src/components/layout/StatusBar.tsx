@@ -1,5 +1,5 @@
 import { User, LogOut, Cloud, CloudOff } from "lucide-react";
-import { NotificationBell } from "../NotificationBell";
+import { NotificationBell } from "../shared/NotificationBell";
 import { RetroButtons } from "./RetroButtons";
 import { AdminModeButton } from "./AdminModeButton";
 import {

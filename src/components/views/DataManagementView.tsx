@@ -42,9 +42,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { SourceLibraryManager } from "../SourceLibraryManager";
-import { SourceDataComparison } from "../SourceDataComparison";
-import { ChartRasterizationDemo } from "../ChartRasterizationDemo";
+import { SourceLibraryManager } from "../evidence/SourceLibraryManager";
+import { SourceDataComparison } from "../evidence/SourceDataComparison";
+import { ChartRasterizationDemo } from "../charts/ChartRasterizationDemo";
 
 interface DataManagementViewProps {
   materials: Material[];

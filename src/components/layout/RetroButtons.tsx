@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { RotateCcw, Type, Eye, Moon, Unlock } from "lucide-react";
-import { useAccessibility } from "../AccessibilityContext";
+import { useAccessibility } from "../shared/AccessibilityContext";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import {
   Tooltip as UITooltip,

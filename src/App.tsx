@@ -10,7 +10,6 @@ import {
 } from "lucide-react";
 import * as api from "./utils/api";
 import { logger, setTestMode, getTestMode, loggerInfo } from "./utils/logger";
-import { AuthView } from "./components/AuthView";
 import {
   NavigationProvider,
   useNavigationContext,
@@ -28,62 +27,83 @@ import {
   removeArticleFromMaterial,
   getTotalArticleCount,
 } from "./utils/materialArticles";
-import {
-  MethodologyListView,
-  WhitepaperView,
-} from "./components/WhitepaperViews";
-import { AnimatedWasteChart } from "./components/AnimatedWasteChart";
-import {
-  AccessibilityProvider,
-  useAccessibility,
-} from "./components/AccessibilityContext";
-import { UserManagementView } from "./components/UserManagementView";
-import { LoadingPlaceholder } from "./components/LoadingPlaceholder";
-import { UserProfileView } from "./components/UserProfileView";
-import { LegalHubView } from "./components/LegalHubView";
-import { ScienceHubView } from "./components/ScienceHubView";
-import { ScientificDataEditor } from "./components/scientific-editor";
-import { PublicExportView } from "./components/PublicExportView";
-import { SourceLibraryManager } from "./components/SourceLibraryManager";
-import { SourceDataComparison } from "./components/SourceDataComparison";
-import { AssetsManagementPage } from "./components/AssetsManagementPage";
-import { WhitepaperSyncTool } from "./components/WhitepaperSyncTool";
-import { CookieConsent } from "./components/CookieConsent";
-import { SubmitMaterialForm } from "./components/SubmitMaterialForm";
-import { SuggestMaterialEditForm } from "./components/SuggestMaterialEditForm";
-import { SubmitArticleForm } from "./components/SubmitArticleForm";
-import { MySubmissionsView } from "./components/MySubmissionsView";
-import { ContentReviewCenter } from "./components/ContentReviewCenter";
-import { ApiDocumentation } from "./components/ApiDocumentation";
-import { LicensesView } from "./components/LicensesView";
-import { TakedownRequestForm } from "./components/TakedownRequestForm";
-import { TakedownStatusView } from "./components/TakedownStatusView";
-import { AdminTakedownList } from "./components/AdminTakedownList";
-import { AuditLogViewer } from "./components/AuditLogViewer";
-import { DataRetentionManager } from "./components/DataRetentionManager";
-import { TransformVersionManager } from "./components/TransformVersionManager";
-import { AdminDashboard } from "./components/AdminDashboard";
-import { RoadmapView } from "./components/RoadmapView";
-import { SimplifiedRoadmap } from "./components/SimplifiedRoadmap";
-import { MathView } from "./components/MathView";
-import { ChartsPerformanceView } from "./components/ChartsPerformanceView";
-import { EvidenceLabView } from "./components/EvidenceLabView";
-import { TransformFormulaTesting } from "./components/TransformFormulaTesting";
 import { motion } from "motion/react";
 import { toast } from "sonner";
-import { Toaster } from "./components/ui/sonner";
-import { ErrorBoundary } from "./components/ErrorBoundary";
-import { SearchBar } from "./components/search";
-import { StatusBar } from "./components/layout";
-import { MaterialCard } from "./components/cards";
-import { MaterialForm } from "./components/forms";
+
+// Views
 import {
+  AuthView,
+  MethodologyListView,
+  WhitepaperView,
+  UserProfileView,
+  LegalHubView,
+  ScienceHubView,
+  PublicExportView,
+  MySubmissionsView,
+  LicensesView,
+  TakedownStatusView,
+  RoadmapView,
+  MathView,
+  ChartsPerformanceView,
+  EvidenceLabView,
   ArticlesView,
   MaterialDetailView,
   AllArticlesView,
   StandaloneArticleView,
   DataManagementView,
 } from "./components/views";
+
+// Admin
+import {
+  UserManagementView,
+  ContentReviewCenter,
+  AdminTakedownList,
+  AuditLogViewer,
+  DataRetentionManager,
+  AdminDashboard,
+  AssetsManagementPage,
+} from "./components/admin";
+
+// Forms
+import {
+  SubmitMaterialForm,
+  SuggestMaterialEditForm,
+  SubmitArticleForm,
+  TakedownRequestForm,
+  MaterialForm,
+} from "./components/forms";
+
+// Evidence
+import {
+  SourceLibraryManager,
+  SourceDataComparison,
+  WhitepaperSyncTool,
+  TransformVersionManager,
+  TransformFormulaTesting,
+} from "./components/evidence";
+
+// Charts
+import { AnimatedWasteChart } from "./components/charts";
+
+// Shared
+import {
+  AccessibilityProvider,
+  useAccessibility,
+  LoadingPlaceholder,
+  CookieConsent,
+  ApiDocumentation,
+  ErrorBoundary,
+} from "./components/shared";
+
+// Roadmap
+import { SimplifiedRoadmap } from "./components/roadmap";
+
+// Other component groups
+import { Toaster } from "./components/ui/sonner";
+import { SearchBar } from "./components/search";
+import { StatusBar } from "./components/layout";
+import { MaterialCard } from "./components/cards";
+import { ScientificDataEditor } from "./components/scientific-editor";
 
 function AppContent() {
   const { settings, toggleAdminMode } = useAccessibility();

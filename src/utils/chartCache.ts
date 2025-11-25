@@ -1,13 +1,13 @@
 /**
  * Chart Cache Utility
- * 
+ *
  * Provides caching infrastructure for rasterized chart visualizations.
  * Uses IndexedDB for storage with automatic cache invalidation.
- * 
+ *
  * Phase 8: Performance & Scalability
  */
 
-import { ScoreType } from '../components/QuantileVisualization';
+import { ScoreType } from "../components/charts/QuantileVisualization";
 
 export interface CacheKey {
   materialId: string;
@@ -28,10 +28,10 @@ export interface CachedChart {
   version: string; // For cache versioning
 }
 
-const DB_NAME = 'wastedb-chart-cache';
-const STORE_NAME = 'charts';
+const DB_NAME = "wastedb-chart-cache";
+const STORE_NAME = "charts";
 const DB_VERSION = 1;
-const CACHE_VERSION = '1.0.0';
+const CACHE_VERSION = "1.0.0";
 const MAX_CACHE_AGE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 let db: IDBDatabase | null = null;
@@ -53,11 +53,11 @@ async function initDB(): Promise<IDBDatabase> {
 
     request.onupgradeneeded = (event) => {
       const db = (event.target as IDBOpenDBRequest).result;
-      
+
       if (!db.objectStoreNames.contains(STORE_NAME)) {
-        const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
-        store.createIndex('materialId', 'materialId', { unique: false });
-        store.createIndex('timestamp', 'timestamp', { unique: false });
+        const store = db.createObjectStore(STORE_NAME, { keyPath: "id" });
+        store.createIndex("materialId", "materialId", { unique: false });
+        store.createIndex("timestamp", "timestamp", { unique: false });
       }
     };
   });
@@ -72,12 +72,12 @@ function generateCacheId(key: CacheKey): string {
     key.scoreType,
     key.width,
     key.height,
-    key.darkMode ? 'dark' : 'light',
-    key.highContrast ? 'hc' : 'normal',
-    key.reduceMotion ? 'rm' : 'motion',
+    key.darkMode ? "dark" : "light",
+    key.highContrast ? "hc" : "normal",
+    key.reduceMotion ? "rm" : "motion",
     key.dataHash,
   ];
-  return parts.join('|');
+  return parts.join("|");
 }
 
 /**
@@ -91,12 +91,12 @@ export function generateDataHash(data: any): string {
     theoretical_CI95: data.theoretical_CI95,
     confidence_level: data.confidence_level,
   });
-  
+
   // Simple hash function
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
+    hash = (hash << 5) - hash + char;
     hash = hash & hash; // Convert to 32-bit integer
   }
   return hash.toString(36);
@@ -111,14 +111,14 @@ export async function getCachedChart(key: CacheKey): Promise<string | null> {
     const id = generateCacheId(key);
 
     return new Promise((resolve, reject) => {
-      const transaction = db.transaction([STORE_NAME], 'readonly');
+      const transaction = db.transaction([STORE_NAME], "readonly");
       const store = transaction.objectStore(STORE_NAME);
       const request = store.get(id);
 
       request.onerror = () => reject(request.error);
       request.onsuccess = () => {
         const cached = request.result as CachedChart | undefined;
-        
+
         if (!cached) {
           resolve(null);
           return;
@@ -144,7 +144,7 @@ export async function getCachedChart(key: CacheKey): Promise<string | null> {
       };
     });
   } catch (error) {
-    console.error('Error getting cached chart:', error);
+    console.error("Error getting cached chart:", error);
     return null;
   }
 }
@@ -152,7 +152,10 @@ export async function getCachedChart(key: CacheKey): Promise<string | null> {
 /**
  * Store a chart in cache
  */
-export async function setCachedChart(key: CacheKey, dataUrl: string): Promise<void> {
+export async function setCachedChart(
+  key: CacheKey,
+  dataUrl: string
+): Promise<void> {
   try {
     const db = await initDB();
     const id = generateCacheId(key);
@@ -167,7 +170,7 @@ export async function setCachedChart(key: CacheKey, dataUrl: string): Promise<vo
     };
 
     return new Promise((resolve, reject) => {
-      const transaction = db.transaction([STORE_NAME], 'readwrite');
+      const transaction = db.transaction([STORE_NAME], "readwrite");
       const store = transaction.objectStore(STORE_NAME);
       const request = store.put(cached);
 
@@ -175,7 +178,7 @@ export async function setCachedChart(key: CacheKey, dataUrl: string): Promise<vo
       request.onsuccess = () => resolve();
     });
   } catch (error) {
-    console.error('Error setting cached chart:', error);
+    console.error("Error setting cached chart:", error);
   }
 }
 
@@ -188,7 +191,7 @@ export async function deleteCache(key: CacheKey): Promise<void> {
     const id = generateCacheId(key);
 
     return new Promise((resolve, reject) => {
-      const transaction = db.transaction([STORE_NAME], 'readwrite');
+      const transaction = db.transaction([STORE_NAME], "readwrite");
       const store = transaction.objectStore(STORE_NAME);
       const request = store.delete(id);
 
@@ -196,21 +199,23 @@ export async function deleteCache(key: CacheKey): Promise<void> {
       request.onsuccess = () => resolve();
     });
   } catch (error) {
-    console.error('Error deleting cache:', error);
+    console.error("Error deleting cache:", error);
   }
 }
 
 /**
  * Invalidate all caches for a specific material
  */
-export async function invalidateMaterialCache(materialId: string): Promise<void> {
+export async function invalidateMaterialCache(
+  materialId: string
+): Promise<void> {
   try {
     const db = await initDB();
 
     return new Promise((resolve, reject) => {
-      const transaction = db.transaction([STORE_NAME], 'readwrite');
+      const transaction = db.transaction([STORE_NAME], "readwrite");
       const store = transaction.objectStore(STORE_NAME);
-      const index = store.index('materialId');
+      const index = store.index("materialId");
       const request = index.openCursor(IDBKeyRange.only(materialId));
 
       request.onerror = () => reject(request.error);
@@ -225,7 +230,7 @@ export async function invalidateMaterialCache(materialId: string): Promise<void>
       };
     });
   } catch (error) {
-    console.error('Error invalidating material cache:', error);
+    console.error("Error invalidating material cache:", error);
   }
 }
 
@@ -239,9 +244,9 @@ export async function clearExpiredCaches(): Promise<number> {
     let deletedCount = 0;
 
     return new Promise((resolve, reject) => {
-      const transaction = db.transaction([STORE_NAME], 'readwrite');
+      const transaction = db.transaction([STORE_NAME], "readwrite");
       const store = transaction.objectStore(STORE_NAME);
-      const index = store.index('timestamp');
+      const index = store.index("timestamp");
       const request = index.openCursor(IDBKeyRange.upperBound(cutoff));
 
       request.onerror = () => reject(request.error);
@@ -257,7 +262,7 @@ export async function clearExpiredCaches(): Promise<number> {
       };
     });
   } catch (error) {
-    console.error('Error clearing expired caches:', error);
+    console.error("Error clearing expired caches:", error);
     return 0;
   }
 }
@@ -270,7 +275,7 @@ export async function clearAllCaches(): Promise<void> {
     const db = await initDB();
 
     return new Promise((resolve, reject) => {
-      const transaction = db.transaction([STORE_NAME], 'readwrite');
+      const transaction = db.transaction([STORE_NAME], "readwrite");
       const store = transaction.objectStore(STORE_NAME);
       const request = store.clear();
 
@@ -278,7 +283,7 @@ export async function clearAllCaches(): Promise<void> {
       request.onsuccess = () => resolve();
     });
   } catch (error) {
-    console.error('Error clearing all caches:', error);
+    console.error("Error clearing all caches:", error);
   }
 }
 
@@ -295,14 +300,14 @@ export async function getCacheStats(): Promise<{
     const db = await initDB();
 
     return new Promise((resolve, reject) => {
-      const transaction = db.transaction([STORE_NAME], 'readonly');
+      const transaction = db.transaction([STORE_NAME], "readonly");
       const store = transaction.objectStore(STORE_NAME);
       const request = store.getAll();
 
       request.onerror = () => reject(request.error);
       request.onsuccess = () => {
         const all = request.result as CachedChart[];
-        
+
         if (all.length === 0) {
           resolve({
             totalCount: 0,
@@ -313,9 +318,12 @@ export async function getCacheStats(): Promise<{
           return;
         }
 
-        const totalSize = all.reduce((sum, item) => sum + item.dataUrl.length, 0);
-        const timestamps = all.map(item => item.timestamp);
-        
+        const totalSize = all.reduce(
+          (sum, item) => sum + item.dataUrl.length,
+          0
+        );
+        const timestamps = all.map((item) => item.timestamp);
+
         resolve({
           totalCount: all.length,
           totalSize,
@@ -325,7 +333,7 @@ export async function getCacheStats(): Promise<{
       };
     });
   } catch (error) {
-    console.error('Error getting cache stats:', error);
+    console.error("Error getting cache stats:", error);
     return {
       totalCount: 0,
       totalSize: 0,

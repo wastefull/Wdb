@@ -1,20 +1,20 @@
 /**
  * useRasterizedChart Hook
- * 
+ *
  * React hook for managing rasterized chart visualization with caching.
  * Handles SVG-to-canvas conversion, caching, and cache invalidation.
- * 
+ *
  * Phase 8: Performance & Scalability
  */
 
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { ScoreType } from '../components/QuantileVisualization';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { ScoreType } from "../components/charts/QuantileVisualization";
 import {
+  CacheKey,
+  generateDataHash,
   getCachedChart,
   setCachedChart,
-  generateDataHash,
-  CacheKey,
-} from './chartCache';
+} from "./chartCache";
 
 interface UseRasterizedChartOptions {
   materialId: string;
@@ -78,30 +78,35 @@ export function useRasterizedChart({
           // Wait for fonts to load (especially Sniglet)
           try {
             await document.fonts.ready;
-            
+
             // Explicitly load Sniglet font at various sizes and weights
             const fontLoads = await Promise.all([
-              document.fonts.load('400 7px Sniglet'),
-              document.fonts.load('400 8px Sniglet'),
-              document.fonts.load('400 10px Sniglet'),
-              document.fonts.load('400 11px Sniglet'),
-              document.fonts.load('800 11px Sniglet'),
+              document.fonts.load("400 7px Sniglet"),
+              document.fonts.load("400 8px Sniglet"),
+              document.fonts.load("400 10px Sniglet"),
+              document.fonts.load("400 11px Sniglet"),
+              document.fonts.load("800 11px Sniglet"),
             ]);
-            
+
             // Verify Sniglet is loaded
             const snigletLoaded = Array.from(document.fonts).some(
-              font => font.family === 'Sniglet' || font.family === '"Sniglet"'
+              (font) => font.family === "Sniglet" || font.family === '"Sniglet"'
             );
-            
+
             if (!snigletLoaded) {
-              console.warn('Sniglet font not found in document.fonts after loading attempt');
+              console.warn(
+                "Sniglet font not found in document.fonts after loading attempt"
+              );
             }
-            
+
             // Extra time for font rendering and animation completion
             // Wait for animations to finish (600ms SimpleBar + 300ms staggered dots + buffer)
-            await new Promise(r => setTimeout(r, 1000));
+            await new Promise((r) => setTimeout(r, 1000));
           } catch (fontErr) {
-            console.warn('Font loading check failed, continuing anyway:', fontErr);
+            console.warn(
+              "Font loading check failed, continuing anyway:",
+              fontErr
+            );
           }
 
           // Clone the SVG to avoid modifying the original
@@ -109,37 +114,44 @@ export function useRasterizedChart({
 
           // Set dimensions to match original SVG exactly
           // No viewBox expansion needed since axis numbers were removed
-          clonedSvg.setAttribute('width', width.toString());
-          clonedSvg.setAttribute('height', height.toString());
-          clonedSvg.setAttribute('viewBox', `0 0 ${width} ${height}`);
-          clonedSvg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+          clonedSvg.setAttribute("width", width.toString());
+          clonedSvg.setAttribute("height", height.toString());
+          clonedSvg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+          clonedSvg.setAttribute("preserveAspectRatio", "xMidYMid meet");
 
           // Ensure all text elements have explicit font-family attributes
-          const textElements = clonedSvg.querySelectorAll('text');
+          const textElements = clonedSvg.querySelectorAll("text");
           textElements.forEach((textEl) => {
             // Extract font-size and fill color from class
-            const className = textEl.getAttribute('class') || '';
+            const className = textEl.getAttribute("class") || "";
             const fontSizeMatch = className.match(/text-\[(\d+)px\]/);
-            const fontSize = fontSizeMatch ? `${fontSizeMatch[1]}px` : '10px';
-            
+            const fontSize = fontSizeMatch ? `${fontSizeMatch[1]}px` : "10px";
+
             // Extract fill color from class (for dark mode support)
-            let fill = '#000000';
-            if (className.includes('fill-black/70')) fill = 'rgba(0, 0, 0, 0.7)';
-            else if (className.includes('fill-black/50')) fill = 'rgba(0, 0, 0, 0.5)';
-            else if (className.includes('fill-white/70')) fill = 'rgba(255, 255, 255, 0.7)';
-            else if (className.includes('fill-white/50')) fill = 'rgba(255, 255, 255, 0.5)';
-            
+            let fill = "#000000";
+            if (className.includes("fill-black/70"))
+              fill = "rgba(0, 0, 0, 0.7)";
+            else if (className.includes("fill-black/50"))
+              fill = "rgba(0, 0, 0, 0.5)";
+            else if (className.includes("fill-white/70"))
+              fill = "rgba(255, 255, 255, 0.7)";
+            else if (className.includes("fill-white/50"))
+              fill = "rgba(255, 255, 255, 0.5)";
+
             // Remove className to prevent conflicts
-            textEl.removeAttribute('class');
-            
+            textEl.removeAttribute("class");
+
             // Set font-family as SVG attribute
-            textEl.setAttribute('font-family', 'Sniglet');
-            textEl.setAttribute('font-size', fontSize);
-            textEl.setAttribute('font-weight', '400');
-            textEl.setAttribute('fill', fill);
-            
+            textEl.setAttribute("font-family", "Sniglet");
+            textEl.setAttribute("font-size", fontSize);
+            textEl.setAttribute("font-weight", "400");
+            textEl.setAttribute("fill", fill);
+
             // Also set as inline style for maximum compatibility
-            textEl.setAttribute('style', `font-family: 'Sniglet', sans-serif; font-size: ${fontSize}; font-weight: 400; fill: ${fill};`);
+            textEl.setAttribute(
+              "style",
+              `font-family: 'Sniglet', sans-serif; font-size: ${fontSize}; font-weight: 400; fill: ${fill};`
+            );
           });
 
           // Serialize SVG to string
@@ -147,15 +159,17 @@ export function useRasterizedChart({
           let svgString = serializer.serializeToString(clonedSvg);
 
           // Add XML declaration and namespace if not present
-          if (!svgString.includes('xmlns')) {
+          if (!svgString.includes("xmlns")) {
             svgString = svgString.replace(
-              '<svg',
+              "<svg",
               '<svg xmlns="http://www.w3.org/2000/svg"'
             );
           }
 
           // Create a blob from the SVG string
-          const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+          const blob = new Blob([svgString], {
+            type: "image/svg+xml;charset=utf-8",
+          });
           const url = URL.createObjectURL(blob);
 
           // Create an image to load the SVG
@@ -164,22 +178,22 @@ export function useRasterizedChart({
             try {
               // Use device pixel ratio for high-DPI displays (minimum 2x for quality)
               const pixelRatio = Math.max(window.devicePixelRatio || 1, 2);
-              
+
               // Add 4px horizontal buffer (2px left, 2px right) to prevent edge clipping
               const bufferWidth = 4;
-              
+
               // Create canvas with high resolution + buffer
-              const canvas = document.createElement('canvas');
+              const canvas = document.createElement("canvas");
               canvas.width = (width + bufferWidth) * pixelRatio;
               canvas.height = height * pixelRatio;
 
-              const ctx = canvas.getContext('2d', {
+              const ctx = canvas.getContext("2d", {
                 alpha: true,
                 desynchronized: false,
               });
-              
+
               if (!ctx) {
-                reject(new Error('Failed to get canvas context'));
+                reject(new Error("Failed to get canvas context"));
                 return;
               }
 
@@ -188,7 +202,7 @@ export function useRasterizedChart({
 
               // Enable image smoothing for better quality
               ctx.imageSmoothingEnabled = true;
-              ctx.imageSmoothingQuality = 'high';
+              ctx.imageSmoothingQuality = "high";
 
               // Fill background (transparent by default)
               ctx.clearRect(0, 0, width + bufferWidth, height);
@@ -198,7 +212,7 @@ export function useRasterizedChart({
               ctx.drawImage(img, 2, 0);
 
               // Convert canvas to data URL with high quality
-              const dataUrl = canvas.toDataURL('image/png', 1.0);
+              const dataUrl = canvas.toDataURL("image/png", 1.0);
 
               // Clean up
               URL.revokeObjectURL(url);
@@ -212,7 +226,7 @@ export function useRasterizedChart({
 
           img.onerror = (err) => {
             URL.revokeObjectURL(url);
-            reject(new Error('Failed to load SVG image'));
+            reject(new Error("Failed to load SVG image"));
           };
 
           img.src = url;
@@ -246,8 +260,8 @@ export function useRasterizedChart({
       // Update state
       setDataUrl(url);
     } catch (err) {
-      console.error('Error rasterizing chart:', err);
-      setError(err instanceof Error ? err : new Error('Unknown error'));
+      console.error("Error rasterizing chart:", err);
+      setError(err instanceof Error ? err : new Error("Unknown error"));
     } finally {
       setIsLoading(false);
       rasterizationInProgress.current = false;
@@ -291,8 +305,8 @@ export function useRasterizedChart({
         }
       } catch (err) {
         if (mounted) {
-          console.error('Error loading chart:', err);
-          setError(err instanceof Error ? err : new Error('Unknown error'));
+          console.error("Error loading chart:", err);
+          setError(err instanceof Error ? err : new Error("Unknown error"));
           setIsLoading(false);
         }
       }
