@@ -11,9 +11,10 @@ Implemented secure error handling for authentication failures (401 Unauthorized,
 
 ---
 
-## 🎯 Problems Solved
+## Problems Solved
 
 ### Before:
+
 1. ❌ **API endpoints exposed in console logs** during auth errors
 2. ❌ **Users stuck on protected pages** after session expiry
 3. ❌ **Technical error messages** exposed to end users
@@ -21,6 +22,7 @@ Implemented secure error handling for authentication failures (401 Unauthorized,
 5. ❌ **Inconsistent error handling** across components
 
 ### After:
+
 1. ✅ **No endpoint logging in production** (only in test mode)
 2. ✅ **Automatic redirect** to front page on auth failure
 3. ✅ **User-friendly toast messages** ("Your session has expired...")
@@ -38,28 +40,28 @@ Implemented secure error handling for authentication failures (401 Unauthorized,
 ```typescript
 // Detects both 401 (Unauthorized) and 403 (Forbidden)
 const isAuthError = response.status === 401 || response.status === 403;
-const isAuthEndpoint = endpoint.includes('/auth/');
+const isAuthEndpoint = endpoint.includes("/auth/");
 
 // Handle session expiry for non-auth endpoints
 if (isAuthError && !isAuthEndpoint) {
   // Clear session data
   clearAccessToken();
-  sessionStorage.removeItem('wastedb_user');
-  
+  sessionStorage.removeItem("wastedb_user");
+
   // Show user-friendly message
   if (response.status === 401) {
-    toast.error('Your session has expired. Please sign in again.');
+    toast.error("Your session has expired. Please sign in again.");
   } else if (response.status === 403) {
-    toast.error('You do not have permission to perform this action.');
+    toast.error("You do not have permission to perform this action.");
   }
-  
+
   // Trigger redirect callback (set by AuthContext)
   if (onSessionExpired) {
     onSessionExpired();
   }
-  
+
   // Throw sanitized error
-  throw new Error('Authentication required. Please sign in to continue.');
+  throw new Error("Authentication required. Please sign in to continue.");
 }
 ```
 
@@ -71,8 +73,8 @@ if (isAuthError && !isAuthEndpoint) {
 
 ```typescript
 // Log error WITHOUT exposing full endpoint in production
-logger.error('API call failed:', {
-  method: options.method || 'GET',
+logger.error("API call failed:", {
+  method: options.method || "GET",
   status: response.status,
   statusText: response.statusText,
   // Only log endpoint path in test mode
@@ -81,6 +83,7 @@ logger.error('API call failed:', {
 ```
 
 **Result:**
+
 - **Production:** Logs `{method: 'GET', status: 401, statusText: 'Unauthorized'}`
 - **Test Mode:** Logs `{method: 'GET', status: 401, statusText: 'Unauthorized', endpoint: '/materials/123'}`
 
@@ -139,20 +142,21 @@ User Can Sign In Again
 
 ## 🛡️ Security Improvements
 
-| Area | Before | After |
-|------|--------|-------|
-| **Endpoint Exposure** | Always logged | Only in test mode |
-| **Error Messages** | Technical (`API call failed: /admin/users 403`) | User-friendly (`You do not have permission...`) |
-| **403 Handling** | ❌ Not handled | ✅ Handled with permission message |
-| **Session Cleanup** | Partial (only 401) | Complete (401 & 403) |
-| **User Experience** | Stuck on error page | Auto-redirect to front page |
-| **Console Pollution** | All errors visible | Clean in production |
+| Area                  | Before                                          | After                                           |
+| --------------------- | ----------------------------------------------- | ----------------------------------------------- |
+| **Endpoint Exposure** | Always logged                                   | Only in test mode                               |
+| **Error Messages**    | Technical (`API call failed: /admin/users 403`) | User-friendly (`You do not have permission...`) |
+| **403 Handling**      | ❌ Not handled                                  | ✅ Handled with permission message              |
+| **Session Cleanup**   | Partial (only 401)                              | Complete (401 & 403)                            |
+| **User Experience**   | Stuck on error page                             | Auto-redirect to front page                     |
+| **Console Pollution** | All errors visible                              | Clean in production                             |
 
 ---
 
 ## 🧪 Testing
 
 ### Test Session Expiry:
+
 1. Sign in as admin
 2. Open DevTools → Application → Session Storage
 3. Delete `wastedb_access_token`
@@ -163,6 +167,7 @@ User Can Sign In Again
    - No endpoints logged in console (production)
 
 ### Test Permission Denied:
+
 1. Sign in as regular user
 2. Try to access admin-only endpoint (if manually calling API)
 3. **Expected:**
@@ -185,12 +190,14 @@ User Can Sign In Again
 ## ⚠️ Important Notes
 
 1. **Test Mode Detection (Environment-Based):**
+
    - **Figma Make/localhost:** `TEST_MODE = true` (endpoints logged for debugging)
    - **Production (db.wastefull.org):** `TEST_MODE = false` (endpoints hidden, logs suppressed)
    - **Manual Override:** Available via `window.wastedbLogger.setTestMode(true/false)`
    - **Automatic:** No explicit flag needed - detects environment on load
 
 2. **Auth Endpoint Exemption:**
+
    - `/auth/signup`, `/auth/signin`, `/auth/magic-link` are exempt from session expiry handling
    - This prevents redirect loops during login
 
@@ -201,9 +208,10 @@ User Can Sign In Again
 
 ---
 
-## 🎯 User Experience Impact
+## User Experience Impact
 
 ### Before Session Expiry Fix:
+
 ```
 User sees: "API call failed: /materials/123 401"
 User thinks: "What's an API? What's /materials/123?"
@@ -211,6 +219,7 @@ User action: Confused, closes tab
 ```
 
 ### After Session Expiry Fix:
+
 ```
 User sees: "Your session has expired. Please sign in again."
 User thinks: "Oh, I need to log back in."

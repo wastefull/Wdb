@@ -5,11 +5,13 @@
 ### Backend (`/supabase/functions/server/index.tsx`)
 
 1. **Signup Endpoint** (Line ~380)
+
    - Changed `email_confirm: true` → `email_confirm: false`
    - Now requires users to confirm email before signing in
    - Returns message: "Account created! Please check your email to confirm..."
 
 2. **Signin Endpoint** (Line ~461-490)
+
    - Added email confirmation check
    - Returns 403 error if email not confirmed
    - Error message: "Please confirm your email address before signing in..."
@@ -22,11 +24,13 @@
 ### Frontend (`/components/AuthView.tsx`)
 
 1. **Signup Handler**
+
    - No longer auto-signs in after signup
    - Shows success message asking user to check email
    - Clears form after successful signup
 
 2. **Signin Handler**
+
    - Detects email confirmation errors
    - Shows specific message for unconfirmed emails
    - Extends toast duration for confirmation messages (6 seconds)
@@ -38,6 +42,7 @@
 ### Documentation
 
 1. **EMAIL_CONFIRMATION_SETUP.md**
+
    - Complete setup guide for Supabase email configuration
    - SMTP provider instructions
    - Troubleshooting guide
@@ -46,9 +51,10 @@
 2. **EMAIL_CONFIRMATION_SUMMARY.md**
    - This file - quick reference for developers
 
-## 🎯 User Flow
+## User Flow
 
 ### New User Sign-Up
+
 ```
 1. User fills out signup form
    ↓
@@ -68,6 +74,7 @@
 ```
 
 ### Attempting Sign-In Before Confirmation
+
 ```
 1. User enters credentials
    ↓
@@ -81,6 +88,7 @@
 ```
 
 ### Magic Link Flow (Unchanged)
+
 ```
 1. User enters email
    ↓
@@ -100,6 +108,7 @@
 Without proper email configuration, users will NOT receive confirmation emails and cannot sign in.
 
 **Steps:**
+
 1. Go to Supabase Dashboard
 2. Navigate to: Authentication > Providers > Email
 3. Enable "Confirm email" toggle
@@ -107,6 +116,7 @@ Without proper email configuration, users will NOT receive confirmation emails a
 5. Test with a real email address
 
 **Recommended Providers:**
+
 - Resend (easiest, WasteDB already uses this)
 - SendGrid (reliable)
 - AWS SES (scalable)
@@ -126,16 +136,17 @@ Without proper email configuration, users will NOT receive confirmation emails a
 
 ## 🐛 Common Issues
 
-| Issue | Solution |
-|-------|----------|
+| Issue                          | Solution                                     |
+| ------------------------------ | -------------------------------------------- |
 | No confirmation email received | Check Supabase Auth logs, verify SMTP config |
-| Confirmation link doesn't work | Check Site URL in Supabase settings |
-| Can't sign in after confirming | Check email_confirmed_at in database |
-| Magic links not working | Magic links should still work - check logs |
+| Confirmation link doesn't work | Check Site URL in Supabase settings          |
+| Can't sign in after confirming | Check email_confirmed_at in database         |
+| Magic links not working        | Magic links should still work - check logs   |
 
 ## 🔐 Security Improvements
 
 ✅ **What This Adds:**
+
 - Verifies email ownership
 - Prevents fake accounts
 - Reduces spam signups
@@ -143,44 +154,49 @@ Without proper email configuration, users will NOT receive confirmation emails a
 - Industry standard security
 
 ✅ **What's Protected:**
+
 - User accounts
 - Password reset flow
 - Admin access
 - Data integrity
 
-## 📊 Database Changes
+## Database Changes
 
 **No schema changes required!**
 
 The `email_confirmed_at` field already exists in `auth.users` table (Supabase default).
 
 **Checking confirmation status:**
+
 ```sql
-SELECT 
-  email, 
+SELECT
+  email,
   email_confirmed_at,
-  CASE 
+  CASE
     WHEN email_confirmed_at IS NULL THEN 'Not Confirmed'
     ELSE 'Confirmed'
   END as status
 FROM auth.users;
 ```
 
-## 🚀 Deployment Notes
+## Deployment Notes
 
 ### Pre-Deployment
+
 1. Configure email in Supabase dashboard
 2. Test email delivery
 3. Update email templates (optional)
 4. Set production Site URL
 
 ### Post-Deployment
+
 1. Monitor email delivery logs
 2. Check for confirmation errors
 3. Test signup → confirm → signin flow
 4. Verify error messages display correctly
 
 ### Rollback Plan
+
 If you need to revert:
 
 ```typescript
@@ -216,11 +232,13 @@ Quick reference for file locations:
 **What Users See:**
 
 1. **During Signup:**
+
    - Info box: "📧 New accounts require email confirmation..."
    - Success toast: "Account created! Please check your email..."
    - Form clears after signup
 
 2. **During Signin (Unconfirmed):**
+
    - Error toast: "Please confirm your email address..."
    - Longer toast duration (6 seconds)
 
@@ -245,6 +263,7 @@ Consider adding:
 
 Option 1: Manual confirmation in Supabase dashboard
 Option 2: SQL command:
+
 ```sql
 UPDATE auth.users
 SET email_confirmed_at = NOW()
@@ -252,9 +271,10 @@ WHERE email = 'natto@wastefull.org';
 ```
 
 Option 3: Admin API (from server):
+
 ```javascript
 await supabase.auth.admin.updateUserById(userId, {
-  email_confirm: true
+  email_confirm: true,
 });
 ```
 

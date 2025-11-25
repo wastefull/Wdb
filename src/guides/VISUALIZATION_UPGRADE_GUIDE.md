@@ -5,13 +5,13 @@
 
 ---
 
-## 🎯 What Changed?
+## What Changed?
 
 All sustainability score displays in WasteDB now use an **intelligent visualization system** that automatically upgrades from simple bars to sophisticated scientific visualizations when scientific data is available.
 
 ---
 
-## 📊 Visual Comparison
+## Visual Comparison
 
 ### Before (Phase 1-4):
 
@@ -33,6 +33,7 @@ Material Card:
 ```
 
 **Characteristics:**
+
 - Simple horizontal bars
 - Static colors
 - Single score shown
@@ -44,6 +45,7 @@ Material Card:
 ### After (Phase 5):
 
 #### Option A: Material WITHOUT Scientific Data
+
 **(Looks identical to old version)**
 
 ```
@@ -68,6 +70,7 @@ Material Card:
 ---
 
 #### Option B: Material WITH Scientific Data
+
 **(New quantile visualization)**
 
 ```
@@ -97,6 +100,7 @@ Material Card:
 ```
 
 **Enhanced features:**
+
 - ✅ Quantile dot distributions
 - ✅ Confidence intervals (halos)
 - ✅ Practical (today) vs Theoretical (future) comparison
@@ -131,6 +135,7 @@ No code changes or manual configuration needed
 The system automatically chooses one of three modes based on the data:
 
 ### Mode 1: **Overlap** (Close Agreement)
+
 **When:** Practical and theoretical scores are very similar
 
 ```
@@ -148,6 +153,7 @@ Recyclability               89
 ---
 
 ### Mode 2: **Near-Overlap** (Small Gap)
+
 **When:** Practical and theoretical are close but distinguishable
 
 ```
@@ -165,6 +171,7 @@ Reusability                 65
 ---
 
 ### Mode 3: **Gap** (Large Gap)
+
 **When:** Practical and theoretical scores differ significantly
 
 ```
@@ -181,29 +188,34 @@ Compostability              15
 
 ---
 
-## 🎯 What Each Element Means
+## What Each Element Means
 
 ### 1. **Colored Bar (left side)**
+
 - Shows the guaranteed minimum score
 - From 0 to the practical lower confidence bound
 - This score is "locked in" with current infrastructure
 
 ### 2. **Gray Halo (left)**
+
 - Practical (today) score distribution
 - Reflects real-world performance
 - Includes uncertainty from measurement
 
 ### 3. **Blue Halo (right)**
+
 - Theoretical (future) score distribution
 - Represents ideal conditions
 - Based on scientific potential
 
 ### 4. **Dots (●●●)**
+
 - Quantile distribution
 - More dots = more certainty
 - Position = most likely score range
 
 ### 5. **Time Labels**
+
 - **"today"** = Practical mean (realistic now)
 - **"future"** = Theoretical mean (possible with better infrastructure)
 
@@ -221,6 +233,7 @@ Recyclability               95
 ```
 
 **Reading:**
+
 - **Practical Score:** 85% (today's reality)
 - **Theoretical Score:** 95% (science potential)
 - **Gap:** 10 points - room for improvement
@@ -239,6 +252,7 @@ Compostability              8
 ```
 
 **Reading:**
+
 - **Practical Score:** 8% (today's reality)
 - **Theoretical Score:** 60% (science potential)
 - **Gap:** 52 points - huge gap!
@@ -258,6 +272,7 @@ Reusability                 82
 ```
 
 **Reading:**
+
 - **Practical Score:** 82%
 - **Theoretical Score:** 85%
 - **Gap:** 3 points - minimal!
@@ -269,6 +284,7 @@ Reusability                 82
 ## 🖱️ Interactive Features
 
 ### Hover Tooltip:
+
 When you hover over any visualization, you'll see:
 
 ```
@@ -281,6 +297,7 @@ When you hover over any visualization, you'll see:
 ```
 
 ### Click Action:
+
 Click on any visualization to view related articles for that sustainability category.
 
 ---
@@ -288,16 +305,19 @@ Click on any visualization to view related articles for that sustainability cate
 ## 🎨 Color Guide
 
 ### Compostability (Coral/Red):
+
 - **Normal Mode:** Soft coral `#e6beb5`
 - **High Contrast:** Brick red `#c74444`
 - **Dark Mode:** Bright red `#ff6b6b`
 
 ### Recyclability (Yellow):
+
 - **Normal Mode:** Pale yellow `#e4e3ac`
 - **High Contrast:** Gold `#d4b400`
 - **Dark Mode:** Bright yellow `#ffd700`
 
 ### Reusability (Blue):
+
 - **Normal Mode:** Pale blue `#b8c8cb`
 - **High Contrast:** Steel blue `#4a90a4`
 - **Dark Mode:** Bright blue `#6bb6d0`
@@ -307,6 +327,7 @@ Click on any visualization to view related articles for that sustainability cate
 ## ♿ Accessibility Features
 
 ### High Contrast Mode:
+
 ```
 Before:                      After:
 [Pastel coral bar]    →     [Bright red bar]
@@ -315,12 +336,15 @@ Before:                      After:
 ```
 
 ### Reduced Motion Mode:
+
 - Dot animations disabled
 - Instant rendering
 - Static display
 
 ### Screen Readers:
+
 Full ARIA labels describe:
+
 - Score values
 - Confidence levels
 - Gap information
@@ -331,11 +355,13 @@ Full ARIA labels describe:
 ## 📱 Responsive Design
 
 ### Desktop (>768px):
+
 - 150 dots per visualization
 - Full hover tooltips
 - Larger touch targets
 
 ### Mobile (<768px):
+
 - 50 dots (faster rendering)
 - Touch-optimized
 - Compact labels
@@ -345,36 +371,42 @@ Full ARIA labels describe:
 ## 🧪 Testing Your View
 
 ### Test 1: Find a Material with Scientific Data
+
 1. Open WasteDB
 2. Look for materials with "Scientific Data" panel
 3. These will show quantile visualizations
 
 ### Test 2: Find a Material without Scientific Data
+
 1. Open WasteDB
 2. Look for newly created materials
 3. These will show simple bars
 
 ### Test 3: Toggle High Contrast
+
 1. Click red accessibility button
 2. Toggle "High Contrast" ON
 3. Watch colors change to bold versions
 
 ### Test 4: Test Dark Mode
+
 1. Click blue accessibility button
 2. Toggle "Dark Mode" ON
 3. All visualizations adapt
 
 ---
 
-## 🚀 What This Means for You
+## What This Means for You
 
 ### As a User:
+
 - **Better understanding** of material sustainability
 - **See the science** behind the scores
 - **Trust the data** with confidence intervals
 - **No learning curve** - simple bars still work the same
 
 ### As an Admin:
+
 - **Add scientific data** via ScientificDataEditor
 - **Watch visualizations upgrade** automatically
 - **No manual configuration** needed
@@ -382,7 +414,7 @@ Full ARIA labels describe:
 
 ---
 
-## 📚 Further Reading
+## Further Reading
 
 - `/docs/VIZ_UNIFIED.md` - Technical visualization details
 - `/docs/UI_ACCESS_GUIDE.md` - Where to find features

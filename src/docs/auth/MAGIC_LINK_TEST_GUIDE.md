@@ -4,22 +4,26 @@
 
 The magic link authentication system is now fully operational. Here's what was corrected:
 
-### 1. **Magic Link URL** 
+### 1. **Magic Link URL**
+
 - **Before:** Pointed to Supabase functions URL → caused API key error
 - **After:** Points to `https://db.wastefull.org` → proper frontend redirect
 
 ### 2. **Custom Session Tokens**
+
 - **Before:** Relied on Supabase JWT tokens
 - **After:** Custom UUID-based session tokens stored in KV store
 - **Duration:** 7 days per session
 - **Security:** Single-use magic links, session expiry validation
 
 ### 3. **Authentication Middleware**
+
 - **Before:** Only checked Supabase JWT tokens
 - **After:** Checks custom session tokens first, then falls back to Supabase JWT
 - **Result:** Magic link sessions work seamlessly with existing auth
 
 ### 4. **Frontend Integration**
+
 - **Before:** Looked for `access_token` parameter (Supabase format)
 - **After:** Looks for `magic_token`, verifies it, exchanges for session token
 - **UX:** Toast notification on successful sign-in
@@ -29,6 +33,7 @@ The magic link authentication system is now fully operational. Here's what was c
 ## 🧪 How to Test
 
 ### Step 1: Clear Previous State
+
 ```
 1. Open browser DevTools (F12)
 2. Go to Application tab → Storage
@@ -40,6 +45,7 @@ The magic link authentication system is now fully operational. Here's what was c
 ```
 
 ### Step 2: Request Magic Link
+
 ```
 1. Go to https://db.wastefull.org
 2. Click "Sign In" button (top-right)
@@ -49,6 +55,7 @@ The magic link authentication system is now fully operational. Here's what was c
 ```
 
 ### Step 3: Check Email
+
 ```
 1. Open your email inbox for natto@wastefull.org
 2. Look for email from: WasteDB <auth@wastefull.org>
@@ -62,6 +69,7 @@ The magic link authentication system is now fully operational. Here's what was c
 ```
 
 ### Step 4: Click the Magic Link
+
 ```
 1. Click "Sign In to WasteDB" button in email
 2. OR copy/paste the fallback link
@@ -70,6 +78,7 @@ The magic link authentication system is now fully operational. Here's what was c
 ```
 
 ### Step 5: Verify Authentication
+
 ```
 Expected behavior:
 ✅ URL parameters cleared (no ?magic_token visible)
@@ -80,6 +89,7 @@ Expected behavior:
 ```
 
 ### Step 6: Verify Admin Access
+
 ```
 1. Click the "Admin" button in top bar
 2. Verify these buttons appear:
@@ -91,6 +101,7 @@ Expected behavior:
 ```
 
 ### Step 7: Test Session Persistence
+
 ```
 1. Refresh the page (F5)
 2. User should still be signed in
@@ -99,6 +110,7 @@ Expected behavior:
 ```
 
 ### Step 8: Test Sign Out
+
 ```
 1. Click "Sign Out" button
 2. User indicator disappears
@@ -109,61 +121,71 @@ Expected behavior:
 
 ---
 
-## 🔍 Debugging
+## Debugging
 
 ### If Magic Link Email Doesn't Arrive
 
 **Check 1: Spam/Junk Folder**
+
 - Magic links might be filtered initially
 - Mark as "Not Spam" to whitelist
 
 **Check 2: Resend Dashboard**
+
 - Go to https://resend.com/emails
 - Check delivery status for your email
 - Look for bounce or spam reports
 
 **Check 3: Server Logs**
+
 - In Figma Make console, check for email sending errors
 - Look for "Magic link email sent to..." confirmation
 
 **Check 4: Rate Limiting**
+
 - Wait 60 seconds between requests
 - Max 5 auth requests per minute per IP
 
 ### If Clicking Link Shows Error
 
 **Error: "Invalid or expired magic link"**
+
 - Token may have expired (1 hour limit)
 - Request a new magic link
 - Check system clock is accurate
 
 **Error: "Magic link has already been used"**
+
 - Token can only be used once (security feature)
 - Request a new magic link
 
 **Error: "Session expired"**
+
 - Custom session lasted 7 days but expired
 - Sign in again with new magic link
 
 **Error: "Unauthorized - invalid token"**
+
 - Session token not recognized
 - Clear sessionStorage and sign in again
 
 ### If Authentication Doesn't Persist
 
 **Check sessionStorage:**
+
 ```javascript
 // Open browser console and run:
-sessionStorage.getItem('wastedb_access_token')
-sessionStorage.getItem('wastedb_user')
+sessionStorage.getItem("wastedb_access_token");
+sessionStorage.getItem("wastedb_user");
 
 // Should see valid token and user object
 ```
 
 **Clear and retry:**
+
 ```javascript
 // If tokens look corrupted:
-sessionStorage.clear()
+sessionStorage.clear();
 // Then request new magic link
 ```
 
@@ -172,11 +194,13 @@ sessionStorage.clear()
 ## 📧 Email Template Customization
 
 ### Current State
+
 - Text-based "Wastefull" header
 - Green gradient background
 - Professional button styling
 
 ### To Add Logo (Future)
+
 1. Upload logo via Database Management → Assets
 2. Copy public URL
 3. Edit `/supabase/functions/server/index.tsx` line 522
@@ -194,11 +218,11 @@ sessionStorage.clear()
 ✅ **Email Validation** - Pattern detection  
 ✅ **Rate Limiting** - 5 requests/minute  
 ✅ **Auto-Admin Assignment** - @wastefull.org emails  
-✅ **Secure Token Generation** - Cryptographic UUIDs  
+✅ **Secure Token Generation** - Cryptographic UUIDs
 
 ---
 
-## 📊 Architecture Flow
+## Architecture Flow
 
 ```
 ┌──────────────┐
@@ -268,6 +292,7 @@ sessionStorage.clear()
 ## ✨ Expected User Experience
 
 ### First-Time User
+
 1. Visits db.wastefull.org
 2. Clicks "Sign In"
 3. Enters email
@@ -278,6 +303,7 @@ sessionStorage.clear()
 8. Can access appropriate features
 
 ### Returning User
+
 1. Receives new magic link email
 2. Clicks link
 3. Existing account recognized
@@ -285,6 +311,7 @@ sessionStorage.clear()
 5. No duplicate accounts created
 
 ### Admin User (@wastefull.org)
+
 1. Same flow as above
 2. Automatically assigned admin role
 3. Admin button appears
@@ -293,7 +320,7 @@ sessionStorage.clear()
 
 ---
 
-## 🎯 Success Criteria
+## Success Criteria
 
 All of these should work:
 
@@ -318,7 +345,7 @@ Copy and fill out when testing:
 ## Test Session: [DATE/TIME]
 
 ### Environment
-- Browser: 
+- Browser:
 - Email:
 - Clear cache: ☐ Yes ☐ No
 
@@ -340,7 +367,7 @@ Copy and fill out when testing:
 
 ---
 
-## 🚀 Ready to Test!
+## Ready to Test!
 
 The system is fully operational and ready for production use. Follow the testing steps above to verify everything works as expected.
 

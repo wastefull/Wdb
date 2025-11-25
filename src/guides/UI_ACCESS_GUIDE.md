@@ -5,7 +5,7 @@
 
 ---
 
-## 🎯 Quick Navigation
+## Quick Navigation
 
 Here's where you can find all the new multi-dimensional features in the WasteDB UI:
 
@@ -14,6 +14,7 @@ Here's where you can find all the new multi-dimensional features in the WasteDB 
 ## 1. ScientificDataEditor (Individual Material Editing)
 
 ### How to Access:
+
 1. **Sign in** to WasteDB (admin required)
 2. Toggle **Admin Mode** ON (button in header or accessibility menu)
 3. **Click on any material** to view its detail page
@@ -21,23 +22,26 @@ Here's where you can find all the new multi-dimensional features in the WasteDB 
 5. **Click "Edit Scientific Data"** button
 
 ### What You'll See:
+
 - **4 Tabs:** Recyclability / Compostability / Reusability / Sources
 - **Shared M slider** at the top
 - **Parameter editors** for each dimension:
   - **CR:** Y, D, C, U_clean
-  - **CC:** B, N, T, H  
+  - **CC:** B, N, T, H
   - **RU:** L, R, U, C_RU
 - **Source browser** with auto-assignment
 - **Calculate buttons** that call backend API
 
 ### UI Location:
+
 ```
-Home → Material Card → Material Detail → 
-Scientific Data (green collapsible) → 
+Home → Material Card → Material Detail →
+Scientific Data (green collapsible) →
 "Edit Scientific Data" button
 ```
 
 ### Visual Cue:
+
 - **Green panel** with flask icon 🧪
 - Shows confidence level badge (High/Medium/Low)
 - Yellow "Edit Scientific Data" button
@@ -47,12 +51,14 @@ Scientific Data (green collapsible) →
 ## 2. DataProcessingView (Batch Calculator)
 
 ### How to Access:
+
 1. **Sign in** to WasteDB (admin required)
 2. Toggle **Admin Mode** ON
 3. Click **"Database Management"** button (yellow button on home page)
 4. Click the **"Data Processing"** tab (third tab, between "Batch Operations" and "Source Library")
 
 ### What You'll See:
+
 - **Shared M_value slider** at top
 - **3 tabbed calculators:**
   - **Recyclability (CR)** - Yellow theme
@@ -64,13 +70,15 @@ Scientific Data (green collapsible) →
   - "Calculate" and "Apply to All" buttons
 
 ### UI Location:
+
 ```
-Home → Database Management → 
+Home → Database Management →
 Data Processing Tab →
 [Recyclability | Compostability | Reusability] tabs
 ```
 
 ### Visual Cues:
+
 - **Shared M slider:** Prominent card above tabs
 - **Color-coded tabs:**
   - CR: `#e4e3ac` (pale yellow)
@@ -82,12 +90,14 @@ Data Processing Tab →
 ## 3. BatchScientificOperations (Import/Export)
 
 ### How to Access:
+
 1. **Sign in** to WasteDB (admin required)
 2. Toggle **Admin Mode** ON
 3. Click **"Database Management"** button
 4. In the tabs, click **"Batch Operations"**
 
 ### What You'll See:
+
 - **4 tabs:**
   - **Export** - JSON and CSV download
   - **Import** - JSON upload
@@ -99,13 +109,15 @@ Data Processing Tab →
   - High/Medium/Low confidence counts
 
 ### UI Location:
+
 ```
-Home → Database Management → 
+Home → Database Management →
 Batch Operations Tab →
 [Export | Import | Batch Operations | Data Quality]
 ```
 
 ### Key Features:
+
 - **Export CSV:** Now has **39 columns** (was 19)
 - **Export JSON:** Includes all CC and RU fields
 - **Recalculate:** Uses source weights for accuracy
@@ -116,23 +128,27 @@ Batch Operations Tab →
 ## 4. ScientificMetadataView (Material Detail Display)
 
 ### How to Access:
+
 1. **Click any material** card from home page
 2. **Scroll to Scientific Data** section (green collapsible)
 3. **Click to expand** the panel
 
 ### What You'll See:
+
 - **Raw Parameters** - All dimension-specific parameters
 - **Composite Scores** - Practical and theoretical scores
 - **Sources** - Citation list with parameter mapping
 - **Metadata** - Timestamps, versions, confidence
 
 ### UI Location:
+
 ```
-Home → Material Card → Material Detail → 
+Home → Material Card → Material Detail →
 Scientific Data (click to expand)
 ```
 
 ### Visual Cues:
+
 - **Green collapsible panel** with flask icon
 - **Confidence badge** (green/yellow/red)
 - **Warning icon** if data quality issues detected
@@ -143,14 +159,17 @@ Scientific Data (click to expand)
 ## 5. QuantileVisualization (Charts)
 
 ### How to Access:
+
 1. Navigate to home page
 2. Look for the **quantile chart** visualization
 3. In the future (not yet implemented), you'll see a **dropdown selector** to switch dimensions
 
 ### Current Status:
+
 ⏳ **Not yet updated** - Shows Recyclability only
 
 ### Coming Soon (Phase 5 - 20% remaining):
+
 - Dropdown: "Recyclability | Compostability | Reusability"
 - Color-coded charts per dimension
 - Updated tooltips and labels
@@ -159,29 +178,32 @@ Scientific Data (click to expand)
 
 ## 📍 Entry Points Summary
 
-| Feature | Entry Point | Admin Required |
-|---------|------------|----------------|
-| **ScientificDataEditor** | Material Detail → "Scientific Data" → "Edit Scientific Data" | ✅ Yes |
-| **DataProcessingView** | Database Management → Data Processing tab | ✅ Yes |
-| **BatchScientificOperations** | Database Management → Batch Operations tab | ✅ Yes |
-| **ScientificMetadataView** | Material Detail → "Scientific Data" (collapsible) | ❌ No (view only) |
-| **QuantileVisualization** | Home page (chart) | ❌ No |
+| Feature                       | Entry Point                                                  | Admin Required    |
+| ----------------------------- | ------------------------------------------------------------ | ----------------- |
+| **ScientificDataEditor**      | Material Detail → "Scientific Data" → "Edit Scientific Data" | ✅ Yes            |
+| **DataProcessingView**        | Database Management → Data Processing tab                    | ✅ Yes            |
+| **BatchScientificOperations** | Database Management → Batch Operations tab                   | ✅ Yes            |
+| **ScientificMetadataView**    | Material Detail → "Scientific Data" (collapsible)            | ❌ No (view only) |
+| **QuantileVisualization**     | Home page (chart)                                            | ❌ No             |
 
 ---
 
 ## 🔑 Admin Access Requirements
 
 ### To Enable Admin Mode:
+
 1. **Sign in** with an admin account
 2. **Toggle Admin Mode** via:
    - **Method A:** Click the user icon in header → Toggle "Admin Mode" switch
    - **Method B:** Red accessibility button → Admin Mode toggle
 
 ### Current Admin Account:
+
 - **Email:** natto@wastefull.org
 - **Role:** Admin (configured in backend)
 
 ### What Admin Mode Unlocks:
+
 - ✅ "Add Material" button
 - ✅ "Database Management" button
 - ✅ "User Management" button
@@ -246,6 +268,7 @@ Composite Scores Section:
 ## 🧪 Testing the UI
 
 ### Test Scenario 1: Edit Individual Material
+
 1. Sign in as admin (natto@wastefull.org)
 2. Enable Admin Mode
 3. Click on "Aluminum Can" material
@@ -260,6 +283,7 @@ Composite Scores Section:
 12. **Expected:** Material updated, return to detail view
 
 ### Test Scenario 2: Batch Calculate All Materials
+
 1. Sign in as admin
 2. Click "Database Management"
 3. Click "Data Processing" tab
@@ -272,6 +296,7 @@ Composite Scores Section:
 10. **Expected:** All materials updated
 
 ### Test Scenario 3: Export Multi-Dimensional Data
+
 1. Sign in as admin
 2. Click "Database Management"
 3. Click "Batch Operations" tab
@@ -286,28 +311,33 @@ Composite Scores Section:
 ## 🐛 Common Issues
 
 ### "Edit Scientific Data" Button Not Showing
+
 **Cause:** Not in Admin Mode  
 **Solution:** Toggle Admin Mode ON (red button or user menu)
 
 ### "Database Management" Button Not Showing
+
 **Cause:** Not signed in as admin  
 **Solution:** Sign in with admin account (natto@wastefull.org)
 
 ### Scientific Data Panel Empty
+
 **Cause:** No scientific data added yet  
 **Solution:** Click "Edit Scientific Data" to add data
 
 ### CC/RU Calculations Slow
+
 **Cause:** API calls for each material  
 **Solution:** Normal behavior, wait for loading to complete
 
 ### M_value Not Saving
+
 **Cause:** Need to click "Calculate" then "Save"  
 **Solution:** M_value is used in calculation, saved when you click Save
 
 ---
 
-## 📚 Related Documentation
+## Related Documentation
 
 - `/docs/SCIENTIFIC_EDITOR_REFACTOR.md` - ScientificDataEditor details
 - `/docs/DATA_PROCESSING_VIEW_UPDATE.md` - DataProcessingView details
@@ -317,9 +347,10 @@ Composite Scores Section:
 
 ---
 
-## 🎯 Next Steps (Not Yet in UI)
+## Next Steps (Not Yet in UI)
 
 ### Coming Soon (20% remaining):
+
 1. **QuantileVisualization** - Dimension selector dropdown
 2. **Source Library** - CC and RU tags added
 3. **Material Cards** - Show CC/RU scores on home page

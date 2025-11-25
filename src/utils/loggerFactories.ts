@@ -1,17 +1,17 @@
 /**
  * Context-Specific Logger Factories for WasteDB
- * 
+ *
  * Provides scoped loggers for different domains in the application.
  * All loggers respect the TEST_MODE setting in the core logger.
- * 
+ *
  * Usage:
  * import { materialsLogger } from '../utils/loggerFactories';
  * materialsLogger.info('Loading materials...');
- * 
+ *
  * Console output: [Materials] Loading materials...
  */
 
-import { logger } from './logger';
+import { logger } from "./logger";
 
 /**
  * Creates a scoped logger with a prefix for all log messages
@@ -25,7 +25,8 @@ export const createScopedLogger = (scope: string) => ({
   info: (...args: any[]) => logger.info(`[${scope}]`, ...args),
   debug: (...args: any[]) => logger.debug(`[${scope}]`, ...args),
   group: (label: string) => logger.group(`[${scope}] ${label}`),
-  groupCollapsed: (label: string) => logger.groupCollapsed(`[${scope}] ${label}`),
+  groupCollapsed: (label: string) =>
+    logger.groupCollapsed(`[${scope}] ${label}`),
   groupEnd: () => logger.groupEnd(),
   time: (label: string) => logger.time(`[${scope}] ${label}`),
   timeEnd: (label: string) => logger.timeEnd(`[${scope}] ${label}`),
@@ -37,43 +38,43 @@ export const createScopedLogger = (scope: string) => ({
  */
 
 // Materials domain - CRUD operations, data loading, sync
-export const materialsLogger = createScopedLogger('Materials');
+export const materialsLogger = createScopedLogger("Materials");
 
 // Authentication domain - sign in, sign out, session management
-export const authLogger = createScopedLogger('Auth');
+export const authLogger = createScopedLogger("Auth");
 
 // Sync domain - localStorage ↔ Supabase sync operations
-export const syncLogger = createScopedLogger('Sync');
+export const syncLogger = createScopedLogger("Sync");
 
 // API domain - HTTP requests to backend
-export const apiLogger = createScopedLogger('API');
+export const apiLogger = createScopedLogger("API");
 
 // Navigation domain - view changes, routing
-export const navigationLogger = createScopedLogger('Navigation');
+export const navigationLogger = createScopedLogger("Navigation");
 
 // Articles domain - article CRUD, management
-export const articlesLogger = createScopedLogger('Articles');
+export const articlesLogger = createScopedLogger("Articles");
 
 // Sources domain - source library operations
-export const sourcesLogger = createScopedLogger('Sources');
+export const sourcesLogger = createScopedLogger("Sources");
 
 // Submissions domain - material/article submissions, reviews
-export const submissionsLogger = createScopedLogger('Submissions');
+export const submissionsLogger = createScopedLogger("Submissions");
 
 // User management domain - roles, permissions
-export const userLogger = createScopedLogger('User');
+export const userLogger = createScopedLogger("User");
 
 // Scientific data domain - calculations, scientific editor
-export const scientificLogger = createScopedLogger('Scientific');
+export const scientificLogger = createScopedLogger("Scientific");
 
 // Whitepapers domain - whitepaper loading, sync
-export const whitepaperLogger = createScopedLogger('Whitepaper');
+export const whitepaperLogger = createScopedLogger("Whitepaper");
 
 // Accessibility domain - accessibility controls
-export const a11yLogger = createScopedLogger('A11y');
+export const a11yLogger = createScopedLogger("A11y");
 
 // Email domain - email notifications, sending
-export const emailLogger = createScopedLogger('Email');
+export const emailLogger = createScopedLogger("Email");
 
 /**
  * Export all loggers as a namespace for convenience

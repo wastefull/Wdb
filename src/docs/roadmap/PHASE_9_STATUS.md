@@ -8,14 +8,14 @@
 
 ## Quick Reference
 
-| Phase | Status | Completion Date | Key Deliverables |
-|-------|--------|-----------------|------------------|
-| 9.0 | ✅ Complete | Nov 17, 2025 | Critical infrastructure (legal, transforms, notifications, evidence system) |
-| 9.1 | ✅ Complete | Nov 20, 2025 | Database schema, API endpoints, aggregations backend |
-| 9.2 | 🚧 In Progress | TBD | Curation Workbench UI, Evidence Wizard |
-| 9.3 | 📋 Planned | TBD | Aggregation engine, validation workflow |
-| 9.4 | 📋 Planned | TBD | Scale to 30 materials |
-| 9.5 | 📋 Planned | TBD | Public launch & documentation |
+| Phase | Status         | Completion Date | Key Deliverables                                                            |
+| ----- | -------------- | --------------- | --------------------------------------------------------------------------- |
+| 9.0   | ✅ Complete    | Nov 17, 2025    | Critical infrastructure (legal, transforms, notifications, evidence system) |
+| 9.1   | ✅ Complete    | Nov 20, 2025    | Database schema, API endpoints, aggregations backend                        |
+| 9.2   | 🚧 In Progress | TBD             | Curation Workbench UI, Evidence Wizard                                      |
+| 9.3   | 📋 Planned     | TBD             | Aggregation engine, validation workflow                                     |
+| 9.4   | 📋 Planned     | TBD             | Scale to 30 materials                                                       |
+| 9.5   | 📋 Planned     | TBD             | Public launch & documentation                                               |
 
 ---
 
@@ -25,6 +25,7 @@
 **Purpose:** Establish foundational infrastructure before MIU extraction begins
 
 ### Day 1: Legal & Licensing ✅
+
 - Published MIU licensing policy (CC BY 4.0 for structured data)
 - Fair use policy for snippets (<250 words)
 - DMCA takedown process with 72-hour response guarantee
@@ -35,6 +36,7 @@
 - **Endpoints:** POST/GET `/legal/takedown`, GET/POST `/admin/takedown/*`
 
 ### Day 2: Transform Governance ✅
+
 - Versioned transform definitions in `/ontologies/transforms/`
 - Individual JSON files per parameter (Y.json, D.json, C.json, etc.)
 - Auto-recompute system triggers on version increments
@@ -45,6 +47,7 @@
 - **Endpoints:** POST `/transforms/recompute`, GET `/transforms/jobs`
 
 ### Day 3: Controlled Vocabularies ✅
+
 - Units ontology with parameter-specific allowed units
 - Context ontology (process, stream, region, scale)
 - Server-side enum validation
@@ -53,6 +56,7 @@
 - **Endpoints:** GET `/ontologies/units`, GET `/ontologies/context`
 
 ### Day 4: Evidence Collection System ✅
+
 - Evidence points (MIUs) CRUD endpoints
 - Transform validation (unit compatibility checks)
 - Source attribution tracking
@@ -63,6 +67,7 @@
 - **Storage:** KV pattern `evidence:{id}`, `evidence_by_material:{materialId}:{parameter}:{id}`
 
 ### Day 5: Validation Rules ✅
+
 - Server-side validation middleware
 - Client-side Zod schemas for forms
 - Negative evidence support (evidence_type: positive/negative/limit/threshold)
@@ -72,6 +77,7 @@
 - **Features:** Real-time feedback in Evidence Wizard (when built in 9.2)
 
 ### Day 6: Observability & Monitoring ✅
+
 - Structured logging system with levels (INFO, WARN, ERROR, DEBUG)
 - Request ID tracking across frontend/backend
 - Email notifications via RESEND API
@@ -82,6 +88,7 @@
 - **Features:** Error tracking, notification center in admin panel
 
 ### Day 7: Data Guards ✅
+
 - Source deletion protection (blocks if MIUs reference it)
 - Material deletion guards (checks evidence, sources, methodology)
 - Cascade delete warnings with impact summaries
@@ -90,6 +97,7 @@
 - **Features:** "Cannot delete" errors show dependent count + samples
 
 ### Day 8: Policy Snapshots ✅
+
 - Snapshot creation captures full aggregation context
 - Version tracking for transforms, codebook, ontology, weight policy
 - Reproducibility infrastructure (can recreate historical aggregations)
@@ -98,6 +106,7 @@
 - **Endpoints:** POST/GET `/snapshots`, GET `/snapshots/:id/aggregations`
 
 ### Day 9: Backup & Export ✅
+
 - Research export system (JSON + CSV formats)
 - Evidence export with full traceability
 - Backup scheduling infrastructure (weekly automated backups)
@@ -106,6 +115,7 @@
 - **Endpoints:** POST `/export/materials`, POST `/export/evidence`, POST `/backups`
 
 ### Day 10: Security Hardening ✅
+
 - RLS policy verification (auth middleware in KV implementation)
 - Signed URLs for file storage (1-hour expiry for PDFs, 24-hour for screenshots)
 - Non-guessable storage paths with UUIDs
@@ -114,6 +124,7 @@
 - **Features:** Admin-only write access, signed URL generation in storage helpers
 
 ### Day 11: Testing & Documentation ✅
+
 - Comprehensive test suite for all 10 days
 - Phase-filtered test component with 40+ automated tests
 - API documentation generated
@@ -129,7 +140,9 @@
 **Purpose:** Extend Phase 9.0 evidence system with validation workflow and aggregations
 
 ### Evidence Points Schema Extensions ✅
+
 Extended Phase 9.0 schema with 8 new fields:
+
 - `source_ref: string` - Structured reference to sources table
 - `source_weight: number` - 0.0-1.0 weight for aggregation
 - `validation_status: enum` - pending, validated, flagged, duplicate
@@ -142,7 +155,9 @@ Extended Phase 9.0 schema with 8 new fields:
 **Backward Compatibility:** All Phase 9.0 evidence points work unchanged
 
 ### Parameter Aggregations (NEW) ✅
+
 Created complete aggregation system:
+
 - Weighted mean calculations with confidence intervals (CI95)
 - Versioning system (only one `is_current` per material+parameter)
 - MIU traceability via `miu_ids` array
@@ -156,6 +171,7 @@ Created complete aggregation system:
 ### API Endpoints (11 total) ✅
 
 #### Evidence Endpoints (5)
+
 1. `POST /make-server-17cae920/evidence` - Create evidence point (admin)
 2. `GET /make-server-17cae920/evidence/:id` - Get single evidence
 3. `GET /make-server-17cae920/evidence/material/:materialId` - Get by material (filters: parameter, dimension)
@@ -163,6 +179,7 @@ Created complete aggregation system:
 5. `PATCH /make-server-17cae920/evidence/:id/validation` - Update validation status (admin)
 
 #### Aggregation Endpoints (5)
+
 6. `POST /make-server-17cae920/aggregations` - Create aggregation (admin, auto-supersedes previous)
 7. `GET /make-server-17cae920/aggregations/:id` - Get specific aggregation
 8. `GET /make-server-17cae920/aggregations/material/:materialId` - Get current aggregations
@@ -170,18 +187,22 @@ Created complete aggregation system:
 10. `GET /make-server-17cae920/aggregations/material/:materialId/stats` - Statistics
 
 #### Data Guards (1)
+
 11. `GET /make-server-17cae920/sources/:sourceRef/can-delete` - Check if source can be deleted (admin)
 
 **Files:** `/supabase/functions/server/evidence-routes.tsx`
 
 ### Data Integrity Guards ✅
+
 - Source deletion blocked if MIUs reference it
 - Returns detailed error with dependent count + sample evidence
 - Aggregation versioning prevents multiple "current" aggregations
 - Validation status workflow enforced
 
 ### KV Store Indexes ✅
+
 Efficient querying via prefix-based indexes:
+
 - `evidence_index:material:{materialId}:{parameter}:{id}`
 - `evidence_index:source:{sourceRef}:{id}`
 - `evidence_index:curator:{userId}:{id}`
@@ -189,6 +210,7 @@ Efficient querying via prefix-based indexes:
 - `aggregation_index:snapshot:{snapshotId}:{id}`
 
 ### Testing Infrastructure ✅
+
 - 10 automated tests covering all endpoints
 - Test component integrated in Admin > Testing > Roadmap
 - Pass/fail indicators with duration tracking
@@ -197,6 +219,7 @@ Efficient querying via prefix-based indexes:
 **Files:** `/components/Phase91Tests.tsx` (now migrated to `TestSuite.tsx`)
 
 ### Documentation ✅
+
 - Complete schema documentation with KV patterns
 - API endpoint specifications
 - Backward compatibility guide
@@ -212,6 +235,7 @@ Efficient querying via prefix-based indexes:
 ### Completed Deliverables ✅
 
 #### Curation Workbench Component
+
 - ✅ CurationWorkbench.tsx component created
 - ✅ Split-pane layout with source viewer and evidence wizard
 - ✅ 5-step progressive wizard with validation
@@ -219,9 +243,10 @@ Efficient querying via prefix-based indexes:
 - ✅ Material and parameter selection (pilot scope: Aluminum, PET, Cardboard)
 - ✅ Form validation and error handling
 - ✅ Integration with POST /evidence endpoint
-- ✅ Sokpop-inspired retro design system
+- ✅ Wastefull brand retro design system
 
 #### Evidence List Viewer Component
+
 - ✅ EvidenceListViewer.tsx component created
 - ✅ Filter by material and parameter (pilot scope)
 - ✅ Search functionality (snippets and citations)
@@ -231,6 +256,7 @@ Efficient querying via prefix-based indexes:
 - ✅ Integration with GET /evidence endpoint
 
 #### Unit Ontology Validation
+
 - ✅ Unit ontology validation integration
 - ✅ Real-time unit validation against allowed units
 - ✅ Unit dropdown with parameter-specific options
@@ -238,11 +264,14 @@ Efficient querying via prefix-based indexes:
 - ✅ Validation error messages with allowed units
 
 ### In Progress 🔄
+
 - 🔄 Smart context pre-fill (detect material/parameter from text)
 - 🔄 MIU review and edit functionality
 
 ### Deferred to Phase 9.4 ⏸️
+
 **Decision:** PDF annotation tools deferred to Phase 9.4 Week 1 (before scaling to all materials)
+
 - ⏸️ Integrated PDF viewer with text selection
 - ⏸️ PDF annotation and highlighting tools
 - ⏸️ Page jump and figure zoom navigation
@@ -251,13 +280,16 @@ Efficient querying via prefix-based indexes:
 **Rationale:** Low volume in pilot (~45 MIUs) makes copy/paste workflow acceptable. Better ROI when scaling to 8 materials × 13 parameters (~300+ MIUs).
 
 ### Remaining Work
+
 1. **MIU Edit Functionality** (3-4 hours) - REQUIRED
+
    - Edit form with pre-populated data
    - PATCH endpoint integration
    - Validation status updates
    - Delete operations
 
 2. **Double-Extraction Validation** (6-8 hours) - RECOMMENDED
+
    - Task assignment system
    - Inter-rater reliability (κ) calculation
    - Conflict resolution workflow
@@ -268,6 +300,7 @@ Efficient querying via prefix-based indexes:
    - Document pain points
 
 ### Backend Ready ✅
+
 All Phase 9.1 endpoints and data structures ready for UI to consume.
 
 ---
@@ -275,18 +308,21 @@ All Phase 9.1 endpoints and data structures ready for UI to consume.
 ## 📋 Future Phases (Planned)
 
 ### Phase 9.3: Aggregation Engine & Validation
+
 - MIU selection/filtering UI
 - Quality score visualization
 - Inter-rater reliability (κ) calculations
 - Conflict resolution workflows
 
 ### Phase 9.4: Scale to 30 Materials
+
 - Curator onboarding
 - Batch operations
 - Performance optimization
 - Progress tracking dashboards
 
 ### Phase 9.5: Public Launch
+
 - Public Evidence tab (read-only)
 - API documentation site
 - MIU citation generator
@@ -297,18 +333,21 @@ All Phase 9.1 endpoints and data structures ready for UI to consume.
 ## Key Architecture Decisions
 
 ### Why KV Store?
+
 - No database migrations required in Figma Make environment
 - Prefix-based indexes provide efficient querying
 - Easy to migrate to Postgres later (export + bulk insert)
 - Sufficient for Phase 9 prototype/pilot scope
 
 ### Backward Compatibility Strategy
+
 - Phase 9.1 EXTENDS Phase 9.0 (never replaces)
 - Keep field names unchanged (parameter_code, raw_value, raw_unit)
 - Add new fields as optional with sensible defaults
 - All Phase 9.0 endpoints continue working
 
 ### Security Model
+
 - Auth middleware simulates RLS (admin-only write access)
 - Signed URLs for file storage (time-limited access)
 - Rate limiting on public endpoints
@@ -319,6 +358,7 @@ All Phase 9.1 endpoints and data structures ready for UI to consume.
 ## Files Summary
 
 ### Created in Phase 9.0 (11 days)
+
 - `/legal/*` - 3 legal documents
 - `/ontologies/*` - 15+ transform + vocabulary files
 - `/utils/transforms.ts`, `/utils/logging.ts`, `/utils/notifications.ts`
@@ -327,6 +367,7 @@ All Phase 9.1 endpoints and data structures ready for UI to consume.
 - Phase 9.0 test suite in `PhaseFilteredTests.tsx`
 
 ### Created in Phase 9.1 (2 days)
+
 - `/utils/supabase/evidence.ts` - Evidence data layer
 - `/utils/supabase/aggregations.ts` - Aggregations data layer
 - `/supabase/functions/server/evidence-routes.tsx` - 11 API endpoints
@@ -334,6 +375,7 @@ All Phase 9.1 endpoints and data structures ready for UI to consume.
 - Schema documentation
 
 ### Modified
+
 - `/supabase/functions/server/index.tsx` - Route registration + data guards
 - `/components/AdminDashboard.tsx` - Navigation links
 - `/components/SimplifiedRoadmap.tsx` - Phase tracking
@@ -343,18 +385,20 @@ All Phase 9.1 endpoints and data structures ready for UI to consume.
 ## Success Metrics
 
 ### Phase 9.0
+
 ✅ All 11 days completed  
 ✅ 40+ automated tests passing  
 ✅ Legal framework established  
 ✅ Transform governance operational  
-✅ Evidence system fully functional  
+✅ Evidence system fully functional
 
 ### Phase 9.1
+
 ✅ 8 schema fields added  
 ✅ 11 API endpoints implemented  
 ✅ 10 automated tests passing  
 ✅ Zero breaking changes to Phase 9.0 data  
-✅ Complete documentation  
+✅ Complete documentation
 
 ---
 
@@ -369,6 +413,7 @@ All Phase 9.1 endpoints and data structures ready for UI to consume.
 ## Migration Notes (Future Postgres)
 
 When migrating from KV to Postgres:
+
 1. Export all KV data via `getByPrefix()` calls
 2. Run DDL statements (CREATE TABLE, CREATE INDEX)
 3. Add RLS policies (documented in PHASE_9_SCHEMA.md)

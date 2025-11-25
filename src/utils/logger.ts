@@ -1,24 +1,24 @@
 /**
  * Centralized Logging System for WasteDB
- * 
+ *
  * Suppresses console logging unless in TEST mode.
  * TEST mode defaults to TRUE in figma-make environment, FALSE in production.
  * Can be explicitly overridden by setting TEST_MODE.
  */
 
-import { isFigmaMake } from './environment';
+import { isFigmaMake } from "./environment";
 
 /**
  * TEST_MODE configuration
  * - Set to true to enable all logging
  * - Set to false to suppress all logging
  * - Set to null to use environment-based default (figma-make = true, production = false)
- * 
+ *
  * @example
  * // Enable logging for debugging session
  * import { setTestMode } from './utils/logger';
  * setTestMode(true);
- * 
+ *
  * // Disable logging in production
  * import { setTestMode } from './utils/logger';
  * setTestMode(false);
@@ -39,15 +39,17 @@ function isTestMode(): boolean {
 
 /**
  * Explicitly set TEST_MODE to enable or disable logging
- * 
+ *
  * @param mode - true to enable, false to disable, null to use environment default
  */
 export function setTestMode(mode: boolean | null): void {
   TEST_MODE = mode;
   if (mode !== null) {
-    console.log(`🔧 Logger: TEST_MODE explicitly set to ${mode}`);
+    console.log(`LOGGER: TEST_MODE explicitly set to ${mode}`);
   } else {
-    console.log(`🔧 Logger: TEST_MODE reset to environment default (${isFigmaMake()})`);
+    console.log(
+      `LOGGER: TEST_MODE reset to environment default (${isFigmaMake()})`
+    );
   }
 }
 
@@ -172,11 +174,11 @@ export function trace(...args: any[]): void {
  * Display current logger configuration
  */
 export function loggerInfo(): void {
-  console.log('🔍 Logger Configuration:', {
-    TEST_MODE: TEST_MODE === null ? 'auto (environment-based)' : TEST_MODE,
+  console.log("LOGGER CONFIG:", {
+    TEST_MODE: TEST_MODE === null ? "auto (environment-based)" : TEST_MODE,
     effectiveMode: isTestMode(),
-    environment: isFigmaMake() ? 'figma-make' : 'production',
-    hostname: typeof window !== 'undefined' ? window.location.hostname : 'N/A',
+    environment: isFigmaMake() ? "figma-make" : "production",
+    hostname: typeof window !== "undefined" ? window.location.hostname : "N/A",
   });
 }
 
@@ -201,13 +203,19 @@ export const logger = {
 };
 
 // Auto-log configuration on first import (only in TEST_MODE)
-if (isTestMode() && typeof window !== 'undefined') {
+if (isTestMode() && typeof window !== "undefined") {
   console.log(
-    `%c🔧 WasteDB Logger Initialized`,
-    'background: #e6beb5; color: #211f1c; padding: 4px 8px; border-radius: 4px; font-weight: bold;'
+    `LOGGER INITIALIZED`,
+    "background: #e6beb5; color: #211f1c; padding: 4px 8px; border-radius: 4px; font-weight: bold;"
   );
-  console.log(`   TEST_MODE: ${isTestMode()} (${TEST_MODE === null ? 'auto' : 'explicit'})`);
-  console.log(`   Environment: ${isFigmaMake() ? 'figma-make' : 'production'}`);
-  console.log(`   To change: import { setTestMode } from './utils/logger'; setTestMode(true/false);`);
-  console.log('');
+  console.log(
+    `   TEST_MODE: ${isTestMode()} (${
+      TEST_MODE === null ? "auto" : "explicit"
+    })`
+  );
+  console.log(`   Environment: ${isFigmaMake() ? "figma-make" : "production"}`);
+  console.log(
+    `   To change: import { setTestMode } from './utils/logger'; setTestMode(true/false);`
+  );
+  console.log("");
 }

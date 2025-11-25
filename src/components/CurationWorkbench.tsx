@@ -609,7 +609,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                   </div>
                   <Select
                     value={formData.material_id}
-                    onValueChange={(value) =>
+                    onValueChange={(value: string) =>
                       setFormData({ ...formData, material_id: value })
                     }
                     disabled={currentStep !== 2}
@@ -656,7 +656,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                   </div>
                   <Select
                     value={formData.parameter_code}
-                    onValueChange={(value) =>
+                    onValueChange={(value: string) =>
                       setFormData({ ...formData, parameter_code: value })
                     }
                     disabled={currentStep !== 3}
@@ -774,7 +774,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                       getAllowedUnits(formData.parameter_code).length > 0 ? (
                         <Select
                           value={formData.raw_unit}
-                          onValueChange={(value) =>
+                          onValueChange={(value: string) =>
                             setFormData({ ...formData, raw_unit: value })
                           }
                           disabled={currentStep !== 4}

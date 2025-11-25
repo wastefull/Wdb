@@ -1,6 +1,6 @@
 # WasteDB Backlog
 
-*Future enhancements and deferred work items*
+_Future enhancements and deferred work items_
 
 **Last Updated:** November 17, 2025
 
@@ -20,6 +20,7 @@ This document tracks all backlog items, future enhancements, and deferred work f
 **Related:** `/docs/PHASE_9_STATUS.md`
 
 1. **Audit Log Cleanup Enhancements**
+
    - **Description:** Extend the existing audit log cleanup functionality with more granular controls
    - **Tasks:**
      - [ ] Add date range selector for cleanup (instead of just 7+ years)
@@ -30,6 +31,7 @@ This document tracks all backlog items, future enhancements, and deferred work f
    - **Dependencies:** Phase 9.0 Day 7 complete
 
 2. **Retention Dashboard Integration**
+
    - **Description:** Enhance existing Moderation > Data Retention page with comprehensive stats and actions
    - **Tasks:**
      - [ ] Add visual charts for retention statistics (screenshot age distribution, audit log age distribution)
@@ -40,6 +42,7 @@ This document tracks all backlog items, future enhancements, and deferred work f
    - **Dependencies:** Phase 9.0 Day 7 complete
 
 3. **Bulk Source Deletion**
+
    - **Description:** Allow admins to delete multiple sources at once with referential integrity checks
    - **Tasks:**
      - [ ] Add multi-select UI in Source Library Manager
@@ -87,6 +90,7 @@ This document tracks all backlog items, future enhancements, and deferred work f
 **Related:** `/docs/FINAL_SESSION_SUMMARY_NOV_2_2025.md`
 
 1. **BibTeX Import/Export**
+
    - **Description:** Support BibTeX format for academic citation management
    - **Tasks:**
      - [ ] Add BibTeX parser library
@@ -96,6 +100,7 @@ This document tracks all backlog items, future enhancements, and deferred work f
    - **Estimated Effort:** 4-5 hours
 
 2. **DOI Auto-Lookup**
+
    - **Description:** Automatically fetch citation metadata from DOI.org API
    - **Tasks:**
      - [ ] Integrate DOI.org API
@@ -104,6 +109,7 @@ This document tracks all backlog items, future enhancements, and deferred work f
    - **Estimated Effort:** 2-3 hours
 
 3. **Citation Generator**
+
    - **Description:** Generate formatted citations in multiple styles (APA, MLA, Chicago)
    - **Tasks:**
      - [ ] Add citation formatting library
@@ -112,6 +118,7 @@ This document tracks all backlog items, future enhancements, and deferred work f
    - **Estimated Effort:** 3-4 hours
 
 4. **Source Versioning**
+
    - **Description:** Track changes to source metadata over time
    - **Tasks:**
      - [ ] Add version history to source records
@@ -150,16 +157,19 @@ This document tracks all backlog items, future enhancements, and deferred work f
 **Related:** `/docs/PHASE_3.5_COMPLETE.md`
 
 1. **OAuth Providers**
+
    - [ ] Google Sign-In
    - [ ] GitHub Sign-In
    - **Estimated Effort:** 8-10 hours
 
 2. **Remember Device**
+
    - [ ] "Trust this device for 30 days" checkbox
    - [ ] Device fingerprinting
    - **Estimated Effort:** 4-5 hours
 
 3. **Two-Factor Authentication**
+
    - [ ] TOTP (Time-based One-Time Password)
    - [ ] SMS backup codes
    - [ ] Admin-only requirement option
@@ -175,16 +185,19 @@ This document tracks all backlog items, future enhancements, and deferred work f
 **Related:** `/docs/PHASE_4_VISUALIZATION_COMPLETE.md`
 
 1. **Animation Improvements**
+
    - [ ] Smooth fade-in for quantile visualizations
    - [ ] Animated transitions between data updates
    - **Estimated Effort:** 2-3 hours
 
 2. **Tooltip Enhancements**
+
    - [ ] Add tooltips explaining each parameter tab
    - [ ] Add methodology references in tooltips
    - **Estimated Effort:** 2-3 hours
 
 3. **Badge Indicators**
+
    - [ ] Show count of materials with scientific data
    - [ ] Show data completeness percentage
    - **Estimated Effort:** 1-2 hours
@@ -200,11 +213,13 @@ This document tracks all backlog items, future enhancements, and deferred work f
 **Related:** `/docs/PHASE_8_COMPLETE.md`, `/ROADMAP.md`
 
 1. **Server-Side Chart Rendering**
+
    - [ ] Add server-side rendering option for static charts
    - [ ] Reduce client-side computation
    - **Estimated Effort:** 8-10 hours
 
 2. **Database Query Optimization**
+
    - [ ] Add pagination for large result sets
    - [ ] Implement query result caching
    - [ ] Add database indexes
@@ -222,11 +237,13 @@ This document tracks all backlog items, future enhancements, and deferred work f
 **Related:** `/docs/LOGGER_IMPLEMENTATION_SUMMARY.md`
 
 1. **Remote Logging Integration**
+
    - [ ] Integrate Sentry for error tracking
    - [ ] Integrate LogRocket for session replay
    - **Estimated Effort:** 6-8 hours
 
 2. **Log Level Filtering**
+
    - [ ] UI controls to show only warnings/errors
    - [ ] Filter by log category
    - **Estimated Effort:** 2-3 hours
@@ -242,11 +259,13 @@ This document tracks all backlog items, future enhancements, and deferred work f
 **Related:** `/docs/PARAMETER_SOURCE_CACHE.md`
 
 1. **Persisted Cache**
+
    - [ ] Store parameter availability cache in localStorage
    - [ ] Improve offline performance
    - **Estimated Effort:** 3-4 hours
 
 2. **Worker Thread Cache Building**
+
    - [ ] Move cache building to Web Worker
    - [ ] Prevent UI blocking for large datasets
    - **Estimated Effort:** 5-6 hours
@@ -262,12 +281,14 @@ This document tracks all backlog items, future enhancements, and deferred work f
 **Related:** `/docs/PHASE_7_COMPLETE.md`
 
 1. **Interactive API Testing**
+
    - [ ] Add "Try it" buttons to test endpoints in UI
    - [ ] Show live response data
    - [ ] Support parameter customization
    - **Estimated Effort:** 6-8 hours
 
 2. **API Rate Limiting**
+
    - [ ] Add rate limiting per IP/API key
    - [ ] Show rate limit status in headers
    - **Estimated Effort:** 3-4 hours
@@ -292,25 +313,25 @@ This document tracks all backlog items, future enhancements, and deferred work f
 
 ---
 
-## 📊 Priority Matrix
+## Priority Matrix
 
-| Category | High | Medium | Low | Total |
-|----------|------|--------|-----|-------|
-| Data Retention | 4 | 0 | 0 | 4 |
-| Content Management | 0 | 1 | 0 | 1 |
-| Source Library | 0 | 5 | 0 | 5 |
-| Audit Logging | 0 | 1 | 0 | 1 |
-| Authentication | 0 | 0 | 4 | 4 |
-| Visualization | 0 | 0 | 4 | 4 |
-| Performance | 0 | 0 | 3 | 3 |
-| Logging | 0 | 0 | 3 | 3 |
-| Caching | 0 | 0 | 3 | 3 |
-| API/Dev Tools | 0 | 0 | 3 | 3 |
-| **Total** | **4** | **7** | **20** | **31** |
+| Category           | High  | Medium | Low    | Total  |
+| ------------------ | ----- | ------ | ------ | ------ |
+| Data Retention     | 4     | 0      | 0      | 4      |
+| Content Management | 0     | 1      | 0      | 1      |
+| Source Library     | 0     | 5      | 0      | 5      |
+| Audit Logging      | 0     | 1      | 0      | 1      |
+| Authentication     | 0     | 0      | 4      | 4      |
+| Visualization      | 0     | 0      | 4      | 4      |
+| Performance        | 0     | 0      | 3      | 3      |
+| Logging            | 0     | 0      | 3      | 3      |
+| Caching            | 0     | 0      | 3      | 3      |
+| API/Dev Tools      | 0     | 0      | 3      | 3      |
+| **Total**          | **4** | **7**  | **20** | **31** |
 
 ---
 
-## 🎯 Implementation Notes
+## Implementation Notes
 
 ### When to Address Backlog Items
 
@@ -321,6 +342,7 @@ This document tracks all backlog items, future enhancements, and deferred work f
 ### Adding New Items
 
 When adding new backlog items, include:
+
 1. **Description:** What needs to be done and why
 2. **Tasks:** Checklist of specific implementation steps
 3. **Estimated Effort:** Time estimate in hours
@@ -330,6 +352,7 @@ When adding new backlog items, include:
 ### Removing Items
 
 Items should be removed from backlog when:
+
 1. Completed and deployed to production
 2. Determined to be out of scope permanently
 3. Superseded by alternative implementation

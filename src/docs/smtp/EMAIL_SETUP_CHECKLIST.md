@@ -1,8 +1,9 @@
 # Email Confirmation - Quick Setup Checklist
 
-## 🚀 5-Minute Setup Guide
+## 5-Minute Setup Guide
 
 ### Step 1: Enable Email Confirmation (2 min)
+
 ```
 □ Go to Supabase Dashboard (https://supabase.com/dashboard)
 □ Select your WasteDB project
@@ -15,7 +16,8 @@
 
 **Option A: Use Resend (Recommended)**
 
-👉 **See detailed guides**: 
+👉 **See detailed guides**:
+
 - API Key Creation: `/RESEND_API_KEY_GUIDE.md`
 - SMTP Setup: `/RESEND_SETUP_QUICK_GUIDE.md`
 
@@ -40,6 +42,7 @@
 ⚠️ **Note**: You MUST create a NEW API key - can't reuse existing one (see guide for why)
 
 **Option B: Use Supabase Default (Dev Only)**
+
 ```
 □ Skip SMTP configuration
 □ ⚠️ Limited to 3 emails/hour
@@ -48,6 +51,7 @@
 ```
 
 ### Step 3: Set Site URL (1 min)
+
 ```
 □ Go to: Authentication > URL Configuration
 □ Set Site URL: https://[your-domain].com
@@ -58,6 +62,7 @@
 ```
 
 ### Step 4: Test (2 min)
+
 ```
 □ Sign up with your real email
 □ Check inbox (and spam folder)
@@ -71,6 +76,7 @@
 ## ⚡ Quick Test Commands
 
 **1. Sign Up**
+
 ```bash
 # Create account
 POST /auth/signup
@@ -84,6 +90,7 @@ POST /auth/signup
 ```
 
 **2. Try Sign In (Should Fail)**
+
 ```bash
 POST /auth/signin
 {
@@ -95,6 +102,7 @@ POST /auth/signin
 ```
 
 **3. Click Email Link → Try Again (Should Work)**
+
 ```bash
 # After clicking confirmation link
 POST /auth/signin
@@ -110,14 +118,15 @@ POST /auth/signin
 
 ## 🆘 Quick Troubleshooting
 
-| Problem | Fix |
-|---------|-----|
-| No email received | Check spam folder, verify SMTP config |
-| Link doesn't work | Check Site URL matches your domain |
-| Still can't sign in | Check `email_confirmed_at` in database |
-| Need to manually confirm | See SQL command below |
+| Problem                  | Fix                                    |
+| ------------------------ | -------------------------------------- |
+| No email received        | Check spam folder, verify SMTP config  |
+| Link doesn't work        | Check Site URL matches your domain     |
+| Still can't sign in      | Check `email_confirmed_at` in database |
+| Need to manually confirm | See SQL command below                  |
 
 **Manual Confirmation SQL:**
+
 ```sql
 UPDATE auth.users
 SET email_confirmed_at = NOW()

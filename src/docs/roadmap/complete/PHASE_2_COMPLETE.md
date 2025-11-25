@@ -15,17 +15,21 @@
 A comprehensive tabbed interface for editing all scientific metadata for individual materials.
 
 **Features:**
+
 - **3-Tab Interface:**
+
   - **Parameters Tab** - Edit raw normalized parameters (Y, D, C, M, E)
   - **Composite Scores Tab** - Configure CR scores and confidence intervals
   - **Sources Tab** - Manage citation metadata with DOI links
 
 - **Real-time Validation:**
+
   - All parameters validated to 0-1 range
   - Confidence intervals checked for validity
   - Required fields enforced
 
 - **Auto-calculation:**
+
   - "Recalculate Composite Scores from Parameters" button
   - Applies the CR formula: `CR = Y × D × C × M × U_clean`
   - Computes both theoretical (U=1.0) and practical (U=0.6) scores
@@ -44,24 +48,28 @@ A powerful admin dashboard for managing scientific data across all materials.
 **Features:**
 
 #### **Statistics Dashboard**
+
 - Total materials count
 - Materials with scientific data
 - Confidence level distribution (High/Medium/Low)
 - Real-time metrics
 
 #### **Export Capabilities**
+
 - **JSON Export** - Complete scientific metadata for backup/sharing
 - **CSV Export** - Research-friendly spreadsheet format with all parameters
 - Includes: Y, D, C, M, E values, CR scores, confidence intervals, timestamps
 - Ready for analysis in Excel, R, Python, etc.
 
 #### **Import System**
+
 - Upload previously exported JSON files
 - Merges scientific data by material ID
 - Preserves existing material metadata
 - Validation and error handling
 
 #### **Batch Operations**
+
 - **Recalculate Confidence Levels** - Auto-assess all materials
 - Progress bar with real-time updates
 - Confidence based on data completeness:
@@ -70,6 +78,7 @@ A powerful admin dashboard for managing scientific data across all materials.
   - Low: <60% complete
 
 #### **Materials Overview Table**
+
 - Quick view of first 10 materials
 - Shows: Name, Category, Scientific Data status, Confidence, Source count
 - Visual indicators for data presence
@@ -77,17 +86,20 @@ A powerful admin dashboard for managing scientific data across all materials.
 ### 3. Integrated Workflows
 
 **Material Card Enhancement:**
+
 - Scientific Data section now shows for all materials (when admin)
 - "Add Scientific Data" button for materials without data
 - "Edit Scientific Data" button for materials with data
 - Direct navigation to Scientific Data Editor
 
 **Admin Navigation:**
+
 - New "Batch Ops" button in admin toolbar
 - Alongside: Add Material, Manage Data, Data Processing, User Admin
-- Consistent retro Sokpop styling
+- Consistent retro Wastefull brand styling
 
 **View Management:**
+
 - Proper view state handling for new editor/batch views
 - Auto-redirect when toggling admin mode off
 - Breadcrumb navigation maintained
@@ -97,14 +109,17 @@ A powerful admin dashboard for managing scientific data across all materials.
 ## Files Created
 
 ### New Components
+
 - `/components/ScientificDataEditor.tsx` - Full-featured scientific data editor
 - `/components/BatchScientificOperations.tsx` - Batch operations dashboard
 
 ### Modified Components
+
 - `/components/ScientificMetadataView.tsx` - Added edit button and admin-only visibility
 - `/App.tsx` - Integrated new views, navigation, and state management
 
 ### Documentation
+
 - `/PHASE_2_COMPLETE.md` - This document
 
 ---
@@ -138,6 +153,7 @@ A powerful admin dashboard for managing scientific data across all materials.
 ## Data Format Examples
 
 ### JSON Export Structure
+
 ```json
 [
   {
@@ -146,8 +162,8 @@ A powerful admin dashboard for managing scientific data across all materials.
     "category": "Plastics",
     "Y_value": 0.85,
     "D_value": 0.75,
-    "C_value": 0.60,
-    "M_value": 0.90,
+    "C_value": 0.6,
+    "M_value": 0.9,
     "E_value": 0.45,
     "CR_practical_mean": 0.3825,
     "CR_theoretical_mean": 0.6375,
@@ -173,11 +189,12 @@ A powerful admin dashboard for managing scientific data across all materials.
 ```
 
 ### CSV Export Headers
+
 ```
-ID, Name, Category, Y (Yield), D (Degradability), C (Contamination), 
-M (Maturity), E (Energy), CR Practical Mean, CR Practical CI Lower, 
-CR Practical CI Upper, CR Theoretical Mean, CR Theoretical CI Lower, 
-CR Theoretical CI Upper, Confidence Level, Source Count, 
+ID, Name, Category, Y (Yield), D (Degradability), C (Contamination),
+M (Maturity), E (Energy), CR Practical Mean, CR Practical CI Lower,
+CR Practical CI Upper, CR Theoretical Mean, CR Theoretical CI Lower,
+CR Theoretical CI Upper, Confidence Level, Source Count,
 Whitepaper Version, Method Version, Timestamp
 ```
 
@@ -186,17 +203,20 @@ Whitepaper Version, Method Version, Timestamp
 ## Validation Rules
 
 ### Parameters (0-1 normalized)
+
 - Y, D, C, M, E must be between 0.0 and 1.0
 - Empty parameters treated as 0
 - Decimal precision to 2 places recommended
 
 ### Confidence Intervals
+
 - Lower bound ≥ 0
 - Upper bound ≤ 1
 - Lower < Upper
 - Automatically computed from mean ± 10%
 
 ### Sources
+
 - Title is required
 - All other fields optional
 - Weight defaults to 1.0
@@ -207,11 +227,13 @@ Whitepaper Version, Method Version, Timestamp
 ## Technical Implementation
 
 ### State Management
+
 - New view types: `scientific-editor`, `batch-operations`
 - `currentMaterial` properly set for editor view
 - Admin mode toggle redirects from admin-only views
 
 ### Data Flow
+
 1. User edits in ScientificDataEditor
 2. Validation occurs on save
 3. Material updated via `handleUpdateMaterial`
@@ -220,6 +242,7 @@ Whitepaper Version, Method Version, Timestamp
 6. UI updates reactively
 
 ### Calculations
+
 ```typescript
 // Practical CR (realistic conditions)
 CR_practical = Y × D × C × M × 0.6
@@ -237,6 +260,7 @@ CI_upper = min(1, CR + CR × 0.10)
 ## Integration with Phase 1
 
 Phase 2 builds directly on Phase 1's data model:
+
 - ✅ Uses extended Material interface from Phase 1
 - ✅ Displays data from ScientificMetadataView (Phase 1)
 - ✅ Edits the same KV store structure
@@ -250,12 +274,14 @@ Phase 2 builds directly on Phase 1's data model:
 With Phase 2 complete, we can proceed to:
 
 1. **Export Layer Enhancements**
+
    - Public API endpoints for read-only access
    - Paginated JSON responses
    - CSV export for lay-friendly 0-100 scale data
    - Data snapshots with timestamps
 
 2. **UI/UX Enhancements (Phase 4)**
+
    - Advanced view toggle (show theoretical vs practical)
    - Confidence visualization (whiskers, shaded bars)
    - Methodology tooltips linked to whitepapers
@@ -287,6 +313,7 @@ With Phase 2 complete, we can proceed to:
 ## Impact
 
 WasteDB now has:
+
 - ✅ **Full CRUD** for scientific metadata
 - ✅ **Batch operations** for managing hundreds of materials
 - ✅ **Export/import** for data portability

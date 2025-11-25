@@ -113,7 +113,7 @@ export function WhitepaperView({
       try {
         console.log("🔍 Loading whitepaper with slug:", whitepaperSlug);
         const fetchedWhitepaper = await api.getWhitepaper(whitepaperSlug);
-        console.log("📄 Fetched whitepaper:", {
+        console.log(" Fetched whitepaper:", {
           slug: fetchedWhitepaper?.slug,
           title: fetchedWhitepaper?.title,
           contentType: typeof fetchedWhitepaper?.content,

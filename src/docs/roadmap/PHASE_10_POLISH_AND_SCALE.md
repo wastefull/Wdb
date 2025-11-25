@@ -8,7 +8,7 @@
 
 ---
 
-## 🎯 Overview
+## Overview
 
 Phase 10 transforms WasteDB from a **functional evidence pipeline** to a **polished, scalable, community-driven platform** that can onboard 50+ volunteer curators, serve international audiences, and establish itself as the authoritative open data source for materials sustainability.
 
@@ -35,7 +35,7 @@ Phase 10 focuses on five strategic pillars:
 ✅ **Phase 9.2:** Curation Workbench (Pilot)  
 ✅ **Phase 9.3:** Aggregation Engine  
 ✅ **Phase 9.4:** Scale to All Dimensions  
-✅ **Phase 9.5:** Public Evidence Layer  
+✅ **Phase 9.5:** Public Evidence Layer
 
 ### What Phase 9 Delivers
 
@@ -78,8 +78,8 @@ Phase 10 is divided into **5 parallel workstreams** that can be implemented conc
   - Extract text from PDF pages automatically
   - Highlight selected text in PDF viewer
   - Copy-paste selected text into snippet field
-  
 - ⬜ **Highlight-to-Snippet Workflow**
+
   - Click-and-drag to select text in PDF
   - Auto-populate snippet field
   - Auto-detect page number
@@ -117,14 +117,13 @@ Phase 10 is divided into **5 parallel workstreams** that can be implemented conc
   - Curate 3 "training materials" (not real, but realistic)
   - Pre-populate with "golden standard" MIUs
   - Use open-access sources only
-  
 - ⬜ **Practice Mode UI**
   - Toggle "Practice Mode" in Curation Workbench
   - Extract MIUs from training materials
   - System compares to golden standard
   - Instant feedback: "✅ Correct!" vs "❌ Check your units" vs "⚠️ Snippet too short"
-  
 - ⬜ **Feedback System**
+
   - Compare curator's MIU to golden standard
   - Check: parameter, raw value (±5%), units, locator accuracy, snippet length
   - Show side-by-side diff
@@ -165,13 +164,11 @@ Phase 10 is divided into **5 parallel workstreams** that can be implemented conc
   - Set goal: "Extract 15 MIUs for PET Compostability"
   - Set deadline: 2 weeks
   - Show progress bar on campaign page
-  
 - ⬜ **Campaign Types**
   - **Coverage Campaigns:** Fill gaps (low-coverage parameters)
   - **Double-Extraction Campaigns:** Validate existing MIUs (recruit second curator)
   - **Source Campaigns:** Extract from a specific high-value source
   - **Region Campaigns:** Add regional data (e.g., "Asian recycling facilities")
-  
 - ⬜ **Incentives**
   - Leaderboard per campaign
   - Special badges: "Gap Closer", "Validator", "Regional Expert"
@@ -207,12 +204,10 @@ Phase 10 is divided into **5 parallel workstreams** that can be implemented conc
     - "This MIU brings PET Plastic to 4/5 parameters for research-grade!"
     - "You're the 2nd curator to extract from this source—validation complete!"
     - "This fills a gap: no other MIUs exist for PET Compostability in Asia"
-  
 - ⬜ **MIU Impact Dashboard**
   - Curator profile shows: "Your MIUs contributed to X materials achieving research-grade"
   - "Your MIUs cited in Y exports/downloads"
   - "Your work helped close Z coverage gaps"
-  
 - ⬜ **Public MIU Pages**
   - Each MIU gets a public page: `/evidence/{miu_id}`
   - Shows: snippet, source, parameter, normalized value, curator attribution
@@ -236,7 +231,7 @@ Phase 10 is divided into **5 parallel workstreams** that can be implemented conc
 
 ---
 
-## 📊 Workstream 2: Analytics & Monitoring
+## Workstream 2: Analytics & Monitoring
 
 **Duration:** 2 weeks  
 **Goal:** Full observability, performance optimization, API polish
@@ -253,14 +248,12 @@ Phase 10 is divided into **5 parallel workstreams** that can be implemented conc
   - Inter-curator agreement trends (κ scores over time)
   - Time-per-MIU distribution (identify bottlenecks)
   - Source utilization (which sources most extracted from)
-  
 - ⬜ **Platform Health Dashboard**
   - API response time percentiles (p50, p90, p99, p99.9)
   - Database query performance (slow query log)
   - Export generation time trends
   - Aggregation computation latency
   - User growth metrics (MAU, DAU, curator retention)
-  
 - ⬜ **Research Usage Analytics**
   - Export download counts per release
   - API call frequency and endpoint popularity
@@ -295,13 +288,11 @@ Phase 10 is divided into **5 parallel workstreams** that can be implemented conc
   - Optimize aggregation queries (use materialized views for frequently accessed data)
   - Partition evidence_points table by material_id or created_at
   - Connection pooling tuning (Supabase config)
-  
 - ⬜ **API Optimization**
   - Implement caching (Redis or Supabase edge caching)
   - Batch aggregation computations (queue instead of synchronous)
   - Pagination for large result sets (limit 50 per page)
   - Compress responses (gzip/brotli)
-  
 - ⬜ **Frontend Optimization**
   - Lazy load PDF viewer (don't load until user opens it)
   - Virtualize large MIU lists (react-window)
@@ -335,18 +326,15 @@ Phase 10 is divided into **5 parallel workstreams** that can be implemented conc
   - Generate ETags for aggregations (hash of MIU IDs + versions)
   - Return `304 Not Modified` if ETag matches
   - Reduce bandwidth for repeated requests
-  
 - ⬜ **Last-Modified Headers**
   - Track when materials/aggregations last updated
   - Return `Last-Modified` header
   - Support `If-Modified-Since` conditional requests
-  
 - ⬜ **Rate Limiting**
   - Implement token bucket algorithm
   - Limit: 100 requests/minute per IP (authenticated users: 500/minute)
   - Return `429 Too Many Requests` with `Retry-After` header
   - Whitelist known academic/research IPs
-  
 - ⬜ **API Documentation Updates**
   - Document ETag/Last-Modified usage
   - Document rate limits and best practices
@@ -368,7 +356,7 @@ Phase 10 is divided into **5 parallel workstreams** that can be implemented conc
 
 ---
 
-## 📚 Workstream 3: Publication & Outreach
+## Workstream 3: Publication & Outreach
 
 **Duration:** 2 weeks  
 **Goal:** Establish WasteDB as academically credible and citation-worthy
@@ -384,16 +372,14 @@ Phase 10 is divided into **5 parallel workstreams** that can be implemented conc
   - Show scoring formula (coverage 40pts, sample size 20pts, etc.)
   - Provide examples: "Aluminum is research-grade because..."
   - Link to Phase 9 documentation
-  
 - ⬜ **Material Status Explanations**
   - Each material page shows: "This material is Research-Grade"
   - Click badge → tooltip explaining why (score breakdown)
   - Link to rubric page for details
-  
 - ⬜ **Promotion History**
   - Materials page shows: "Achieved Research-Grade on Mar 15, 2026"
   - Changelog: "Added 5 MIUs for parameter B → promoted from Verified"
-  
+
 #### UI Components
 
 - ⬜ `ResearchGradeRubricPage.tsx` - Public methodology page
@@ -421,7 +407,6 @@ Phase 10 is divided into **5 parallel workstreams** that can be implemented conc
   - Register WasteDB with DataCite
   - Generate DOIs for each quarterly release
   - Format: `10.xxxxx/wastedb.v2026.Q1`
-  
 - ⬜ **Release Metadata**
   - Title: "WasteDB: Evidence-Based Materials Sustainability Data v2026.Q1"
   - Creators: WasteDB Contributors (with curator credits)
@@ -429,12 +414,10 @@ Phase 10 is divided into **5 parallel workstreams** that can be implemented conc
   - Publication Year: 2026
   - Resource Type: Dataset
   - License: CC BY 4.0 (structured data) + Fair Use (snippets)
-  
 - ⬜ **Landing Pages**
   - Each release has a landing page: `/releases/v2026.Q1`
   - Shows: DOI, changelog, download links, citation formats
   - Citation formats: BibTeX, RIS, APA, MLA, Chicago
-  
 - ⬜ **Citation Widget**
   - "Cite this release" button on Releases page
   - Copy-paste citation in preferred format
@@ -469,12 +452,10 @@ Phase 10 is divided into **5 parallel workstreams** that can be implemented conc
   - How to cite a release: Use DOI citation from 3.2
   - How to cite a specific material: "Aluminum data from WasteDB v2026.Q1, DOI: ..."
   - How to cite a specific MIU: "WasteDB MIU #1234, extracted by @curator, [link]"
-  
 - ⬜ **Export with Citations**
   - Research JSON export includes recommended citation
   - CSV export header includes citation comment
   - API responses include `X-Cite` header with citation string
-  
 - ⬜ **Integration Guides**
   - LaTeX/BibTeX example
   - Zotero/Mendeley import instructions
@@ -514,13 +495,11 @@ Phase 10 is divided into **5 parallel workstreams** that can be implemented conc
   - Extract all hardcoded strings to translation files
   - Support language switcher in header
   - Detect browser language preference
-  
 - ⬜ **Translation Files**
   - Create `.json` files for each language
   - Translate: UI labels, buttons, tooltips, error messages, help text
   - Priority languages: English (default), Spanish, Mandarin Chinese
   - Future: French, German, Portuguese
-  
 - ⬜ **Localized Content**
   - Methodology pages in multiple languages
   - Curator Codebook translated
@@ -556,11 +535,9 @@ Phase 10 is divided into **5 parallel workstreams** that can be implemented conc
   - D (Demand): "Demanda" (ES), "需求" (ZH)
   - C (Contamination): "Contaminación" (ES), "污染" (ZH)
   - ...all 13 parameters
-  
 - ⬜ **Tooltip Translations**
   - Parameter tooltips explain meaning in local language
   - Context tags (process, stream, region) translated
-  
 - ⬜ **Evidence Tab Localization**
   - MIU snippet remains in original language (verbatim requirement)
   - But labels/metadata translated: "Locator", "Snippet", "Normalized Value"
@@ -589,11 +566,9 @@ Phase 10 is divided into **5 parallel workstreams** that can be implemented conc
 - ⬜ **Add Locale Field to MIUs**
   - `snippet_language` TEXT field (ISO 639-1 codes: 'en', 'es', 'zh', 'fr', etc.)
   - `snippet_region` TEXT field (ISO 3166-1: 'US', 'CN', 'MX', 'DE', etc.)
-  
 - ⬜ **Evidence Wizard Update**
   - Auto-detect language from source metadata
   - Allow manual override (dropdown)
-  
 - ⬜ **Filtering by Locale**
   - Aggregation engine can filter MIUs by language/region
   - Example: "Show only MIUs from Chinese sources for Asia-specific data"
@@ -615,7 +590,7 @@ Phase 10 is divided into **5 parallel workstreams** that can be implemented conc
 
 ---
 
-## 🚀 Workstream 5: Community Growth & Gamification
+## Workstream 5: Community Growth & Gamification
 
 **Duration:** 3 weeks  
 **Goal:** Scale from 5 curators to 50+ with retention and engagement
@@ -632,21 +607,18 @@ Phase 10 is divided into **5 parallel workstreams** that can be implemented conc
   - First MIU for a parameter: +50 points (gap closer bonus)
   - Material promoted to research-grade (contributor): +100 points
   - Adjudication accepted (your MIU chosen over conflicting): +15 points
-  
 - ⬜ **Reputation Tiers**
   - 0-99: Novice Curator 🌱
-  - 100-499: Curator 📊
-  - 500-999: Expert Curator 🎯
+  - 100-499: Curator
+  - 500-999: Expert Curator
   - 1000-2499: Master Curator 🏆
   - 2500+: Legend Curator 👑
-  
 - ⬜ **Skill Badges**
   - "Specialist" badges per dimension: CR Specialist, CC Specialist, RU Specialist (25+ MIUs in dimension)
   - "Material Expert" badges: Aluminum Expert, PET Expert (20+ MIUs for one material)
   - "Validator" badge: Completed 10+ double-extractions
   - "Gap Closer" badge: First MIU for 5+ parameters
   - "Polyglot" badge: MIUs in 3+ languages
-  
 - ⬜ **Leaderboards**
   - All-time: Top curators by total reputation
   - This month: Top curators in last 30 days
@@ -686,14 +658,12 @@ Phase 10 is divided into **5 parallel workstreams** that can be implemented conc
   - Pass validation (κ ≥ 0.7)
   - Get "Certified Curator" badge
   - Assigned to first real material (from Curation Queue)
-  
 - ⬜ **Welcome Email Sequence**
   - Day 0: Welcome, link to onboarding
   - Day 2: "Still working on practice mode?" reminder
   - Day 5: "Congrats on completing practice!" (if completed)
   - Day 7: "Join your first campaign" nudge
   - Day 14: "Your first MIU contributed to research-grade!" (if applicable)
-  
 - ⬜ **Automated Role Assignment**
   - New signups default to "Contributor" role (can create MIUs in practice mode only)
   - After certification, promoted to "Curator" role (can create real MIUs)
@@ -729,12 +699,10 @@ Phase 10 is divided into **5 parallel workstreams** that can be implemented conc
   - **Tutorial 3:** "Normalization and Units" (5 min)
   - **Tutorial 4:** "Double-Extraction and Validation" (6 min)
   - **Advanced:** "Adjudicating Disagreements" (8 min)
-  
 - ⬜ **Interactive Tutorials** (using library like Shepherd.js or React Joyride)
   - Guided tour of Curation Workbench
   - Step-by-step walkthrough of 5-step wizard
   - Highlight key UI elements with tooltips
-  
 - ⬜ **Video Hosting**
   - Upload to YouTube (WasteDB channel)
   - Embed in onboarding wizard
@@ -759,27 +727,31 @@ Phase 10 is divided into **5 parallel workstreams** that can be implemented conc
 
 ---
 
-## 📊 Timeline
+## Timeline
 
 Phase 10 can be implemented in **3 sequential passes** or **5 parallel workstreams** depending on team capacity.
 
 ### **Option A: Sequential (Total: 13 weeks)**
 
 **Pass 1: Polish (Weeks 1-6)**
+
 - Workstream 1: Contributor Experience (3 weeks)
 - Workstream 2: Analytics & Monitoring (2 weeks)
 - Workstream 3: Publication & Outreach (2 weeks)
 
 **Pass 2: Internationalization (Weeks 7-9)**
+
 - Workstream 4: i18n (3 weeks)
 
 **Pass 3: Scale (Weeks 10-13)**
+
 - Workstream 5: Community Growth (3 weeks)
 - Final integration and testing (1 week)
 
 ### **Option B: Parallel (Total: 3 weeks with 5-person team)**
 
 **Week 1-3: All Workstreams in Parallel**
+
 - Person 1: Contributor Experience (1.1, 1.2, 1.3, 1.4)
 - Person 2: Analytics & Monitoring (2.1, 2.2, 2.3)
 - Person 3: Publication & Outreach (3.1, 3.2, 3.3)
@@ -795,30 +767,35 @@ Phase 10 can be implemented in **3 sequential passes** or **5 parallel workstrea
 Phase 10 is complete when ALL of the following are TRUE:
 
 ### Contributor Experience ✅
+
 - [ ] OCR + Highlight assist functional (time-per-MIU reduced 20%)
 - [ ] Practice mode with 10 golden standard MIUs available
 - [ ] First challenge campaign completed successfully
 - [ ] Rich provenance "impact summaries" displayed on all MIU saves
 
 ### Analytics & Monitoring ✅
+
 - [ ] 3 observability dashboards deployed (curator, platform, research usage)
 - [ ] Load test passed (50 concurrent curators, no errors)
 - [ ] API p95 latency <500ms for all endpoints
 - [ ] ETag and rate-limiting implemented
 
 ### Publication & Outreach ✅
+
 - [ ] Research-grade rubric page published
 - [ ] First release minted with DOI (v2026.Q1 or later)
 - [ ] Citation guide published with 3+ format examples
 - [ ] Zotero/Mendeley can auto-import WasteDB citations
 
 ### Internationalization ✅
+
 - [ ] UI translated to 3 languages (English, Spanish, Mandarin)
 - [ ] All 13 parameters have localized names and tooltips
 - [ ] MIUs tagged with snippet_language field
 - [ ] Locale filtering functional in aggregation engine
 
 ### Community Growth ✅
+
 - [ ] Reputation system with 5 tiers and 8+ badge types
 - [ ] Automated onboarding wizard (zero manual admin intervention)
 - [ ] 6 training videos published and embedded
@@ -826,20 +803,20 @@ Phase 10 is complete when ALL of the following are TRUE:
 
 ---
 
-## 📊 Success Metrics
+## Success Metrics
 
 ### Quantitative Targets
 
-| Metric | Target | Measurement |
-|--------|--------|-------------|
-| Active curators | 50+ | Monthly active users with ≥1 MIU created |
-| Curator retention | 80% | Certified curators who create ≥1 real MIU in first month |
-| Time-per-MIU | <2.5 min | Median (20% reduction from Phase 9's <3 min) |
-| API latency | p95 <500ms | All endpoints |
-| Onboarding time | <1 hour | Signup → certified curator |
-| Campaign participation | 10+ curators per campaign | Avg curators per challenge campaign |
-| International reach | 30% non-English users | Curators using non-English UI |
-| Academic citations | 5+ papers | Citing WasteDB in peer-reviewed journals |
+| Metric                 | Target                    | Measurement                                              |
+| ---------------------- | ------------------------- | -------------------------------------------------------- |
+| Active curators        | 50+                       | Monthly active users with ≥1 MIU created                 |
+| Curator retention      | 80%                       | Certified curators who create ≥1 real MIU in first month |
+| Time-per-MIU           | <2.5 min                  | Median (20% reduction from Phase 9's <3 min)             |
+| API latency            | p95 <500ms                | All endpoints                                            |
+| Onboarding time        | <1 hour                   | Signup → certified curator                               |
+| Campaign participation | 10+ curators per campaign | Avg curators per challenge campaign                      |
+| International reach    | 30% non-English users     | Curators using non-English UI                            |
+| Academic citations     | 5+ papers                 | Citing WasteDB in peer-reviewed journals                 |
 
 ### Qualitative Goals
 
@@ -851,30 +828,33 @@ Phase 10 is complete when ALL of the following are TRUE:
 
 ---
 
-## 🎯 Expected Outcomes
+## Expected Outcomes
 
 Upon completion of Phase 10:
 
 ### For Curators
+
 - 🎨 **Delightful UX:** OCR assist, practice mode, instant feedback
 - 🏆 **Recognition:** Reputation system, badges, leaderboards
 - 🌍 **Global:** UI in their language, regional data supported
 - 📹 **Training:** Video tutorials and interactive tours
-- 🎯 **Purpose:** Challenge campaigns give focus and impact
+- **Purpose:** Challenge campaigns give focus and impact
 
 ### For Researchers
-- 📊 **Credibility:** DOI-minted releases, citation guides
-- 🔍 **Transparency:** Public research-grade rubric
+
+- **Credibility:** DOI-minted releases, citation guides
+- **Transparency:** Public research-grade rubric
 - ⚡ **Performance:** Fast API, HTTP caching, rate limits
-- 📈 **Analytics:** Usage metrics and download tracking
+- **Analytics:** Usage metrics and download tracking
 - 🌐 **Access:** Multilingual docs and locale-aware data
 
 ### For WasteDB Platform
-- 📈 **Scale:** 50+ active curators (10x Phase 9's 5 curators)
+
+- **Scale:** 50+ active curators (10x Phase 9's 5 curators)
 - 🌍 **Reach:** 30% non-English users
-- 📚 **Citations:** Appearing in peer-reviewed papers
+- **Citations:** Appearing in peer-reviewed papers
 - 💎 **Quality:** 90% of materials at research-grade status
-- 🚀 **Momentum:** Self-sustaining community growth
+- **Momentum:** Self-sustaining community growth
 
 ---
 
@@ -900,20 +880,23 @@ Upon completion of Phase 10:
 
 ---
 
-## 📚 Related Documentation
+## Related Documentation
 
 ### Phase 9 Deliverables (Prerequisites)
+
 - `/docs/PHASE_9_EVIDENCE_PIPELINE.md` - Core curation system
 - `/docs/PHASE_9_ADDENDUM_CRITICAL_INFRASTRUCTURE.md` - Critical infrastructure (Phase 9.0)
 - `/docs/PHASE_9_0_IMPLEMENTATION_CHECKLIST.md` - Day-by-day Phase 9.0 plan
 
 ### Methodology Documents
+
 - `/whitepapers/CR-v1.md` - Recyclability methodology
 - `/whitepapers/CC-v1.md` - Compostability methodology
 - `/whitepapers/RU-v1.md` - Reusability methodology
 - `/whitepapers/Statistical_Methodology.md` - Aggregation math
 
 ### Platform Analysis
+
 - `/docs/SIMILAR.md` - Comparative platform analysis (design influences)
 
 ---
@@ -924,11 +907,11 @@ Upon completion of Phase 10:
 
 - 🌍 **50+ curators** from 3+ continents extract evidence in their native languages
 - 🏆 **All 8 materials** achieve research-grade status with 100% parameter coverage
-- 📚 **500+ MIUs** across all dimensions, fully traceable and reproducible
+- **500+ MIUs** across all dimensions, fully traceable and reproducible
 - 🎓 **Academic papers** cite WasteDB with DOI-minted releases
 - 🎮 **Challenge campaigns** drive focused recruitment for low-coverage areas
 - ⚡ **Sub-second API** serves thousands of research queries per day
-- 📊 **Real-time dashboards** show platform health and curator impact
+- **Real-time dashboards** show platform health and curator impact
 - 🎨 **Delightful UX** makes curation feel like contribution, not labor
 
 **WasteDB becomes the de facto standard for materials sustainability data.**

@@ -6,7 +6,7 @@
 
 ---
 
-## 🎯 Objectives
+## Objectives
 
 Establish legal framework for MIU/snippet usage and protect WasteDB from copyright infringement liability.
 
@@ -19,6 +19,7 @@ Establish legal framework for MIU/snippet usage and protect WasteDB from copyrig
 **File:** `/legal/MIU_LICENSING_POLICY.md`
 
 **Contents:**
+
 - ✅ CC BY 4.0 license for structured MIU data
 - ✅ Fair Use policy for verbatim snippets (<250 words, properly cited)
 - ✅ Screenshot attribution requirements
@@ -32,6 +33,7 @@ Establish legal framework for MIU/snippet usage and protect WasteDB from copyrig
 - ✅ User rights and responsibilities clearly documented
 
 **Key Sections:**
+
 - Data types & licenses (4 categories)
 - COI disclosure requirements
 - Data retention schedule
@@ -47,6 +49,7 @@ Establish legal framework for MIU/snippet usage and protect WasteDB from copyrig
 **File:** `/legal/TAKEDOWN_PROCESS.md`
 
 **Contents:**
+
 - ✅ DMCA/EU Copyright Directive compliance framework
 - ✅ 72-hour response guarantee timeline
 - ✅ 4 resolution options:
@@ -62,6 +65,7 @@ Establish legal framework for MIU/snippet usage and protect WasteDB from copyrig
 - ✅ Annual transparency reporting commitment
 
 **Timeline:**
+
 1. 24h: Confirmation email
 2. 72h: Legal team review
 3. 7 days: Resolution implemented
@@ -73,6 +77,7 @@ Establish legal framework for MIU/snippet usage and protect WasteDB from copyrig
 **File:** `/components/TakedownRequestForm.tsx`
 
 **Features:**
+
 - ✅ 5-section structured form:
   1. Contact information
   2. Copyrighted work details
@@ -90,6 +95,7 @@ Establish legal framework for MIU/snippet usage and protect WasteDB from copyrig
 - ✅ Error handling and user-friendly messages
 
 **UI/UX:**
+
 - Card-based layout for clarity
 - Inline validation with red borders
 - Help text and examples
@@ -105,6 +111,7 @@ Establish legal framework for MIU/snippet usage and protect WasteDB from copyrig
 **Endpoints Created:**
 
 #### `POST /make-server-17cae920/legal/takedown`
+
 - ✅ Accepts takedown request submission
 - ✅ Validates required fields
 - ✅ Validates legal statements
@@ -115,6 +122,7 @@ Establish legal framework for MIU/snippet usage and protect WasteDB from copyrig
 - ✅ Rate limited (API tier)
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -124,12 +132,14 @@ Establish legal framework for MIU/snippet usage and protect WasteDB from copyrig
 ```
 
 #### `GET /make-server-17cae920/legal/takedown/status/:requestId`
+
 - ✅ Public endpoint (no auth required)
 - ✅ Returns request status
 - ✅ Hides sensitive admin notes
 - ✅ Returns: requestID, status, submittedAt, reviewedAt, resolution
 
 **Response:**
+
 ```json
 {
   "requestID": "TR-1731456789123-abc123",
@@ -141,11 +151,13 @@ Establish legal framework for MIU/snippet usage and protect WasteDB from copyrig
 ```
 
 #### `GET /make-server-17cae920/admin/takedown` (Admin Only)
+
 - ✅ Lists all takedown requests
 - ✅ Sorted by submission date (newest first)
 - ✅ Requires admin authentication
 
 #### `PATCH /make-server-17cae920/admin/takedown/:requestId` (Admin Only)
+
 - ✅ Updates request status
 - ✅ Records review timestamp
 - ✅ Records reviewer user ID
@@ -153,13 +165,14 @@ Establish legal framework for MIU/snippet usage and protect WasteDB from copyrig
 
 ---
 
-## 📊 Data Structure
+## Data Structure
 
 ### Takedown Request Storage
 
 **Key:** `takedown:{requestID}`
 
 **Schema:**
+
 ```typescript
 {
   // Form data
@@ -179,7 +192,7 @@ Establish legal framework for MIU/snippet usage and protect WasteDB from copyrig
   misrepresentationWarning: boolean;
   signature: string;
   signatureDate: string;
-  
+
   // Auto-generated
   requestID: string; // TR-{timestamp}-{uuid}
   status: 'pending' | 'under_review' | 'resolved' | 'rejected';
@@ -198,12 +211,14 @@ Establish legal framework for MIU/snippet usage and protect WasteDB from copyrig
 ### Manual Testing Checklist
 
 - [ ] **Form Validation:**
+
   - [ ] Required fields block submission
   - [ ] Invalid email rejected
   - [ ] Signature must match name
   - [ ] All checkboxes must be checked
 
 - [ ] **API Integration:**
+
   - [ ] Form submits successfully
   - [ ] Request ID generated and displayed
   - [ ] Success confirmation shown
@@ -218,6 +233,7 @@ Establish legal framework for MIU/snippet usage and protect WasteDB from copyrig
 ### Test Case Example
 
 **Input:**
+
 ```json
 {
   "fullName": "Jane Doe",
@@ -234,6 +250,7 @@ Establish legal framework for MIU/snippet usage and protect WasteDB from copyrig
 ```
 
 **Expected:**
+
 - ✅ 200 OK response
 - ✅ Request ID: `TR-{timestamp}-{uuid}`
 - ✅ Data stored in KV store
@@ -248,6 +265,7 @@ Establish legal framework for MIU/snippet usage and protect WasteDB from copyrig
 **Reason:** Phase 9.2 will implement Evidence Wizard UI, which is when COI field will be needed in the database. For now, documented in MIU_LICENSING_POLICY.md.
 
 **Future Implementation (Phase 9.2):**
+
 - Add `conflict_of_interest` TEXT field to `evidence_points` table
 - Migration script
 - UI integration in Evidence Wizard Step 4
@@ -259,6 +277,7 @@ Establish legal framework for MIU/snippet usage and protect WasteDB from copyrig
 **Reason:** Email system (RESEND_API_KEY) already configured but not yet integrated for takedown confirmations. This is non-blocking for Day 1 completion.
 
 **Future Implementation (Phase 9.0 Day 6 - Observability):**
+
 - Send confirmation email to requester
 - Send alert email to admins
 - Use existing RESEND integration
@@ -270,6 +289,7 @@ Establish legal framework for MIU/snippet usage and protect WasteDB from copyrig
 **Reason:** Footer update is cosmetic and can be done when building public UI for legal pages.
 
 **Future Implementation (Phase 9.5 - Public Evidence Layer):**
+
 - Add "Legal" section to footer
 - Link to `/legal/MIU_LICENSING_POLICY.md`
 - Link to `/legal/TAKEDOWN_PROCESS.md`
@@ -299,15 +319,15 @@ Establish legal framework for MIU/snippet usage and protect WasteDB from copyrig
 
 ---
 
-## 🎯 Success Metrics
+## Success Metrics
 
-| Metric | Target | Status |
-|--------|--------|--------|
-| Legal documents published | 2 | ✅ 2/2 |
-| Takedown form functional | Yes | ✅ Yes |
-| Backend API working | Yes | ✅ Yes |
-| Validation implemented | Yes | ✅ Yes |
-| COI field added | Yes | ⚠️ Deferred to Phase 9.2 |
+| Metric                    | Target | Status                   |
+| ------------------------- | ------ | ------------------------ |
+| Legal documents published | 2      | ✅ 2/2                   |
+| Takedown form functional  | Yes    | ✅ Yes                   |
+| Backend API working       | Yes    | ✅ Yes                   |
+| Validation implemented    | Yes    | ✅ Yes                   |
+| COI field added           | Yes    | ⚠️ Deferred to Phase 9.2 |
 
 ---
 
@@ -333,35 +353,38 @@ Establish legal framework for MIU/snippet usage and protect WasteDB from copyrig
 
 ---
 
-## 🚀 Next Steps
+## Next Steps
 
 ### **Immediate (Day 2):**
+
 - Begin **Transform Governance & Auto-Recompute** system
 - Create `/ontologies/transforms.json`
 - Implement versioned transform system
 - Build auto-recompute job queue
 
 ### **Future (Phase 9.2):**
+
 - Add COI field when building Evidence Wizard
 - Integrate COI disclosure in MIU creation flow
 - Display COI badge on public Evidence tab
 
 ### **Future (Phase 9.0 Day 6):**
+
 - Integrate email notifications for takedown requests
 - Send confirmation emails to requesters
 - Send alert emails to admins
 
 ---
 
-## 📊 Time Tracking
+## Time Tracking
 
-| Task | Estimated | Actual | Notes |
-|------|-----------|--------|-------|
-| Draft legal docs | 4h | ~4h | Comprehensive policies written |
-| Build form UI | 2h | ~1h | Shadcn components accelerated |
-| Backend endpoints | 2h | ~1h | Hono integration smooth |
-| Testing | 1h | - | Ready for manual testing |
-| **Total** | **9h** | **~6h** | Efficient execution |
+| Task              | Estimated | Actual  | Notes                          |
+| ----------------- | --------- | ------- | ------------------------------ |
+| Draft legal docs  | 4h        | ~4h     | Comprehensive policies written |
+| Build form UI     | 2h        | ~1h     | Shadcn components accelerated  |
+| Backend endpoints | 2h        | ~1h     | Hono integration smooth        |
+| Testing           | 1h        | -       | Ready for manual testing       |
+| **Total**         | **9h**    | **~6h** | Efficient execution            |
 
 ---
 
@@ -369,7 +392,7 @@ Establish legal framework for MIU/snippet usage and protect WasteDB from copyrig
 
 **All critical deliverables completed. Deferred items are non-blocking and scheduled for appropriate future phases.**
 
-**Ready to proceed to Day 2: Transform Governance & Auto-Recompute** 🚀
+**Ready to proceed to Day 2: Transform Governance & Auto-Recompute**
 
 ---
 

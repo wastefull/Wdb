@@ -1,12 +1,12 @@
 # WasteDB 🌍
 
-**A comprehensive CMS for managing material sustainability data with retro Sokpop-inspired design and Apple Liquid Glass elements.**
+**A comprehensive CMS for managing material sustainability data with retro Wastefull brand design and Apple Liquid Glass inspired elements.**
 
 WasteDB helps organizations track and curate sustainability scores for materials, powered by scientific evidence and peer-reviewed sources. Features include CRUD operations, evidence curation workbench, policy snapshots, and comprehensive testing infrastructure.
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### For End Users (Production)
 
@@ -105,9 +105,10 @@ wastedb/
 
 ---
 
-## 🎯 Key Features
+## Key Features
 
 ### ✅ Phase 9.0 - Evidence Infrastructure
+
 - Evidence CRUD operations
 - Policy snapshots with version tracking
 - Aggregation computation engine
@@ -115,6 +116,7 @@ wastedb/
 - Comprehensive test suite (50+ tests)
 
 ### ✅ Phase 9.1 - Evidence API
+
 - Evidence creation with validation
 - Material-scoped evidence queries
 - Parameter-specific filtering
@@ -122,6 +124,7 @@ wastedb/
 - Confidence levels (high/medium/low)
 
 ### ✅ Phase 9.2 - Curation Workbench
+
 - 5-step evidence wizard
 - Smart context pre-fill (AI-powered)
 - Unit validation against ontologies
@@ -129,12 +132,14 @@ wastedb/
 - CR parameters (Y, D, C, M, E)
 
 ### 🔐 Authentication & Authorization
+
 - Magic link authentication (no passwords)
 - Role-based access control (public/user/admin)
 - Session management with Supabase Auth
 - Email delivery via Resend
 
-### 📊 Data Management
+### Data Management
+
 - localStorage + Supabase sync
 - CSV import/export
 - Batch operations
@@ -142,6 +147,7 @@ wastedb/
 - Material defaults system
 
 ### 🧪 Testing Infrastructure
+
 - Centralized test definitions
 - Phase-filtered test tabs
 - Modular test organization
@@ -156,6 +162,7 @@ wastedb/
 You need either:
 
 **Option A: Remote Supabase** (recommended)
+
 ```bash
 # .env.local
 VITE_SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co
@@ -164,6 +171,7 @@ SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 ```
 
 **Option B: Local Supabase**
+
 ```bash
 supabase start  # Requires Docker
 # Then use credentials from output
@@ -200,6 +208,7 @@ supabase functions logs make-server-17cae920
 4. View results in real-time
 
 Tests verify:
+
 - ✅ Database connectivity
 - ✅ API endpoints
 - ✅ Auth flows
@@ -208,19 +217,19 @@ Tests verify:
 
 ---
 
-## 📚 Documentation
+## Documentation
 
-| Document | Description |
-|----------|-------------|
+| Document                                                       | Description                |
+| -------------------------------------------------------------- | -------------------------- |
 | [LOCAL_DEVELOPMENT_SETUP.md](/docs/LOCAL_DEVELOPMENT_SETUP.md) | Complete local setup guide |
-| [QUICK_START.md](/docs/QUICK_START.md) | End-user guide |
-| [PHASE_9_ROADMAP.md](/docs/PHASE_9_ROADMAP.md) | Phase 9 development plan |
-| [SUPABASE_INTEGRATION.md](/docs/SUPABASE_INTEGRATION.md) | Database architecture |
-| [SECURITY.md](/docs/SECURITY.md) | Security features & RBAC |
-| [DATA_PIPELINE.md](/docs/DATA_PIPELINE.md) | Scientific methodology |
-| [LOGGER_USAGE_GUIDE.md](/docs/LOGGER_USAGE_GUIDE.md) | Logging system |
-| [API_SECURITY_LOGGING.md](/docs/API_SECURITY_LOGGING.md) | API security |
-| [ASSET_STORAGE_GUIDE.md](/docs/ASSET_STORAGE_GUIDE.md) | File uploads |
+| [QUICK_START.md](/docs/QUICK_START.md)                         | End-user guide             |
+| [PHASE_9_ROADMAP.md](/docs/PHASE_9_ROADMAP.md)                 | Phase 9 development plan   |
+| [SUPABASE_INTEGRATION.md](/docs/SUPABASE_INTEGRATION.md)       | Database architecture      |
+| [SECURITY.md](/docs/SECURITY.md)                               | Security features & RBAC   |
+| [DATA_PIPELINE.md](/docs/DATA_PIPELINE.md)                     | Scientific methodology     |
+| [LOGGER_USAGE_GUIDE.md](/docs/LOGGER_USAGE_GUIDE.md)           | Logging system             |
+| [API_SECURITY_LOGGING.md](/docs/API_SECURITY_LOGGING.md)       | API security               |
+| [ASSET_STORAGE_GUIDE.md](/docs/ASSET_STORAGE_GUIDE.md)         | File uploads               |
 
 📁 See `/docs/` directory for 50+ additional guides.
 
@@ -237,6 +246,7 @@ Tests verify:
 - ✅ Environment variable protection
 
 ⚠️ **NEVER commit**:
+
 - `.env.local`
 - Service role keys
 - API keys
@@ -286,17 +296,22 @@ Tests are organized by phase in `/config/tests/phases/`:
 ## 🛠️ Troubleshooting
 
 ### "Failed to load units ontology"
+
 **Solution**: Initialize ontologies via API:
+
 ```bash
 curl -X POST <SUPABASE_URL>/functions/v1/make-server-17cae920/ontologies/initialize \
   -H "Authorization: Bearer <ANON_KEY>"
 ```
 
 ### "CORS error"
+
 **Solution**: Ensure edge functions are deployed and include correct auth header.
 
 ### "Cannot connect to local Supabase"
+
 **Solution**:
+
 ```bash
 # Check Docker is running
 docker ps
@@ -306,7 +321,9 @@ supabase stop && supabase start
 ```
 
 ### "Module not found"
+
 **Solution**:
+
 ```bash
 rm -rf node_modules
 npm install
@@ -338,37 +355,40 @@ npm install
 
 ## 📝 Environment Variables
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `VITE_SUPABASE_URL` | Yes (local) | Supabase API URL |
-| `VITE_SUPABASE_ANON_KEY` | Yes (local) | Public anon key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Yes | Admin key for edge functions |
-| `SUPABASE_DB_URL` | Yes | PostgreSQL connection string |
-| `RESEND_API_KEY` | Optional | Email service API key |
+| Variable                    | Required    | Description                  |
+| --------------------------- | ----------- | ---------------------------- |
+| `VITE_SUPABASE_URL`         | Yes (local) | Supabase API URL             |
+| `VITE_SUPABASE_ANON_KEY`    | Yes (local) | Public anon key              |
+| `SUPABASE_SERVICE_ROLE_KEY` | Yes         | Admin key for edge functions |
+| `SUPABASE_DB_URL`           | Yes         | PostgreSQL connection string |
+| `RESEND_API_KEY`            | Optional    | Email service API key        |
 
 See `.env.example` for template.
 
 ---
 
-## 📊 Current Status
+## Current Status
 
 ### ✅ Completed Phases
+
 - **Phase 9.0**: Complete infrastructure (Days 1-11)
 - **Phase 9.1**: Evidence API integration
 - **Phase 9.2**: Curation workbench UI
 
 ### 🚧 In Progress
+
 - Phase 9.3: Advanced search & filtering
 - Phase 9.4: Data visualization enhancements
 
 ### 📋 Planned
+
 - Phase 10: Polish & scale
 - Public API v1
 - Mobile app support
 
 ---
 
-## 📄 License
+## License
 
 [Add your license here]
 
@@ -379,7 +399,6 @@ See `.env.example` for template.
 - Built with [Supabase](https://supabase.com)
 - UI components from [ShadCN](https://ui.shadcn.com)
 - Email delivery via [Resend](https://resend.com)
-- Design inspired by Sokpop & Apple Liquid Glass
 
 ---
 

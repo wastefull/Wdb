@@ -565,7 +565,7 @@ export async function uploadSourcePdf(
   file: File,
   sourceId: string
 ): Promise<{ success: boolean; fileName: string }> {
-  logger.log("📄 Starting PDF upload:", {
+  logger.log(" Starting PDF upload:", {
     fileName: file.name,
     fileSize: file.size,
     fileType: file.type,
@@ -626,23 +626,23 @@ export async function uploadSourcePdf(
     }
 
     const result = await response.json();
-    logger.log("✅ PDF upload successful:", result);
+    logger.log("PDF upload successful:", result);
     return result;
   } catch (error) {
-    logger.error("💥 PDF upload exception:", error);
+    logger.error("PDF upload exception:", error);
     throw error;
   }
 }
 
 // Get signed URL for a source PDF (authenticated users)
 export async function getSourcePdfUrl(fileName: string): Promise<string> {
-  logger.log("📄 Fetching PDF URL for:", fileName);
+  logger.log(" Fetching PDF URL for:", fileName);
   try {
     const data = await apiCall(`/source-pdfs/${fileName}`);
-    logger.log("✅ Got signed URL:", data.signedUrl?.substring(0, 50) + "...");
+    logger.log("Got signed URL:", data.signedUrl?.substring(0, 50) + "...");
     return data.signedUrl;
   } catch (error) {
-    logger.error("❌ Failed to get PDF URL:", error);
+    logger.error("Failed to get PDF URL:", error);
     throw error;
   }
 }
@@ -674,10 +674,10 @@ export async function getSourcePdfDiagnostics(fileName: string): Promise<any> {
         method: "GET",
       }
     );
-    logger.log(`✅ Diagnostics received:`, data);
+    logger.log(`Diagnostics received:`, data);
     return data;
   } catch (error) {
-    logger.error("❌ Failed to get PDF diagnostics:", error);
+    logger.error("Failed to get PDF diagnostics:", error);
     throw error;
   }
 }

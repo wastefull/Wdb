@@ -8,15 +8,15 @@
 
 ---
 
-## 🎯 Overview
+## Overview
 
 This checklist provides a **day-by-day implementation plan** for the 11 critical infrastructure requirements that must be completed before any MIU extraction begins.
 
 ### Priority Matrix
 
-| Week | Days | Focus Areas | Critical Path |
-|------|------|-------------|---------------|
-| Week 1 | Days 1-5 | Legal, Transforms, Ontologies, Security | High-risk items first |
+| Week   | Days      | Focus Areas                                                   | Critical Path         |
+| ------ | --------- | ------------------------------------------------------------- | --------------------- |
+| Week 1 | Days 1-5  | Legal, Transforms, Ontologies, Security                       | High-risk items first |
 | Week 2 | Days 6-10 | Validation, Dedup, Observability, Backups, Exports, OA Triage | Integration & testing |
 
 ---
@@ -28,6 +28,7 @@ This checklist provides a **day-by-day implementation plan** for the 11 critical
 **Goal:** Establish legal framework for MIU/snippet usage
 
 #### Morning (4 hours)
+
 - [ ] Draft `/legal/MIU_LICENSING_POLICY.md`
   - CC BY 4.0 for structured MIU data
   - Fair use policy for snippets (<250 words)
@@ -39,6 +40,7 @@ This checklist provides a **day-by-day implementation plan** for the 11 critical
   - Redaction procedure (preserve aggregations, remove snippets)
 
 #### Afternoon (4 hours)
+
 - [ ] Create takedown request form page `/legal/takedown`
   - Fields: source_url, reason, contact_email, description
   - CAPTCHA protection
@@ -49,11 +51,13 @@ This checklist provides a **day-by-day implementation plan** for the 11 critical
   - UI field in Evidence Wizard Step 4
 
 #### Evening (1 hour) - Testing
+
 - [ ] Test takedown form submission
 - [ ] Verify email notification sent
 - [ ] Confirm COI field saves correctly
 
 **Acceptance Criteria:**
+
 - ✅ Both legal documents published and accessible
 - ✅ Takedown form functional
 - ✅ COI field added to database
@@ -65,6 +69,7 @@ This checklist provides a **day-by-day implementation plan** for the 11 critical
 **Goal:** Implement versioned transforms and auto-recompute system
 
 #### Morning (4 hours)
+
 - [ ] Create `/ontologies/transforms.json`
   ```json
   {
@@ -78,7 +83,7 @@ This checklist provides a **day-by-day implementation plan** for the 11 critical
         "version": "1.0",
         "effective_date": "2025-11-12",
         "changelog": "Initial version"
-      },
+      }
       // ... all 13 parameters
     ]
   }
@@ -87,6 +92,7 @@ This checklist provides a **day-by-day implementation plan** for the 11 critical
   - Columns: id, parameter, transform_version_old, transform_version_new, status, created_at, completed_at, affected_mius_count
 
 #### Afternoon (4 hours)
+
 - [ ] Implement `POST /make-server-17cae920/transforms/recompute` endpoint
   - Accept: parameter, new_transform_version
   - Query all MIUs with old transform_version for that parameter
@@ -98,11 +104,13 @@ This checklist provides a **day-by-day implementation plan** for the 11 critical
   - Trigger recompute button
 
 #### Evening (1 hour) - Testing
+
 - [ ] Test recompute job with 10 sample MIUs
 - [ ] Verify audit log shows pre/post values
 - [ ] Confirm "needs refresh" badge appears on materials
 
 **Acceptance Criteria:**
+
 - ✅ transforms.json populated for all 13 parameters
 - ✅ Recompute job processes MIUs correctly
 - ✅ Audit trail captures transform changes
@@ -114,6 +122,7 @@ This checklist provides a **day-by-day implementation plan** for the 11 critical
 **Goal:** Enforce ontologies and validation rules
 
 #### Morning (4 hours)
+
 - [ ] Create `/ontologies/units.json`
   ```json
   {
@@ -125,14 +134,21 @@ This checklist provides a **day-by-day implementation plan** for the 11 critical
         "ratio": "identity",
         "kg/kg": "identity"
       }
-    },
+    }
     // ... all 13 parameters
   }
   ```
 - [ ] Create `/ontologies/context.json`
   ```json
   {
-    "process": ["mechanical", "chemical", "thermal", "biological", "manual", "automated"],
+    "process": [
+      "mechanical",
+      "chemical",
+      "thermal",
+      "biological",
+      "manual",
+      "automated"
+    ],
     "stream": ["post-consumer", "post-industrial", "mixed", "source-separated"],
     "region": ["North America", "Europe", "Asia", "Global", "Other"],
     "scale": ["lab", "pilot", "commercial", "theoretical"]
@@ -143,6 +159,7 @@ This checklist provides a **day-by-day implementation plan** for the 11 critical
   - `GET /make-server-17cae920/ontologies/context`
 
 #### Afternoon (4 hours)
+
 - [ ] Implement server-side validation middleware
   - Check locator (page OR figure OR table required)
   - Check snippet (min 20 chars, max 1000 chars)
@@ -156,11 +173,13 @@ This checklist provides a **day-by-day implementation plan** for the 11 critical
   - Character counter for snippet field
 
 #### Evening (1 hour) - Testing
+
 - [ ] Test invalid MIU submission (should fail with 400)
 - [ ] Test valid MIU submission (should succeed)
 - [ ] Verify units dropdown auto-filters by parameter
 
 **Acceptance Criteria:**
+
 - ✅ Ontologies enforce enum values
 - ✅ Server rejects invalid MIUs
 - ✅ Client shows real-time validation errors
@@ -172,30 +191,34 @@ This checklist provides a **day-by-day implementation plan** for the 11 critical
 **Goal:** Secure data access and prevent unauthorized modifications
 
 #### Morning (4 hours)
+
 - [ ] Implement RLS policies for `evidence_points`
+
   ```sql
   -- Read: all authenticated users
   CREATE POLICY "evidence_read" ON evidence_points
     FOR SELECT USING (true);
-  
+
   -- Create: admin only
   CREATE POLICY "evidence_create" ON evidence_points
     FOR INSERT WITH CHECK (
       auth.uid() IN (SELECT id FROM user_profiles WHERE role = 'admin')
     );
-  
+
   -- Update/Delete: admin only
   CREATE POLICY "evidence_update" ON evidence_points
     FOR UPDATE USING (
       auth.uid() IN (SELECT id FROM user_profiles WHERE role = 'admin')
     );
   ```
+
 - [ ] Create RLS test suite (Vitest or similar)
   - Test non-admin cannot edit MIU (expect 403)
   - Test non-admin cannot delete MIU (expect 403)
   - Test admin can edit/delete MIU (expect 200)
 
 #### Afternoon (4 hours)
+
 - [ ] Implement signed URLs for file storage
   - `GET /make-server-17cae920/sources/{id}/pdf` returns signed URL (1-hour expiry)
   - `GET /make-server-17cae920/evidence/{id}/screenshot` returns signed URL (24-hour expiry)
@@ -209,11 +232,13 @@ This checklist provides a **day-by-day implementation plan** for the 11 critical
   - Trigger on INSERT/UPDATE/DELETE for evidence_points
 
 #### Evening (1 hour) - Testing
+
 - [ ] Test signed URL expiry (should fail after timeout)
 - [ ] Test source deletion guard (should block if MIUs exist)
 - [ ] Verify audit log captures all write operations
 
 **Acceptance Criteria:**
+
 - ✅ RLS test suite passes (non-admin blocked, admin allowed)
 - ✅ All PDF/screenshot URLs are signed
 - ✅ Source deletion blocked when referenced
@@ -225,6 +250,7 @@ This checklist provides a **day-by-day implementation plan** for the 11 critical
 **Goal:** Ensure reproducibility and prevent duplicate data
 
 #### Morning (4 hours)
+
 - [ ] Extend `parameter_aggregations` table
   - Add columns: `transform_version`, `weight_policy_version`, `codebook_version`, `ontology_version`, `weights_used` (JSONB)
   - Migration script
@@ -237,6 +263,7 @@ This checklist provides a **day-by-day implementation plan** for the 11 critical
   - Link to transforms.json, weight policy, codebook
 
 #### Afternoon (4 hours)
+
 - [ ] Implement source deduplication
   - `GET /make-server-17cae920/sources/check-duplicate?doi={doi}&title={title}`
   - Exact match: DOI or URL
@@ -252,11 +279,13 @@ This checklist provides a **day-by-day implementation plan** for the 11 critical
   - Actions: "Use existing" | "Create anyway" | "Cancel"
 
 #### Evening (1 hour) - Testing
+
 - [ ] Test policy snapshot saves correctly
 - [ ] Test duplicate detection (should warn on match)
 - [ ] Test duplicate override (should allow with justification)
 
 **Acceptance Criteria:**
+
 - ✅ Aggregations include complete version snapshots
 - ✅ Duplicate warnings appear appropriately
 - ✅ Override with justification allowed
@@ -270,6 +299,7 @@ This checklist provides a **day-by-day implementation plan** for the 11 critical
 **Goal:** Implement logging, alerting, and monitoring dashboard
 
 #### Morning (4 hours)
+
 - [ ] Set up logging middleware (Winston)
   - Log all MIU create/update/delete operations
   - Log aggregation computations with latency
@@ -281,6 +311,7 @@ This checklist provides a **day-by-day implementation plan** for the 11 critical
   - Retention: 90 days (auto-delete old logs)
 
 #### Afternoon (4 hours)
+
 - [ ] Implement alert rules
   - CI width > 0.3 for any parameter
   - Aggregation stale >7 days
@@ -298,11 +329,13 @@ This checklist provides a **day-by-day implementation plan** for the 11 critical
   - Alert history
 
 #### Evening (1 hour) - Testing
+
 - [ ] Trigger test alert (e.g., manually set CI width >0.3)
 - [ ] Verify email sent within 5 minutes
 - [ ] Check dashboard displays metrics correctly
 
 **Acceptance Criteria:**
+
 - ✅ All operations logged with context
 - ✅ At least one alert rule fires in test environment
 - ✅ Dashboard accessible at `/admin/observability`
@@ -314,44 +347,46 @@ This checklist provides a **day-by-day implementation plan** for the 11 critical
 **Goal:** Implement automated backups and immutable releases
 
 #### Morning (4 hours)
+
 - [ ] Create nightly backup script (Deno cron)
+
   ```typescript
   // backup-cron.ts
-  import { createClient } from '@supabase/supabase-js';
-  
+  import { createClient } from "@supabase/supabase-js";
+
   async function backupEvidenceData() {
     const supabase = createClient(/*...*/);
-    
+
     // Export evidence_points table
-    const { data: mius } = await supabase
-      .from('evidence_points')
-      .select('*');
-    
+    const { data: mius } = await supabase.from("evidence_points").select("*");
+
     // Export parameter_aggregations table
     const { data: aggregations } = await supabase
-      .from('parameter_aggregations')
-      .select('*');
-    
+      .from("parameter_aggregations")
+      .select("*");
+
     // Create backup bundle
     const backup = {
       timestamp: new Date().toISOString(),
       mius,
-      aggregations
+      aggregations,
     };
-    
+
     // Upload to backup bucket
     await supabase.storage
-      .from('make-17cae920-backups')
+      .from("make-17cae920-backups")
       .upload(`backup-${Date.now()}.json`, JSON.stringify(backup));
   }
-  
+
   // Schedule daily at 2 AM UTC
-  Deno.cron('nightly-backup', '0 2 * * *', backupEvidenceData);
+  Deno.cron("nightly-backup", "0 2 * * *", backupEvidenceData);
   ```
+
 - [ ] Configure backup retention (7 daily, 4 weekly, 12 monthly)
 - [ ] Set up backup failure alert
 
 #### Afternoon (4 hours)
+
 - [ ] Create restore procedure documentation `/docs/RESTORE_PROCEDURE.md`
   - Step-by-step restore from backup
   - Data integrity verification steps
@@ -368,11 +403,13 @@ This checklist provides a **day-by-day implementation plan** for the 11 critical
   - Publish release (make available via API)
 
 #### Evening (1 hour) - Testing
+
 - [ ] Test backup script runs successfully
 - [ ] Test checksum generation and verification
 - [ ] Perform test restore to verify procedure
 
 **Acceptance Criteria:**
+
 - ✅ Nightly backup runs without errors
 - ✅ Restore procedure documented and tested
 - ✅ Release artifacts checksummed
@@ -384,6 +421,7 @@ This checklist provides a **day-by-day implementation plan** for the 11 critical
 **Goal:** Ensure exports include all required provenance fields
 
 #### Morning (4 hours)
+
 - [ ] Update `GET /make-server-17cae920/export/public` (CSV)
   - Columns: material_name, category, CR_score, CC_score, RU_score, CR_practical, CR_theoretical, CC_practical, CC_theoretical, RU_practical, RU_theoretical, evidence_count_CR, evidence_count_CC, evidence_count_RU, research_grade_status
   - Generate CSV from materials table
@@ -410,7 +448,7 @@ This checklist provides a **day-by-day implementation plan** for the 11 critical
               "transform_version": "Y_v1.0",
               "weight_policy_version": "v1.0",
               "codebook_version": "v0.1",
-              "weights_used": {"uuid1": 1.0, "uuid2": 0.8},
+              "weights_used": { "uuid1": 1.0, "uuid2": 0.8 },
               "computed_at": "2025-11-10T14:20:00Z"
             }
           }
@@ -423,6 +461,7 @@ This checklist provides a **day-by-day implementation plan** for the 11 critical
   ```
 
 #### Afternoon (4 hours)
+
 - [ ] Create `/docs/EXPORT_SCHEMA.md` documentation
   - CSV column definitions
   - JSON Schema for research export
@@ -436,11 +475,13 @@ This checklist provides a **day-by-day implementation plan** for the 11 critical
   - `example-research-export.json`
 
 #### Evening (1 hour) - Testing
+
 - [ ] Run export validation tests (should pass 100%)
 - [ ] Manually inspect example exports
 - [ ] Verify schema documentation matches actual exports
 
 **Acceptance Criteria:**
+
 - ✅ Public CSV includes all required columns
 - ✅ Research JSON includes all provenance fields
 - ✅ Validation tests pass
@@ -452,6 +493,7 @@ This checklist provides a **day-by-day implementation plan** for the 11 critical
 **Goal:** Surface open access sources and prioritize curation work
 
 #### Morning (4 hours)
+
 - [ ] Create `GET /make-server-17cae920/queue` endpoint
   - Return materials with <3 MIUs per parameter
   - Include evidence coverage matrix (parameter × material)
@@ -469,6 +511,7 @@ This checklist provides a **day-by-day implementation plan** for the 11 critical
   - Click cell → show existing MIUs for that material/parameter
 
 #### Afternoon (4 hours)
+
 - [ ] Implement "Claim material" workflow
   - Add `claimed_by` user_id to materials table (nullable)
   - Add `claimed_at` timestamp
@@ -482,11 +525,13 @@ This checklist provides a **day-by-day implementation plan** for the 11 critical
   - Progress bar visual
 
 #### Evening (1 hour) - Testing
+
 - [ ] Test OA filter reduces queue correctly
 - [ ] Test claim workflow (claim, release, auto-unclaim)
 - [ ] Verify heatmap displays coverage accurately
 
 **Acceptance Criteria:**
+
 - ✅ OA filter functional
 - ✅ Heatmap shows coverage gaps
 - ✅ Claim workflow prevents double work
@@ -498,6 +543,7 @@ This checklist provides a **day-by-day implementation plan** for the 11 critical
 **Goal:** Verify all 11 requirements work together and document
 
 #### Morning (4 hours)
+
 - [ ] End-to-end integration test
   1. Create new source (test deduplication warning)
   2. Create new MIU (test validation, ontologies, COI field, signed URLs)
@@ -512,6 +558,7 @@ This checklist provides a **day-by-day implementation plan** for the 11 critical
   11. Test RLS policies (non-admin attempt to edit MIU)
 
 #### Afternoon (4 hours)
+
 - [ ] Create `/docs/PHASE_9_0_COMPLETE.md` summary document
   - All 11 requirements completed
   - Test results and acceptance criteria met
@@ -526,11 +573,13 @@ This checklist provides a **day-by-day implementation plan** for the 11 critical
   - Curator guide: Ontologies and validation
 
 #### Evening (1-2 hours) - Final Review
+
 - [ ] Review checklist: All 11 requirements ✅
 - [ ] Stakeholder demo of critical infrastructure
 - [ ] Get approval to proceed to Phase 9.1
 
 **Final Acceptance Criteria:**
+
 - ✅ All 11 requirements pass individual tests
 - ✅ End-to-end integration test passes
 - ✅ Documentation complete
@@ -543,6 +592,7 @@ This checklist provides a **day-by-day implementation plan** for the 11 critical
 Phase 9.0 is complete when ALL of the following are TRUE:
 
 ### Legal & Licensing
+
 - [ ] MIU_LICENSING_POLICY.md published and linked from footer
 - [ ] TAKEDOWN_PROCESS.md published
 - [ ] Takedown form functional at /legal/takedown
@@ -550,6 +600,7 @@ Phase 9.0 is complete when ALL of the following are TRUE:
 - [ ] Evidence Wizard includes COI input (Step 4)
 
 ### Transform Governance
+
 - [ ] transforms.json created with all 13 parameters
 - [ ] recompute_jobs table exists
 - [ ] Auto-recompute endpoint functional
@@ -557,53 +608,62 @@ Phase 9.0 is complete when ALL of the following are TRUE:
 - [ ] Audit log captures pre/post transform values
 
 ### Controlled Vocabularies
+
 - [ ] units.json created and served via API
 - [ ] context.json created and served via API
 - [ ] Evidence Wizard enforces enums
 - [ ] Server validation rejects invalid enums
 
 ### Validation
+
 - [ ] Server-side validation middleware active
 - [ ] Client-side Zod schemas implemented
 - [ ] evidence_type field supports negative evidence
 - [ ] Formula parser validates derived values
 
 ### Security
+
 - [ ] RLS policies tested and passing
 - [ ] Signed URLs implemented for PDFs/screenshots
 - [ ] Source deletion guard prevents orphaning MIUs
 - [ ] audit_log table captures all write operations
 
 ### Deduplication
+
 - [ ] Source duplicate detection endpoint functional
 - [ ] MIU duplicate detection endpoint functional
 - [ ] DuplicateWarningDialog appears appropriately
 - [ ] Merge tool redirects MIU references correctly
 
 ### Policy Snapshots
+
 - [ ] parameter_aggregations table extended with version fields
 - [ ] Aggregations save complete policy snapshots
 - [ ] Research export includes aggregation_metadata
 
 ### Observability
+
 - [ ] Logging middleware active
 - [ ] At least 2 alert rules firing in test environment
 - [ ] ObservabilityDashboard accessible at /admin/observability
 - [ ] system_logs table retains 90 days
 
 ### Backups
+
 - [ ] Nightly backup script scheduled and tested
 - [ ] RESTORE_PROCEDURE.md documented
 - [ ] Release artifacts checksummed (SHA-256)
 - [ ] Backup failure alert configured
 
 ### Exports
+
 - [ ] Public CSV includes all required columns
 - [ ] Research JSON includes miu_ids and aggregation_metadata
 - [ ] EXPORT_SCHEMA.md documentation published
 - [ ] Export validation tests pass
 
 ### OA Triage
+
 - [ ] Curation queue accessible with OA filter
 - [ ] EvidenceHeatmap displays coverage matrix
 - [ ] Claim material workflow functional
@@ -611,7 +671,7 @@ Phase 9.0 is complete when ALL of the following are TRUE:
 
 ---
 
-## 🚀 Handoff to Phase 9.1
+## Handoff to Phase 9.1
 
 Once all checkboxes above are completed:
 

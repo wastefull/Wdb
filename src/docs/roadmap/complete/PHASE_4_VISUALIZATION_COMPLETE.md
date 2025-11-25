@@ -13,12 +13,13 @@ Successfully implemented the Hybrid Quantile–Halo Model for visualizing recycl
 **Location:** `/components/RecyclabilityVisualization.tsx`
 
 **Features:**
+
 - **Three visualization modes** determined algorithmically:
   - **Overlap Mode**: Used when theoretical and practical 95% CIs overlap
   - **Near-Overlap Mode**: Used when gap < 10 percentage points
   - **Gap Mode**: Used when gap ≥ 10 points with no overlap
-  
 - **Visual Elements:**
+
   - Quantile dots (30-100 based on viewport)
   - Practical halo (gray gradient)
   - Theoretical halo (blue gradient)
@@ -27,6 +28,7 @@ Successfully implemented the Hybrid Quantile–Halo Model for visualizing recycl
   - Axis with tick marks every 25%
 
 - **Accessibility:**
+
   - WCAG 2.1 AA compliant
   - High-contrast mode support with patterns instead of colors
   - Reduced motion support (disables animations)
@@ -35,6 +37,7 @@ Successfully implemented the Hybrid Quantile–Halo Model for visualizing recycl
   - Screen-reader friendly tooltips
 
 - **Responsive Design:**
+
   - Desktop: 100 quantile dots
   - Tablet: 60 dots
   - Mobile: 30 dots
@@ -52,6 +55,7 @@ Successfully implemented the Hybrid Quantile–Halo Model for visualizing recycl
 ### Integration
 
 Updated MaterialCard component in `App.tsx` to:
+
 - Import RecyclabilityVisualization
 - Replace simple ScoreBar for recyclability with new visualization
 - Fall back to simple bar if scientific data is missing
@@ -68,15 +72,16 @@ Updated MaterialCard component in `App.tsx` to:
 
 The visualization teaches users through consistent visual language:
 
-| Visual State | User Learning |
-|-------------|---------------|
-| Dense dots + minimal halos | "This material is consistently recyclable" |
-| Dots bridging two faint halos | "There's some improvement potential" |
+| Visual State                  | User Learning                                 |
+| ----------------------------- | --------------------------------------------- |
+| Dense dots + minimal halos    | "This material is consistently recyclable"    |
+| Dots bridging two faint halos | "There's some improvement potential"          |
 | Two halos with empty gap zone | "Large gap - science outpaces infrastructure" |
 
 ## Data Requirements
 
 The visualization uses these Material fields:
+
 ```typescript
 {
   CR_practical_mean?: number;        // 0-1 scale
@@ -95,31 +100,33 @@ The visualization uses these Material fields:
 
 ## Color Palette
 
-| Element | Default | High-Contrast | Purpose |
-|---------|---------|---------------|---------|
-| Practical halo | `#A0A0A0` (40% opacity) | `#666666` (70% opacity) | Gray palette |
-| Theoretical halo | `#0066CC` (30% opacity) | `#003366` (60% opacity) | Blue palette |
-| Overlap dots | `#4C78A8` solid | `#000000` solid | Colorblind-safe |
-| Gap zone | Linear gradient gray→blue | 50% hatch pattern | Maintains contrast |
+| Element          | Default                   | High-Contrast           | Purpose            |
+| ---------------- | ------------------------- | ----------------------- | ------------------ |
+| Practical halo   | `#A0A0A0` (40% opacity)   | `#666666` (70% opacity) | Gray palette       |
+| Theoretical halo | `#0066CC` (30% opacity)   | `#003366` (60% opacity) | Blue palette       |
+| Overlap dots     | `#4C78A8` solid           | `#000000` solid         | Colorblind-safe    |
+| Gap zone         | Linear gradient gray→blue | 50% hatch pattern       | Maintains contrast |
 
 ## Animation Behavior
 
-| Feature | Behavior | Accessibility |
-|---------|----------|---------------|
-| Dot entrance | Sequential 300ms easing | Disabled if reduceMotion=true |
-| Halo pulse | 2s opacity pulse on hover | Off in reduced motion |
-| Tooltip | Appears on hover/focus | Keyboard-navigable, ARIA-enabled |
+| Feature      | Behavior                  | Accessibility                    |
+| ------------ | ------------------------- | -------------------------------- |
+| Dot entrance | Sequential 300ms easing   | Disabled if reduceMotion=true    |
+| Halo pulse   | 2s opacity pulse on hover | Off in reduced motion            |
+| Tooltip      | Appears on hover/focus    | Keyboard-navigable, ARIA-enabled |
 
 ## Testing Scenarios
 
 To see the different modes:
 
 1. **Overlap Mode:**
+
    - Set `CR_practical_mean: 0.45`
    - Set `CR_theoretical_mean: 0.48`
    - Set overlapping CIs
 
 2. **Near-Overlap Mode:**
+
    - Set gap between 5-9 percentage points
    - Slight separation in CIs
 
@@ -133,11 +140,13 @@ To see the different modes:
 From ROADMAP.md, the remaining phases are:
 
 ### Phase 1 & 2: Data Model Integration & Admin Tools
+
 - Extend Data Processing View for dual theoretical/practical modes
 - Implement confidence interval calculation
 - Source manager improvements
 
 ### Phase 5: Research API & Data Publication
+
 - Create `/api/v1/materials` endpoints
 - Add dataset citation (DOI/DataCite)
 - Host data snapshots
@@ -163,13 +172,14 @@ From ROADMAP.md, the remaining phases are:
 ## Communicative Success
 
 The visualization successfully:
+
 - ✅ Shows both practical and theoretical recyclability
 - ✅ Represents uncertainty through confidence intervals
 - ✅ Highlights gaps between scientific potential and infrastructure reality
 - ✅ Maintains accessibility for all users
 - ✅ Provides detailed context on hover
 - ✅ Degrades gracefully when data is incomplete
-- ✅ Follows the Sokpop aesthetic with Apple Glass elements
+- ✅ Follows the Wastefull aesthetic with Apple Glass elements
 
 ---
 

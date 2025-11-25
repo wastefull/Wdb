@@ -19,13 +19,16 @@ Phase 3.5 bridges the gap between core functionality and production deployment b
 **Implementation:** Custom token-based passwordless authentication via Resend
 
 #### Features
+
 - **Secure Token System**
+
   - Cryptographically secure UUID tokens
   - 1-hour expiry window
   - Single-use enforcement (tokens invalidated after use)
   - Stored in Supabase KV store with metadata
 
 - **Email Integration**
+
   - Resend API for reliable delivery
   - Custom sender: `WasteDB <auth@wastefull.org>`
   - Branded email template with Wastefull green gradient
@@ -33,6 +36,7 @@ Phase 3.5 bridges the gap between core functionality and production deployment b
   - Link expiry warning and security tips
 
 - **Security Hardening**
+
   - Honeypot field to catch bots
   - Email validation with pattern detection
   - Rate limiting (5 auth requests per minute per IP)
@@ -47,6 +51,7 @@ Phase 3.5 bridges the gap between core functionality and production deployment b
   - Verified on every auth request
 
 #### User Flow
+
 ```
 1. User clicks "Sign In" → enters email
 2. Server generates secure token → stores in KV
@@ -57,6 +62,7 @@ Phase 3.5 bridges the gap between core functionality and production deployment b
 ```
 
 #### Technical Details
+
 - **Endpoint:** `POST /make-server-17cae920/auth/magic-link`
 - **Verification:** `GET /make-server-17cae920/auth/verify-magic-link?token=...`
 - **Token Format:** UUID v4 (36 characters)
@@ -70,6 +76,7 @@ Phase 3.5 bridges the gap between core functionality and production deployment b
 **Implementation:** Supabase Storage public bucket with admin-controlled uploads
 
 #### Bucket Configuration
+
 - **Name:** `make-17cae920-assets`
 - **Access:** Public read, admin-only write/delete
 - **Size Limit:** 5MB per file
@@ -77,7 +84,9 @@ Phase 3.5 bridges the gap between core functionality and production deployment b
 - **Initialization:** Auto-created on server startup
 
 #### Features
+
 - **Upload Management**
+
   - FormData multipart upload
   - File type validation on server
   - Size validation before upload
@@ -85,6 +94,7 @@ Phase 3.5 bridges the gap between core functionality and production deployment b
   - Progress indication in UI
 
 - **Public URLs**
+
   - Permanent CDN-backed URLs
   - Format: `https://[project].supabase.co/storage/v1/object/public/make-17cae920-assets/[filename]`
   - No authentication required to access
@@ -99,6 +109,7 @@ Phase 3.5 bridges the gap between core functionality and production deployment b
   - Upload via file picker or drag-and-drop
 
 #### API Endpoints
+
 ```typescript
 // Upload asset (admin only)
 POST /make-server-17cae920/assets/upload
@@ -119,6 +130,7 @@ Response: { success: true }
 ```
 
 #### Use Cases
+
 - Logo for email templates
 - Article images
 - Documentation graphics
@@ -133,12 +145,14 @@ Response: { success: true }
 **Deployment:** Figma Make hosting with custom domain
 
 #### Domain & SSL
+
 - **Production URL:** https://db.wastefull.org
 - **DNS Configuration:** Complete and propagated
 - **SSL Certificate:** Active and auto-renewing
 - **CDN:** Edge-deployed for low latency
 
 #### Email Infrastructure
+
 - **Provider:** Resend
 - **Domain:** wastefull.org
 - **Sender:** auth@wastefull.org
@@ -146,7 +160,9 @@ Response: { success: true }
 - **Status:** Verified and operational
 
 #### Environment Variables
+
 All configured and verified:
+
 - ✅ `SUPABASE_URL`
 - ✅ `SUPABASE_ANON_KEY`
 - ✅ `SUPABASE_SERVICE_ROLE_KEY`
@@ -158,6 +174,7 @@ All configured and verified:
 ## 🏗️ Architecture
 
 ### Authentication Flow
+
 ```
 ┌─────────────┐     Magic Link      ┌──────────────┐
 │   Browser   │ ←─────────────────→ │ Resend API   │
@@ -178,6 +195,7 @@ All configured and verified:
 ```
 
 ### Asset Upload Flow
+
 ```
 ┌─────────────┐     Upload File     ┌──────────────┐
 │   Admin UI  │ ──────────────────→ │ Hono Server  │
@@ -202,6 +220,7 @@ All configured and verified:
 ## 🔒 Security Features
 
 ### Authentication Security
+
 1. **Token Expiry** - 1 hour lifetime prevents long-term abuse
 2. **Single-Use Tokens** - Cannot be reused after verification
 3. **Honeypot Protection** - Catches automated bot submissions
@@ -210,6 +229,7 @@ All configured and verified:
 6. **IP Fingerprinting** - Associates requests with client identity
 
 ### Asset Security
+
 1. **Admin-Only Uploads** - Prevents unauthorized asset creation
 2. **File Type Validation** - Only allows images
 3. **Size Limits** - Prevents storage abuse (5MB max)
@@ -217,6 +237,7 @@ All configured and verified:
 5. **Public Read-Only** - Users can't modify or delete
 
 ### Infrastructure Security
+
 1. **HTTPS Only** - All traffic encrypted
 2. **Service Role Key** - Never exposed to frontend
 3. **Environment Variables** - Secure secret storage
@@ -225,21 +246,24 @@ All configured and verified:
 
 ---
 
-## 📊 Performance Characteristics
+## Performance Characteristics
 
 ### Email Delivery
+
 - **Average Send Time:** 1-3 seconds
 - **Delivery Rate:** 99%+ (with verified domain)
 - **Bounce Handling:** Automatic via Resend
 - **Link Click Tracking:** Available in Resend dashboard
 
 ### Asset CDN
+
 - **Upload Time:** < 2 seconds for typical images
 - **CDN Cache:** Global edge distribution
 - **URL Permanence:** Lifetime (until manually deleted)
 - **Bandwidth:** Included in Supabase quota
 
 ### Authentication
+
 - **Token Generation:** < 100ms
 - **Email Dispatch:** 1-3 seconds
 - **Verification:** < 200ms
@@ -251,6 +275,7 @@ All configured and verified:
 ## 🎨 User Experience
 
 ### Magic Link Email
+
 - **Subject:** "Your WasteDB Magic Link"
 - **From:** WasteDB <auth@wastefull.org>
 - **Design:**
@@ -262,6 +287,7 @@ All configured and verified:
   - Footer with branding
 
 ### Asset Manager
+
 - **Location:** Database Management → Assets tab
 - **Features:**
   - Drag-and-drop upload area
@@ -274,10 +300,12 @@ All configured and verified:
 
 ---
 
-## 📖 Documentation Created
+## Documentation Created
 
 ### User-Facing
+
 1. **`QUICK_START.md`**
+
    - First-time setup guide
    - Common tasks reference
    - Accessibility features
@@ -290,13 +318,16 @@ All configured and verified:
    - Examples and troubleshooting
 
 ### Technical
+
 3. **`ASSET_STORAGE_GUIDE.md`**
+
    - Complete API documentation
    - Bucket configuration details
    - Usage examples
    - Security notes
 
 4. **`DEPLOYMENT_CHECKLIST.md`**
+
    - Comprehensive testing guide
    - 10-phase verification process
    - Success criteria
@@ -313,6 +344,7 @@ All configured and verified:
 ## 🧪 Testing & Validation
 
 ### Authentication Tests
+
 - ✅ Valid email generates magic link
 - ✅ Invalid email rejected with clear error
 - ✅ Token expires after 1 hour
@@ -325,6 +357,7 @@ All configured and verified:
 - ✅ Logout clears session properly
 
 ### Asset Tests
+
 - ✅ Upload succeeds with valid image
 - ✅ Upload rejects oversized files (>5MB)
 - ✅ Upload rejects non-image files
@@ -337,6 +370,7 @@ All configured and verified:
 - ✅ URL copy works
 
 ### Infrastructure Tests
+
 - ✅ db.wastefull.org resolves correctly
 - ✅ SSL certificate valid and trusted
 - ✅ All environment variables set
@@ -351,15 +385,19 @@ All configured and verified:
 ## 💡 Key Innovations
 
 ### 1. Custom Magic Link System
+
 Instead of using Supabase Auth's built-in magic links, we built a custom system for:
+
 - **Branding Control:** Full customization of email templates
-- **Rate Limiting:** Fine-grained control over abuse prevention  
+- **Rate Limiting:** Fine-grained control over abuse prevention
 - **Role Assignment:** Auto-admin based on email domain
 - **Token Management:** Custom expiry and usage rules
 - **Honeypot Integration:** Bot protection at auth layer
 
 ### 2. Asset CDN Integration
+
 Leveraging Supabase Storage as a CDN provides:
+
 - **Zero Configuration:** Works immediately after bucket creation
 - **Permanent URLs:** No expiry or rotation needed
 - **Global Distribution:** Edge-cached for performance
@@ -367,7 +405,9 @@ Leveraging Supabase Storage as a CDN provides:
 - **Cost Effective:** Included in Supabase free tier
 
 ### 3. Production-Ready Design
+
 Built for real-world use with:
+
 - **Professional Emails:** Branded templates that pass spam filters
 - **Verified Sender:** SPF/DKIM/DMARC configured properly
 - **Custom Domain:** User-friendly URL (db.wastefull.org)
@@ -376,7 +416,7 @@ Built for real-world use with:
 
 ---
 
-## 🚀 Deployment Status
+## Deployment Status
 
 ### ✅ Ready for Production
 
@@ -402,21 +442,24 @@ All systems operational and tested:
 
 ---
 
-## 📈 Impact & Benefits
+## Impact & Benefits
 
 ### For Users
+
 - ✅ **No Passwords:** Easier, more secure authentication
 - ✅ **Professional Emails:** Builds trust with wastefull.org sender
 - ✅ **Fast Login:** One-click from email
 - ✅ **Always Secure:** Fresh token per login
 
 ### For Admins
+
 - ✅ **Asset Management:** Upload logo and images easily
 - ✅ **Branded Emails:** Professional communications
 - ✅ **CDN URLs:** Use anywhere (emails, docs, etc.)
 - ✅ **Role Control:** Auto-admin for org emails
 
 ### For Organization
+
 - ✅ **Cost Effective:** Included in existing Supabase plan
 - ✅ **Scalable:** Handles growth without infrastructure changes
 - ✅ **Secure:** Industry-standard authentication
@@ -428,6 +471,7 @@ All systems operational and tested:
 ## 🎓 Technical Learnings
 
 ### Magic Link Best Practices
+
 1. Short expiry windows (1 hour) balance security and usability
 2. Single-use enforcement prevents replay attacks
 3. Honeypots effectively filter bot traffic
@@ -435,6 +479,7 @@ All systems operational and tested:
 5. Email validation catches 90%+ of invalid addresses
 
 ### Asset Storage Patterns
+
 1. Public buckets with admin-only writes work well for CDN use
 2. Timestamp-based filenames prevent collisions
 3. File type validation essential for security
@@ -442,6 +487,7 @@ All systems operational and tested:
 5. Thumbnail generation in UI improves UX
 
 ### Production Deployment
+
 1. DNS propagation can take up to 48 hours (plan accordingly)
 2. SSL cert generation is automatic with Figma Make
 3. Environment variables must be set before deployment
@@ -453,12 +499,14 @@ All systems operational and tested:
 ## 🔮 Future Enhancements
 
 ### Authentication
+
 - [ ] OAuth providers (Google, GitHub)
 - [ ] Remember device for 30 days
 - [ ] Two-factor authentication for admins
 - [ ] Session activity logging
 
 ### Assets
+
 - [ ] Image optimization on upload
 - [ ] Thumbnail generation for faster loading
 - [ ] Batch upload support
@@ -466,6 +514,7 @@ All systems operational and tested:
 - [ ] Automatic WebP conversion
 
 ### Infrastructure
+
 - [ ] Monitoring dashboard
 - [ ] Email analytics integration
 - [ ] CDN usage reports
@@ -478,7 +527,7 @@ All systems operational and tested:
 Phase 3.5 successfully transforms WasteDB from a development project into a production-ready application with:
 
 - **Secure, passwordless authentication** via branded magic links
-- **Professional CDN infrastructure** for asset hosting  
+- **Professional CDN infrastructure** for asset hosting
 - **Production deployment** at db.wastefull.org
 - **Complete documentation** for users and admins
 - **Robust security** with rate limiting and validation

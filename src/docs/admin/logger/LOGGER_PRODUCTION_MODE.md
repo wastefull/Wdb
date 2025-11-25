@@ -5,7 +5,7 @@
 
 ---
 
-## 🎯 Overview
+## Overview
 
 WasteDB's logger now uses **automatic environment detection** to suppress console logs in production while enabling them in development environments. No manual configuration required.
 
@@ -17,11 +17,11 @@ WasteDB's logger now uses **automatic environment detection** to suppress consol
 
 The logger automatically detects the environment based on hostname:
 
-| Environment | Hostname Pattern | TEST_MODE | Console Logs |
-|-------------|------------------|-----------|--------------|
-| **Production** | `db.wastefull.org` | `false` | ❌ Suppressed |
-| **Figma Make** | `*.figma.com`, `*.figma.io`, `*.figma.site` | `true` | ✅ Enabled |
-| **Localhost** | `localhost`, `127.0.0.1` | `true` | ✅ Enabled |
+| Environment    | Hostname Pattern                            | TEST_MODE | Console Logs  |
+| -------------- | ------------------------------------------- | --------- | ------------- |
+| **Production** | `db.wastefull.org`                          | `false`   | ❌ Suppressed |
+| **Figma Make** | `*.figma.com`, `*.figma.io`, `*.figma.site` | `true`    | ✅ Enabled    |
+| **Localhost**  | `localhost`, `127.0.0.1`                    | `true`    | ✅ Enabled    |
 
 **Logic:** `/utils/environment.ts`
 
@@ -29,11 +29,11 @@ The logger automatically detects the environment based on hostname:
 export function isFigmaMake(): boolean {
   const hostname = window.location.hostname;
   return (
-    hostname.includes('figma.com') ||
-    hostname.includes('figma.io') ||
-    hostname.includes('figma.site') ||
-    hostname === 'localhost' ||
-    hostname === '127.0.0.1'
+    hostname.includes("figma.com") ||
+    hostname.includes("figma.io") ||
+    hostname.includes("figma.site") ||
+    hostname === "localhost" ||
+    hostname === "127.0.0.1"
   );
 }
 ```
@@ -92,7 +92,7 @@ window.wastedbLogger.setTestMode(null);
 ### **Example Output:**
 
 ```
-🔍 Logger Configuration: {
+ Logger Configuration: {
   TEST_MODE: 'auto (environment-based)',
   effectiveMode: false,
   environment: 'production',
@@ -110,10 +110,10 @@ window.wastedbLogger.setTestMode(null);
 export default function App() {
   // 🔴 REMOVED: Explicit test mode forced on
   useEffect(() => {
-    setTestMode(true);  // ❌ Bad: Logs in production
+    setTestMode(true); // ❌ Bad: Logs in production
     loggerInfo();
   }, []);
-  
+
   return <AppWithAuth />;
 }
 ```
@@ -124,9 +124,9 @@ export default function App() {
 export default function App() {
   // ✅ Environment-based mode (automatic)
   useEffect(() => {
-    loggerInfo();  // Shows current logger config
+    loggerInfo(); // Shows current logger config
   }, []);
-  
+
   return <AppWithAuth />;
 }
 ```
@@ -136,6 +136,7 @@ export default function App() {
 ## 🔒 Security Benefits
 
 ### **1. No Information Disclosure:**
+
 ```typescript
 // ❌ BEFORE (production console):
 "API call failed: /admin/users endpoint=https://xyz.supabase.co/functions/v1/make-server-17cae920/admin/users"
@@ -146,12 +147,14 @@ export default function App() {
 ```
 
 ### **2. Clean Production Console:**
+
 - No API endpoints visible
 - No auth token leaks
 - No database query logs
 - No internal state dumps
 
 ### **3. Developer-Friendly:**
+
 - Full logging in Figma Make
 - Easy debugging on localhost
 - Manual override available if needed
@@ -195,7 +198,7 @@ export default function App() {
 
 ---
 
-## 🎯 Key Takeaways
+## Key Takeaways
 
 1. ✅ **Automatic:** No configuration needed
 2. ✅ **Secure:** Production logs suppressed by default
@@ -205,25 +208,28 @@ export default function App() {
 
 ---
 
-## 🔍 Verification Commands
+## Verification Commands
 
 ### **Check Current Mode:**
+
 ```javascript
-window.wastedbLogger.getTestMode()
+window.wastedbLogger.getTestMode();
 // Returns: false (production) or true (development)
 ```
 
 ### **View Full Config:**
+
 ```javascript
-window.wastedbLogger.info()
+window.wastedbLogger.info();
 // Shows: TEST_MODE, effectiveMode, environment, hostname
 ```
 
 ### **Test Logger Functions:**
+
 ```javascript
-window.wastedbLogger.log('Test log')        // Only visible in dev
-window.wastedbLogger.error('Test error')    // Only visible in dev
-window.wastedbLogger.warn('Test warning')   // Only visible in dev
+window.wastedbLogger.log("Test log"); // Only visible in dev
+window.wastedbLogger.error("Test error"); // Only visible in dev
+window.wastedbLogger.warn("Test warning"); // Only visible in dev
 ```
 
 ---

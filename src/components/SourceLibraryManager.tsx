@@ -981,7 +981,7 @@ export function SourceLibraryManager({
                                           source.pdfFileName
                                         );
                                       logger.log(
-                                        `📊 Diagnostics results:`,
+                                        ` Diagnostics results:`,
                                         diagnostics
                                       );
                                       console.table(diagnostics.checks);

@@ -6,7 +6,7 @@
 
 ---
 
-## 🎯 Objectives
+## Objectives
 
 Implement versioned transforms and auto-recompute system for all 13 WasteDB parameters (CR, CC, RU dimensions).
 
@@ -19,6 +19,7 @@ Implement versioned transforms and auto-recompute system for all 13 WasteDB para
 **File:** `/ontologies/transforms.json`
 
 **Contents:**
+
 - ✅ Version 1.0 transform definitions for all 13 parameters
 - ✅ CR (Recyclability): Y, D, C, M, E (5 parameters)
 - ✅ CC (Compostability): B, N, T, H (4 parameters)
@@ -30,8 +31,9 @@ Implement versioned transforms and auto-recompute system for all 13 WasteDB para
   - Input/output units (% → ratio)
   - Description and changelog
   - Dimension categorization (CR/CC/RU)
-  
+
 **Structure:**
+
 ```json
 {
   "version": "1.0",
@@ -49,7 +51,7 @@ Implement versioned transforms and auto-recompute system for all 13 WasteDB para
       "unit_input": "%",
       "unit_output": "ratio",
       "changelog": "Initial version..."
-    },
+    }
     // ... 12 more parameters
   ]
 }
@@ -64,18 +66,21 @@ Implement versioned transforms and auto-recompute system for all 13 WasteDB para
 #### Endpoints Created:
 
 1. **`GET /make-server-17cae920/transforms`** ✅
+
    - Public endpoint
    - Returns all transform definitions
    - Reads from `/ontologies/transforms.json`
    - No authentication required
 
 2. **`GET /make-server-17cae920/transforms/:parameter`** ✅
+
    - Public endpoint
    - Returns transform definition for specific parameter
    - Example: `/transforms/Y` returns Yield transform
    - 404 if parameter not found
 
 3. **`POST /make-server-17cae920/transforms/recompute`** ✅
+
    - Admin-only endpoint
    - Creates recompute job for parameter transform update
    - Required fields: `parameter`, `newTransformVersion`
@@ -85,6 +90,7 @@ Implement versioned transforms and auto-recompute system for all 13 WasteDB para
    - Returns job ID and estimated duration
 
 4. **`GET /make-server-17cae920/transforms/recompute/:jobId`** ✅
+
    - Authenticated endpoint
    - Returns recompute job status
    - Job details: status, affected MIUs, timestamps, errors
@@ -96,20 +102,21 @@ Implement versioned transforms and auto-recompute system for all 13 WasteDB para
    - Returns array of job records
 
 **Recompute Job Schema:**
+
 ```typescript
 {
-  id: string;                    // RJ-{timestamp}-{uuid}
-  parameter: string;             // Y, D, C, M, E, B, N, T, H, L, R, U, C_RU
-  oldTransformId: string;        // e.g., Y_v1.0
-  oldTransformVersion: string;   // e.g., 1.0
-  newTransformVersion: string;   // e.g., 1.1
-  reason: string;                // Human-readable explanation
-  status: string;                // pending, running, completed, failed
-  createdAt: string;             // ISO timestamp
-  createdBy: string;             // Admin user ID
-  completedAt: string | null;   // ISO timestamp when complete
-  affectedMiusCount: number;     // Number of MIUs reprocessed
-  errorMessage: string | null;   // Error details if failed
+  id: string; // RJ-{timestamp}-{uuid}
+  parameter: string; // Y, D, C, M, E, B, N, T, H, L, R, U, C_RU
+  oldTransformId: string; // e.g., Y_v1.0
+  oldTransformVersion: string; // e.g., 1.0
+  newTransformVersion: string; // e.g., 1.1
+  reason: string; // Human-readable explanation
+  status: string; // pending, running, completed, failed
+  createdAt: string; // ISO timestamp
+  createdBy: string; // Admin user ID
+  completedAt: string | null; // ISO timestamp when complete
+  affectedMiusCount: number; // Number of MIUs reprocessed
+  errorMessage: string | null; // Error details if failed
 }
 ```
 
@@ -122,6 +129,7 @@ Implement versioned transforms and auto-recompute system for all 13 WasteDB para
 **Features:**
 
 #### Transform Overview Section:
+
 - ✅ Displays all 13 transform definitions
 - ✅ Grouped by dimension (CR, CC, RU)
 - ✅ Color-coded badges:
@@ -132,6 +140,7 @@ Implement versioned transforms and auto-recompute system for all 13 WasteDB para
 - ✅ Click to open recompute dialog
 
 #### Recompute Dialog:
+
 - ✅ Shows current transform version and formula
 - ✅ Input for new version number
 - ✅ Textarea for change reason
@@ -141,6 +150,7 @@ Implement versioned transforms and auto-recompute system for all 13 WasteDB para
 - ✅ Toast notifications for success/error
 
 #### Recompute Jobs History:
+
 - ✅ Lists all historical recompute jobs
 - ✅ Status indicators with icons:
   - Completed: Green checkmark
@@ -157,7 +167,8 @@ Implement versioned transforms and auto-recompute system for all 13 WasteDB para
 - ✅ Empty state when no jobs exist
 
 **UI/UX:**
-- Retro Sokpop-inspired design consistency
+
+- Retro Wastefull brand design consistency
 - Card-based layout
 - Responsive grid for transforms
 - Accessible (keyboard navigation, ARIA labels)
@@ -168,12 +179,14 @@ Implement versioned transforms and auto-recompute system for all 13 WasteDB para
 ### **4. Navigation Integration** ✅
 
 **Files Modified:**
+
 - `/contexts/NavigationContext.tsx` - Added `transform-manager` view type
 - `/App.tsx` - Integrated component and navigation
 
 **Changes:**
 
 1. **NavigationContext:**
+
    - ✅ Added `transform-manager` to `ViewType` union
    - ✅ Added `navigateToTransformManager()` function
    - ✅ Exported in context value
@@ -186,9 +199,10 @@ Implement versioned transforms and auto-recompute system for all 13 WasteDB para
    - ✅ Wrapped in padding div for consistent spacing
 
 **Admin Panel Button:**
+
 - Placed after "🧪 Phase 9.0 Testing" button
 - Purple/lavender background color (`#c7ceea`)
-- Sokpop-style shadow and hover effects
+- Wastefull brand shadow and hover effects
 - Only visible to admin users
 
 ---
@@ -198,12 +212,14 @@ Implement versioned transforms and auto-recompute system for all 13 WasteDB para
 ### **Manual Testing Checklist:**
 
 #### Transforms API:
+
 - [ ] Visit transform manager as admin
 - [ ] Verify all 13 transforms load correctly
 - [ ] Check that transforms are grouped by dimension (CR, CC, RU)
 - [ ] Verify version numbers and formulas display correctly
 
 #### Recompute Job Creation:
+
 - [ ] Click on a transform card (e.g., Y - Yield)
 - [ ] Verify recompute dialog opens
 - [ ] Change version number to "1.1"
@@ -213,6 +229,7 @@ Implement versioned transforms and auto-recompute system for all 13 WasteDB para
 - [ ] Verify job appears in history section
 
 #### Job Status Display:
+
 - [ ] Verify job shows correct status badge
 - [ ] Verify job ID format is `RJ-{timestamp}-{uuid}`
 - [ ] Check that timestamps are human-readable
@@ -220,6 +237,7 @@ Implement versioned transforms and auto-recompute system for all 13 WasteDB para
 - [ ] Click refresh button - verify jobs reload
 
 #### Navigation:
+
 - [ ] From materials list, open admin panel
 - [ ] Click "⚙️ Transform Manager" button
 - [ ] Verify transform manager loads
@@ -228,15 +246,15 @@ Implement versioned transforms and auto-recompute system for all 13 WasteDB para
 
 ---
 
-## 📊 Success Metrics
+## Success Metrics
 
-| Metric | Target | Status |
-|--------|--------|--------|
-| Transform definitions created | 13 (all parameters) | ✅ 13/13 |
-| Backend endpoints functional | 5 | ✅ 5/5 |
-| Transform Manager UI complete | Yes | ✅ Yes |
-| Admin navigation integrated | Yes | ✅ Yes |
-| Recompute jobs working | Yes | ✅ Yes (stubbed) |
+| Metric                        | Target              | Status           |
+| ----------------------------- | ------------------- | ---------------- |
+| Transform definitions created | 13 (all parameters) | ✅ 13/13         |
+| Backend endpoints functional  | 5                   | ✅ 5/5           |
+| Transform Manager UI complete | Yes                 | ✅ Yes           |
+| Admin navigation integrated   | Yes                 | ✅ Yes           |
+| Recompute jobs working        | Yes                 | ✅ Yes (stubbed) |
 
 ---
 
@@ -247,13 +265,15 @@ Implement versioned transforms and auto-recompute system for all 13 WasteDB para
 When the Evidence Wizard is built in Phase 9.2, recompute jobs will:
 
 1. **Query MIUs:**
+
    ```sql
-   SELECT * FROM evidence_points 
-   WHERE parameter = $1 
+   SELECT * FROM evidence_points
+   WHERE parameter = $1
    AND transform_version = $2
    ```
 
 2. **Reprocess Each MIU:**
+
    - Load old transform formula
    - Load new transform formula
    - Recompute transformed_value
@@ -261,6 +281,7 @@ When the Evidence Wizard is built in Phase 9.2, recompute jobs will:
    - Log old/new values in audit trail
 
 3. **Update Job Status:**
+
    - Set status to 'running'
    - Track progress (% complete)
    - Set affectedMiusCount
@@ -282,13 +303,14 @@ When the Evidence Wizard is built in Phase 9.2, recompute jobs will:
 - **Actual reprocessing:** Stubbed (no MIUs exist yet)
 
 **Log Message:**
+
 ```
 ⚠️ Recompute job RJ-1699900000000-abc123def created but not executed (no MIUs exist yet)
 ```
 
 ---
 
-## 🎯 Acceptance Criteria
+## Acceptance Criteria
 
 ### **Day 2 Checklist from Implementation Plan:**
 
@@ -318,21 +340,24 @@ When the Evidence Wizard is built in Phase 9.2, recompute jobs will:
 
 **Current (v1.0):**
 All parameters use simple percentage-to-ratio conversion:
+
 ```javascript
-transformed_value = raw_value / 100
+transformed_value = raw_value / 100;
 ```
 
 **Future Versions:**
 When research findings justify it, transforms may become non-linear:
+
 ```javascript
 // Example: Logarithmic scaling for certain parameters
-transformed_value = log10(raw_value + 1) / log10(101)
+transformed_value = log10(raw_value + 1) / log10(101);
 
 // Example: Sigmoid curve for bounded values
-transformed_value = 1 / (1 + exp(-k * (raw_value - 50)))
+transformed_value = 1 / (1 + exp(-k * (raw_value - 50)));
 ```
 
 **Versioning Strategy:**
+
 - Minor version (1.0 → 1.1): Formula refinement, same semantic meaning
 - Major version (1.0 → 2.0): Fundamental change in methodology
 - All old versions preserved in changelog for audit trail
@@ -358,7 +383,6 @@ Raw Value (from paper) → Transform (versioned) → Transformed Value (0-1)
 - **Transforms:** File system (`/ontologies/transforms.json`)
   - Version controlled via changelog
   - Deployed with application code
-  
 - **Recompute Jobs:** KV store (`recompute_job:{jobId}`)
   - Persistent across restarts
   - Queryable by prefix
@@ -366,9 +390,10 @@ Raw Value (from paper) → Transform (versioned) → Transformed Value (0-1)
 
 ---
 
-## 🚀 Next Steps
+## Next Steps
 
 ### **Immediate (Day 3):**
+
 1. Create `/ontologies/units.json` - Canonical unit definitions
 2. Create `/ontologies/context.json` - Controlled vocabularies
 3. Implement server-side validation middleware
@@ -378,11 +403,13 @@ Raw Value (from paper) → Transform (versioned) → Transformed Value (0-1)
 ### **Integration Points:**
 
 Day 3's ontologies will reference Day 2's transforms:
+
 - Units ontology defines valid input units (`%`, `ratio`, `kg/kg`)
 - Validation checks that raw_value matches parameter's expected unit
 - Transform uses unit conversion if raw_value unit differs from canonical
 
 **Example:**
+
 ```javascript
 // Raw value: 85 kg/kg (from paper)
 // Expected: % (from transforms.json)
@@ -392,15 +419,15 @@ Day 3's ontologies will reference Day 2's transforms:
 
 ---
 
-## 📊 Time Tracking
+## Time Tracking
 
-| Task | Estimated | Actual | Notes |
-|------|-----------|--------|-------|
-| Create transforms.json | 2h | ~1h | Straightforward schema |
-| Backend endpoints | 3h | ~0.5h | Simple CRUD operations |
-| Transform Manager UI | 3h | ~0.5h | Reused component patterns |
-| Testing & integration | 1h | - | Ready for manual testing |
-| **Total** | **9h** | **~2h** | Highly efficient! |
+| Task                   | Estimated | Actual  | Notes                     |
+| ---------------------- | --------- | ------- | ------------------------- |
+| Create transforms.json | 2h        | ~1h     | Straightforward schema    |
+| Backend endpoints      | 3h        | ~0.5h   | Simple CRUD operations    |
+| Transform Manager UI   | 3h        | ~0.5h   | Reused component patterns |
+| Testing & integration  | 1h        | -       | Ready for manual testing  |
+| **Total**              | **9h**    | **~2h** | Highly efficient!         |
 
 ---
 
@@ -412,7 +439,7 @@ Day 3's ontologies will reference Day 2's transforms:
 
 ---
 
-## 📚 Related Documentation
+## Related Documentation
 
 - **Day 1 Report:** `/docs/PHASE_9_0_DAY_1_COMPLETE.md`
 - **Implementation Checklist:** `/docs/PHASE_9_0_IMPLEMENTATION_CHECKLIST.md`

@@ -1,6 +1,6 @@
 # WasteDB Quick Start Guide
 
-## 🚀 First-Time Setup (5 minutes)
+## First-Time Setup (5 minutes)
 
 ### 1. Access the Site
 
@@ -133,7 +133,7 @@ Access via the **three colored buttons** in the top-left:
 
 ---
 
-## 🔍 Search Tips
+## Search Tips
 
 ```
 Search by:
@@ -175,7 +175,7 @@ Search by:
 
 ---
 
-## 📊 Understanding Scores
+## Understanding Scores
 
 ### Sustainability Scores (0-100)
 
@@ -199,7 +199,7 @@ Search by:
 
 ---
 
-## 🎯 Material Categories
+## Material Categories
 
 1. **Plastics** - PET, HDPE, PVC, etc.
 2. **Metals** - Aluminum, steel, copper
@@ -252,13 +252,14 @@ Search by:
 
 ---
 
-## 🔍 Debugging & Development
+## Debugging & Development
 
 ### Enable Console Logging
 
 WasteDB uses a smart logging system that automatically suppresses console output in production.
 
 **In Browser Console:**
+
 ```javascript
 // Enable all logging
 wastedbLogger.setTestMode(true);
@@ -271,26 +272,23 @@ wastedbLogger.setTestMode(false);
 ```
 
 **In Development:**
+
 - Logging is **enabled by default** in Figma Make environment
 - Logging is **disabled by default** in production
 - Errors are **always visible** regardless of mode
 
 **For Developers:**
+
 ```typescript
 // Import logger in your code
-import { log, error, warn } from './utils/logger';
+import { log, error, warn } from "./utils/logger";
 
-log('Debug message');      // Suppressed in production
-error('Error occurred');   // Always visible
-warn('Warning message');   // Suppressed in production
+log("Debug message"); // Suppressed in production
+error("Error occurred"); // Always visible
+warn("Warning message"); // Suppressed in production
 ```
 
-📖 See [Logger Usage Guide](/docs/LOGGER_USAGE_GUIDE.md) for complete documentation
-4. **Use scientific editor** for detailed recyclability calculations
-5. **Share article permalinks** for direct access
-6. **Enable dark mode** for night work sessions
-7. **Use CSV import** for bulk data entry
-8. **Check confidence levels** when citing data
+📖 See [Logger Usage Guide](/docs/LOGGER_USAGE_GUIDE.md) for complete documentation 4. **Use scientific editor** for detailed recyclability calculations 5. **Share article permalinks** for direct access 6. **Enable dark mode** for night work sessions 7. **Use CSV import** for bulk data entry 8. **Check confidence levels** when citing data
 
 ---
 
@@ -313,7 +311,7 @@ WasteDB is fully responsive:
 
 ---
 
-## 📚 Additional Documentation
+## Additional Documentation
 
 - `DEPLOYMENT_CHECKLIST.md` - Full testing guide
 - `ASSET_STORAGE_GUIDE.md` - Asset upload details

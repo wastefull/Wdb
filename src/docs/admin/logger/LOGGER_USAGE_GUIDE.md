@@ -15,27 +15,27 @@ WasteDB uses a centralized logging system that suppresses console output unless 
 
 ```typescript
 // Individual imports
-import { log, error, warn, info, debug } from './utils/logger';
+import { log, error, warn, info, debug } from "./utils/logger";
 
 // Or use the namespace
-import { logger } from './utils/logger';
-logger.log('Hello world');
+import { logger } from "./utils/logger";
+logger.log("Hello world");
 ```
 
 ### Basic Usage
 
 ```typescript
-import { log, error, warn } from './utils/logger';
+import { log, error, warn } from "./utils/logger";
 
 // Standard logging (suppressed in production)
-log('User clicked button');
-log('Data loaded:', materials);
+log("User clicked button");
+log("Data loaded:", materials);
 
 // Errors (ALWAYS logged, even in production)
-error('Failed to fetch materials:', err);
+error("Failed to fetch materials:", err);
 
 // Warnings (suppressed in production)
-warn('Deprecated API usage detected');
+warn("Deprecated API usage detected");
 ```
 
 ---
@@ -44,15 +44,15 @@ warn('Deprecated API usage detected');
 
 ### Default Behavior
 
-| Environment | TEST_MODE Default | Logging Enabled? |
-|-------------|-------------------|------------------|
-| **figma-make** (localhost, *.figma.com, *.figma.io) | `TRUE` | ✅ Yes |
-| **production** (custom domains) | `FALSE` | ❌ No |
+| Environment                                         | TEST_MODE Default | Logging Enabled? |
+| --------------------------------------------------- | ----------------- | ---------------- |
+| **figma-make** (localhost, _.figma.com, _.figma.io) | `TRUE`            | ✅ Yes           |
+| **production** (custom domains)                     | `FALSE`           | ❌ No            |
 
 ### Override TEST_MODE
 
 ```typescript
-import { setTestMode } from './utils/logger';
+import { setTestMode } from "./utils/logger";
 
 // Enable logging for debugging session
 setTestMode(true);
@@ -67,7 +67,7 @@ setTestMode(null);
 ### Check Current Mode
 
 ```typescript
-import { getTestMode, loggerInfo } from './utils/logger';
+import { getTestMode, loggerInfo } from "./utils/logger";
 
 // Get boolean value
 const isLogging = getTestMode(); // true or false
@@ -75,7 +75,7 @@ const isLogging = getTestMode(); // true or false
 // Display full configuration
 loggerInfo();
 // Output:
-// 🔍 Logger Configuration: {
+//  Logger Configuration: {
 //   TEST_MODE: 'auto (environment-based)',
 //   effectiveMode: true,
 //   environment: 'figma-make',
@@ -90,22 +90,22 @@ loggerInfo();
 ### Standard Logging (Suppressed in Production)
 
 ```typescript
-import { log, warn, info, debug, table } from './utils/logger';
+import { log, warn, info, debug, table } from "./utils/logger";
 
-log('Message', data);           // console.log
-warn('Warning message');         // console.warn
-info('Info message');            // console.info
-debug('Debug data:', obj);       // console.debug
-table(arrayData);                // console.table
+log("Message", data); // console.log
+warn("Warning message"); // console.warn
+info("Info message"); // console.info
+debug("Debug data:", obj); // console.debug
+table(arrayData); // console.table
 ```
 
 ### Error Logging (ALWAYS Active)
 
 ```typescript
-import { error } from './utils/logger';
+import { error } from "./utils/logger";
 
 // Errors always log, even in production
-error('Critical error:', errorObject);
+error("Critical error:", errorObject);
 ```
 
 **Why?** Errors indicate bugs or issues that need immediate attention, regardless of environment.
@@ -113,39 +113,39 @@ error('Critical error:', errorObject);
 ### Grouped Logging
 
 ```typescript
-import { group, groupCollapsed, groupEnd, log } from './utils/logger';
+import { group, groupCollapsed, groupEnd, log } from "./utils/logger";
 
-group('Material Calculation');
-log('Input values:', inputs);
-log('Intermediate result:', intermediate);
-log('Final score:', score);
+group("Material Calculation");
+log("Input values:", inputs);
+log("Intermediate result:", intermediate);
+log("Final score:", score);
 groupEnd();
 
 // Collapsed by default
-groupCollapsed('Network Requests');
-log('Fetching materials...');
-log('Response:', data);
+groupCollapsed("Network Requests");
+log("Fetching materials...");
+log("Response:", data);
 groupEnd();
 ```
 
 ### Performance Tracking
 
 ```typescript
-import { time, timeEnd } from './utils/logger';
+import { time, timeEnd } from "./utils/logger";
 
-time('Material Fetch');
+time("Material Fetch");
 await fetchMaterials();
-timeEnd('Material Fetch');
+timeEnd("Material Fetch");
 // Output (if TEST_MODE): Material Fetch: 142.35ms
 ```
 
 ### Stack Traces
 
 ```typescript
-import { trace } from './utils/logger';
+import { trace } from "./utils/logger";
 
 function deeplyNestedFunction() {
-  trace('How did we get here?');
+  trace("How did we get here?");
 }
 ```
 
@@ -156,49 +156,53 @@ function deeplyNestedFunction() {
 ### Replace Existing Console Calls
 
 **Before:**
+
 ```typescript
-console.log('Loading materials...');
-console.error('Failed to save:', error);
-console.warn('Deprecated field used');
+console.log("Loading materials...");
+console.error("Failed to save:", error);
+console.warn("Deprecated field used");
 console.table(materials);
 ```
 
 **After:**
-```typescript
-import { log, error, warn, table } from './utils/logger';
 
-log('Loading materials...');
-error('Failed to save:', error);  // Still uses console.error
-warn('Deprecated field used');
+```typescript
+import { log, error, warn, table } from "./utils/logger";
+
+log("Loading materials...");
+error("Failed to save:", error); // Still uses console.error
+warn("Deprecated field used");
 table(materials);
 ```
 
 ### Component Example
 
 **Before:**
+
 ```typescript
 export function MaterialCard({ material }: Props) {
-  console.log('Rendering MaterialCard:', material.id);
-  
+  console.log("Rendering MaterialCard:", material.id);
+
   const handleClick = () => {
-    console.log('Card clicked:', material.name);
+    console.log("Card clicked:", material.name);
   };
-  
+
   return <div onClick={handleClick}>...</div>;
 }
 ```
 
 **After:**
+
 ```typescript
-import { log } from './utils/logger';
+import { log } from "./utils/logger";
 
 export function MaterialCard({ material }: Props) {
-  log('Rendering MaterialCard:', material.id);
-  
+  log("Rendering MaterialCard:", material.id);
+
   const handleClick = () => {
-    log('Card clicked:', material.name);
+    log("Card clicked:", material.name);
   };
-  
+
   return <div onClick={handleClick}>...</div>;
 }
 ```
@@ -210,19 +214,19 @@ export function MaterialCard({ material }: Props) {
 ### 1. Use Appropriate Log Levels
 
 ```typescript
-import { log, info, warn, error } from './utils/logger';
+import { log, info, warn, error } from "./utils/logger";
 
 // General debugging
-log('User viewed material:', materialId);
+log("User viewed material:", materialId);
 
 // Informational (less verbose than log)
-info('Authentication successful');
+info("Authentication successful");
 
 // Potential issues
-warn('Using deprecated API endpoint');
+warn("Using deprecated API endpoint");
 
 // Actual errors
-error('Failed to authenticate:', err);
+error("Failed to authenticate:", err);
 ```
 
 ### 2. Add Context to Logs
@@ -232,20 +236,20 @@ error('Failed to authenticate:', err);
 log(material);
 
 // ✅ Good
-log('Material loaded from API:', material);
-log('User action:', { action: 'click', target: 'submit', userId });
+log("Material loaded from API:", material);
+log("User action:", { action: "click", target: "submit", userId });
 ```
 
 ### 3. Group Related Logs
 
 ```typescript
-import { group, groupEnd, log } from './utils/logger';
+import { group, groupEnd, log } from "./utils/logger";
 
-group('Form Submission');
-log('Validating form data...');
-log('Form data:', formData);
-log('Calling API...');
-log('Response:', response);
+group("Form Submission");
+log("Validating form data...");
+log("Form data:", formData);
+log("Calling API...");
+log("Response:", response);
 groupEnd();
 ```
 
@@ -256,19 +260,19 @@ try {
   await dangerousOperation();
 } catch (err) {
   // ALWAYS use error() for caught exceptions
-  error('Operation failed:', err);
-  toast.error('Something went wrong');
+  error("Operation failed:", err);
+  toast.error("Something went wrong");
 }
 ```
 
 ### 5. Use Time Tracking for Performance
 
 ```typescript
-import { time, timeEnd } from './utils/logger';
+import { time, timeEnd } from "./utils/logger";
 
-time('Batch Operation');
+time("Batch Operation");
 await processBatchUpdate(materials);
-timeEnd('Batch Operation');
+timeEnd("Batch Operation");
 // Logs: Batch Operation: 1234.56ms
 ```
 
@@ -279,21 +283,23 @@ timeEnd('Batch Operation');
 ### Enable Logging for a Session
 
 **In Browser Console:**
+
 ```javascript
 // Option 1: Direct access (if logger is exposed globally)
 window.setTestMode?.(true);
 
 // Option 2: Add to component temporarily
-import { setTestMode } from './utils/logger';
+import { setTestMode } from "./utils/logger";
 setTestMode(true); // At top of file
 ```
 
 **Temporary Debug File:**
+
 ```typescript
 // Add to App.tsx temporarily
-import { setTestMode } from './utils/logger';
+import { setTestMode } from "./utils/logger";
 
-if (window.location.search.includes('debug=true')) {
+if (window.location.search.includes("debug=true")) {
   setTestMode(true);
 }
 
@@ -303,7 +309,7 @@ if (window.location.search.includes('debug=true')) {
 ### Inspect Logger Configuration
 
 ```typescript
-import { loggerInfo } from './utils/logger';
+import { loggerInfo } from "./utils/logger";
 
 // In browser console or component
 loggerInfo();
@@ -314,7 +320,7 @@ loggerInfo();
 ```typescript
 // Even in production, errors still log
 // To temporarily enable full logging:
-import { setTestMode } from './utils/logger';
+import { setTestMode } from "./utils/logger";
 setTestMode(true);
 
 // Remember to disable before committing!
@@ -327,22 +333,22 @@ setTestMode(true);
 ### API Call Logging
 
 ```typescript
-import { log, error, time, timeEnd } from './utils/logger';
+import { log, error, time, timeEnd } from "./utils/logger";
 
 async function fetchMaterials() {
-  log('Fetching materials from API...');
-  time('Material Fetch');
-  
+  log("Fetching materials from API...");
+  time("Material Fetch");
+
   try {
-    const response = await fetch('/api/materials');
+    const response = await fetch("/api/materials");
     const data = await response.json();
-    
-    timeEnd('Material Fetch');
-    log('Materials fetched:', data.length);
-    
+
+    timeEnd("Material Fetch");
+    log("Materials fetched:", data.length);
+
     return data;
   } catch (err) {
-    error('Failed to fetch materials:', err);
+    error("Failed to fetch materials:", err);
     throw err;
   }
 }
@@ -351,29 +357,29 @@ async function fetchMaterials() {
 ### State Change Logging
 
 ```typescript
-import { log } from './utils/logger';
+import { log } from "./utils/logger";
 
 const [materials, setMaterials] = useState<Material[]>([]);
 
 useEffect(() => {
-  log('Materials state updated:', materials.length, 'items');
+  log("Materials state updated:", materials.length, "items");
 }, [materials]);
 ```
 
 ### Form Validation Logging
 
 ```typescript
-import { log, warn } from './utils/logger';
+import { log, warn } from "./utils/logger";
 
 function validateForm(data: FormData) {
-  log('Validating form data:', data);
-  
+  log("Validating form data:", data);
+
   if (!data.name) {
-    warn('Validation failed: name is required');
+    warn("Validation failed: name is required");
     return false;
   }
-  
-  log('Validation passed');
+
+  log("Validation passed");
   return true;
 }
 ```
@@ -402,14 +408,16 @@ The logger automatically detects the environment:
 ## Performance Impact
 
 ### Suppressed Logs (Production)
+
 ```typescript
-log('Heavy object:', massiveArray);
+log("Heavy object:", massiveArray);
 // NO performance impact - function returns immediately
 ```
 
 ### Error Logs (Always Active)
+
 ```typescript
-error('Error:', massiveObject);
+error("Error:", massiveObject);
 // Minimal impact - only fires on actual errors
 ```
 
@@ -422,15 +430,15 @@ error('Error:', massiveObject);
 ### Unit Tests
 
 ```typescript
-import { log, setTestMode } from './utils/logger';
+import { log, setTestMode } from "./utils/logger";
 
-describe('MyComponent', () => {
+describe("MyComponent", () => {
   beforeEach(() => {
     // Suppress logs in tests
     setTestMode(false);
   });
-  
-  it('should render', () => {
+
+  it("should render", () => {
     // Test without console noise
   });
 });
@@ -439,12 +447,12 @@ describe('MyComponent', () => {
 ### Integration Tests
 
 ```typescript
-import { setTestMode } from './utils/logger';
+import { setTestMode } from "./utils/logger";
 
 // Enable logging for debugging test failures
 setTestMode(true);
 
-describe('Material CRUD', () => {
+describe("Material CRUD", () => {
   // Logs will show during test runs
 });
 ```
@@ -471,7 +479,8 @@ describe('Material CRUD', () => {
 
 ### Q: How do I debug production issues?
 
-**A:** 
+**A:**
+
 1. Check error logs (always visible)
 2. Temporarily enable TEST_MODE with `setTestMode(true)`
 3. Use browser DevTools to inspect network/state

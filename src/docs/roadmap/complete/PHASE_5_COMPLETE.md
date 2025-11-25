@@ -17,11 +17,13 @@ Phase 5 successfully extended WasteDB's scientific infrastructure from a single 
 ### What Was Built
 
 **3 Complete Scientific Dimensions:**
+
 1. **Recyclability (CR)** - Material recovery and cycling potential
 2. **Compostability (CC)** - Biological degradation and nutrient return
 3. **Reusability (RU)** - Product lifetime and functional retention
 
 **Each dimension includes:**
+
 - 5 normalized parameters (0-1 scale)
 - Dual-mode calculation (theoretical vs practical)
 - Practical and theoretical mean scores
@@ -40,12 +42,14 @@ Phase 5 successfully extended WasteDB's scientific infrastructure from a single 
 **Completed:** October 22, 2025
 
 1. **Type System** - `/types/material.ts`
+
    - ✅ 20 new fields (CC and RU parameters)
    - ✅ 6 confidence interval interfaces
    - ✅ Shared M_value across dimensions
    - ✅ Backward compatibility maintained
 
 2. **Calculation Endpoints** - `/supabase/functions/server/index.tsx`
+
    - ✅ `POST /calculate/compostability`
    - ✅ `POST /calculate/reusability`
    - ✅ `POST /calculate/all-dimensions`
@@ -54,6 +58,7 @@ Phase 5 successfully extended WasteDB's scientific infrastructure from a single 
    - ✅ Error handling with detailed responses
 
 3. **Export System** - Extended from 24 to 39 CSV columns
+
    - ✅ All CC parameters (B, N, T, H)
    - ✅ All RU parameters (L, R, U, C_RU)
    - ✅ CC composite indices (practical/theoretical + CIs)
@@ -61,6 +66,7 @@ Phase 5 successfully extended WasteDB's scientific infrastructure from a single 
    - ✅ JSON export includes all new fields
 
 4. **API Utilities** - `/utils/api.tsx`
+
    - ✅ `calculateCompostability()` function
    - ✅ `calculateReusability()` function
    - ✅ `calculateAllDimensions()` function
@@ -82,93 +88,96 @@ Phase 5 successfully extended WasteDB's scientific infrastructure from a single 
 **Completed:** October 23, 2025
 
 1. **ScientificDataEditor** ✅ COMPLETE (Oct 22)
+
    - Location: `/components/scientific-editor/`
    - Refactored from 850-line monolith to 7 modular files
    - **Files:**
-     * `index.tsx` - Main coordinator (130 lines)
-     * `types.ts` - TypeScript definitions (60 lines)
-     * `utils.ts` - Shared utilities (80 lines)
-     * `RecyclabilityTab.tsx` - CR parameters (185 lines)
-     * `CompostabilityTab.tsx` - CC parameters + API (185 lines)
-     * `ReusabilityTab.tsx` - RU parameters + API (185 lines)
-     * `SourcesTab.tsx` - Citation management (210 lines)
+     - `index.tsx` - Main coordinator (130 lines)
+     - `types.ts` - TypeScript definitions (60 lines)
+     - `utils.ts` - Shared utilities (80 lines)
+     - `RecyclabilityTab.tsx` - CR parameters (185 lines)
+     - `CompostabilityTab.tsx` - CC parameters + API (185 lines)
+     - `ReusabilityTab.tsx` - RU parameters + API (185 lines)
+     - `SourcesTab.tsx` - Citation management (210 lines)
    - **Features:**
-     * 15 parameter inputs across 3 dimensions
-     * Real-time validation (0-1 range)
-     * M_value shared across all tabs
-     * Color-coded calculate buttons
-     * API integration for CC and RU
-     * Source library browser
-     * Auto-parameter assignment
-     * Confidence interval display
-     * Toast notifications
+     - 15 parameter inputs across 3 dimensions
+     - Real-time validation (0-1 range)
+     - M_value shared across all tabs
+     - Color-coded calculate buttons
+     - API integration for CC and RU
+     - Source library browser
+     - Auto-parameter assignment
+     - Confidence interval display
+     - Toast notifications
    - **Documentation:** `/docs/SCIENTIFIC_EDITOR_REFACTOR.md`
 
 2. **DataProcessingView** ✅ COMPLETE (Oct 23)
+
    - Location: `/components/DataProcessingView.tsx`
    - **Features:**
-     * Shared Infrastructure Maturity (M) slider
-     * Three tabbed calculators:
+     - Shared Infrastructure Maturity (M) slider
+     - Three tabbed calculators:
        - **Recyclability (CR)** - Yellow theme
-       - **Compostability (CC)** - Coral theme  
+       - **Compostability (CC)** - Coral theme
        - **Reusability (RU)** - Blue-gray theme
-     * Parameter sliders for all 15 parameters
-     * Theoretical vs Practical mode toggle
-     * Category-specific default values
-     * Preview calculation before applying
-     * Batch application to all materials
-     * Results table with old vs new scores
-     * Score interpretation labels
-     * API integration for CC and RU
-     * Real-time formula visualization
+     - Parameter sliders for all 15 parameters
+     - Theoretical vs Practical mode toggle
+     - Category-specific default values
+     - Preview calculation before applying
+     - Batch application to all materials
+     - Results table with old vs new scores
+     - Score interpretation labels
+     - API integration for CC and RU
+     - Real-time formula visualization
    - **Material Categories with Defaults:**
-     * Glass (CR + RU defaults)
-     * Metals (CR + RU defaults)
-     * Paper & Cardboard (CR + CC defaults)
-     * Plastics (CR + RU defaults)
-     * Electronics & Batteries (CR + RU defaults)
-     * Fabrics & Textiles (CR + RU defaults)
-     * Building Materials (CR + RU defaults)
-     * Organic/Natural Waste (CC + CR defaults)
+     - Glass (CR + RU defaults)
+     - Metals (CR + RU defaults)
+     - Paper & Cardboard (CR + CC defaults)
+     - Plastics (CR + RU defaults)
+     - Electronics & Batteries (CR + RU defaults)
+     - Fabrics & Textiles (CR + RU defaults)
+     - Building Materials (CR + RU defaults)
+     - Organic/Natural Waste (CC + CR defaults)
 
 3. **QuantileVisualization** ✅ COMPLETE (Already implemented)
+
    - Location: `/components/QuantileVisualization.tsx`
    - **Features:**
-     * Accepts `scoreType` prop: 'recyclability' | 'compostability' | 'reusability'
-     * Dimension-specific colors:
+     - Accepts `scoreType` prop: 'recyclability' | 'compostability' | 'reusability'
+     - Dimension-specific colors:
        - Recyclability: Yellow (#e4e3ac / #d4b400)
        - Compostability: Coral (#e6beb5 / #c74444)
        - Reusability: Blue-gray (#b8c8cb / #4a90a4)
-     * Three visualization modes:
+     - Three visualization modes:
        - Overlap Mode (shared CIs)
        - Near-Overlap Mode (bridging dots)
        - Gap Mode (separated halos)
-     * Displays both practical and theoretical scores
-     * Shows 95% confidence intervals
-     * Interactive hover states
-     * Accessibility support (high-contrast, dark mode, reduced-motion)
-     * ARIA labels for screen readers
-     * Fallback to simple bar when data missing
+     - Displays both practical and theoretical scores
+     - Shows 95% confidence intervals
+     - Interactive hover states
+     - Accessibility support (high-contrast, dark mode, reduced-motion)
+     - ARIA labels for screen readers
+     - Fallback to simple bar when data missing
 
 4. **Source Library** ✅ COMPLETE (Already tagged)
    - Location: `/data/sources.ts`
    - **Tags for Compostability:**
-     * `composting`
-     * `degradation`
-     * `biodegradation`
-     * `food-waste`
-     * `organics`
+     - `composting`
+     - `degradation`
+     - `biodegradation`
+     - `food-waste`
+     - `organics`
    - **Tags for Reusability:**
-     * `durability`
-     * `fiber-quality`
-     * `cycling`
-     * `recovery-rates`
+     - `durability`
+     - `fiber-quality`
+     - `cycling`
+     - `recovery-rates`
    - **Tags for Recyclability:**
-     * `recycling`
-     * `contamination`
-     * `sorting`
-     * `yield`
-     * `quality-retention`
+     - `recycling`
+     - `contamination`
+     - `sorting`
+     - `yield`
+     - `quality-retention`
 
 ---
 
@@ -205,9 +214,11 @@ User Input (ScientificDataEditor or DataProcessingView)
 ### Formula Summary
 
 **Recyclability (CR):**
+
 ```
 CR = Y × D × C × M × U_clean
 ```
+
 - Y = Yield (recovery rate)
 - D = Degradability (quality retention)
 - C = Contamination tolerance
@@ -217,9 +228,11 @@ CR = Y × D × C × M × U_clean
 ---
 
 **Compostability (CC):**
+
 ```
 CC = w_B·B + w_N·N + w_H·H + w_M·M − w_T·T
 ```
+
 - B = Biodegradation rate
 - N = Nutrient balance
 - T = Toxicity (inverted)
@@ -232,9 +245,11 @@ CC = w_B·B + w_N·N + w_H·H + w_M·M − w_T·T
 ---
 
 **Reusability (RU):**
+
 ```
 RU = w_L·L + w_R·R + w_U·U + w_M·M − w_C·C
 ```
+
 - L = Lifetime (functional cycles)
 - R = Repairability
 - U = Upgradability
@@ -250,37 +265,37 @@ RU = w_L·L + w_R·R + w_U·U + w_M·M − w_C·C
 
 ### Recyclability (CR)
 
-| Range | Label | Description |
-|-------|-------|-------------|
-| 80-100 | Easily recyclable | High yield, minimal degradation, robust infrastructure |
-| 60-79 | Recyclable with care | Requires sorting, some quality loss |
-| 40-59 | Limited recyclability | Niche facilities, significant downcycling |
-| 20-39 | Technically recyclable | Experimental, very low infrastructure |
-| 0-19 | Unrecyclable | No viable pathway |
+| Range  | Label                  | Description                                            |
+| ------ | ---------------------- | ------------------------------------------------------ |
+| 80-100 | Easily recyclable      | High yield, minimal degradation, robust infrastructure |
+| 60-79  | Recyclable with care   | Requires sorting, some quality loss                    |
+| 40-59  | Limited recyclability  | Niche facilities, significant downcycling              |
+| 20-39  | Technically recyclable | Experimental, very low infrastructure                  |
+| 0-19   | Unrecyclable           | No viable pathway                                      |
 
 ---
 
 ### Compostability (CC)
 
-| Range | Label | Description |
-|-------|-------|-------------|
-| 80-100 | Highly compostable | Rapid degradation, nutrient-rich, non-toxic |
-| 60-79 | Compostable | Moderate breakdown, suitable for industrial facilities |
-| 40-59 | Limited compostability | Slow degradation, industrial-only |
-| 20-39 | Marginally compostable | Partial breakdown, limited nutrient return |
-| 0-19 | Non-compostable | No biological pathway |
+| Range  | Label                  | Description                                            |
+| ------ | ---------------------- | ------------------------------------------------------ |
+| 80-100 | Highly compostable     | Rapid degradation, nutrient-rich, non-toxic            |
+| 60-79  | Compostable            | Moderate breakdown, suitable for industrial facilities |
+| 40-59  | Limited compostability | Slow degradation, industrial-only                      |
+| 20-39  | Marginally compostable | Partial breakdown, limited nutrient return             |
+| 0-19   | Non-compostable        | No biological pathway                                  |
 
 ---
 
 ### Reusability (RU)
 
-| Range | Label | Description |
-|-------|-------|-------------|
-| 80-100 | Highly reusable | Long lifetime, easily repairable, modular design |
-| 60-79 | Reusable | Multiple cycles possible, some repair options |
-| 40-59 | Limited reusability | Short lifespan, difficult to repair |
-| 20-39 | Marginally reusable | Few functional cycles, minimal repair infrastructure |
-| 0-19 | Single-use | Designed for disposal |
+| Range  | Label               | Description                                          |
+| ------ | ------------------- | ---------------------------------------------------- |
+| 80-100 | Highly reusable     | Long lifetime, easily repairable, modular design     |
+| 60-79  | Reusable            | Multiple cycles possible, some repair options        |
+| 40-59  | Limited reusability | Short lifespan, difficult to repair                  |
+| 20-39  | Marginally reusable | Few functional cycles, minimal repair infrastructure |
+| 0-19   | Single-use          | Designed for disposal                                |
 
 ---
 
@@ -365,21 +380,25 @@ RU = w_L·L + w_R·R + w_U·U + w_M·M − w_C·C
 ### Validation Rules
 
 **Parameter Range:**
+
 - All parameters must be 0-1 (enforced at input)
 - Automatic clamping prevents out-of-range values
 
 **Confidence Intervals:**
+
 - Auto-calculated as ±10% of mean
 - Clamped to [0, 1] range
 - Displayed as percentages (e.g., "72 ± 7%")
 
 **Source Requirements:**
+
 - Minimum 3 sources recommended for "High" confidence
 - Peer-reviewed sources weighted 1.0
 - Government sources weighted 0.9
 - Industrial sources weighted 0.7
 
 **Audit Trail:**
+
 - Every calculation includes timestamp
 - Method version recorded (CR-v1, CC-v1, RU-v1)
 - Whitepaper version recorded (2025.1)
@@ -392,6 +411,7 @@ RU = w_L·L + w_R·R + w_U·U + w_M·M − w_C·C
 ### Public CSV (0-100 scale)
 
 Columns for each dimension:
+
 - `recyclability` (0-100)
 - `compostability` (0-100)
 - `reusability` (0-100)
@@ -403,21 +423,25 @@ Columns for each dimension:
 ### Research CSV (0-1 + 0-100)
 
 **Recyclability columns (9):**
+
 - Y_value, D_value, C_value, M_value, E_value
 - CR_practical_mean, CR_theoretical_mean
 - CR_practical_CI95_lower, CR_practical_CI95_upper
 
 **Compostability columns (9):**
+
 - B_value, N_value, T_value, H_value, M_value (shared)
 - CC_practical_mean, CC_theoretical_mean
 - CC_practical_CI95_lower, CC_practical_CI95_upper
 
 **Reusability columns (9):**
+
 - L_value, R_value, U_value, C_RU_value, M_value (shared)
 - RU_practical_mean, RU_theoretical_mean
 - RU_practical_CI95_lower, RU_practical_CI95_upper
 
 **Metadata columns (12):**
+
 - id, name, category, description
 - sources (JSON array)
 - confidence_level
@@ -434,12 +458,14 @@ Columns for each dimension:
 ### Backend
 
 **API Response Times (tested):**
+
 - `/calculate/recyclability`: ~50ms
 - `/calculate/compostability`: ~60ms
 - `/calculate/reusability`: ~60ms
 - `/calculate/all-dimensions`: ~150ms
 
 **Calculation Accuracy:**
+
 - All formulas match whitepapers exactly
 - Floating-point precision: 15 decimal places
 - Public scores rounded to integers
@@ -449,11 +475,13 @@ Columns for each dimension:
 ### Frontend
 
 **Component Load Times:**
+
 - ScientificDataEditor: ~100ms
 - DataProcessingView: ~80ms
 - QuantileVisualization: ~20ms per instance
 
 **Bundle Size Impact:**
+
 - ScientificDataEditor: +45KB (gzipped)
 - DataProcessingView: +38KB (gzipped)
 - Total Phase 5 addition: ~83KB (gzipped)
@@ -465,6 +493,7 @@ Columns for each dimension:
 ### Backend Testing ✅
 
 **Endpoint Tests:**
+
 - ✅ All three calculation endpoints return correct results
 - ✅ Input validation rejects out-of-range values
 - ✅ Mode switching (theoretical/practical) works correctly
@@ -472,6 +501,7 @@ Columns for each dimension:
 - ✅ CORS headers allow public access
 
 **Formula Tests:**
+
 - ✅ CR calculation matches whitepaper
 - ✅ CC calculation matches whitepaper
 - ✅ RU calculation matches whitepaper
@@ -483,6 +513,7 @@ Columns for each dimension:
 ### Frontend Testing ✅
 
 **ScientificDataEditor:**
+
 - ✅ All four tabs render correctly
 - ✅ Can switch between tabs
 - ✅ M_value shared across all tabs
@@ -494,6 +525,7 @@ Columns for each dimension:
 - ✅ Cancel discards changes
 
 **DataProcessingView:**
+
 - ✅ Shared M slider updates all tabs
 - ✅ CR tab calculates locally
 - ✅ CC tab calls API correctly
@@ -505,6 +537,7 @@ Columns for each dimension:
 - ✅ Category defaults apply automatically
 
 **QuantileVisualization:**
+
 - ✅ Renders for all three dimensions
 - ✅ Colors correct per dimension
 - ✅ Halos and dots positioned correctly
@@ -520,6 +553,7 @@ Columns for each dimension:
 **None!** ✅
 
 All changes are backward compatible:
+
 - Existing materials without CC/RU data continue to work
 - Public API unchanged (still returns 0-100 scores)
 - ScientificDataEditor import path changed but old component still exists
@@ -530,30 +564,36 @@ All changes are backward compatible:
 ## Documentation Created
 
 1. ✅ `/docs/BACKEND_MULTI_DIMENSIONAL.md` (Oct 22)
+
    - Backend implementation details
    - API endpoint documentation
    - Formula specifications
 
 2. ✅ `/docs/SCIENTIFIC_EDITOR_REFACTOR.md` (Oct 22)
+
    - Component architecture
    - File structure breakdown
    - Migration guide
 
 3. ✅ `/docs/PHASE_5_MILESTONE_SCIENTIFIC_EDITOR.md` (Oct 22)
+
    - Milestone celebration document
    - Testing checklist
    - Component overview
 
 4. ✅ `/docs/PHASE_5_COMPLETE.md` (Oct 23)
+
    - This document!
    - Complete phase summary
    - All deliverables documented
 
 5. ✅ `/whitepapers/CC-v1.md` (Oct 22)
+
    - Compostability methodology
    - Version 2025.1
 
 6. ✅ `/whitepapers/RU-v1.md` (Oct 22)
+
    - Reusability methodology
    - Version 2025.1
 
@@ -568,16 +608,19 @@ All changes are backward compatible:
 ### For General Users
 
 **Before Phase 5:**
+
 - Could see only recyclability scores
 - Limited understanding of material circularity
 
 **After Phase 5:**
+
 - See all three circularity pathways
 - Understand which pathway suits each material
 - Make informed decisions (recycle vs compost vs reuse)
 - Visualize innovation gaps across dimensions
 
 **Example:**
+
 - **Cardboard:** High recyclability (75) AND high compostability (82) → Choose based on local infrastructure
 - **Glass:** High recyclability (90) AND high reusability (85) → Reuse preferred over recycling
 - **Food waste:** Low recyclability (15) BUT high compostability (95) → Composting is the clear pathway
@@ -587,23 +630,26 @@ All changes are backward compatible:
 ### For Researchers
 
 **Before Phase 5:**
+
 - Access to CR data only
 - Limited to recycling research
 - Single-dimensional analysis
 
 **After Phase 5:**
+
 - Complete 3D circularity data
 - 39-column research CSV export
 - All parameters traceable to sources
 - Theoretical vs practical comparison
 - Multi-dimensional material analysis
 - Can publish studies on:
-  * Composting infrastructure gaps
-  * Reuse economy potential
-  * Cross-dimensional trade-offs
-  * Regional infrastructure impacts
+  - Composting infrastructure gaps
+  - Reuse economy potential
+  - Cross-dimensional trade-offs
+  - Regional infrastructure impacts
 
 **Data Now Available:**
+
 - 15 normalized parameters
 - 6 composite indices
 - 18 confidence interval values
@@ -615,11 +661,13 @@ All changes are backward compatible:
 ### For Admins
 
 **Before Phase 5:**
+
 - Manual score entry only
 - No parameter tracking
 - Single dimension management
 
 **After Phase 5:**
+
 - Three complete dimension calculators
 - Parameter-based auto-calculation
 - Batch processing across all materials
@@ -629,6 +677,7 @@ All changes are backward compatible:
 - Complete audit trail
 
 **Time Saved:**
+
 - ScientificDataEditor: 70% faster (1 min → 20 sec per material)
 - DataProcessingView: 90% faster (batch vs individual)
 - Source management: 80% faster (library vs manual entry)
@@ -638,6 +687,7 @@ All changes are backward compatible:
 ### For WasteDB Project
 
 **Scientific Credibility:**
+
 - ✅ Three peer-reviewed methodologies (CR-v1, CC-v1, RU-v1)
 - ✅ Complete source traceability
 - ✅ Versioned calculations
@@ -645,12 +695,14 @@ All changes are backward compatible:
 - ✅ Transparent uncertainty quantification
 
 **Market Differentiation:**
+
 - ✅ Only open database with 3D circularity analysis
 - ✅ Visual gap communication (VIZ-v1)
 - ✅ Dual-mode scoring (theoretical vs practical)
 - ✅ Full accessibility compliance
 
 **Product Maturity:**
+
 - ✅ Ready for academic citations
 - ✅ Ready for industry integration
 - ✅ Ready for policy analysis
@@ -663,16 +715,19 @@ All changes are backward compatible:
 ### What Went Well
 
 1. **Modular Architecture:**
+
    - Refactoring ScientificDataEditor paid off immediately
    - Easy to extend and maintain
    - Clear separation of concerns
 
 2. **Shared M_value Design:**
+
    - Accurately represents infrastructure reality
    - Reduces parameter count
    - Simplifies user mental model
 
 3. **API-First Approach:**
+
    - Backend completed before frontend
    - Allowed parallel frontend development
    - Easy to test with Postman/curl
@@ -687,16 +742,19 @@ All changes are backward compatible:
 ### Challenges Overcome
 
 1. **State Management Complexity:**
+
    - Challenge: M_value shared across 3 tabs
    - Solution: Lift state to parent component
    - Result: Seamless synchronization
 
 2. **API Integration in Frontend:**
+
    - Challenge: CC and RU require async calls
    - Solution: Loading states + toast notifications
    - Result: Good UX during network delays
 
 3. **Score Interpretation Consistency:**
+
    - Challenge: Different ranges mean different things
    - Solution: Dimension-specific label functions
    - Result: Clear communication to users
@@ -713,11 +771,13 @@ All changes are backward compatible:
 ### Immediate (Phase 6 Prep)
 
 1. **User Testing:**
+
    - Test all three calculators with real materials
    - Verify score interpretations make sense
    - Check visualization clarity
 
 2. **Data Entry:**
+
    - Add CC and RU values to existing materials
    - Use DataProcessingView batch calculator
    - Build out source library with CC/RU sources
@@ -732,6 +792,7 @@ All changes are backward compatible:
 ### Phase 6: Research API & Data Publication
 
 **Goals:**
+
 - RESTful API with pagination
 - DOI registration via DataCite
 - Developer documentation (OpenAPI)
@@ -746,6 +807,7 @@ All changes are backward compatible:
 ### Phase 7: Performance & Scalability
 
 **Goals:**
+
 - Local rasterization of charts
 - Lazy loading for visualizations
 - Cache optimization
@@ -762,6 +824,7 @@ All changes are backward compatible:
 ### Lines of Code
 
 **Backend:**
+
 - Type definitions: ~150 lines
 - Calculation endpoints: ~300 lines
 - API utilities: ~200 lines
@@ -769,6 +832,7 @@ All changes are backward compatible:
 - **Total:** ~3650 lines
 
 **Frontend:**
+
 - ScientificDataEditor: ~1050 lines (7 files)
 - DataProcessingView: ~850 lines (already existed, enhanced)
 - QuantileVisualization: ~500 lines (already existed, dimension-aware)
@@ -781,6 +845,7 @@ All changes are backward compatible:
 ### Files Modified/Created
 
 **New Files (9):**
+
 1. `/components/scientific-editor/index.tsx`
 2. `/components/scientific-editor/types.ts`
 3. `/components/scientific-editor/utils.ts`
@@ -792,6 +857,7 @@ All changes are backward compatible:
 9. `/whitepapers/RU-v1.md`
 
 **Modified Files (6):**
+
 1. `/types/material.ts` - Extended with CC and RU fields
 2. `/supabase/functions/server/index.tsx` - Added CC and RU endpoints
 3. `/utils/api.tsx` - Added calculation functions
@@ -800,6 +866,7 @@ All changes are backward compatible:
 6. `/ROADMAP.md` - Marked Phase 5 complete
 
 **Documentation (7):**
+
 1. `/docs/BACKEND_MULTI_DIMENSIONAL.md`
 2. `/docs/SCIENTIFIC_EDITOR_REFACTOR.md`
 3. `/docs/PHASE_5_MILESTONE_SCIENTIFIC_EDITOR.md`
@@ -821,6 +888,7 @@ WasteDB now has a complete **three-dimensional scientific data infrastructure** 
 3. ✅ **Reusability (RU)** - Product → Product → Product
 
 **Every dimension includes:**
+
 - Transparent methodology (peer-reviewed whitepapers)
 - Dual-mode scoring (theoretical vs practical)
 - Confidence intervals (95% CI)
@@ -829,6 +897,7 @@ WasteDB now has a complete **three-dimensional scientific data infrastructure** 
 - Full accessibility (WCAG 2.1 AA)
 
 **Impact:**
+
 - **Users:** Make informed decisions across all circularity pathways
 - **Researchers:** Access complete 3D data for academic publications
 - **Admins:** Efficiently manage scientific data with powerful tools
@@ -838,7 +907,7 @@ WasteDB now has a complete **three-dimensional scientific data infrastructure** 
 
 ---
 
-**Celebration Time!** 🎉🎊🚀
+**Celebration Time!** 🎉🎊
 
 WasteDB is now **71% complete** toward becoming the world's most comprehensive open materials sustainability database!
 

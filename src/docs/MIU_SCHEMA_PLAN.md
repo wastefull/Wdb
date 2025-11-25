@@ -1,7 +1,7 @@
 # MIU Schema Planning Document
 
 **Phase:** 9.0 Day 3 (Preparation for Phase 9.1)  
-**Status:** 📐 PLANNING  
+**Status:** PLANNING  
 **Created:** November 14, 2025  
 **Purpose:** Define complete database schema for Evidence Pipeline (MIUs and Aggregations)
 
@@ -32,36 +32,36 @@ This document specifies the database schema required to transform WasteDB from a
 CREATE TABLE IF NOT EXISTS public.evidence_points (
   -- Primary key
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  
+
   -- Material linkage
   material_id UUID NOT NULL,
   -- Note: In KV implementation, store as material.id string
-  
+
   -- Source linkage (ties to Source Library Manager)
   source_ref TEXT NOT NULL,              -- Library Source id
   source_type TEXT,                       -- Cached: 'peer_reviewed', 'government', 'industrial', 'ngo', 'internal'
   source_weight NUMERIC,                  -- Cached default weight from source at extraction time
-  
+
   -- Parameter specification
   parameter TEXT NOT NULL,                -- One of: Y, D, C, M, E, B, N, T, H, L, R, U, C_RU
   dimension TEXT NOT NULL,                -- One of: CR, CC, RU (derived from parameter)
-  
+
   -- Value data
   value_raw NUMERIC NOT NULL,             -- Original value as extracted
   units TEXT NOT NULL,                    -- e.g., '%', 'kg CO2e/kg', 'cycles', 'years'
   value_norm NUMERIC,                     -- Normalized to 0-1 scale (NULL for categorical/E parameter)
   transform_version TEXT NOT NULL DEFAULT 'v1.0',  -- Transform used for normalization
-  
+
   -- Source locator (at least one required)
   page INTEGER,                           -- Page number in PDF
   figure TEXT,                            -- Figure identifier (e.g., 'Figure 3', 'Fig. 2a')
   table_ref TEXT,                         -- Table identifier (e.g., 'Table 1', 'Appendix B')
   paragraph TEXT,                         -- Paragraph/section identifier
-  
+
   -- Verbatim evidence (REQUIRED)
   snippet TEXT NOT NULL,                  -- Exact quote from source
   screenshot_url TEXT,                    -- Optional: cropped image from PDF
-  
+
   -- Context tags (for filtering during aggregation)
   process TEXT,                           -- e.g., 'mechanical_recycling', 'industrial_composting'
   stream TEXT,                            -- e.g., 'post_consumer', 'post_industrial', 'mixed'
@@ -71,40 +71,40 @@ CREATE TABLE IF NOT EXISTS public.evidence_points (
   contamination_percent NUMERIC,          -- Contamination level
   temperature_c NUMERIC,                  -- Temperature (for CC)
   time_minutes NUMERIC,                   -- Time duration (for CC)
-  
+
   -- Derived values (for calculated parameters)
   is_derived BOOLEAN NOT NULL DEFAULT false,
   derived_formula TEXT,                   -- Mathematical expression used
   assumptions TEXT,                       -- Assumptions made in calculation
-  
+
   -- Quality metadata
   method_completeness TEXT,               -- e.g., 'complete', 'partial', 'unclear'
   sample_size INTEGER,                    -- Sample size from study
   confidence_notes TEXT,                  -- Free-text quality notes
-  
+
   -- Conflict of interest disclosure (Phase 9.0 Day 1 - Legal)
   conflict_of_interest TEXT,              -- COI disclosure for industry-funded sources
-  
+
   -- Evidence type (Phase 9.0 Day 3 - Negative Evidence Support)
   evidence_type TEXT DEFAULT 'positive',  -- 'positive', 'negative', 'limit', 'threshold'
-  
+
   -- Restriction flags (Phase 9.0 Day 1 - DMCA/Takedowns)
   restricted_content BOOLEAN DEFAULT false, -- DMCA takedown flag
-  
+
   -- Curation metadata
   curator_id UUID,                        -- User who extracted this MIU
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   codebook_version TEXT NOT NULL DEFAULT 'v0',  -- Curator guideline version used
-  
+
   -- Validation flags
   validation_status TEXT DEFAULT 'pending',  -- 'pending', 'validated', 'flagged'
   validated_by UUID,                          -- Second curator (double-extraction)
   validated_at TIMESTAMPTZ,
-  
+
   -- Audit trail
   extraction_session_id TEXT,             -- Group MIUs from same extraction session
-  
+
   CONSTRAINT valid_parameter CHECK (parameter IN ('Y', 'D', 'C', 'M', 'E', 'B', 'N', 'T', 'H', 'L', 'R', 'U', 'C_RU')),
   CONSTRAINT valid_dimension CHECK (dimension IN ('CR', 'CC', 'RU')),
   CONSTRAINT valid_source_type CHECK (source_type IN ('peer_reviewed', 'government', 'industrial', 'ngo', 'internal', 'preprint')),
@@ -137,48 +137,48 @@ CREATE INDEX IF NOT EXISTS ep_snippet_fts ON public.evidence_points USING gin(to
 CREATE TABLE IF NOT EXISTS public.parameter_aggregations (
   -- Primary key
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  
+
   -- Material and parameter
   material_id UUID NOT NULL,
   parameter TEXT NOT NULL,
   dimension TEXT NOT NULL,
-  
+
   -- Statistical results
   mean NUMERIC NOT NULL,                  -- Weighted mean
   se NUMERIC,                             -- Standard error
   ci95_lower NUMERIC,                     -- Lower bound of 95% CI
   ci95_upper NUMERIC,                     -- Upper bound of 95% CI
   n_mius INTEGER NOT NULL,                -- Number of MIUs aggregated
-  
+
   -- Evidence traceability
   miu_ids UUID[] NOT NULL,                -- Array of evidence_points.id
   weights_used JSONB NOT NULL,            -- Weight policy snapshot for reproducibility
-  
+
   -- Aggregation metadata
   methods_version TEXT NOT NULL,          -- Whitepaper version (e.g., 'CR-v1.0')
   weight_policy_version TEXT NOT NULL,    -- Weight policy version
   transform_version TEXT NOT NULL,        -- Transform version used
   codebook_version TEXT NOT NULL,         -- Curator guideline version (Phase 9.0 Day 5)
   ontology_version TEXT NOT NULL,         -- Units & context ontology version (Phase 9.0 Day 3)
-  
+
   -- Filters applied
   filters_applied JSONB,                  -- Context filters used (process, region, etc.)
-  
+
   -- Quality indicators
   evidence_quality_score NUMERIC,         -- 0-100 quality score
   curator_agreement_kappa NUMERIC,        -- Inter-curator agreement (if double-extracted)
   ci_width NUMERIC,                       -- Width of confidence interval
   source_diversity_count INTEGER,         -- Number of distinct sources
-  
+
   -- Audit trail
   calculated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   calculated_by UUID,                     -- Admin who performed aggregation
   notes TEXT,                             -- Free-text notes about aggregation
-  
+
   -- Versioning
   supersedes_aggregation_id UUID,         -- Previous aggregation this replaces
   is_current BOOLEAN NOT NULL DEFAULT true,  -- Only one current per material+parameter
-  
+
   CONSTRAINT valid_parameter CHECK (parameter IN ('Y', 'D', 'C', 'M', 'E', 'B', 'N', 'T', 'H', 'L', 'R', 'U', 'C_RU')),
   CONSTRAINT valid_dimension CHECK (dimension IN ('CR', 'CC', 'RU')),
   CONSTRAINT ci_ordered CHECK (ci95_lower <= ci95_upper),
@@ -187,8 +187,8 @@ CREATE TABLE IF NOT EXISTS public.parameter_aggregations (
 );
 
 -- Unique constraint: only one current aggregation per material+parameter
-CREATE UNIQUE INDEX IF NOT EXISTS agg_current_unique 
-  ON public.parameter_aggregations (material_id, parameter) 
+CREATE UNIQUE INDEX IF NOT EXISTS agg_current_unique
+  ON public.parameter_aggregations (material_id, parameter)
   WHERE is_current = true;
 
 -- Indexes
@@ -208,16 +208,16 @@ CREATE INDEX IF NOT EXISTS agg_quality ON public.parameter_aggregations (evidenc
 CREATE TABLE IF NOT EXISTS public.releases (
   -- Primary key
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  
+
   -- Release identification
   version TEXT NOT NULL UNIQUE,           -- e.g., 'v2026.Q1', 'v2026.Q2'
   release_date DATE NOT NULL,
-  
+
   -- Documentation
   title TEXT NOT NULL,                    -- e.g., 'WasteDB 2026 Q1 Release'
   changelog TEXT,                         -- Markdown changelog
   doi TEXT,                               -- Optional DOI for citation
-  
+
   -- Methodology versions (snapshot of versions at release)
   whitepaper_cr_version TEXT,             -- e.g., 'CR-v1.0'
   whitepaper_cc_version TEXT,             -- e.g., 'CC-v1.0'
@@ -225,12 +225,12 @@ CREATE TABLE IF NOT EXISTS public.releases (
   weight_policy_version TEXT,             -- e.g., 'WP-v1.0'
   transform_version TEXT,                 -- e.g., 'v1.0'
   codebook_version TEXT,                  -- e.g., 'v1.0'
-  
+
   -- Data snapshot (JSONB full dump)
   materials_snapshot JSONB NOT NULL,      -- Full materials data at release time
   aggregations_snapshot JSONB,            -- Aggregations data
   sources_snapshot JSONB,                 -- Source library state
-  
+
   -- Statistics
   total_materials INTEGER NOT NULL,
   total_mius INTEGER NOT NULL,
@@ -238,22 +238,22 @@ CREATE TABLE IF NOT EXISTS public.releases (
   research_grade_count INTEGER,           -- Materials at research-grade
   verified_count INTEGER,                 -- Materials at verified
   provisional_count INTEGER,              -- Materials at provisional
-  
+
   -- Coverage metrics
   dimension_coverage JSONB,               -- Per-dimension parameter coverage
   category_coverage JSONB,                -- Per-category material coverage
-  
+
   -- Quality metrics
   avg_mius_per_material NUMERIC,
   avg_sources_per_material NUMERIC,
   avg_evidence_quality_score NUMERIC,
   avg_curator_kappa NUMERIC,
-  
+
   -- Metadata
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   created_by UUID,                        -- Admin who created release
   is_published BOOLEAN NOT NULL DEFAULT false,
-  
+
   CONSTRAINT valid_version_format CHECK (version ~ '^v\d{4}\.Q[1-4]$')
 );
 
@@ -279,7 +279,7 @@ ALTER TABLE public.materials ADD COLUMN IF NOT EXISTS promotion_notes TEXT;
 ALTER TABLE public.materials ADD COLUMN IF NOT EXISTS total_mius INTEGER DEFAULT 0;
 ALTER TABLE public.materials ADD COLUMN IF NOT EXISTS last_aggregation_date TIMESTAMPTZ;
 
-ALTER TABLE public.materials ADD CONSTRAINT valid_evidence_status 
+ALTER TABLE public.materials ADD CONSTRAINT valid_evidence_status
   CHECK (evidence_status IN ('provisional', 'verified', 'research-grade'));
 ALTER TABLE public.materials ADD CONSTRAINT valid_quality_score
   CHECK (evidence_quality_score >= 0 AND evidence_quality_score <= 100);
@@ -306,18 +306,18 @@ CREATE INDEX IF NOT EXISTS materials_quality_score ON public.materials (evidence
 
 {
   // Existing fields...
-  
+
   // Quality indicators
   access_status: 'open_access' | 'paywalled' | 'restricted',
   verification_status: 'peer_reviewed' | 'verified' | 'unverified',
   citation_count: number,
   impact_factor: number | null,
-  
+
   // Usage tracking (updated when MIUs reference this source)
   miu_count: number,                    // Total MIUs citing this source
   last_cited_at: string,                // ISO timestamp
   cited_by_materials: string[],         // Array of material IDs
-  
+
   // Prevent deletion if cited
   can_delete: boolean,                  // false if miu_count > 0
 }
@@ -354,32 +354,32 @@ export interface EvidencePoint {
   // Primary
   id: string;
   material_id: string;
-  
+
   // Source linkage
   source_ref: string;
   source_type: 'peer_reviewed' | 'government' | 'industrial' | 'ngo' | 'internal' | 'preprint';
   source_weight: number;
-  
+
   // Parameter
   parameter: 'Y' | 'D' | 'C' | 'M' | 'E' | 'B' | 'N' | 'T' | 'H' | 'L' | 'R' | 'U' | 'C_RU';
   dimension: 'CR' | 'CC' | 'RU';
-  
+
   // Value
   value_raw: number;
   units: string;
   value_norm: number | null;
   transform_version: string;
-  
+
   // Locator (at least one required)
   page?: number;
   figure?: string;
   table_ref?: string;
   paragraph?: string;
-  
+
   // Evidence
   snippet: string;
   screenshot_url?: string;
-  
+
   // Context
   process?: string;
   stream?: string;
@@ -389,37 +389,37 @@ export interface EvidencePoint {
   contamination_percent?: number;
   temperature_c?: number;
   time_minutes?: number;
-  
+
   // Derived
   is_derived: boolean;
   derived_formula?: string;
   assumptions?: string;
-  
+
   // Quality
   method_completeness?: 'complete' | 'partial' | 'unclear';
   sample_size?: number;
   confidence_notes?: string;
-  
+
   // Conflict of interest disclosure (Phase 9.0 Day 1 - Legal)
   conflict_of_interest?: string;         -- COI disclosure for industry-funded sources
-  
+
   // Evidence type (Phase 9.0 Day 3 - Negative Evidence Support)
   evidence_type?: 'positive' | 'negative' | 'limit' | 'threshold';
-  
+
   // Restriction flags (Phase 9.0 Day 1 - DMCA/Takedowns)
   restricted_content?: boolean;          -- DMCA takedown flag
-  
+
   // Curation
   curator_id?: string;
   created_at: string;
   updated_at: string;
   codebook_version: string;
-  
+
   // Validation
   validation_status: 'pending' | 'validated' | 'flagged' | 'duplicate';
   validated_by?: string;
   validated_at?: string;
-  
+
   // Session
   extraction_session_id?: string;
 }
@@ -450,27 +450,40 @@ export interface ParameterAggregation {
   // Primary
   id: string;
   material_id: string;
-  parameter: 'Y' | 'D' | 'C' | 'M' | 'E' | 'B' | 'N' | 'T' | 'H' | 'L' | 'R' | 'U' | 'C_RU';
-  dimension: 'CR' | 'CC' | 'RU';
-  
+  parameter:
+    | "Y"
+    | "D"
+    | "C"
+    | "M"
+    | "E"
+    | "B"
+    | "N"
+    | "T"
+    | "H"
+    | "L"
+    | "R"
+    | "U"
+    | "C_RU";
+  dimension: "CR" | "CC" | "RU";
+
   // Statistics
   mean: number;
   se?: number;
   ci95_lower?: number;
   ci95_upper?: number;
   n_mius: number;
-  
+
   // Traceability
   miu_ids: string[];
   weights_used: WeightPolicy;
-  
+
   // Versions
   methods_version: string;
   weight_policy_version: string;
   transform_version: string;
   codebook_version: string;
   ontology_version: string;
-  
+
   // Filters
   filters_applied?: {
     process?: string[];
@@ -478,18 +491,18 @@ export interface ParameterAggregation {
     region?: string[];
     source_types?: string[];
   };
-  
+
   // Quality
   evidence_quality_score?: number;
   curator_agreement_kappa?: number;
   ci_width?: number;
   source_diversity_count?: number;
-  
+
   // Audit
   calculated_at: string;
   calculated_by?: string;
   notes?: string;
-  
+
   // Versioning
   supersedes_aggregation_id?: string;
   is_current: boolean;
@@ -532,11 +545,11 @@ export interface Release {
   id: string;
   version: string; // Format: vYYYY.Q[1-4]
   release_date: string;
-  
+
   title: string;
   changelog?: string;
   doi?: string;
-  
+
   // Methodology versions
   whitepaper_cr_version?: string;
   whitepaper_cc_version?: string;
@@ -544,12 +557,12 @@ export interface Release {
   weight_policy_version?: string;
   transform_version?: string;
   codebook_version?: string;
-  
+
   // Snapshots
   materials_snapshot: any[];
   aggregations_snapshot?: any[];
   sources_snapshot?: any[];
-  
+
   // Statistics
   total_materials: number;
   total_mius: number;
@@ -557,17 +570,17 @@ export interface Release {
   research_grade_count?: number;
   verified_count?: number;
   provisional_count?: number;
-  
+
   // Coverage
   dimension_coverage?: Record<string, number>;
   category_coverage?: Record<string, number>;
-  
+
   // Quality
   avg_mius_per_material?: number;
   avg_sources_per_material?: number;
   avg_evidence_quality_score?: number;
   avg_curator_kappa?: number;
-  
+
   created_at: string;
   created_by?: string;
   is_published: boolean;
@@ -584,26 +597,20 @@ Since WasteDB uses Supabase's KV store (not full Postgres tables), we need to ad
 
 ```typescript
 // Evidence Points
-`evidence_point:${id}`                          // Individual MIU
-`material:${materialId}:evidence_points`        // Array of MIU IDs for a material
-`parameter:${parameter}:evidence_points`        // Array of MIU IDs for a parameter
-`curator:${curatorId}:evidence_points`          // Array of MIU IDs by curator
-
-// Aggregations
-`aggregation:${id}`                             // Individual aggregation
-`material:${materialId}:aggregations`           // Array of aggregation IDs
-`aggregation:current:${materialId}:${parameter}` // Current aggregation for material+parameter
-
-// Releases
-`release:${version}`                            // Individual release
-`releases:all`                                  // Array of all release versions (sorted)
-`release:latest`                                // Latest published release
-
-// Indexes (for efficient lookup)
-`index:evidence_points:material:${materialId}`  // Set of MIU IDs
-`index:evidence_points:source:${sourceRef}`     // Set of MIU IDs
-`index:evidence_points:dimension:${dimension}`  // Set of MIU IDs
-`index:aggregations:material:${materialId}`     // Set of aggregation IDs
+`evidence_point:${id}` // Individual MIU
+`material:${materialId}:evidence_points` // Array of MIU IDs for a material
+`parameter:${parameter}:evidence_points` // Array of MIU IDs for a parameter
+`curator:${curatorId}:evidence_points`// Aggregations // Array of MIU IDs by curator
+`aggregation:${id}` // Individual aggregation
+`material:${materialId}:aggregations` // Array of aggregation IDs
+`aggregation:current:${materialId}:${parameter}`// Releases // Current aggregation for material+parameter
+`release:${version}` // Individual release
+`releases:all` // Array of all release versions (sorted)
+`release:latest`// Indexes (for efficient lookup) // Latest published release
+`index:evidence_points:material:${materialId}` // Set of MIU IDs
+`index:evidence_points:source:${sourceRef}` // Set of MIU IDs
+`index:evidence_points:dimension:${dimension}` // Set of MIU IDs
+`index:aggregations:material:${materialId}`; // Set of aggregation IDs
 ```
 
 ---
@@ -658,54 +665,72 @@ Since WasteDB uses Supabase's KV store (not full Postgres tables), we need to ad
 ```typescript
 function validateEvidencePoint(miu: EvidencePointCreate): ValidationResult {
   const errors: string[] = [];
-  
+
   // Required fields
-  if (!miu.material_id) errors.push('material_id is required');
-  if (!miu.source_ref) errors.push('source_ref is required');
-  if (!miu.parameter) errors.push('parameter is required');
-  if (miu.value_raw === undefined || miu.value_raw === null) errors.push('value_raw is required');
-  if (!miu.units) errors.push('units is required');
-  if (!miu.snippet) errors.push('snippet is required (verbatim quote from source)');
-  if (!miu.transform_version) errors.push('transform_version is required');
-  
+  if (!miu.material_id) errors.push("material_id is required");
+  if (!miu.source_ref) errors.push("source_ref is required");
+  if (!miu.parameter) errors.push("parameter is required");
+  if (miu.value_raw === undefined || miu.value_raw === null)
+    errors.push("value_raw is required");
+  if (!miu.units) errors.push("units is required");
+  if (!miu.snippet)
+    errors.push("snippet is required (verbatim quote from source)");
+  if (!miu.transform_version) errors.push("transform_version is required");
+
   // At least one locator
   if (!miu.page && !miu.figure && !miu.table_ref && !miu.paragraph) {
-    errors.push('At least one locator (page, figure, table_ref, or paragraph) is required');
+    errors.push(
+      "At least one locator (page, figure, table_ref, or paragraph) is required"
+    );
   }
-  
+
   // Derived values require formula
   if (miu.is_derived && !miu.derived_formula) {
-    errors.push('derived_formula is required when is_derived is true');
+    errors.push("derived_formula is required when is_derived is true");
   }
-  
+
   // Valid parameter
-  const validParameters = ['Y', 'D', 'C', 'M', 'E', 'B', 'N', 'T', 'H', 'L', 'R', 'U', 'C_RU'];
+  const validParameters = [
+    "Y",
+    "D",
+    "C",
+    "M",
+    "E",
+    "B",
+    "N",
+    "T",
+    "H",
+    "L",
+    "R",
+    "U",
+    "C_RU",
+  ];
   if (!validParameters.includes(miu.parameter)) {
-    errors.push(`parameter must be one of: ${validParameters.join(', ')}`);
+    errors.push(`parameter must be one of: ${validParameters.join(", ")}`);
   }
-  
+
   // Auto-derive dimension from parameter
   if (!miu.dimension) {
     miu.dimension = getParameterDimension(miu.parameter);
   }
-  
+
   return {
     valid: errors.length === 0,
-    errors
+    errors,
   };
 }
 
-function getParameterDimension(parameter: string): 'CR' | 'CC' | 'RU' {
-  const CR_PARAMS = ['Y', 'D', 'C', 'E'];
-  const CC_PARAMS = ['B', 'N', 'T', 'H'];
-  const RU_PARAMS = ['L', 'R', 'U', 'C_RU'];
-  
-  if (CR_PARAMS.includes(parameter)) return 'CR';
-  if (CC_PARAMS.includes(parameter)) return 'CC';
-  if (RU_PARAMS.includes(parameter)) return 'RU';
-  
+function getParameterDimension(parameter: string): "CR" | "CC" | "RU" {
+  const CR_PARAMS = ["Y", "D", "C", "E"];
+  const CC_PARAMS = ["B", "N", "T", "H"];
+  const RU_PARAMS = ["L", "R", "U", "C_RU"];
+
+  if (CR_PARAMS.includes(parameter)) return "CR";
+  if (CC_PARAMS.includes(parameter)) return "CC";
+  if (RU_PARAMS.includes(parameter)) return "RU";
+
   // M is shared - determine from context
-  return 'CR'; // Default for M
+  return "CR"; // Default for M
 }
 ```
 
@@ -716,25 +741,27 @@ function getParameterDimension(parameter: string): 'CR' | 'CC' | 'RU' {
 ```typescript
 function validateAggregation(request: AggregationRequest): ValidationResult {
   const errors: string[] = [];
-  
+
   // Required fields
-  if (!request.material_id) errors.push('material_id is required');
-  if (!request.parameter) errors.push('parameter is required');
+  if (!request.material_id) errors.push("material_id is required");
+  if (!request.parameter) errors.push("parameter is required");
   if (!request.miu_ids || request.miu_ids.length === 0) {
-    errors.push('At least one MIU is required');
+    errors.push("At least one MIU is required");
   }
-  
+
   // Minimum MIUs for confidence
   if (request.miu_ids.length < 3) {
-    console.warn('Warning: Aggregation has <3 MIUs - will be marked low confidence');
+    console.warn(
+      "Warning: Aggregation has <3 MIUs - will be marked low confidence"
+    );
   }
-  
+
   // All MIUs must exist and belong to the material
   // (validated in backend)
-  
+
   return {
     valid: errors.length === 0,
-    errors
+    errors,
   };
 }
 ```
@@ -748,54 +775,69 @@ function validateAggregation(request: AggregationRequest): ValidationResult {
 **Algorithm** (from iNaturalist pattern):
 
 ```typescript
-function computeEvidenceQualityScore(material: Material, mius: EvidencePoint[], aggregations: ParameterAggregation[]): {
-  status: 'provisional' | 'verified' | 'research-grade';
+function computeEvidenceQualityScore(
+  material: Material,
+  mius: EvidencePoint[],
+  aggregations: ParameterAggregation[]
+): {
+  status: "provisional" | "verified" | "research-grade";
   score: number;
 } {
   let score = 0;
-  
+
   // 1. Parameter Coverage (40 points)
   const totalParameters = 13; // Y, D, C, M, E, B, N, T, H, L, R, U, C_RU
-  const parametersWithMIUs = new Set(mius.map(m => m.parameter)).size;
+  const parametersWithMIUs = new Set(mius.map((m) => m.parameter)).size;
   score += (parametersWithMIUs / totalParameters) * 40;
-  
+
   // 2. Sample Size (20 points)
   const avgMIUsPerParameter = mius.length / Math.max(parametersWithMIUs, 1);
   if (avgMIUsPerParameter >= 3) score += 20;
   else if (avgMIUsPerParameter >= 2) score += 10;
   else if (avgMIUsPerParameter >= 1) score += 5;
-  
+
   // 3. Source Diversity (15 points)
-  const distinctSources = new Set(mius.map(m => m.source_ref)).size;
+  const distinctSources = new Set(mius.map((m) => m.source_ref)).size;
   score += Math.min(distinctSources * 3, 15);
-  
+
   // 4. Quality Indicators (15 points)
-  const hasPeerReviewed = mius.some(m => m.source_type === 'peer_reviewed');
+  const hasPeerReviewed = mius.some((m) => m.source_type === "peer_reviewed");
   if (hasPeerReviewed) score += 10;
-  
-  const avgCIWidth = aggregations.reduce((sum, agg) => {
-    if (agg.ci95_lower !== undefined && agg.ci95_upper !== undefined) {
-      return sum + (agg.ci95_upper - agg.ci95_lower);
-    }
-    return sum;
-  }, 0) / Math.max(aggregations.length, 1);
+
+  const avgCIWidth =
+    aggregations.reduce((sum, agg) => {
+      if (agg.ci95_lower !== undefined && agg.ci95_upper !== undefined) {
+        return sum + (agg.ci95_upper - agg.ci95_lower);
+      }
+      return sum;
+    }, 0) / Math.max(aggregations.length, 1);
   if (avgCIWidth < 0.3) score += 5;
-  
+
   // 5. Validation (10 points)
-  const validatedMIUs = mius.filter(m => m.validation_status === 'validated').length;
+  const validatedMIUs = mius.filter(
+    (m) => m.validation_status === "validated"
+  ).length;
   const validationRate = validatedMIUs / Math.max(mius.length, 1);
   if (validationRate >= 0.5) score += 10;
   else if (validationRate >= 0.25) score += 5;
-  
+
   // Determine status
-  let status: 'provisional' | 'verified' | 'research-grade' = 'provisional';
-  
-  if (score >= 85 && parametersWithMIUs === totalParameters && avgMIUsPerParameter >= 3) {
-    status = 'research-grade';
-  } else if (score >= 50 && parametersWithMIUs >= 7 && avgMIUsPerParameter >= 2) {
-    status = 'verified';
+  let status: "provisional" | "verified" | "research-grade" = "provisional";
+
+  if (
+    score >= 85 &&
+    parametersWithMIUs === totalParameters &&
+    avgMIUsPerParameter >= 3
+  ) {
+    status = "research-grade";
+  } else if (
+    score >= 50 &&
+    parametersWithMIUs >= 7 &&
+    avgMIUsPerParameter >= 2
+  ) {
+    status = "verified";
   }
-  
+
   return { status, score: Math.round(score) };
 }
 ```
@@ -807,20 +849,24 @@ function computeEvidenceQualityScore(material: Material, mius: EvidencePoint[], 
 ### 7.1 Phase 9.1 Implementation Steps
 
 1. **Create KV keys for new data structures** (non-breaking)
+
    - Evidence points will use new key patterns
    - Aggregations will use new key patterns
    - Existing materials/sources remain unchanged initially
 
 2. **Extend existing material objects** (non-breaking)
+
    - Add `evidence_status`, `evidence_quality_score`, `total_mius` fields
    - Default values: `provisional`, `0`, `0`
    - Update material save logic to preserve new fields
 
 3. **Extend existing source objects** (non-breaking)
+
    - Add `access_status`, `verification_status`, `miu_count`, `citation_count`
    - Update when MIUs are created
 
 4. **Create backend endpoints** (Phase 9.1)
+
    - `POST /evidence` - Create MIU
    - `GET /evidence` - List MIUs
    - `POST /aggregate` - Compute aggregation
@@ -844,6 +890,7 @@ function computeEvidenceQualityScore(material: Material, mius: EvidencePoint[], 
 - ✅ All existing materials/sources/parameters preserved
 
 **New materials** can use either:
+
 1. Manual entry → `evidence_status: 'provisional'`
 2. MIU extraction → automatic promotion to `verified` or `research-grade`
 
@@ -854,9 +901,11 @@ function computeEvidenceQualityScore(material: Material, mius: EvidencePoint[], 
 ### 8.1 Evidence Endpoints
 
 #### POST /make-server-17cae920/evidence
+
 Create a new MIU.
 
 **Request:**
+
 ```json
 {
   "material_id": "uuid",
@@ -875,6 +924,7 @@ Create a new MIU.
 ```
 
 **Response:**
+
 ```json
 {
   "id": "uuid",
@@ -888,9 +938,11 @@ Create a new MIU.
 ---
 
 #### GET /make-server-17cae920/evidence
+
 Fetch MIUs with filters.
 
 **Query Parameters:**
+
 - `material_id` - Filter by material
 - `parameter` - Filter by parameter
 - `dimension` - Filter by dimension (CR, CC, RU)
@@ -901,6 +953,7 @@ Fetch MIUs with filters.
 - `offset` - Pagination offset
 
 **Response:**
+
 ```json
 {
   "evidence_points": [
@@ -910,7 +963,7 @@ Fetch MIUs with filters.
       "parameter": "Y",
       "value_raw": 85.5,
       "value_norm": 0.855,
-      "snippet": "...",
+      "snippet": "..."
       // ... full MIU object
     }
   ],
@@ -925,9 +978,11 @@ Fetch MIUs with filters.
 ### 8.2 Aggregation Endpoints
 
 #### POST /make-server-17cae920/aggregate
+
 Compute aggregation from MIUs.
 
 **Request:**
+
 ```json
 {
   "material_id": "uuid",
@@ -949,6 +1004,7 @@ Compute aggregation from MIUs.
 ```
 
 **Response:**
+
 ```json
 {
   "id": "uuid",
@@ -966,14 +1022,17 @@ Compute aggregation from MIUs.
 ---
 
 #### GET /make-server-17cae920/aggregations
+
 Fetch aggregations for a material.
 
 **Query Parameters:**
+
 - `material_id` - Required
 - `parameter` - Optional filter
 - `current_only` - Boolean, only return current aggregations
 
 **Response:**
+
 ```json
 {
   "aggregations": [
@@ -982,7 +1041,7 @@ Fetch aggregations for a material.
       "parameter": "Y",
       "mean": 0.845,
       "n_mius": 3,
-      "is_current": true,
+      "is_current": true
       // ... full aggregation object
     }
   ],
@@ -1077,17 +1136,19 @@ CREATE POLICY aggregations_write ON public.parameter_aggregations
 ### 10.1 Prevent Source Deletion if Cited
 
 ```typescript
-async function canDeleteSource(sourceRef: string): Promise<{ canDelete: boolean; reason?: string }> {
+async function canDeleteSource(
+  sourceRef: string
+): Promise<{ canDelete: boolean; reason?: string }> {
   // Check if any MIUs reference this source
   const miuIds = await kv.get(`index:evidence_points:source:${sourceRef}`);
-  
+
   if (miuIds && miuIds.ids && miuIds.ids.length > 0) {
     return {
       canDelete: false,
-      reason: `Cannot delete source: ${miuIds.ids.length} evidence points reference this source. Remove evidence points first.`
+      reason: `Cannot delete source: ${miuIds.ids.length} evidence points reference this source. Remove evidence points first.`,
     };
   }
-  
+
   return { canDelete: true };
 }
 ```
@@ -1097,19 +1158,21 @@ async function canDeleteSource(sourceRef: string): Promise<{ canDelete: boolean;
 ### 10.2 Prevent MIU Deletion if Aggregated
 
 ```typescript
-async function canDeleteEvidencePoint(miuId: string): Promise<{ canDelete: boolean; reason?: string }> {
+async function canDeleteEvidencePoint(
+  miuId: string
+): Promise<{ canDelete: boolean; reason?: string }> {
   // Find all aggregations
-  const allAggregations = await kv.getByPrefix('aggregation:');
-  
+  const allAggregations = await kv.getByPrefix("aggregation:");
+
   for (const agg of allAggregations) {
     if (agg.value.miu_ids && agg.value.miu_ids.includes(miuId)) {
       return {
         canDelete: false,
-        reason: `Cannot delete evidence point: it is referenced in aggregation ${agg.value.id}. Remove from aggregation first.`
+        reason: `Cannot delete evidence point: it is referenced in aggregation ${agg.value.id}. Remove from aggregation first.`,
       };
     }
   }
-  
+
   return { canDelete: true };
 }
 ```
@@ -1121,12 +1184,14 @@ async function canDeleteEvidencePoint(miuId: string): Promise<{ canDelete: boole
 ### 11.1 Indexing Strategy
 
 **High-Priority Indexes:**
+
 - `(material_id, parameter)` - Most common query pattern
 - `source_ref` - For source usage tracking
 - `dimension` - For dimension-filtered queries
 - `created_at DESC` - For recent activity feeds
 
 **Secondary Indexes:**
+
 - `curator_id` - For curator dashboards
 - `validation_status` - For quality control workflows
 - Context fields `(process, stream, region)` - For aggregation filtering
@@ -1136,11 +1201,13 @@ async function canDeleteEvidencePoint(miuId: string): Promise<{ canDelete: boole
 ### 11.2 KV Store Optimization
 
 **Denormalization:**
+
 - Store MIU IDs array on material objects for fast lookup
 - Cache aggregation results on material objects
 - Maintain count fields (`total_mius`, `miu_count`) to avoid full scans
 
 **Batch Operations:**
+
 - Fetch multiple MIUs in parallel using `mget()`
 - Batch update indexes when creating/deleting MIUs
 - Use transaction-like patterns for aggregation + material update
@@ -1172,18 +1239,21 @@ async function canDeleteEvidencePoint(miuId: string): Promise<{ canDelete: boole
 ## 13. Next Steps (Phase 9.1 Implementation)
 
 ### Day 1-2: Backend Setup
+
 - [ ] Create evidence endpoint handlers in `/supabase/functions/server/index.tsx`
 - [ ] Implement KV store CRUD for evidence points
 - [ ] Implement KV store CRUD for aggregations
 - [ ] Add validation logic
 
 ### Day 3-4: Aggregation Logic
+
 - [ ] Implement weighted statistics computation
 - [ ] Implement evidence quality scoring
 - [ ] Add material promotion logic
 - [ ] Update material objects with aggregation results
 
 ### Day 5: Testing & Documentation
+
 - [ ] Write unit tests for validation
 - [ ] Write integration tests for endpoints
 - [ ] Update API documentation
@@ -1201,7 +1271,7 @@ async function canDeleteEvidencePoint(miuId: string): Promise<{ canDelete: boole
 
 ---
 
-**Status:** 📐 Planning Complete  
+**Status:** Planning Complete  
 **Ready for Phase 9.1 Implementation:** ✅  
 **Schema Version:** v1.0  
 **Last Updated:** November 14, 2025

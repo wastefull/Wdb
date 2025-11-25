@@ -7,13 +7,13 @@
 
 ---
 
-## 🎯 Mission
+## Mission
 
 Build an open, accessible, and scientifically rigorous materials database that communicates both the practical and theoretical recyclability of materials through transparent methodology and open data access.
 
 ---
 
-## 📊 Overall Progress
+## Overall Progress
 
 ### Phases Completed: 8.5 / 10 (85%)
 
@@ -427,7 +427,7 @@ Complete scientific coverage of all three circularity pathways with transparent 
 - **Main UI Integration**
   - "API Documentation" link added to main navigation with Code icon
   - Positioned below "Export Data (Open Access)" for logical grouping
-  - Smooth motion animations following Sokpop design language
+  - Smooth motion animations following Wastefull design language
   - Full dark mode support and accessibility features
   - Navigation context integration for seamless routing
 
@@ -661,7 +661,7 @@ Transform WasteDB from a parameter-entry system to an evidence-extraction platfo
 
 ---
 
-## 📈 Current Capabilities
+## Current Capabilities
 
 ### For General Users ✅
 
@@ -707,7 +707,7 @@ Transform WasteDB from a parameter-entry system to an evidence-extraction platfo
 
 ---
 
-## 📊 Database Statistics
+## Database Statistics
 
 **Current Data Model:**
 
@@ -816,7 +816,7 @@ Transform WasteDB from a parameter-entry system to an evidence-extraction platfo
 
 ---
 
-## 📚 Documentation
+## Documentation
 
 ### Completed Documents
 
@@ -895,7 +895,7 @@ Transform WasteDB from a parameter-entry system to an evidence-extraction platfo
 
 ---
 
-## 🚀 Vision
+## Vision
 
 WasteDB is becoming a trusted open scientific resource that:
 
