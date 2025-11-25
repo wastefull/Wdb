@@ -89,15 +89,20 @@ export async function apiCall(
     const isAuthEndpoint = endpoint.includes("/auth/");
     const isNotificationEndpoint = endpoint.includes("/notifications");
 
-    // Log error WITHOUT exposing full endpoint in production
-    logger.error("API call failed:", {
-      method: options.method || "GET",
-      status: response.status,
-      statusText: response.statusText,
-      errorMessage: errorData.error || response.statusText,
-      // Only log endpoint path (not full URL) and only in test mode
-      ...(logger.isTestMode() ? { endpoint } : {}),
-    });
+    // For suppressAuthToast endpoints, auth errors are expected (public endpoints for unauthenticated users)
+    // Only log errors if they're unexpected
+    const isExpectedAuthFailure = isAuthError && suppressAuthToast;
+    if (!isExpectedAuthFailure) {
+      // Log error WITHOUT exposing full endpoint in production
+      logger.error("API call failed:", {
+        method: options.method || "GET",
+        status: response.status,
+        statusText: response.statusText,
+        errorMessage: errorData.error || response.statusText,
+        // Only log endpoint path (not full URL) and only in test mode
+        ...(logger.isTestMode() ? { endpoint } : {}),
+      });
+    }
 
     // Handle session expiry for non-auth, non-notification endpoints
     // Notification errors should NOT trigger session expiry (non-critical feature)

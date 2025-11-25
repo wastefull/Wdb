@@ -245,7 +245,14 @@ export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({
           setSupabaseAvailable(true);
         }
       } catch (error) {
-        materialsLogger.error("Failed to load from Supabase:", error);
+        // For unauthenticated users, a 401 is expected - don't log as error
+        const isExpectedAuthError =
+          !user &&
+          error instanceof Error &&
+          error.message.includes("Unauthorized");
+        if (!isExpectedAuthError) {
+          materialsLogger.error("Failed to load from Supabase:", error);
+        }
         setSupabaseAvailable(false);
         loadFromLocalStorage();
         if (user) {
