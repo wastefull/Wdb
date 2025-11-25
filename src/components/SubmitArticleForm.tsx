@@ -44,7 +44,7 @@ export function SubmitArticleForm({
   const loadMaterials = async () => {
     try {
       setLoadingMaterials(true);
-      const allMaterials = await api.getMaterials();
+      const allMaterials = await api.getAllMaterials();
       setMaterials(allMaterials);
     } catch (error) {
       console.error("Error loading materials:", error);

@@ -3,8 +3,8 @@ import { logger } from "./logger";
 import { toast } from "sonner";
 import { Material } from "../types/material";
 
-// Export projectId for use in other modules
-export { projectId };
+// Export projectId and publicAnonKey for use in other modules
+export { projectId, publicAnonKey };
 
 const API_BASE_URL = `https://${projectId}.supabase.co/functions/v1/make-server-17cae920`;
 logger.log("🔧 API_BASE_URL initialized:", API_BASE_URL);

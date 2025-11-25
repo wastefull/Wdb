@@ -140,7 +140,7 @@ export function ContentReviewCenter({
       if (submission.type === "new_material") {
         // Create new material
         const materialData = editedContent || submission.content_data;
-        await api.createMaterial({
+        await api.saveMaterial({
           name: materialData.name,
           category: materialData.category,
           description: materialData.description,
