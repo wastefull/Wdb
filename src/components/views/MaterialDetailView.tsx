@@ -88,7 +88,7 @@ export function MaterialDetailView({
       <div className="flex items-center gap-4 mb-6">
         <button
           onClick={onBack}
-          className="p-2 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+          className="card-interactive"
         >
           <ArrowLeft size={16} className="text-black" />
         </button>
@@ -97,7 +97,7 @@ export function MaterialDetailView({
             {material.name}
           </h2>
           <div className="flex items-center gap-2 mt-1">
-            <span className="inline-block px-2 py-0.5 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 text-[9px] text-black">
+            <span className="tag-cyan">
               {material.category}
             </span>
             <p className="text-[12px] text-black/60 dark:text-white/60">

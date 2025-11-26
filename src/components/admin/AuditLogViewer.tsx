@@ -174,17 +174,17 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
             <div className="bg-white dark:bg-[#1a1917] rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Activity size={20} className="text-black dark:text-white" />
-                <h3 className="font-['Sniglet'] text-[12px] text-black/60 dark:text-white/60">Total Events</h3>
+                <h3 className="label-muted">Total Events</h3>
               </div>
-              <p className="font-['Fredoka_One'] text-[24px] text-black dark:text-white">{stats.total}</p>
+              <p className="heading-xl">{stats.total}</p>
             </div>
             
             <div className="bg-white dark:bg-[#1a1917] rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] p-4">
               <div className="flex items-center gap-2 mb-2">
                 <User size={20} className="text-black dark:text-white" />
-                <h3 className="font-['Sniglet'] text-[12px] text-black/60 dark:text-white/60">Active Users</h3>
+                <h3 className="label-muted">Active Users</h3>
               </div>
-              <p className="font-['Fredoka_One'] text-[24px] text-black dark:text-white">
+              <p className="heading-xl">
                 {Object.keys(stats.byUser).length}
               </p>
             </div>
@@ -192,7 +192,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
             <div className="bg-white dark:bg-[#1a1917] rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Calendar size={20} className="text-black dark:text-white" />
-                <h3 className="font-['Sniglet'] text-[12px] text-black/60 dark:text-white/60">Creates</h3>
+                <h3 className="label-muted">Creates</h3>
               </div>
               <p className="font-['Fredoka_One'] text-[24px] text-green-600 dark:text-green-400">
                 {stats.byAction.create || 0}
@@ -202,7 +202,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
             <div className="bg-white dark:bg-[#1a1917] rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Activity size={20} className="text-black dark:text-white" />
-                <h3 className="font-['Sniglet'] text-[12px] text-black/60 dark:text-white/60">Deletes</h3>
+                <h3 className="label-muted">Deletes</h3>
               </div>
               <p className="font-['Fredoka_One'] text-[24px] text-red-600 dark:text-red-400">
                 {stats.byAction.delete || 0}
@@ -220,7 +220,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <div>
-              <label className="block font-['Sniglet'] text-[12px] text-black/60 dark:text-white/60 mb-1">
+              <label className="block label-muted mb-1">
                 Entity Type
               </label>
               <select
@@ -239,7 +239,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
             </div>
             
             <div>
-              <label className="block font-['Sniglet'] text-[12px] text-black/60 dark:text-white/60 mb-1">
+              <label className="block label-muted mb-1">
                 Action
               </label>
               <select
@@ -255,7 +255,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
             </div>
             
             <div>
-              <label className="block font-['Sniglet'] text-[12px] text-black/60 dark:text-white/60 mb-1">
+              <label className="block label-muted mb-1">
                 Search
               </label>
               <div className="relative">
@@ -273,7 +273,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block font-['Sniglet'] text-[12px] text-black/60 dark:text-white/60 mb-1">
+              <label className="block label-muted mb-1">
                 Start Date
               </label>
               <input
@@ -285,7 +285,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
             </div>
             
             <div>
-              <label className="block font-['Sniglet'] text-[12px] text-black/60 dark:text-white/60 mb-1">
+              <label className="block label-muted mb-1">
                 End Date
               </label>
               <input
@@ -310,7 +310,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
 
         {/* Logs Table */}
         <div className="bg-white dark:bg-[#1a1917] rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)]">
-          <div className="p-4 border-b border-[#211f1c]/20 dark:border-white/20">
+          <div className="panel-bordered">
             <h3 className="font-['Fredoka_One'] text-[18px]">
               Audit Logs ({total} total)
             </h3>
@@ -318,13 +318,13 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
           
           {loading ? (
             <div className="p-8 text-center">
-              <p className="font-['Sniglet'] text-[12px] text-black/60 dark:text-white/60">
+              <p className="label-muted">
                 Loading audit logs...
               </p>
             </div>
           ) : filteredLogs.length === 0 ? (
             <div className="p-8 text-center">
-              <p className="font-['Sniglet'] text-[12px] text-black/60 dark:text-white/60">
+              <p className="label-muted">
                 No audit logs found.
               </p>
             </div>
@@ -385,7 +385,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
               
               {/* Pagination */}
               <div className="p-4 border-t border-[#211f1c]/20 dark:border-white/20 flex items-center justify-between">
-                <p className="font-['Sniglet'] text-[12px] text-black/60 dark:text-white/60">
+                <p className="label-muted">
                   Showing {page * limit + 1} - {Math.min((page + 1) * limit, total)} of {total}
                 </p>
                 <div className="flex gap-2">
@@ -425,30 +425,30 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
               
               <div className="space-y-4">
                 <div>
-                  <h3 className="font-['Sniglet'] text-[12px] text-black/60 dark:text-white/60 mb-1">Timestamp</h3>
+                  <h3 className="label-muted mb-1">Timestamp</h3>
                   <p className="font-['Sniglet'] text-[14px]">{new Date(selectedLog.timestamp).toLocaleString()}</p>
                 </div>
                 
                 <div>
-                  <h3 className="font-['Sniglet'] text-[12px] text-black/60 dark:text-white/60 mb-1">User</h3>
+                  <h3 className="label-muted mb-1">User</h3>
                   <p className="font-['Sniglet'] text-[14px]">{selectedLog.userEmail}</p>
                   <p className="font-['Sniglet'] text-[11px] text-black/40 dark:text-white/40 font-mono">{selectedLog.userId}</p>
                 </div>
                 
                 <div>
-                  <h3 className="font-['Sniglet'] text-[12px] text-black/60 dark:text-white/60 mb-1">Action</h3>
+                  <h3 className="label-muted mb-1">Action</h3>
                   <span className={`inline-block px-3 py-1 rounded-md border font-['Sniglet'] text-[12px] ${getActionColor(selectedLog.action)}`}>
                     {selectedLog.action}
                   </span>
                 </div>
                 
                 <div>
-                  <h3 className="font-['Sniglet'] text-[12px] text-black/60 dark:text-white/60 mb-1">Entity</h3>
+                  <h3 className="label-muted mb-1">Entity</h3>
                   <p className="font-['Sniglet'] text-[14px]">{selectedLog.entityType}: {selectedLog.entityId}</p>
                 </div>
                 
                 <div>
-                  <h3 className="font-['Sniglet'] text-[12px] text-black/60 dark:text-white/60 mb-1">Changes</h3>
+                  <h3 className="label-muted mb-1">Changes</h3>
                   <ul className="list-disc pl-5 space-y-1">
                     {selectedLog.changes.map((change, idx) => (
                       <li key={idx} className="font-['Sniglet'] text-[12px]">{change}</li>
@@ -458,7 +458,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
                 
                 {selectedLog.before && (
                   <div>
-                    <h3 className="font-['Sniglet'] text-[12px] text-black/60 dark:text-white/60 mb-1">Before</h3>
+                    <h3 className="label-muted mb-1">Before</h3>
                     <pre className="bg-[#e8f4f8] dark:bg-[#2d2b28] p-3 rounded-md font-['Sniglet'] text-[10px] overflow-x-auto">
                       {JSON.stringify(selectedLog.before, null, 2)}
                     </pre>
@@ -467,7 +467,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
                 
                 {selectedLog.after && (
                   <div>
-                    <h3 className="font-['Sniglet'] text-[12px] text-black/60 dark:text-white/60 mb-1">After</h3>
+                    <h3 className="label-muted mb-1">After</h3>
                     <pre className="bg-[#e8f4f8] dark:bg-[#2d2b28] p-3 rounded-md font-['Sniglet'] text-[10px] overflow-x-auto">
                       {JSON.stringify(selectedLog.after, null, 2)}
                     </pre>
@@ -476,7 +476,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
                 
                 {selectedLog.ipAddress && (
                   <div>
-                    <h3 className="font-['Sniglet'] text-[12px] text-black/60 dark:text-white/60 mb-1">IP Address</h3>
+                    <h3 className="label-muted mb-1">IP Address</h3>
                     <p className="font-['Sniglet'] text-[12px] font-mono">{selectedLog.ipAddress}</p>
                   </div>
                 )}

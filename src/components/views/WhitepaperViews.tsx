@@ -54,9 +54,7 @@ export function MethodologyListView({
         </div>
       ) : error ? (
         <div className="text-center py-12">
-          <p className="text-[14px] text-red-600 dark:text-red-400">
-            {error}
-          </p>
+          <p className="text-[14px] text-red-600 dark:text-red-400">{error}</p>
         </div>
       ) : whitepapers.length === 0 ? (
         <div className="text-center py-12">
@@ -73,8 +71,8 @@ export function MethodologyListView({
               className="bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 p-6 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all text-left"
             >
               <div className="flex items-start gap-4">
-                <div className="p-3 bg-[#e4e3ac] rounded-md border border-[#211f1c] dark:border-white/20">
-                  <FileText size={24} className="text-black" />
+                <div className="p-3 arcade-bg-amber arcade-btn-amber rounded-md border border-[#211f1c] dark:border-white/20">
+                  <FileText size={24} />
                 </div>
                 <div className="flex-1">
                   <h3 className="text-[16px] text-black dark:text-white mb-2">
@@ -84,9 +82,7 @@ export function MethodologyListView({
                     Last updated:{" "}
                     {new Date(whitepaper.updatedAt).toLocaleDateString()}
                   </p>
-                  <span className="inline-block px-2 py-0.5 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 text-[9px] text-black">
-                    Read Whitepaper
-                  </span>
+                  <span className="tag-cyan">Read Whitepaper</span>
                 </div>
               </div>
             </button>

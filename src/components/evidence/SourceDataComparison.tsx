@@ -380,7 +380,7 @@ export function SourceDataComparison({
       {comparisonData && material && (
         <div className="space-y-6">
           {/* Summary Card */}
-          <Card className="p-4 bg-[#faf9f6] dark:bg-[#1a1918] border-[#211f1c] dark:border-white/20">
+          <Card className="panel">
             <div className="flex items-start justify-between mb-4">
               <div>
                 <h2 className="text-[14px] text-black dark:text-white mb-1">

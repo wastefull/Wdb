@@ -43,7 +43,7 @@ export function RoadmapPhaseTab({
               <span className="text-[10px]">{deliverable.completed ? '✓' : '○'}</span>
             </div>
             <div>
-              <div className="font-['Sniglet'] text-[12px] text-black dark:text-white">
+              <div className="label">
                 {deliverable.title}
               </div>
               <div className="text-[11px] text-black/60 dark:text-white/60">
@@ -67,7 +67,7 @@ export function RoadmapPhaseTab({
                 <div className="font-['Sniglet'] text-[14px] text-black dark:text-white">
                   Testing View
                 </div>
-                <div className="font-['Sniglet'] text-[11px] text-black/60 dark:text-white/60">
+                <div className="label-muted-sm">
                   {showTesting ? 'Hide' : 'Show'} test scenarios and verification checklist
                 </div>
               </div>

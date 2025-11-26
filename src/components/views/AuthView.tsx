@@ -239,7 +239,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
 
                 <button
                   onClick={() => setAuthMode("magic-link")}
-                  className="w-full bg-[#b8c8cb] h-[36px] rounded-[8px] border border-[#211f1c] dark:border-white/20 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all flex items-center justify-center gap-2"
+                  className="w-full arcade-bg-cyan arcade-btn-cyan h-[36px] rounded-[8px] border border-[#211f1c] dark:border-white/20 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] text-[12px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all flex items-center justify-center gap-2"
                 >
                   <ArrowLeft size={14} />
                   Send Another Link
@@ -285,7 +285,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
                 <button
                   onClick={handleSendMagicLink}
                   disabled={loading}
-                  className="w-full bg-[#e4e3ac] h-[40px] rounded-[8px] border border-[#211f1c] dark:border-white/20 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] text-[13px] text-black hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
+                  className="w-full arcade-bg-amber arcade-btn-amber h-[40px] rounded-[8px] border border-[#211f1c] dark:border-white/20 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] text-[13px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
                 >
                   <Mail size={16} />
                   {loading ? "Sending..." : "Send Magic Link"}
@@ -371,7 +371,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
                 {/* Email Confirmation Notice */}
                 <div className="p-2.5 bg-blue-50 dark:bg-blue-900/20 border border-blue-300 dark:border-blue-700 rounded-[8px]">
                   <p className="text-[10px] text-blue-800 dark:text-blue-200">
-                    📧 New accounts require email confirmation. You'll receive a
+                    New accounts require email confirmation. You'll receive a
                     confirmation link after signing up.
                   </p>
                 </div>
@@ -381,7 +381,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
                   <button
                     onClick={handleSignIn}
                     disabled={loading}
-                    className="flex-1 bg-[#b8c8cb] h-[40px] rounded-[8px] border border-[#211f1c] dark:border-white/20 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] text-[13px] text-black hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
+                    className="flex-1 arcade-bg-cyan arcade-btn-cyan h-[40px] rounded-[8px] border border-[#211f1c] dark:border-white/20 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] text-[13px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
                   >
                     <LogIn size={16} />
                     {loading ? "Loading..." : "Sign In"}
@@ -389,7 +389,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
                   <button
                     onClick={handleSignUp}
                     disabled={loading}
-                    className="flex-1 bg-[#e4e3ac] h-[40px] rounded-[8px] border border-[#211f1c] dark:border-white/20 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] text-[13px] text-black hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
+                    className="flex-1 arcade-bg-amber arcade-btn-amber h-[40px] rounded-[8px] border border-[#211f1c] dark:border-white/20 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] text-[13px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
                   >
                     <UserPlus size={16} />
                     {loading ? "Loading..." : "Sign Up"}
@@ -405,7 +405,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
                   </p>
                   <button
                     onClick={() => setAuthMode("magic-link")}
-                    className="w-full bg-[#e4e3ac] h-[36px] rounded-[8px] border border-[#211f1c] dark:border-white/20 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all flex items-center justify-center gap-2"
+                    className="w-full arcade-bg-amber arcade-btn-amber h-[36px] rounded-[8px] border border-[#211f1c] dark:border-white/20 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] text-[12px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all flex items-center justify-center gap-2"
                   >
                     <Mail size={14} />
                     Use Magic Link Instead

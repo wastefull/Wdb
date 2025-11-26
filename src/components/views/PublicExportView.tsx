@@ -92,10 +92,7 @@ export function PublicExportView({
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex items-center gap-4 mb-6">
-          <button
-            onClick={onBack}
-            className="p-2 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
-          >
+          <button onClick={onBack} className="card-interactive">
             <ArrowLeft size={16} className="text-black" />
           </button>
           <div className="flex-1">
@@ -136,8 +133,8 @@ export function PublicExportView({
           <TabsContent value="public" className="space-y-6">
             <Card className="p-6 bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
               <div className="flex items-start gap-4 mb-4">
-                <div className="p-3 bg-[#e4e3ac] dark:bg-[#1a1918] rounded-md border border-[#211f1c] dark:border-white/20">
-                  <Database className="w-6 h-6 text-black dark:text-white" />
+                <div className="p-3 arcade-bg-amber arcade-btn-amber rounded-md border border-[#211f1c] dark:border-white/20">
+                  <Database className="w-6 h-6" />
                 </div>
                 <div className="flex-1">
                   <h2 className="text-[18px] text-black dark:text-white mb-2">
@@ -199,7 +196,7 @@ export function PublicExportView({
                 <Button
                   onClick={() => handleDownload("csv", "public")}
                   disabled={downloading}
-                  className="bg-[#e4e3ac] hover:bg-[#d4d39c] text-black h-auto py-4"
+                  className="arcade-bg-amber arcade-btn-amber hover:opacity-90 h-auto py-4"
                 >
                   <FileText className="w-5 h-5 mr-2" />
                   <div className="text-left">
@@ -213,7 +210,7 @@ export function PublicExportView({
                 <Button
                   onClick={() => handleDownload("json", "public")}
                   disabled={downloading}
-                  className="bg-[#b8c8cb] hover:bg-[#a8b8bb] text-black h-auto py-4"
+                  className="arcade-bg-cyan arcade-btn-cyan hover:opacity-90 h-auto py-4"
                 >
                   <FileJson className="w-5 h-5 mr-2" />
                   <div className="text-left">
@@ -239,8 +236,8 @@ export function PublicExportView({
           <TabsContent value="research" className="space-y-6">
             <Card className="p-6 bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
               <div className="flex items-start gap-4 mb-4">
-                <div className="p-3 bg-[#e6beb5] dark:bg-[#1a1918] rounded-md border border-[#211f1c] dark:border-white/20">
-                  <Database className="w-6 h-6 text-black dark:text-white" />
+                <div className="p-3 arcade-bg-red arcade-btn-red rounded-md border border-[#211f1c] dark:border-white/20">
+                  <Database className="w-6 h-6" />
                 </div>
                 <div className="flex-1">
                   <h2 className="text-[18px] text-black dark:text-white mb-2">
@@ -339,7 +336,7 @@ export function PublicExportView({
                 <Button
                   onClick={() => handleDownload("csv", "full")}
                   disabled={downloading}
-                  className="bg-[#e6beb5] hover:bg-[#d6aea5] text-black h-auto py-4"
+                  className="arcade-bg-red arcade-btn-red hover:opacity-90 h-auto py-4"
                 >
                   <FileText className="w-5 h-5 mr-2" />
                   <div className="text-left">
@@ -353,7 +350,7 @@ export function PublicExportView({
                 <Button
                   onClick={() => handleDownload("json", "full")}
                   disabled={downloading}
-                  className="bg-[#b8c8cb] hover:bg-[#a8b8bb] text-black h-auto py-4"
+                  className="arcade-bg-cyan arcade-btn-cyan hover:opacity-90 h-auto py-4"
                 >
                   <FileJson className="w-5 h-5 mr-2" />
                   <div className="text-left">
@@ -394,21 +391,19 @@ export function PublicExportView({
                     Recyclability (CR) Parameters:
                   </h4>
                   <div className="flex flex-wrap gap-2">
-                    <Badge className="text-[9px] bg-[#e4e3ac] text-black border-[#211f1c]">
+                    <Badge className="tag-yellow">
                       Y = Yield (recovery fraction)
                     </Badge>
-                    <Badge className="text-[9px] bg-[#e4e3ac] text-black border-[#211f1c]">
+                    <Badge className="tag-yellow">
                       D = Degradability (quality retention)
                     </Badge>
-                    <Badge className="text-[9px] bg-[#e4e3ac] text-black border-[#211f1c]">
+                    <Badge className="tag-yellow">
                       C = Contamination tolerance
                     </Badge>
-                    <Badge className="text-[9px] bg-[#e4e3ac] text-black border-[#211f1c]">
+                    <Badge className="tag-yellow">
                       M = Infrastructure maturity
                     </Badge>
-                    <Badge className="text-[9px] bg-[#e4e3ac] text-black border-[#211f1c]">
-                      E = Energy demand
-                    </Badge>
+                    <Badge className="tag-yellow">E = Energy demand</Badge>
                   </div>
                 </div>
 
@@ -417,19 +412,11 @@ export function PublicExportView({
                     Compostability (CC) Parameters:
                   </h4>
                   <div className="flex flex-wrap gap-2">
-                    <Badge className="text-[9px] bg-[#e6beb5] text-black border-[#211f1c]">
-                      B = Biodegradation rate
-                    </Badge>
-                    <Badge className="text-[9px] bg-[#e6beb5] text-black border-[#211f1c]">
-                      N = Nutrient balance
-                    </Badge>
-                    <Badge className="text-[9px] bg-[#e6beb5] text-black border-[#211f1c]">
-                      T = Toxicity (inverted)
-                    </Badge>
-                    <Badge className="text-[9px] bg-[#e6beb5] text-black border-[#211f1c]">
-                      H = Habitat adaptability
-                    </Badge>
-                    <Badge className="text-[9px] bg-[#e6beb5] text-black border-[#211f1c]">
+                    <Badge className="tag-pink">B = Biodegradation rate</Badge>
+                    <Badge className="tag-pink">N = Nutrient balance</Badge>
+                    <Badge className="tag-pink">T = Toxicity (inverted)</Badge>
+                    <Badge className="tag-pink">H = Habitat adaptability</Badge>
+                    <Badge className="tag-pink">
                       M = Infrastructure maturity (shared)
                     </Badge>
                   </div>
@@ -440,19 +427,15 @@ export function PublicExportView({
                     Reusability (RU) Parameters:
                   </h4>
                   <div className="flex flex-wrap gap-2">
-                    <Badge className="text-[9px] bg-[#b8c8cb] text-black border-[#211f1c]">
+                    <Badge className="tag-cyan">
                       L = Lifetime (functional cycles)
                     </Badge>
-                    <Badge className="text-[9px] bg-[#b8c8cb] text-black border-[#211f1c]">
-                      R = Repairability
-                    </Badge>
-                    <Badge className="text-[9px] bg-[#b8c8cb] text-black border-[#211f1c]">
-                      U = Upgradability
-                    </Badge>
-                    <Badge className="text-[9px] bg-[#b8c8cb] text-black border-[#211f1c]">
+                    <Badge className="tag-cyan">R = Repairability</Badge>
+                    <Badge className="tag-cyan">U = Upgradability</Badge>
+                    <Badge className="tag-cyan">
                       C = Contamination (functional loss, inverted)
                     </Badge>
-                    <Badge className="text-[9px] bg-[#b8c8cb] text-black border-[#211f1c]">
+                    <Badge className="tag-cyan">
                       M = Infrastructure maturity (shared)
                     </Badge>
                   </div>
@@ -498,13 +481,11 @@ export function PublicExportView({
                 Confidence Levels
               </h4>
               <div className="flex flex-wrap gap-2 mt-2">
-                <Badge className="text-[9px] bg-green-100 text-green-800 border-green-300">
+                <Badge className="tag-green">
                   High: ≥80% complete + 2+ peer-reviewed sources
                 </Badge>
-                <Badge className="text-[9px] bg-yellow-100 text-yellow-800 border-yellow-300">
-                  Medium: ≥60% complete data
-                </Badge>
-                <Badge className="text-[9px] bg-red-100 text-red-800 border-red-300">
+                <Badge className="tag-yellow">Medium: ≥60% complete data</Badge>
+                <Badge className="tag-pink">
                   Low: &lt;60% complete (estimated)
                 </Badge>
               </div>

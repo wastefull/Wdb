@@ -261,7 +261,7 @@ export function RetroButtons({ title }: RetroButtonsProps) {
                                   onCheckedChange={togglePrioritizeOA}
                                 />
                               </div>
-                              <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">
+                              <p className="caption">
                                 Curator preference: show OA sources first
                               </p>
                             </div>

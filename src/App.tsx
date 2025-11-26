@@ -714,10 +714,10 @@ function AppContent() {
                       setSearchQuery("");
                       navigateToMaterials();
                     }}
-                    className="flex items-center gap-2 px-4 py-2 bg-[#b8c8cb] rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
+                    className="flex items-center gap-2 px-4 py-2 arcade-bg-cyan arcade-btn-cyan rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
                   >
-                    <ArrowLeft size={16} className="text-black" />
-                    <span className="text-[14px] text-black">Back to Home</span>
+                    <ArrowLeft size={16} />
+                    <span className="text-[14px]">Back to Home</span>
                   </button>
                   <div className="text-[14px] text-black dark:text-white">
                     Search results for:{" "}

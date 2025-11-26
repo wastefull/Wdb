@@ -19,7 +19,7 @@ export function LegalHubView({
       title: "Content Takedown Request",
       description: "Submit a request to remove or correct content in WasteDB",
       icon: AlertCircle,
-      iconBg: "#e6beb5",
+      iconClass: "arcade-bg-red arcade-btn-red",
       onClick: onNavigateToTakedownForm,
       label: "Submit Request",
     },
@@ -28,7 +28,7 @@ export function LegalHubView({
       title: "Open Source Licenses",
       description: "View all open source software licenses used in WasteDB",
       icon: FileText,
-      iconBg: "#b8c8cb",
+      iconClass: "arcade-bg-cyan arcade-btn-cyan",
       onClick: onNavigateToLicenses,
       label: "View Licenses",
     },
@@ -51,10 +51,9 @@ export function LegalHubView({
             >
               <div className="flex items-start gap-4">
                 <div
-                  className="p-3 rounded-md border border-[#211f1c] dark:border-white/20"
-                  style={{ backgroundColor: resource.iconBg }}
+                  className={`p-3 rounded-md border border-[#211f1c] dark:border-white/20 ${resource.iconClass}`}
                 >
-                  <Icon size={24} className="text-black" />
+                  <Icon size={24} />
                 </div>
                 <div className="flex-1">
                   <h3 className="text-[16px] text-black dark:text-white mb-2">
@@ -63,9 +62,7 @@ export function LegalHubView({
                   <p className="text-[12px] text-black/60 dark:text-white/60 mb-2">
                     {resource.description}
                   </p>
-                  <span className="inline-block px-2 py-0.5 bg-[#e4e3ac] rounded-md border border-[#211f1c] dark:border-white/20 text-[9px] text-black">
-                    {resource.label}
-                  </span>
+                  <span className="tag-yellow">{resource.label}</span>
                 </div>
               </div>
             </button>

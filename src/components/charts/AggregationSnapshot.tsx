@@ -80,7 +80,7 @@ export function AggregationSnapshot({ aggregation, onViewEvidence }: Aggregation
 
         {/* Version Tracking */}
         <div className="space-y-3">
-          <h4 className="font-['Sniglet'] text-[12px] text-black dark:text-white flex items-center gap-2">
+          <h4 className="label flex items-center gap-2">
             <GitBranch className="h-4 w-4" />
             Version Snapshot
           </h4>
@@ -167,7 +167,7 @@ export function AggregationSnapshot({ aggregation, onViewEvidence }: Aggregation
 
         {/* Weights Used */}
         <div className="space-y-2">
-          <h4 className="font-['Sniglet'] text-[12px] text-black dark:text-white">
+          <h4 className="label">
             Confidence Weights
           </h4>
           <div className="space-y-1">

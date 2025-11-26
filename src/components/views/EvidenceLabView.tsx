@@ -350,15 +350,15 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
       <div className="flex items-center gap-4 p-6 border-b border-[#211f1c]/20 dark:border-white/20 bg-white dark:bg-[#2a2825]">
         <button
           onClick={onBack}
-          className="p-2 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+          className="card-interactive"
         >
           <ArrowLeft size={16} className="text-black" />
         </button>
         <div className="flex-1">
-          <h2 className="font-['Fredoka_One'] text-[24px] text-black dark:text-white">
+          <h2 className="heading-xl">
             Evidence Lab
           </h2>
-          <p className="font-['Sniglet'] text-[12px] text-black/60 dark:text-white/60">
+          <p className="label-muted">
             Collect and organize scientific evidence for material parameters
           </p>
         </div>
@@ -376,7 +376,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
         {/* Left Pane: Parameter Selection */}
         <div className="w-80 border-r border-[#211f1c]/20 dark:border-white/20 bg-white dark:bg-[#2a2825] flex flex-col">
           {/* Search */}
-          <div className="p-4 border-b border-[#211f1c]/20 dark:border-white/20">
+          <div className="panel-bordered">
             <div className="relative">
               <Search
                 size={14}
@@ -434,7 +434,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
           {selectedParameter ? (
             <>
               {/* MIU List Header */}
-              <div className="p-4 border-b border-[#211f1c]/20 dark:border-white/20">
+              <div className="panel-bordered">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="font-['Fredoka_One'] text-[16px] text-black dark:text-white">
                     Evidence Points for{" "}
@@ -445,7 +445,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                     Filter
                   </Button>
                 </div>
-                <p className="font-['Sniglet'] text-[11px] text-black/60 dark:text-white/60">
+                <p className="label-muted-sm">
                   {filteredEvidence.length} evidence points collected
                 </p>
               </div>
@@ -469,7 +469,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                           size={14}
                           className="text-black/40 dark:text-white/40 mt-0.5 flex-shrink-0"
                         />
-                        <span className="font-['Sniglet'] text-[12px] text-black dark:text-white">
+                        <span className="label">
                           {miu.citation}
                         </span>
                       </div>
@@ -496,7 +496,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                       </div>
 
                       {/* Context (truncated) */}
-                      <p className="font-['Sniglet'] text-[11px] text-black/60 dark:text-white/60 line-clamp-2">
+                      <p className="label-muted-sm line-clamp-2">
                         {miu.snippet}
                       </p>
 
@@ -527,7 +527,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                 <h3 className="font-['Fredoka_One'] text-[16px] text-black dark:text-white mb-2">
                   Select a Parameter
                 </h3>
-                <p className="font-['Sniglet'] text-[12px] text-black/60 dark:text-white/60 max-w-xs">
+                <p className="label-muted max-w-xs">
                   Choose a parameter from the left to view and manage its
                   evidence points
                 </p>
@@ -541,7 +541,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
           {selectedMIU ? (
             <>
               {/* Detail Header */}
-              <div className="p-4 border-b border-[#211f1c]/20 dark:border-white/20">
+              <div className="panel-bordered">
                 <h3 className="font-['Fredoka_One'] text-[16px] text-black dark:text-white mb-1">
                   Evidence Point Details
                 </h3>
@@ -564,7 +564,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                           size={14}
                           className="text-black/60 dark:text-white/60 mt-0.5"
                         />
-                        <span className="font-['Sniglet'] text-[12px] text-black dark:text-white">
+                        <span className="label">
                           {selectedMIU.citation}
                         </span>
                       </div>
@@ -573,7 +573,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                           size={12}
                           className="text-black/40 dark:text-white/40"
                         />
-                        <span className="font-['Sniglet'] text-[10px] text-black/60 dark:text-white/60">
+                        <span className="label-muted-xs">
                           Page {selectedMIU.page_number}
                         </span>
                       </div>
@@ -598,7 +598,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                       CONTEXT
                     </label>
                     <div className="p-3 rounded-lg bg-[#e5e4dc] dark:bg-[#1a1917] border border-[#211f1c]/20 dark:border-white/20">
-                      <p className="font-['Sniglet'] text-[12px] text-black dark:text-white leading-relaxed">
+                      <p className="label leading-relaxed">
                         {selectedMIU.snippet}
                       </p>
                     </div>
@@ -628,7 +628,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                     </label>
                     <div className="space-y-2">
                       <div className="flex items-center justify-between p-2 rounded bg-[#e5e4dc] dark:bg-[#1a1917]">
-                        <span className="font-['Sniglet'] text-[11px] text-black/60 dark:text-white/60">
+                        <span className="label-muted-sm">
                           Created by
                         </span>
                         <span className="font-['Sniglet'] text-[11px] text-black dark:text-white">
@@ -636,7 +636,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                         </span>
                       </div>
                       <div className="flex items-center justify-between p-2 rounded bg-[#e5e4dc] dark:bg-[#1a1917]">
-                        <span className="font-['Sniglet'] text-[11px] text-black/60 dark:text-white/60">
+                        <span className="label-muted-sm">
                           Created at
                         </span>
                         <span className="font-['Sniglet'] text-[11px] text-black dark:text-white">
@@ -680,7 +680,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                 <h3 className="font-['Fredoka_One'] text-[16px] text-black dark:text-white mb-2">
                   No Selection
                 </h3>
-                <p className="font-['Sniglet'] text-[12px] text-black/60 dark:text-white/60 max-w-xs">
+                <p className="label-muted max-w-xs">
                   Select an evidence point to view its details
                 </p>
               </div>

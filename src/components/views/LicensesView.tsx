@@ -139,7 +139,7 @@ export function LicensesView({ onBack }: { onBack: () => void }) {
                   )}
                 </h3>
               </div>
-              <span className="text-[11px] px-3 py-1 rounded-full bg-[#b8c8cb] dark:bg-[#2a2f27] border border-[#211f1c] dark:border-white/20 text-black dark:text-white whitespace-nowrap">
+              <span className="text-[11px] px-3 py-1 rounded-full arcade-bg-cyan arcade-btn-cyan border border-[#211f1c] dark:border-white/20 whitespace-nowrap">
                 {license.licenseType}
               </span>
             </div>
@@ -161,7 +161,7 @@ export function LicensesView({ onBack }: { onBack: () => void }) {
       </div>
 
       {/* Footer Note */}
-      <div className="mt-8 p-4 bg-[#e4e3ac]/20 dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[11.464px]">
+      <div className="mt-8 p-4 bg-[#b8c8cb]/30 dark:bg-[#2a3235]/30 border-[1.5px] border-[#211f1c]/20 dark:border-white/20 rounded-[11.464px]">
         <p className="text-[12px] text-black/70 dark:text-white/70">
           <strong>Note:</strong> This list includes the primary open source
           libraries used in WasteDB. Each library may have its own dependencies

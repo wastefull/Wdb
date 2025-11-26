@@ -42,7 +42,7 @@ export function RecyclabilityTab({ formData, onParameterChange }: DimensionTabPr
   return (
     <div className="space-y-4">
       {/* Parameters Card */}
-      <Card className="p-4 bg-[#faf9f6] dark:bg-[#1a1918] border-[#211f1c] dark:border-white/20">
+      <Card className="panel">
         <h3 className="text-[14px] text-black dark:text-white mb-3">
           Recyclability Parameters (CR-v1)
         </h3>
@@ -59,7 +59,7 @@ export function RecyclabilityTab({ formData, onParameterChange }: DimensionTabPr
               onChange={(e) => onParameterChange('Y_value', parseFloat(e.target.value) || 0)}
               className="text-[12px]"
             />
-            <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">Material recovery rate</p>
+            <p className="caption">Material recovery rate</p>
           </div>
 
           <div>
@@ -73,7 +73,7 @@ export function RecyclabilityTab({ formData, onParameterChange }: DimensionTabPr
               onChange={(e) => onParameterChange('D_value', parseFloat(e.target.value) || 0)}
               className="text-[12px]"
             />
-            <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">Quality retention</p>
+            <p className="caption">Quality retention</p>
           </div>
 
           <div>
@@ -87,7 +87,7 @@ export function RecyclabilityTab({ formData, onParameterChange }: DimensionTabPr
               onChange={(e) => onParameterChange('C_value', parseFloat(e.target.value) || 0)}
               className="text-[12px]"
             />
-            <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">Contamination tolerance</p>
+            <p className="caption">Contamination tolerance</p>
           </div>
 
           <div>
@@ -101,7 +101,7 @@ export function RecyclabilityTab({ formData, onParameterChange }: DimensionTabPr
               onChange={(e) => onParameterChange('M_value', parseFloat(e.target.value) || 0)}
               className="text-[12px]"
             />
-            <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">Infrastructure availability</p>
+            <p className="caption">Infrastructure availability</p>
           </div>
 
           <div>
@@ -115,7 +115,7 @@ export function RecyclabilityTab({ formData, onParameterChange }: DimensionTabPr
               onChange={(e) => onParameterChange('E_value', parseFloat(e.target.value) || 0)}
               className="text-[12px]"
             />
-            <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">Energy demand (normalized)</p>
+            <p className="caption">Energy demand (normalized)</p>
           </div>
         </div>
 
@@ -128,7 +128,7 @@ export function RecyclabilityTab({ formData, onParameterChange }: DimensionTabPr
       </Card>
 
       {/* Composite Scores Card */}
-      <Card className="p-4 bg-[#faf9f6] dark:bg-[#1a1918] border-[#211f1c] dark:border-white/20">
+      <Card className="panel">
         <h3 className="text-[14px] text-black dark:text-white mb-3">
           Composite Recyclability Index (CR)
         </h3>

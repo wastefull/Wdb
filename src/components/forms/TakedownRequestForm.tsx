@@ -669,7 +669,7 @@ export function TakedownRequestForm({
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="w-full sm:w-auto"
+            className="w-full sm:w-auto arcade-bg-red arcade-btn-red hover:opacity-90"
           >
             {isSubmitting ? "Submitting..." : "Submit Takedown Request"}
           </Button>

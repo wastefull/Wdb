@@ -161,7 +161,7 @@ export function SourcesTab({
       )}
 
       {/* Metadata Card */}
-      <Card className="p-4 bg-[#faf9f6] dark:bg-[#1a1918] border-[#211f1c] dark:border-white/20">
+      <Card className="panel">
         <h3 className="text-[14px] text-black dark:text-white mb-3">
           Metadata
         </h3>
@@ -207,7 +207,7 @@ export function SourcesTab({
       </Card>
 
       {/* Existing Sources */}
-      <Card className="p-4 bg-[#faf9f6] dark:bg-[#1a1918] border-[#211f1c] dark:border-white/20">
+      <Card className="panel">
         <h3 className="text-[14px] text-black dark:text-white mb-3">
           Citation Sources ({sources.length})
         </h3>
@@ -356,7 +356,7 @@ export function SourcesTab({
                                   {source.title}
                                 </p>
                                 {source.authors && (
-                                  <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">
+                                  <p className="caption">
                                     {source.authors}
                                   </p>
                                 )}
@@ -424,7 +424,7 @@ export function SourcesTab({
                             {source.title}
                           </p>
                           {source.authors && (
-                            <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">
+                            <p className="caption">
                               {source.authors}
                             </p>
                           )}

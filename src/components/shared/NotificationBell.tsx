@@ -160,7 +160,7 @@ export function NotificationBell({ userId, isAdmin }: NotificationBellProps) {
         align="end"
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-[#211f1c]/20 dark:border-white/20">
+        <div className="flex items-center justify-between panel-bordered">
           <h3 className="text-black dark:text-white">Notifications</h3>
           {unreadCount > 0 && (
             <button

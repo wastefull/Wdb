@@ -243,7 +243,7 @@ export function ArticleEditor({
               <button
                 type="button"
                 onClick={() => insertMarkdown("**", "**")}
-                className="px-2 py-1 text-[11px] rounded border border-[#211f1c]/20 dark:border-white/20 hover:bg-[#e5e4dc] dark:hover:bg-[#3a3835]"
+                className="btn-ghost"
                 title="Bold"
               >
                 <strong>B</strong>
@@ -251,7 +251,7 @@ export function ArticleEditor({
               <button
                 type="button"
                 onClick={() => insertMarkdown("*", "*")}
-                className="px-2 py-1 text-[11px] rounded border border-[#211f1c]/20 dark:border-white/20 hover:bg-[#e5e4dc] dark:hover:bg-[#3a3835]"
+                className="btn-ghost"
                 title="Italic"
               >
                 <em>I</em>
@@ -259,7 +259,7 @@ export function ArticleEditor({
               <button
                 type="button"
                 onClick={() => insertMarkdown("\n## ")}
-                className="px-2 py-1 text-[11px] rounded border border-[#211f1c]/20 dark:border-white/20 hover:bg-[#e5e4dc] dark:hover:bg-[#3a3835]"
+                className="btn-ghost"
                 title="Heading"
               >
                 H
@@ -267,7 +267,7 @@ export function ArticleEditor({
               <button
                 type="button"
                 onClick={() => insertMarkdown("[", "](url)")}
-                className="px-2 py-1 text-[11px] rounded border border-[#211f1c]/20 dark:border-white/20 hover:bg-[#e5e4dc] dark:hover:bg-[#3a3835]"
+                className="btn-ghost"
                 title="Link"
               >
                 🔗
@@ -275,7 +275,7 @@ export function ArticleEditor({
               <button
                 type="button"
                 onClick={() => insertMarkdown("\n- ")}
-                className="px-2 py-1 text-[11px] rounded border border-[#211f1c]/20 dark:border-white/20 hover:bg-[#e5e4dc] dark:hover:bg-[#3a3835]"
+                className="btn-ghost"
                 title="List"
               >
                 •

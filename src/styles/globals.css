@@ -820,3 +820,157 @@ body {
   @apply text-[11px] px-3 py-1;
   @apply text-black/50 dark:text-white/50;
 }
+
+/* ==========================================================================
+   Labels & Text
+   ========================================================================== */
+.label {
+  @apply text-[12px] text-black dark:text-white;
+}
+
+.label-muted {
+  @apply text-[12px] text-black/60 dark:text-white/60;
+}
+
+.label-muted-sm {
+  @apply text-[11px] text-black/60 dark:text-white/60;
+}
+
+.label-muted-xs {
+  @apply text-[10px] text-black/60 dark:text-white/60;
+}
+
+.caption {
+  @apply text-[9px] text-black/60 dark:text-white/60 mt-1;
+}
+
+/* ==========================================================================
+   Headings
+   ========================================================================== */
+.heading-xl {
+  @apply font-display text-[24px] text-black dark:text-white;
+}
+
+.heading-lg {
+  @apply font-display text-[18px] text-black dark:text-white;
+}
+
+.heading-md {
+  @apply font-display text-[14px] text-black dark:text-white;
+}
+
+.heading-sm {
+  @apply font-display text-[11px] text-black/60 dark:text-white/60;
+}
+
+/* ==========================================================================
+   Panels & Cards
+   ========================================================================== */
+.panel {
+  @apply p-4 bg-[#faf9f6] dark:bg-[#1a1918] border border-[#211f1c]/20 dark:border-white/20 rounded-lg;
+}
+
+.panel-bordered {
+  @apply p-4 border-b border-[#211f1c]/20 dark:border-white/20;
+}
+
+.card {
+  @apply p-3 bg-white dark:bg-[#2a2825] rounded-lg border border-[#211f1c] dark:border-white/20;
+}
+
+.card-interactive {
+  @apply p-2 bg-[#b8c8cb] dark:bg-[#2a3235] rounded-md border border-[#211f1c] dark:border-white/20;
+  @apply hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all;
+}
+
+.card-muted {
+  @apply bg-[#b8c8cb]/30 dark:bg-[#2a3235]/30 border border-[#211f1c]/20 dark:border-white/10 rounded-md p-3;
+}
+
+/* ==========================================================================
+   Form Inputs
+   ========================================================================== */
+.input-field {
+  @apply w-full px-3 py-2 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px];
+  @apply text-[13px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50;
+  @apply outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all;
+}
+
+.input-field-sm {
+  @apply w-full px-3 py-2 bg-white dark:bg-[#2d2b28] border border-[#211f1c]/20 dark:border-white/20 rounded-md;
+  @apply text-[12px];
+}
+
+.textarea-field {
+  @apply w-full px-3 py-2 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px];
+  @apply text-[13px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50;
+  @apply outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all;
+  @apply resize-none;
+}
+
+/* ==========================================================================
+   Ghost Buttons (subtle, for toolbars/filters)
+   ========================================================================== */
+.btn-ghost {
+  @apply px-2 py-1 text-[11px] rounded border border-[#211f1c]/20 dark:border-white/20;
+  @apply hover:bg-[#e5e4dc] dark:hover:bg-[#3a3835] transition-colors;
+}
+
+.btn-ghost-active {
+  @apply px-2 py-1 text-[11px] rounded border border-[#211f1c]/20 dark:border-white/20;
+  @apply bg-[#e5e4dc] dark:bg-[#3a3835];
+}
+
+/* ==========================================================================
+   Tags / Badges (small colored labels)
+   ========================================================================== */
+.tag {
+  @apply inline-block px-2 py-0.5 rounded-md border border-[#211f1c] dark:border-white/20 text-[9px] text-black dark:text-white;
+}
+
+.tag-cyan {
+  @apply inline-block px-2 py-0.5 rounded-md border border-[#211f1c] dark:border-white/20 text-[9px];
+  @apply text-black bg-[#b8c8cb];
+}
+
+.dark .tag-cyan {
+  @apply text-[oklch(0.65_0.15_195)] bg-[oklch(0.2_0.05_195)];
+}
+
+.tag-yellow {
+  @apply inline-block px-2 py-0.5 rounded-md border border-[#211f1c] dark:border-white/20 text-[9px];
+  @apply text-black bg-[#e4e3ac];
+}
+
+.dark .tag-yellow {
+  @apply text-[oklch(0.85_0.15_85)] bg-[oklch(0.25_0.08_85)];
+}
+
+.tag-pink {
+  @apply inline-block px-2 py-0.5 rounded-md border border-[#211f1c] dark:border-white/20 text-[9px];
+  @apply text-black bg-[#e6beb5];
+}
+
+.dark .tag-pink {
+  @apply text-[oklch(0.75_0.12_15)] bg-[oklch(0.22_0.06_15)];
+}
+
+.tag-green {
+  @apply inline-block px-2 py-0.5 rounded-md border border-[#211f1c] dark:border-white/20 text-[9px];
+  @apply text-black bg-[#bae1c3];
+}
+
+.dark .tag-green {
+  @apply text-[oklch(0.75_0.18_145)] bg-[oklch(0.2_0.06_145)];
+}
+
+/* ==========================================================================
+   Table Headers (right-aligned, display font)
+   ========================================================================== */
+.table-header {
+  @apply px-4 py-3 text-right font-display text-[11px] text-black dark:text-white;
+}
+
+.table-cell {
+  @apply px-4 py-3 text-[12px] text-black dark:text-white;
+}

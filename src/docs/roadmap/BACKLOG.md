@@ -203,9 +203,21 @@ This document tracks all backlog items, future enhancements, and deferred work f
    - **Estimated Effort:** 1-2 hours
 
 4. **Keyboard Navigation**
+
    - [ ] Arrow keys to switch between CR/CC/RU tabs
    - [ ] Remember last active tab in localStorage
    - **Estimated Effort:** 1-2 hours
+
+5. **Dark Mode Chart Support**
+   - **Description:** Configure sustainability graphs (CR/CC/RU visualizations) to render properly in dark mode
+   - **Tasks:**
+     - [ ] Update chart background colors for dark mode
+     - [ ] Update axis labels and text colors
+     - [ ] Update legend styling
+     - [ ] Update grid lines and borders
+     - [ ] Test all chart types in dark mode
+   - **Estimated Effort:** 3-4 hours
+   - **Dependencies:** Dark mode theme complete
 
 ### Performance Optimizations
 

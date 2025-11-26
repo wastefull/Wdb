@@ -64,7 +64,7 @@ export function ReusabilityTab({
   return (
     <div className="space-y-4">
       {/* Parameters Card */}
-      <Card className="p-4 bg-[#faf9f6] dark:bg-[#1a1918] border-[#211f1c] dark:border-white/20">
+      <Card className="panel">
         <h3 className="text-[14px] text-black dark:text-white mb-3">
           Reusability Parameters (RU-v1)
         </h3>
@@ -83,7 +83,7 @@ export function ReusabilityTab({
               }
               className="text-[12px]"
             />
-            <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">
+            <p className="caption">
               Average functional cycles
             </p>
           </div>
@@ -101,7 +101,7 @@ export function ReusabilityTab({
               }
               className="text-[12px]"
             />
-            <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">
+            <p className="caption">
               Ease of disassembly / repair
             </p>
           </div>
@@ -119,7 +119,7 @@ export function ReusabilityTab({
               }
               className="text-[12px]"
             />
-            <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">
+            <p className="caption">
               Ease of adaptation / repurposing
             </p>
           </div>
@@ -139,7 +139,7 @@ export function ReusabilityTab({
               }
               className="text-[12px]"
             />
-            <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">
+            <p className="caption">
               Probability of functional loss
             </p>
           </div>
@@ -159,7 +159,7 @@ export function ReusabilityTab({
               }
               className="text-[12px]"
             />
-            <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">
+            <p className="caption">
               Market reuse infrastructure
             </p>
           </div>
@@ -187,7 +187,7 @@ export function ReusabilityTab({
       </Card>
 
       {/* Composite Scores Card */}
-      <Card className="p-4 bg-[#faf9f6] dark:bg-[#1a1918] border-[#211f1c] dark:border-white/20">
+      <Card className="panel">
         <h3 className="text-[14px] text-black dark:text-white mb-3">
           Composite Reusability Index (RU)
         </h3>

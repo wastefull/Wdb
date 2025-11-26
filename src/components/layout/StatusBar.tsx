@@ -48,7 +48,7 @@ export function StatusBar({
             {!user && onSignIn && (
               <button
                 onClick={onSignIn}
-                className="px-2 md:px-3 py-1 md:py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#b8c8cb] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[10px] md:text-[11px] text-black"
+                className="px-2 md:px-3 py-1 md:py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 arcade-bg-cyan arcade-btn-cyan hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[10px] md:text-[11px]"
               >
                 Sign In
               </button>

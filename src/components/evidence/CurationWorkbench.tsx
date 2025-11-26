@@ -345,15 +345,15 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
       <div className="flex items-center gap-4 p-6 border-b border-[#211f1c]/20 dark:border-white/20 bg-white dark:bg-[#2a2825]">
         <button
           onClick={onBack}
-          className="p-2 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+          className="card-interactive"
         >
           <ArrowLeft size={16} className="text-black" />
         </button>
         <div className="flex-1">
-          <h2 className="font-['Fredoka_One'] text-[24px] text-black dark:text-white">
+          <h2 className="heading-xl">
             Curation Workbench
           </h2>
-          <p className="font-['Sniglet'] text-[12px] text-black/60 dark:text-white/60">
+          <p className="label-muted">
             Phase 9.2: CR Parameters Only (Aluminum, PET, Cardboard)
           </p>
         </div>
@@ -437,11 +437,11 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
       <div className="flex-1 flex overflow-hidden">
         {/* Left Pane: Source Viewer */}
         <div className="flex-1 bg-white dark:bg-[#2a2825] flex flex-col border-r border-[#211f1c]/20 dark:border-white/20">
-          <div className="p-4 border-b border-[#211f1c]/20 dark:border-white/20">
+          <div className="panel-bordered">
             <h3 className="font-['Fredoka_One'] text-[16px] text-black dark:text-white mb-1">
               Source Viewer
             </h3>
-            <p className="font-['Sniglet'] text-[11px] text-black/60 dark:text-white/60">
+            <p className="label-muted-sm">
               {selectedSource
                 ? `Viewing: ${selectedSource.title || selectedSource.citation}`
                 : "Select a source to begin"}
@@ -454,7 +454,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
               <div className="p-6 space-y-4">
                 {loadingSources ? (
                   <div className="text-center py-12">
-                    <p className="font-['Sniglet'] text-[12px] text-black/60 dark:text-white/60">
+                    <p className="label-muted">
                       Loading sources...
                     </p>
                   </div>
@@ -467,7 +467,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                     <h4 className="font-['Fredoka_One'] text-[14px] text-black dark:text-white mb-2">
                       No Sources Available
                     </h4>
-                    <p className="font-['Sniglet'] text-[11px] text-black/60 dark:text-white/60">
+                    <p className="label-muted-sm">
                       Please add sources to the library first
                     </p>
                   </div>
@@ -491,7 +491,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                           <h4 className="font-['Fredoka_One'] text-[13px] text-black dark:text-white truncate">
                             {source.title || "Untitled"}
                           </h4>
-                          <p className="font-['Sniglet'] text-[11px] text-black/60 dark:text-white/60 line-clamp-2">
+                          <p className="label-muted-sm line-clamp-2">
                             {source.citation ||
                               source.authors ||
                               "No citation available"}
@@ -563,7 +563,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                       size={48}
                       className="mx-auto mb-4 text-black/20 dark:text-white/20"
                     />
-                    <p className="font-['Sniglet'] text-[11px] text-black/60 dark:text-white/60">
+                    <p className="label-muted-sm">
                       No source selected
                     </p>
                   </div>
@@ -575,11 +575,11 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
 
         {/* Right Pane: Evidence Wizard */}
         <div className="w-[480px] bg-white dark:bg-[#2a2825] flex flex-col">
-          <div className="p-4 border-b border-[#211f1c]/20 dark:border-white/20">
+          <div className="panel-bordered">
             <h3 className="font-['Fredoka_One'] text-[16px] text-black dark:text-white mb-1">
               Evidence Wizard
             </h3>
-            <p className="font-['Sniglet'] text-[11px] text-black/60 dark:text-white/60">
+            <p className="label-muted-sm">
               5-Step MIU Creation Flow
             </p>
           </div>

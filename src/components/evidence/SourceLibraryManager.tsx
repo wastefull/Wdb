@@ -1301,7 +1301,7 @@ export function SourceLibraryManager({
                   }
                   className="text-[12px]"
                 />
-                <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">
+                <p className="caption">
                   Confidence weight for aggregation calculations
                 </p>
               </div>
@@ -1337,7 +1337,7 @@ export function SourceLibraryManager({
                   placeholder="plastic, recycling, pet, yield"
                   className="text-[12px]"
                 />
-                <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">
+                <p className="caption">
                   Material types, processes, parameters (e.g., glass, recycling,
                   yield)
                 </p>

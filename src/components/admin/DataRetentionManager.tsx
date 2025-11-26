@@ -216,10 +216,10 @@ export function DataRetentionManager() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="font-['Fredoka_One'] text-[24px] text-black dark:text-white">
+          <h2 className="heading-xl">
             Data Retention Manager
           </h2>
-          <p className="font-['Sniglet'] text-[12px] text-black/60 dark:text-white/60">
+          <p className="label-muted">
             Manage data lifecycle and retention policies
           </p>
         </div>
@@ -252,7 +252,7 @@ export function DataRetentionManager() {
                 <Database className="size-4 text-blue-600" />
                 <span className="font-['Sniglet'] text-[12px] font-semibold">Screenshots</span>
               </div>
-              <p className="font-['Sniglet'] text-[10px] text-black/60 dark:text-white/60">
+              <p className="label-muted-xs">
                 7 years from capture
               </p>
             </div>
@@ -261,7 +261,7 @@ export function DataRetentionManager() {
                 <Database className="size-4 text-green-600" />
                 <span className="font-['Sniglet'] text-[12px] font-semibold">Audit Logs</span>
               </div>
-              <p className="font-['Sniglet'] text-[10px] text-black/60 dark:text-white/60">
+              <p className="label-muted-xs">
                 7 years from creation
               </p>
             </div>
@@ -270,7 +270,7 @@ export function DataRetentionManager() {
                 <Database className="size-4 text-purple-600" />
                 <span className="font-['Sniglet'] text-[12px] font-semibold">Sources/Evidence</span>
               </div>
-              <p className="font-['Sniglet'] text-[10px] text-black/60 dark:text-white/60">
+              <p className="label-muted-xs">
                 Indefinite (manual deletion only)
               </p>
             </div>
@@ -295,7 +295,7 @@ export function DataRetentionManager() {
               <div className="text-[32px] font-['Fredoka_One'] text-blue-600">
                 {stats?.screenshots.total || 0}
               </div>
-              <p className="font-['Sniglet'] text-[12px] text-black/60 dark:text-white/60">
+              <p className="label-muted">
                 Total screenshots
               </p>
             </div>
@@ -303,7 +303,7 @@ export function DataRetentionManager() {
               <div className="text-[32px] font-['Fredoka_One'] text-orange-600">
                 {stats?.screenshots.expired || 0}
               </div>
-              <p className="font-['Sniglet'] text-[12px] text-black/60 dark:text-white/60">
+              <p className="label-muted">
                 Expired (7+ years)
               </p>
             </div>
@@ -396,7 +396,7 @@ export function DataRetentionManager() {
               <div className="text-[32px] font-['Fredoka_One'] text-green-600">
                 {stats?.auditLogs.total || 0}
               </div>
-              <p className="font-['Sniglet'] text-[12px] text-black/60 dark:text-white/60">
+              <p className="label-muted">
                 Total audit logs
               </p>
             </div>
@@ -404,7 +404,7 @@ export function DataRetentionManager() {
               <div className="text-[32px] font-['Fredoka_One'] text-red-600">
                 {stats?.auditLogs.expired || 0}
               </div>
-              <p className="font-['Sniglet'] text-[12px] text-black/60 dark:text-white/60">
+              <p className="label-muted">
                 Expired (7+ years)
               </p>
             </div>
@@ -454,7 +454,7 @@ export function DataRetentionManager() {
               <p className="font-['Sniglet'] text-[11px] font-semibold mb-1">
                 Oldest Audit Log:
               </p>
-              <p className="font-['Sniglet'] text-[10px] text-black/60 dark:text-white/60">
+              <p className="label-muted-xs">
                 {new Date(stats.auditLogs.oldestLog.timestamp).toLocaleString()} - {stats.auditLogs.oldestLog.action} on {stats.auditLogs.oldestLog.entityType}
               </p>
             </div>
@@ -509,11 +509,11 @@ export function DataRetentionManager() {
                     <h4 className="font-['Sniglet'] text-[13px] font-semibold mb-1">
                       {integrityCheck.source.title}
                     </h4>
-                    <p className="font-['Sniglet'] text-[10px] text-black/60 dark:text-white/60">
+                    <p className="label-muted-xs">
                       Type: {integrityCheck.source.type}
                     </p>
                     {integrityCheck.source.doi && (
-                      <p className="font-['Sniglet'] text-[10px] text-black/60 dark:text-white/60">
+                      <p className="label-muted-xs">
                         DOI: {integrityCheck.source.doi}
                       </p>
                     )}
@@ -582,7 +582,7 @@ export function DataRetentionManager() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="p-3 bg-muted/50 rounded-lg">
-              <p className="font-['Sniglet'] text-[10px] text-black/60 dark:text-white/60 mb-1">
+              <p className="label-muted-xs mb-1">
                 Total Evidence Points
               </p>
               <div className="text-[24px] font-['Fredoka_One'] text-purple-600">
@@ -590,7 +590,7 @@ export function DataRetentionManager() {
               </div>
             </div>
             <div className="p-3 bg-muted/50 rounded-lg">
-              <p className="font-['Sniglet'] text-[10px] text-black/60 dark:text-white/60 mb-1">
+              <p className="label-muted-xs mb-1">
                 Last Checked
               </p>
               <div className="font-['Sniglet'] text-[11px]">
@@ -598,7 +598,7 @@ export function DataRetentionManager() {
               </div>
             </div>
             <div className="p-3 bg-muted/50 rounded-lg">
-              <p className="font-['Sniglet'] text-[10px] text-black/60 dark:text-white/60 mb-1">
+              <p className="label-muted-xs mb-1">
                 Policy Version
               </p>
               <div className="font-['Sniglet'] text-[11px]">

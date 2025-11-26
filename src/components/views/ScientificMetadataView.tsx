@@ -109,11 +109,9 @@ export function ScientificMetadataView({
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
       <CollapsibleTrigger className="w-full">
-        <div className="flex items-center gap-2 p-3 bg-[#bdd4b7] dark:bg-[#2a2f27] border border-[#211f1c] dark:border-white/20 rounded-md hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all">
-          <FlaskConical className="w-4 h-4 text-black dark:text-white" />
-          <span className="text-[13px] text-black dark:text-white">
-            Scientific Data
-          </span>
+        <div className="flex items-center gap-2 p-3 arcade-bg-green arcade-btn-green border border-[#211f1c] dark:border-white/20 rounded-md hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all">
+          <FlaskConical className="w-4 h-4" />
+          <span className="text-[13px]">Scientific Data</span>
           {validationWarning && (
             <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 ml-auto" />
           )}
@@ -123,7 +121,7 @@ export function ScientificMetadataView({
             </div>
           )}
           <ChevronDown
-            className={`w-4 h-4 text-black dark:text-white transition-transform ${
+            className={`w-4 h-4 transition-transform ${
               isOpen ? "rotate-180" : ""
             }`}
           />

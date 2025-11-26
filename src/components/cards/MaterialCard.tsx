@@ -55,7 +55,7 @@ export function MaterialCard({
               ) : null}
             </div>
           )}
-          <span className="inline-block px-2 py-0.5 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 text-[9px] text-black">
+          <span className="tag-cyan">
             {material.category}
           </span>
         </div>

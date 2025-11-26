@@ -67,7 +67,7 @@ export function CompostabilityTab({
   return (
     <div className="space-y-4">
       {/* Parameters Card */}
-      <Card className="p-4 bg-[#faf9f6] dark:bg-[#1a1918] border-[#211f1c] dark:border-white/20">
+      <Card className="panel">
         <h3 className="text-[14px] text-black dark:text-white mb-3">
           Compostability Parameters (CC-v1)
         </h3>
@@ -86,7 +86,7 @@ export function CompostabilityTab({
               }
               className="text-[12px]"
             />
-            <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">
+            <p className="caption">
               Biodegradation rate constant
             </p>
           </div>
@@ -104,7 +104,7 @@ export function CompostabilityTab({
               }
               className="text-[12px]"
             />
-            <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">
+            <p className="caption">
               C:N:P ratio suitability
             </p>
           </div>
@@ -122,7 +122,7 @@ export function CompostabilityTab({
               }
               className="text-[12px]"
             />
-            <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">
+            <p className="caption">
               Toxicity / residue index
             </p>
           </div>
@@ -140,7 +140,7 @@ export function CompostabilityTab({
               }
               className="text-[12px]"
             />
-            <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">
+            <p className="caption">
               Fraction of composting systems
             </p>
           </div>
@@ -160,7 +160,7 @@ export function CompostabilityTab({
               }
               className="text-[12px]"
             />
-            <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">
+            <p className="caption">
               Composting facility availability
             </p>
           </div>
@@ -188,7 +188,7 @@ export function CompostabilityTab({
       </Card>
 
       {/* Composite Scores Card */}
-      <Card className="p-4 bg-[#faf9f6] dark:bg-[#1a1918] border-[#211f1c] dark:border-white/20">
+      <Card className="panel">
         <h3 className="text-[14px] text-black dark:text-white mb-3">
           Composite Compostability Index (CC)
         </h3>

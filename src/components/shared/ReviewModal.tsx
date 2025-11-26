@@ -155,7 +155,7 @@ export function ReviewModal({
 
     return (
       <div className="space-y-3">
-        <div className="bg-[#b8c8cb]/30 dark:bg-[#2a3235]/30 border border-[#211f1c]/20 dark:border-white/10 rounded-md p-3">
+        <div className="card-muted">
           <p className="text-[11px] text-black/70 dark:text-white/70 mb-1">
             <strong>Name:</strong>
           </p>
@@ -163,7 +163,7 @@ export function ReviewModal({
             {submission.content_data.name}
           </p>
         </div>
-        <div className="bg-[#b8c8cb]/30 dark:bg-[#2a3235]/30 border border-[#211f1c]/20 dark:border-white/10 rounded-md p-3">
+        <div className="card-muted">
           <p className="text-[11px] text-black/70 dark:text-white/70 mb-1">
             <strong>Category:</strong>
           </p>
@@ -172,7 +172,7 @@ export function ReviewModal({
           </p>
         </div>
         {submission.content_data.description && (
-          <div className="bg-[#b8c8cb]/30 dark:bg-[#2a3235]/30 border border-[#211f1c]/20 dark:border-white/10 rounded-md p-3">
+          <div className="card-muted">
             <p className="text-[11px] text-black/70 dark:text-white/70 mb-1">
               <strong>Description:</strong>
             </p>
@@ -228,7 +228,7 @@ export function ReviewModal({
 
     return (
       <div className="space-y-3">
-        <div className="bg-[#b8c8cb]/30 dark:bg-[#2a3235]/30 border border-[#211f1c]/20 dark:border-white/10 rounded-md p-3">
+        <div className="card-muted">
           <p className="text-[11px] text-black/70 dark:text-white/70 mb-1">
             <strong>Title:</strong>
           </p>
@@ -236,7 +236,7 @@ export function ReviewModal({
             {submission.content_data.title}
           </p>
         </div>
-        <div className="bg-[#b8c8cb]/30 dark:bg-[#2a3235]/30 border border-[#211f1c]/20 dark:border-white/10 rounded-md p-3">
+        <div className="card-muted">
           <p className="text-[11px] text-black/70 dark:text-white/70 mb-1">
             <strong>Category:</strong>
           </p>
@@ -245,7 +245,7 @@ export function ReviewModal({
           </p>
         </div>
         {submission.content_data.content && (
-          <div className="bg-[#b8c8cb]/30 dark:bg-[#2a3235]/30 border border-[#211f1c]/20 dark:border-white/10 rounded-md p-3 max-h-[300px] overflow-y-auto">
+          <div className="card-muted max-h-[300px] overflow-y-auto">
             <p className="text-[11px] text-black/70 dark:text-white/70 mb-1">
               <strong>Content:</strong>
             </p>
