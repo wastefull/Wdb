@@ -3,3 +3,4 @@ node_modules
 .env.local
 build/*
 package-lock.json
+private.txt
