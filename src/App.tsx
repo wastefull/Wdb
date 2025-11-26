@@ -678,8 +678,10 @@ function AppContent() {
                             setShowSubmitMaterialForm(true);
                           }
                         }}
-                        className={`h-[48px] px-6 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 text-[14px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all inline-flex items-center justify-center gap-2 ${
-                          isAdminModeActive ? "bg-[#b8c8cb]" : "bg-[#c8e5c8]"
+                        className={`h-[48px] px-6 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(100,255,100,0.3)] dark:border-white/20 text-[14px] hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(100,255,100,0.3)] transition-all inline-flex items-center justify-center gap-2 ${
+                          isAdminModeActive
+                            ? "arcade-bg-cyan arcade-btn-cyan"
+                            : "arcade-bg-green arcade-btn-green"
                         }`}
                         title={
                           isAdminModeActive
@@ -687,7 +689,14 @@ function AppContent() {
                             : "Submit a new material"
                         }
                       >
-                        <Plus size={16} className="text-black" />
+                        <Plus
+                          size={16}
+                          className={
+                            isAdminModeActive
+                              ? "arcade-btn-cyan"
+                              : "arcade-btn-green"
+                          }
+                        />
                         <span>
                           {isAdminModeActive ? "Add" : "Submit"} Material
                         </span>
@@ -708,9 +717,7 @@ function AppContent() {
                     className="flex items-center gap-2 px-4 py-2 bg-[#b8c8cb] rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
                   >
                     <ArrowLeft size={16} className="text-black" />
-                    <span className="text-[14px] text-black">
-                      Back to Home
-                    </span>
+                    <span className="text-[14px] text-black">Back to Home</span>
                   </button>
                   <div className="text-[14px] text-black dark:text-white">
                     Search results for:{" "}

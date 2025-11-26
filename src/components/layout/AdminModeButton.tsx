@@ -37,13 +37,15 @@ export function AdminModeButton({
     <div
       className={`flex items-center gap-1 rounded-md border border-[#211f1c] dark:border-white/20 overflow-hidden ${
         settings.adminMode
-          ? "bg-[#bdd4b7] dark:bg-[#2a2f27] shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]"
-          : "bg-[#e6beb5]"
+          ? "arcade-bg-green shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(100,255,100,0.3)]"
+          : "arcade-bg-red"
       }`}
     >
       <button
         onClick={handleNavigateToDashboard}
-        className="px-2 py-1 text-[10px] text-black dark:text-white uppercase hover:opacity-70 transition-opacity"
+        className={`px-2 py-1 text-[10px] uppercase hover:opacity-70 transition-opacity ${
+          settings.adminMode ? "arcade-btn-green" : "arcade-btn-red"
+        }`}
       >
         Admin
       </button>

@@ -45,15 +45,9 @@ export function RetroButtons({ title }: RetroButtonsProps) {
                         aria-label="Reset accessibility settings"
                       >
                         <div
-                          className="absolute inset-[-8.333%]"
-                          style={
-                            {
-                              "--fill-0": settings.noPastel
-                                ? "rgba(168, 108, 103, 1)"
-                                : "rgba(230, 188, 181, 1)",
-                              "--stroke-0": "rgba(33, 31, 28, 1)",
-                            } as React.CSSProperties
-                          }
+                          className={`absolute inset-[-8.333%] arcade-fill-red ${
+                            settings.noPastel ? "opacity-80" : ""
+                          }`}
                         >
                           <svg
                             className="block size-full"
@@ -75,9 +69,7 @@ export function RetroButtons({ title }: RetroButtonsProps) {
                         <div className="space-y-3">
                           <div className="flex items-center gap-2">
                             <RotateCcw size={16} />
-                            <h3 className="text-[14px]">
-                              Reset Settings
-                            </h3>
+                            <h3 className="text-[14px]">Reset Settings</h3>
                           </div>
                           <p className="text-[11px] text-black/70 dark:text-white/70">
                             Reset all accessibility settings to default
@@ -100,9 +92,7 @@ export function RetroButtons({ title }: RetroButtonsProps) {
                   side="bottom"
                   className="bg-black text-white border-black"
                 >
-                  <p className="text-[11px]">
-                    Reset accessibility
-                  </p>
+                  <p className="text-[11px]">Reset accessibility</p>
                 </TooltipContent>
               </UITooltip>
 
@@ -116,15 +106,9 @@ export function RetroButtons({ title }: RetroButtonsProps) {
                         aria-label="Font size settings"
                       >
                         <div
-                          className="absolute inset-[-8.333%]"
-                          style={
-                            {
-                              "--fill-0": settings.noPastel
-                                ? "rgba(200, 180, 122, 1)"
-                                : "rgba(228, 227, 172, 1)",
-                              "--stroke-0": "rgba(33, 31, 28, 1)",
-                            } as React.CSSProperties
-                          }
+                          className={`absolute inset-[-8.333%] arcade-fill-amber ${
+                            settings.noPastel ? "opacity-80" : ""
+                          }`}
                         >
                           <svg
                             className="block size-full"
@@ -146,9 +130,7 @@ export function RetroButtons({ title }: RetroButtonsProps) {
                         <div className="space-y-3">
                           <div className="flex items-center gap-2">
                             <Type size={16} />
-                            <h3 className="text-[14px]">
-                              Font Size
-                            </h3>
+                            <h3 className="text-[14px]">Font Size</h3>
                           </div>
                           <div className="space-y-2">
                             <button
@@ -191,9 +173,7 @@ export function RetroButtons({ title }: RetroButtonsProps) {
                   side="bottom"
                   className="bg-black text-white border-black"
                 >
-                  <p className="text-[11px]">
-                    Font size
-                  </p>
+                  <p className="text-[11px]">Font size</p>
                 </TooltipContent>
               </UITooltip>
 
@@ -207,15 +187,9 @@ export function RetroButtons({ title }: RetroButtonsProps) {
                         aria-label="Display settings"
                       >
                         <div
-                          className="absolute inset-[-8.333%]"
-                          style={
-                            {
-                              "--fill-0": settings.noPastel
-                                ? "rgba(126, 159, 108, 1)"
-                                : "rgba(184, 200, 203, 1)",
-                              "--stroke-0": "rgba(33, 31, 28, 1)",
-                            } as React.CSSProperties
-                          }
+                          className={`absolute inset-[-8.333%] arcade-fill-cyan ${
+                            settings.noPastel ? "opacity-80" : ""
+                          }`}
                         >
                           <svg
                             className="block size-full"
@@ -237,9 +211,7 @@ export function RetroButtons({ title }: RetroButtonsProps) {
                         <div className="space-y-3">
                           <div className="flex items-center gap-2">
                             <Eye size={16} />
-                            <h3 className="text-[14px]">
-                              Display
-                            </h3>
+                            <h3 className="text-[14px]">Display</h3>
                           </div>
                           <div className="space-y-3">
                             <div className="flex items-center justify-between">
@@ -262,9 +234,7 @@ export function RetroButtons({ title }: RetroButtonsProps) {
                               />
                             </div>
                             <div className="flex items-center justify-between">
-                              <label className="text-[12px]">
-                                No Pastel
-                              </label>
+                              <label className="text-[12px]">No Pastel</label>
                               <Switch
                                 checked={settings.noPastel}
                                 onCheckedChange={toggleNoPastel}
@@ -305,9 +275,7 @@ export function RetroButtons({ title }: RetroButtonsProps) {
                   side="bottom"
                   className="bg-black text-white border-black"
                 >
-                  <p className="text-[11px]">
-                    Display options
-                  </p>
+                  <p className="text-[11px]">Display options</p>
                 </TooltipContent>
               </UITooltip>
             </div>
@@ -317,7 +285,7 @@ export function RetroButtons({ title }: RetroButtonsProps) {
             <h1 className="leading-[25px] not-italic text-[18px] md:text-[28px] text-black dark:text-white text-center uppercase">
               {title}
             </h1>
-            <span className="text-[8px] md:text-[10px] px-1 md:px-1.5 py-0 md:py-0.5 rounded-full bg-[#bdd4b7] dark:bg-[#2a2f27] border border-[#211f1c] dark:border-white/20 text-black dark:text-white uppercase">
+            <span className="text-[8px] md:text-[10px] px-1 md:px-1.5 py-0 md:py-0.5 rounded-full arcade-bg-green arcade-btn-green border border-[#211f1c] dark:border-white/20 uppercase">
               Beta
             </span>
           </div>

@@ -149,7 +149,7 @@ export function NotificationBell({ userId, isAdmin }: NotificationBellProps) {
         >
           <Bell size={14} className="text-black/60 dark:text-white/60" />
           {unreadCount > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 h-3 w-3 flex items-center justify-center bg-[#e6beb5] text-black text-[8px] rounded-full">
+            <span className="absolute -top-0.5 -right-0.5 h-3 w-3 flex items-center justify-center arcade-bg-red arcade-btn-red text-[8px] rounded-full">
               {unreadCount > 9 ? "9+" : unreadCount}
             </span>
           )}
@@ -161,9 +161,7 @@ export function NotificationBell({ userId, isAdmin }: NotificationBellProps) {
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-[#211f1c]/20 dark:border-white/20">
-          <h3 className="text-black dark:text-white">
-            Notifications
-          </h3>
+          <h3 className="text-black dark:text-white">Notifications</h3>
           {unreadCount > 0 && (
             <button
               onClick={handleMarkAllAsRead}

@@ -70,41 +70,69 @@
 }
 
 /* ==========================================================================
-   Design Tokens - Dark Mode
+   Design Tokens - Dark Mode (Space Invaders / CRT Arcade Era)
+   Deep blacks with phosphor-glow accents, easy on the eyes
    ========================================================================== */
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.145 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.145 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.269 0 0);
-  --input: oklch(0.269 0 0);
-  --ring: oklch(0.439 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.439 0 0);
+  /* Near-black background - like a CRT off-state */
+  --background: oklch(0.08 0.01 260);
+  --foreground: oklch(0.92 0.02 95); /* Warm phosphor white, not harsh */
+
+  /* Cards slightly lifted from background */
+  --card: oklch(0.12 0.01 260);
+  --card-foreground: oklch(0.92 0.02 95);
+
+  /* Popovers/dropdowns */
+  --popover: oklch(0.1 0.015 260);
+  --popover-foreground: oklch(0.92 0.02 95);
+
+  /* Primary - arcade green phosphor glow */
+  --primary: oklch(0.75 0.18 145);
+  --primary-foreground: oklch(0.12 0.01 145);
+
+  /* Secondary - muted screen glow */
+  --secondary: oklch(0.22 0.02 260);
+  --secondary-foreground: oklch(0.88 0.02 95);
+
+  /* Muted - scanline gray */
+  --muted: oklch(0.2 0.015 260);
+  --muted-foreground: oklch(0.65 0.02 95);
+
+  /* Accent - electric cyan (player ship vibes) */
+  --accent: oklch(0.65 0.15 195);
+  --accent-foreground: oklch(0.12 0.01 195);
+
+  /* Destructive - arcade red (game over) */
+  --destructive: oklch(0.55 0.22 25);
+  --destructive-foreground: oklch(0.95 0.03 25);
+
+  /* Borders - subtle CRT bezel */
+  --border: oklch(0.28 0.02 260);
+  --input: oklch(0.18 0.015 260);
+  --ring: oklch(0.6 0.15 145); /* Green focus ring */
+
+  /* Chart palette - arcade neon but softened */
+  --chart-1: oklch(0.7 0.2 145); /* Phosphor green */
+  --chart-2: oklch(0.65 0.18 195); /* Cyan */
+  --chart-3: oklch(0.72 0.18 85); /* Amber/yellow */
+  --chart-4: oklch(0.65 0.2 320); /* Magenta */
+  --chart-5: oklch(0.6 0.18 25); /* Orange-red */
+
+  /* Sidebar */
+  --sidebar: oklch(0.1 0.01 260);
+  --sidebar-foreground: oklch(0.92 0.02 95);
+  --sidebar-primary: oklch(0.75 0.18 145);
+  --sidebar-primary-foreground: oklch(0.12 0.01 145);
+  --sidebar-accent: oklch(0.18 0.015 260);
+  --sidebar-accent-foreground: oklch(0.88 0.02 95);
+  --sidebar-border: oklch(0.25 0.02 260);
+  --sidebar-ring: oklch(0.6 0.15 145);
+
+  /* WasteDB brand colors - neon versions for dark mode */
+  --waste-compost: oklch(0.65 0.18 25); /* Warm orange-red glow */
+  --waste-recycle: oklch(0.78 0.15 95); /* Amber screen glow */
+  --waste-reuse: oklch(0.7 0.15 220); /* Cool blue phosphor */
+  --waste-science: oklch(0.72 0.18 145); /* Green terminal */
 }
 
 /* ==========================================================================
@@ -621,4 +649,119 @@ body {
 
 .no-pastel.dark .table-scroll-wrapper::-webkit-scrollbar-thumb {
   background: #6bb6d0;
+}
+
+/* ==========================================================================
+   Arcade Button Styles (Space Invaders Dark Mode)
+   Reusable classes for buttons with pastel light / neon dark themes
+   ========================================================================== */
+
+/* Red variant - "off" state, warnings, destructive-ish */
+.arcade-btn-red {
+  color: #3a1a1a;
+}
+
+.dark .arcade-btn-red {
+  color: #ff9999 !important;
+}
+
+/* Green variant - "on" state, success, active */
+.arcade-btn-green {
+  color: #1a3a1a;
+}
+
+.dark .arcade-btn-green {
+  color: #7fff7f !important;
+}
+
+/* Cyan variant - info, links, navigation */
+.arcade-btn-cyan {
+  color: #1a2a3a;
+}
+
+.dark .arcade-btn-cyan {
+  color: #7fdfff !important;
+}
+
+/* Amber variant - warnings, highlights */
+.arcade-btn-amber {
+  color: #3a2a1a;
+}
+
+.dark .arcade-btn-amber {
+  color: #ffd77f !important;
+}
+
+/* Arcade container backgrounds */
+.arcade-bg-red {
+  background-color: #e6beb5;
+}
+
+.dark .arcade-bg-red {
+  background-color: #3a1a1a;
+}
+
+.arcade-bg-green {
+  background-color: #bdd4b7;
+}
+
+.dark .arcade-bg-green {
+  background-color: #1a3a1a;
+}
+
+.arcade-bg-cyan {
+  background-color: #b8c8cb;
+}
+
+.dark .arcade-bg-cyan {
+  background-color: #1a2a3a;
+}
+
+.arcade-bg-amber {
+  background-color: #e4e3ac;
+}
+
+.dark .arcade-bg-amber {
+  background-color: #3a3a1a;
+}
+
+/* Arcade SVG fills - for circle buttons like status bar */
+.arcade-fill-red {
+  --fill-0: rgba(230, 188, 181, 1);
+  --stroke-0: rgba(33, 31, 28, 1);
+}
+
+.dark .arcade-fill-red {
+  --fill-0: rgba(255, 100, 100, 0.8) !important;
+  --stroke-0: rgba(255, 153, 153, 0.5) !important;
+}
+
+.arcade-fill-amber {
+  --fill-0: rgba(228, 227, 172, 1);
+  --stroke-0: rgba(33, 31, 28, 1);
+}
+
+.dark .arcade-fill-amber {
+  --fill-0: rgba(255, 215, 100, 0.8) !important;
+  --stroke-0: rgba(255, 215, 127, 0.5) !important;
+}
+
+.arcade-fill-cyan {
+  --fill-0: rgba(184, 200, 203, 1);
+  --stroke-0: rgba(33, 31, 28, 1);
+}
+
+.dark .arcade-fill-cyan {
+  --fill-0: rgba(100, 200, 255, 0.8) !important;
+  --stroke-0: rgba(127, 223, 255, 0.5) !important;
+}
+
+.arcade-fill-green {
+  --fill-0: rgba(189, 212, 183, 1);
+  --stroke-0: rgba(33, 31, 28, 1);
+}
+
+.dark .arcade-fill-green {
+  --fill-0: rgba(100, 255, 100, 0.8) !important;
+  --stroke-0: rgba(127, 255, 127, 0.5) !important;
 }

@@ -77,9 +77,7 @@ export function StatusBar({
                       side="bottom"
                       className="bg-black text-white border-black"
                     >
-                      <p className="text-[11px]">
-                        View profile
-                      </p>
+                      <p className="text-[11px]">View profile</p>
                     </TooltipContent>
                   </UITooltip>
                 </TooltipProvider>
@@ -99,19 +97,17 @@ export function StatusBar({
                       <TooltipTrigger asChild>
                         <button
                           onClick={onLogout}
-                          className="p-1 md:p-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#e6beb5] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                          className="p-1 md:p-1.5 rounded-md border border-[#211f1c] dark:border-white/20 arcade-bg-red hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
                           aria-label="Sign out"
                         >
-                          <LogOut className="w-3 h-3 md:w-[12px] md:h-[12px] text-black" />
+                          <LogOut className="w-3 h-3 md:w-[12px] md:h-[12px] arcade-btn-red" />
                         </button>
                       </TooltipTrigger>
                       <TooltipContent
                         side="bottom"
                         className="bg-black text-white border-black"
                       >
-                        <p className="text-[11px]">
-                          Sign out
-                        </p>
+                        <p className="text-[11px]">Sign out</p>
                       </TooltipContent>
                     </UITooltip>
                   </TooltipProvider>
