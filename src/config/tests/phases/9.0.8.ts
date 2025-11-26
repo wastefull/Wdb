@@ -5,7 +5,7 @@
  */
 
 import { projectId } from "../../../utils/supabase/info";
-import { Test } from "../types";
+import { Test, getAuthHeaders } from "../types";
 
 export function getPhase908Tests(user: any): Test[] {
   return [
@@ -19,19 +19,15 @@ export function getPhase908Tests(user: any): Test[] {
         if (!user) {
           return {
             success: false,
-            message:
-              "Must be authenticated as admin to export backup",
+            message: "Must be authenticated as admin to export backup",
           };
         }
 
-        const accessToken = sessionStorage.getItem(
-          "wastedb_access_token",
-        );
+        const accessToken = sessionStorage.getItem("wastedb_access_token");
         if (!accessToken) {
           return {
             success: false,
-            message:
-              "No access token found - please sign in again",
+            message: "No access token found - please sign in again",
           };
         }
 
@@ -40,11 +36,8 @@ export function getPhase908Tests(user: any): Test[] {
             `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/backup/export`,
             {
               method: "POST",
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-                "Content-Type": "application/json",
-              },
-            },
+              headers: getAuthHeaders(accessToken),
+            }
           );
 
           if (!response.ok) {
@@ -65,8 +58,7 @@ export function getPhase908Tests(user: any): Test[] {
           }
 
           const recordCount = backup.metadata.total_records;
-          const exportDuration =
-            backup.metadata.export_duration_ms;
+          const exportDuration = backup.metadata.export_duration_ms;
 
           return {
             success: true,
@@ -76,9 +68,7 @@ export function getPhase908Tests(user: any): Test[] {
           return {
             success: false,
             message: `Error exporting backup: ${
-              error instanceof Error
-                ? error.message
-                : "Unknown error"
+              error instanceof Error ? error.message : "Unknown error"
             }`,
           };
         }
@@ -94,19 +84,15 @@ export function getPhase908Tests(user: any): Test[] {
         if (!user) {
           return {
             success: false,
-            message:
-              "Must be authenticated as admin to validate backup",
+            message: "Must be authenticated as admin to validate backup",
           };
         }
 
-        const accessToken = sessionStorage.getItem(
-          "wastedb_access_token",
-        );
+        const accessToken = sessionStorage.getItem("wastedb_access_token");
         if (!accessToken) {
           return {
             success: false,
-            message:
-              "No access token found - please sign in again",
+            message: "No access token found - please sign in again",
           };
         }
 
@@ -116,11 +102,8 @@ export function getPhase908Tests(user: any): Test[] {
             `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/backup/export`,
             {
               method: "POST",
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-                "Content-Type": "application/json",
-              },
-            },
+              headers: getAuthHeaders(accessToken),
+            }
           );
 
           if (!exportResponse.ok) {
@@ -137,12 +120,9 @@ export function getPhase908Tests(user: any): Test[] {
             `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/backup/validate`,
             {
               method: "POST",
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-                "Content-Type": "application/json",
-              },
+              headers: getAuthHeaders(accessToken),
               body: JSON.stringify({ backup }),
-            },
+            }
           );
 
           if (!validateResponse.ok) {
@@ -174,9 +154,7 @@ export function getPhase908Tests(user: any): Test[] {
           return {
             success: false,
             message: `Error validating backup: ${
-              error instanceof Error
-                ? error.message
-                : "Unknown error"
+              error instanceof Error ? error.message : "Unknown error"
             }`,
           };
         }

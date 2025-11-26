@@ -5,34 +5,29 @@
  */
 
 import { projectId } from "../../../utils/supabase/info";
-import { Test } from "../types";
+import { Test, getAuthHeaders } from "../types";
 
 export function getPhase907Tests(user: any): Test[] {
   return [
     {
       id: "phase9-day7-retention-stats",
       name: "Fetch Retention Statistics",
-      description:
-        "Verify retention statistics for screenshots and audit logs",
+      description: "Verify retention statistics for screenshots and audit logs",
       phase: "9.0.7",
       category: "Retention",
       testFn: async () => {
         if (!user) {
           return {
             success: false,
-            message:
-              "Must be authenticated as admin to fetch retention stats",
+            message: "Must be authenticated as admin to fetch retention stats",
           };
         }
 
-        const accessToken = sessionStorage.getItem(
-          "wastedb_access_token",
-        );
+        const accessToken = sessionStorage.getItem("wastedb_access_token");
         if (!accessToken) {
           return {
             success: false,
-            message:
-              "No access token found - please sign in again",
+            message: "No access token found - please sign in again",
           };
         }
 
@@ -41,18 +36,15 @@ export function getPhase907Tests(user: any): Test[] {
             `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/admin/retention/stats`,
             {
               method: "GET",
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-              },
-            },
+              headers: getAuthHeaders(accessToken),
+            }
           );
 
           if (!response.ok) {
             const data = await response.json();
             return {
               success: false,
-              message:
-                data.error || "Failed to fetch retention stats",
+              message: data.error || "Failed to fetch retention stats",
             };
           }
 
@@ -77,9 +69,7 @@ export function getPhase907Tests(user: any): Test[] {
           return {
             success: false,
             message: `Error fetching retention stats: ${
-              error instanceof Error
-                ? error.message
-                : "Unknown error"
+              error instanceof Error ? error.message : "Unknown error"
             }`,
           };
         }
@@ -88,27 +78,22 @@ export function getPhase907Tests(user: any): Test[] {
     {
       id: "phase9-day7-source-integrity-check",
       name: "Check Source Referential Integrity",
-      description:
-        "Verify source dependency checking before deletion",
+      description: "Verify source dependency checking before deletion",
       phase: "9.0.7",
       category: "Retention",
       testFn: async () => {
         if (!user) {
           return {
             success: false,
-            message:
-              "Must be authenticated as admin to check source integrity",
+            message: "Must be authenticated as admin to check source integrity",
           };
         }
 
-        const accessToken = sessionStorage.getItem(
-          "wastedb_access_token",
-        );
+        const accessToken = sessionStorage.getItem("wastedb_access_token");
         if (!accessToken) {
           return {
             success: false,
-            message:
-              "No access token found - please sign in again",
+            message: "No access token found - please sign in again",
           };
         }
 
@@ -118,16 +103,13 @@ export function getPhase907Tests(user: any): Test[] {
             `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/sources`,
             {
               method: "POST",
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-                "Content-Type": "application/json",
-              },
+              headers: getAuthHeaders(accessToken),
               body: JSON.stringify({
                 title: "Test Source for Integrity Check",
                 type: "internal",
                 authors: "Test Author",
               }),
-            },
+            }
           );
 
           if (!createResponse.ok) {
@@ -145,27 +127,21 @@ export function getPhase907Tests(user: any): Test[] {
             `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/admin/retention/check-source/${sourceId}`,
             {
               method: "GET",
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-              },
-            },
+              headers: getAuthHeaders(accessToken),
+            }
           );
 
           if (!checkResponse.ok) {
             const data = await checkResponse.json();
             return {
               success: false,
-              message:
-                data.error || "Failed to check integrity",
+              message: data.error || "Failed to check integrity",
             };
           }
 
           const checkData = await checkResponse.json();
 
-          if (
-            checkData.canDelete === true &&
-            checkData.dependentCount === 0
-          ) {
+          if (checkData.canDelete === true && checkData.dependentCount === 0) {
             return {
               success: true,
               message: `Integrity check passed ✓ (source can be deleted, 0 dependent evidence)`,
@@ -180,9 +156,7 @@ export function getPhase907Tests(user: any): Test[] {
           return {
             success: false,
             message: `Error checking source integrity: ${
-              error instanceof Error
-                ? error.message
-                : "Unknown error"
+              error instanceof Error ? error.message : "Unknown error"
             }`,
           };
         }
@@ -203,14 +177,11 @@ export function getPhase907Tests(user: any): Test[] {
           };
         }
 
-        const accessToken = sessionStorage.getItem(
-          "wastedb_access_token",
-        );
+        const accessToken = sessionStorage.getItem("wastedb_access_token");
         if (!accessToken) {
           return {
             success: false,
-            message:
-              "No access token found - please sign in again",
+            message: "No access token found - please sign in again",
           };
         }
 
@@ -220,17 +191,13 @@ export function getPhase907Tests(user: any): Test[] {
             `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/sources`,
             {
               method: "POST",
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-                "Content-Type": "application/json",
-              },
+              headers: getAuthHeaders(accessToken),
               body: JSON.stringify({
-                title:
-                  "Test Source with Evidence (Cannot Delete)",
+                title: "Test Source with Evidence (Cannot Delete)",
                 type: "internal",
                 authors: "Test Author",
               }),
-            },
+            }
           );
 
           if (!createSourceResponse.ok) {
@@ -248,10 +215,7 @@ export function getPhase907Tests(user: any): Test[] {
             `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/evidence`,
             {
               method: "POST",
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-                "Content-Type": "application/json",
-              },
+              headers: getAuthHeaders(accessToken),
               body: JSON.stringify({
                 material_id: "test-material",
                 parameter_code: "Y",
@@ -264,7 +228,7 @@ export function getPhase907Tests(user: any): Test[] {
                 source_id: sourceId,
                 notes: "Test evidence for integrity check",
               }),
-            },
+            }
           );
 
           if (!evidenceResponse.ok) {
@@ -278,27 +242,21 @@ export function getPhase907Tests(user: any): Test[] {
           const checkResponse = await fetch(
             `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/admin/retention/check-source/${sourceId}`,
             {
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-              },
-            },
+              headers: getAuthHeaders(accessToken),
+            }
           );
 
           if (!checkResponse.ok) {
             const data = await checkResponse.json();
             return {
               success: false,
-              message:
-                data.error || "Failed to check integrity",
+              message: data.error || "Failed to check integrity",
             };
           }
 
           const checkData = await checkResponse.json();
 
-          if (
-            checkData.canDelete === false &&
-            checkData.dependentCount > 0
-          ) {
+          if (checkData.canDelete === false && checkData.dependentCount > 0) {
             return {
               success: true,
               message: `Integrity check passed ✓ (source cannot be deleted, ${checkData.dependentCount} dependent evidence)`,
@@ -313,9 +271,7 @@ export function getPhase907Tests(user: any): Test[] {
           return {
             success: false,
             message: `Error checking source integrity: ${
-              error instanceof Error
-                ? error.message
-                : "Unknown error"
+              error instanceof Error ? error.message : "Unknown error"
             }`,
           };
         }
@@ -324,8 +280,7 @@ export function getPhase907Tests(user: any): Test[] {
     {
       id: "phase9-day7-source-integrity-prevent-delete",
       name: "Prevent Delete Source with Evidence",
-      description:
-        "Verify sources with evidence cannot be deleted",
+      description: "Verify sources with evidence cannot be deleted",
       phase: "9.0.7",
       category: "Retention",
       testFn: async () => {
@@ -336,14 +291,11 @@ export function getPhase907Tests(user: any): Test[] {
           };
         }
 
-        const accessToken = sessionStorage.getItem(
-          "wastedb_access_token",
-        );
+        const accessToken = sessionStorage.getItem("wastedb_access_token");
         if (!accessToken) {
           return {
             success: false,
-            message:
-              "No access token found - please sign in again",
+            message: "No access token found - please sign in again",
           };
         }
 
@@ -355,10 +307,7 @@ export function getPhase907Tests(user: any): Test[] {
             `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/sources`,
             {
               method: "POST",
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-                "Content-Type": "application/json",
-              },
+              headers: getAuthHeaders(accessToken),
               body: JSON.stringify({
                 id: sourceId,
                 title: "Test Source with Evidence",
@@ -367,7 +316,7 @@ export function getPhase907Tests(user: any): Test[] {
                 type: "peer-reviewed",
                 weight: 1.0,
               }),
-            },
+            }
           );
 
           if (!sourceResponse.ok) {
@@ -382,10 +331,7 @@ export function getPhase907Tests(user: any): Test[] {
             `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/evidence`,
             {
               method: "POST",
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-                "Content-Type": "application/json",
-              },
+              headers: getAuthHeaders(accessToken),
               body: JSON.stringify({
                 material_id: "test-material",
                 parameter_code: "Y",
@@ -398,7 +344,7 @@ export function getPhase907Tests(user: any): Test[] {
                 source_id: sourceId,
                 notes: "Test evidence",
               }),
-            },
+            }
           );
 
           if (!evidenceResponse.ok) {
@@ -413,10 +359,8 @@ export function getPhase907Tests(user: any): Test[] {
             `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/sources/${sourceId}`,
             {
               method: "DELETE",
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-              },
-            },
+              headers: getAuthHeaders(accessToken),
+            }
           );
 
           // Should fail (403 or 400)
@@ -430,10 +374,7 @@ export function getPhase907Tests(user: any): Test[] {
 
           const errorData = await deleteResponse.json();
 
-          if (
-            deleteResponse.status === 403 ||
-            deleteResponse.status === 400
-          ) {
+          if (deleteResponse.status === 403 || deleteResponse.status === 400) {
             return {
               success: true,
               message: `Delete prevented correctly ✓ (Status: ${deleteResponse.status}, Message: ${errorData.error})`,
@@ -448,9 +389,7 @@ export function getPhase907Tests(user: any): Test[] {
           return {
             success: false,
             message: `Error testing delete prevention: ${
-              error instanceof Error
-                ? error.message
-                : "Unknown error"
+              error instanceof Error ? error.message : "Unknown error"
             }`,
           };
         }
@@ -459,8 +398,7 @@ export function getPhase907Tests(user: any): Test[] {
     {
       id: "phase9-day7-delete-source-without-evidence",
       name: "Delete Source Without Evidence",
-      description:
-        "Verify sources without evidence can be deleted",
+      description: "Verify sources without evidence can be deleted",
       phase: "9.0.7",
       category: "Retention",
       testFn: async () => {
@@ -471,14 +409,11 @@ export function getPhase907Tests(user: any): Test[] {
           };
         }
 
-        const accessToken = sessionStorage.getItem(
-          "wastedb_access_token",
-        );
+        const accessToken = sessionStorage.getItem("wastedb_access_token");
         if (!accessToken) {
           return {
             success: false,
-            message:
-              "No access token found - please sign in again",
+            message: "No access token found - please sign in again",
           };
         }
 
@@ -490,10 +425,7 @@ export function getPhase907Tests(user: any): Test[] {
             `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/sources`,
             {
               method: "POST",
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-                "Content-Type": "application/json",
-              },
+              headers: getAuthHeaders(accessToken),
               body: JSON.stringify({
                 id: sourceId,
                 title: "Test Source Without Evidence",
@@ -502,7 +434,7 @@ export function getPhase907Tests(user: any): Test[] {
                 type: "peer-reviewed",
                 weight: 1.0,
               }),
-            },
+            }
           );
 
           if (!sourceResponse.ok) {
@@ -517,10 +449,8 @@ export function getPhase907Tests(user: any): Test[] {
             `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/sources/${sourceId}`,
             {
               method: "DELETE",
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-              },
-            },
+              headers: getAuthHeaders(accessToken),
+            }
           );
 
           if (!deleteResponse.ok) {
@@ -548,9 +478,7 @@ export function getPhase907Tests(user: any): Test[] {
           return {
             success: false,
             message: `Error testing source deletion: ${
-              error instanceof Error
-                ? error.message
-                : "Unknown error"
+              error instanceof Error ? error.message : "Unknown error"
             }`,
           };
         }
@@ -570,14 +498,11 @@ export function getPhase907Tests(user: any): Test[] {
           };
         }
 
-        const accessToken = sessionStorage.getItem(
-          "wastedb_access_token",
-        );
+        const accessToken = sessionStorage.getItem("wastedb_access_token");
         if (!accessToken) {
           return {
             success: false,
-            message:
-              "No access token found - please sign in again",
+            message: "No access token found - please sign in again",
           };
         }
 
@@ -586,18 +511,15 @@ export function getPhase907Tests(user: any): Test[] {
             `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/admin/retention/cleanup-screenshots`,
             {
               method: "POST",
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-              },
-            },
+              headers: getAuthHeaders(accessToken),
+            }
           );
 
           if (!response.ok) {
             const data = await response.json();
             return {
               success: false,
-              message:
-                data.error || "Failed to cleanup screenshots",
+              message: data.error || "Failed to cleanup screenshots",
             };
           }
 
@@ -620,9 +542,7 @@ export function getPhase907Tests(user: any): Test[] {
           return {
             success: false,
             message: `Error testing screenshot cleanup: ${
-              error instanceof Error
-                ? error.message
-                : "Unknown error"
+              error instanceof Error ? error.message : "Unknown error"
             }`,
           };
         }

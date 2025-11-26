@@ -4,10 +4,7 @@
  * Tests for DOI normalization, duplicate checking, and fuzzy title matching.
  */
 
-import {
-  projectId,
-  publicAnonKey,
-} from "../../../utils/supabase/info";
+import { projectId, publicAnonKey } from "../../../utils/supabase/info";
 import { Test } from "../types";
 
 export function getPhase905Tests(): Test[] {
@@ -38,7 +35,7 @@ export function getPhase905Tests(): Test[] {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({ dois: testDOIs }),
-            },
+            }
           );
 
           if (!response.ok) {
@@ -51,7 +48,7 @@ export function getPhase905Tests(): Test[] {
 
           const data = await response.json();
           const allMatch = data.normalized.every(
-            (norm: string) => norm === "10.1234/example",
+            (norm: string) => norm === "10.1234/example"
           );
 
           return {
@@ -59,16 +56,14 @@ export function getPhase905Tests(): Test[] {
             message: allMatch
               ? `All ${testDOIs.length} DOI formats normalized correctly ✓`
               : `DOI normalization inconsistent: ${JSON.stringify(
-                  data.normalized,
+                  data.normalized
                 )}`,
           };
         } catch (error) {
           return {
             success: false,
             message: `Error normalizing DOIs: ${
-              error instanceof Error
-                ? error.message
-                : "Unknown error"
+              error instanceof Error ? error.message : "Unknown error"
             }`,
           };
         }
@@ -77,8 +72,7 @@ export function getPhase905Tests(): Test[] {
     {
       id: "phase9-day5-duplicate-check",
       name: "DOI Duplicate Check",
-      description:
-        "Verify duplicate detection for existing DOIs",
+      description: "Verify duplicate detection for existing DOIs",
       phase: "9.0.5",
       category: "Sources",
       testFn: async () => {
@@ -95,15 +89,14 @@ export function getPhase905Tests(): Test[] {
                 doi: "10.1126/science.test123",
                 title: "Test Automated Duplicate Check",
               }),
-            },
+            }
           );
 
           if (!response.ok) {
             const data = await response.json();
             return {
               success: false,
-              message:
-                data.error || "Failed to check for duplicates",
+              message: data.error || "Failed to check for duplicates",
             };
           }
 
@@ -119,9 +112,7 @@ export function getPhase905Tests(): Test[] {
           return {
             success: false,
             message: `Error checking duplicates: ${
-              error instanceof Error
-                ? error.message
-                : "Unknown error"
+              error instanceof Error ? error.message : "Unknown error"
             }`,
           };
         }
@@ -130,8 +121,7 @@ export function getPhase905Tests(): Test[] {
     {
       id: "phase9-day5-fuzzy-title-match",
       name: "Fuzzy Title Matching",
-      description:
-        "Verify fuzzy title matching for similar source titles",
+      description: "Verify fuzzy title matching for similar source titles",
       phase: "9.0.5",
       category: "Sources",
       testFn: async () => {
@@ -145,10 +135,9 @@ export function getPhase905Tests(): Test[] {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                title:
-                  "Life Cycle Assessment of Plastic Materials",
+                title: "Life Cycle Assessment of Plastic Materials",
               }),
-            },
+            }
           );
 
           if (!response.ok) {
@@ -171,9 +160,7 @@ export function getPhase905Tests(): Test[] {
           return {
             success: false,
             message: `Error performing fuzzy match: ${
-              error instanceof Error
-                ? error.message
-                : "Unknown error"
+              error instanceof Error ? error.message : "Unknown error"
             }`,
           };
         }

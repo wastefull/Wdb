@@ -4,10 +4,7 @@
  * Tests for V2 export format with MIU-based evidence structure and provenance tracking.
  */
 
-import {
-  projectId,
-  publicAnonKey,
-} from "../../../utils/supabase/info";
+import { projectId, publicAnonKey } from "../../../utils/supabase/info";
 import { Test } from "../types";
 
 export function getPhase909Tests(): Test[] {
@@ -15,8 +12,7 @@ export function getPhase909Tests(): Test[] {
     {
       id: "phase9-day9-export-v2",
       name: "Export Backup V2 with MIU Format",
-      description:
-        "Verify V2 export includes MIU-based evidence structure",
+      description: "Verify V2 export includes MIU-based evidence structure",
       phase: "9.0.9",
       category: "Backup V2",
       testFn: async () => {
@@ -28,7 +24,7 @@ export function getPhase909Tests(): Test[] {
               headers: {
                 Authorization: `Bearer ${publicAnonKey}`,
               },
-            },
+            }
           );
 
           if (!response.ok) {
@@ -54,10 +50,7 @@ export function getPhase909Tests(): Test[] {
           }
 
           // Check for MIU/evidence structure
-          if (
-            !exportData.materials ||
-            exportData.materials.length === 0
-          ) {
+          if (!exportData.materials || exportData.materials.length === 0) {
             return {
               success: false,
               message: "No materials found in export",
@@ -67,10 +60,7 @@ export function getPhase909Tests(): Test[] {
           // Count evidence points across all materials
           let totalEvidence = 0;
           for (const material of exportData.materials) {
-            if (
-              material.evidence &&
-              Array.isArray(material.evidence)
-            ) {
+            if (material.evidence && Array.isArray(material.evidence)) {
               totalEvidence += material.evidence.length;
             }
           }
@@ -83,9 +73,7 @@ export function getPhase909Tests(): Test[] {
           return {
             success: false,
             message: `Error exporting V2 backup: ${
-              error instanceof Error
-                ? error.message
-                : "Unknown error"
+              error instanceof Error ? error.message : "Unknown error"
             }`,
           };
         }
@@ -94,8 +82,7 @@ export function getPhase909Tests(): Test[] {
     {
       id: "phase9-day9-validate-miu",
       name: "Validate MIU Structure",
-      description:
-        "Verify MIU records have required provenance fields",
+      description: "Verify MIU records have required provenance fields",
       phase: "9.0.9",
       category: "Backup V2",
       testFn: async () => {
@@ -107,14 +94,13 @@ export function getPhase909Tests(): Test[] {
               headers: {
                 Authorization: `Bearer ${publicAnonKey}`,
               },
-            },
+            }
           );
 
           if (!response.ok) {
             return {
               success: false,
-              message:
-                "Failed to export V2 backup for MIU validation",
+              message: "Failed to export V2 backup for MIU validation",
             };
           }
 
@@ -123,10 +109,7 @@ export function getPhase909Tests(): Test[] {
           // Find first material with evidence
           let firstEvidence = null;
           for (const material of exportData.materials || []) {
-            if (
-              material.evidence &&
-              material.evidence.length > 0
-            ) {
+            if (material.evidence && material.evidence.length > 0) {
               firstEvidence = material.evidence[0];
               break;
             }
@@ -149,14 +132,14 @@ export function getPhase909Tests(): Test[] {
             "created_at",
           ];
           const missingFields = requiredFields.filter(
-            (field) => !firstEvidence[field],
+            (field) => !firstEvidence[field]
           );
 
           if (missingFields.length > 0) {
             return {
               success: false,
               message: `MIU missing required fields: ${missingFields.join(
-                ", ",
+                ", "
               )}`,
             };
           }
@@ -169,9 +152,7 @@ export function getPhase909Tests(): Test[] {
           return {
             success: false,
             message: `Error validating MIU: ${
-              error instanceof Error
-                ? error.message
-                : "Unknown error"
+              error instanceof Error ? error.message : "Unknown error"
             }`,
           };
         }

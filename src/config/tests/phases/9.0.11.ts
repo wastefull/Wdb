@@ -5,11 +5,8 @@
  * computation with complete policy snapshot tracking.
  */
 
-import {
-  projectId,
-  publicAnonKey,
-} from "../../../utils/supabase/info";
-import { Test } from "../types";
+import { projectId, publicAnonKey } from "../../../utils/supabase/info";
+import { Test, getAuthHeaders } from "../types";
 
 export function getPhase9011Tests(user: any): Test[] {
   return [
@@ -29,15 +26,14 @@ export function getPhase9011Tests(user: any): Test[] {
               headers: {
                 Authorization: `Bearer ${publicAnonKey}`,
               },
-            },
+            }
           );
 
           if (!response.ok) {
             const data = await response.json();
             return {
               success: false,
-              message:
-                data.error || "Failed to load units ontology",
+              message: data.error || "Failed to load units ontology",
             };
           }
 
@@ -71,7 +67,7 @@ export function getPhase9011Tests(user: any): Test[] {
             "C_RU",
           ];
           const missingParams = requiredParams.filter(
-            (p) => !unitsData.parameters[p],
+            (p) => !unitsData.parameters[p]
           );
 
           if (missingParams.length > 0) {
@@ -91,9 +87,7 @@ export function getPhase9011Tests(user: any): Test[] {
           return {
             success: false,
             message: `Error loading units.json: ${
-              error instanceof Error
-                ? error.message
-                : "Unknown error"
+              error instanceof Error ? error.message : "Unknown error"
             }`,
           };
         }
@@ -115,24 +109,20 @@ export function getPhase9011Tests(user: any): Test[] {
               headers: {
                 Authorization: `Bearer ${publicAnonKey}`,
               },
-            },
+            }
           );
 
           if (!response.ok) {
             const data = await response.json();
             return {
               success: false,
-              message:
-                data.error || "Failed to load context ontology",
+              message: data.error || "Failed to load context ontology",
             };
           }
 
           const contextData = await response.json();
 
-          if (
-            !contextData.version ||
-            !contextData.effective_date
-          ) {
+          if (!contextData.version || !contextData.effective_date) {
             return {
               success: false,
               message:
@@ -147,21 +137,16 @@ export function getPhase9011Tests(user: any): Test[] {
             };
           }
 
-          const requiredFields = [
-            "process",
-            "stream",
-            "region",
-            "scale",
-          ];
+          const requiredFields = ["process", "stream", "region", "scale"];
           const missingFields = requiredFields.filter(
-            (f) => !contextData.vocabularies[f],
+            (f) => !contextData.vocabularies[f]
           );
 
           if (missingFields.length > 0) {
             return {
               success: false,
               message: `Missing controlled vocabularies: ${missingFields.join(
-                ", ",
+                ", "
               )}`,
             };
           }
@@ -174,9 +159,7 @@ export function getPhase9011Tests(user: any): Test[] {
           return {
             success: false,
             message: `Error loading context.json: ${
-              error instanceof Error
-                ? error.message
-                : "Unknown error"
+              error instanceof Error ? error.message : "Unknown error"
             }`,
           };
         }
@@ -193,19 +176,15 @@ export function getPhase9011Tests(user: any): Test[] {
         if (!user) {
           return {
             success: false,
-            message:
-              "Must be authenticated to compute aggregation",
+            message: "Must be authenticated to compute aggregation",
           };
         }
 
-        const accessToken = sessionStorage.getItem(
-          "wastedb_access_token",
-        );
+        const accessToken = sessionStorage.getItem("wastedb_access_token");
         if (!accessToken) {
           return {
             success: false,
-            message:
-              "No access token found - please sign in again",
+            message: "No access token found - please sign in again",
           };
         }
 
@@ -217,23 +196,19 @@ export function getPhase9011Tests(user: any): Test[] {
             `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/aggregations/compute`,
             {
               method: "POST",
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-                "Content-Type": "application/json",
-              },
+              headers: getAuthHeaders(accessToken),
               body: JSON.stringify({
                 material_id: materialId,
                 parameter_code: parameter,
               }),
-            },
+            }
           );
 
           if (!response.ok) {
             const data = await response.json();
             return {
               success: false,
-              message:
-                data.error || "Failed to compute aggregation",
+              message: data.error || "Failed to compute aggregation",
             };
           }
 
@@ -254,15 +229,13 @@ export function getPhase9011Tests(user: any): Test[] {
             "weights_used",
             "miu_ids",
           ];
-          const missingFields = requiredFields.filter(
-            (f) => !agg[f],
-          );
+          const missingFields = requiredFields.filter((f) => !agg[f]);
 
           if (missingFields.length > 0) {
             return {
               success: false,
               message: `Missing policy snapshot fields: ${missingFields.join(
-                ", ",
+                ", "
               )}`,
             };
           }
@@ -275,9 +248,7 @@ export function getPhase9011Tests(user: any): Test[] {
           return {
             success: false,
             message: `Error computing aggregation: ${
-              error instanceof Error
-                ? error.message
-                : "Unknown error"
+              error instanceof Error ? error.message : "Unknown error"
             }`,
           };
         }
@@ -302,15 +273,14 @@ export function getPhase9011Tests(user: any): Test[] {
               headers: {
                 Authorization: `Bearer ${publicAnonKey}`,
               },
-            },
+            }
           );
 
           if (!response.ok) {
             const data = await response.json();
             return {
               success: false,
-              message:
-                data.error || "Failed to retrieve aggregation",
+              message: data.error || "Failed to retrieve aggregation",
             };
           }
 
@@ -333,9 +303,7 @@ export function getPhase9011Tests(user: any): Test[] {
           return {
             success: false,
             message: `Error retrieving aggregation: ${
-              error instanceof Error
-                ? error.message
-                : "Unknown error"
+              error instanceof Error ? error.message : "Unknown error"
             }`,
           };
         }

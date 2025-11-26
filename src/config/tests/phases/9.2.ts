@@ -5,11 +5,8 @@
  * pilot scope restrictions, evidence filtering/search, and UI component structure.
  */
 
-import {
-  projectId,
-  publicAnonKey,
-} from "../../../utils/supabase/info";
-import { Test } from "../types";
+import { projectId, publicAnonKey } from "../../../utils/supabase/info";
+import { Test, getAuthHeaders } from "../types";
 
 export function getPhase92Tests(user: any): Test[] {
   return [
@@ -29,7 +26,7 @@ export function getPhase92Tests(user: any): Test[] {
               headers: {
                 Authorization: `Bearer ${publicAnonKey}`,
               },
-            },
+            }
           );
 
           if (!response.ok) {
@@ -52,14 +49,14 @@ export function getPhase92Tests(user: any): Test[] {
           // Check for CR parameters (Y, D, C, M, E)
           const crParams = ["Y", "D", "C", "M", "E"];
           const missingParams = crParams.filter(
-            (param) => !ontology.parameters[param],
+            (param) => !ontology.parameters[param]
           );
 
           if (missingParams.length > 0) {
             return {
               success: false,
               message: `Missing CR parameters in ontology: ${missingParams.join(
-                ", ",
+                ", "
               )}`,
             };
           }
@@ -89,9 +86,7 @@ export function getPhase92Tests(user: any): Test[] {
           return {
             success: false,
             message: `Error loading units ontology: ${
-              error instanceof Error
-                ? error.message
-                : "Unknown error"
+              error instanceof Error ? error.message : "Unknown error"
             }`,
           };
         }
@@ -113,7 +108,7 @@ export function getPhase92Tests(user: any): Test[] {
               headers: {
                 Authorization: `Bearer ${publicAnonKey}`,
               },
-            },
+            }
           );
 
           if (!response.ok) {
@@ -135,8 +130,7 @@ export function getPhase92Tests(user: any): Test[] {
           }
 
           const testUnit = "%";
-          const isAllowed =
-            yParam.allowed_units.includes(testUnit);
+          const isAllowed = yParam.allowed_units.includes(testUnit);
 
           if (!isAllowed) {
             return {
@@ -148,16 +142,14 @@ export function getPhase92Tests(user: any): Test[] {
           return {
             success: true,
             message: `Unit "${testUnit}" correctly validated for parameter Y (allowed: ${yParam.allowed_units.join(
-              ", ",
+              ", "
             )})`,
           };
         } catch (error) {
           return {
             success: false,
             message: `Error validating unit: ${
-              error instanceof Error
-                ? error.message
-                : "Unknown error"
+              error instanceof Error ? error.message : "Unknown error"
             }`,
           };
         }
@@ -179,7 +171,7 @@ export function getPhase92Tests(user: any): Test[] {
               headers: {
                 Authorization: `Bearer ${publicAnonKey}`,
               },
-            },
+            }
           );
 
           if (!response.ok) {
@@ -201,8 +193,7 @@ export function getPhase92Tests(user: any): Test[] {
           }
 
           const invalidUnit = "invalid-unit-xyz";
-          const isAllowed =
-            yParam.allowed_units.includes(invalidUnit);
+          const isAllowed = yParam.allowed_units.includes(invalidUnit);
 
           if (isAllowed) {
             return {
@@ -219,9 +210,7 @@ export function getPhase92Tests(user: any): Test[] {
           return {
             success: false,
             message: `Error testing invalid unit: ${
-              error instanceof Error
-                ? error.message
-                : "Unknown error"
+              error instanceof Error ? error.message : "Unknown error"
             }`,
           };
         }
@@ -254,7 +243,7 @@ export function getPhase92Tests(user: any): Test[] {
           "source_ref",
         ];
         const missingFields = requiredFields.filter(
-          (field) => !testData[field as keyof typeof testData],
+          (field) => !testData[field as keyof typeof testData]
         );
 
         if (missingFields.length === requiredFields.length) {
@@ -279,11 +268,7 @@ export function getPhase92Tests(user: any): Test[] {
       phase: "9.2",
       category: "Scope Validation",
       testFn: async () => {
-        const PILOT_MATERIALS = [
-          "aluminum",
-          "pet",
-          "cardboard",
-        ];
+        const PILOT_MATERIALS = ["aluminum", "pet", "cardboard"];
 
         // In the real app, this would check the CurationWorkbench component's material filter
         // For now, we test the constant definition
@@ -294,20 +279,15 @@ export function getPhase92Tests(user: any): Test[] {
           };
         }
 
-        const expectedMaterials = [
-          "aluminum",
-          "pet",
-          "cardboard",
-        ];
+        const expectedMaterials = ["aluminum", "pet", "cardboard"];
         const matches = PILOT_MATERIALS.every((m) =>
-          expectedMaterials.includes(m),
+          expectedMaterials.includes(m)
         );
 
         if (!matches) {
           return {
             success: false,
-            message:
-              "Pilot materials list does not match expected materials",
+            message: "Pilot materials list does not match expected materials",
           };
         }
 
@@ -337,15 +317,12 @@ export function getPhase92Tests(user: any): Test[] {
         }
 
         const expectedParams = ["Y", "D", "C", "M", "E"];
-        const matches = CR_PARAMETERS.every((p) =>
-          expectedParams.includes(p),
-        );
+        const matches = CR_PARAMETERS.every((p) => expectedParams.includes(p));
 
         if (!matches) {
           return {
             success: false,
-            message:
-              "CR parameters list does not match expected parameters",
+            message: "CR parameters list does not match expected parameters",
           };
         }
 
@@ -360,39 +337,31 @@ export function getPhase92Tests(user: any): Test[] {
     {
       id: "phase9.2-evidence-list-filter-material",
       name: "Filter Evidence by Material",
-      description:
-        "Verify evidence list can be filtered by material ID",
+      description: "Verify evidence list can be filtered by material ID",
       phase: "9.2",
       category: "Evidence List",
       testFn: async () => {
         if (!user) {
           return {
             success: false,
-            message:
-              "Must be authenticated to retrieve evidence",
+            message: "Must be authenticated to retrieve evidence",
           };
         }
 
-        const accessToken = sessionStorage.getItem(
-          "wastedb_access_token",
-        );
+        const accessToken = sessionStorage.getItem("wastedb_access_token");
         if (!accessToken) {
           return {
             success: false,
-            message:
-              "No access token found - please sign in again",
+            message: "No access token found - please sign in again",
           };
         }
 
         // Get evidence for a specific material (using the test material from Phase 9.1)
-        const materialId = sessionStorage.getItem(
-          "phase91_test_material_id",
-        );
+        const materialId = sessionStorage.getItem("phase91_test_material_id");
         if (!materialId) {
           return {
             success: false,
-            message:
-              "No test material ID found - run Phase 9.1 tests first",
+            message: "No test material ID found - run Phase 9.1 tests first",
           };
         }
 
@@ -401,19 +370,15 @@ export function getPhase92Tests(user: any): Test[] {
             `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/evidence/material/${materialId}`,
             {
               method: "GET",
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-              },
-            },
+              headers: getAuthHeaders(accessToken),
+            }
           );
 
           if (!response.ok) {
             const data = await response.json();
             return {
               success: false,
-              message:
-                data.error ||
-                "Failed to filter evidence by material",
+              message: data.error || "Failed to filter evidence by material",
             };
           }
 
@@ -429,7 +394,7 @@ export function getPhase92Tests(user: any): Test[] {
 
           // Filter out any null values (defensive programming)
           const validEvidence = data.evidence.filter(
-            (ev: any) => ev !== null && ev !== undefined,
+            (ev: any) => ev !== null && ev !== undefined
           );
 
           // If there's no evidence, that's okay - the filter still works
@@ -443,14 +408,13 @@ export function getPhase92Tests(user: any): Test[] {
 
           // Verify all returned evidence points match the material_id
           const allMatch = validEvidence.every(
-            (ev: any) => ev.material_id === materialId,
+            (ev: any) => ev.material_id === materialId
           );
 
           if (!allMatch) {
             return {
               success: false,
-              message:
-                "Evidence list contains items from other materials",
+              message: "Evidence list contains items from other materials",
             };
           }
 
@@ -462,9 +426,7 @@ export function getPhase92Tests(user: any): Test[] {
           return {
             success: false,
             message: `Error filtering evidence: ${
-              error instanceof Error
-                ? error.message
-                : "Unknown error"
+              error instanceof Error ? error.message : "Unknown error"
             }`,
           };
         }
@@ -473,39 +435,31 @@ export function getPhase92Tests(user: any): Test[] {
     {
       id: "phase9.2-evidence-list-filter-parameter",
       name: "Filter Evidence by Parameter",
-      description:
-        "Verify evidence list can be filtered by parameter code",
+      description: "Verify evidence list can be filtered by parameter code",
       phase: "9.2",
       category: "Evidence List",
       testFn: async () => {
         if (!user) {
           return {
             success: false,
-            message:
-              "Must be authenticated to retrieve evidence",
+            message: "Must be authenticated to retrieve evidence",
           };
         }
 
-        const accessToken = sessionStorage.getItem(
-          "wastedb_access_token",
-        );
+        const accessToken = sessionStorage.getItem("wastedb_access_token");
         if (!accessToken) {
           return {
             success: false,
-            message:
-              "No access token found - please sign in again",
+            message: "No access token found - please sign in again",
           };
         }
 
         // Get evidence for a specific parameter
-        const materialId = sessionStorage.getItem(
-          "phase91_test_material_id",
-        );
+        const materialId = sessionStorage.getItem("phase91_test_material_id");
         if (!materialId) {
           return {
             success: false,
-            message:
-              "No test material ID found - run Phase 9.1 tests first",
+            message: "No test material ID found - run Phase 9.1 tests first",
           };
         }
 
@@ -515,17 +469,14 @@ export function getPhase92Tests(user: any): Test[] {
             `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/evidence/material/${materialId}`,
             {
               method: "GET",
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-              },
-            },
+              headers: getAuthHeaders(accessToken),
+            }
           );
 
           if (!response.ok) {
             return {
               success: false,
-              message:
-                "Failed to fetch evidence for filtering test",
+              message: "Failed to fetch evidence for filtering test",
             };
           }
 
@@ -541,12 +492,12 @@ export function getPhase92Tests(user: any): Test[] {
 
           // Filter out any null values (defensive programming)
           const validEvidence = data.evidence.filter(
-            (ev: any) => ev !== null && ev !== undefined,
+            (ev: any) => ev !== null && ev !== undefined
           );
 
           // Filter by parameter code 'Y' (client-side filter simulation)
           const filteredEvidence = validEvidence.filter(
-            (ev: any) => ev.parameter_code === "Y",
+            (ev: any) => ev.parameter_code === "Y"
           );
 
           // If there's no evidence with parameter Y, that's okay - just report it
@@ -560,7 +511,7 @@ export function getPhase92Tests(user: any): Test[] {
 
           // Verify all filtered items have parameter_code 'Y'
           const allMatch = filteredEvidence.every(
-            (ev: any) => ev.parameter_code === "Y",
+            (ev: any) => ev.parameter_code === "Y"
           );
 
           if (!allMatch) {
@@ -578,9 +529,7 @@ export function getPhase92Tests(user: any): Test[] {
           return {
             success: false,
             message: `Error filtering by parameter: ${
-              error instanceof Error
-                ? error.message
-                : "Unknown error"
+              error instanceof Error ? error.message : "Unknown error"
             }`,
           };
         }
@@ -597,30 +546,23 @@ export function getPhase92Tests(user: any): Test[] {
         if (!user) {
           return {
             success: false,
-            message:
-              "Must be authenticated to retrieve evidence",
+            message: "Must be authenticated to retrieve evidence",
           };
         }
 
-        const accessToken = sessionStorage.getItem(
-          "wastedb_access_token",
-        );
+        const accessToken = sessionStorage.getItem("wastedb_access_token");
         if (!accessToken) {
           return {
             success: false,
-            message:
-              "No access token found - please sign in again",
+            message: "No access token found - please sign in again",
           };
         }
 
-        const materialId = sessionStorage.getItem(
-          "phase91_test_material_id",
-        );
+        const materialId = sessionStorage.getItem("phase91_test_material_id");
         if (!materialId) {
           return {
             success: false,
-            message:
-              "No test material ID found - run Phase 9.1 tests first",
+            message: "No test material ID found - run Phase 9.1 tests first",
           };
         }
 
@@ -629,17 +571,14 @@ export function getPhase92Tests(user: any): Test[] {
             `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/evidence/material/${materialId}`,
             {
               method: "GET",
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-              },
-            },
+              headers: getAuthHeaders(accessToken),
+            }
           );
 
           if (!response.ok) {
             return {
               success: false,
-              message:
-                "Failed to fetch evidence for search test",
+              message: "Failed to fetch evidence for search test",
             };
           }
 
@@ -655,7 +594,7 @@ export function getPhase92Tests(user: any): Test[] {
 
           // Filter out any null values (defensive programming)
           const validEvidence = data.evidence.filter(
-            (ev: any) => ev !== null && ev !== undefined,
+            (ev: any) => ev !== null && ev !== undefined
           );
 
           // If there's no evidence at all, report success but note that we need data
@@ -673,9 +612,7 @@ export function getPhase92Tests(user: any): Test[] {
             (ev: any) =>
               ev.snippet &&
               typeof ev.snippet === "string" &&
-              ev.snippet
-                .toLowerCase()
-                .includes(searchTerm.toLowerCase()),
+              ev.snippet.toLowerCase().includes(searchTerm.toLowerCase())
           );
 
           // If no results for "yield", try a more generic search
@@ -691,16 +628,13 @@ export function getPhase92Tests(user: any): Test[] {
             (ev: any) =>
               ev.snippet &&
               typeof ev.snippet === "string" &&
-              ev.snippet
-                .toLowerCase()
-                .includes(searchTerm.toLowerCase()),
+              ev.snippet.toLowerCase().includes(searchTerm.toLowerCase())
           );
 
           if (!allMatch) {
             return {
               success: false,
-              message:
-                "Search results contain items without search term",
+              message: "Search results contain items without search term",
             };
           }
 
@@ -712,9 +646,7 @@ export function getPhase92Tests(user: any): Test[] {
           return {
             success: false,
             message: `Error searching evidence: ${
-              error instanceof Error
-                ? error.message
-                : "Unknown error"
+              error instanceof Error ? error.message : "Unknown error"
             }`,
           };
         }
@@ -739,21 +671,20 @@ export function getPhase92Tests(user: any): Test[] {
 
         const expectedLevels = ["high", "medium", "low"];
         const matches = CONFIDENCE_LEVELS.every((level) =>
-          expectedLevels.includes(level),
+          expectedLevels.includes(level)
         );
 
         if (!matches) {
           return {
             success: false,
-            message:
-              "Confidence levels do not match expected values",
+            message: "Confidence levels do not match expected values",
           };
         }
 
         return {
           success: true,
           message: `Confidence levels correctly defined: ${CONFIDENCE_LEVELS.join(
-            ", ",
+            ", "
           )}`,
         };
       },
@@ -769,31 +700,24 @@ export function getPhase92Tests(user: any): Test[] {
         if (!user) {
           return {
             success: false,
-            message:
-              "Must be authenticated to retrieve evidence",
+            message: "Must be authenticated to retrieve evidence",
           };
         }
 
-        const accessToken = sessionStorage.getItem(
-          "wastedb_access_token",
-        );
+        const accessToken = sessionStorage.getItem("wastedb_access_token");
         if (!accessToken) {
           return {
             success: false,
-            message:
-              "No access token found - please sign in again",
+            message: "No access token found - please sign in again",
           };
         }
 
         // Test that evidence can be created with locator fields
-        const evidenceId = sessionStorage.getItem(
-          "phase91_test_evidence_id",
-        );
+        const evidenceId = sessionStorage.getItem("phase91_test_evidence_id");
         if (!evidenceId) {
           return {
             success: false,
-            message:
-              "No test evidence ID found - run Phase 9.1 tests first",
+            message: "No test evidence ID found - run Phase 9.1 tests first",
           };
         }
 
@@ -802,10 +726,8 @@ export function getPhase92Tests(user: any): Test[] {
             `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/evidence/${evidenceId}`,
             {
               method: "GET",
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-              },
-            },
+              headers: getAuthHeaders(accessToken),
+            }
           );
 
           if (!response.ok) {
@@ -833,9 +755,7 @@ export function getPhase92Tests(user: any): Test[] {
           return {
             success: false,
             message: `Error checking locator fields: ${
-              error instanceof Error
-                ? error.message
-                : "Unknown error"
+              error instanceof Error ? error.message : "Unknown error"
             }`,
           };
         }
@@ -844,8 +764,7 @@ export function getPhase92Tests(user: any): Test[] {
     {
       id: "phase9.2-wizard-step-progression",
       name: "Verify 5-Step Wizard Structure",
-      description:
-        "Verify Evidence Wizard has correct 5-step structure",
+      description: "Verify Evidence Wizard has correct 5-step structure",
       phase: "9.2",
       category: "UI Components",
       testFn: async () => {
@@ -898,7 +817,7 @@ export function getPhase92Tests(user: any): Test[] {
         return {
           success: true,
           message: `5-step wizard structure correctly defined: ${WIZARD_STEPS.map(
-            (s) => s.name,
+            (s) => s.name
           ).join(" → ")}`,
         };
       },
@@ -906,17 +825,14 @@ export function getPhase92Tests(user: any): Test[] {
     {
       id: "phase9.2-source-metadata-display",
       name: "Verify Source Metadata Fields",
-      description:
-        "Verify source metadata includes abstract, DOI, and authors",
+      description: "Verify source metadata includes abstract, DOI, and authors",
       phase: "9.2",
       category: "UI Components",
       testFn: async () => {
         // Check that sources have required metadata fields
         try {
           // Import the sources data
-          const sourcesModule = await import(
-            "../../../data/sources"
-          );
+          const sourcesModule = await import("../../../data/sources");
           const sources = sourcesModule.SOURCE_LIBRARY;
 
           if (!sources || sources.length === 0) {
@@ -928,22 +844,17 @@ export function getPhase92Tests(user: any): Test[] {
 
           // Check first source for required metadata fields
           const firstSource = sources[0];
-          const requiredFields = [
-            "title",
-            "abstract",
-            "authors",
-          ];
+          const requiredFields = ["title", "abstract", "authors"];
 
           const missingFields = requiredFields.filter(
-            (field) =>
-              !firstSource[field as keyof typeof firstSource],
+            (field) => !firstSource[field as keyof typeof firstSource]
           );
 
           if (missingFields.length > 0) {
             return {
               success: false,
               message: `Source missing required metadata: ${missingFields.join(
-                ", ",
+                ", "
               )}`,
             };
           }
@@ -956,9 +867,7 @@ export function getPhase92Tests(user: any): Test[] {
           return {
             success: false,
             message: `Error loading source metadata: ${
-              error instanceof Error
-                ? error.message
-                : "Unknown error"
+              error instanceof Error ? error.message : "Unknown error"
             }`,
           };
         }

@@ -4,11 +4,8 @@
  * Tests for parameter transform definitions, versioning, and recompute job management.
  */
 
-import {
-  projectId,
-  publicAnonKey,
-} from "../../../utils/supabase/info";
-import { Test } from "../types";
+import { projectId, publicAnonKey } from "../../../utils/supabase/info";
+import { Test, getAuthHeaders } from "../types";
 
 export function getPhase902Tests(user: any): Test[] {
   return [
@@ -28,24 +25,20 @@ export function getPhase902Tests(user: any): Test[] {
               headers: {
                 Authorization: `Bearer ${publicAnonKey}`,
               },
-            },
+            }
           );
 
           if (!response.ok) {
             const data = await response.json();
             return {
               success: false,
-              message:
-                data.error || "Failed to retrieve transforms",
+              message: data.error || "Failed to retrieve transforms",
             };
           }
 
           const data = await response.json();
 
-          if (
-            !data.transforms ||
-            !Array.isArray(data.transforms)
-          ) {
+          if (!data.transforms || !Array.isArray(data.transforms)) {
             return {
               success: false,
               message: "Invalid response structure",
@@ -67,9 +60,7 @@ export function getPhase902Tests(user: any): Test[] {
           return {
             success: false,
             message: `Error retrieving transforms: ${
-              error instanceof Error
-                ? error.message
-                : "Unknown error"
+              error instanceof Error ? error.message : "Unknown error"
             }`,
           };
         }
@@ -78,8 +69,7 @@ export function getPhase902Tests(user: any): Test[] {
     {
       id: "phase9-day2-get-specific-transform",
       name: "Get Specific Transform (Y)",
-      description:
-        "Verify individual transform retrieval by parameter code",
+      description: "Verify individual transform retrieval by parameter code",
       phase: "9.0.2",
       category: "Transforms",
       testFn: async () => {
@@ -92,15 +82,14 @@ export function getPhase902Tests(user: any): Test[] {
               headers: {
                 Authorization: `Bearer ${publicAnonKey}`,
               },
-            },
+            }
           );
 
           if (!response.ok) {
             const data = await response.json();
             return {
               success: false,
-              message:
-                data.error || "Failed to retrieve transform",
+              message: data.error || "Failed to retrieve transform",
             };
           }
 
@@ -116,8 +105,7 @@ export function getPhase902Tests(user: any): Test[] {
           if (!data.formula || !data.version) {
             return {
               success: false,
-              message:
-                "Missing required fields (formula, version)",
+              message: "Missing required fields (formula, version)",
             };
           }
 
@@ -129,9 +117,7 @@ export function getPhase902Tests(user: any): Test[] {
           return {
             success: false,
             message: `Error retrieving transform: ${
-              error instanceof Error
-                ? error.message
-                : "Unknown error"
+              error instanceof Error ? error.message : "Unknown error"
             }`,
           };
         }
@@ -140,27 +126,22 @@ export function getPhase902Tests(user: any): Test[] {
     {
       id: "phase9-day2-create-recompute-job",
       name: "Create Recompute Job",
-      description:
-        "Verify recompute job creation with proper ID generation",
+      description: "Verify recompute job creation with proper ID generation",
       phase: "9.0.2",
       category: "Transforms",
       testFn: async () => {
         if (!user) {
           return {
             success: false,
-            message:
-              "Must be authenticated to create recompute jobs",
+            message: "Must be authenticated to create recompute jobs",
           };
         }
 
-        const accessToken = sessionStorage.getItem(
-          "wastedb_access_token",
-        );
+        const accessToken = sessionStorage.getItem("wastedb_access_token");
         if (!accessToken) {
           return {
             success: false,
-            message:
-              "No access token found - please sign in again",
+            message: "No access token found - please sign in again",
           };
         }
 
@@ -169,25 +150,21 @@ export function getPhase902Tests(user: any): Test[] {
             `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/transforms/recompute`,
             {
               method: "POST",
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-                "Content-Type": "application/json",
-              },
+              headers: getAuthHeaders(accessToken),
               body: JSON.stringify({
                 parameter: "Y",
                 newTransformVersion: "1.1",
                 reason:
                   "Testing recompute job creation from automated test suite",
               }),
-            },
+            }
           );
 
           if (!response.ok) {
             const data = await response.json();
             return {
               success: false,
-              message:
-                data.error || "Failed to create recompute job",
+              message: data.error || "Failed to create recompute job",
             };
           }
 
@@ -196,8 +173,7 @@ export function getPhase902Tests(user: any): Test[] {
           if (!data.jobId || !data.jobId.startsWith("RJ-")) {
             return {
               success: false,
-              message:
-                "Invalid job ID format (should start with RJ-)",
+              message: "Invalid job ID format (should start with RJ-)",
             };
           }
 
@@ -209,9 +185,7 @@ export function getPhase902Tests(user: any): Test[] {
           return {
             success: false,
             message: `Error creating recompute job: ${
-              error instanceof Error
-                ? error.message
-                : "Unknown error"
+              error instanceof Error ? error.message : "Unknown error"
             }`,
           };
         }
@@ -227,19 +201,15 @@ export function getPhase902Tests(user: any): Test[] {
         if (!user) {
           return {
             success: false,
-            message:
-              "Must be authenticated to list recompute jobs",
+            message: "Must be authenticated to list recompute jobs",
           };
         }
 
-        const accessToken = sessionStorage.getItem(
-          "wastedb_access_token",
-        );
+        const accessToken = sessionStorage.getItem("wastedb_access_token");
         if (!accessToken) {
           return {
             success: false,
-            message:
-              "No access token found - please sign in again",
+            message: "No access token found - please sign in again",
           };
         }
 
@@ -248,19 +218,15 @@ export function getPhase902Tests(user: any): Test[] {
             `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/transforms/recompute`,
             {
               method: "GET",
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-              },
-            },
+              headers: getAuthHeaders(accessToken),
+            }
           );
 
           if (!response.ok) {
             const data = await response.json();
             return {
               success: false,
-              message:
-                data.error ||
-                "Failed to retrieve recompute jobs",
+              message: data.error || "Failed to retrieve recompute jobs",
             };
           }
 
@@ -281,9 +247,7 @@ export function getPhase902Tests(user: any): Test[] {
           return {
             success: false,
             message: `Error retrieving recompute jobs: ${
-              error instanceof Error
-                ? error.message
-                : "Unknown error"
+              error instanceof Error ? error.message : "Unknown error"
             }`,
           };
         }

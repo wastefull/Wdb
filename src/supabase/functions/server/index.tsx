@@ -1291,26 +1291,21 @@ app.post("/make-server-17cae920/auth/verify-magic-link", async (c) => {
   }
 });
 
-// Get all materials (protected, rate-limited)
-app.get(
-  "/make-server-17cae920/materials",
-  rateLimit("API"),
-  verifyAuth,
-  async (c) => {
-    try {
-      const userId = c.get("userId");
-      // Get materials for this user (or all if using public key for backward compat)
-      const materials = await kv.getByPrefix("material:");
-      return c.json({ materials: materials || [] });
-    } catch (error) {
-      console.error("Error fetching materials:", error);
-      return c.json(
-        { error: "Failed to fetch materials", details: String(error) },
-        500
-      );
-    }
+// Get all materials (public read access, rate-limited)
+app.get("/make-server-17cae920/materials", rateLimit("API"), async (c) => {
+  try {
+    const userId = c.get("userId");
+    // Get materials for this user (or all if using public key for backward compat)
+    const materials = await kv.getByPrefix("material:");
+    return c.json({ materials: materials || [] });
+  } catch (error) {
+    console.error("Error fetching materials:", error);
+    return c.json(
+      { error: "Failed to fetch materials", details: String(error) },
+      500
+    );
   }
-);
+});
 
 // Create a new material (protected - admin only)
 app.post(
