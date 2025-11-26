@@ -5,7 +5,6 @@ import { toast } from "sonner";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { Label } from "../ui/label";
-import { Button } from "../ui/button";
 import {
   Card,
   CardContent,
@@ -98,9 +97,7 @@ export function UserProfileView({
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#211f1c] dark:border-white mx-auto mb-4"></div>
-          <p className="text-black dark:text-white">
-            Loading profile...
-          </p>
+          <p className="text-black dark:text-white">Loading profile...</p>
         </div>
       </div>
     );
@@ -111,14 +108,11 @@ export function UserProfileView({
       <div className="p-6">
         <button
           onClick={onBack}
-          className="flex items-center gap-2 mb-6 text-black dark:text-white hover:opacity-70 transition-opacity"
+          className="icon-box-sm arcade-bg-red arcade-btn-red p-2 mb-6"
         >
           <ArrowLeft size={16} />
-          <span className="">Back</span>
         </button>
-        <p className="text-black dark:text-white">
-          Profile not found
-        </p>
+        <p className="text-black dark:text-white">Profile not found</p>
       </div>
     );
   }
@@ -129,19 +123,18 @@ export function UserProfileView({
       <div className="flex items-center justify-between mb-6">
         <button
           onClick={onBack}
-          className="flex items-center gap-2 text-black dark:text-white hover:opacity-70 transition-opacity"
+          className="icon-box-sm arcade-bg-red arcade-btn-red p-2"
         >
           <ArrowLeft size={16} />
-          <span className="">Back</span>
         </button>
         {isOwnProfile && !editing && (
-          <Button
+          <button
             onClick={() => setEditing(true)}
-            className="flex items-center gap-2 bg-[#b8c8cb] text-black hover:bg-[#a8b8bb] border border-[#211f1c] dark:border-white/20"
+            className="retro-btn-primary arcade-bg-cyan arcade-btn-cyan px-4 h-[36px] flex items-center gap-2 text-[13px]"
           >
             <Edit2 size={14} />
             Edit Profile
-          </Button>
+          </button>
         )}
       </div>
 
@@ -217,10 +210,7 @@ export function UserProfileView({
 
           {/* Bio */}
           <div className="space-y-2">
-            <Label
-              htmlFor="bio"
-              className="text-black dark:text-white"
-            >
+            <Label htmlFor="bio" className="text-black dark:text-white">
               Bio
             </Label>
             {editing ? (
@@ -245,10 +235,7 @@ export function UserProfileView({
 
           {/* Social Link */}
           <div className="space-y-2">
-            <Label
-              htmlFor="social_link"
-              className="text-black dark:text-white"
-            >
+            <Label htmlFor="social_link" className="text-black dark:text-white">
               Website / Social Link
             </Label>
             {editing ? (
@@ -280,23 +267,22 @@ export function UserProfileView({
           {/* Edit Actions */}
           {editing && (
             <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-[#211f1c]/20 dark:border-white/20">
-              <Button
+              <button
                 onClick={handleSave}
                 disabled={saving}
-                className="flex items-center justify-center gap-2 bg-[#c8e5c8] text-black hover:bg-[#b8d5b8] border border-[#211f1c] dark:border-white/20 w-full sm:w-auto"
+                className="retro-btn-primary arcade-bg-green arcade-btn-green px-4 h-[36px] flex items-center justify-center gap-2 text-[13px] disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
               >
                 <Save size={14} />
                 {saving ? "Saving..." : "Save Changes"}
-              </Button>
-              <Button
+              </button>
+              <button
                 onClick={handleCancel}
                 disabled={saving}
-                variant="outline"
-                className="flex items-center justify-center gap-2 w-full sm:w-auto"
+                className="retro-btn-primary arcade-bg-red arcade-btn-red px-4 h-[36px] flex items-center justify-center gap-2 text-[13px] disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
               >
                 <X size={14} />
                 Cancel
-              </Button>
+              </button>
             </div>
           )}
         </CardContent>
@@ -315,12 +301,12 @@ export function UserProfileView({
               </CardDescription>
             </div>
             {isOwnProfile && onNavigateToMySubmissions && (
-              <Button
+              <button
                 onClick={onNavigateToMySubmissions}
-                className="bg-[#f4d3a0] text-black hover:bg-[#e4c390] border border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all w-full sm:w-auto"
+                className="retro-card-button arcade-bg-amber arcade-btn-amber px-4 h-[36px] text-[13px] w-full sm:w-auto"
               >
                 My Submissions
-              </Button>
+              </button>
             )}
           </div>
         </CardHeader>

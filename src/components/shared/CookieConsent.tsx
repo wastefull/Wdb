@@ -1,20 +1,20 @@
-import { useState, useEffect } from 'react';
-import { Cookie } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { useState, useEffect } from "react";
+import { Cookie } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 
 export function CookieConsent() {
   const [showBanner, setShowBanner] = useState(false);
 
   useEffect(() => {
     // Check if user has already consented
-    const hasConsented = localStorage.getItem('cookie-consent');
+    const hasConsented = localStorage.getItem("cookie-consent");
     if (!hasConsented) {
       setShowBanner(true);
     }
   }, []);
 
   const handleAccept = () => {
-    localStorage.setItem('cookie-consent', 'true');
+    localStorage.setItem("cookie-consent", "true");
     setShowBanner(false);
   };
 
@@ -30,14 +30,18 @@ export function CookieConsent() {
         >
           <div className="bg-[#b8c8cb] dark:bg-[#2a2a2a] rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[4px_5px_0px_-1px_#000000] dark:shadow-[4px_5px_0px_-1px_rgba(255,255,255,0.2)] p-4">
             <div className="flex items-start gap-3">
-              <Cookie className="text-black dark:text-white mt-1 flex-shrink-0" size={20} />
+              <Cookie
+                className="text-black dark:text-white mt-1 flex-shrink-0"
+                size={20}
+              />
               <div className="flex-1">
                 <p className="text-[13px] text-black dark:text-white mb-3">
-                  We use cookies for authentication to keep you signed in. By continuing to use WasteDB, you consent to our use of cookies.
+                  We use cookies for authentication to keep you signed in. By
+                  continuing to use WasteDB, you consent to our use of cookies.
                 </p>
                 <button
                   onClick={handleAccept}
-                  className="bg-[#e8a593] dark:bg-[#e8a593] h-[36px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 text-[12px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
+                  className="retro-card-button arcade-bg-green arcade-btn-green h-[36px] px-4 text-[12px]"
                 >
                   Accept
                 </button>

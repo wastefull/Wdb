@@ -142,8 +142,11 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
   return (
     <div className="p-6">
       <div className="flex items-center gap-4 mb-6">
-        <button onClick={onBack} className="icon-box-sm bg-[#e6beb5] p-2">
-          <ArrowLeft size={16} className="text-black" />
+        <button
+          onClick={onBack}
+          className="icon-box-sm arcade-bg-red arcade-btn-red p-2"
+        >
+          <ArrowLeft size={16} />
         </button>
         <h2 className="font-['Fredoka_One',_sans-serif] text-black dark:text-white">
           My Submissions

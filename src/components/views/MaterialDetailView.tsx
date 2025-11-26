@@ -209,7 +209,7 @@ export function MaterialDetailView({
         </div>
       ) : (
         <div className="text-center py-12">
-          <p className="text-[16px] text-black/50">
+          <p className="text-[16px] text-black/50 dark:text-white/50">
             No articles yet. Click on a category score above to add one!
           </p>
         </div>

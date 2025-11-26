@@ -60,11 +60,17 @@ export function StandaloneArticleView({
         </div>
         {onEdit && onDelete && isAdminModeActive && (
           <div className="flex gap-2">
-            <button onClick={onEdit} className="icon-box-sm bg-[#e4e3ac] p-2">
-              <Edit2 size={14} className="text-black" />
+            <button
+              onClick={onEdit}
+              className="icon-box-sm arcade-bg-amber arcade-btn-amber p-2"
+            >
+              <Edit2 size={14} />
             </button>
-            <button onClick={onDelete} className="icon-box-sm bg-[#e6beb5] p-2">
-              <Trash2 size={14} className="text-black" />
+            <button
+              onClick={onDelete}
+              className="icon-box-sm arcade-bg-red arcade-btn-red p-2"
+            >
+              <Trash2 size={14} />
             </button>
           </div>
         )}
