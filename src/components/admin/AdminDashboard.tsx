@@ -70,11 +70,11 @@ export function AdminDashboard({
             className="flex items-center gap-2 text-black dark:text-white hover:opacity-70 transition-opacity"
           >
             <ArrowLeft size={16} />
-            <span className="font-['Sniglet'] text-[14px]">Back</span>
+            <span className="font-sniglet text-[14px]">Back</span>
           </button>
         </div>
 
-        <h2 className="font-['Fredoka_One'] text-[24px] text-black dark:text-white mb-6">
+        <h2 className="font-display text-[24px] text-black dark:text-white mb-6">
           Admin Dashboard
         </h2>
 
@@ -84,7 +84,7 @@ export function AdminDashboard({
             value="moderation"
             className="border-[#211f1c]/10 dark:border-white/10"
           >
-            <AccordionTrigger className="font-['Sniglet'] text-[14px] text-black dark:text-white hover:no-underline">
+            <AccordionTrigger className="font-sniglet text-[14px] text-black dark:text-white hover:no-underline">
               <div className="flex items-center gap-2">
                 <AlertTriangle size={16} />
                 <span>Moderation</span>
@@ -95,7 +95,7 @@ export function AdminDashboard({
                 {onNavigateToReviewCenter && (
                   <button
                     onClick={onNavigateToReviewCenter}
-                    className="w-full text-left font-['Sniglet'] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white transition-colors py-2 px-3 rounded-md hover:bg-[#ffb3ba]/20"
+                    className="menu-item"
                   >
                     Review Center
                   </button>
@@ -103,7 +103,7 @@ export function AdminDashboard({
                 {onNavigateToAdminTakedownList && (
                   <button
                     onClick={onNavigateToAdminTakedownList}
-                    className="w-full text-left font-['Sniglet'] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white transition-colors py-2 px-3 rounded-md hover:bg-[#ffb3ba]/20"
+                    className="menu-item"
                   >
                     Takedown Requests
                   </button>
@@ -111,7 +111,7 @@ export function AdminDashboard({
                 {onNavigateToAuditLog && (
                   <button
                     onClick={onNavigateToAuditLog}
-                    className="w-full text-left font-['Sniglet'] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white transition-colors py-2 px-3 rounded-md hover:bg-[#ffb3ba]/20"
+                    className="menu-item"
                   >
                     Audit Log
                   </button>
@@ -119,7 +119,7 @@ export function AdminDashboard({
                 {onNavigateToDataRetention && (
                   <button
                     onClick={onNavigateToDataRetention}
-                    className="w-full text-left font-['Sniglet'] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white transition-colors py-2 px-3 rounded-md hover:bg-[#ffb3ba]/20"
+                    className="menu-item"
                   >
                     Data Retention
                   </button>
@@ -134,7 +134,7 @@ export function AdminDashboard({
               value="admin"
               className="border-[#211f1c]/10 dark:border-white/10"
             >
-              <AccordionTrigger className="font-['Sniglet'] text-[14px] text-black dark:text-white hover:no-underline">
+              <AccordionTrigger className="font-sniglet text-[14px] text-black dark:text-white hover:no-underline">
                 <div className="flex items-center gap-2">
                   <Users size={16} />
                   <span>Admin</span>
@@ -144,20 +144,20 @@ export function AdminDashboard({
                 <div className="space-y-2 pl-6">
                   <button
                     onClick={onNavigateToUserManagement}
-                    className="w-full text-left font-['Sniglet'] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white transition-colors py-2 px-3 rounded-md hover:bg-[#e6beb5]/20"
+                    className="menu-item"
                   >
                     User Management
                   </button>
                   {onNavigateToAssets && (
                     <button
                       onClick={onNavigateToAssets}
-                      className="w-full text-left font-['Sniglet'] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white transition-colors py-2 px-3 rounded-md hover:bg-[#e6beb5]/20"
+                      className="menu-item"
                     >
                       Assets
                     </button>
                   )}
                   <button
-                    className="w-full text-left font-['Sniglet'] text-[12px] text-black/40 dark:text-white/40 py-2 px-3 rounded-md cursor-not-allowed"
+                    className="menu-item-disabled"
                     disabled
                   >
                     Pages (Coming Soon)
@@ -172,7 +172,7 @@ export function AdminDashboard({
             value="database"
             className="border-[#211f1c]/10 dark:border-white/10"
           >
-            <AccordionTrigger className="font-['Sniglet'] text-[14px] text-black dark:text-white hover:no-underline">
+            <AccordionTrigger className="font-sniglet text-[14px] text-black dark:text-white hover:no-underline">
               <div className="flex items-center gap-2">
                 <Database size={16} />
                 <span>Database</span>
@@ -183,7 +183,7 @@ export function AdminDashboard({
                 {onNavigateToDataManagement && (
                   <button
                     onClick={onNavigateToDataManagement}
-                    className="w-full text-left font-['Sniglet'] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white transition-colors py-2 px-3 rounded-md hover:bg-[#e4e3ac]/20"
+                    className="menu-item"
                   >
                     Materials
                   </button>
@@ -192,13 +192,13 @@ export function AdminDashboard({
                 {(onNavigateToSourceLibrary ||
                   onNavigateToSourceComparison) && (
                   <div className="space-y-2">
-                    <div className="font-['Sniglet'] text-[12px] text-black dark:text-white px-3 py-2">
+                    <div className="menu-header">
                       Sources
                     </div>
                     {onNavigateToSourceLibrary && (
                       <button
                         onClick={onNavigateToSourceLibrary}
-                        className="w-full text-left font-['Sniglet'] text-[11px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white transition-colors py-2 px-3 pl-6 rounded-md hover:bg-[#e4e3ac]/20"
+                        className="menu-item-nested"
                       >
                         Library
                       </button>
@@ -206,7 +206,7 @@ export function AdminDashboard({
                     {onNavigateToSourceComparison && (
                       <button
                         onClick={onNavigateToSourceComparison}
-                        className="w-full text-left font-['Sniglet'] text-[11px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white transition-colors py-2 px-3 pl-6 rounded-md hover:bg-[#e4e3ac]/20"
+                        className="menu-item-nested"
                       >
                         Comparison
                       </button>
@@ -216,7 +216,7 @@ export function AdminDashboard({
                 {onNavigateToWhitepapers && (
                   <button
                     onClick={onNavigateToWhitepapers}
-                    className="w-full text-left font-['Sniglet'] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white transition-colors py-2 px-3 rounded-md hover:bg-[#e4e3ac]/20"
+                    className="menu-item"
                   >
                     Whitepapers
                   </button>
@@ -224,7 +224,7 @@ export function AdminDashboard({
                 {onNavigateToEvidenceLab && (
                   <button
                     onClick={onNavigateToEvidenceLab}
-                    className="w-full text-left font-['Sniglet'] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white transition-colors py-2 px-3 rounded-md hover:bg-[#e4e3ac]/20"
+                    className="menu-item"
                   >
                     Evidence Lab
                   </button>
@@ -232,13 +232,13 @@ export function AdminDashboard({
                 {/* Math with nested Transform Version Manager */}
                 {(onNavigateToMath || onNavigateToTransformManager) && (
                   <div className="space-y-2">
-                    <div className="font-['Sniglet'] text-[12px] text-black dark:text-white px-3 py-2">
+                    <div className="menu-header">
                       Math
                     </div>
                     {onNavigateToTransformManager && (
                       <button
                         onClick={onNavigateToTransformManager}
-                        className="w-full text-left font-['Sniglet'] text-[11px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white transition-colors py-2 px-3 pl-6 rounded-md hover:bg-[#c7ceea]/20"
+                        className="menu-item-nested"
                       >
                         Transform Version Manager
                       </button>
@@ -254,7 +254,7 @@ export function AdminDashboard({
             value="testing"
             className="border-[#211f1c]/10 dark:border-white/10"
           >
-            <AccordionTrigger className="font-['Sniglet'] text-[14px] text-black dark:text-white hover:no-underline">
+            <AccordionTrigger className="font-sniglet text-[14px] text-black dark:text-white hover:no-underline">
               <div className="flex items-center gap-2">
                 <FlaskConical size={16} />
                 <span>Testing</span>
@@ -265,19 +265,19 @@ export function AdminDashboard({
                 {onNavigateToTransformTesting && (
                   <button
                     onClick={onNavigateToTransformTesting}
-                    className="w-full text-left font-['Sniglet'] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white transition-colors py-2 px-3 rounded-md hover:bg-[#bae1ff]/20"
+                    className="menu-item"
                   >
                     Transform Formula Testing
                   </button>
                 )}
                 {onNavigateToCharts && (
                   <div className="space-y-2">
-                    <div className="font-['Sniglet'] text-[11px] text-black/50 dark:text-white/50 px-3 py-1">
+                    <div className="menu-subheader">
                       Performance
                     </div>
                     <button
                       onClick={onNavigateToCharts}
-                      className="w-full text-left font-['Sniglet'] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white transition-colors py-2 px-3 pl-6 rounded-md hover:bg-[#bae1ff]/20"
+                      className="menu-item-nested"
                     >
                       Charts
                     </button>
@@ -285,13 +285,13 @@ export function AdminDashboard({
                 )}
                 {(onNavigateToRoadmap || onNavigateToRoadmapOverview) && (
                   <div className="space-y-2">
-                    <div className="font-['Sniglet'] text-[11px] text-black/50 dark:text-white/50 px-3 py-1">
+                    <div className="menu-subheader">
                       Roadmap
                     </div>
                     {onNavigateToRoadmapOverview && (
                       <button
                         onClick={() => onNavigateToRoadmapOverview}
-                        className="w-full text-left font-['Sniglet'] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white transition-colors py-2 px-3 pl-6 rounded-md hover:bg-[#bae1ff]/20"
+                        className="menu-item-nested"
                       >
                         Overview
                       </button>
@@ -299,7 +299,7 @@ export function AdminDashboard({
                     {onNavigateToRoadmapOverview && (
                       <button
                         onClick={() => onNavigateToRoadmapOverview("tests")}
-                        className="w-full text-left font-['Sniglet'] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white transition-colors py-2 px-3 pl-8 rounded-md hover:bg-[#bae1ff]/20"
+                        className="menu-item-deep"
                       >
                         ↳ Tests
                       </button>
@@ -309,7 +309,7 @@ export function AdminDashboard({
                         onClick={() =>
                           onNavigateToRoadmapOverview(PHASE_TABS[0].id)
                         }
-                        className="w-full text-left font-['Sniglet'] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white transition-colors py-2 px-3 pl-8 rounded-md hover:bg-[#bae1ff]/20"
+                        className="menu-item-deep"
                       >
                         ↳ Active Phase
                       </button>
@@ -317,7 +317,7 @@ export function AdminDashboard({
                     {onNavigateToRoadmap && (
                       <button
                         onClick={onNavigateToRoadmap}
-                        className="w-full text-left font-['Sniglet'] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white transition-colors py-2 px-3 pl-6 rounded-md hover:bg-[#bae1ff]/20"
+                        className="menu-item-nested"
                       >
                         Phase 9.0
                       </button>

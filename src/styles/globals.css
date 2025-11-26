@@ -765,3 +765,58 @@ body {
   --fill-0: rgba(100, 255, 100, 0.8) !important;
   --stroke-0: rgba(127, 255, 127, 0.5) !important;
 }
+
+/* ==========================================================================
+   Sidebar / Accordion Menu Items
+   ========================================================================== */
+.menu-item {
+  @apply w-full text-left text-[12px] py-2 px-3 rounded-md transition-colors;
+  @apply text-black/70 hover:text-black;
+  @apply hover:bg-black/5;
+}
+
+.dark .menu-item {
+  @apply text-white/70 hover:text-white;
+  @apply hover:bg-white/10;
+}
+
+.menu-item-nested {
+  @apply w-full text-left text-[11px] py-2 px-3 pl-6 rounded-md transition-colors;
+  @apply text-black/60 hover:text-black;
+  @apply hover:bg-black/5;
+}
+
+.dark .menu-item-nested {
+  @apply text-white/60 hover:text-white;
+  @apply hover:bg-white/10;
+}
+
+.menu-item-deep {
+  @apply w-full text-left text-[12px] py-2 px-3 pl-8 rounded-md transition-colors;
+  @apply text-black/70 hover:text-black;
+  @apply hover:bg-black/5;
+}
+
+.dark .menu-item-deep {
+  @apply text-white/70 hover:text-white;
+  @apply hover:bg-white/10;
+}
+
+.menu-item-disabled {
+  @apply w-full text-left text-[12px] py-2 px-3 rounded-md cursor-not-allowed;
+  @apply text-black/40;
+}
+
+.dark .menu-item-disabled {
+  @apply text-white/40;
+}
+
+.menu-header {
+  @apply text-[12px] px-3 py-2;
+  @apply text-black dark:text-white;
+}
+
+.menu-subheader {
+  @apply text-[11px] px-3 py-1;
+  @apply text-black/50 dark:text-white/50;
+}
