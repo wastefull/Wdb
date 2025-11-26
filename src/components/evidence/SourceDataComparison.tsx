@@ -264,10 +264,10 @@ export function SourceDataComparison({
 
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black dark:text-white">
+            <h1 className="text-[16px] text-black dark:text-white">
               Source Data Comparison
             </h1>
-            <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/60 dark:text-white/60">
+            <p className="text-[12px] text-black/60 dark:text-white/60">
               Compare how different sources contribute to parameter values
             </p>
           </div>
@@ -352,7 +352,7 @@ export function SourceDataComparison({
       {!selectedMaterial && (
         <Card className="p-12 text-center bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
           <AlertCircle className="w-12 h-12 mx-auto mb-3 text-black/20 dark:text-white/20" />
-          <p className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black/50 dark:text-white/50">
+          <p className="text-[14px] text-black/50 dark:text-white/50">
             Select a material to begin comparison
           </p>
         </Card>
@@ -361,7 +361,7 @@ export function SourceDataComparison({
       {selectedMaterial && !selectedParameter && (
         <Card className="p-12 text-center bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
           <AlertCircle className="w-12 h-12 mx-auto mb-3 text-black/20 dark:text-white/20" />
-          <p className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black/50 dark:text-white/50">
+          <p className="text-[14px] text-black/50 dark:text-white/50">
             Select a parameter to compare
           </p>
         </Card>
@@ -383,7 +383,7 @@ export function SourceDataComparison({
           <Card className="p-4 bg-[#faf9f6] dark:bg-[#1a1918] border-[#211f1c] dark:border-white/20">
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h2 className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white mb-1">
+                <h2 className="text-[14px] text-black dark:text-white mb-1">
                   {material.name} - {PARAMETER_INFO[selectedParameter].name}
                 </h2>
                 <p className="text-[11px] text-black/60 dark:text-white/60">
@@ -446,7 +446,7 @@ export function SourceDataComparison({
           {/* Source Breakdown */}
           <Card className="bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
             <div className="p-4 border-b border-[#211f1c] dark:border-white/20">
-              <h3 className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white">
+              <h3 className="text-[14px] text-black dark:text-white">
                 Source Contributions
               </h3>
               <p className="text-[11px] text-black/60 dark:text-white/60">
@@ -458,19 +458,19 @@ export function SourceDataComparison({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[11px]">
+                    <TableHead className="text-[11px]">
                       Source
                     </TableHead>
-                    <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[11px]">
+                    <TableHead className="text-[11px]">
                       Type
                     </TableHead>
-                    <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-right">
+                    <TableHead className="text-[11px] text-right">
                       Weight
                     </TableHead>
-                    <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-right">
+                    <TableHead className="text-[11px] text-right">
                       Contribution
                     </TableHead>
-                    <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[11px]">
+                    <TableHead className="text-[11px]">
                       Links
                     </TableHead>
                   </TableRow>

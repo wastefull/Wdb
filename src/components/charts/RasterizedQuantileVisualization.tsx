@@ -235,21 +235,21 @@ function RasterizedDisplay({
       <div className="flex justify-between items-center">
         <button
           onClick={onClick}
-          className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white hover:underline cursor-pointer text-left flex items-center gap-1"
+          className="text-[11px] text-black dark:text-white hover:underline cursor-pointer text-left flex items-center gap-1"
           aria-label={`View ${label.toLowerCase()} articles (${
             articleCount || 0
           } articles)`}
         >
-          <span className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white">
+          <span className="text-[11px] text-black dark:text-white">
             {label}
           </span>
           {articleCount !== undefined && articleCount > 0 && (
-            <span className="font-['Sniglet:Regular',_sans-serif] text-[9px] text-black/60 dark:text-white/60">
+            <span className="text-[9px] text-black/60 dark:text-white/60">
               ({articleCount})
             </span>
           )}
         </button>
-        <span className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white">
+        <span className="text-[11px] text-black dark:text-white">
           {displayScore}
         </span>
       </div>

@@ -39,7 +39,7 @@ export const ClickableChartLabel = (props: ClickableChartLabelProps) => {
       x={x}
       y={y}
       fill="#211f1c"
-      fontFamily="Sniglet:Regular, sans-serif"
+      fontFamily="Sniglet, sans-serif"
       fontSize="13px"
       textAnchor="middle"
       dominantBaseline="middle"

@@ -130,7 +130,7 @@ export function LicensesView({ onBack }: { onBack: () => void }) {
           >
             <div className="flex items-start justify-between gap-4 mb-2">
               <div className="flex-1">
-                <h3 className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black dark:text-white">
+                <h3 className="text-[16px] text-black dark:text-white">
                   {license.name}
                   {license.version && (
                     <span className="text-[12px] text-black/60 dark:text-white/60 ml-2">
@@ -139,12 +139,12 @@ export function LicensesView({ onBack }: { onBack: () => void }) {
                   )}
                 </h3>
               </div>
-              <span className="font-['Sniglet:Regular',_sans-serif] text-[11px] px-3 py-1 rounded-full bg-[#b8c8cb] dark:bg-[#2a2f27] border border-[#211f1c] dark:border-white/20 text-black dark:text-white whitespace-nowrap">
+              <span className="text-[11px] px-3 py-1 rounded-full bg-[#b8c8cb] dark:bg-[#2a2f27] border border-[#211f1c] dark:border-white/20 text-black dark:text-white whitespace-nowrap">
                 {license.licenseType}
               </span>
             </div>
 
-            <p className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black/70 dark:text-white/70 mb-3">
+            <p className="text-[13px] text-black/70 dark:text-white/70 mb-3">
               {license.description}
             </p>
 
@@ -152,7 +152,7 @@ export function LicensesView({ onBack }: { onBack: () => void }) {
               href={license.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-[#4a90a4] dark:text-[#6bb6d0] hover:underline inline-flex items-center gap-1"
+              className="text-[12px] text-[#4a90a4] dark:text-[#6bb6d0] hover:underline inline-flex items-center gap-1"
             >
               View on GitHub →
             </a>
@@ -162,7 +162,7 @@ export function LicensesView({ onBack }: { onBack: () => void }) {
 
       {/* Footer Note */}
       <div className="mt-8 p-4 bg-[#e4e3ac]/20 dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[11.464px]">
-        <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70">
+        <p className="text-[12px] text-black/70 dark:text-white/70">
           <strong>Note:</strong> This list includes the primary open source
           libraries used in WasteDB. Each library may have its own dependencies
           with their respective licenses. For complete license information,

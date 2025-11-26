@@ -266,10 +266,10 @@ export function DataManagementView({
           <ArrowLeft size={16} className="text-black" />
         </button>
         <div className="flex-1">
-          <h2 className="font-['Sniglet:Regular',_sans-serif] text-[18px] text-black dark:text-white">
+          <h2 className="text-[18px] text-black dark:text-white">
             Database Management
           </h2>
-          <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/60 dark:text-white/60">
+          <p className="text-[12px] text-black/60 dark:text-white/60">
             Manage materials and scientific operations
           </p>
         </div>
@@ -280,7 +280,7 @@ export function DataManagementView({
         <div className="flex gap-1 md:gap-2 border-b border-[#211f1c]/20 dark:border-white/20 flex-wrap overflow-x-auto">
           <button
             onClick={() => setActiveTab("materials")}
-            className={`px-2 md:px-4 py-2 font-['Sniglet:Regular',_sans-serif] text-[10px] md:text-[12px] transition-colors whitespace-nowrap ${
+            className={`px-2 md:px-4 py-2 text-[10px] md:text-[12px] transition-colors whitespace-nowrap ${
               activeTab === "materials"
                 ? "text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white"
                 : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
@@ -290,7 +290,7 @@ export function DataManagementView({
           </button>
           <button
             onClick={() => setActiveTab("sources")}
-            className={`px-2 md:px-4 py-2 font-['Sniglet:Regular',_sans-serif] text-[10px] md:text-[12px] transition-colors whitespace-nowrap ${
+            className={`px-2 md:px-4 py-2 text-[10px] md:text-[12px] transition-colors whitespace-nowrap ${
               activeTab === "sources" || activeTab === "comparison"
                 ? "text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white"
                 : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
@@ -305,7 +305,7 @@ export function DataManagementView({
         <div>
           <div className="flex items-center gap-4 mb-4">
             <div className="flex-1">
-              <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/60 dark:text-white/60">
+              <p className="text-[12px] text-black/60 dark:text-white/60">
                 {materials.length} material{materials.length !== 1 ? "s" : ""}{" "}
                 total
               </p>
@@ -314,7 +314,7 @@ export function DataManagementView({
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={handleExportCSV}
-                className="bg-[#b8c8cb] h-[36px] px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[11px] md:text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-1 md:gap-2"
+                className="bg-[#b8c8cb] h-[36px] px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] text-[11px] md:text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-1 md:gap-2"
               >
                 <Download size={14} className="text-black" />
                 <span className="whitespace-nowrap">Export CSV</span>
@@ -322,7 +322,7 @@ export function DataManagementView({
 
               <button
                 onClick={() => setShowImportOptions(!showImportOptions)}
-                className={`bg-[#e4e3ac] h-[36px] px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[11px] md:text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-1 md:gap-2 ${
+                className={`bg-[#e4e3ac] h-[36px] px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] text-[11px] md:text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-1 md:gap-2 ${
                   showImportOptions
                     ? "translate-y-[1px] shadow-[1px_2px_0px_-1px_#000000]"
                     : ""
@@ -340,29 +340,29 @@ export function DataManagementView({
 
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <button className="bg-[#e6beb5] h-[36px] px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[11px] md:text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-1 md:gap-2">
+                  <button className="bg-[#e6beb5] h-[36px] px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] text-[11px] md:text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-1 md:gap-2">
                     <Trash2 size={14} className="text-black" />
                     <span className="whitespace-nowrap">Delete All</span>
                   </button>
                 </AlertDialogTrigger>
                 <AlertDialogContent className="bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20">
                   <AlertDialogHeader>
-                    <AlertDialogTitle className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">
+                    <AlertDialogTitle className="text-black dark:text-white">
                       Delete All Data?
                     </AlertDialogTitle>
-                    <AlertDialogDescription className="font-['Sniglet:Regular',_sans-serif] text-black/70 dark:text-white/70">
+                    <AlertDialogDescription className="text-black/70 dark:text-white/70">
                       This will permanently delete all {materials.length}{" "}
                       material{materials.length !== 1 ? "s" : ""} and their
                       associated articles. This action cannot be undone.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel className="font-['Sniglet:Regular',_sans-serif] bg-[#b8c8cb] border-[#211f1c] dark:border-white/20">
+                    <AlertDialogCancel className="bg-[#b8c8cb] border-[#211f1c] dark:border-white/20">
                       Cancel
                     </AlertDialogCancel>
                     <AlertDialogAction
                       onClick={onDeleteAllData}
-                      className="font-['Sniglet:Regular',_sans-serif] bg-[#e6beb5] text-black border-[1.5px] border-[#211f1c] dark:border-white/20 hover:bg-[#e6beb5]/80"
+                      className="bg-[#e6beb5] text-black border-[1.5px] border-[#211f1c] dark:border-white/20 hover:bg-[#e6beb5]/80"
                     >
                       Delete All
                     </AlertDialogAction>
@@ -375,25 +375,25 @@ export function DataManagementView({
           {/* Import Options */}
           {showImportOptions && (
             <div className="mb-4 bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 p-4">
-              <h3 className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white mb-4">
+              <h3 className="text-[14px] text-black dark:text-white mb-4">
                 Import CSV Data
               </h3>
 
               <div className="space-y-4">
                 {/* Paste CSV Option */}
                 <div className="space-y-2">
-                  <label className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
+                  <label className="text-[12px] text-black dark:text-white">
                     Paste CSV Data
                   </label>
                   <Textarea
                     value={pasteData}
                     onChange={(e) => setPasteData(e.target.value)}
                     placeholder="name,category,description,compostability,recyclability,reusability&#10;PET Plastic,Plastics,Clear plastic bottles,0,85,40&#10;Aluminum Can,Metals,Beverage container,0,95,75"
-                    className="font-['Sniglet:Regular',_sans-serif] text-[11px] min-h-[120px] border-[#211f1c] dark:border-white/20 dark:bg-[#1a1917] dark:text-white"
+                    className="text-[11px] min-h-[120px] border-[#211f1c] dark:border-white/20 dark:bg-[#1a1917] dark:text-white"
                   />
                   <button
                     onClick={handlePasteImport}
-                    className="w-full bg-[#b8c8cb] h-[36px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
+                    className="w-full bg-[#b8c8cb] h-[36px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
                   >
                     Import from Paste
                   </button>
@@ -404,7 +404,7 @@ export function DataManagementView({
                     <div className="w-full border-t border-[#211f1c]/20 dark:border-white/20"></div>
                   </div>
                   <div className="relative flex justify-center">
-                    <span className="bg-white dark:bg-[#2a2825] px-2 font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/60 dark:text-white/60">
+                    <span className="bg-white dark:bg-[#2a2825] px-2 text-[11px] text-black/60 dark:text-white/60">
                       OR
                     </span>
                   </div>
@@ -412,10 +412,10 @@ export function DataManagementView({
 
                 {/* Upload File Option */}
                 <div className="space-y-2">
-                  <label className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
+                  <label className="text-[12px] text-black dark:text-white">
                     Upload CSV File
                   </label>
-                  <label className="w-full bg-[#e4e3ac] h-[36px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center justify-center gap-2 cursor-pointer">
+                  <label className="w-full bg-[#e4e3ac] h-[36px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center justify-center gap-2 cursor-pointer">
                     <Upload size={14} className="text-black" />
                     Choose File
                     <input
@@ -435,28 +435,28 @@ export function DataManagementView({
               <Table>
                 <TableHeader>
                   <TableRow className="border-b border-[#211f1c] dark:border-white/20 bg-[#e4e3ac]">
-                    <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black">
+                    <TableHead className="text-[12px] text-black">
                       Name
                     </TableHead>
-                    <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black">
+                    <TableHead className="text-[12px] text-black">
                       Category
                     </TableHead>
-                    <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black">
+                    <TableHead className="text-[12px] text-black">
                       Description
                     </TableHead>
-                    <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black text-center">
+                    <TableHead className="text-[12px] text-black text-center">
                       Compostability
                     </TableHead>
-                    <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black text-center">
+                    <TableHead className="text-[12px] text-black text-center">
                       Recyclability
                     </TableHead>
-                    <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black text-center">
+                    <TableHead className="text-[12px] text-black text-center">
                       Reusability
                     </TableHead>
-                    <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black text-center">
+                    <TableHead className="text-[12px] text-black text-center">
                       Articles
                     </TableHead>
-                    <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black text-center">
+                    <TableHead className="text-[12px] text-black text-center">
                       Actions
                     </TableHead>
                   </TableRow>
@@ -469,7 +469,7 @@ export function DataManagementView({
                         key={material.id}
                         className="border-b border-[#211f1c]/20 dark:border-white/10 hover:bg-[#211f1c]/5 dark:hover:bg-white/5"
                       >
-                        <TableCell className="font-['Sniglet:Regular',_sans-serif] text-[11px]">
+                        <TableCell className="text-[11px]">
                           {isEditing ? (
                             <Input
                               value={editData.name || ""}
@@ -479,7 +479,7 @@ export function DataManagementView({
                                   name: e.target.value,
                                 })
                               }
-                              className="h-7 text-[11px] font-['Sniglet:Regular',_sans-serif] border-[#211f1c] dark:border-white/20"
+                              className="h-7 text-[11px] border-[#211f1c] dark:border-white/20"
                             />
                           ) : (
                             <button
@@ -505,10 +505,10 @@ export function DataManagementView({
                                 })
                               }
                             >
-                              <SelectTrigger className="h-7 text-[9px] font-['Sniglet:Regular',_sans-serif] border-[#211f1c] dark:border-white/20">
+                              <SelectTrigger className="h-7 text-[9px] border-[#211f1c] dark:border-white/20">
                                 <SelectValue />
                               </SelectTrigger>
-                              <SelectContent className="font-['Sniglet:Regular',_sans-serif] bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
+                              <SelectContent className="bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
                                 {categoryOptions.map((cat: string) => (
                                   <SelectItem
                                     key={cat}
@@ -521,12 +521,12 @@ export function DataManagementView({
                               </SelectContent>
                             </Select>
                           ) : (
-                            <span className="inline-block px-2 py-0.5 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[9px] text-black">
+                            <span className="inline-block px-2 py-0.5 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 text-[9px] text-black">
                               {material.category}
                             </span>
                           )}
                         </TableCell>
-                        <TableCell className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/70 dark:text-white/70 max-w-xs">
+                        <TableCell className="text-[11px] text-black/70 dark:text-white/70 max-w-xs">
                           {isEditing ? (
                             <Input
                               value={editData.description || ""}
@@ -536,7 +536,7 @@ export function DataManagementView({
                                   description: e.target.value,
                                 })
                               }
-                              className="h-7 text-[11px] font-['Sniglet:Regular',_sans-serif] border-[#211f1c] dark:border-white/20"
+                              className="h-7 text-[11px] border-[#211f1c] dark:border-white/20"
                             />
                           ) : (
                             <span className="truncate block">
@@ -563,11 +563,11 @@ export function DataManagementView({
                                   ),
                                 })
                               }
-                              className="h-7 w-16 text-[11px] font-['Sniglet:Regular',_sans-serif] border-[#211f1c] dark:border-white/20 text-center"
+                              className="h-7 w-16 text-[11px] border-[#211f1c] dark:border-white/20 text-center"
                             />
                           ) : (
                             <div className="inline-flex items-center gap-1">
-                              <span className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white">
+                              <span className="text-[11px] text-black dark:text-white">
                                 {material.compostability}
                               </span>
                               <div className="w-12 h-1.5 bg-[#211f1c]/10 dark:bg-white/10 rounded-full overflow-hidden">
@@ -599,11 +599,11 @@ export function DataManagementView({
                                   ),
                                 })
                               }
-                              className="h-7 w-16 text-[11px] font-['Sniglet:Regular',_sans-serif] border-[#211f1c] dark:border-white/20 text-center"
+                              className="h-7 w-16 text-[11px] border-[#211f1c] dark:border-white/20 text-center"
                             />
                           ) : (
                             <div className="inline-flex items-center gap-1">
-                              <span className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white">
+                              <span className="text-[11px] text-black dark:text-white">
                                 {material.recyclability}
                               </span>
                               <div className="w-12 h-1.5 bg-[#211f1c]/10 dark:bg-white/10 rounded-full overflow-hidden">
@@ -635,11 +635,11 @@ export function DataManagementView({
                                   ),
                                 })
                               }
-                              className="h-7 w-16 text-[11px] font-['Sniglet:Regular',_sans-serif] border-[#211f1c] dark:border-white/20 text-center"
+                              className="h-7 w-16 text-[11px] border-[#211f1c] dark:border-white/20 text-center"
                             />
                           ) : (
                             <div className="inline-flex items-center gap-1">
-                              <span className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white">
+                              <span className="text-[11px] text-black dark:text-white">
                                 {material.reusability}
                               </span>
                               <div className="w-12 h-1.5 bg-[#211f1c]/10 dark:bg-white/10 rounded-full overflow-hidden">
@@ -652,7 +652,7 @@ export function DataManagementView({
                           )}
                         </TableCell>
                         <TableCell className="text-center">
-                          <span className="font-['Sniglet:Regular',_sans-serif] text-[9px] text-black dark:text-white">
+                          <span className="text-[9px] text-black dark:text-white">
                             {getArticleCount(material, "compostability")} /{" "}
                             {getArticleCount(material, "recyclability")} /{" "}
                             {getArticleCount(material, "reusability")}
@@ -694,10 +694,10 @@ export function DataManagementView({
                                 </AlertDialogTrigger>
                                 <AlertDialogContent className="bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20">
                                   <AlertDialogHeader>
-                                    <AlertDialogTitle className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">
+                                    <AlertDialogTitle className="text-black dark:text-white">
                                       Delete Material?
                                     </AlertDialogTitle>
-                                    <AlertDialogDescription className="font-['Sniglet:Regular',_sans-serif] text-black/70 dark:text-white/70">
+                                    <AlertDialogDescription className="text-black/70 dark:text-white/70">
                                       Are you sure you want to delete "
                                       {material.name}"? This will permanently
                                       remove the material and all its associated
@@ -705,14 +705,14 @@ export function DataManagementView({
                                     </AlertDialogDescription>
                                   </AlertDialogHeader>
                                   <AlertDialogFooter>
-                                    <AlertDialogCancel className="font-['Sniglet:Regular',_sans-serif] bg-[#b8c8cb] border-[#211f1c] dark:border-white/20">
+                                    <AlertDialogCancel className="bg-[#b8c8cb] border-[#211f1c] dark:border-white/20">
                                       Cancel
                                     </AlertDialogCancel>
                                     <AlertDialogAction
                                       onClick={() =>
                                         onDeleteMaterial(material.id)
                                       }
-                                      className="font-['Sniglet:Regular',_sans-serif] bg-[#e6beb5] text-black border-[1.5px] border-[#211f1c] dark:border-white/20 hover:bg-[#e6beb5]/80"
+                                      className="bg-[#e6beb5] text-black border-[1.5px] border-[#211f1c] dark:border-white/20 hover:bg-[#e6beb5]/80"
                                     >
                                       Delete
                                     </AlertDialogAction>
@@ -731,7 +731,7 @@ export function DataManagementView({
 
             {materials.length === 0 && (
               <div className="text-center py-12">
-                <p className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black/50 dark:text-white/50">
+                <p className="text-[16px] text-black/50 dark:text-white/50">
                   No materials in database yet.
                 </p>
               </div>

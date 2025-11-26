@@ -603,7 +603,7 @@ export function SourceLibraryManager({
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
             <Cloud className="w-12 h-12 mx-auto mb-3 text-black/20 dark:text-white/20 animate-pulse" />
-            <p className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black/50 dark:text-white/50">
+            <p className="text-[14px] text-black/50 dark:text-white/50">
               Loading sources...
             </p>
           </div>
@@ -633,7 +633,7 @@ export function SourceLibraryManager({
         <div className="mb-6 flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black dark:text-white">
+              <h1 className="text-[16px] text-black dark:text-white">
                 Source Library Management
               </h1>
               {cloudSynced ? (
@@ -642,7 +642,7 @@ export function SourceLibraryManager({
                 <CloudOff className="w-4 h-4 text-orange-600 dark:text-orange-400" />
               )}
             </div>
-            <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/60 dark:text-white/60">
+            <p className="text-[12px] text-black/60 dark:text-white/60">
               Manage academic sources and citations ({sources.length} sources)
               {cloudSynced ? " • Synced with cloud" : " • Local only"}
             </p>
@@ -843,22 +843,22 @@ export function SourceLibraryManager({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[11px]">
+                  <TableHead className="text-[11px]">
                     Source
                   </TableHead>
-                  <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[11px]">
+                  <TableHead className="text-[11px]">
                     Type
                   </TableHead>
-                  <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[11px]">
+                  <TableHead className="text-[11px]">
                     Weight
                   </TableHead>
-                  <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[11px]">
+                  <TableHead className="text-[11px]">
                     Tags
                   </TableHead>
-                  <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-center">
+                  <TableHead className="text-[11px] text-center">
                     Usage
                   </TableHead>
-                  <TableHead className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-center">
+                  <TableHead className="text-[11px] text-center">
                     Actions
                   </TableHead>
                 </TableRow>
@@ -870,7 +870,7 @@ export function SourceLibraryManager({
                     <TableRow key={source.id}>
                       <TableCell>
                         <div className="space-y-1">
-                          <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white font-medium">
+                          <p className="text-[11px] text-black dark:text-white font-medium">
                             {source.title}
                           </p>
                           {source.authors && (
@@ -1167,7 +1167,7 @@ export function SourceLibraryManager({
           {filteredSources.length === 0 && (
             <div className="text-center py-12">
               <BookOpen className="w-12 h-12 mx-auto mb-3 text-black/20 dark:text-white/20" />
-              <p className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black/50 dark:text-white/50">
+              <p className="text-[14px] text-black/50 dark:text-white/50">
                 No sources found
               </p>
             </div>
@@ -1178,7 +1178,7 @@ export function SourceLibraryManager({
         <Dialog open={showForm} onOpenChange={(open) => !open && resetForm()}>
           <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="font-['Sniglet:Regular',_sans-serif]">
+              <DialogTitle className="">
                 {editingSource ? "Edit Source" : "Add New Source"}
               </DialogTitle>
               <DialogDescription className="text-[11px]">

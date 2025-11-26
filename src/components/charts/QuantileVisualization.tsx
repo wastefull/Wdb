@@ -126,21 +126,21 @@ export function QuantileVisualization({
         <div className="flex justify-between items-center">
           <button
             onClick={onClick}
-            className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white hover:underline cursor-pointer text-left flex items-center gap-1"
+            className="text-[11px] text-black dark:text-white hover:underline cursor-pointer text-left flex items-center gap-1"
             aria-label={`View ${label.toLowerCase()} articles (${
               articleCount || 0
             } articles)`}
           >
-            <span className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white">
+            <span className="text-[11px] text-black dark:text-white">
               {label}
             </span>
             {articleCount !== undefined && articleCount > 0 && (
-              <span className="font-['Sniglet:Regular',_sans-serif] text-[9px] text-black/60 dark:text-white/60">
+              <span className="text-[9px] text-black/60 dark:text-white/60">
                 ({articleCount})
               </span>
             )}
           </button>
-          <span className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white">
+          <span className="text-[11px] text-black dark:text-white">
             {displayScore}
           </span>
         </div>
@@ -279,16 +279,16 @@ function SimpleBar({
       }}
     >
       <div className="flex items-center justify-between mb-1">
-        <span className="font-['Sniglet:Regular',_sans-serif] text-[10px] text-black/70 dark:text-white/70">
+        <span className="text-[10px] text-black/70 dark:text-white/70">
           {label}
         </span>
         <div className="flex items-center gap-2">
           {articleCount !== undefined && articleCount > 0 && (
-            <span className="font-['Sniglet:Regular',_sans-serif] text-[9px] text-black/50 dark:text-white/50 bg-white/50 dark:bg-black/20 px-1.5 py-0.5 rounded border border-black/10 dark:border-white/10">
+            <span className="text-[9px] text-black/50 dark:text-white/50 bg-white/50 dark:bg-black/20 px-1.5 py-0.5 rounded border border-black/10 dark:border-white/10">
               {articleCount} article{articleCount !== 1 ? "s" : ""}
             </span>
           )}
-          <span className="font-['Sniglet:Regular',_sans-serif] text-[10px] text-black/70 dark:text-white/70">
+          <span className="text-[10px] text-black/70 dark:text-white/70">
             {score}
           </span>
         </div>
@@ -405,7 +405,7 @@ function OverlapMode({
         x={theoMean * width}
         y={centerY + 18}
         textAnchor="middle"
-        className="font-['Sniglet:Regular',_sans-serif] text-[8px] fill-black/50 dark:fill-white/50"
+        className="text-[8px] fill-black/50 dark:fill-white/50"
       >
         future
       </text>
@@ -517,7 +517,7 @@ function NearOverlapMode({
           x={pracMean * width}
           y={centerY + 18}
           textAnchor="middle"
-          className="font-['Sniglet:Regular',_sans-serif] text-[8px] fill-black/50 dark:fill-white/50"
+          className="text-[8px] fill-black/50 dark:fill-white/50"
         >
           today
         </text>
@@ -526,7 +526,7 @@ function NearOverlapMode({
         x={theoMean * width}
         y={centerY + 18}
         textAnchor="middle"
-        className="font-['Sniglet:Regular',_sans-serif] text-[8px] fill-black/50 dark:fill-white/50"
+        className="text-[8px] fill-black/50 dark:fill-white/50"
       >
         future
       </text>
@@ -645,7 +645,7 @@ function GapMode({
         x={((pracMean + theoMean) * width) / 2}
         y={centerY - 15}
         textAnchor="middle"
-        className="font-['Sniglet:Regular',_sans-serif] text-[8px] fill-black/70 dark:fill-white/70"
+        className="text-[8px] fill-black/70 dark:fill-white/70"
       >
         Gap: {Math.round(gap * 100)}%
       </text>
@@ -656,7 +656,7 @@ function GapMode({
           x={pracMean * width}
           y={centerY + 18}
           textAnchor="middle"
-          className="font-['Sniglet:Regular',_sans-serif] text-[8px] fill-black/50 dark:fill-white/50"
+          className="text-[8px] fill-black/50 dark:fill-white/50"
         >
           today
         </text>
@@ -665,7 +665,7 @@ function GapMode({
         x={theoMean * width}
         y={centerY + 18}
         textAnchor="middle"
-        className="font-['Sniglet:Regular',_sans-serif] text-[8px] fill-black/50 dark:fill-white/50"
+        className="text-[8px] fill-black/50 dark:fill-white/50"
       >
         future
       </text>
@@ -765,7 +765,7 @@ function TooltipContent({
   return (
     <div className="absolute left-0 right-0 -top-2 transform -translate-y-full z-10 pointer-events-none">
       <div className="bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-md p-2 shadow-lg">
-        <div className="font-['Sniglet:Regular',_sans-serif] text-[9px] text-black dark:text-white space-y-0.5">
+        <div className="text-[9px] text-black dark:text-white space-y-0.5">
           <div className="flex justify-between gap-3">
             <span className="text-black/60 dark:text-white/60">Practical:</span>
             <span>

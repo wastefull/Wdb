@@ -33,7 +33,7 @@ export function MaterialCard({
         <div className="flex-1">
           <button
             onClick={onViewMaterial}
-            className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black dark:text-white mb-1 hover:underline cursor-pointer text-left block"
+            className="text-[16px] text-black dark:text-white mb-1 hover:underline cursor-pointer text-left block"
             aria-label={`View details for ${material.name}`}
           >
             {material.name}
@@ -41,7 +41,7 @@ export function MaterialCard({
 
           {/* Writer/Editor Attribution */}
           {(material.writer_name || material.editor_name) && (
-            <div className="mt-1 flex items-center gap-1 flex-wrap font-['Sniglet:Regular',_sans-serif] text-[8px] text-black/40 dark:text-white/40">
+            <div className="mt-1 flex items-center gap-1 flex-wrap text-[8px] text-black/40 dark:text-white/40">
               {material.writer_name && material.editor_name ? (
                 <>
                   <span>by {material.writer_name}</span>
@@ -55,7 +55,7 @@ export function MaterialCard({
               ) : null}
             </div>
           )}
-          <span className="inline-block px-2 py-0.5 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[9px] text-black">
+          <span className="inline-block px-2 py-0.5 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 text-[9px] text-black">
             {material.category}
           </span>
         </div>
@@ -89,7 +89,7 @@ export function MaterialCard({
       </div>
 
       {material.description && (
-        <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/70 dark:text-white/70 mb-3 line-clamp-2">
+        <p className="text-[11px] text-black/70 dark:text-white/70 mb-3 line-clamp-2">
           {material.description}
         </p>
       )}

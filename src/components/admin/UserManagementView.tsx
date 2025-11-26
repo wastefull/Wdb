@@ -173,14 +173,14 @@ export function UserManagementView({
         >
           <ArrowLeft size={16} className="text-black" />
         </button>
-        <h2 className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white uppercase">
+        <h2 className="text-black dark:text-white uppercase">
           User Management
         </h2>
       </div>
 
       {loading ? (
         <div className="text-center py-8">
-          <p className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black/70 dark:text-white/70">
+          <p className="text-[14px] text-black/70 dark:text-white/70">
             Loading users...
           </p>
         </div>
@@ -189,22 +189,22 @@ export function UserManagementView({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">
+                <TableHead className="text-black dark:text-white">
                   Email
                 </TableHead>
-                <TableHead className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">
+                <TableHead className="text-black dark:text-white">
                   Name
                 </TableHead>
-                <TableHead className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">
+                <TableHead className="text-black dark:text-white">
                   Role
                 </TableHead>
-                <TableHead className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">
+                <TableHead className="text-black dark:text-white">
                   Created
                 </TableHead>
-                <TableHead className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">
+                <TableHead className="text-black dark:text-white">
                   Last Sign In
                 </TableHead>
-                <TableHead className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white text-right">
+                <TableHead className="text-black dark:text-white text-right">
                   Actions
                 </TableHead>
               </TableRow>
@@ -212,7 +212,7 @@ export function UserManagementView({
             <TableBody>
               {users.map((user) => (
                 <TableRow key={user.id}>
-                  <TableCell className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
+                  <TableCell className="text-[12px] text-black dark:text-white">
                     {user.email}
                     {user.id === currentUserId && (
                       <span className="ml-2 text-[10px] text-black/50 dark:text-white/50">
@@ -225,7 +225,7 @@ export function UserManagementView({
                       </span>
                     )}
                   </TableCell>
-                  <TableCell className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
+                  <TableCell className="text-[12px] text-black dark:text-white">
                     {user.name}
                   </TableCell>
                   <TableCell>
@@ -236,7 +236,7 @@ export function UserManagementView({
                       }
                       disabled={user.id === currentUserId}
                     >
-                      <SelectTrigger className="w-[100px] h-8 font-['Sniglet:Regular',_sans-serif] text-[11px]">
+                      <SelectTrigger className="w-[100px] h-8 text-[11px]">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -255,10 +255,10 @@ export function UserManagementView({
                       </SelectContent>
                     </Select>
                   </TableCell>
-                  <TableCell className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/70 dark:text-white/70">
+                  <TableCell className="text-[11px] text-black/70 dark:text-white/70">
                     {formatDate(user.created_at)}
                   </TableCell>
-                  <TableCell className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/70 dark:text-white/70">
+                  <TableCell className="text-[11px] text-black/70 dark:text-white/70">
                     {formatDate(user.last_sign_in_at)}
                   </TableCell>
                   <TableCell className="text-right">
@@ -284,24 +284,24 @@ export function UserManagementView({
                               </AlertDialogTrigger>
                               <AlertDialogContent className="bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20">
                                 <AlertDialogHeader>
-                                  <AlertDialogTitle className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">
+                                  <AlertDialogTitle className="text-black dark:text-white">
                                     Inactivate User
                                   </AlertDialogTitle>
-                                  <AlertDialogDescription className="font-['Sniglet:Regular',_sans-serif] text-black/70 dark:text-white/70">
+                                  <AlertDialogDescription className="text-black/70 dark:text-white/70">
                                     Inactivate {user.email}? They won't be able
                                     to log in, but their data will be preserved.
                                     You can reactivate them later.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
-                                  <AlertDialogCancel className="font-['Sniglet:Regular',_sans-serif]">
+                                  <AlertDialogCancel className="">
                                     Cancel
                                   </AlertDialogCancel>
                                   <AlertDialogAction
                                     onClick={() =>
                                       handleInactivateUser(user.id)
                                     }
-                                    className="bg-[#f4d3a0] text-black hover:bg-[#e5c591] font-['Sniglet:Regular',_sans-serif]"
+                                    className="bg-[#f4d3a0] text-black hover:bg-[#e5c591]"
                                   >
                                     Inactivate
                                   </AlertDialogAction>
@@ -328,21 +328,21 @@ export function UserManagementView({
                             </AlertDialogTrigger>
                             <AlertDialogContent className="bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20">
                               <AlertDialogHeader>
-                                <AlertDialogTitle className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">
+                                <AlertDialogTitle className="text-black dark:text-white">
                                   Delete User
                                 </AlertDialogTitle>
-                                <AlertDialogDescription className="font-['Sniglet:Regular',_sans-serif] text-black/70 dark:text-white/70">
+                                <AlertDialogDescription className="text-black/70 dark:text-white/70">
                                   Are you sure you want to delete {user.email}?
                                   This action cannot be undone.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
-                                <AlertDialogCancel className="font-['Sniglet:Regular',_sans-serif]">
+                                <AlertDialogCancel className="">
                                   Cancel
                                 </AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={() => handleDeleteUser(user.id)}
-                                  className="bg-[#e6beb5] text-black hover:bg-[#d4aea5] font-['Sniglet:Regular',_sans-serif]"
+                                  className="bg-[#e6beb5] text-black hover:bg-[#d4aea5]"
                                 >
                                   Delete
                                 </AlertDialogAction>
@@ -368,7 +368,7 @@ export function UserManagementView({
         >
           <AlertDialogContent className="bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20">
             <AlertDialogHeader>
-              <AlertDialogTitle className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">
+              <AlertDialogTitle className="text-black dark:text-white">
                 Edit User
               </AlertDialogTitle>
             </AlertDialogHeader>
@@ -376,7 +376,7 @@ export function UserManagementView({
               <div>
                 <Label
                   htmlFor="edit-name"
-                  className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white"
+                  className="text-[12px] text-black dark:text-white"
                 >
                   Name
                 </Label>
@@ -384,13 +384,13 @@ export function UserManagementView({
                   id="edit-name"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  className="mt-1 font-['Sniglet:Regular',_sans-serif]"
+                  className="mt-1"
                 />
               </div>
               <div>
                 <Label
                   htmlFor="edit-email"
-                  className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white"
+                  className="text-[12px] text-black dark:text-white"
                 >
                   Email
                 </Label>
@@ -399,13 +399,13 @@ export function UserManagementView({
                   type="email"
                   value={editEmail}
                   onChange={(e) => setEditEmail(e.target.value)}
-                  className="mt-1 font-['Sniglet:Regular',_sans-serif]"
+                  className="mt-1"
                 />
               </div>
               <div>
                 <Label
                   htmlFor="edit-password"
-                  className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white"
+                  className="text-[12px] text-black dark:text-white"
                 >
                   New Password (leave blank to keep current)
                 </Label>
@@ -414,18 +414,18 @@ export function UserManagementView({
                   type="password"
                   value={editPassword}
                   onChange={(e) => setEditPassword(e.target.value)}
-                  className="mt-1 font-['Sniglet:Regular',_sans-serif]"
+                  className="mt-1"
                   placeholder="Enter new password"
                 />
               </div>
             </div>
             <AlertDialogFooter>
-              <AlertDialogCancel className="font-['Sniglet:Regular',_sans-serif]">
+              <AlertDialogCancel className="">
                 Cancel
               </AlertDialogCancel>
               <AlertDialogAction
                 onClick={handleSaveEdit}
-                className="bg-[#b8c8cb] text-black hover:bg-[#a8b8bb] font-['Sniglet:Regular',_sans-serif]"
+                className="bg-[#b8c8cb] text-black hover:bg-[#a8b8bb]"
               >
                 Save Changes
               </AlertDialogAction>

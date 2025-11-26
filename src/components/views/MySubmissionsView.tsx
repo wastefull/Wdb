@@ -92,28 +92,28 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
     switch (status) {
       case "pending_review":
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[#f4d3a0] dark:bg-[#4a3f2a] border border-[#211f1c] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[10px] text-black dark:text-white">
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[#f4d3a0] dark:bg-[#4a3f2a] border border-[#211f1c] dark:border-white/20 text-[10px] text-black dark:text-white">
             <Clock size={10} />
             Pending Review
           </span>
         );
       case "approved":
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[#c8e5c8] dark:bg-[#2a3f2a] border border-[#211f1c] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[10px] text-black dark:text-white">
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[#c8e5c8] dark:bg-[#2a3f2a] border border-[#211f1c] dark:border-white/20 text-[10px] text-black dark:text-white">
             <CheckCircle size={10} />
             Approved
           </span>
         );
       case "rejected":
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[#e6beb5] dark:bg-[#3f2a2a] border border-[#211f1c] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[10px] text-black dark:text-white">
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[#e6beb5] dark:bg-[#3f2a2a] border border-[#211f1c] dark:border-white/20 text-[10px] text-black dark:text-white">
             <XCircle size={10} />
             Rejected
           </span>
         );
       case "needs_revision":
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[#e4e3ac] dark:bg-[#3a3825] border border-[#211f1c] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[10px] text-black dark:text-white">
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[#e4e3ac] dark:bg-[#3a3825] border border-[#211f1c] dark:border-white/20 text-[10px] text-black dark:text-white">
             <Edit3 size={10} />
             Needs Revision
           </span>
@@ -155,7 +155,7 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
 
       {loading ? (
         <div className="text-center py-8">
-          <p className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black/70 dark:text-white/70">
+          <p className="text-[14px] text-black/70 dark:text-white/70">
             Loading submissions...
           </p>
         </div>
@@ -165,10 +165,10 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
             size={48}
             className="mx-auto mb-4 text-black/20 dark:text-white/20"
           />
-          <p className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black/70 dark:text-white/70">
+          <p className="text-[14px] text-black/70 dark:text-white/70">
             You haven't made any submissions yet.
           </p>
-          <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/50 dark:text-white/50 mt-2">
+          <p className="text-[12px] text-black/50 dark:text-white/50 mt-2">
             Submit a new material or article to get started!
           </p>
         </div>
@@ -186,17 +186,17 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">
+                      <h3 className="text-black dark:text-white">
                         {getSubmissionTitle(submission)}
                       </h3>
                     </div>
-                    <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/60 dark:text-white/60 mb-2">
+                    <p className="text-[11px] text-black/60 dark:text-white/60 mb-2">
                       {getSubmissionLabel(submission.type)} • Submitted{" "}
                       {formatDate(submission.created_at)}
                     </p>
                     {submission.feedback && (
                       <div className="bg-[#e4e3ac] dark:bg-[#3a3825] border border-[#211f1c] dark:border-white/20 rounded-md p-2 mt-2">
-                        <p className="font-['Sniglet:Regular',_sans-serif] text-[10px] text-black dark:text-white">
+                        <p className="text-[10px] text-black dark:text-white">
                           <strong>Feedback:</strong> {submission.feedback}
                         </p>
                       </div>

@@ -149,7 +149,7 @@ export function NotificationBell({ userId, isAdmin }: NotificationBellProps) {
         >
           <Bell size={14} className="text-black/60 dark:text-white/60" />
           {unreadCount > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 h-3 w-3 flex items-center justify-center bg-[#e6beb5] text-black text-[8px] rounded-full font-['Sniglet:Regular',_sans-serif]">
+            <span className="absolute -top-0.5 -right-0.5 h-3 w-3 flex items-center justify-center bg-[#e6beb5] text-black text-[8px] rounded-full">
               {unreadCount > 9 ? "9+" : unreadCount}
             </span>
           )}
@@ -161,13 +161,13 @@ export function NotificationBell({ userId, isAdmin }: NotificationBellProps) {
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-[#211f1c]/20 dark:border-white/20">
-          <h3 className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">
+          <h3 className="text-black dark:text-white">
             Notifications
           </h3>
           {unreadCount > 0 && (
             <button
               onClick={handleMarkAllAsRead}
-              className="text-[11px] font-['Sniglet:Regular',_sans-serif] text-blue-600 dark:text-blue-400 hover:underline"
+              className="text-[11px] text-blue-600 dark:text-blue-400 hover:underline"
             >
               Mark all read
             </button>
@@ -186,7 +186,7 @@ export function NotificationBell({ userId, isAdmin }: NotificationBellProps) {
                 size={32}
                 className="mx-auto mb-3 text-black/30 dark:text-white/30"
               />
-              <p className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black/60 dark:text-white/60">
+              <p className="text-[13px] text-black/60 dark:text-white/60">
                 No notifications yet
               </p>
             </div>
@@ -209,10 +209,10 @@ export function NotificationBell({ userId, isAdmin }: NotificationBellProps) {
                       {getNotificationIcon(notification.type)}
                     </span>
                     <div className="flex-1 min-w-0">
-                      <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white mb-1">
+                      <p className="text-[12px] text-black dark:text-white mb-1">
                         {notification.message}
                       </p>
-                      <p className="font-['Sniglet:Regular',_sans-serif] text-[10px] text-black/50 dark:text-white/50">
+                      <p className="text-[10px] text-black/50 dark:text-white/50">
                         {formatTimeAgo(notification.created_at)}
                       </p>
                     </div>

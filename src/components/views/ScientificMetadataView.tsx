@@ -111,7 +111,7 @@ export function ScientificMetadataView({
       <CollapsibleTrigger className="w-full">
         <div className="flex items-center gap-2 p-3 bg-[#bdd4b7] dark:bg-[#2a2f27] border border-[#211f1c] dark:border-white/20 rounded-md hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all">
           <FlaskConical className="w-4 h-4 text-black dark:text-white" />
-          <span className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black dark:text-white">
+          <span className="text-[13px] text-black dark:text-white">
             Scientific Data
           </span>
           {validationWarning && (
@@ -175,7 +175,7 @@ export function ScientificMetadataView({
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <Database className="w-4 h-4 text-black dark:text-white" />
-                    <h4 className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
+                    <h4 className="text-[12px] text-black dark:text-white">
                       Raw Parameters (0-1 normalized)
                     </h4>
                   </div>
@@ -335,7 +335,7 @@ export function ScientificMetadataView({
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <TrendingUp className="w-4 h-4 text-black dark:text-white" />
-                    <h4 className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
+                    <h4 className="text-[12px] text-black dark:text-white">
                       Composite Recyclability Index (CR)
                     </h4>
                   </div>
@@ -439,7 +439,7 @@ export function ScientificMetadataView({
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <FileText className="w-4 h-4 text-black dark:text-white" />
-                    <h4 className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
+                    <h4 className="text-[12px] text-black dark:text-white">
                       Sources ({material.sources.length})
                     </h4>
                   </div>
@@ -496,7 +496,7 @@ export function ScientificMetadataView({
               <div className="pt-2 border-t border-[#211f1c] dark:border-white/20">
                 <div className="flex items-center gap-2 mb-2">
                   <Calendar className="w-4 h-4 text-black dark:text-white" />
-                  <h4 className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
+                  <h4 className="text-[12px] text-black dark:text-white">
                     Calculation Metadata
                   </h4>
                 </div>

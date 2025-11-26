@@ -32,12 +32,12 @@ export function CookieConsent() {
             <div className="flex items-start gap-3">
               <Cookie className="text-black dark:text-white mt-1 flex-shrink-0" size={20} />
               <div className="flex-1">
-                <p className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black dark:text-white mb-3">
+                <p className="text-[13px] text-black dark:text-white mb-3">
                   We use cookies for authentication to keep you signed in. By continuing to use WasteDB, you consent to our use of cookies.
                 </p>
                 <button
                   onClick={handleAccept}
-                  className="bg-[#e8a593] dark:bg-[#e8a593] h-[36px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
+                  className="bg-[#e8a593] dark:bg-[#e8a593] h-[36px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 text-[12px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
                 >
                   Accept
                 </button>

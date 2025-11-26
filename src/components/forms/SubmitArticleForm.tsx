@@ -123,7 +123,7 @@ export function SubmitArticleForm({
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div className="bg-[#e4e3ac] dark:bg-[#3a3825] border border-[#211f1c] dark:border-white/20 rounded-md p-3 mb-4">
-            <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white">
+            <p className="text-[11px] text-black dark:text-white">
               📝 <strong>Note:</strong> Your article will be reviewed by an
               admin before publication. You can use Markdown formatting in the
               content field.
@@ -133,7 +133,7 @@ export function SubmitArticleForm({
           <div>
             <Label
               htmlFor="article-title"
-              className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white"
+              className="text-[12px] text-black dark:text-white"
             >
               Article Title *
             </Label>
@@ -142,7 +142,7 @@ export function SubmitArticleForm({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g., How to Compost Pizza Boxes"
-              className="mt-1 font-['Sniglet:Regular',_sans-serif]"
+              className="mt-1"
               required
             />
           </div>
@@ -151,14 +151,14 @@ export function SubmitArticleForm({
             <div>
               <Label
                 htmlFor="article-category"
-                className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white"
+                className="text-[12px] text-black dark:text-white"
               >
                 Category *
               </Label>
               <Select value={category} onValueChange={setCategory}>
                 <SelectTrigger
                   id="article-category"
-                  className="mt-1 font-['Sniglet:Regular',_sans-serif]"
+                  className="mt-1"
                 >
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
@@ -167,7 +167,7 @@ export function SubmitArticleForm({
                     <SelectItem
                       key={cat}
                       value={cat}
-                      className="font-['Sniglet:Regular',_sans-serif]"
+                      className=""
                     >
                       {cat}
                     </SelectItem>
@@ -179,7 +179,7 @@ export function SubmitArticleForm({
             <div>
               <Label
                 htmlFor="article-material"
-                className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white"
+                className="text-[12px] text-black dark:text-white"
               >
                 Related Material *
               </Label>
@@ -190,7 +190,7 @@ export function SubmitArticleForm({
               >
                 <SelectTrigger
                   id="article-material"
-                  className="mt-1 font-['Sniglet:Regular',_sans-serif]"
+                  className="mt-1"
                 >
                   <SelectValue
                     placeholder={
@@ -203,7 +203,7 @@ export function SubmitArticleForm({
                     <SelectItem
                       key={material.id}
                       value={material.id}
-                      className="font-['Sniglet:Regular',_sans-serif]"
+                      className=""
                     >
                       {material.name}
                     </SelectItem>
@@ -215,7 +215,7 @@ export function SubmitArticleForm({
 
           {selectedMaterial && (
             <div className="bg-[#b8c8cb]/30 dark:bg-[#2a3235]/30 border border-[#211f1c]/20 dark:border-white/10 rounded-md p-2">
-              <p className="font-['Sniglet:Regular',_sans-serif] text-[10px] text-black/70 dark:text-white/70">
+              <p className="text-[10px] text-black/70 dark:text-white/70">
                 <strong>Selected:</strong> {selectedMaterial.name} (
                 {selectedMaterial.category})
               </p>
@@ -225,7 +225,7 @@ export function SubmitArticleForm({
           <div>
             <Label
               htmlFor="article-content"
-              className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white"
+              className="text-[12px] text-black dark:text-white"
             >
               Article Content *{" "}
               <span className="text-[10px] text-black/50 dark:text-white/50">
@@ -241,7 +241,7 @@ export function SubmitArticleForm({
               rows={15}
               required
             />
-            <p className="mt-1 font-['Sniglet:Regular',_sans-serif] text-[10px] text-black/50 dark:text-white/50">
+            <p className="mt-1 text-[10px] text-black/50 dark:text-white/50">
               Use **bold**, *italic*, headings (##), lists (-), and links
               ([text](url))
             </p>
@@ -251,14 +251,14 @@ export function SubmitArticleForm({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 h-[40px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#e6beb5] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[12px] text-black"
+              className="flex-1 h-[40px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#e6beb5] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[12px] text-black"
               disabled={submitting}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 h-[40px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#c8e5c8] hover:shadow-[3px_4px_0px_-1px_#000000] dark:hover:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[12px] text-black disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 h-[40px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#c8e5c8] hover:shadow-[3px_4px_0px_-1px_#000000] dark:hover:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] transition-all text-[12px] text-black disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={submitting}
             >
               {submitting ? "Submitting..." : "Submit for Review"}

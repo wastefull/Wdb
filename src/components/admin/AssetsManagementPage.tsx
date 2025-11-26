@@ -262,7 +262,7 @@ export function AssetsManagementPage() {
 
                     {/* Asset Info */}
                     <div className="flex-1 min-w-0">
-                      <p className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white truncate">
+                      <p className="text-[14px] text-black dark:text-white truncate">
                         {asset.name}
                       </p>
                       <p className="text-[11px] text-black/50 dark:text-white/50">

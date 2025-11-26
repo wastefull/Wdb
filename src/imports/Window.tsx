@@ -26,7 +26,7 @@ function RetroButtons() {
               </svg>
             </div>
           </div>
-          <p className="basis-0 font-['Sniglet:Regular',_sans-serif] grow leading-[25px] min-h-px min-w-px not-italic relative shrink-0 text-[24px] text-black text-center">CARDBOARD</p>
+          <p className="basis-0 grow leading-[25px] min-h-px min-w-px not-italic relative shrink-0 text-[24px] text-black text-center">CARDBOARD</p>
         </div>
       </div>
     </div>
@@ -64,7 +64,7 @@ function Left() {
     <div className="basis-0 grow h-full min-h-px min-w-px relative shrink-0" data-name="Left">
       <div className="size-full">
         <div className="box-border content-stretch flex flex-col items-start px-[10px] py-[20px] relative size-full">
-          <p className="font-['Sniglet:Regular',_sans-serif] h-[15px] leading-[15px] not-italic relative shrink-0 text-[12px] text-black w-full">Cardboard is a material made from thick paper stock or heavy paper-pulp. It is often used for making sturdy boxes and packaging materials due to its durability and strength. Cardboard can be single-layered or have multiple layers to enhance its rigidity and protective qualities. It is widely used because it is lightweight, cost-effective, recyclable, and largely compostable. It can also be reused in a wide variety of applications.</p>
+          <p className="h-[15px] leading-[15px] not-italic relative shrink-0 text-[12px] text-black w-full">Cardboard is a material made from thick paper stock or heavy paper-pulp. It is often used for making sturdy boxes and packaging materials due to its durability and strength. Cardboard can be single-layered or have multiple layers to enhance its rigidity and protective qualities. It is widely used because it is lightweight, cost-effective, recyclable, and largely compostable. It can also be reused in a wide variety of applications.</p>
         </div>
       </div>
     </div>
@@ -87,7 +87,7 @@ function ImageWithCredit() {
   return (
     <div className="box-border content-stretch flex flex-col items-center pb-[28px] pt-0 px-0 relative shrink-0" data-name="Image with Credit">
       <Image1 />
-      <p className="font-['Sniglet:Regular',_sans-serif] leading-[30px] not-italic relative shrink-0 text-[11px] text-black text-center text-nowrap whitespace-pre">image credit imageguy26</p>
+      <p className="leading-[30px] not-italic relative shrink-0 text-[11px] text-black text-center text-nowrap whitespace-pre">image credit imageguy26</p>
     </div>
   );
 }
@@ -96,7 +96,7 @@ function Button() {
   return (
     <div className="[grid-area:1_/_1] bg-[#e4e3ac] h-[40px] ml-0 mt-0 relative rounded-[6px] w-[166px]" data-name="Button">
       <div aria-hidden="true" className="absolute border border-[#211f1c] border-solid inset-[-0.5px] pointer-events-none rounded-[6.5px] shadow-[3px_4px_0px_-1px_#000000]" />
-      <div className="absolute bottom-0 flex flex-col font-['Sniglet:Regular',_sans-serif] justify-center leading-[0] left-1/2 not-italic text-[13.8px] text-black text-center top-0 translate-x-[-50%] w-[166px]">
+      <div className="absolute bottom-0 flex flex-col justify-center leading-[0] left-1/2 not-italic text-[13.8px] text-black text-center top-0 translate-x-[-50%] w-[166px]">
         <p className="leading-[40px]">recycle</p>
       </div>
     </div>
@@ -107,7 +107,7 @@ function Button1() {
   return (
     <div className="[grid-area:1_/_1] bg-[#e6beb5] h-[40px] ml-0 mt-[43px] relative rounded-[6px] w-[166px]" data-name="Button">
       <div aria-hidden="true" className="absolute border border-[#211f1c] border-solid inset-[-0.5px] pointer-events-none rounded-[6.5px] shadow-[3px_4px_0px_-1px_#000000]" />
-      <div className="absolute bottom-0 flex flex-col font-['Sniglet:Regular',_sans-serif] justify-center leading-[0] left-1/2 not-italic text-[13.8px] text-black text-center top-0 translate-x-[-50%] w-[166px]">
+      <div className="absolute bottom-0 flex flex-col justify-center leading-[0] left-1/2 not-italic text-[13.8px] text-black text-center top-0 translate-x-[-50%] w-[166px]">
         <p className="leading-[40px]">compost</p>
       </div>
     </div>
@@ -118,7 +118,7 @@ function Button2() {
   return (
     <div className="[grid-area:1_/_1] bg-[#b8c8cb] h-[40px] ml-0 mt-[86px] relative rounded-[6px] w-[166px]" data-name="Button">
       <div aria-hidden="true" className="absolute border border-[#211f1c] border-solid inset-[-0.5px] pointer-events-none rounded-[6.5px] shadow-[3px_4px_0px_-1px_#000000]" />
-      <div className="absolute bottom-0 flex flex-col font-['Sniglet:Regular',_sans-serif] justify-center leading-[0] left-1/2 not-italic text-[13.8px] text-black text-center top-0 translate-x-[-50%] w-[166px]">
+      <div className="absolute bottom-0 flex flex-col justify-center leading-[0] left-1/2 not-italic text-[13.8px] text-black text-center top-0 translate-x-[-50%] w-[166px]">
         <p className="leading-[40px]">upcycle</p>
       </div>
     </div>

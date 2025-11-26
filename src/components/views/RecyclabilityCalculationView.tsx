@@ -84,7 +84,7 @@ Where:
         >
           <ArrowLeft size={16} />
         </button>
-        <h2 className="font-['Sniglet:Regular',_sans-serif] text-[18px] text-black flex-1">
+        <h2 className="text-[18px] text-black flex-1">
           Recyclability Calculation
         </h2>
         {!isEditing ? (
@@ -98,13 +98,13 @@ Where:
           <div className="flex gap-2">
             <button
               onClick={handleSave}
-              className="bg-[#e4e3ac] h-[36px] px-6 rounded-[6px] border border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] font-['Sniglet:Regular',_sans-serif] text-[13px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] transition-all"
+              className="bg-[#e4e3ac] h-[36px] px-6 rounded-[6px] border border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] text-[13px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] transition-all"
             >
               Save
             </button>
             <button
               onClick={handleCancel}
-              className="bg-[#e6beb5] h-[36px] px-6 rounded-[6px] border border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] font-['Sniglet:Regular',_sans-serif] text-[13px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] transition-all"
+              className="bg-[#e6beb5] h-[36px] px-6 rounded-[6px] border border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] text-[13px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] transition-all"
             >
               Cancel
             </button>
@@ -115,7 +115,7 @@ Where:
       <div className="bg-white rounded-[11.464px] border-[1.5px] border-[#211f1c] p-6 max-w-3xl mx-auto">
         {isEditing ? (
           <div>
-            <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black block mb-2">
+            <label className="text-[13px] text-black block mb-2">
               Markdown Content (use $...$ for inline math, $...$ for block math)
             </label>
             <textarea
@@ -135,31 +135,31 @@ Where:
               components={{
                 h1: ({ node, ...props }) => (
                   <h1
-                    className="font-['Sniglet:Regular',_sans-serif] text-[20px] text-black mb-4"
+                    className="text-[20px] text-black mb-4"
                     {...props}
                   />
                 ),
                 h2: ({ node, ...props }) => (
                   <h2
-                    className="font-['Sniglet:Regular',_sans-serif] text-[18px] text-black mb-3"
+                    className="text-[18px] text-black mb-3"
                     {...props}
                   />
                 ),
                 h3: ({ node, ...props }) => (
                   <h3
-                    className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black mb-2"
+                    className="text-[16px] text-black mb-2"
                     {...props}
                   />
                 ),
                 p: ({ node, ...props }) => (
                   <p
-                    className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black/80 mb-4 leading-relaxed"
+                    className="text-[13px] text-black/80 mb-4 leading-relaxed"
                     {...props}
                   />
                 ),
                 ul: ({ node, ...props }) => (
                   <ul
-                    className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black/80 mb-4 list-disc pl-6"
+                    className="text-[13px] text-black/80 mb-4 list-disc pl-6"
                     {...props}
                   />
                 ),
@@ -184,13 +184,13 @@ Where:
                 ),
                 th: ({ node, ...props }) => (
                   <th
-                    className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black px-3 py-2 text-left border-r border-[#211f1c]/20 last:border-r-0"
+                    className="text-[12px] text-black px-3 py-2 text-left border-r border-[#211f1c]/20 last:border-r-0"
                     {...props}
                   />
                 ),
                 td: ({ node, ...props }) => (
                   <td
-                    className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/80 px-3 py-2 border-r border-[#211f1c]/20 last:border-r-0"
+                    className="text-[11px] text-black/80 px-3 py-2 border-r border-[#211f1c]/20 last:border-r-0"
                     {...props}
                   />
                 ),

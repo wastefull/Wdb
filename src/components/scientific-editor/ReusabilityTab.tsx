@@ -65,7 +65,7 @@ export function ReusabilityTab({
     <div className="space-y-4">
       {/* Parameters Card */}
       <Card className="p-4 bg-[#faf9f6] dark:bg-[#1a1918] border-[#211f1c] dark:border-white/20">
-        <h3 className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white mb-3">
+        <h3 className="text-[14px] text-black dark:text-white mb-3">
           Reusability Parameters (RU-v1)
         </h3>
 
@@ -188,13 +188,13 @@ export function ReusabilityTab({
 
       {/* Composite Scores Card */}
       <Card className="p-4 bg-[#faf9f6] dark:bg-[#1a1918] border-[#211f1c] dark:border-white/20">
-        <h3 className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white mb-3">
+        <h3 className="text-[14px] text-black dark:text-white mb-3">
           Composite Reusability Index (RU)
         </h3>
 
         {/* Practical Score */}
         <div className="mb-4 pb-4 border-b border-[#211f1c] dark:border-white/20">
-          <h4 className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white mb-2">
+          <h4 className="text-[12px] text-black dark:text-white mb-2">
             Practical (Market Reality)
           </h4>
 
@@ -268,7 +268,7 @@ export function ReusabilityTab({
 
         {/* Theoretical Score */}
         <div>
-          <h4 className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white mb-2">
+          <h4 className="text-[12px] text-black dark:text-white mb-2">
             Theoretical (Design Intent)
           </h4>
 

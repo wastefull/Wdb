@@ -131,10 +131,10 @@ export function ArticleEditor({
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h2 className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white mb-2">
+        <h2 className="text-black dark:text-white mb-2">
           {article ? "Edit Article" : "New Article"}
         </h2>
-        <p className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black/70 dark:text-white/70">
+        <p className="text-[13px] text-black/70 dark:text-white/70">
           Write helpful content about material sustainability
         </p>
       </div>
@@ -145,7 +145,7 @@ export function ArticleEditor({
         <div className="space-y-2">
           <Label
             htmlFor="title"
-            className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white"
+            className="text-black dark:text-white"
           >
             Title
           </Label>
@@ -154,7 +154,7 @@ export function ArticleEditor({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="How to compost PLA cups at home"
-            className="font-['Sniglet:Regular',_sans-serif] text-[13px]"
+            className="text-[13px]"
           />
         </div>
 
@@ -162,7 +162,7 @@ export function ArticleEditor({
         <div className="space-y-2">
           <Label
             htmlFor="slug"
-            className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white"
+            className="text-black dark:text-white"
           >
             Slug (URL path)
           </Label>
@@ -171,9 +171,9 @@ export function ArticleEditor({
             value={slug}
             onChange={(e) => setSlug(e.target.value)}
             placeholder="how-to-compost-pla-cups"
-            className="font-['Sniglet:Regular',_sans-serif] text-[13px] font-mono"
+            className="text-[13px] font-mono"
           />
-          <p className="text-[11px] text-black/60 dark:text-white/60 font-['Sniglet:Regular',_sans-serif]">
+          <p className="text-[11px] text-black/60 dark:text-white/60">
             URL: /articles/{slug || "your-slug-here"}
           </p>
         </div>
@@ -183,7 +183,7 @@ export function ArticleEditor({
           <div className="space-y-2">
             <Label
               htmlFor="articleType"
-              className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white"
+              className="text-black dark:text-white"
             >
               Article Type
             </Label>
@@ -193,7 +193,7 @@ export function ArticleEditor({
             >
               <SelectTrigger
                 id="articleType"
-                className="font-['Sniglet:Regular',_sans-serif]"
+                className=""
               >
                 <SelectValue />
               </SelectTrigger>
@@ -208,7 +208,7 @@ export function ArticleEditor({
           <div className="space-y-2">
             <Label
               htmlFor="sustainabilityCategory"
-              className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white"
+              className="text-black dark:text-white"
             >
               Sustainability Category
             </Label>
@@ -218,7 +218,7 @@ export function ArticleEditor({
             >
               <SelectTrigger
                 id="sustainabilityCategory"
-                className="font-['Sniglet:Regular',_sans-serif]"
+                className=""
               >
                 <SelectValue />
               </SelectTrigger>
@@ -235,14 +235,14 @@ export function ArticleEditor({
         <div className="space-y-2">
           <Label
             htmlFor="material"
-            className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white"
+            className="text-black dark:text-white"
           >
             Material
           </Label>
           <Select value={materialId} onValueChange={setMaterialId}>
             <SelectTrigger
               id="material"
-              className="font-['Sniglet:Regular',_sans-serif]"
+              className=""
             >
               <SelectValue placeholder="Select material..." />
             </SelectTrigger>
@@ -261,7 +261,7 @@ export function ArticleEditor({
           <div className="flex items-center justify-between">
             <Label
               htmlFor="content"
-              className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white"
+              className="text-black dark:text-white"
             >
               Content
             </Label>
@@ -269,7 +269,7 @@ export function ArticleEditor({
               <button
                 type="button"
                 onClick={() => insertMarkdown("**", "**")}
-                className="px-2 py-1 text-[11px] font-['Sniglet:Regular',_sans-serif] rounded border border-[#211f1c]/20 dark:border-white/20 hover:bg-[#e5e4dc] dark:hover:bg-[#3a3835]"
+                className="px-2 py-1 text-[11px] rounded border border-[#211f1c]/20 dark:border-white/20 hover:bg-[#e5e4dc] dark:hover:bg-[#3a3835]"
                 title="Bold"
               >
                 <strong>B</strong>
@@ -277,7 +277,7 @@ export function ArticleEditor({
               <button
                 type="button"
                 onClick={() => insertMarkdown("*", "*")}
-                className="px-2 py-1 text-[11px] font-['Sniglet:Regular',_sans-serif] rounded border border-[#211f1c]/20 dark:border-white/20 hover:bg-[#e5e4dc] dark:hover:bg-[#3a3835]"
+                className="px-2 py-1 text-[11px] rounded border border-[#211f1c]/20 dark:border-white/20 hover:bg-[#e5e4dc] dark:hover:bg-[#3a3835]"
                 title="Italic"
               >
                 <em>I</em>
@@ -285,7 +285,7 @@ export function ArticleEditor({
               <button
                 type="button"
                 onClick={() => insertMarkdown("\n## ")}
-                className="px-2 py-1 text-[11px] font-['Sniglet:Regular',_sans-serif] rounded border border-[#211f1c]/20 dark:border-white/20 hover:bg-[#e5e4dc] dark:hover:bg-[#3a3835]"
+                className="px-2 py-1 text-[11px] rounded border border-[#211f1c]/20 dark:border-white/20 hover:bg-[#e5e4dc] dark:hover:bg-[#3a3835]"
                 title="Heading"
               >
                 H
@@ -293,7 +293,7 @@ export function ArticleEditor({
               <button
                 type="button"
                 onClick={() => insertMarkdown("[", "](url)")}
-                className="px-2 py-1 text-[11px] font-['Sniglet:Regular',_sans-serif] rounded border border-[#211f1c]/20 dark:border-white/20 hover:bg-[#e5e4dc] dark:hover:bg-[#3a3835]"
+                className="px-2 py-1 text-[11px] rounded border border-[#211f1c]/20 dark:border-white/20 hover:bg-[#e5e4dc] dark:hover:bg-[#3a3835]"
                 title="Link"
               >
                 🔗
@@ -301,7 +301,7 @@ export function ArticleEditor({
               <button
                 type="button"
                 onClick={() => insertMarkdown("\n- ")}
-                className="px-2 py-1 text-[11px] font-['Sniglet:Regular',_sans-serif] rounded border border-[#211f1c]/20 dark:border-white/20 hover:bg-[#e5e4dc] dark:hover:bg-[#3a3835]"
+                className="px-2 py-1 text-[11px] rounded border border-[#211f1c]/20 dark:border-white/20 hover:bg-[#e5e4dc] dark:hover:bg-[#3a3835]"
                 title="List"
               >
                 •
@@ -316,13 +316,13 @@ export function ArticleEditor({
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger
                 value="edit"
-                className="font-['Sniglet:Regular',_sans-serif]"
+                className=""
               >
                 Edit
               </TabsTrigger>
               <TabsTrigger
                 value="preview"
-                className="font-['Sniglet:Regular',_sans-serif]"
+                className=""
               >
                 <Eye size={14} className="mr-2" />
                 Preview
@@ -336,9 +336,9 @@ export function ArticleEditor({
                 onChange={(e) => setContent(e.target.value)}
                 placeholder="Write your article content here using Markdown..."
                 rows={15}
-                className="font-['Sniglet:Regular',_sans-serif] text-[13px] font-mono"
+                className="text-[13px] font-mono"
               />
-              <p className="mt-2 text-[11px] text-black/60 dark:text-white/60 font-['Sniglet:Regular',_sans-serif]">
+              <p className="mt-2 text-[11px] text-black/60 dark:text-white/60">
                 Supports Markdown: **bold**, *italic*, ## headings,
                 [links](url), lists
               </p>
@@ -347,48 +347,48 @@ export function ArticleEditor({
             <TabsContent value="preview" className="mt-2">
               <div className="min-h-[400px] p-4 rounded-md border border-[#211f1c]/20 dark:border-white/20 bg-white dark:bg-[#2a2825]">
                 {content ? (
-                  <div className="prose prose-sm dark:prose-invert max-w-none font-['Sniglet:Regular',_sans-serif] text-[13px]">
+                  <div className="prose prose-sm dark:prose-invert max-w-none text-[13px]">
                     <ReactMarkdown
                       components={{
                         h1: ({ node, ...props }) => (
                           <h1
-                            className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white mb-4"
+                            className="text-black dark:text-white mb-4"
                             {...props}
                           />
                         ),
                         h2: ({ node, ...props }) => (
                           <h2
-                            className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white mb-3 mt-6"
+                            className="text-black dark:text-white mb-3 mt-6"
                             {...props}
                           />
                         ),
                         h3: ({ node, ...props }) => (
                           <h3
-                            className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white mb-2 mt-4"
+                            className="text-black dark:text-white mb-2 mt-4"
                             {...props}
                           />
                         ),
                         p: ({ node, ...props }) => (
                           <p
-                            className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white mb-4"
+                            className="text-black dark:text-white mb-4"
                             {...props}
                           />
                         ),
                         ul: ({ node, ...props }) => (
                           <ul
-                            className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white mb-4 list-disc pl-6"
+                            className="text-black dark:text-white mb-4 list-disc pl-6"
                             {...props}
                           />
                         ),
                         ol: ({ node, ...props }) => (
                           <ol
-                            className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white mb-4 list-decimal pl-6"
+                            className="text-black dark:text-white mb-4 list-decimal pl-6"
                             {...props}
                           />
                         ),
                         li: ({ node, ...props }) => (
                           <li
-                            className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white mb-1"
+                            className="text-black dark:text-white mb-1"
                             {...props}
                           />
                         ),
@@ -400,13 +400,13 @@ export function ArticleEditor({
                         ),
                         strong: ({ node, ...props }) => (
                           <strong
-                            className="font-['Sniglet:Regular',_sans-serif]"
+                            className=""
                             {...props}
                           />
                         ),
                         em: ({ node, ...props }) => (
                           <em
-                            className="font-['Sniglet:Regular',_sans-serif]"
+                            className=""
                             {...props}
                           />
                         ),
@@ -416,7 +416,7 @@ export function ArticleEditor({
                     </ReactMarkdown>
                   </div>
                 ) : (
-                  <p className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black/50 dark:text-white/50 italic">
+                  <p className="text-[13px] text-black/50 dark:text-white/50 italic">
                     Nothing to preview yet
                   </p>
                 )}

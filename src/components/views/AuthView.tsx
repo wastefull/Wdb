@@ -211,7 +211,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
               </div>
             </button>
             {/* Window Title - Centered */}
-            <span className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white">
+            <span className="text-[11px] text-black dark:text-white">
               Welcome back!
             </span>
           </div>
@@ -225,21 +225,21 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
                     size={28}
                     className="mx-auto mb-2 text-black dark:text-white"
                   />
-                  <h3 className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white mb-2">
+                  <h3 className="text-[14px] text-black dark:text-white mb-2">
                     Magic Link Sent!
                   </h3>
-                  <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70 mb-3">
+                  <p className="text-[12px] text-black/70 dark:text-white/70 mb-3">
                     We've sent a secure sign-in link to <strong>{email}</strong>
                     . Click the link in your email to sign in instantly.
                   </p>
-                  <p className="font-['Sniglet:Regular',_sans-serif] text-[10px] text-black/50 dark:text-white/50">
+                  <p className="text-[10px] text-black/50 dark:text-white/50">
                     The link will expire in 1 hour for security.
                   </p>
                 </div>
 
                 <button
                   onClick={() => setAuthMode("magic-link")}
-                  className="w-full bg-[#b8c8cb] h-[36px] rounded-[8px] border border-[#211f1c] dark:border-white/20 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all flex items-center justify-center gap-2"
+                  className="w-full bg-[#b8c8cb] h-[36px] rounded-[8px] border border-[#211f1c] dark:border-white/20 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all flex items-center justify-center gap-2"
                 >
                   <ArrowLeft size={14} />
                   Send Another Link
@@ -248,7 +248,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
             ) : authMode === "magic-link" ? (
               <div className="space-y-3">
                 <div>
-                  <label className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white block mb-1">
+                  <label className="text-[12px] text-black dark:text-white block mb-1">
                     Email Address
                   </label>
                   <input
@@ -262,7 +262,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
                       }
                     }}
                     placeholder="you@example.com"
-                    className="w-full px-3 py-2 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[13px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50 outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                    className="w-full px-3 py-2 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px] text-[13px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50 outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
                   />
                 </div>
 
@@ -285,7 +285,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
                 <button
                   onClick={handleSendMagicLink}
                   disabled={loading}
-                  className="w-full bg-[#e4e3ac] h-[40px] rounded-[8px] border border-[#211f1c] dark:border-white/20 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[13px] text-black hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
+                  className="w-full bg-[#e4e3ac] h-[40px] rounded-[8px] border border-[#211f1c] dark:border-white/20 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] text-[13px] text-black hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
                 >
                   <Mail size={16} />
                   {loading ? "Sending..." : "Send Magic Link"}
@@ -294,7 +294,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
             ) : authMode === "traditional" && showPasswordAuth ? (
               <div className="space-y-3">
                 <div>
-                  <label className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white block mb-1">
+                  <label className="text-[12px] text-black dark:text-white block mb-1">
                     Name (optional)
                   </label>
                   <input
@@ -303,15 +303,15 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
                     onChange={(e) => setName(e.target.value)}
                     onKeyDownCapture={handleKeyDown}
                     placeholder="Your name"
-                    className="w-full px-3 py-2 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[13px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50 outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                    className="w-full px-3 py-2 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px] text-[13px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50 outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
                   />
-                  <p className="font-['Sniglet:Regular',_sans-serif] text-[9px] text-black/50 dark:text-white/50 mt-1">
+                  <p className="text-[9px] text-black/50 dark:text-white/50 mt-1">
                     Only used when creating a new account
                   </p>
                 </div>
 
                 <div>
-                  <label className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white block mb-1">
+                  <label className="text-[12px] text-black dark:text-white block mb-1">
                     Email
                   </label>
                   <input
@@ -320,7 +320,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
                     onChange={(e) => setEmail(e.target.value)}
                     onKeyDownCapture={handleKeyDown}
                     placeholder="you@example.com"
-                    className="w-full px-3 py-2 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[13px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50 outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                    className="w-full px-3 py-2 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px] text-[13px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50 outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
                   />
                 </div>
 
@@ -341,7 +341,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
                 />
 
                 <div>
-                  <label className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white block mb-1">
+                  <label className="text-[12px] text-black dark:text-white block mb-1">
                     Password
                   </label>
                   <div className="relative">
@@ -356,7 +356,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
                         }
                       }}
                       placeholder="At least 8 characters"
-                      className="w-full px-3 py-2 pr-10 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[13px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50 outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                      className="w-full px-3 py-2 pr-10 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px] text-[13px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50 outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
                     />
                     <button
                       type="button"
@@ -370,7 +370,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
 
                 {/* Email Confirmation Notice */}
                 <div className="p-2.5 bg-blue-50 dark:bg-blue-900/20 border border-blue-300 dark:border-blue-700 rounded-[8px]">
-                  <p className="font-['Sniglet:Regular',_sans-serif] text-[10px] text-blue-800 dark:text-blue-200">
+                  <p className="text-[10px] text-blue-800 dark:text-blue-200">
                     📧 New accounts require email confirmation. You'll receive a
                     confirmation link after signing up.
                   </p>
@@ -381,7 +381,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
                   <button
                     onClick={handleSignIn}
                     disabled={loading}
-                    className="flex-1 bg-[#b8c8cb] h-[40px] rounded-[8px] border border-[#211f1c] dark:border-white/20 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[13px] text-black hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
+                    className="flex-1 bg-[#b8c8cb] h-[40px] rounded-[8px] border border-[#211f1c] dark:border-white/20 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] text-[13px] text-black hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
                   >
                     <LogIn size={16} />
                     {loading ? "Loading..." : "Sign In"}
@@ -389,7 +389,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
                   <button
                     onClick={handleSignUp}
                     disabled={loading}
-                    className="flex-1 bg-[#e4e3ac] h-[40px] rounded-[8px] border border-[#211f1c] dark:border-white/20 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[13px] text-black hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
+                    className="flex-1 bg-[#e4e3ac] h-[40px] rounded-[8px] border border-[#211f1c] dark:border-white/20 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] text-[13px] text-black hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
                   >
                     <UserPlus size={16} />
                     {loading ? "Loading..." : "Sign Up"}
@@ -400,12 +400,12 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
               /* Fallback: If password auth is disabled but mode is traditional, show magic link */
               <div className="space-y-3">
                 <div className="p-3 bg-[#e4e3ac]/40 dark:bg-[#e4e3ac]/20 border-2 border-[#211f1c]/30 dark:border-white/30 rounded-[8px]">
-                  <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white text-center mb-2">
+                  <p className="text-[11px] text-black dark:text-white text-center mb-2">
                     Password authentication is not available in production.
                   </p>
                   <button
                     onClick={() => setAuthMode("magic-link")}
-                    className="w-full bg-[#e4e3ac] h-[36px] rounded-[8px] border border-[#211f1c] dark:border-white/20 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all flex items-center justify-center gap-2"
+                    className="w-full bg-[#e4e3ac] h-[36px] rounded-[8px] border border-[#211f1c] dark:border-white/20 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all flex items-center justify-center gap-2"
                   >
                     <Mail size={14} />
                     Use Magic Link Instead

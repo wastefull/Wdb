@@ -99,7 +99,7 @@ export function PublicExportView({
             <ArrowLeft size={16} className="text-black" />
           </button>
           <div className="flex-1">
-            <h1 className="font-['Sniglet:Regular',_sans-serif] text-[24px] text-black dark:text-white mb-1">
+            <h1 className="text-[24px] text-black dark:text-white mb-1">
               Export WasteDB Data
             </h1>
             <p className="text-[12px] text-black/60 dark:text-white/60">
@@ -140,7 +140,7 @@ export function PublicExportView({
                   <Database className="w-6 h-6 text-black dark:text-white" />
                 </div>
                 <div className="flex-1">
-                  <h2 className="font-['Sniglet:Regular',_sans-serif] text-[18px] text-black dark:text-white mb-2">
+                  <h2 className="text-[18px] text-black dark:text-white mb-2">
                     Public-Friendly Data Export
                   </h2>
                   <p className="text-[12px] text-black/70 dark:text-white/70 mb-4">
@@ -150,7 +150,7 @@ export function PublicExportView({
                   </p>
 
                   <div className="space-y-2 mb-4">
-                    <h3 className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white">
+                    <h3 className="text-[14px] text-black dark:text-white">
                       Included Fields (8 columns):
                     </h3>
                     <div className="grid grid-cols-2 gap-2">
@@ -243,7 +243,7 @@ export function PublicExportView({
                   <Database className="w-6 h-6 text-black dark:text-white" />
                 </div>
                 <div className="flex-1">
-                  <h2 className="font-['Sniglet:Regular',_sans-serif] text-[18px] text-black dark:text-white mb-2">
+                  <h2 className="text-[18px] text-black dark:text-white mb-2">
                     Research-Grade Data Export
                   </h2>
                   <p className="text-[12px] text-black/70 dark:text-white/70 mb-4">
@@ -254,7 +254,7 @@ export function PublicExportView({
                   </p>
 
                   <div className="space-y-2 mb-4">
-                    <h3 className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white">
+                    <h3 className="text-[14px] text-black dark:text-white">
                       Included Fields (39 columns):
                     </h3>
                     <div className="grid grid-cols-2 gap-2">
@@ -378,7 +378,7 @@ export function PublicExportView({
             <Card className="p-4 bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
               <div className="flex items-center gap-2 mb-2">
                 <ExternalLink className="w-4 h-4 text-black dark:text-white" />
-                <h3 className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white">
+                <h3 className="text-[14px] text-black dark:text-white">
                   Methodology References
                 </h3>
               </div>
@@ -464,7 +464,7 @@ export function PublicExportView({
 
         {/* Data Format Examples */}
         <Card className="mt-6 p-6 bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
-          <h3 className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black dark:text-white mb-3">
+          <h3 className="text-[16px] text-black dark:text-white mb-3">
             Data Format Information
           </h3>
 
@@ -527,7 +527,7 @@ export function PublicExportView({
 
         {/* License & Attribution */}
         <Card className="mt-6 p-6 bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
-          <h3 className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black dark:text-white mb-3">
+          <h3 className="text-[16px] text-black dark:text-white mb-3">
             License & Attribution
           </h3>
           <p className="text-[11px] text-black/70 dark:text-white/70 mb-3">

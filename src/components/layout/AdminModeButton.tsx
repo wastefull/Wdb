@@ -43,7 +43,7 @@ export function AdminModeButton({
     >
       <button
         onClick={handleNavigateToDashboard}
-        className="px-2 py-1 font-['Sniglet:Regular',_sans-serif] text-[10px] text-black dark:text-white uppercase hover:opacity-70 transition-opacity"
+        className="px-2 py-1 text-[10px] text-black dark:text-white uppercase hover:opacity-70 transition-opacity"
       >
         Admin
       </button>

@@ -198,7 +198,7 @@ export function TransformVersionManager() {
         <h1 className="font-['Fredoka_One',_sans-serif] text-[24px] text-black dark:text-white mb-2">
           Transform Version Manager
         </h1>
-        <p className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black/70 dark:text-white/70">
+        <p className="text-[14px] text-black/70 dark:text-white/70">
           Manage versioned transforms and trigger recomputation for all 13
           parameters
         </p>
@@ -207,7 +207,7 @@ export function TransformVersionManager() {
       {/* Info Alert */}
       <Alert className="bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-700">
         <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-        <AlertDescription className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-blue-900 dark:text-blue-100">
+        <AlertDescription className="text-[12px] text-blue-900 dark:text-blue-100">
           <strong>Transform Governance:</strong> When you update a transform
           formula, all MIUs using the old version must be recomputed to maintain
           data consistency. Recompute jobs will run automatically once MIUs are
@@ -221,10 +221,10 @@ export function TransformVersionManager() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="font-['Sniglet:Regular',_sans-serif] text-[18px] text-black dark:text-white">
+                <CardTitle className="text-[18px] text-black dark:text-white">
                   Transform Definitions
                 </CardTitle>
-                <CardDescription className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/60 dark:text-white/60">
+                <CardDescription className="text-[12px] text-black/60 dark:text-white/60">
                   Version {transforms.version} • Updated{" "}
                   {new Date(transforms.last_updated).toLocaleDateString()}
                 </CardDescription>
@@ -244,7 +244,7 @@ export function TransformVersionManager() {
 
                 return (
                   <div key={dimension}>
-                    <h3 className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white mb-2 flex items-center gap-2">
+                    <h3 className="text-[14px] text-black dark:text-white mb-2 flex items-center gap-2">
                       <Badge className={getDimensionColor(dimension)}>
                         {dimension}
                       </Badge>
@@ -269,10 +269,10 @@ export function TransformVersionManager() {
                           <CardContent className="p-4">
                             <div className="flex items-start justify-between mb-2">
                               <div>
-                                <div className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black dark:text-white">
+                                <div className="text-[16px] text-black dark:text-white">
                                   {transform.parameter}
                                 </div>
-                                <div className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/60 dark:text-white/60">
+                                <div className="text-[11px] text-black/60 dark:text-white/60">
                                   {transform.name}
                                 </div>
                               </div>
@@ -310,11 +310,11 @@ export function TransformVersionManager() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="font-['Sniglet:Regular',_sans-serif] text-[18px] text-black dark:text-white flex items-center gap-2">
+                <CardTitle className="text-[18px] text-black dark:text-white flex items-center gap-2">
                   <GitBranch className="w-5 h-5" />
                   Trigger Recompute for {selectedTransform.parameter}
                 </CardTitle>
-                <CardDescription className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/60 dark:text-white/60">
+                <CardDescription className="text-[12px] text-black/60 dark:text-white/60">
                   {selectedTransform.name} ({selectedTransform.dimension})
                 </CardDescription>
               </div>
@@ -335,7 +335,7 @@ export function TransformVersionManager() {
           <CardContent className="space-y-4">
             <Alert className="bg-orange-50 dark:bg-orange-900/20 border-orange-300 dark:border-orange-700">
               <AlertTriangle className="h-4 w-4 text-orange-600 dark:text-orange-400" />
-              <AlertDescription className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-orange-900 dark:text-orange-100">
+              <AlertDescription className="text-[11px] text-orange-900 dark:text-orange-100">
                 <strong>Warning:</strong> Changing a transform formula will
                 trigger recomputation of all MIUs using this parameter. This
                 operation may take several minutes and will update material
@@ -346,7 +346,7 @@ export function TransformVersionManager() {
             <div className="bg-white dark:bg-[#2a2825] rounded-lg p-4 border border-[#211f1c]/20 dark:border-white/10">
               <div className="grid grid-cols-2 gap-4 mb-3">
                 <div>
-                  <Label className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/70 dark:text-white/70">
+                  <Label className="text-[11px] text-black/70 dark:text-white/70">
                     Current Version
                   </Label>
                   <div className="font-mono text-[12px] text-black dark:text-white">
@@ -354,7 +354,7 @@ export function TransformVersionManager() {
                   </div>
                 </div>
                 <div>
-                  <Label className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/70 dark:text-white/70">
+                  <Label className="text-[11px] text-black/70 dark:text-white/70">
                     Current Formula
                   </Label>
                   <div className="font-mono text-[12px] text-black dark:text-white">
@@ -367,7 +367,7 @@ export function TransformVersionManager() {
                 <div>
                   <Label
                     htmlFor="newVersion"
-                    className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white"
+                    className="text-[12px] text-black dark:text-white"
                   >
                     New Version Number
                   </Label>
@@ -383,7 +383,7 @@ export function TransformVersionManager() {
                 <div>
                   <Label
                     htmlFor="reason"
-                    className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white"
+                    className="text-[12px] text-black dark:text-white"
                   >
                     Reason for Change
                   </Label>
@@ -424,11 +424,11 @@ export function TransformVersionManager() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="font-['Sniglet:Regular',_sans-serif] text-[18px] text-black dark:text-white flex items-center gap-2">
+              <CardTitle className="text-[18px] text-black dark:text-white flex items-center gap-2">
                 <History className="w-5 h-5" />
                 Recompute Jobs
               </CardTitle>
-              <CardDescription className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/60 dark:text-white/60">
+              <CardDescription className="text-[12px] text-black/60 dark:text-white/60">
                 History of transform recomputation jobs
               </CardDescription>
             </div>
@@ -454,7 +454,7 @@ export function TransformVersionManager() {
           {jobs.length > 0 && (
             <Alert className="mb-4 bg-yellow-50 dark:bg-yellow-900/20 border-yellow-300 dark:border-yellow-700">
               <Clock className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
-              <AlertDescription className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-yellow-900 dark:text-yellow-100">
+              <AlertDescription className="text-[11px] text-yellow-900 dark:text-yellow-100">
                 <strong>Note:</strong> Job processing is not yet implemented.
                 All jobs will remain in "pending" status until Phase 9.2 when
                 MIU (Material Impact Units) are added. At that point, jobs will
@@ -465,7 +465,7 @@ export function TransformVersionManager() {
           {jobs.length === 0 ? (
             <div className="text-center py-8 text-black/50 dark:text-white/50">
               <History className="w-12 h-12 mx-auto mb-3 opacity-30" />
-              <p className="font-['Sniglet:Regular',_sans-serif] text-[12px]">
+              <p className="text-[12px]">
                 No recompute jobs yet
               </p>
             </div>
@@ -480,10 +480,10 @@ export function TransformVersionManager() {
                     <div className="flex items-center gap-2">
                       {getStatusIcon(job.status)}
                       <div>
-                        <div className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white">
+                        <div className="text-[14px] text-black dark:text-white">
                           {job.parameter} Transform Update
                         </div>
-                        <div className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/60 dark:text-white/60">
+                        <div className="text-[11px] text-black/60 dark:text-white/60">
                           {job.oldTransformVersion} → {job.newTransformVersion}
                         </div>
                       </div>
@@ -511,7 +511,7 @@ export function TransformVersionManager() {
 
                   {job.errorMessage && (
                     <Alert className="mt-2 bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-700">
-                      <AlertDescription className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-red-900 dark:text-red-100">
+                      <AlertDescription className="text-[11px] text-red-900 dark:text-red-100">
                         {job.errorMessage}
                       </AlertDescription>
                     </Alert>

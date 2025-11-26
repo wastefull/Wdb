@@ -19,7 +19,7 @@ export function ChartsPerformanceView({ onBack }: ChartsPerformanceViewProps) {
           <h2 className="font-['Fredoka_One:Regular',_sans-serif] text-[24px] text-black dark:text-white">
             Charts Performance
           </h2>
-          <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/60 dark:text-white/60">
+          <p className="text-[12px] text-black/60 dark:text-white/60">
             Chart rendering and rasterization testing
           </p>
         </div>

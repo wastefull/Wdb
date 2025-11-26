@@ -97,7 +97,7 @@ export function PageTemplate({
 
           {/* Title and Description */}
           <div className="flex-1">
-            <h1 className="font-['Sniglet:Regular',_sans-serif] text-[20px] md:text-[24px] text-black dark:text-white mb-1">
+            <h1 className="text-[20px] md:text-[24px] text-black dark:text-white mb-1">
               {title}
             </h1>
             {description && (
@@ -109,7 +109,7 @@ export function PageTemplate({
         </div>
 
         {/* Main Content */}
-        <div className="font-['Sniglet:Regular',_sans-serif]">
+        <div className="">
           {children}
         </div>
       </div>

@@ -75,11 +75,11 @@ export function RetroButtons({ title }: RetroButtonsProps) {
                         <div className="space-y-3">
                           <div className="flex items-center gap-2">
                             <RotateCcw size={16} />
-                            <h3 className="font-['Sniglet:Regular',_sans-serif] text-[14px]">
+                            <h3 className="text-[14px]">
                               Reset Settings
                             </h3>
                           </div>
-                          <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/70 dark:text-white/70">
+                          <p className="text-[11px] text-black/70 dark:text-white/70">
                             Reset all accessibility settings to default
                           </p>
                           <button
@@ -87,7 +87,7 @@ export function RetroButtons({ title }: RetroButtonsProps) {
                               resetSettings();
                               setRedOpen(false);
                             }}
-                            className="w-full bg-[#e6beb5] h-[36px] rounded-[6px] border border-[#211f1c] shadow-[2px_2px_0px_0px_#000000] font-['Sniglet:Regular',_sans-serif] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] transition-all flex items-center justify-center"
+                            className="w-full bg-[#e6beb5] h-[36px] rounded-[6px] border border-[#211f1c] shadow-[2px_2px_0px_0px_#000000] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] transition-all flex items-center justify-center"
                           >
                             Reset All
                           </button>
@@ -100,7 +100,7 @@ export function RetroButtons({ title }: RetroButtonsProps) {
                   side="bottom"
                   className="bg-black text-white border-black"
                 >
-                  <p className="font-['Sniglet:Regular',_sans-serif] text-[11px]">
+                  <p className="text-[11px]">
                     Reset accessibility
                   </p>
                 </TooltipContent>
@@ -146,14 +146,14 @@ export function RetroButtons({ title }: RetroButtonsProps) {
                         <div className="space-y-3">
                           <div className="flex items-center gap-2">
                             <Type size={16} />
-                            <h3 className="font-['Sniglet:Regular',_sans-serif] text-[14px]">
+                            <h3 className="text-[14px]">
                               Font Size
                             </h3>
                           </div>
                           <div className="space-y-2">
                             <button
                               onClick={() => setFontSize("normal")}
-                              className={`w-full h-[36px] rounded-[6px] border border-[#211f1c] font-['Sniglet:Regular',_sans-serif] text-[12px] dark:text-white transition-all flex items-center justify-center ${
+                              className={`w-full h-[36px] rounded-[6px] border border-[#211f1c] text-[12px] dark:text-white transition-all flex items-center justify-center ${
                                 settings.fontSize === "normal"
                                   ? "bg-[#e4e3ac] text-black shadow-[2px_2px_0px_0px_#000000]"
                                   : "bg-white dark:bg-[#2a2825] hover:bg-[#e4e3ac]/20"
@@ -163,7 +163,7 @@ export function RetroButtons({ title }: RetroButtonsProps) {
                             </button>
                             <button
                               onClick={() => setFontSize("large")}
-                              className={`w-full h-[36px] rounded-[6px] border border-[#211f1c] font-['Sniglet:Regular',_sans-serif] text-[13px] dark:text-white transition-all flex items-center justify-center ${
+                              className={`w-full h-[36px] rounded-[6px] border border-[#211f1c] text-[13px] dark:text-white transition-all flex items-center justify-center ${
                                 settings.fontSize === "large"
                                   ? "bg-[#e4e3ac] text-black shadow-[2px_2px_0px_0px_#000000]"
                                   : "bg-white dark:bg-[#2a2825] hover:bg-[#e4e3ac]/20"
@@ -173,7 +173,7 @@ export function RetroButtons({ title }: RetroButtonsProps) {
                             </button>
                             <button
                               onClick={() => setFontSize("xlarge")}
-                              className={`w-full h-[36px] rounded-[6px] border border-[#211f1c] font-['Sniglet:Regular',_sans-serif] text-[14px] dark:text-white transition-all flex items-center justify-center ${
+                              className={`w-full h-[36px] rounded-[6px] border border-[#211f1c] text-[14px] dark:text-white transition-all flex items-center justify-center ${
                                 settings.fontSize === "xlarge"
                                   ? "bg-[#e4e3ac] text-black shadow-[2px_2px_0px_0px_#000000]"
                                   : "bg-white dark:bg-[#2a2825] hover:bg-[#e4e3ac]/20"
@@ -191,7 +191,7 @@ export function RetroButtons({ title }: RetroButtonsProps) {
                   side="bottom"
                   className="bg-black text-white border-black"
                 >
-                  <p className="font-['Sniglet:Regular',_sans-serif] text-[11px]">
+                  <p className="text-[11px]">
                     Font size
                   </p>
                 </TooltipContent>
@@ -237,13 +237,13 @@ export function RetroButtons({ title }: RetroButtonsProps) {
                         <div className="space-y-3">
                           <div className="flex items-center gap-2">
                             <Eye size={16} />
-                            <h3 className="font-['Sniglet:Regular',_sans-serif] text-[14px]">
+                            <h3 className="text-[14px]">
                               Display
                             </h3>
                           </div>
                           <div className="space-y-3">
                             <div className="flex items-center justify-between">
-                              <label className="font-['Sniglet:Regular',_sans-serif] text-[12px] flex items-center gap-2">
+                              <label className="text-[12px] flex items-center gap-2">
                                 <Moon size={14} />
                                 Dark Mode
                               </label>
@@ -253,7 +253,7 @@ export function RetroButtons({ title }: RetroButtonsProps) {
                               />
                             </div>
                             <div className="flex items-center justify-between">
-                              <label className="font-['Sniglet:Regular',_sans-serif] text-[12px]">
+                              <label className="text-[12px]">
                                 High Contrast
                               </label>
                               <Switch
@@ -262,7 +262,7 @@ export function RetroButtons({ title }: RetroButtonsProps) {
                               />
                             </div>
                             <div className="flex items-center justify-between">
-                              <label className="font-['Sniglet:Regular',_sans-serif] text-[12px]">
+                              <label className="text-[12px]">
                                 No Pastel
                               </label>
                               <Switch
@@ -272,7 +272,7 @@ export function RetroButtons({ title }: RetroButtonsProps) {
                               />
                             </div>
                             <div className="flex items-center justify-between">
-                              <label className="font-['Sniglet:Regular',_sans-serif] text-[12px]">
+                              <label className="text-[12px]">
                                 Reduce Motion
                               </label>
                               <Switch
@@ -282,7 +282,7 @@ export function RetroButtons({ title }: RetroButtonsProps) {
                             </div>
                             <div className="border-t border-[#211f1c]/10 dark:border-white/10 pt-3 mt-3">
                               <div className="flex items-center justify-between">
-                                <label className="font-['Sniglet:Regular',_sans-serif] text-[12px] flex items-center gap-2">
+                                <label className="text-[12px] flex items-center gap-2">
                                   <Unlock size={14} />
                                   Prioritize Open Access
                                 </label>
@@ -291,7 +291,7 @@ export function RetroButtons({ title }: RetroButtonsProps) {
                                   onCheckedChange={togglePrioritizeOA}
                                 />
                               </div>
-                              <p className="font-['Sniglet:Regular',_sans-serif] text-[9px] text-black/60 dark:text-white/60 mt-1">
+                              <p className="text-[9px] text-black/60 dark:text-white/60 mt-1">
                                 Curator preference: show OA sources first
                               </p>
                             </div>
@@ -305,7 +305,7 @@ export function RetroButtons({ title }: RetroButtonsProps) {
                   side="bottom"
                   className="bg-black text-white border-black"
                 >
-                  <p className="font-['Sniglet:Regular',_sans-serif] text-[11px]">
+                  <p className="text-[11px]">
                     Display options
                   </p>
                 </TooltipContent>
@@ -314,10 +314,10 @@ export function RetroButtons({ title }: RetroButtonsProps) {
           </TooltipProvider>
 
           <div className="basis-0 grow min-h-px min-w-px flex items-center justify-center gap-1.5 md:gap-2">
-            <h1 className="font-['Sniglet:Regular',_sans-serif] leading-[25px] not-italic text-[18px] md:text-[28px] text-black dark:text-white text-center uppercase">
+            <h1 className="leading-[25px] not-italic text-[18px] md:text-[28px] text-black dark:text-white text-center uppercase">
               {title}
             </h1>
-            <span className="font-['Sniglet:Regular',_sans-serif] text-[8px] md:text-[10px] px-1 md:px-1.5 py-0 md:py-0.5 rounded-full bg-[#bdd4b7] dark:bg-[#2a2f27] border border-[#211f1c] dark:border-white/20 text-black dark:text-white uppercase">
+            <span className="text-[8px] md:text-[10px] px-1 md:px-1.5 py-0 md:py-0.5 rounded-full bg-[#bdd4b7] dark:bg-[#2a2f27] border border-[#211f1c] dark:border-white/20 text-black dark:text-white uppercase">
               Beta
             </span>
           </div>

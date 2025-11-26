@@ -48,7 +48,7 @@ export function StatusBar({
             {!user && onSignIn && (
               <button
                 onClick={onSignIn}
-                className="px-2 md:px-3 py-1 md:py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#b8c8cb] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[10px] md:text-[11px] text-black"
+                className="px-2 md:px-3 py-1 md:py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#b8c8cb] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[10px] md:text-[11px] text-black"
               >
                 Sign In
               </button>
@@ -68,7 +68,7 @@ export function StatusBar({
                         className="flex items-center gap-1 px-1.5 md:px-2 py-1 bg-white/50 dark:bg-black/20 rounded-md border border-[#211f1c]/20 dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all cursor-pointer"
                       >
                         <User className="w-3 h-3 md:w-[12px] md:h-[12px] text-black dark:text-white" />
-                        <span className="hidden md:inline font-['Sniglet:Regular',_sans-serif] text-[10px] text-black dark:text-white max-w-[100px] truncate">
+                        <span className="hidden md:inline text-[10px] text-black dark:text-white max-w-[100px] truncate">
                           {user.name || user.email.split("@")[0]}
                         </span>
                       </button>
@@ -77,7 +77,7 @@ export function StatusBar({
                       side="bottom"
                       className="bg-black text-white border-black"
                     >
-                      <p className="font-['Sniglet:Regular',_sans-serif] text-[11px]">
+                      <p className="text-[11px]">
                         View profile
                       </p>
                     </TooltipContent>
@@ -109,7 +109,7 @@ export function StatusBar({
                         side="bottom"
                         className="bg-black text-white border-black"
                       >
-                        <p className="font-['Sniglet:Regular',_sans-serif] text-[11px]">
+                        <p className="text-[11px]">
                           Sign out
                         </p>
                       </TooltipContent>
@@ -163,7 +163,7 @@ export function StatusBar({
                     side="bottom"
                     className="bg-black text-white border-black"
                   >
-                    <p className="font-['Sniglet:Regular',_sans-serif] text-[11px]">
+                    <p className="text-[11px]">
                       {syncStatus === "synced" && "Synced to cloud"}
                       {syncStatus === "syncing" && "Syncing..."}
                       {syncStatus === "offline" && "Working offline"}

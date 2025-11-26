@@ -27,22 +27,22 @@ export function ArticleCard({
           {onReadMore ? (
             <button
               onClick={onReadMore}
-              className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black hover:underline cursor-pointer text-left block"
+              className="text-[14px] text-black hover:underline cursor-pointer text-left block"
             >
               {article.title}
             </button>
           ) : (
-            <h4 className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black">
+            <h4 className="text-[14px] text-black">
               {article.title}
             </h4>
           )}
           <div className="flex items-center gap-2 mt-1">
-            <span className="inline-block px-2 py-0.5 bg-[#e4e3ac] rounded-md border border-[#211f1c] font-['Sniglet:Regular',_sans-serif] text-[9px] text-black">
+            <span className="inline-block px-2 py-0.5 bg-[#e4e3ac] rounded-md border border-[#211f1c] text-[9px] text-black">
               {article.category}
             </span>
             {sustainabilityCategory && (
               <span
-                className="inline-block px-2 py-0.5 rounded-md border border-[#211f1c] font-['Sniglet:Regular',_sans-serif] text-[9px] text-black"
+                className="inline-block px-2 py-0.5 rounded-md border border-[#211f1c] text-[9px] text-black"
                 style={{ backgroundColor: sustainabilityCategory.color }}
               >
                 {sustainabilityCategory.label}
@@ -72,7 +72,7 @@ export function ArticleCard({
         {/* Overview Section */}
         {article.overview.image && (
           <div>
-            <h5 className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black mb-1">
+            <h5 className="text-[12px] text-black mb-1">
               Overview
             </h5>
             <img
@@ -85,7 +85,7 @@ export function ArticleCard({
 
         {/* Introduction Section */}
         <div>
-          <h5 className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black mb-1">
+          <h5 className="text-[12px] text-black mb-1">
             Introduction
           </h5>
           {article.introduction.image && (
@@ -95,14 +95,14 @@ export function ArticleCard({
               className="w-full h-auto rounded-[4px] border border-[#211f1c] mb-2"
             />
           )}
-          <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/70 whitespace-pre-wrap">
+          <p className="text-[11px] text-black/70 whitespace-pre-wrap">
             {article.introduction.content}
           </p>
         </div>
 
         {/* Supplies Section */}
         <div>
-          <h5 className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black mb-1">
+          <h5 className="text-[12px] text-black mb-1">
             Supplies
           </h5>
           {article.supplies.image && (
@@ -112,7 +112,7 @@ export function ArticleCard({
               className="w-full h-auto rounded-[4px] border border-[#211f1c] mb-2"
             />
           )}
-          <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/70 whitespace-pre-wrap">
+          <p className="text-[11px] text-black/70 whitespace-pre-wrap">
             {article.supplies.content}
           </p>
         </div>
@@ -121,7 +121,7 @@ export function ArticleCard({
         {onReadMore && (
           <button
             onClick={onReadMore}
-            className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black hover:underline"
+            className="text-[11px] text-black hover:underline"
           >
             Read more...
           </button>

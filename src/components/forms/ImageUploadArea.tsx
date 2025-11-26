@@ -43,7 +43,7 @@ export function ImageUploadArea({
   return (
     <div className="w-full">
       {label && (
-        <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black block mb-2">
+        <label className="text-[13px] text-black block mb-2">
           {label}
         </label>
       )}
@@ -67,7 +67,7 @@ export function ImageUploadArea({
             <button
               type="button"
               onClick={() => onImageChange(undefined)}
-              className="absolute top-2 right-2 bg-[#e6beb5] px-3 py-1 rounded-md border border-[#211f1c] shadow-[2px_2px_0px_0px_#000000] font-['Sniglet:Regular',_sans-serif] text-[11px] text-black hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] transition-all"
+              className="absolute top-2 right-2 bg-[#e6beb5] px-3 py-1 rounded-md border border-[#211f1c] shadow-[2px_2px_0px_0px_#000000] text-[11px] text-black hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] transition-all"
             >
               Remove
             </button>
@@ -75,7 +75,7 @@ export function ImageUploadArea({
         ) : (
           <label className="cursor-pointer flex flex-row items-center justify-center gap-2 py-3">
             <ImageIcon size={18} className="text-black/40" />
-            <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/60">
+            <p className="text-[11px] text-black/60">
               Drop image here or click to upload
             </p>
             <input

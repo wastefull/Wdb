@@ -98,7 +98,7 @@ export function UserProfileView({
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#211f1c] dark:border-white mx-auto mb-4"></div>
-          <p className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">
+          <p className="text-black dark:text-white">
             Loading profile...
           </p>
         </div>
@@ -114,9 +114,9 @@ export function UserProfileView({
           className="flex items-center gap-2 mb-6 text-black dark:text-white hover:opacity-70 transition-opacity"
         >
           <ArrowLeft size={16} />
-          <span className="font-['Sniglet:Regular',_sans-serif]">Back</span>
+          <span className="">Back</span>
         </button>
-        <p className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">
+        <p className="text-black dark:text-white">
           Profile not found
         </p>
       </div>
@@ -132,7 +132,7 @@ export function UserProfileView({
           className="flex items-center gap-2 text-black dark:text-white hover:opacity-70 transition-opacity"
         >
           <ArrowLeft size={16} />
-          <span className="font-['Sniglet:Regular',_sans-serif]">Back</span>
+          <span className="">Back</span>
         </button>
         {isOwnProfile && !editing && (
           <Button
@@ -161,7 +161,7 @@ export function UserProfileView({
                   }}
                 />
               ) : (
-                <span className="font-['Sniglet:Regular',_sans-serif] text-2xl sm:text-3xl text-black dark:text-white">
+                <span className="text-2xl sm:text-3xl text-black dark:text-white">
                   {profile.name.charAt(0).toUpperCase()}
                 </span>
               )}
@@ -169,7 +169,7 @@ export function UserProfileView({
 
             {/* Name and Email */}
             <div className="flex-1 min-w-0">
-              <CardTitle className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white mb-1 break-words">
+              <CardTitle className="text-black dark:text-white mb-1 break-words">
                 {profile.name}
                 {profile.role === "admin" && (
                   <span className="ml-2 px-2 py-0.5 text-[10px] bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded whitespace-nowrap">
@@ -177,10 +177,10 @@ export function UserProfileView({
                   </span>
                 )}
               </CardTitle>
-              <CardDescription className="font-['Sniglet:Regular',_sans-serif] text-[11px] sm:text-[13px] break-all">
+              <CardDescription className="text-[11px] sm:text-[13px] break-all">
                 {profile.email}
               </CardDescription>
-              <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/50 dark:text-white/50 mt-2">
+              <p className="text-[11px] text-black/50 dark:text-white/50 mt-2">
                 Member since{" "}
                 {new Date(profile.created_at).toLocaleDateString("en-US", {
                   month: "long",
@@ -197,7 +197,7 @@ export function UserProfileView({
             <div className="space-y-2">
               <Label
                 htmlFor="avatar_url"
-                className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white"
+                className="text-black dark:text-white"
               >
                 Avatar URL
               </Label>
@@ -207,9 +207,9 @@ export function UserProfileView({
                 value={editedAvatarUrl}
                 onChange={(e) => setEditedAvatarUrl(e.target.value)}
                 placeholder="https://example.com/avatar.jpg"
-                className="font-['Sniglet:Regular',_sans-serif] text-[13px]"
+                className="text-[13px]"
               />
-              <p className="text-[11px] text-black/60 dark:text-white/60 font-['Sniglet:Regular',_sans-serif]">
+              <p className="text-[11px] text-black/60 dark:text-white/60">
                 Enter a URL to an image for your profile picture
               </p>
             </div>
@@ -219,7 +219,7 @@ export function UserProfileView({
           <div className="space-y-2">
             <Label
               htmlFor="bio"
-              className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white"
+              className="text-black dark:text-white"
             >
               Bio
             </Label>
@@ -230,10 +230,10 @@ export function UserProfileView({
                 onChange={(e) => setEditedBio(e.target.value)}
                 placeholder="Tell us about yourself..."
                 rows={4}
-                className="font-['Sniglet:Regular',_sans-serif] text-[13px]"
+                className="text-[13px]"
               />
             ) : (
-              <p className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black dark:text-white whitespace-pre-wrap">
+              <p className="text-[13px] text-black dark:text-white whitespace-pre-wrap">
                 {profile.bio || (
                   <span className="text-black/50 dark:text-white/50 italic">
                     No bio yet
@@ -247,7 +247,7 @@ export function UserProfileView({
           <div className="space-y-2">
             <Label
               htmlFor="social_link"
-              className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white"
+              className="text-black dark:text-white"
             >
               Website / Social Link
             </Label>
@@ -258,20 +258,20 @@ export function UserProfileView({
                 value={editedSocialLink}
                 onChange={(e) => setEditedSocialLink(e.target.value)}
                 placeholder="https://twitter.com/yourhandle"
-                className="font-['Sniglet:Regular',_sans-serif] text-[13px]"
+                className="text-[13px]"
               />
             ) : profile.social_link ? (
               <a
                 href={profile.social_link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 font-['Sniglet:Regular',_sans-serif] text-[13px] text-blue-600 dark:text-blue-400 hover:underline"
+                className="flex items-center gap-2 text-[13px] text-blue-600 dark:text-blue-400 hover:underline"
               >
                 {profile.social_link}
                 <ExternalLink size={12} />
               </a>
             ) : (
-              <p className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black/50 dark:text-white/50 italic">
+              <p className="text-[13px] text-black/50 dark:text-white/50 italic">
                 No link added
               </p>
             )}
@@ -307,17 +307,17 @@ export function UserProfileView({
         <CardHeader>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <CardTitle className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white">
+              <CardTitle className="text-black dark:text-white">
                 Contributions
               </CardTitle>
-              <CardDescription className="font-['Sniglet:Regular',_sans-serif]">
+              <CardDescription className="">
                 Materials and articles submitted by this user
               </CardDescription>
             </div>
             {isOwnProfile && onNavigateToMySubmissions && (
               <Button
                 onClick={onNavigateToMySubmissions}
-                className="bg-[#f4d3a0] text-black hover:bg-[#e4c390] border border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] w-full sm:w-auto"
+                className="bg-[#f4d3a0] text-black hover:bg-[#e4c390] border border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all w-full sm:w-auto"
               >
                 My Submissions
               </Button>
@@ -325,7 +325,7 @@ export function UserProfileView({
           </div>
         </CardHeader>
         <CardContent>
-          <p className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black/60 dark:text-white/60 italic">
+          <p className="text-[13px] text-black/60 dark:text-white/60 italic">
             Contribution tracking coming in Phase 6.2
           </p>
         </CardContent>

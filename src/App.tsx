@@ -480,7 +480,7 @@ function AppContent() {
                           size={16}
                           className="text-black dark:text-white"
                         />
-                        <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
+                        <p className="text-[12px] text-black dark:text-white">
                           {syncStatus === "offline"
                             ? "Working offline - data saved locally only"
                             : "Failed to sync to cloud"}
@@ -488,7 +488,7 @@ function AppContent() {
                       </div>
                       <button
                         onClick={retrySync}
-                        className="px-3 py-1.5 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[11px] text-black flex items-center gap-1"
+                        className="px-3 py-1.5 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[11px] text-black flex items-center gap-1"
                       >
                         <Cloud size={12} />
                         Retry Sync
@@ -649,11 +649,11 @@ function AppContent() {
                   <div className="text-center py-12 max-w-2xl mx-auto">
                     {/* Beta contributor message */}
                     <div className="mb-6 px-4">
-                      <p className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white mb-1">
+                      <p className="text-[14px] text-black dark:text-white mb-1">
                         WasteDB is in beta and needs help from contributors like
                         you.
                       </p>
-                      <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/60 dark:text-white/60">
+                      <p className="text-[12px] text-black/60 dark:text-white/60">
                         The database currently has{" "}
                         <span className="font-bold">{materials.length}</span>{" "}
                         materials and{" "}
@@ -678,7 +678,7 @@ function AppContent() {
                             setShowSubmitMaterialForm(true);
                           }
                         }}
-                        className={`h-[48px] px-6 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[14px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all inline-flex items-center justify-center gap-2 ${
+                        className={`h-[48px] px-6 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] dark:border-white/20 text-[14px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all inline-flex items-center justify-center gap-2 ${
                           isAdminModeActive ? "bg-[#b8c8cb]" : "bg-[#c8e5c8]"
                         }`}
                         title={
@@ -708,11 +708,11 @@ function AppContent() {
                     className="flex items-center gap-2 px-4 py-2 bg-[#b8c8cb] rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
                   >
                     <ArrowLeft size={16} className="text-black" />
-                    <span className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black">
+                    <span className="text-[14px] text-black">
                       Back to Home
                     </span>
                   </button>
-                  <div className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white">
+                  <div className="text-[14px] text-black dark:text-white">
                     Search results for:{" "}
                     <span className="font-bold">"{currentView.query}"</span>
                   </div>
@@ -720,7 +720,7 @@ function AppContent() {
 
                 {/* Filter options placeholder */}
                 <div className="mb-6 p-4 bg-white dark:bg-[#2a2825] rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)]">
-                  <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/50 dark:text-white/50 italic">
+                  <p className="text-[12px] text-black/50 dark:text-white/50 italic">
                     Filter options coming soon...
                   </p>
                 </div>
@@ -771,7 +771,7 @@ function AppContent() {
                       .includes(currentView.query.toLowerCase())
                 ).length === 0 && (
                   <div className="text-center py-12">
-                    <p className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black/50 dark:text-white/50">
+                    <p className="text-[16px] text-black/50 dark:text-white/50">
                       No materials found matching your search.
                     </p>
                   </div>
@@ -1054,7 +1054,7 @@ function AppContent() {
                   >
                     <button
                       onClick={navigateToScienceHub}
-                      className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white md:hover:underline transition-colors flex items-center gap-1"
+                      className="text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white md:hover:underline transition-colors flex items-center gap-1"
                     >
                       <FlaskConical className="w-5 h-5 md:w-3 md:h-3" />
                       <span className="hidden md:inline">Science</span>
@@ -1062,7 +1062,7 @@ function AppContent() {
                     <span className="text-black/30 dark:text-white/30">•</span>
                     <button
                       onClick={navigateToLegalHub}
-                      className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white md:hover:underline transition-colors flex items-center gap-1"
+                      className="text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white md:hover:underline transition-colors flex items-center gap-1"
                     >
                       <AlertCircle className="w-5 h-5 md:w-3 md:h-3" />
                       <span className="hidden md:inline">Legal</span>
@@ -1070,7 +1070,7 @@ function AppContent() {
                   </motion.div>
                 </div>
 
-                <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] md:text-[12px] text-black/60 dark:text-white/60 max-w-3xl mx-auto px-4">
+                <p className="text-[11px] md:text-[12px] text-black/60 dark:text-white/60 max-w-3xl mx-auto px-4">
                   <a
                     href="https://wastefull.org"
                     target="_blank"

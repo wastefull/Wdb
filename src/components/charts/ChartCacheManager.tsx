@@ -118,7 +118,7 @@ export function ChartCacheManager() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-['Sniglet:Regular',_sans-serif]">
+        <h3 className="text-lg">
           Chart Cache Management
         </h3>
         <Button
@@ -201,7 +201,7 @@ export function ChartCacheManager() {
 
       {/* Actions */}
       <Card className="p-6">
-        <h4 className="font-['Sniglet:Regular',_sans-serif] mb-4">
+        <h4 className="mb-4">
           Cache Maintenance
         </h4>
         <div className="space-y-3">
@@ -243,7 +243,7 @@ export function ChartCacheManager() {
 
       {/* Information */}
       <Card className="p-6 bg-blue-50 dark:bg-blue-900/20">
-        <h4 className="font-['Sniglet:Regular',_sans-serif] mb-2">
+        <h4 className="mb-2">
           About Chart Caching
         </h4>
         <div className="text-sm space-y-2 text-black/70 dark:text-white/70">

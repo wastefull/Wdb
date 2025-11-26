@@ -37,7 +37,7 @@ export function SearchBar({ value, onChange, onSearch }: SearchBarProps) {
             onChange={(e) => onChange(e.target.value)}
             onKeyDownCapture={handleKeyDown}
             placeholder={isMobile ? "Search…" : "What do I do with…?"}
-            className="font-['Sniglet:Regular',_sans-serif] bg-transparent border-none outline-none text-[15px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50 flex-1 min-w-0"
+            className="bg-transparent border-none outline-none text-[15px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50 flex-1 min-w-0"
             aria-label="Search materials"
           />
         </div>

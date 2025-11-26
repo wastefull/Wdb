@@ -22,7 +22,7 @@ export function MathView({ onBack, defaultTab = "overview" }: MathViewProps) {
           <h2 className="font-['Fredoka_One:Regular',_sans-serif] text-[24px] text-black dark:text-white">
             Math Tools
           </h2>
-          <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/60 dark:text-white/60">
+          <p className="text-[12px] text-black/60 dark:text-white/60">
             Mathematical operations and utilities
           </p>
         </div>
@@ -43,7 +43,7 @@ export function MathView({ onBack, defaultTab = "overview" }: MathViewProps) {
               <h3 className="font-['Fredoka_One:Regular',_sans-serif] text-[18px] text-black dark:text-white mb-2">
                 Math Tools Coming Soon
               </h3>
-              <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/60 dark:text-white/60">
+              <p className="text-[12px] text-black/60 dark:text-white/60">
                 This section will contain mathematical utilities, formula
                 editors, and computational tools.
               </p>

@@ -56,7 +56,7 @@ export function MaterialForm({
     <div className="bg-white relative rounded-[11.464px] p-6 border-[1.5px] border-[#211f1c]">
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div>
-          <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black block mb-1">
+          <label className="text-[13px] text-black block mb-1">
             Material Name
           </label>
           <input
@@ -65,12 +65,12 @@ export function MaterialForm({
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             onKeyDownCapture={handleKeyDown}
             required
-            className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[14px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all"
+            className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-[8px] text-[14px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all"
           />
         </div>
 
         <div>
-          <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black block mb-1">
+          <label className="text-[13px] text-black block mb-1">
             Category
           </label>
           <select
@@ -81,7 +81,7 @@ export function MaterialForm({
                 category: e.target.value as typeof formData.category,
               })
             }
-            className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[14px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all"
+            className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-[8px] text-[14px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all"
           >
             <option value="Plastics">Plastics</option>
             <option value="Metals">Metals</option>
@@ -97,7 +97,7 @@ export function MaterialForm({
         </div>
 
         <div>
-          <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black block mb-1">
+          <label className="text-[13px] text-black block mb-1">
             Description (optional)
           </label>
           <textarea
@@ -107,13 +107,13 @@ export function MaterialForm({
             }
             onKeyDownCapture={handleKeyDown}
             rows={3}
-            className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[12px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all resize-none"
+            className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-[8px] text-[12px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all resize-none"
           />
         </div>
 
         {/* Note about sustainability scores */}
         <div className="bg-[#e5e4dc] dark:bg-[#3a3835] rounded-[8px] p-3 border border-[#211f1c]/20 dark:border-white/20">
-          <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/70 dark:text-white/70">
+          <p className="text-[11px] text-black/70 dark:text-white/70">
             ℹ️ Sustainability scores (Compostability, Recyclability,
             Reusability) will be calculated by admins in the Data Management
             area based on scientific parameters.
@@ -123,14 +123,14 @@ export function MaterialForm({
         <div className="flex gap-3 mt-2 justify-center">
           <button
             type="submit"
-            className="bg-[#e4e3ac] h-[40px] px-8 rounded-[6px] border border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] font-['Sniglet:Regular',_sans-serif] text-[14px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] transition-all"
+            className="bg-[#e4e3ac] h-[40px] px-8 rounded-[6px] border border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] text-[14px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] transition-all"
           >
             {material ? "Update" : "Create"}
           </button>
           <button
             type="button"
             onClick={onCancel}
-            className="bg-[#e6beb5] h-[40px] px-8 rounded-[6px] border border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] font-['Sniglet:Regular',_sans-serif] text-[14px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] transition-all"
+            className="bg-[#e6beb5] h-[40px] px-8 rounded-[6px] border border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] text-[14px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] transition-all"
           >
             Cancel
           </button>

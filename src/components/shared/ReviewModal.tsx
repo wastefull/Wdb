@@ -107,30 +107,30 @@ export function ReviewModal({
       return (
         <div className="space-y-4">
           <div>
-            <Label htmlFor="edit-name" className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
+            <Label htmlFor="edit-name" className="text-[12px] text-black dark:text-white">
               Material Name *
             </Label>
             <Input
               id="edit-name"
               value={editedContent.name || ''}
               onChange={(e) => setEditedContent({ ...editedContent, name: e.target.value })}
-              className="mt-1 font-['Sniglet:Regular',_sans-serif]"
+              className="mt-1"
             />
           </div>
           <div>
-            <Label htmlFor="edit-category" className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
+            <Label htmlFor="edit-category" className="text-[12px] text-black dark:text-white">
               Category *
             </Label>
             <Select
               value={editedContent.category || ''}
               onValueChange={(value) => setEditedContent({ ...editedContent, category: value })}
             >
-              <SelectTrigger id="edit-category" className="mt-1 font-['Sniglet:Regular',_sans-serif]">
+              <SelectTrigger id="edit-category" className="mt-1">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {CATEGORIES.map((cat) => (
-                  <SelectItem key={cat} value={cat} className="font-['Sniglet:Regular',_sans-serif]">
+                  <SelectItem key={cat} value={cat} className="">
                     {cat}
                   </SelectItem>
                 ))}
@@ -138,14 +138,14 @@ export function ReviewModal({
             </Select>
           </div>
           <div>
-            <Label htmlFor="edit-description" className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
+            <Label htmlFor="edit-description" className="text-[12px] text-black dark:text-white">
               Description
             </Label>
             <Textarea
               id="edit-description"
               value={editedContent.description || ''}
               onChange={(e) => setEditedContent({ ...editedContent, description: e.target.value })}
-              className="mt-1 font-['Sniglet:Regular',_sans-serif] min-h-[80px]"
+              className="mt-1 min-h-[80px]"
               rows={3}
             />
           </div>
@@ -156,37 +156,37 @@ export function ReviewModal({
     return (
       <div className="space-y-3">
         <div className="bg-[#b8c8cb]/30 dark:bg-[#2a3235]/30 border border-[#211f1c]/20 dark:border-white/10 rounded-md p-3">
-          <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/70 dark:text-white/70 mb-1">
+          <p className="text-[11px] text-black/70 dark:text-white/70 mb-1">
             <strong>Name:</strong>
           </p>
-          <p className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black dark:text-white">
+          <p className="text-[13px] text-black dark:text-white">
             {submission.content_data.name}
           </p>
         </div>
         <div className="bg-[#b8c8cb]/30 dark:bg-[#2a3235]/30 border border-[#211f1c]/20 dark:border-white/10 rounded-md p-3">
-          <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/70 dark:text-white/70 mb-1">
+          <p className="text-[11px] text-black/70 dark:text-white/70 mb-1">
             <strong>Category:</strong>
           </p>
-          <p className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black dark:text-white">
+          <p className="text-[13px] text-black dark:text-white">
             {submission.content_data.category}
           </p>
         </div>
         {submission.content_data.description && (
           <div className="bg-[#b8c8cb]/30 dark:bg-[#2a3235]/30 border border-[#211f1c]/20 dark:border-white/10 rounded-md p-3">
-            <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/70 dark:text-white/70 mb-1">
+            <p className="text-[11px] text-black/70 dark:text-white/70 mb-1">
               <strong>Description:</strong>
             </p>
-            <p className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black dark:text-white">
+            <p className="text-[13px] text-black dark:text-white">
               {submission.content_data.description}
             </p>
           </div>
         )}
         {submission.type === 'edit_material' && submission.content_data.change_reason && (
           <div className="bg-[#e4e3ac] dark:bg-[#3a3825] border border-[#211f1c] dark:border-white/20 rounded-md p-3">
-            <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white mb-1">
+            <p className="text-[11px] text-black dark:text-white mb-1">
               <strong>Reason for Change:</strong>
             </p>
-            <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
+            <p className="text-[12px] text-black dark:text-white">
               {submission.content_data.change_reason}
             </p>
           </div>
@@ -200,18 +200,18 @@ export function ReviewModal({
       return (
         <div className="space-y-4">
           <div>
-            <Label htmlFor="edit-title" className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
+            <Label htmlFor="edit-title" className="text-[12px] text-black dark:text-white">
               Article Title *
             </Label>
             <Input
               id="edit-title"
               value={editedContent.title || ''}
               onChange={(e) => setEditedContent({ ...editedContent, title: e.target.value })}
-              className="mt-1 font-['Sniglet:Regular',_sans-serif]"
+              className="mt-1"
             />
           </div>
           <div>
-            <Label htmlFor="edit-content" className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
+            <Label htmlFor="edit-content" className="text-[12px] text-black dark:text-white">
               Content *
             </Label>
             <Textarea
@@ -229,24 +229,24 @@ export function ReviewModal({
     return (
       <div className="space-y-3">
         <div className="bg-[#b8c8cb]/30 dark:bg-[#2a3235]/30 border border-[#211f1c]/20 dark:border-white/10 rounded-md p-3">
-          <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/70 dark:text-white/70 mb-1">
+          <p className="text-[11px] text-black/70 dark:text-white/70 mb-1">
             <strong>Title:</strong>
           </p>
-          <p className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black dark:text-white">
+          <p className="text-[13px] text-black dark:text-white">
             {submission.content_data.title}
           </p>
         </div>
         <div className="bg-[#b8c8cb]/30 dark:bg-[#2a3235]/30 border border-[#211f1c]/20 dark:border-white/10 rounded-md p-3">
-          <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/70 dark:text-white/70 mb-1">
+          <p className="text-[11px] text-black/70 dark:text-white/70 mb-1">
             <strong>Category:</strong>
           </p>
-          <p className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black dark:text-white">
+          <p className="text-[13px] text-black dark:text-white">
             {submission.content_data.category}
           </p>
         </div>
         {submission.content_data.content && (
           <div className="bg-[#b8c8cb]/30 dark:bg-[#2a3235]/30 border border-[#211f1c]/20 dark:border-white/10 rounded-md p-3 max-h-[300px] overflow-y-auto">
-            <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/70 dark:text-white/70 mb-1">
+            <p className="text-[11px] text-black/70 dark:text-white/70 mb-1">
               <strong>Content:</strong>
             </p>
             <pre className="font-['DaddyTimeMono_Nerd_Font_Mono',_'Press_Start_2P',_ui-monospace,_monospace] text-[11px] text-black dark:text-white whitespace-pre-wrap">
@@ -282,7 +282,7 @@ export function ReviewModal({
           {!action ? (
             <div className="space-y-6">
               <div className="mb-4">
-                <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/60 dark:text-white/60 mb-4">
+                <p className="text-[11px] text-black/60 dark:text-white/60 mb-4">
                   Submitted {new Date(submission.created_at).toLocaleString()}
                 </p>
                 {(submission.type === 'new_material' || submission.type === 'edit_material') && renderMaterialContent()}
@@ -290,7 +290,7 @@ export function ReviewModal({
               </div>
 
               <div className="border-t border-[#211f1c]/20 dark:border-white/10 pt-6">
-                <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white mb-4">
+                <p className="text-[12px] text-black dark:text-white mb-4">
                   Choose an action:
                 </p>
                 <div className="grid grid-cols-2 gap-3">
@@ -300,9 +300,9 @@ export function ReviewModal({
                   >
                     <div className="flex items-center gap-2 mb-2">
                       <CheckCircle size={16} className="text-black" />
-                      <span className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black">Approve</span>
+                      <span className="text-[13px] text-black">Approve</span>
                     </div>
-                    <p className="font-['Sniglet:Regular',_sans-serif] text-[10px] text-black/70">
+                    <p className="text-[10px] text-black/70">
                       Accept and publish as-is
                     </p>
                   </button>
@@ -313,9 +313,9 @@ export function ReviewModal({
                   >
                     <div className="flex items-center gap-2 mb-2">
                       <Edit3 size={16} className="text-black" />
-                      <span className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black">Edit Directly</span>
+                      <span className="text-[13px] text-black">Edit Directly</span>
                     </div>
-                    <p className="font-['Sniglet:Regular',_sans-serif] text-[10px] text-black/70">
+                    <p className="text-[10px] text-black/70">
                       Make changes and publish
                     </p>
                   </button>
@@ -326,9 +326,9 @@ export function ReviewModal({
                   >
                     <div className="flex items-center gap-2 mb-2">
                       <Edit3 size={16} className="text-black" />
-                      <span className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black">Suggest Edits</span>
+                      <span className="text-[13px] text-black">Suggest Edits</span>
                     </div>
-                    <p className="font-['Sniglet:Regular',_sans-serif] text-[10px] text-black/70">
+                    <p className="text-[10px] text-black/70">
                       Request revisions from submitter
                     </p>
                   </button>
@@ -339,9 +339,9 @@ export function ReviewModal({
                   >
                     <div className="flex items-center gap-2 mb-2">
                       <XCircle size={16} className="text-black" />
-                      <span className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black">Reject</span>
+                      <span className="text-[13px] text-black">Reject</span>
                     </div>
-                    <p className="font-['Sniglet:Regular',_sans-serif] text-[10px] text-black/70">
+                    <p className="text-[10px] text-black/70">
                       Decline with feedback
                     </p>
                   </button>
@@ -353,7 +353,7 @@ export function ReviewModal({
               {action === 'edit' && (
                 <>
                   <div className="bg-[#b8c8cb] dark:bg-[#2a3235] border border-[#211f1c] dark:border-white/20 rounded-md p-3 mb-4">
-                    <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white">
+                    <p className="text-[11px] text-black dark:text-white">
                       ✏️ <strong>Edit Mode:</strong> Make your changes below. You'll be credited as editor.
                     </p>
                   </div>
@@ -364,7 +364,7 @@ export function ReviewModal({
 
               {(action === 'suggest' || action === 'reject') && (
                 <div>
-                  <Label htmlFor="feedback" className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
+                  <Label htmlFor="feedback" className="text-[12px] text-black dark:text-white">
                     {action === 'suggest' ? 'Suggestions for Improvement *' : 'Reason for Rejection *'}
                   </Label>
                   <Textarea
@@ -372,7 +372,7 @@ export function ReviewModal({
                     value={feedback}
                     onChange={(e) => setFeedback(e.target.value)}
                     placeholder={action === 'suggest' ? 'Explain what changes you\'d like to see...' : 'Explain why this submission is being rejected...'}
-                    className="mt-1 font-['Sniglet:Regular',_sans-serif] min-h-[100px]"
+                    className="mt-1 min-h-[100px]"
                     rows={5}
                   />
                 </div>
@@ -380,7 +380,7 @@ export function ReviewModal({
 
               {action === 'approve' && (
                 <div className="bg-[#c8e5c8] dark:bg-[#2a3f2a] border border-[#211f1c] dark:border-white/20 rounded-md p-3">
-                  <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white">
+                  <p className="text-[12px] text-black dark:text-white">
                     ✅ Ready to approve and publish this submission?
                   </p>
                 </div>
@@ -393,14 +393,14 @@ export function ReviewModal({
                     setFeedback('');
                     setEditedContent(submission.content_data);
                   }}
-                  className="flex-1 h-[40px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#e6beb5] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[12px] text-black"
+                  className="flex-1 h-[40px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#e6beb5] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[12px] text-black"
                   disabled={processing}
                 >
                   Back
                 </button>
                 <button
                   onClick={handleSubmit}
-                  className="flex-1 h-[40px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#c8e5c8] hover:shadow-[3px_4px_0px_-1px_#000000] dark:hover:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[12px] text-black disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 h-[40px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#c8e5c8] hover:shadow-[3px_4px_0px_-1px_#000000] dark:hover:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] transition-all text-[12px] text-black disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={processing}
                 >
                   {processing ? 'Processing...' : 'Confirm'}

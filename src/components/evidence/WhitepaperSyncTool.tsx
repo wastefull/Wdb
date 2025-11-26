@@ -239,7 +239,7 @@ export function WhitepaperSyncTool({ onBack }: WhitepaperSyncToolProps) {
             <ArrowLeft size={16} className="text-black" />
           </button>
           <div className="flex-1">
-            <h1 className="font-['Sniglet:Regular',_sans-serif] text-[24px] text-black dark:text-white mb-1">
+            <h1 className="text-[24px] text-black dark:text-white mb-1">
               Whitepaper Sync Tool
             </h1>
             <p className="text-[12px] text-black/60 dark:text-white/60">
@@ -250,7 +250,7 @@ export function WhitepaperSyncTool({ onBack }: WhitepaperSyncToolProps) {
 
         {/* Info Card */}
         <Card className="mb-6 p-6 bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
-          <h2 className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black dark:text-white mb-3">
+          <h2 className="text-[16px] text-black dark:text-white mb-3">
             About This Tool
           </h2>
           <p className="text-[12px] text-black/70 dark:text-white/70 mb-3">
@@ -278,7 +278,7 @@ export function WhitepaperSyncTool({ onBack }: WhitepaperSyncToolProps) {
 
         {/* File Upload */}
         <Card className="mb-6 p-6 bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
-          <h2 className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black dark:text-white mb-4">
+          <h2 className="text-[16px] text-black dark:text-white mb-4">
             Upload Files
           </h2>
 
@@ -317,7 +317,7 @@ export function WhitepaperSyncTool({ onBack }: WhitepaperSyncToolProps) {
         {whitepapers.length > 0 && (
           <Card className="mb-6 p-6 bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black dark:text-white">
+              <h2 className="text-[16px] text-black dark:text-white">
                 Loaded Whitepapers ({whitepapers.length})
               </h2>
             </div>
@@ -332,7 +332,7 @@ export function WhitepaperSyncTool({ onBack }: WhitepaperSyncToolProps) {
                     {getStatusIcon(syncResults[wp.slug])}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white truncate">
+                    <h3 className="text-[14px] text-black dark:text-white truncate">
                       {wp.title}
                     </h3>
                     <p className="text-[10px] text-black/60 dark:text-white/60">
@@ -377,7 +377,7 @@ export function WhitepaperSyncTool({ onBack }: WhitepaperSyncToolProps) {
         {/* Results Summary */}
         {Object.keys(syncResults).length > 0 && !syncing && (
           <Card className="mt-6 p-6 bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
-            <h2 className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black dark:text-white mb-3">
+            <h2 className="text-[16px] text-black dark:text-white mb-3">
               Sync Results
             </h2>
             <div className="grid grid-cols-3 gap-4">

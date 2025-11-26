@@ -68,13 +68,13 @@ export function ScienceHubView({
                   <Icon size={24} className="text-black" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black dark:text-white mb-2">
+                  <h3 className="text-[16px] text-black dark:text-white mb-2">
                     {resource.title}
                   </h3>
-                  <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/60 dark:text-white/60 mb-2">
+                  <p className="text-[12px] text-black/60 dark:text-white/60 mb-2">
                     {resource.description}
                   </p>
-                  <span className="inline-block px-2 py-0.5 bg-[#e4e3ac] rounded-md border border-[#211f1c] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[9px] text-black">
+                  <span className="inline-block px-2 py-0.5 bg-[#e4e3ac] rounded-md border border-[#211f1c] dark:border-white/20 text-[9px] text-black">
                     {resource.label}
                   </span>
                 </div>

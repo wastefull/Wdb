@@ -162,7 +162,7 @@ export function SourcesTab({
 
       {/* Metadata Card */}
       <Card className="p-4 bg-[#faf9f6] dark:bg-[#1a1918] border-[#211f1c] dark:border-white/20">
-        <h3 className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white mb-3">
+        <h3 className="text-[14px] text-black dark:text-white mb-3">
           Metadata
         </h3>
 
@@ -208,7 +208,7 @@ export function SourcesTab({
 
       {/* Existing Sources */}
       <Card className="p-4 bg-[#faf9f6] dark:bg-[#1a1918] border-[#211f1c] dark:border-white/20">
-        <h3 className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white mb-3">
+        <h3 className="text-[14px] text-black dark:text-white mb-3">
           Citation Sources ({sources.length})
         </h3>
 
@@ -312,7 +312,7 @@ export function SourcesTab({
             </DialogTrigger>
             <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle className="font-['Sniglet:Regular',_sans-serif]">
+                <DialogTitle className="">
                   Source Library
                 </DialogTitle>
                 <DialogDescription className="text-[11px]">
@@ -341,7 +341,7 @@ export function SourcesTab({
                 if (materialSources.length > 0) {
                   return (
                     <div className="mb-4">
-                      <h4 className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white mb-2">
+                      <h4 className="text-[12px] text-black dark:text-white mb-2">
                         Recommended for {material.name}
                       </h4>
                       <div className="space-y-2">
@@ -403,7 +403,7 @@ export function SourcesTab({
 
               {/* All sources */}
               <div>
-                <h4 className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white mb-2">
+                <h4 className="text-[12px] text-black dark:text-white mb-2">
                   All Sources
                 </h4>
                 <div className="space-y-2">

@@ -42,10 +42,10 @@ export function AllArticlesView({
           <ArrowLeft size={16} />
         </button>
         <div className="flex-1">
-          <h2 className="font-['Sniglet:Regular',_sans-serif] text-[18px] text-black">
+          <h2 className="text-[18px] text-black">
             All {categoryLabels[category]} Articles
           </h2>
-          <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/60">
+          <p className="text-[12px] text-black/60">
             {articlesWithMaterial.length} article
             {articlesWithMaterial.length !== 1 ? "s" : ""} across all materials
           </p>
@@ -56,7 +56,7 @@ export function AllArticlesView({
         {articlesWithMaterial.map(({ article, material }) => (
           <div key={`${material.id}-${article.id}`} className="relative">
             <div className="absolute top-3 right-3 bg-white/90 px-2 py-1 rounded-md border border-[#211f1c] z-10">
-              <p className="font-['Sniglet:Regular',_sans-serif] text-[10px] text-black">
+              <p className="text-[10px] text-black">
                 {material.name}
               </p>
             </div>
@@ -75,7 +75,7 @@ export function AllArticlesView({
 
       {articlesWithMaterial.length === 0 && (
         <div className="text-center py-12">
-          <p className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black/50">
+          <p className="text-[16px] text-black/50">
             No {categoryLabels[category].toLowerCase()} articles yet.
           </p>
         </div>

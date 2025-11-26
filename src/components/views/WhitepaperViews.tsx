@@ -54,13 +54,13 @@ export function MethodologyListView({
         </div>
       ) : error ? (
         <div className="text-center py-12">
-          <p className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-red-600 dark:text-red-400">
+          <p className="text-[14px] text-red-600 dark:text-red-400">
             {error}
           </p>
         </div>
       ) : whitepapers.length === 0 ? (
         <div className="text-center py-12">
-          <p className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black/60 dark:text-white/60">
+          <p className="text-[14px] text-black/60 dark:text-white/60">
             No whitepapers available yet
           </p>
         </div>
@@ -77,14 +77,14 @@ export function MethodologyListView({
                   <FileText size={24} className="text-black" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-['Sniglet:Regular',_sans-serif] text-[16px] text-black dark:text-white mb-2">
+                  <h3 className="text-[16px] text-black dark:text-white mb-2">
                     {whitepaper.title}
                   </h3>
-                  <p className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black/60 dark:text-white/60 mb-2">
+                  <p className="text-[12px] text-black/60 dark:text-white/60 mb-2">
                     Last updated:{" "}
                     {new Date(whitepaper.updatedAt).toLocaleDateString()}
                   </p>
-                  <span className="inline-block px-2 py-0.5 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 font-['Sniglet:Regular',_sans-serif] text-[9px] text-black">
+                  <span className="inline-block px-2 py-0.5 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 text-[9px] text-black">
                     Read Whitepaper
                   </span>
                 </div>
@@ -181,7 +181,7 @@ export function WhitepaperView({
     return (
       <PageTemplate title="Error" onBack={onBack}>
         <div className="text-center py-12">
-          <p className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-red-600 dark:text-red-400">
+          <p className="text-[14px] text-red-600 dark:text-red-400">
             {error || "Whitepaper not found"}
           </p>
         </div>

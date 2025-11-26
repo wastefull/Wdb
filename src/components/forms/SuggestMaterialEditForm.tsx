@@ -114,10 +114,10 @@ export function SuggestMaterialEditForm({
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div className="bg-[#b8c8cb] dark:bg-[#2a3235] border border-[#211f1c] dark:border-white/20 rounded-md p-3 mb-4">
-            <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white">
+            <p className="text-[11px] text-black dark:text-white">
               ✏️ <strong>Editing:</strong> {material.name}
             </p>
-            <p className="font-['Sniglet:Regular',_sans-serif] text-[10px] text-black/70 dark:text-white/70 mt-1">
+            <p className="text-[10px] text-black/70 dark:text-white/70 mt-1">
               Your suggested changes will be reviewed by an admin before being
               applied.
             </p>
@@ -126,7 +126,7 @@ export function SuggestMaterialEditForm({
           <div>
             <Label
               htmlFor="edit-name"
-              className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white"
+              className="text-[12px] text-black dark:text-white"
             >
               Material Name *
             </Label>
@@ -134,7 +134,7 @@ export function SuggestMaterialEditForm({
               id="edit-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="mt-1 font-['Sniglet:Regular',_sans-serif]"
+              className="mt-1"
               required
             />
           </div>
@@ -142,14 +142,14 @@ export function SuggestMaterialEditForm({
           <div>
             <Label
               htmlFor="edit-category"
-              className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white"
+              className="text-[12px] text-black dark:text-white"
             >
               Category *
             </Label>
             <Select value={category} onValueChange={setCategory}>
               <SelectTrigger
                 id="edit-category"
-                className="mt-1 font-['Sniglet:Regular',_sans-serif]"
+                className="mt-1"
               >
                 <SelectValue />
               </SelectTrigger>
@@ -158,7 +158,7 @@ export function SuggestMaterialEditForm({
                   <SelectItem
                     key={cat}
                     value={cat}
-                    className="font-['Sniglet:Regular',_sans-serif]"
+                    className=""
                   >
                     {cat}
                   </SelectItem>
@@ -170,7 +170,7 @@ export function SuggestMaterialEditForm({
           <div>
             <Label
               htmlFor="edit-description"
-              className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white"
+              className="text-[12px] text-black dark:text-white"
             >
               Description
             </Label>
@@ -178,7 +178,7 @@ export function SuggestMaterialEditForm({
               id="edit-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="mt-1 font-['Sniglet:Regular',_sans-serif] min-h-[80px]"
+              className="mt-1 min-h-[80px]"
               rows={3}
             />
           </div>
@@ -186,7 +186,7 @@ export function SuggestMaterialEditForm({
           <div className="pt-2 border-t border-[#211f1c]/20 dark:border-white/10">
             <Label
               htmlFor="change-reason"
-              className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white"
+              className="text-[12px] text-black dark:text-white"
             >
               Reason for Change *
             </Label>
@@ -195,11 +195,11 @@ export function SuggestMaterialEditForm({
               value={changeReason}
               onChange={(e) => setChangeReason(e.target.value)}
               placeholder="Explain why you're suggesting this change..."
-              className="mt-1 font-['Sniglet:Regular',_sans-serif] min-h-[70px]"
+              className="mt-1 min-h-[70px]"
               rows={3}
               required
             />
-            <p className="mt-1 font-['Sniglet:Regular',_sans-serif] text-[10px] text-black/50 dark:text-white/50">
+            <p className="mt-1 text-[10px] text-black/50 dark:text-white/50">
               Help reviewers understand the benefit of your changes.
             </p>
           </div>
@@ -208,14 +208,14 @@ export function SuggestMaterialEditForm({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 h-[40px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#e6beb5] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[12px] text-black"
+              className="flex-1 h-[40px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#e6beb5] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[12px] text-black"
               disabled={submitting}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 h-[40px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#b8c8cb] hover:shadow-[3px_4px_0px_-1px_#000000] dark:hover:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[12px] text-black disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 h-[40px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#b8c8cb] hover:shadow-[3px_4px_0px_-1px_#000000] dark:hover:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] transition-all text-[12px] text-black disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={submitting || !hasChanges()}
             >
               {submitting ? "Submitting..." : "Submit Suggestion"}

@@ -98,7 +98,7 @@ export function SubmitMaterialForm({
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div className="bg-[#e4e3ac] dark:bg-[#3a3825] border border-[#211f1c] dark:border-white/20 rounded-md p-3 mb-4">
-            <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black dark:text-white">
+            <p className="text-[11px] text-black dark:text-white">
               💡 <strong>Note:</strong> Your submission will be reviewed by an
               admin before it appears in the database. You only need to provide
               basic information—admins will add sustainability scores.
@@ -108,7 +108,7 @@ export function SubmitMaterialForm({
           <div>
             <Label
               htmlFor="material-name"
-              className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white"
+              className="text-[12px] text-black dark:text-white"
             >
               Material Name *
             </Label>
@@ -117,7 +117,7 @@ export function SubmitMaterialForm({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g., Aluminum Can, Cotton T-Shirt"
-              className="mt-1 font-['Sniglet:Regular',_sans-serif]"
+              className="mt-1"
               required
             />
           </div>
@@ -125,14 +125,14 @@ export function SubmitMaterialForm({
           <div>
             <Label
               htmlFor="material-category"
-              className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white"
+              className="text-[12px] text-black dark:text-white"
             >
               Category *
             </Label>
             <Select value={category} onValueChange={setCategory}>
               <SelectTrigger
                 id="material-category"
-                className="mt-1 font-['Sniglet:Regular',_sans-serif]"
+                className="mt-1"
               >
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
@@ -141,7 +141,7 @@ export function SubmitMaterialForm({
                   <SelectItem
                     key={cat}
                     value={cat}
-                    className="font-['Sniglet:Regular',_sans-serif]"
+                    className=""
                   >
                     {cat}
                   </SelectItem>
@@ -153,7 +153,7 @@ export function SubmitMaterialForm({
           <div>
             <Label
               htmlFor="material-description"
-              className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white"
+              className="text-[12px] text-black dark:text-white"
             >
               Description (optional)
             </Label>
@@ -162,10 +162,10 @@ export function SubmitMaterialForm({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Add any relevant details about this material..."
-              className="mt-1 font-['Sniglet:Regular',_sans-serif] min-h-[80px]"
+              className="mt-1 min-h-[80px]"
               rows={3}
             />
-            <p className="mt-1 font-['Sniglet:Regular',_sans-serif] text-[10px] text-black/50 dark:text-white/50">
+            <p className="mt-1 text-[10px] text-black/50 dark:text-white/50">
               Examples: composition, common uses, special properties, etc.
             </p>
           </div>
@@ -174,14 +174,14 @@ export function SubmitMaterialForm({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 h-[40px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#e6beb5] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[12px] text-black"
+              className="flex-1 h-[40px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#e6beb5] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[12px] text-black"
               disabled={submitting}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 h-[40px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#c8e5c8] hover:shadow-[3px_4px_0px_-1px_#000000] dark:hover:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[12px] text-black disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 h-[40px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#c8e5c8] hover:shadow-[3px_4px_0px_-1px_#000000] dark:hover:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] transition-all text-[12px] text-black disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={submitting}
             >
               {submitting ? "Submitting..." : "Submit for Review"}

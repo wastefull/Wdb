@@ -43,7 +43,7 @@ export function RecyclabilityTab({ formData, onParameterChange }: DimensionTabPr
     <div className="space-y-4">
       {/* Parameters Card */}
       <Card className="p-4 bg-[#faf9f6] dark:bg-[#1a1918] border-[#211f1c] dark:border-white/20">
-        <h3 className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white mb-3">
+        <h3 className="text-[14px] text-black dark:text-white mb-3">
           Recyclability Parameters (CR-v1)
         </h3>
         
@@ -129,13 +129,13 @@ export function RecyclabilityTab({ formData, onParameterChange }: DimensionTabPr
 
       {/* Composite Scores Card */}
       <Card className="p-4 bg-[#faf9f6] dark:bg-[#1a1918] border-[#211f1c] dark:border-white/20">
-        <h3 className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black dark:text-white mb-3">
+        <h3 className="text-[14px] text-black dark:text-white mb-3">
           Composite Recyclability Index (CR)
         </h3>
 
         {/* Practical Score */}
         <div className="mb-4 pb-4 border-b border-[#211f1c] dark:border-white/20">
-          <h4 className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white mb-2">
+          <h4 className="text-[12px] text-black dark:text-white mb-2">
             Practical (Realistic Conditions)
           </h4>
           
@@ -197,7 +197,7 @@ export function RecyclabilityTab({ formData, onParameterChange }: DimensionTabPr
 
         {/* Theoretical Score */}
         <div>
-          <h4 className="font-['Sniglet:Regular',_sans-serif] text-[12px] text-black dark:text-white mb-2">
+          <h4 className="text-[12px] text-black dark:text-white mb-2">
             Theoretical (Ideal Conditions)
           </h4>
           

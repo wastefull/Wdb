@@ -411,7 +411,7 @@ export function ContentReviewCenter({
         <TabsList className="grid w-full grid-cols-3 mb-6 h-auto">
           <TabsTrigger
             value="review"
-            className="font-['Sniglet:Regular',_sans-serif] text-[10px] md:text-sm px-2 py-2 data-[state=active]:bg-[#c8e5c8]"
+            className="text-[10px] md:text-sm px-2 py-2 data-[state=active]:bg-[#c8e5c8]"
           >
             <Clock size={12} className="mr-1 shrink-0" />
             <span className="truncate">
@@ -421,7 +421,7 @@ export function ContentReviewCenter({
           </TabsTrigger>
           <TabsTrigger
             value="pending"
-            className="font-['Sniglet:Regular',_sans-serif] text-[10px] md:text-sm px-2 py-2 data-[state=active]:bg-[#f4d3a0]"
+            className="text-[10px] md:text-sm px-2 py-2 data-[state=active]:bg-[#f4d3a0]"
           >
             <AlertTriangle size={12} className="mr-1 shrink-0" />
             <span className="truncate">
@@ -437,7 +437,7 @@ export function ContentReviewCenter({
           </TabsTrigger>
           <TabsTrigger
             value="moderation"
-            className="font-['Sniglet:Regular',_sans-serif] text-[10px] md:text-sm px-2 py-2 data-[state=active]:bg-[#e6beb5]"
+            className="text-[10px] md:text-sm px-2 py-2 data-[state=active]:bg-[#e6beb5]"
           >
             <Flag size={12} className="mr-1 shrink-0" />
             <span className="truncate">
@@ -455,7 +455,7 @@ export function ContentReviewCenter({
         <TabsContent value={activeTab}>
           {loading ? (
             <div className="text-center py-8">
-              <p className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black/70 dark:text-white/70">
+              <p className="text-[14px] text-black/70 dark:text-white/70">
                 Loading submissions...
               </p>
             </div>
@@ -481,7 +481,7 @@ export function ContentReviewCenter({
                   />
                 )}
               </div>
-              <p className="font-['Sniglet:Regular',_sans-serif] text-[14px] text-black/70 dark:text-white/70">
+              <p className="text-[14px] text-black/70 dark:text-white/70">
                 {activeTab === "review" && "No submissions awaiting review"}
                 {activeTab === "pending" && "No pending items"}
                 {activeTab === "moderation" && "No flagged items"}
@@ -614,22 +614,22 @@ function SubmissionCard({
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2 mb-1">
-            <h3 className="font-['Sniglet:Regular',_sans-serif] text-black dark:text-white truncate">
+            <h3 className="text-black dark:text-white truncate">
               {getSubmissionTitle()}
             </h3>
-            <span className="shrink-0 font-['Sniglet:Regular',_sans-serif] text-[10px] text-black/50 dark:text-white/50">
+            <span className="shrink-0 text-[10px] text-black/50 dark:text-white/50">
               {formatDate(submission.created_at)}
             </span>
           </div>
-          <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/60 dark:text-white/60 mb-2">
+          <p className="text-[11px] text-black/60 dark:text-white/60 mb-2">
             {getSubmissionLabel()}
           </p>
-          <p className="font-['Sniglet:Regular',_sans-serif] text-[11px] text-black/70 dark:text-white/70 line-clamp-2 mb-3">
+          <p className="text-[11px] text-black/70 dark:text-white/70 line-clamp-2 mb-3">
             {getSubmissionSnippet()}
           </p>
           {submission.feedback && (
             <div className="bg-[#e4e3ac] dark:bg-[#3a3825] border border-[#211f1c] dark:border-white/20 rounded-md p-2 mb-3">
-              <p className="font-['Sniglet:Regular',_sans-serif] text-[10px] text-black dark:text-white">
+              <p className="text-[10px] text-black dark:text-white">
                 <strong>Feedback:</strong> {submission.feedback}
               </p>
             </div>
@@ -639,14 +639,14 @@ function SubmissionCard({
               <>
                 <button
                   onClick={onReview}
-                  className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#c8e5c8] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[11px] text-black flex items-center gap-1"
+                  className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#c8e5c8] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[11px] text-black flex items-center gap-1"
                 >
                   <CheckCircle size={12} />
                   Review
                 </button>
                 <button
                   onClick={onFlag}
-                  className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#e6beb5] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[11px] text-black flex items-center gap-1"
+                  className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#e6beb5] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[11px] text-black flex items-center gap-1"
                 >
                   <Flag size={12} />
                   Flag
@@ -657,14 +657,14 @@ function SubmissionCard({
               <>
                 <button
                   onClick={onReview}
-                  className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#b8c8cb] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[11px] text-black"
+                  className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#b8c8cb] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[11px] text-black"
                 >
                   View Details
                 </button>
                 {submission.status === "needs_revision" && (
                   <button
                     onClick={onRemitToReview}
-                    className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#e4e3ac] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[11px] text-black flex items-center gap-1"
+                    className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#e4e3ac] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[11px] text-black flex items-center gap-1"
                   >
                     <Clock size={12} />
                     Remit to Review
@@ -672,7 +672,7 @@ function SubmissionCard({
                 )}
                 <button
                   onClick={onDelete}
-                  className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#e6beb5] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[11px] text-black flex items-center gap-1"
+                  className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#e6beb5] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[11px] text-black flex items-center gap-1"
                 >
                   <XCircle size={12} />
                   Delete
@@ -683,13 +683,13 @@ function SubmissionCard({
               <>
                 <button
                   onClick={onReview}
-                  className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#f4d3a0] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[11px] text-black"
+                  className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#f4d3a0] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[11px] text-black"
                 >
                   Review Moderation
                 </button>
                 <button
                   onClick={onDelete}
-                  className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#e6beb5] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet:Regular',_sans-serif] text-[11px] text-black flex items-center gap-1"
+                  className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#e6beb5] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[11px] text-black flex items-center gap-1"
                 >
                   <XCircle size={12} />
                   Delete

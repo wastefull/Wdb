@@ -56,7 +56,7 @@ export function ArticleForm({ article, onSave, onCancel }: ArticleFormProps) {
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         {/* Overview Section */}
         <div className="bg-white rounded-[8px] border-[1.5px] border-[#211f1c] p-4">
-          <h3 className="font-['Sniglet:Regular',_sans-serif] text-[15px] text-black mb-4">
+          <h3 className="text-[15px] text-black mb-4">
             Overview
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -73,7 +73,7 @@ export function ArticleForm({ article, onSave, onCancel }: ArticleFormProps) {
             </div>
             <div className="flex flex-col gap-3">
               <div>
-                <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black block mb-1">
+                <label className="text-[13px] text-black block mb-1">
                   Title
                 </label>
                 <input
@@ -84,11 +84,11 @@ export function ArticleForm({ article, onSave, onCancel }: ArticleFormProps) {
                   }
                   onKeyDownCapture={handleKeyDown}
                   required
-                  className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[14px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all"
+                  className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-[8px] text-[14px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all"
                 />
               </div>
               <div>
-                <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black block mb-1">
+                <label className="text-[13px] text-black block mb-1">
                   Article Type
                 </label>
                 <select
@@ -102,7 +102,7 @@ export function ArticleForm({ article, onSave, onCancel }: ArticleFormProps) {
                         | "Experimental",
                     })
                   }
-                  className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[14px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all"
+                  className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-[8px] text-[14px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all"
                 >
                   <option value="DIY">DIY</option>
                   <option value="Industrial">Industrial</option>
@@ -110,7 +110,7 @@ export function ArticleForm({ article, onSave, onCancel }: ArticleFormProps) {
                 </select>
               </div>
               <div>
-                <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black block mb-1">
+                <label className="text-[13px] text-black block mb-1">
                   Sustainability Category
                 </label>
                 <select
@@ -124,7 +124,7 @@ export function ArticleForm({ article, onSave, onCancel }: ArticleFormProps) {
                         | "reusability",
                     })
                   }
-                  className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[14px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all"
+                  className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-[8px] text-[14px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all"
                 >
                   <option value="compostability">Compostability</option>
                   <option value="recyclability">Recyclability</option>
@@ -137,7 +137,7 @@ export function ArticleForm({ article, onSave, onCancel }: ArticleFormProps) {
 
         {/* Introduction Section */}
         <div className="bg-white rounded-[8px] border-[1.5px] border-[#211f1c] p-4">
-          <h3 className="font-['Sniglet:Regular',_sans-serif] text-[15px] text-black mb-4">
+          <h3 className="text-[15px] text-black mb-4">
             Introduction
           </h3>
           <div className="flex flex-col gap-4">
@@ -151,7 +151,7 @@ export function ArticleForm({ article, onSave, onCancel }: ArticleFormProps) {
               }
             />
             <div>
-              <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black block mb-1">
+              <label className="text-[13px] text-black block mb-1">
                 Content
               </label>
               <textarea
@@ -168,7 +168,7 @@ export function ArticleForm({ article, onSave, onCancel }: ArticleFormProps) {
                 onKeyDownCapture={handleKeyDown}
                 required
                 rows={6}
-                className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[12px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all resize-none"
+                className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-[8px] text-[12px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all resize-none"
                 placeholder="Describe what this guide is about..."
               />
             </div>
@@ -177,7 +177,7 @@ export function ArticleForm({ article, onSave, onCancel }: ArticleFormProps) {
 
         {/* Supplies Section */}
         <div className="bg-white rounded-[8px] border-[1.5px] border-[#211f1c] p-4">
-          <h3 className="font-['Sniglet:Regular',_sans-serif] text-[15px] text-black mb-4">
+          <h3 className="text-[15px] text-black mb-4">
             Supplies
           </h3>
           <div className="flex flex-col gap-4">
@@ -191,7 +191,7 @@ export function ArticleForm({ article, onSave, onCancel }: ArticleFormProps) {
               }
             />
             <div>
-              <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black block mb-1">
+              <label className="text-[13px] text-black block mb-1">
                 Content
               </label>
               <textarea
@@ -205,7 +205,7 @@ export function ArticleForm({ article, onSave, onCancel }: ArticleFormProps) {
                 onKeyDownCapture={handleKeyDown}
                 required
                 rows={6}
-                className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[12px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all resize-none"
+                className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-[8px] text-[12px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all resize-none"
                 placeholder="List the supplies needed..."
               />
             </div>
@@ -214,7 +214,7 @@ export function ArticleForm({ article, onSave, onCancel }: ArticleFormProps) {
 
         {/* Step 1 Section */}
         <div className="bg-white rounded-[8px] border-[1.5px] border-[#211f1c] p-4">
-          <h3 className="font-['Sniglet:Regular',_sans-serif] text-[15px] text-black mb-4">
+          <h3 className="text-[15px] text-black mb-4">
             Step 1
           </h3>
           <div className="flex flex-col gap-4">
@@ -228,7 +228,7 @@ export function ArticleForm({ article, onSave, onCancel }: ArticleFormProps) {
               }
             />
             <div>
-              <label className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black block mb-1">
+              <label className="text-[13px] text-black block mb-1">
                 Content
               </label>
               <textarea
@@ -242,7 +242,7 @@ export function ArticleForm({ article, onSave, onCancel }: ArticleFormProps) {
                 onKeyDownCapture={handleKeyDown}
                 required
                 rows={6}
-                className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-[8px] font-['Sniglet:Regular',_sans-serif] text-[12px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all resize-none"
+                className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-[8px] text-[12px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all resize-none"
                 placeholder="Describe the first step..."
               />
             </div>
@@ -252,14 +252,14 @@ export function ArticleForm({ article, onSave, onCancel }: ArticleFormProps) {
         <div className="flex gap-3 justify-center">
           <button
             type="submit"
-            className="bg-[#e4e3ac] h-[40px] px-8 rounded-[6px] border border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] font-['Sniglet:Regular',_sans-serif] text-[14px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] transition-all"
+            className="bg-[#e4e3ac] h-[40px] px-8 rounded-[6px] border border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] text-[14px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] transition-all"
           >
             {article ? "Update" : "Add Article"}
           </button>
           <button
             type="button"
             onClick={onCancel}
-            className="bg-[#e6beb5] h-[40px] px-8 rounded-[6px] border border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] font-['Sniglet:Regular',_sans-serif] text-[14px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] transition-all"
+            className="bg-[#e6beb5] h-[40px] px-8 rounded-[6px] border border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] text-[14px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] transition-all"
           >
             Cancel
           </button>

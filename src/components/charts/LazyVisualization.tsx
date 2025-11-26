@@ -66,7 +66,7 @@ export function VisualizationPlaceholder({ height = 256 }: { height?: number }) 
     >
       <div className="text-center">
         <div className="w-16 h-16 border-4 border-[#211f1c]/20 dark:border-white/20 border-t-[#211f1c] dark:border-t-white rounded-full animate-spin mx-auto mb-3" />
-        <p className="font-['Sniglet:Regular',_sans-serif] text-[13px] text-black/50 dark:text-white/50">
+        <p className="text-[13px] text-black/50 dark:text-white/50">
           Loading visualization...
         </p>
       </div>

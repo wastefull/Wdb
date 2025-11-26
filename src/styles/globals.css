@@ -1,14 +1,13 @@
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Sniglet:wght@400;800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+/* Fonts loaded via index.html <link> for optimal loading */
 
 @custom-variant dark (&:is(.dark *));
 
 :root {
   --font-size: 16px;
   --a11y-font-scale: 1;
-  --default-mono-font-family: 'JetBrains Mono', 'Press Start 2P', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --default-mono-font-family: "JetBrains Mono", "Press Start 2P", ui-monospace,
+    SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+    monospace;
   --background: #ffffff;
   --foreground: oklch(0.145 0 0);
   --card: #ffffff;
@@ -86,6 +85,12 @@
 }
 
 @theme inline {
+  /* Font families */
+  --font-sniglet: "Sniglet", sans-serif;
+  --font-pixel: "Press Start 2P", cursive;
+  --font-display: "Fredoka One", cursive;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -132,7 +137,7 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sniglet;
   }
 }
 
@@ -204,18 +209,19 @@ body {
 
 /* Apply dark mode colors globally to common hardcoded colors */
 /* Don't convert text-black to white if it's on a light background (pastel colors) */
-.dark .text-black:not(
-  .dark\\:text-white, 
-  .dark\\:text-black,
-  .bg-\\[#b8c8cb\\] .text-black,
-  .bg-\\[#e4e3ac\\] .text-black,
-  .bg-\\[#e6beb5\\] .text-black,
-  .bg-\\[#bdd4b7\\] .text-black,
-  .bg-\\[#b8c8cb\\] *,
-  .bg-\\[#e4e3ac\\] *,
-  .bg-\\[#e6beb5\\] *,
-  .bg-\\[#bdd4b7\\] *
-) {
+.dark
+  .text-black:not(
+    .dark\\:text-white,
+    .dark\\:text-black,
+    .bg-\\[#b8c8cb\\] .text-black,
+    .bg-\\[#e4e3ac\\] .text-black,
+    .bg-\\[#e6beb5\\] .text-black,
+    .bg-\\[#bdd4b7\\] .text-black,
+    .bg-\\[#b8c8cb\\] *,
+    .bg-\\[#e4e3ac\\] *,
+    .bg-\\[#e6beb5\\] *,
+    .bg-\\[#bdd4b7\\] *
+  ) {
   color: white !important;
 }
 
@@ -381,7 +387,7 @@ body {
 
 /* Whitepaper Markdown Styling */
 .prose {
-  font-family: 'Sniglet', sans-serif;
+  font-family: "Sniglet", sans-serif;
 }
 
 .prose h1,
@@ -390,7 +396,7 @@ body {
 .prose h4,
 .prose h5,
 .prose h6 {
-  font-family: 'Sniglet', sans-serif;
+  font-family: "Sniglet", sans-serif;
 }
 
 .prose h1 {
@@ -398,7 +404,7 @@ body {
 }
 
 .prose th {
-  font-family: 'Sniglet', sans-serif;
+  font-family: "Sniglet", sans-serif;
 }
 
 .prose p,
@@ -409,11 +415,11 @@ body {
 .prose strong,
 .prose em,
 .prose code {
-  font-family: 'Sniglet', sans-serif;
+  font-family: "Sniglet", sans-serif;
 }
 
 .prose strong {
-  font-family: 'Sniglet', sans-serif;
+  font-family: "Sniglet", sans-serif;
   font-weight: 400;
 }
 
@@ -425,7 +431,7 @@ body {
   border: 1.5px solid #211f1c;
   border-radius: 8px;
   overflow: hidden;
-  font-family: 'Sniglet', sans-serif;
+  font-family: "Sniglet", sans-serif;
 }
 
 .dark .prose table {

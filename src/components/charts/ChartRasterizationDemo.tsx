@@ -111,7 +111,7 @@ export function ChartRasterizationDemo() {
         {/* Side-by-Side Comparison */}
         <TabsContent value="comparison" className="space-y-6">
           <Card className="p-6">
-            <h3 className="font-['Sniglet:Regular',_sans-serif] text-lg mb-4">
+            <h3 className="text-lg mb-4">
               Visual Comparison
             </h3>
             <p className="text-sm text-black/60 dark:text-white/60 mb-6">
@@ -122,7 +122,7 @@ export function ChartRasterizationDemo() {
 
             {Object.entries(TEST_DATA).map(([key, test]) => (
               <div key={key} className="mb-8 last:mb-0">
-                <h4 className="font-['Sniglet:Regular',_sans-serif] mb-4 text-sm text-black/70 dark:text-white/70">
+                <h4 className="mb-4 text-sm text-black/70 dark:text-white/70">
                   {test.name}
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -130,7 +130,7 @@ export function ChartRasterizationDemo() {
                   <Card className="p-4 bg-blue-50 dark:bg-blue-900/20">
                     <div className="flex items-center gap-2 mb-3">
                       <Activity className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                      <span className="font-['Sniglet:Regular',_sans-serif] text-sm">
+                      <span className="text-sm">
                         Live SVG
                       </span>
                     </div>
@@ -150,7 +150,7 @@ export function ChartRasterizationDemo() {
                   <Card className="p-4 bg-green-50 dark:bg-green-900/20">
                     <div className="flex items-center gap-2 mb-3">
                       <ImageIcon className="h-4 w-4 text-green-600 dark:text-green-400" />
-                      <span className="font-['Sniglet:Regular',_sans-serif] text-sm">
+                      <span className="text-sm">
                         Rasterized (Cached)
                       </span>
                     </div>
@@ -173,7 +173,7 @@ export function ChartRasterizationDemo() {
           </Card>
 
           <Card className="p-6 bg-yellow-50 dark:bg-yellow-900/20">
-            <h4 className="font-['Sniglet:Regular',_sans-serif] mb-2">
+            <h4 className="mb-2">
               Testing Instructions
             </h4>
             <ol className="text-sm space-y-2 list-decimal list-inside text-black/70 dark:text-white/70">
@@ -275,7 +275,7 @@ function PerformanceTest() {
   return (
     <div className="space-y-6">
       <Card className="p-6">
-        <h3 className="font-['Sniglet:Regular',_sans-serif] text-lg mb-4">
+        <h3 className="text-lg mb-4">
           Render Performance Test
         </h3>
 
@@ -312,7 +312,7 @@ function PerformanceTest() {
 
       {results && (
         <Card className="p-6 bg-green-50 dark:bg-green-900/20">
-          <h4 className="font-['Sniglet:Regular',_sans-serif] mb-4">
+          <h4 className="mb-4">
             Test Results
           </h4>
           <div className="grid grid-cols-3 gap-4">
@@ -343,7 +343,7 @@ function PerformanceTest() {
       )}
 
       <Card className="p-6 bg-blue-50 dark:bg-blue-900/20">
-        <h4 className="font-['Sniglet:Regular',_sans-serif] mb-2">
+        <h4 className="mb-2">
           About This Test
         </h4>
         <p className="text-sm text-black/70 dark:text-white/70">
@@ -389,7 +389,7 @@ function StressTest() {
   return (
     <div className="space-y-6">
       <Card className="p-6">
-        <h3 className="font-['Sniglet:Regular',_sans-serif] text-lg mb-4">
+        <h3 className="text-lg mb-4">
           Stress Test
         </h3>
         <p className="text-sm text-black/60 dark:text-white/60 mb-4">
@@ -442,7 +442,7 @@ function StressTest() {
       {rendering && (
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
-            <h4 className="font-['Sniglet:Regular',_sans-serif]">
+            <h4 className="">
               Rendering {chartCount} Charts (
               {useRasterization ? "Rasterized" : "Live SVG"})
             </h4>
@@ -481,7 +481,7 @@ function StressTest() {
       )}
 
       <Card className="p-6 bg-yellow-50 dark:bg-yellow-900/20">
-        <h4 className="font-['Sniglet:Regular',_sans-serif] mb-2">
+        <h4 className="mb-2">
           Performance Tips
         </h4>
         <ul className="text-sm space-y-1 list-disc list-inside text-black/70 dark:text-white/70">
