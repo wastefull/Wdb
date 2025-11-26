@@ -68,10 +68,10 @@ export function MethodologyListView({
             <button
               key={whitepaper.slug}
               onClick={() => onSelectWhitepaper(whitepaper.slug)}
-              className="bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 p-6 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all text-left"
+              className="retro-card-button p-6 text-left"
             >
               <div className="flex items-start gap-4">
-                <div className="p-3 arcade-bg-amber arcade-btn-amber rounded-md border border-[#211f1c] dark:border-white/20">
+                <div className="icon-box arcade-bg-amber arcade-btn-amber">
                   <FileText size={24} />
                 </div>
                 <div className="flex-1">
@@ -187,7 +187,7 @@ export function WhitepaperView({
 
   return (
     <PageTemplate title={whitepaper.title} onBack={onBack}>
-      <div className="bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 p-6 md:p-8 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)]">
+      <div className="retro-card p-6 md:p-8">
         <article
           className="prose prose-lg max-w-none dark:prose-invert
           prose-headings:font-serif

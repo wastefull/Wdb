@@ -28,7 +28,7 @@ export function MaterialCard({
   isAuthenticated,
 }: MaterialCardProps) {
   return (
-    <div className="bg-white dark:bg-[#2a2825] relative rounded-[11.464px] p-4 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] border-[1.5px] border-[#211f1c] dark:border-white/20 md:overflow-hidden 2xl:overflow-visible">
+    <div className="retro-card relative p-4 md:overflow-hidden 2xl:overflow-visible">
       <div className="flex justify-between items-start mb-3">
         <div className="flex-1">
           <button
@@ -55,22 +55,20 @@ export function MaterialCard({
               ) : null}
             </div>
           )}
-          <span className="tag-cyan">
-            {material.category}
-          </span>
+          <span className="tag-cyan">{material.category}</span>
         </div>
         {isAdminModeActive ? (
           <div className="flex gap-2">
             <button
               onClick={onEdit}
-              className="p-1.5 bg-[#e4e3ac] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+              className="icon-box-sm bg-[#e4e3ac]"
               aria-label={`Edit ${material.name}`}
             >
               <Edit2 size={14} className="text-black" aria-hidden="true" />
             </button>
             <button
               onClick={onDelete}
-              className="p-1.5 bg-[#e6beb5] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+              className="icon-box-sm bg-[#e6beb5]"
               aria-label={`Delete ${material.name}`}
             >
               <Trash2 size={14} className="text-black" aria-hidden="true" />
@@ -79,7 +77,7 @@ export function MaterialCard({
         ) : isAuthenticated && onSuggestEdit ? (
           <button
             onClick={onSuggestEdit}
-            className="p-1.5 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+            className="icon-box-sm bg-[#b8c8cb]"
             aria-label={`Suggest edit for ${material.name}`}
             title="Suggest an edit"
           >

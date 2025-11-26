@@ -86,10 +86,7 @@ export function MaterialDetailView({
   return (
     <div className="p-6">
       <div className="flex items-center gap-4 mb-6">
-        <button
-          onClick={onBack}
-          className="card-interactive"
-        >
+        <button onClick={onBack} className="card-interactive">
           <ArrowLeft size={16} className="text-black" />
         </button>
         <div className="flex-1">
@@ -97,9 +94,7 @@ export function MaterialDetailView({
             {material.name}
           </h2>
           <div className="flex items-center gap-2 mt-1">
-            <span className="tag-cyan">
-              {material.category}
-            </span>
+            <span className="tag-cyan">{material.category}</span>
             <p className="text-[12px] text-black/60 dark:text-white/60">
               {totalArticles} article{totalArticles !== 1 ? "s" : ""}
             </p>
@@ -109,13 +104,11 @@ export function MaterialDetailView({
 
       {material.description && (
         <div className="bg-white rounded-[11.464px] border-[1.5px] border-[#211f1c] p-4 mb-6">
-          <p className="text-[13px] text-black/80">
-            {material.description}
-          </p>
+          <p className="text-[13px] text-black/80">{material.description}</p>
         </div>
       )}
 
-      <div className="bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 p-4 mb-6">
+      <div className="retro-card-flat p-4 mb-6">
         <h3 className="text-[15px] text-black dark:text-white mb-4">
           Sustainability Scores
         </h3>
@@ -193,9 +186,7 @@ export function MaterialDetailView({
 
       {totalArticles > 0 ? (
         <div>
-          <h3 className="text-[16px] text-black mb-4">
-            All Articles
-          </h3>
+          <h3 className="text-[16px] text-black mb-4">All Articles</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {allArticles.map(({ article, category }) => (
               <ArticleCard

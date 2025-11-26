@@ -974,3 +974,66 @@ body {
 .table-cell {
   @apply px-4 py-3 text-[12px] text-black dark:text-white;
 }
+
+/* ==========================================================================
+   Retro Card / Button Base Patterns
+   ========================================================================== */
+
+/* Standard retro card with shadow */
+.retro-card {
+  @apply bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20;
+  @apply shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)];
+}
+
+/* Retro card without shadow (flat) */
+.retro-card-flat {
+  @apply bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20;
+}
+
+/* Retro card that acts as a button (with hover) */
+.retro-card-button {
+  @apply bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20;
+  @apply shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)];
+  @apply hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all;
+}
+
+/* Small interactive retro button */
+.retro-btn {
+  @apply rounded-md border border-[#211f1c] dark:border-white/20;
+  @apply hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all;
+}
+
+/* Primary action button with press effect */
+.retro-btn-primary {
+  @apply rounded-[8px] border border-[#211f1c] dark:border-white/20;
+  @apply shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)];
+  @apply hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all;
+}
+
+/* Card with subtle hover effect (2x2 -> 3x3 shadow on hover) */
+.retro-card-hover {
+  @apply bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20;
+  @apply shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.1)];
+  @apply hover:shadow-[3px_3px_0px_0px_#000000] dark:hover:shadow-[3px_3px_0px_0px_rgba(255,255,255,0.15)] transition-all;
+}
+
+/* ==========================================================================
+   Form Inputs (retro style)
+   ========================================================================== */
+.retro-input {
+  @apply w-full px-3 py-2 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px];
+  @apply text-[13px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50;
+  @apply outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all;
+}
+
+/* ==========================================================================
+   Icon Containers (small boxes with colored backgrounds)
+   ========================================================================== */
+.icon-box {
+  @apply p-3 rounded-md border border-[#211f1c] dark:border-white/20;
+}
+
+.icon-box-sm {
+  @apply p-1.5 rounded-md border border-[#211f1c] dark:border-white/20;
+  @apply hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all;
+}

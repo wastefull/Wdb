@@ -726,7 +726,7 @@ function AppContent() {
                 </div>
 
                 {/* Filter options placeholder */}
-                <div className="mb-6 p-4 bg-white dark:bg-[#2a2825] rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)]">
+                <div className="retro-card mb-6 p-4">
                   <p className="text-[12px] text-black/50 dark:text-white/50 italic">
                     Filter options coming soon...
                   </p>

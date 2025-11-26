@@ -181,7 +181,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-[400px]">
         {/* Auth Window */}
-        <div className="rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] overflow-hidden backdrop-blur-md bg-white/70 dark:bg-[#2a2825]/70">
+        <div className="retro-card overflow-hidden backdrop-blur-md !bg-white/70 dark:!bg-[#2a2825]/70">
           {/* Mini Status Bar */}
           <div className="h-[32px] bg-[#faf7f2] dark:bg-[#2a2825] border-b-[1.5px] border-[#211f1c] dark:border-white/20 flex items-center justify-center relative">
             {/* Red Close Button - Positioned absolutely on the left */}
@@ -262,7 +262,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
                       }
                     }}
                     placeholder="you@example.com"
-                    className="w-full px-3 py-2 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px] text-[13px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50 outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                    className="retro-input"
                   />
                 </div>
 
@@ -303,7 +303,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
                     onChange={(e) => setName(e.target.value)}
                     onKeyDownCapture={handleKeyDown}
                     placeholder="Your name"
-                    className="w-full px-3 py-2 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px] text-[13px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50 outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                    className="retro-input"
                   />
                   <p className="text-[9px] text-black/50 dark:text-white/50 mt-1">
                     Only used when creating a new account
@@ -320,7 +320,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
                     onChange={(e) => setEmail(e.target.value)}
                     onKeyDownCapture={handleKeyDown}
                     placeholder="you@example.com"
-                    className="w-full px-3 py-2 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px] text-[13px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50 outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                    className="retro-input"
                   />
                 </div>
 
@@ -356,7 +356,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
                         }
                       }}
                       placeholder="At least 8 characters"
-                      className="w-full px-3 py-2 pr-10 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px] text-[13px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50 outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                      className="retro-input pr-10"
                     />
                     <button
                       type="button"

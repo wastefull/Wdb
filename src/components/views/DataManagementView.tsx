@@ -259,10 +259,7 @@ export function DataManagementView({
   return (
     <div className="p-6">
       <div className="flex items-center gap-4 mb-6">
-        <button
-          onClick={onBack}
-          className="card-interactive"
-        >
+        <button onClick={onBack} className="card-interactive">
           <ArrowLeft size={16} className="text-black" />
         </button>
         <div className="flex-1">
@@ -374,7 +371,7 @@ export function DataManagementView({
 
           {/* Import Options */}
           {showImportOptions && (
-            <div className="mb-4 bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 p-4">
+            <div className="retro-card-flat mb-4 p-4">
               <h3 className="text-[14px] text-black dark:text-white mb-4">
                 Import CSV Data
               </h3>

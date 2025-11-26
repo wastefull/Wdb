@@ -32,9 +32,7 @@ export function ArticleCard({
               {article.title}
             </button>
           ) : (
-            <h4 className="text-[14px] text-black">
-              {article.title}
-            </h4>
+            <h4 className="text-[14px] text-black">{article.title}</h4>
           )}
           <div className="flex items-center gap-2 mt-1">
             <span className="inline-block px-2 py-0.5 bg-[#e4e3ac] rounded-md border border-[#211f1c] text-[9px] text-black">
@@ -54,13 +52,13 @@ export function ArticleCard({
           <div className="flex gap-2">
             <button
               onClick={onEdit}
-              className="p-1.5 bg-[#e4e3ac] rounded-md border border-[#211f1c] hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
+              className="icon-box-sm bg-[#e4e3ac] !dark:border-[#211f1c] !dark:hover:shadow-[2px_2px_0px_0px_#000000]"
             >
               <Edit2 size={12} />
             </button>
             <button
               onClick={onDelete}
-              className="p-1.5 bg-[#e6beb5] rounded-md border border-[#211f1c] hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
+              className="icon-box-sm bg-[#e6beb5] !dark:border-[#211f1c] !dark:hover:shadow-[2px_2px_0px_0px_#000000]"
             >
               <Trash2 size={12} />
             </button>
@@ -72,9 +70,7 @@ export function ArticleCard({
         {/* Overview Section */}
         {article.overview.image && (
           <div>
-            <h5 className="text-[12px] text-black mb-1">
-              Overview
-            </h5>
+            <h5 className="text-[12px] text-black mb-1">Overview</h5>
             <img
               src={article.overview.image}
               alt="Overview"
@@ -85,9 +81,7 @@ export function ArticleCard({
 
         {/* Introduction Section */}
         <div>
-          <h5 className="text-[12px] text-black mb-1">
-            Introduction
-          </h5>
+          <h5 className="text-[12px] text-black mb-1">Introduction</h5>
           {article.introduction.image && (
             <img
               src={article.introduction.image}
@@ -102,9 +96,7 @@ export function ArticleCard({
 
         {/* Supplies Section */}
         <div>
-          <h5 className="text-[12px] text-black mb-1">
-            Supplies
-          </h5>
+          <h5 className="text-[12px] text-black mb-1">Supplies</h5>
           {article.supplies.image && (
             <img
               src={article.supplies.image}

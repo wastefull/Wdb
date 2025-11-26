@@ -95,10 +95,7 @@ export function ArticlesView({
   return (
     <div className="p-6">
       <div className="flex items-center gap-4 mb-6">
-        <button
-          onClick={onBack}
-          className="card-interactive"
-        >
+        <button onClick={onBack} className="card-interactive">
           <ArrowLeft size={16} className="text-black" />
         </button>
         <div className="flex-1">
@@ -115,7 +112,7 @@ export function ArticlesView({
               setShowForm(true);
               setEditingArticle(null);
             }}
-            className="bg-[#b8c8cb] h-[40px] px-6 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] text-[14px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-2"
+            className="retro-card-button h-[40px] px-6 text-[14px] text-black flex items-center gap-2"
             style={{ backgroundColor: categoryColors[category] }}
           >
             <Plus size={16} className="text-black" />
@@ -139,7 +136,7 @@ export function ArticlesView({
       {category === "recyclability" &&
         material.CR_practical_mean &&
         material.CR_theoretical_mean && (
-          <div className="mb-6 bg-white dark:bg-[#2a2825] rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 p-6 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)]">
+          <div className="retro-card mb-6 p-6">
             <div className="max-w-2xl mx-auto">
               <h3 className="text-[16px] text-black dark:text-white mb-4">
                 Recyclability Score Overview

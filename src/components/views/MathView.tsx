@@ -12,10 +12,7 @@ export function MathView({ onBack, defaultTab = "overview" }: MathViewProps) {
   return (
     <div className="p-6">
       <div className="flex items-center gap-4 mb-6">
-        <button
-          onClick={onBack}
-          className="card-interactive"
-        >
+        <button onClick={onBack} className="card-interactive">
           <ArrowLeft size={16} className="text-black" />
         </button>
         <div className="flex-1">
@@ -37,7 +34,7 @@ export function MathView({ onBack, defaultTab = "overview" }: MathViewProps) {
         </TabsList>
 
         <TabsContent value="overview">
-          <div className="bg-white dark:bg-[#1a1917] rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] p-6">
+          <div className="retro-card !bg-white dark:!bg-[#1a1917] p-6">
             <div className="text-center py-12">
               <div className="text-[48px] mb-4">∫</div>
               <h3 className="font-['Fredoka_One:Regular',_sans-serif] text-[18px] text-black dark:text-white mb-2">
@@ -52,7 +49,7 @@ export function MathView({ onBack, defaultTab = "overview" }: MathViewProps) {
         </TabsContent>
 
         <TabsContent value="transform-manager">
-          <div className="bg-white dark:bg-[#1a1917] rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] p-6">
+          <div className="retro-card !bg-white dark:!bg-[#1a1917] p-6">
             <TransformVersionManager />
           </div>
         </TabsContent>

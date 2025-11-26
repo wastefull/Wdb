@@ -126,7 +126,7 @@ export function LicensesView({ onBack }: { onBack: () => void }) {
         {licenses.map((license, index) => (
           <div
             key={index}
-            className="bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[11.464px] p-5 shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.1)] hover:shadow-[3px_3px_0px_0px_#000000] dark:hover:shadow-[3px_3px_0px_0px_rgba(255,255,255,0.15)] transition-all"
+            className="retro-card-hover p-5"
           >
             <div className="flex items-start justify-between gap-4 mb-2">
               <div className="flex-1">
