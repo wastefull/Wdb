@@ -37,7 +37,7 @@ export function AllArticlesView({
       <div className="flex items-center gap-4 mb-6">
         <button
           onClick={onBack}
-          className="p-2 bg-[#b8c8cb] rounded-md border border-[#211f1c] hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
+          className="icon-box-sm bg-[#b8c8cb] p-2 !dark:border-[#211f1c] !dark:hover:shadow-[2px_2px_0px_0px_#000000]"
         >
           <ArrowLeft size={16} />
         </button>

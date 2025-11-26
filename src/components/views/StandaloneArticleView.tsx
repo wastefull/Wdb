@@ -67,13 +67,13 @@ export function StandaloneArticleView({
           <div className="flex gap-2">
             <button
               onClick={onEdit}
-              className="p-2 bg-[#e4e3ac] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+              className="icon-box-sm bg-[#e4e3ac] p-2"
             >
               <Edit2 size={14} className="text-black" />
             </button>
             <button
               onClick={onDelete}
-              className="p-2 bg-[#e6beb5] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+              className="icon-box-sm bg-[#e6beb5] p-2"
             >
               <Trash2 size={14} className="text-black" />
             </button>
@@ -158,7 +158,7 @@ export function StandaloneArticleView({
               </p>
               <button
                 onClick={copyPermalink}
-                className="p-1.5 bg-[#e4e3ac] rounded-md border border-[#211f1c] hover:shadow-[2px_2px_0px_0px_#000000] transition-all shrink-0"
+                className="icon-box-sm bg-[#e4e3ac] shrink-0"
                 title="Copy permalink"
               >
                 {copied ? <Check size={12} /> : <Copy size={12} />}

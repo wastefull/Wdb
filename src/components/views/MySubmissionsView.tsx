@@ -144,7 +144,7 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
       <div className="flex items-center gap-4 mb-6">
         <button
           onClick={onBack}
-          className="p-2 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#e6beb5] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+          className="icon-box-sm bg-[#e6beb5] p-2"
         >
           <ArrowLeft size={16} className="text-black" />
         </button>
@@ -177,11 +177,11 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
           {submissions.map((submission) => (
             <div
               key={submission.id}
-              className="bg-white dark:bg-[#1a1917] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 p-4 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+              className="retro-card-flat !bg-white dark:!bg-[#1a1917] p-4 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-start gap-3 flex-1">
-                  <div className="p-2 rounded-md bg-[#b8c8cb] dark:bg-[#2a3235] border border-[#211f1c] dark:border-white/20">
+                  <div className="icon-box bg-[#b8c8cb] dark:bg-[#2a3235] p-2">
                     {getSubmissionIcon(submission.type)}
                   </div>
                   <div className="flex-1">
