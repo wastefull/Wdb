@@ -56,9 +56,7 @@ export function AllArticlesView({
         {articlesWithMaterial.map(({ article, material }) => (
           <div key={`${material.id}-${article.id}`} className="relative">
             <div className="absolute top-3 right-3 bg-white/90 px-2 py-1 rounded-md border border-[#211f1c] z-10">
-              <p className="text-[10px] text-black">
-                {material.name}
-              </p>
+              <p className="text-[10px] text-black">{material.name}</p>
             </div>
             <ArticleCard
               article={article}

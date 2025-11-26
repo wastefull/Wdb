@@ -34,10 +34,7 @@ export function StandaloneArticleView({
   return (
     <div className="p-6">
       <div className="flex items-center gap-4 mb-6">
-        <button
-          onClick={onBack}
-          className="card-interactive"
-        >
+        <button onClick={onBack} className="card-interactive">
           <ArrowLeft size={16} className="text-black" />
         </button>
         <div className="flex-1">
@@ -45,9 +42,7 @@ export function StandaloneArticleView({
             {article.title}
           </h2>
           <div className="flex items-center gap-2 mt-1">
-            <span className="tag-yellow">
-              {article.category}
-            </span>
+            <span className="tag-yellow">{article.category}</span>
             {sustainabilityCategory && (
               <span
                 className="inline-block px-2 py-0.5 rounded-md border border-[#211f1c] dark:border-white/20 text-[9px] text-black"
@@ -65,16 +60,10 @@ export function StandaloneArticleView({
         </div>
         {onEdit && onDelete && isAdminModeActive && (
           <div className="flex gap-2">
-            <button
-              onClick={onEdit}
-              className="icon-box-sm bg-[#e4e3ac] p-2"
-            >
+            <button onClick={onEdit} className="icon-box-sm bg-[#e4e3ac] p-2">
               <Edit2 size={14} className="text-black" />
             </button>
-            <button
-              onClick={onDelete}
-              className="icon-box-sm bg-[#e6beb5] p-2"
-            >
+            <button onClick={onDelete} className="icon-box-sm bg-[#e6beb5] p-2">
               <Trash2 size={14} className="text-black" />
             </button>
           </div>
@@ -86,9 +75,7 @@ export function StandaloneArticleView({
           {/* Overview Section */}
           {article.overview.image && (
             <div>
-              <h3 className="text-[15px] text-black mb-3">
-                Overview
-              </h3>
+              <h3 className="text-[15px] text-black mb-3">Overview</h3>
               <img
                 src={article.overview.image}
                 alt="Overview"
@@ -99,9 +86,7 @@ export function StandaloneArticleView({
 
           {/* Introduction Section */}
           <div>
-            <h3 className="text-[15px] text-black mb-3">
-              Introduction
-            </h3>
+            <h3 className="text-[15px] text-black mb-3">Introduction</h3>
             {article.introduction.image && (
               <img
                 src={article.introduction.image}
@@ -116,9 +101,7 @@ export function StandaloneArticleView({
 
           {/* Supplies Section */}
           <div>
-            <h3 className="text-[15px] text-black mb-3">
-              Supplies
-            </h3>
+            <h3 className="text-[15px] text-black mb-3">Supplies</h3>
             {article.supplies.image && (
               <img
                 src={article.supplies.image}
@@ -133,9 +116,7 @@ export function StandaloneArticleView({
 
           {/* Step 1 Section */}
           <div>
-            <h3 className="text-[15px] text-black mb-3">
-              Step 1
-            </h3>
+            <h3 className="text-[15px] text-black mb-3">Step 1</h3>
             {article.step1.image && (
               <img
                 src={article.step1.image}
