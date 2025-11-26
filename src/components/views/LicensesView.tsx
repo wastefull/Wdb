@@ -158,7 +158,7 @@ export function LicensesView({ onBack }: { onBack: () => void }) {
       </div>
 
       {/* Footer Note */}
-      <div className="mt-8 p-4 bg-[#b8c8cb]/30 dark:bg-[#2a3235]/30 border-[1.5px] border-[#211f1c]/20 dark:border-white/20 rounded-[11.464px]">
+      <div className="mt-8 p-4 bg-[#e5e4dc] dark:bg-[#1a1917] border-[1.5px] border-[#211f1c]/20 dark:border-white/20 rounded-[11.464px]">
         <p className="text-[12px] text-black/70 dark:text-white/70">
           <strong>Note:</strong> This list includes the primary open source
           libraries used in WasteDB. Each library may have its own dependencies
