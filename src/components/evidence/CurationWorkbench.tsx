@@ -10,6 +10,7 @@ import {
   Info,
   BookOpen,
   AlertCircle,
+  ExternalLink,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import {
@@ -556,9 +557,15 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                             <Label className="font-['Fredoka_One'] text-[10px] text-black/60 dark:text-white/60">
                               DOI
                             </Label>
-                            <p className="font-['Sniglet'] text-[11px] text-black dark:text-white mt-1">
+                            <a
+                              href={`https://doi.org/${selectedSource.doi}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-['Sniglet'] text-[11px] text-blue-600 dark:text-blue-400 mt-1 hover:underline flex items-center gap-1"
+                            >
                               {selectedSource.doi}
-                            </p>
+                              <ExternalLink size={10} />
+                            </a>
                           </div>
                         )}
 
@@ -653,9 +660,15 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                             <Label className="font-['Fredoka_One'] text-[10px] text-black/60 dark:text-white/60">
                               DOI
                             </Label>
-                            <p className="font-['Sniglet'] text-[11px] text-blue-600 dark:text-blue-400 mt-1">
+                            <a
+                              href={`https://doi.org/${selectedSource.doi}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-['Sniglet'] text-[11px] text-blue-600 dark:text-blue-400 mt-1 hover:underline flex items-center gap-1"
+                            >
                               {selectedSource.doi}
-                            </p>
+                              <ExternalLink size={10} />
+                            </a>
                           </div>
                         )}
                       </CardContent>

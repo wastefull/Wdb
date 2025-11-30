@@ -4851,6 +4851,148 @@ app.get("/make-server-17cae920/sources", async (c) => {
   }
 });
 
+// Search CrossRef for academic papers by material/topic
+// IMPORTANT: This route must be defined BEFORE /sources/:id to avoid route conflicts
+app.get("/make-server-17cae920/sources/search", async (c) => {
+  try {
+    const query = c.req.query("q");
+    const rows = c.req.query("rows") || "10";
+
+    if (!query) {
+      return c.json({ error: "Query parameter 'q' is required" }, 400);
+    }
+
+    // Build CrossRef API query
+    // Add sustainability/waste-related terms to improve relevance
+    const searchTerms = `${query} (recycling OR recyclability OR biodegradation OR composting OR waste OR sustainability OR environmental)`;
+
+    const crossrefUrl = `https://api.crossref.org/works?query=${encodeURIComponent(
+      searchTerms
+    )}&rows=${rows}&select=DOI,title,author,published-print,published-online,container-title,abstract,type&filter=type:journal-article`;
+
+    const response = await fetch(crossrefUrl, {
+      headers: {
+        "User-Agent": "WasteDB/1.0 (mailto:natto@wastefull.org)",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`CrossRef API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const items = data.message?.items || [];
+
+    // Transform results to our format
+    const results = items.map((item: any) => ({
+      doi: item.DOI,
+      title: item.title?.[0] || "Untitled",
+      authors: (item.author || []).map((a: any) =>
+        a.given && a.family
+          ? `${a.given} ${a.family}`
+          : a.family || a.name || "Unknown"
+      ),
+      year:
+        item["published-print"]?.["date-parts"]?.[0]?.[0] ||
+        item["published-online"]?.["date-parts"]?.[0]?.[0] ||
+        null,
+      journal: item["container-title"]?.[0] || null,
+      abstract: item.abstract || null,
+      type: item.type,
+    }));
+
+    return c.json({
+      success: true,
+      query,
+      total: data.message?.["total-results"] || 0,
+      results,
+    });
+  } catch (error) {
+    console.error("Error searching CrossRef:", error);
+    return c.json(
+      {
+        error: "Failed to search for sources",
+        details: String(error),
+      },
+      500
+    );
+  }
+});
+
+// Lookup DOI metadata from CrossRef
+// IMPORTANT: This route must be defined BEFORE /sources/:id to avoid route conflicts
+app.get("/make-server-17cae920/sources/lookup-doi", async (c) => {
+  try {
+    const doi = c.req.query("doi");
+
+    if (!doi) {
+      return c.json({ error: "DOI parameter is required" }, 400);
+    }
+
+    // Normalize DOI
+    const normalizedDoi = doi
+      .replace(/^https?:\/\/(dx\.)?doi\.org\//, "")
+      .replace(/^doi:/, "")
+      .trim();
+
+    if (!normalizedDoi) {
+      return c.json({ error: "Invalid DOI format" }, 400);
+    }
+
+    const crossrefUrl = `https://api.crossref.org/works/${encodeURIComponent(
+      normalizedDoi
+    )}`;
+
+    const response = await fetch(crossrefUrl, {
+      headers: {
+        "User-Agent": "WasteDB/1.0 (mailto:natto@wastefull.org)",
+      },
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        return c.json({ error: "DOI not found", doi: normalizedDoi }, 404);
+      }
+      throw new Error(`CrossRef API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const item = data.message;
+
+    return c.json({
+      success: true,
+      source: {
+        doi: item.DOI,
+        title: item.title?.[0] || "Untitled",
+        authors: (item.author || []).map((a: any) =>
+          a.given && a.family
+            ? `${a.given} ${a.family}`
+            : a.family || a.name || "Unknown"
+        ),
+        year:
+          item["published-print"]?.["date-parts"]?.[0]?.[0] ||
+          item["published-online"]?.["date-parts"]?.[0]?.[0] ||
+          null,
+        journal: item["container-title"]?.[0] || null,
+        abstract: item.abstract || null,
+        type: item.type,
+        publisher: item.publisher || null,
+        issn: item.ISSN?.[0] || null,
+        url: item.URL || `https://doi.org/${item.DOI}`,
+      },
+    });
+  } catch (error) {
+    console.error("Error looking up DOI:", error);
+    return c.json(
+      {
+        error: "Failed to lookup DOI",
+        details: String(error),
+      },
+      500
+    );
+  }
+});
+
 // Check Open Access status via Unpaywall API
 // IMPORTANT: This route must be defined BEFORE /sources/:id to avoid route conflicts
 app.get("/make-server-17cae920/sources/check-oa", async (c) => {
@@ -5134,6 +5276,197 @@ app.put(
       console.error("Error updating source:", error);
       return c.json(
         { error: "Failed to update source", details: String(error) },
+        500
+      );
+    }
+  }
+);
+
+// Batch delete ALL sources (admin only) - for cleanup
+// NOTE: This route MUST come before /sources/:id to avoid :id matching "batch-delete-all"
+app.delete(
+  "/make-server-17cae920/sources/batch-delete-all",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const userId = c.get("userId");
+      const userEmail = c.get("userEmail");
+
+      // Get all sources
+      const allSources = await kv.getByPrefix("source:");
+
+      if (allSources.length === 0) {
+        return c.json({
+          success: true,
+          deletedCount: 0,
+          message: "No sources to delete",
+        });
+      }
+
+      // Check for any sources with dependent evidence
+      const sourcesWithDependents: string[] = [];
+      const deletableSources: any[] = [];
+
+      for (const source of allSources) {
+        // Check indexed evidence
+        const evidenceIndexKey = `evidence_index:source:${source.id}`;
+        const evidenceIds = (await kv.get(evidenceIndexKey)) || [];
+
+        if (evidenceIds.length > 0) {
+          sourcesWithDependents.push(source.id);
+        } else {
+          deletableSources.push(source);
+        }
+      }
+
+      // If some sources have dependents, warn but continue with the rest
+      if (sourcesWithDependents.length > 0 && deletableSources.length === 0) {
+        return c.json(
+          {
+            error: "All sources have dependent evidence points",
+            message: `All ${sourcesWithDependents.length} sources have dependent evidence points (MIUs). Delete evidence points first.`,
+            skippedSources: sourcesWithDependents,
+          },
+          400
+        );
+      }
+
+      // Delete all deletable sources
+      let deletedCount = 0;
+      const deletedIds: string[] = [];
+
+      for (const source of deletableSources) {
+        await kv.del(`source:${source.id}`);
+        deletedCount++;
+        deletedIds.push(source.id);
+      }
+
+      console.log(`✓ Batch deleted ${deletedCount} sources by user ${userId}`);
+
+      // Create ONE audit log entry for the batch delete
+      const auditId = `audit:${Date.now()}:${crypto.randomUUID()}`;
+      const entry: AuditLogEntry = {
+        id: auditId,
+        timestamp: new Date().toISOString(),
+        userId,
+        userEmail,
+        entityType: "source",
+        entityId: "BATCH_DELETE",
+        action: "delete",
+        before: {
+          deletedCount,
+          deletedIds,
+          skippedCount: sourcesWithDependents.length,
+          skippedIds: sourcesWithDependents,
+        },
+        after: null,
+        changes: [
+          `Batch deleted ${deletedCount} sources${
+            sourcesWithDependents.length > 0
+              ? ` (${sourcesWithDependents.length} skipped due to dependencies)`
+              : ""
+          }`,
+        ],
+        ipAddress: getClientId(c).split(":")[0],
+        userAgent: c.req.header("user-agent") || "unknown",
+      };
+
+      await kv.set(auditId, entry);
+      console.log(`📝 Audit log created for batch delete: ${auditId}`);
+
+      // Send ONE summary email notification
+      const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+      if (RESEND_API_KEY) {
+        try {
+          const adminEmails = ["natto@wastefull.org"];
+          const html = `
+            <!DOCTYPE html>
+            <html>
+              <head>
+                <style>
+                  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; }
+                  .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                  .header { background: #dc2626; color: white; padding: 20px; border-radius: 8px 8px 0 0; }
+                  .content { background: #ffffff; border: 1px solid #e5e7eb; border-top: none; padding: 20px; border-radius: 0 0 8px 8px; }
+                  .metadata { background: #fef2f2; padding: 15px; border-radius: 6px; margin: 15px 0; }
+                  .metadata-item { margin: 8px 0; }
+                  .label { font-weight: 600; color: #374151; }
+                  .footer { text-align: center; color: #6b7280; font-size: 12px; margin-top: 20px; }
+                </style>
+              </head>
+              <body>
+                <div class="container">
+                  <div class="header">
+                    <h2 style="margin: 0;">🗑️ WasteDB Bulk Delete Alert</h2>
+                  </div>
+                  <div class="content">
+                    <p><strong>A bulk source deletion was performed:</strong></p>
+                    
+                    <div class="metadata">
+                      <div class="metadata-item">
+                        <span class="label">Sources Deleted:</span> ${deletedCount}
+                      </div>
+                      ${
+                        sourcesWithDependents.length > 0
+                          ? `
+                      <div class="metadata-item">
+                        <span class="label">Sources Skipped (have dependencies):</span> ${sourcesWithDependents.length}
+                      </div>
+                      `
+                          : ""
+                      }
+                      <div class="metadata-item">
+                        <span class="label">Performed By:</span> ${userEmail}
+                      </div>
+                      <div class="metadata-item">
+                        <span class="label">Time:</span> ${new Date().toISOString()}
+                      </div>
+                    </div>
+                    
+                    <div class="footer">
+                      <p>This is an automated notification from WasteDB.</p>
+                    </div>
+                  </div>
+                </div>
+              </body>
+            </html>
+          `;
+
+          await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${RESEND_API_KEY}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              from: "WasteDB <admin@wastefull.org>",
+              to: adminEmails,
+              subject: `🗑️ WasteDB: Bulk Delete - ${deletedCount} sources removed`,
+              html,
+            }),
+          });
+          console.log("📧 Batch delete audit email sent");
+        } catch (emailError) {
+          console.error("Failed to send batch delete audit email:", emailError);
+        }
+      }
+
+      return c.json({
+        success: true,
+        deletedCount,
+        deletedIds,
+        skippedCount: sourcesWithDependents.length,
+        skippedIds: sourcesWithDependents,
+        message:
+          sourcesWithDependents.length > 0
+            ? `Deleted ${deletedCount} sources. ${sourcesWithDependents.length} sources skipped (have dependent evidence).`
+            : `Successfully deleted all ${deletedCount} sources.`,
+      });
+    } catch (error) {
+      console.error("Error in batch delete sources:", error);
+      return c.json(
+        { error: "Failed to batch delete sources", details: String(error) },
         500
       );
     }

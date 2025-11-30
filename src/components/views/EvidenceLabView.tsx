@@ -10,6 +10,12 @@ import {
   Link as LinkIcon,
   Edit,
   Trash2,
+  Globe,
+  ExternalLink,
+  Loader2,
+  CheckCircle,
+  XCircle,
+  Library,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -36,6 +42,10 @@ import { toast } from "sonner";
 import { projectId, publicAnonKey } from "../../utils/supabase/info";
 import { useAuthContext } from "../../contexts/AuthContext";
 import { useMaterialsContext } from "../../contexts/MaterialsContext";
+import * as api from "../../utils/api";
+import type { CrossRefSearchResult, DOILookupResult } from "../../utils/api";
+
+type ViewMode = "evidence" | "source-search";
 
 interface EvidenceLabViewProps {
   onBack: () => void;
@@ -66,6 +76,7 @@ interface MIU {
 export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
   const { user } = useAuthContext();
   const { materials } = useMaterialsContext();
+  const [viewMode, setViewMode] = useState<ViewMode>("evidence");
   const [selectedParameter, setSelectedParameter] = useState<string | null>(
     null
   );
@@ -75,6 +86,26 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
   const [loading, setLoading] = useState(false);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
+
+  // Source search state
+  const [sourceSearchQuery, setSourceSearchQuery] = useState("");
+  const [sourceSearchResults, setSourceSearchResults] = useState<
+    CrossRefSearchResult[]
+  >([]);
+  const [selectedSearchResult, setSelectedSearchResult] =
+    useState<CrossRefSearchResult | null>(null);
+  const [searchingCrossRef, setSearchingCrossRef] = useState(false);
+  const [checkingOA, setCheckingOA] = useState(false);
+  const [oaStatus, setOaStatus] = useState<{
+    is_open_access: boolean;
+    oa_status?: string | null;
+    best_oa_location?: { url: string; url_for_pdf?: string } | null;
+  } | null>(null);
+  const [addingSource, setAddingSource] = useState(false);
+  const [showAddSourceDialog, setShowAddSourceDialog] = useState(false);
+  const [sourceToAdd, setSourceToAdd] = useState<Partial<api.Source> | null>(
+    null
+  );
 
   // Form state for create/edit
   const [formData, setFormData] = useState({
@@ -331,6 +362,101 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
     setShowEditDialog(true);
   };
 
+  // Source search functions
+  const handleSourceSearch = async () => {
+    if (!sourceSearchQuery.trim()) {
+      toast.error("Please enter a search term");
+      return;
+    }
+
+    setSearchingCrossRef(true);
+    setSourceSearchResults([]);
+    setSelectedSearchResult(null);
+    setOaStatus(null);
+
+    try {
+      const result = await api.searchSources(sourceSearchQuery, 15);
+      setSourceSearchResults(result.results);
+
+      if (result.results.length === 0) {
+        toast.info("No sources found. Try different search terms.");
+      } else {
+        toast.success(`Found ${result.results.length} sources`);
+      }
+    } catch (error) {
+      console.error("Error searching sources:", error);
+      toast.error("Failed to search for sources");
+    } finally {
+      setSearchingCrossRef(false);
+    }
+  };
+
+  const handleSelectSearchResult = async (result: CrossRefSearchResult) => {
+    setSelectedSearchResult(result);
+    setOaStatus(null);
+    setCheckingOA(true);
+
+    try {
+      const oa = await api.checkOAStatus(result.doi);
+      setOaStatus(oa);
+    } catch (error) {
+      console.error("Error checking OA status:", error);
+      setOaStatus({ is_open_access: false });
+    } finally {
+      setCheckingOA(false);
+    }
+  };
+
+  const handlePrepareAddSource = () => {
+    if (!selectedSearchResult) return;
+
+    setSourceToAdd({
+      id: crypto.randomUUID(),
+      title: selectedSearchResult.title,
+      authors: selectedSearchResult.authors.join(", "), // Convert array to comma-separated string
+      year: selectedSearchResult.year || undefined,
+      doi: selectedSearchResult.doi,
+      url: `https://doi.org/${selectedSearchResult.doi}`,
+      type: "peer-reviewed" as const,
+      abstract: selectedSearchResult.abstract || undefined,
+      is_open_access: oaStatus?.is_open_access || false,
+      oa_status: oaStatus?.oa_status || undefined,
+      best_oa_url: oaStatus?.best_oa_location?.url || undefined,
+      tags: [], // User can add tags
+    });
+    setShowAddSourceDialog(true);
+  };
+
+  const handleAddSourceToLibrary = async () => {
+    if (!sourceToAdd) return;
+
+    setAddingSource(true);
+    try {
+      // Check for duplicates first
+      const duplicate = await api.checkSourceDuplicate({
+        doi: sourceToAdd.doi,
+      });
+      if (duplicate.isDuplicate) {
+        toast.error(
+          `Source already exists: ${duplicate.existingSource?.title}`
+        );
+        return;
+      }
+
+      // Create the source
+      await api.createSource(sourceToAdd as api.Source);
+      toast.success("Source added to library!");
+      setShowAddSourceDialog(false);
+      setSourceToAdd(null);
+      setSelectedSearchResult(null);
+    } catch (error) {
+      console.error("Error adding source:", error);
+      toast.error("Failed to add source to library");
+    } finally {
+      setAddingSource(false);
+    }
+  };
+
   // Count evidence points per parameter
   const getEvidenceCount = (paramCode: string) => {
     return evidencePoints.filter((e) => e.parameter_code === paramCode).length;
@@ -348,346 +474,656 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
     <div className="h-full flex flex-col bg-[#e5e4dc] dark:bg-[#1a1917]">
       {/* Header */}
       <div className="flex items-center gap-4 p-6 border-b border-[#211f1c]/20 dark:border-white/20 bg-white dark:bg-[#2a2825]">
-        <button
-          onClick={onBack}
-          className="card-interactive"
-        >
+        <button onClick={onBack} className="card-interactive">
           <ArrowLeft size={16} className="text-black" />
         </button>
         <div className="flex-1">
-          <h2 className="heading-xl">
-            Evidence Lab
-          </h2>
+          <h2 className="heading-xl">Evidence Lab</h2>
           <p className="label-muted">
-            Collect and organize scientific evidence for material parameters
+            {viewMode === "evidence"
+              ? "Collect and organize scientific evidence for material parameters"
+              : "Search academic databases for relevant sources"}
           </p>
         </div>
-        <Button
-          className="bg-[#e6beb5] hover:bg-[#e6beb5]/90 border border-[#211f1c] dark:border-white/20"
-          onClick={() => setShowCreateDialog(true)}
-        >
-          <Plus size={16} className="mr-2" />
-          New Evidence Point
-        </Button>
-      </div>
 
-      {/* Main Split-Pane Layout */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Left Pane: Parameter Selection */}
-        <div className="w-80 border-r border-[#211f1c]/20 dark:border-white/20 bg-white dark:bg-[#2a2825] flex flex-col">
-          {/* Search */}
-          <div className="panel-bordered">
-            <div className="relative">
-              <Search
-                size={14}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40"
-              />
-              <Input
-                placeholder="Search parameters..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 h-9 font-['Sniglet'] text-[12px]"
-              />
-            </div>
-          </div>
-
-          {/* Parameter List */}
-          <ScrollArea className="flex-1">
-            <div className="p-4 space-y-2">
-              {parameters.map((param) => (
-                <button
-                  key={param.code}
-                  onClick={() => setSelectedParameter(param.code)}
-                  className={`w-full p-3 rounded-lg border transition-all text-left ${
-                    selectedParameter === param.code
-                      ? "border-[#211f1c] dark:border-white bg-[#e5e4dc] dark:bg-[#3a3835] shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]"
-                      : "border-[#211f1c]/20 dark:border-white/20 hover:border-[#211f1c]/40 dark:hover:border-white/40"
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="w-6 h-6 rounded-md border border-[#211f1c] dark:border-white/20 flex items-center justify-center font-['Fredoka_One'] text-[10px]"
-                        style={{ backgroundColor: param.color }}
-                      >
-                        {param.code}
-                      </div>
-                      <span className="font-['Sniglet'] text-[13px] text-black dark:text-white">
-                        {param.name}
-                      </span>
-                    </div>
-                    <Badge
-                      variant="secondary"
-                      className="font-['Sniglet'] text-[9px]"
-                    >
-                      {getEvidenceCount(param.code)} MIUs
-                    </Badge>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </ScrollArea>
+        {/* Mode Toggle */}
+        <div className="flex gap-1 p-1 bg-[#e5e4dc] dark:bg-[#1a1917] rounded-lg border border-[#211f1c]/20 dark:border-white/20">
+          <button
+            onClick={() => setViewMode("evidence")}
+            className={`px-3 py-1.5 rounded-md text-[12px] font-['Sniglet'] transition-all ${
+              viewMode === "evidence"
+                ? "bg-white dark:bg-[#2a2825] shadow-sm text-black dark:text-white"
+                : "text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white"
+            }`}
+          >
+            <Database size={14} className="inline mr-1.5" />
+            Evidence
+          </button>
+          <button
+            onClick={() => setViewMode("source-search")}
+            className={`px-3 py-1.5 rounded-md text-[12px] font-['Sniglet'] transition-all ${
+              viewMode === "source-search"
+                ? "bg-white dark:bg-[#2a2825] shadow-sm text-black dark:text-white"
+                : "text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white"
+            }`}
+          >
+            <Globe size={14} className="inline mr-1.5" />
+            Source Search
+          </button>
         </div>
 
-        {/* Middle Pane: MIU List */}
-        <div className="flex-1 bg-white dark:bg-[#2a2825] flex flex-col border-r border-[#211f1c]/20 dark:border-white/20">
-          {selectedParameter ? (
-            <>
-              {/* MIU List Header */}
-              <div className="panel-bordered">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-['Fredoka_One'] text-[16px] text-black dark:text-white">
-                    Evidence Points for{" "}
-                    {parameters.find((p) => p.code === selectedParameter)?.name}
-                  </h3>
-                  <Button variant="outline" size="sm">
-                    <Filter size={14} className="mr-2" />
-                    Filter
-                  </Button>
-                </div>
-                <p className="label-muted-sm">
-                  {filteredEvidence.length} evidence points collected
-                </p>
-              </div>
+        {viewMode === "evidence" && (
+          <Button
+            className="bg-[#e6beb5] hover:bg-[#e6beb5]/90 border border-[#211f1c] dark:border-white/20"
+            onClick={() => setShowCreateDialog(true)}
+          >
+            <Plus size={16} className="mr-2" />
+            New Evidence Point
+          </Button>
+        )}
+      </div>
 
-              {/* MIU Cards */}
-              <ScrollArea className="flex-1">
-                <div className="p-4 space-y-3">
-                  {filteredEvidence.map((miu) => (
+      {/* Main Content - Conditional based on mode */}
+      {viewMode === "evidence" ? (
+        /* Evidence Mode - Original Split-Pane Layout */
+        <div className="flex-1 flex overflow-hidden">
+          {/* Left Pane: Parameter Selection */}
+          <div className="w-80 border-r border-[#211f1c]/20 dark:border-white/20 bg-white dark:bg-[#2a2825] flex flex-col">
+            {/* Search */}
+            <div className="panel-bordered">
+              <div className="relative">
+                <Search
+                  size={14}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40"
+                />
+                <Input
+                  placeholder="Search parameters..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9 h-9 font-['Sniglet'] text-[12px]"
+                />
+              </div>
+            </div>
+
+            {/* Parameter List */}
+            <ScrollArea className="flex-1">
+              <div className="p-4 space-y-2">
+                {parameters.map((param) => (
+                  <button
+                    key={param.code}
+                    onClick={() => setSelectedParameter(param.code)}
+                    className={`w-full p-3 rounded-lg border transition-all text-left ${
+                      selectedParameter === param.code
+                        ? "border-[#211f1c] dark:border-white bg-[#e5e4dc] dark:bg-[#3a3835] shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]"
+                        : "border-[#211f1c]/20 dark:border-white/20 hover:border-[#211f1c]/40 dark:hover:border-white/40"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="w-6 h-6 rounded-md border border-[#211f1c] dark:border-white/20 flex items-center justify-center font-['Fredoka_One'] text-[10px]"
+                          style={{ backgroundColor: param.color }}
+                        >
+                          {param.code}
+                        </div>
+                        <span className="font-['Sniglet'] text-[13px] text-black dark:text-white">
+                          {param.name}
+                        </span>
+                      </div>
+                      <Badge
+                        variant="secondary"
+                        className="font-['Sniglet'] text-[9px]"
+                      >
+                        {getEvidenceCount(param.code)} MIUs
+                      </Badge>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </ScrollArea>
+          </div>
+
+          {/* Middle Pane: MIU List */}
+          <div className="flex-1 bg-white dark:bg-[#2a2825] flex flex-col border-r border-[#211f1c]/20 dark:border-white/20">
+            {selectedParameter ? (
+              <>
+                {/* MIU List Header */}
+                <div className="panel-bordered">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-['Fredoka_One'] text-[16px] text-black dark:text-white">
+                      Evidence Points for{" "}
+                      {
+                        parameters.find((p) => p.code === selectedParameter)
+                          ?.name
+                      }
+                    </h3>
+                    <Button variant="outline" size="sm">
+                      <Filter size={14} className="mr-2" />
+                      Filter
+                    </Button>
+                  </div>
+                  <p className="label-muted-sm">
+                    {filteredEvidence.length} evidence points collected
+                  </p>
+                </div>
+
+                {/* MIU Cards */}
+                <ScrollArea className="flex-1">
+                  <div className="p-4 space-y-3">
+                    {filteredEvidence.map((miu) => (
+                      <button
+                        key={miu.id}
+                        onClick={() => setSelectedMIU(miu)}
+                        className={`w-full p-4 rounded-lg border transition-all text-left ${
+                          selectedMIU?.id === miu.id
+                            ? "border-[#211f1c] dark:border-white bg-[#e5e4dc] dark:bg-[#3a3835] shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]"
+                            : "border-[#211f1c]/20 dark:border-white/20 hover:border-[#211f1c]/40 dark:hover:border-white/40"
+                        }`}
+                      >
+                        {/* Source Title */}
+                        <div className="flex items-start gap-2 mb-2">
+                          <BookOpen
+                            size={14}
+                            className="text-black/40 dark:text-white/40 mt-0.5 flex-shrink-0"
+                          />
+                          <span className="label">{miu.citation}</span>
+                        </div>
+
+                        {/* Value */}
+                        <div className="flex items-center gap-2 mb-2">
+                          <Database
+                            size={14}
+                            className="text-black/40 dark:text-white/40"
+                          />
+                          <span className="font-['Fredoka_One'] text-[14px] text-black dark:text-white">
+                            {miu.raw_value} {miu.raw_unit}
+                          </span>
+                          <Badge
+                            variant={
+                              miu.confidence_level === "high"
+                                ? "default"
+                                : "secondary"
+                            }
+                            className="font-['Sniglet'] text-[9px] ml-auto"
+                          >
+                            {miu.confidence_level}
+                          </Badge>
+                        </div>
+
+                        {/* Context (truncated) */}
+                        <p className="label-muted-sm line-clamp-2">
+                          {miu.snippet}
+                        </p>
+
+                        {/* Metadata */}
+                        <div className="flex items-center gap-3 mt-3 pt-3 border-t border-[#211f1c]/10 dark:border-white/10">
+                          <span className="font-['Sniglet'] text-[9px] text-black/40 dark:text-white/40">
+                            Page {miu.page_number}
+                          </span>
+                          <span className="font-['Sniglet'] text-[9px] text-black/40 dark:text-white/40">
+                            •
+                          </span>
+                          <span className="font-['Sniglet'] text-[9px] text-black/40 dark:text-white/40">
+                            {new Date(miu.created_at).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </>
+            ) : (
+              <div className="flex-1 flex items-center justify-center p-8">
+                <div className="text-center">
+                  <Database
+                    size={48}
+                    className="mx-auto mb-4 text-black/20 dark:text-white/20"
+                  />
+                  <h3 className="font-['Fredoka_One'] text-[16px] text-black dark:text-white mb-2">
+                    Select a Parameter
+                  </h3>
+                  <p className="label-muted max-w-xs">
+                    Choose a parameter from the left to view and manage its
+                    evidence points
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Right Pane: MIU Detail View */}
+          <div className="w-96 bg-white dark:bg-[#2a2825] flex flex-col">
+            {selectedMIU ? (
+              <>
+                {/* Detail Header */}
+                <div className="panel-bordered">
+                  <h3 className="font-['Fredoka_One'] text-[16px] text-black dark:text-white mb-1">
+                    Evidence Point Details
+                  </h3>
+                  <p className="font-['Sniglet'] text-[10px] text-black/40 dark:text-white/40">
+                    ID: {selectedMIU.id}
+                  </p>
+                </div>
+
+                {/* Detail Content */}
+                <ScrollArea className="flex-1">
+                  <div className="p-4 space-y-4">
+                    {/* Source Information */}
+                    <div>
+                      <label className="block font-['Fredoka_One'] text-[11px] text-black/60 dark:text-white/60 mb-2">
+                        SOURCE
+                      </label>
+                      <div className="p-3 rounded-lg bg-[#e5e4dc] dark:bg-[#1a1917] border border-[#211f1c]/20 dark:border-white/20">
+                        <div className="flex items-start gap-2 mb-2">
+                          <BookOpen
+                            size={14}
+                            className="text-black/60 dark:text-white/60 mt-0.5"
+                          />
+                          <span className="label">{selectedMIU.citation}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <FileText
+                            size={12}
+                            className="text-black/40 dark:text-white/40"
+                          />
+                          <span className="label-muted-xs">
+                            Page {selectedMIU.page_number}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Value */}
+                    <div>
+                      <label className="block font-['Fredoka_One'] text-[11px] text-black/60 dark:text-white/60 mb-2">
+                        EXTRACTED VALUE
+                      </label>
+                      <div className="p-3 rounded-lg bg-[#e5e4dc] dark:bg-[#1a1917] border border-[#211f1c]/20 dark:border-white/20">
+                        <span className="font-['Fredoka_One'] text-[20px] text-black dark:text-white">
+                          {selectedMIU.raw_value} {selectedMIU.raw_unit}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Context */}
+                    <div>
+                      <label className="block font-['Fredoka_One'] text-[11px] text-black/60 dark:text-white/60 mb-2">
+                        CONTEXT
+                      </label>
+                      <div className="p-3 rounded-lg bg-[#e5e4dc] dark:bg-[#1a1917] border border-[#211f1c]/20 dark:border-white/20">
+                        <p className="label leading-relaxed">
+                          {selectedMIU.snippet}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Confidence */}
+                    <div>
+                      <label className="block font-['Fredoka_One'] text-[11px] text-black/60 dark:text-white/60 mb-2">
+                        CONFIDENCE LEVEL
+                      </label>
+                      <Badge
+                        variant={
+                          selectedMIU.confidence_level === "high"
+                            ? "default"
+                            : "secondary"
+                        }
+                        className="font-['Sniglet'] text-[11px]"
+                      >
+                        {selectedMIU.confidence_level.toUpperCase()}
+                      </Badge>
+                    </div>
+
+                    {/* Metadata */}
+                    <div>
+                      <label className="block font-['Fredoka_One'] text-[11px] text-black/60 dark:text-white/60 mb-2">
+                        METADATA
+                      </label>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between p-2 rounded bg-[#e5e4dc] dark:bg-[#1a1917]">
+                          <span className="label-muted-sm">Created by</span>
+                          <span className="font-['Sniglet'] text-[11px] text-black dark:text-white">
+                            {selectedMIU.created_by}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between p-2 rounded bg-[#e5e4dc] dark:bg-[#1a1917]">
+                          <span className="label-muted-sm">Created at</span>
+                          <span className="font-['Sniglet'] text-[11px] text-black dark:text-white">
+                            {new Date(
+                              selectedMIU.created_at
+                            ).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex gap-2 pt-4">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1"
+                        onClick={() => openEditDialog(selectedMIU)}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1"
+                        onClick={handleDeleteEvidence}
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                </ScrollArea>
+              </>
+            ) : (
+              <div className="flex-1 flex items-center justify-center p-8">
+                <div className="text-center">
+                  <FileText
+                    size={48}
+                    className="mx-auto mb-4 text-black/20 dark:text-white/20"
+                  />
+                  <h3 className="font-['Fredoka_One'] text-[16px] text-black dark:text-white mb-2">
+                    No Selection
+                  </h3>
+                  <p className="label-muted max-w-xs">
+                    Select an evidence point to view its details
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      ) : (
+        /* Source Search Mode */
+        <div className="flex-1 flex overflow-hidden">
+          {/* Left Pane: Search */}
+          <div className="w-96 border-r border-[#211f1c]/20 dark:border-white/20 bg-white dark:bg-[#2a2825] flex flex-col">
+            {/* Material-Based Search */}
+            <div className="p-4 border-b border-[#211f1c]/20 dark:border-white/20">
+              <h3 className="font-['Fredoka_One'] text-[14px] text-black dark:text-white mb-3">
+                Search Academic Sources
+              </h3>
+              <div className="space-y-3">
+                <div>
+                  <Label className="label-muted-sm mb-1.5 block">
+                    Search by material or topic
+                  </Label>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="e.g., cardboard biodegradation"
+                      value={sourceSearchQuery}
+                      onChange={(e) => setSourceSearchQuery(e.target.value)}
+                      onKeyDown={(e) =>
+                        e.key === "Enter" && handleSourceSearch()
+                      }
+                      className="h-9 font-['Sniglet'] text-[12px]"
+                    />
+                    <Button
+                      onClick={handleSourceSearch}
+                      disabled={searchingCrossRef}
+                      size="sm"
+                      className="bg-[#b8c8cb] hover:bg-[#b8c8cb]/90 border border-[#211f1c] text-black"
+                    >
+                      {searchingCrossRef ? (
+                        <Loader2 size={14} className="animate-spin" />
+                      ) : (
+                        <Search size={14} />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Quick search suggestions based on materials */}
+                {materials.length > 0 && (
+                  <div>
+                    <Label className="label-muted-xs mb-1.5 block">
+                      Quick search by material:
+                    </Label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {materials.slice(0, 5).map((m) => (
+                        <button
+                          key={m.id}
+                          onClick={() => {
+                            setSourceSearchQuery(m.name);
+                            handleSourceSearch();
+                          }}
+                          className="px-2 py-1 text-[10px] font-['Sniglet'] bg-[#e5e4dc] dark:bg-[#1a1917] border border-[#211f1c]/20 dark:border-white/20 rounded-md hover:border-[#211f1c]/40 dark:hover:border-white/40 transition-colors"
+                        >
+                          {m.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Search Results */}
+            <ScrollArea className="flex-1">
+              <div className="p-4 space-y-2">
+                {searchingCrossRef ? (
+                  <div className="text-center py-12">
+                    <Loader2
+                      size={32}
+                      className="mx-auto mb-3 animate-spin text-black/40 dark:text-white/40"
+                    />
+                    <p className="label-muted">Searching CrossRef...</p>
+                  </div>
+                ) : sourceSearchResults.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Globe
+                      size={48}
+                      className="mx-auto mb-4 text-black/20 dark:text-white/20"
+                    />
+                    <h4 className="font-['Fredoka_One'] text-[14px] text-black dark:text-white mb-2">
+                      Search for Sources
+                    </h4>
+                    <p className="label-muted-sm max-w-xs mx-auto">
+                      Enter a material name or topic to find relevant academic
+                      papers
+                    </p>
+                  </div>
+                ) : (
+                  sourceSearchResults.map((result, idx) => (
                     <button
-                      key={miu.id}
-                      onClick={() => setSelectedMIU(miu)}
-                      className={`w-full p-4 rounded-lg border transition-all text-left ${
-                        selectedMIU?.id === miu.id
+                      key={`${result.doi}-${idx}`}
+                      onClick={() => handleSelectSearchResult(result)}
+                      className={`w-full p-3 rounded-lg border transition-all text-left ${
+                        selectedSearchResult?.doi === result.doi
                           ? "border-[#211f1c] dark:border-white bg-[#e5e4dc] dark:bg-[#3a3835] shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]"
                           : "border-[#211f1c]/20 dark:border-white/20 hover:border-[#211f1c]/40 dark:hover:border-white/40"
                       }`}
                     >
-                      {/* Source Title */}
-                      <div className="flex items-start gap-2 mb-2">
-                        <BookOpen
-                          size={14}
-                          className="text-black/40 dark:text-white/40 mt-0.5 flex-shrink-0"
-                        />
-                        <span className="label">
-                          {miu.citation}
-                        </span>
-                      </div>
-
-                      {/* Value */}
-                      <div className="flex items-center gap-2 mb-2">
-                        <Database
-                          size={14}
-                          className="text-black/40 dark:text-white/40"
-                        />
-                        <span className="font-['Fredoka_One'] text-[14px] text-black dark:text-white">
-                          {miu.raw_value} {miu.raw_unit}
-                        </span>
-                        <Badge
-                          variant={
-                            miu.confidence_level === "high"
-                              ? "default"
-                              : "secondary"
-                          }
-                          className="font-['Sniglet'] text-[9px] ml-auto"
-                        >
-                          {miu.confidence_level}
-                        </Badge>
-                      </div>
-
-                      {/* Context (truncated) */}
-                      <p className="label-muted-sm line-clamp-2">
-                        {miu.snippet}
+                      <h4 className="font-['Sniglet'] text-[12px] text-black dark:text-white mb-1 line-clamp-2">
+                        {result.title}
+                      </h4>
+                      <p className="label-muted-xs mb-1">
+                        {result.authors.slice(0, 2).join(", ")}
+                        {result.authors.length > 2 && " et al."}
                       </p>
-
-                      {/* Metadata */}
-                      <div className="flex items-center gap-3 mt-3 pt-3 border-t border-[#211f1c]/10 dark:border-white/10">
-                        <span className="font-['Sniglet'] text-[9px] text-black/40 dark:text-white/40">
-                          Page {miu.page_number}
-                        </span>
-                        <span className="font-['Sniglet'] text-[9px] text-black/40 dark:text-white/40">
-                          •
-                        </span>
-                        <span className="font-['Sniglet'] text-[9px] text-black/40 dark:text-white/40">
-                          {new Date(miu.created_at).toLocaleDateString()}
-                        </span>
+                      <div className="flex items-center gap-2">
+                        {result.year && (
+                          <Badge variant="secondary" className="text-[9px]">
+                            {result.year}
+                          </Badge>
+                        )}
+                        {result.journal && (
+                          <span className="label-muted-xs truncate max-w-[150px]">
+                            {result.journal}
+                          </span>
+                        )}
                       </div>
                     </button>
-                  ))}
-                </div>
-              </ScrollArea>
-            </>
-          ) : (
-            <div className="flex-1 flex items-center justify-center p-8">
-              <div className="text-center">
-                <Database
-                  size={48}
-                  className="mx-auto mb-4 text-black/20 dark:text-white/20"
-                />
-                <h3 className="font-['Fredoka_One'] text-[16px] text-black dark:text-white mb-2">
-                  Select a Parameter
-                </h3>
-                <p className="label-muted max-w-xs">
-                  Choose a parameter from the left to view and manage its
-                  evidence points
-                </p>
+                  ))
+                )}
               </div>
-            </div>
-          )}
-        </div>
+            </ScrollArea>
+          </div>
 
-        {/* Right Pane: MIU Detail View */}
-        <div className="w-96 bg-white dark:bg-[#2a2825] flex flex-col">
-          {selectedMIU ? (
-            <>
-              {/* Detail Header */}
-              <div className="panel-bordered">
-                <h3 className="font-['Fredoka_One'] text-[16px] text-black dark:text-white mb-1">
-                  Evidence Point Details
-                </h3>
-                <p className="font-['Sniglet'] text-[10px] text-black/40 dark:text-white/40">
-                  ID: {selectedMIU.id}
-                </p>
-              </div>
-
-              {/* Detail Content */}
-              <ScrollArea className="flex-1">
-                <div className="p-4 space-y-4">
-                  {/* Source Information */}
-                  <div>
-                    <label className="block font-['Fredoka_One'] text-[11px] text-black/60 dark:text-white/60 mb-2">
-                      SOURCE
-                    </label>
-                    <div className="p-3 rounded-lg bg-[#e5e4dc] dark:bg-[#1a1917] border border-[#211f1c]/20 dark:border-white/20">
-                      <div className="flex items-start gap-2 mb-2">
-                        <BookOpen
-                          size={14}
-                          className="text-black/60 dark:text-white/60 mt-0.5"
-                        />
-                        <span className="label">
-                          {selectedMIU.citation}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <FileText
-                          size={12}
-                          className="text-black/40 dark:text-white/40"
-                        />
-                        <span className="label-muted-xs">
-                          Page {selectedMIU.page_number}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Value */}
-                  <div>
-                    <label className="block font-['Fredoka_One'] text-[11px] text-black/60 dark:text-white/60 mb-2">
-                      EXTRACTED VALUE
-                    </label>
-                    <div className="p-3 rounded-lg bg-[#e5e4dc] dark:bg-[#1a1917] border border-[#211f1c]/20 dark:border-white/20">
-                      <span className="font-['Fredoka_One'] text-[20px] text-black dark:text-white">
-                        {selectedMIU.raw_value} {selectedMIU.raw_unit}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Context */}
-                  <div>
-                    <label className="block font-['Fredoka_One'] text-[11px] text-black/60 dark:text-white/60 mb-2">
-                      CONTEXT
-                    </label>
-                    <div className="p-3 rounded-lg bg-[#e5e4dc] dark:bg-[#1a1917] border border-[#211f1c]/20 dark:border-white/20">
-                      <p className="label leading-relaxed">
-                        {selectedMIU.snippet}
+          {/* Right Pane: Source Details */}
+          <div className="flex-1 bg-white dark:bg-[#2a2825] flex flex-col">
+            {selectedSearchResult ? (
+              <>
+                {/* Detail Header */}
+                <div className="p-4 border-b border-[#211f1c]/20 dark:border-white/20">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <h3 className="font-['Fredoka_One'] text-[16px] text-black dark:text-white mb-2">
+                        {selectedSearchResult.title}
+                      </h3>
+                      <p className="label-muted text-[11px]">
+                        {selectedSearchResult.authors.join(", ")}
                       </p>
                     </div>
-                  </div>
-
-                  {/* Confidence */}
-                  <div>
-                    <label className="block font-['Fredoka_One'] text-[11px] text-black/60 dark:text-white/60 mb-2">
-                      CONFIDENCE LEVEL
-                    </label>
-                    <Badge
-                      variant={
-                        selectedMIU.confidence_level === "high"
-                          ? "default"
-                          : "secondary"
-                      }
-                      className="font-['Sniglet'] text-[11px]"
-                    >
-                      {selectedMIU.confidence_level.toUpperCase()}
-                    </Badge>
-                  </div>
-
-                  {/* Metadata */}
-                  <div>
-                    <label className="block font-['Fredoka_One'] text-[11px] text-black/60 dark:text-white/60 mb-2">
-                      METADATA
-                    </label>
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between p-2 rounded bg-[#e5e4dc] dark:bg-[#1a1917]">
-                        <span className="label-muted-sm">
-                          Created by
-                        </span>
-                        <span className="font-['Sniglet'] text-[11px] text-black dark:text-white">
-                          {selectedMIU.created_by}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between p-2 rounded bg-[#e5e4dc] dark:bg-[#1a1917]">
-                        <span className="label-muted-sm">
-                          Created at
-                        </span>
-                        <span className="font-['Sniglet'] text-[11px] text-black dark:text-white">
-                          {new Date(
-                            selectedMIU.created_at
-                          ).toLocaleDateString()}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex gap-2 pt-4">
                     <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1"
-                      onClick={() => openEditDialog(selectedMIU)}
+                      onClick={handlePrepareAddSource}
+                      className="bg-[#a8d5ba] hover:bg-[#a8d5ba]/90 border border-[#211f1c] text-black"
                     >
-                      Edit
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1"
-                      onClick={handleDeleteEvidence}
-                    >
-                      Delete
+                      <Library size={14} className="mr-2" />
+                      Add to Library
                     </Button>
                   </div>
                 </div>
-              </ScrollArea>
-            </>
-          ) : (
-            <div className="flex-1 flex items-center justify-center p-8">
-              <div className="text-center">
-                <FileText
-                  size={48}
-                  className="mx-auto mb-4 text-black/20 dark:text-white/20"
-                />
-                <h3 className="font-['Fredoka_One'] text-[16px] text-black dark:text-white mb-2">
-                  No Selection
-                </h3>
-                <p className="label-muted max-w-xs">
-                  Select an evidence point to view its details
-                </p>
+
+                {/* Detail Content */}
+                <ScrollArea className="flex-1">
+                  <div className="p-4 space-y-4">
+                    {/* Metadata */}
+                    <div className="grid grid-cols-2 gap-4">
+                      {selectedSearchResult.year && (
+                        <div>
+                          <label className="label-muted-xs block mb-1">
+                            Year
+                          </label>
+                          <span className="label">
+                            {selectedSearchResult.year}
+                          </span>
+                        </div>
+                      )}
+                      {selectedSearchResult.journal && (
+                        <div>
+                          <label className="label-muted-xs block mb-1">
+                            Journal
+                          </label>
+                          <span className="label">
+                            {selectedSearchResult.journal}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* DOI */}
+                    <div>
+                      <label className="label-muted-xs block mb-1">DOI</label>
+                      <a
+                        href={`https://doi.org/${selectedSearchResult.doi}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="label text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1"
+                      >
+                        {selectedSearchResult.doi}
+                        <ExternalLink size={12} />
+                      </a>
+                    </div>
+
+                    {/* Open Access Status */}
+                    <div>
+                      <label className="label-muted-xs block mb-1">
+                        Open Access Status
+                      </label>
+                      {checkingOA ? (
+                        <div className="flex items-center gap-2">
+                          <Loader2
+                            size={14}
+                            className="animate-spin text-black/40 dark:text-white/40"
+                          />
+                          <span className="label-muted">Checking...</span>
+                        </div>
+                      ) : oaStatus ? (
+                        <div className="flex items-center gap-2">
+                          {oaStatus.is_open_access ? (
+                            <>
+                              <CheckCircle
+                                size={16}
+                                className="text-green-600"
+                              />
+                              <span className="label text-green-600">
+                                Open Access
+                              </span>
+                              {oaStatus.oa_status && (
+                                <Badge
+                                  variant="secondary"
+                                  className="text-[9px]"
+                                >
+                                  {oaStatus.oa_status}
+                                </Badge>
+                              )}
+                            </>
+                          ) : (
+                            <>
+                              <XCircle size={16} className="text-red-500" />
+                              <span className="label text-red-500">
+                                Closed Access
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      ) : null}
+
+                      {oaStatus?.best_oa_location?.url && (
+                        <a
+                          href={oaStatus.best_oa_location.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-2 inline-flex items-center gap-1 text-[11px] font-['Sniglet'] text-blue-600 dark:text-blue-400 hover:underline"
+                        >
+                          <ExternalLink size={12} />
+                          View Open Access Version
+                        </a>
+                      )}
+                    </div>
+
+                    {/* Abstract */}
+                    {selectedSearchResult.abstract && (
+                      <div>
+                        <label className="label-muted-xs block mb-1">
+                          Abstract
+                        </label>
+                        <div
+                          className="p-3 rounded-lg bg-[#e5e4dc] dark:bg-[#1a1917] border border-[#211f1c]/20 dark:border-white/20"
+                          dangerouslySetInnerHTML={{
+                            __html: selectedSearchResult.abstract,
+                          }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </ScrollArea>
+              </>
+            ) : (
+              <div className="flex-1 flex items-center justify-center p-8">
+                <div className="text-center">
+                  <BookOpen
+                    size={48}
+                    className="mx-auto mb-4 text-black/20 dark:text-white/20"
+                  />
+                  <h3 className="font-['Fredoka_One'] text-[16px] text-black dark:text-white mb-2">
+                    Select a Source
+                  </h3>
+                  <p className="label-muted max-w-xs">
+                    Search for sources and select one to view details and add to
+                    your library
+                  </p>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Create Evidence Point Dialog */}
       <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
@@ -1098,6 +1534,176 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
             </Button>
             <Button type="button" onClick={handleUpdateEvidence}>
               Update
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Source to Library Dialog */}
+      <Dialog open={showAddSourceDialog} onOpenChange={setShowAddSourceDialog}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Add Source to Library</DialogTitle>
+            <DialogDescription>
+              Review and add this source to your library.
+            </DialogDescription>
+          </DialogHeader>
+          {sourceToAdd && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Title</Label>
+                <Input
+                  value={sourceToAdd.title || ""}
+                  onChange={(e) =>
+                    setSourceToAdd({ ...sourceToAdd, title: e.target.value })
+                  }
+                  className="w-full"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Year</Label>
+                  <Input
+                    type="number"
+                    value={sourceToAdd.year || ""}
+                    onChange={(e) =>
+                      setSourceToAdd({
+                        ...sourceToAdd,
+                        year: parseInt(e.target.value) || undefined,
+                      })
+                    }
+                    className="w-full"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Type</Label>
+                  <Select
+                    value={sourceToAdd.type || "peer-reviewed"}
+                    onValueChange={(
+                      value:
+                        | "peer-reviewed"
+                        | "government"
+                        | "industrial"
+                        | "ngo"
+                        | "internal"
+                    ) => setSourceToAdd({ ...sourceToAdd, type: value })}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="peer-reviewed">
+                        Peer-Reviewed
+                      </SelectItem>
+                      <SelectItem value="government">Government</SelectItem>
+                      <SelectItem value="industrial">Industrial</SelectItem>
+                      <SelectItem value="ngo">NGO</SelectItem>
+                      <SelectItem value="internal">Internal</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Authors</Label>
+                <Input
+                  value={sourceToAdd.authors || ""}
+                  onChange={(e) =>
+                    setSourceToAdd({
+                      ...sourceToAdd,
+                      authors: e.target.value,
+                    })
+                  }
+                  className="w-full"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>DOI</Label>
+                <Input
+                  value={sourceToAdd.doi || ""}
+                  readOnly
+                  className="w-full bg-[#e5e4dc] dark:bg-[#1a1917]"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Tags (comma-separated)</Label>
+                <Input
+                  value={sourceToAdd.tags?.join(", ") || ""}
+                  onChange={(e) =>
+                    setSourceToAdd({
+                      ...sourceToAdd,
+                      tags: e.target.value
+                        .split(",")
+                        .map((t) => t.trim().toLowerCase())
+                        .filter(Boolean),
+                    })
+                  }
+                  placeholder="e.g., cardboard, biodegradation, composting"
+                  className="w-full"
+                />
+              </div>
+
+              {/* Open Access Info */}
+              <div className="p-3 rounded-lg bg-[#e5e4dc] dark:bg-[#1a1917] border border-[#211f1c]/20 dark:border-white/20">
+                <div className="flex items-center gap-2 mb-2">
+                  {sourceToAdd.is_open_access ? (
+                    <>
+                      <CheckCircle size={14} className="text-green-600" />
+                      <span className="label text-green-600">Open Access</span>
+                      {sourceToAdd.oa_status && (
+                        <Badge variant="secondary" className="text-[9px]">
+                          {sourceToAdd.oa_status}
+                        </Badge>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <XCircle size={14} className="text-red-500" />
+                      <span className="label text-red-500">Closed Access</span>
+                    </>
+                  )}
+                </div>
+                {sourceToAdd.best_oa_url && (
+                  <a
+                    href={sourceToAdd.best_oa_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="label-muted-xs text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1"
+                  >
+                    <ExternalLink size={10} />
+                    {sourceToAdd.best_oa_url}
+                  </a>
+                )}
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setShowAddSourceDialog(false);
+                setSourceToAdd(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={handleAddSourceToLibrary}
+              disabled={addingSource}
+              className="bg-[#a8d5ba] hover:bg-[#a8d5ba]/90 text-black"
+            >
+              {addingSource ? (
+                <>
+                  <Loader2 size={14} className="mr-2 animate-spin" />
+                  Adding...
+                </>
+              ) : (
+                <>
+                  <Library size={14} className="mr-2" />
+                  Add to Library
+                </>
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

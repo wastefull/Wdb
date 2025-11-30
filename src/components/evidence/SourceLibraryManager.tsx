@@ -18,6 +18,7 @@ import {
   GraduationCap,
   Unlock,
   Lock,
+  AlertTriangle,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -48,6 +49,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../ui/alert-dialog";
 import { Alert, AlertDescription } from "../ui/alert";
 import { toast } from "sonner";
 import { Source, SOURCE_LIBRARY } from "../../data/sources";
@@ -90,6 +102,8 @@ export function SourceLibraryManager({
   const [duplicateWarning, setDuplicateWarning] = useState<any>(null);
   const [showDuplicateWarning, setShowDuplicateWarning] = useState(false);
   const [pendingSource, setPendingSource] = useState<Source | null>(null);
+  const [deletingAll, setDeletingAll] = useState(false);
+  const [showDeleteAllDialog, setShowDeleteAllDialog] = useState(false);
   const [formData, setFormData] = useState<Partial<Source>>({
     title: "",
     authors: "",
@@ -329,6 +343,39 @@ export function SourceLibraryManager({
       }
     } else {
       toast.success("Source removed from library");
+    }
+  };
+
+  const handleDeleteAllSources = async () => {
+    if (!isAuthenticated || !isAdmin) {
+      toast.error("Admin access required");
+      return;
+    }
+
+    try {
+      setDeletingAll(true);
+      const result = await api.deleteAllSources();
+
+      // Update local state - clear all sources or keep skipped ones
+      if (result.skippedCount > 0) {
+        // Keep only the sources that were skipped (have dependencies)
+        setSources(sources.filter((s) => result.skippedIds.includes(s.id)));
+        toast.warning(
+          `Deleted ${result.deletedCount} sources. ${result.skippedCount} sources skipped (have dependent evidence).`
+        );
+      } else {
+        setSources([]);
+        toast.success(
+          `Successfully deleted all ${result.deletedCount} sources.`
+        );
+      }
+
+      setCloudSynced(true);
+    } catch (error: any) {
+      console.error("Failed to delete all sources:", error);
+      toast.error(error.message || "Failed to delete all sources");
+    } finally {
+      setDeletingAll(false);
     }
   };
 
@@ -719,6 +766,77 @@ export function SourceLibraryManager({
               <Plus className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
               <span className="whitespace-nowrap">Add Source</span>
             </Button>
+
+            {/* Delete All Sources button with confirmation */}
+            {isAuthenticated && isAdmin && sources.length > 0 && (
+              <Dialog
+                open={showDeleteAllDialog}
+                onOpenChange={setShowDeleteAllDialog}
+              >
+                <DialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="border-red-500/50 text-red-600 hover:bg-red-500/10 dark:border-red-500/30 dark:text-red-400 text-[11px] md:text-sm"
+                    disabled={deletingAll}
+                  >
+                    <Trash2 className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
+                    <span className="whitespace-nowrap">
+                      {deletingAll ? "Deleting..." : "Delete All"}
+                    </span>
+                  </Button>
+                </DialogTrigger>
+                <DialogContent
+                  className="max-w-md bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20"
+                  style={{
+                    top: "50vh",
+                    left: "50vw",
+                    transform: "translate(-50%, -50%)",
+                  }}
+                >
+                  <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2 text-red-600">
+                      <AlertTriangle className="w-5 h-5" />
+                      Delete All Sources
+                    </DialogTitle>
+                    <DialogDescription asChild>
+                      <div className="space-y-3 text-black/70 dark:text-white/70">
+                        <p>
+                          Are you sure you want to delete{" "}
+                          <strong>all {sources.length} sources</strong> from the
+                          library?
+                        </p>
+                        <p className="text-amber-600 dark:text-amber-400">
+                          ⚠️ This action cannot be undone. Sources with
+                          dependent evidence points will be skipped.
+                        </p>
+                        <p className="text-sm text-black/50 dark:text-white/50">
+                          A single audit email will be sent summarizing this
+                          bulk deletion.
+                        </p>
+                      </div>
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="flex justify-end gap-2 mt-4">
+                    <Button
+                      variant="outline"
+                      className="border-[#211f1c] dark:border-white/20"
+                      onClick={() => setShowDeleteAllDialog(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setShowDeleteAllDialog(false);
+                        handleDeleteAllSources();
+                      }}
+                      className="bg-red-600 hover:bg-red-700 text-white"
+                    >
+                      Yes, Delete All
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            )}
           </div>
         </div>
 
@@ -843,18 +961,10 @@ export function SourceLibraryManager({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="text-[11px]">
-                    Source
-                  </TableHead>
-                  <TableHead className="text-[11px]">
-                    Type
-                  </TableHead>
-                  <TableHead className="text-[11px]">
-                    Weight
-                  </TableHead>
-                  <TableHead className="text-[11px]">
-                    Tags
-                  </TableHead>
+                  <TableHead className="text-[11px]">Source</TableHead>
+                  <TableHead className="text-[11px]">Type</TableHead>
+                  <TableHead className="text-[11px]">Weight</TableHead>
+                  <TableHead className="text-[11px]">Tags</TableHead>
                   <TableHead className="text-[11px] text-center">
                     Usage
                   </TableHead>
