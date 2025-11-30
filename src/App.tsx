@@ -80,6 +80,7 @@ import {
   WhitepaperSyncTool,
   TransformVersionManager,
   TransformFormulaTesting,
+  CurationWorkbench,
 } from "./components/evidence";
 
 // Charts
@@ -144,6 +145,7 @@ function AppContent() {
     navigateToSourceLibrary,
     navigateToSourceComparison,
     navigateToEvidenceLab,
+    navigateToCurationWorkbench,
     navigateToTransformTesting,
   } = useNavigationContext();
   const { user, userRole, isAuthenticated, signIn, signOut, updateUserRole } =
@@ -908,6 +910,7 @@ function AppContent() {
                 onNavigateToSourceLibrary={navigateToSourceLibrary}
                 onNavigateToSourceComparison={navigateToSourceComparison}
                 onNavigateToEvidenceLab={navigateToEvidenceLab}
+                onNavigateToCurationWorkbench={navigateToCurationWorkbench}
                 onNavigateToTransformTesting={navigateToTransformTesting}
               />
             ) : currentView.type === "data-management" ? (
@@ -986,6 +989,8 @@ function AppContent() {
               />
             ) : currentView.type === "evidence-lab" ? (
               <EvidenceLabView onBack={navigateToAdminDashboard} />
+            ) : currentView.type === "curation-workbench" ? (
+              <CurationWorkbench onBack={navigateToAdminDashboard} />
             ) : currentView.type === "transform-formula-testing" ? (
               <TransformFormulaTesting
                 onBack={navigateToAdminDashboard}

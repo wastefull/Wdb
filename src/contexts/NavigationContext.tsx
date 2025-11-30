@@ -43,6 +43,7 @@ export type ViewType =
   | { type: "source-library" }
   | { type: "source-comparison" }
   | { type: "evidence-lab" }
+  | { type: "curation-workbench" }
   | { type: "transform-formula-testing" }
   | { type: "licenses" }
   | { type: "legal-hub" }
@@ -107,6 +108,7 @@ interface NavigationContextType {
   navigateToSourceLibrary: () => void;
   navigateToSourceComparison: () => void;
   navigateToEvidenceLab: () => void;
+  navigateToCurationWorkbench: () => void;
   navigateToTransformTesting: () => void;
   navigateToLicenses: () => void;
   navigateToLegalHub: () => void;
@@ -265,6 +267,10 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
     navigateTo({ type: "evidence-lab" });
   };
 
+  const navigateToCurationWorkbench = () => {
+    navigateTo({ type: "curation-workbench" });
+  };
+
   const navigateToTransformTesting = () => {
     navigateTo({ type: "transform-formula-testing" });
   };
@@ -389,6 +395,7 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
     navigateToSourceLibrary,
     navigateToSourceComparison,
     navigateToEvidenceLab,
+    navigateToCurationWorkbench,
     navigateToTransformTesting,
     navigateToLicenses,
     navigateToLegalHub,

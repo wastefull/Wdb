@@ -37,6 +37,7 @@ interface AdminDashboardProps {
   onNavigateToSourceLibrary?: () => void;
   onNavigateToSourceComparison?: () => void;
   onNavigateToEvidenceLab?: () => void;
+  onNavigateToCurationWorkbench?: () => void;
   onNavigateToTransformTesting?: () => void;
 }
 
@@ -58,6 +59,7 @@ export function AdminDashboard({
   onNavigateToSourceLibrary,
   onNavigateToSourceComparison,
   onNavigateToEvidenceLab,
+  onNavigateToCurationWorkbench,
   onNavigateToTransformTesting,
 }: AdminDashboardProps) {
   return (
@@ -109,10 +111,7 @@ export function AdminDashboard({
                   </button>
                 )}
                 {onNavigateToAuditLog && (
-                  <button
-                    onClick={onNavigateToAuditLog}
-                    className="menu-item"
-                  >
+                  <button onClick={onNavigateToAuditLog} className="menu-item">
                     Audit Log
                   </button>
                 )}
@@ -149,17 +148,11 @@ export function AdminDashboard({
                     User Management
                   </button>
                   {onNavigateToAssets && (
-                    <button
-                      onClick={onNavigateToAssets}
-                      className="menu-item"
-                    >
+                    <button onClick={onNavigateToAssets} className="menu-item">
                       Assets
                     </button>
                   )}
-                  <button
-                    className="menu-item-disabled"
-                    disabled
-                  >
+                  <button className="menu-item-disabled" disabled>
                     Pages (Coming Soon)
                   </button>
                 </div>
@@ -192,9 +185,7 @@ export function AdminDashboard({
                 {(onNavigateToSourceLibrary ||
                   onNavigateToSourceComparison) && (
                   <div className="space-y-2">
-                    <div className="menu-header">
-                      Sources
-                    </div>
+                    <div className="menu-header">Sources</div>
                     {onNavigateToSourceLibrary && (
                       <button
                         onClick={onNavigateToSourceLibrary}
@@ -229,12 +220,18 @@ export function AdminDashboard({
                     Evidence Lab
                   </button>
                 )}
+                {onNavigateToCurationWorkbench && (
+                  <button
+                    onClick={onNavigateToCurationWorkbench}
+                    className="menu-item"
+                  >
+                    Curation Workbench
+                  </button>
+                )}
                 {/* Math with nested Transform Version Manager */}
                 {(onNavigateToMath || onNavigateToTransformManager) && (
                   <div className="space-y-2">
-                    <div className="menu-header">
-                      Math
-                    </div>
+                    <div className="menu-header">Math</div>
                     {onNavigateToTransformManager && (
                       <button
                         onClick={onNavigateToTransformManager}
@@ -272,9 +269,7 @@ export function AdminDashboard({
                 )}
                 {onNavigateToCharts && (
                   <div className="space-y-2">
-                    <div className="menu-subheader">
-                      Performance
-                    </div>
+                    <div className="menu-subheader">Performance</div>
                     <button
                       onClick={onNavigateToCharts}
                       className="menu-item-nested"
@@ -285,9 +280,7 @@ export function AdminDashboard({
                 )}
                 {(onNavigateToRoadmap || onNavigateToRoadmapOverview) && (
                   <div className="space-y-2">
-                    <div className="menu-subheader">
-                      Roadmap
-                    </div>
+                    <div className="menu-subheader">Roadmap</div>
                     {onNavigateToRoadmapOverview && (
                       <button
                         onClick={() => onNavigateToRoadmapOverview}

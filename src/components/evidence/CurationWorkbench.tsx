@@ -36,13 +36,19 @@ import { toast } from "sonner";
 import { projectId, publicAnonKey } from "../../utils/supabase/info";
 import { useMaterialsContext } from "../../contexts/MaterialsContext";
 import { Alert, AlertDescription } from "../ui/alert";
+import { SOURCE_LIBRARY } from "../../data/sources";
 
 interface CurationWorkbenchProps {
   onBack: () => void;
 }
 
-// Pilot materials for Phase 9.2
-const PILOT_MATERIALS = ["aluminum", "pet", "cardboard"];
+// Pilot materials for Phase 9.2 (matched by name, case-insensitive)
+const PILOT_MATERIAL_PATTERNS = [
+  "cardboard",
+  "pet",
+  "aluminum",
+  "plastic (pet)",
+];
 
 // CR (Compostability/Recyclability) parameters only for Phase 9.2
 const CR_PARAMETERS = [
@@ -137,9 +143,13 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
     notes: "",
   });
 
-  // Get pilot materials
-  const pilotMaterials = materials.filter((m) =>
-    PILOT_MATERIALS.includes(m.id.toLowerCase())
+  // Get pilot materials (filter by name patterns, case-insensitive)
+  const pilotMaterials = materials.filter(
+    (m) =>
+      m?.name &&
+      PILOT_MATERIAL_PATTERNS.some((pattern) =>
+        m.name.toLowerCase().includes(pattern)
+      )
   );
 
   // Load sources for the source viewer
@@ -161,13 +171,21 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
 
       if (response.ok) {
         const data = await response.json();
-        if (data.success && data.sources) {
+        if (data.success && data.sources && data.sources.length > 0) {
           setSources(data.sources);
+        } else {
+          // Fallback to local SOURCE_LIBRARY if API returns empty
+          setSources([...SOURCE_LIBRARY]);
         }
+      } else {
+        // Fallback to local SOURCE_LIBRARY on API error
+        setSources([...SOURCE_LIBRARY]);
       }
     } catch (error) {
       console.error("Error loading sources:", error);
-      toast.error("Failed to load sources");
+      // Fallback to local SOURCE_LIBRARY
+      setSources([...SOURCE_LIBRARY]);
+      toast.error("Using local source library (API unavailable)");
     } finally {
       setLoadingSources(false);
     }
@@ -343,16 +361,11 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
     <div className="h-full flex flex-col bg-[#e5e4dc] dark:bg-[#1a1917]">
       {/* Header */}
       <div className="flex items-center gap-4 p-6 border-b border-[#211f1c]/20 dark:border-white/20 bg-white dark:bg-[#2a2825]">
-        <button
-          onClick={onBack}
-          className="card-interactive"
-        >
+        <button onClick={onBack} className="card-interactive">
           <ArrowLeft size={16} className="text-black" />
         </button>
         <div className="flex-1">
-          <h2 className="heading-xl">
-            Curation Workbench
-          </h2>
+          <h2 className="heading-xl">Curation Workbench</h2>
           <p className="label-muted">
             Phase 9.2: CR Parameters Only (Aluminum, PET, Cardboard)
           </p>
@@ -451,64 +464,66 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
           <ScrollArea className="flex-1">
             {currentStep === 1 ? (
               /* Step 1: Source Selection */
-              <div className="p-6 space-y-4">
-                {loadingSources ? (
-                  <div className="text-center py-12">
-                    <p className="label-muted">
-                      Loading sources...
-                    </p>
-                  </div>
-                ) : sources.length === 0 ? (
-                  <div className="text-center py-12">
-                    <FileText
-                      size={48}
-                      className="mx-auto mb-4 text-black/20 dark:text-white/20"
-                    />
-                    <h4 className="font-['Fredoka_One'] text-[14px] text-black dark:text-white mb-2">
-                      No Sources Available
-                    </h4>
-                    <p className="label-muted-sm">
-                      Please add sources to the library first
-                    </p>
-                  </div>
-                ) : (
-                  sources.map((source) => (
-                    <button
-                      key={source.id}
-                      onClick={() => handleSourceSelect(source)}
-                      className={`w-full p-4 rounded-lg border transition-all text-left ${
-                        selectedSource?.id === source.id
-                          ? "border-[#211f1c] dark:border-white bg-[#e5e4dc] dark:bg-[#3a3835] shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]"
-                          : "border-[#211f1c]/20 dark:border-white/20 hover:border-[#211f1c]/40 dark:hover:border-white/40"
-                      }`}
-                    >
-                      <div className="flex items-start gap-2 mb-2">
-                        <BookOpen
-                          size={14}
-                          className="text-black/60 dark:text-white/60 mt-0.5 flex-shrink-0"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-['Fredoka_One'] text-[13px] text-black dark:text-white truncate">
-                            {source.title || "Untitled"}
-                          </h4>
-                          <p className="label-muted-sm line-clamp-2">
-                            {source.citation ||
-                              source.authors ||
-                              "No citation available"}
-                          </p>
-                        </div>
+              <div className="p-6">
+                <ScrollArea className="h-[calc(100vh-320px)] max-h-[500px]">
+                  <div className="space-y-4 pr-4">
+                    {loadingSources ? (
+                      <div className="text-center py-12">
+                        <p className="label-muted">Loading sources...</p>
                       </div>
-                      {source.year && (
-                        <Badge
-                          variant="secondary"
-                          className="font-['Sniglet'] text-[9px]"
+                    ) : sources.length === 0 ? (
+                      <div className="text-center py-12">
+                        <FileText
+                          size={48}
+                          className="mx-auto mb-4 text-black/20 dark:text-white/20"
+                        />
+                        <h4 className="font-['Fredoka_One'] text-[14px] text-black dark:text-white mb-2">
+                          No Sources Available
+                        </h4>
+                        <p className="label-muted-sm">
+                          Please add sources to the library first
+                        </p>
+                      </div>
+                    ) : (
+                      sources.map((source) => (
+                        <button
+                          key={source.id}
+                          onClick={() => handleSourceSelect(source)}
+                          className={`w-full p-4 rounded-lg border transition-all text-left ${
+                            selectedSource?.id === source.id
+                              ? "border-[#211f1c] dark:border-white bg-[#e5e4dc] dark:bg-[#3a3835] shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]"
+                              : "border-[#211f1c]/20 dark:border-white/20 hover:border-[#211f1c]/40 dark:hover:border-white/40"
+                          }`}
                         >
-                          {source.year}
-                        </Badge>
-                      )}
-                    </button>
-                  ))
-                )}
+                          <div className="flex items-start gap-2 mb-2">
+                            <BookOpen
+                              size={14}
+                              className="text-black/60 dark:text-white/60 mt-0.5 flex-shrink-0"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-['Fredoka_One'] text-[13px] text-black dark:text-white truncate">
+                                {source.title || "Untitled"}
+                              </h4>
+                              <p className="label-muted-sm line-clamp-2">
+                                {source.citation ||
+                                  source.authors ||
+                                  "No citation available"}
+                              </p>
+                            </div>
+                          </div>
+                          {source.year && (
+                            <Badge
+                              variant="secondary"
+                              className="font-['Sniglet'] text-[9px]"
+                            >
+                              {source.year}
+                            </Badge>
+                          )}
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </ScrollArea>
               </div>
             ) : (
               /* Steps 2-5: Show selected source content */
@@ -563,9 +578,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                       size={48}
                       className="mx-auto mb-4 text-black/20 dark:text-white/20"
                     />
-                    <p className="label-muted-sm">
-                      No source selected
-                    </p>
+                    <p className="label-muted-sm">No source selected</p>
                   </div>
                 )}
               </div>
@@ -579,13 +592,89 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
             <h3 className="font-['Fredoka_One'] text-[16px] text-black dark:text-white mb-1">
               Evidence Wizard
             </h3>
-            <p className="label-muted-sm">
-              5-Step MIU Creation Flow
-            </p>
+            <p className="label-muted-sm">5-Step MIU Creation Flow</p>
           </div>
 
           <ScrollArea className="flex-1">
             <div className="p-6 space-y-6">
+              {/* Step 1: Source Selection Confirmation */}
+              {currentStep === 1 && (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <div
+                      className={`w-6 h-6 rounded-full border flex items-center justify-center text-[11px] font-['Fredoka_One'] ${
+                        selectedSource
+                          ? "bg-[#a8d5ba] border-[#211f1c] text-black"
+                          : "border-[#211f1c]/40 text-black/40 dark:text-white/40"
+                      }`}
+                    >
+                      1
+                    </div>
+                    <Label className="font-['Fredoka_One'] text-[13px]">
+                      Select Source
+                    </Label>
+                  </div>
+
+                  {selectedSource ? (
+                    <Card className="border-2 border-[#211f1c] dark:border-white/20">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="font-['Fredoka_One'] text-[14px]">
+                          {selectedSource.title || "Untitled Source"}
+                        </CardTitle>
+                        <CardDescription className="font-['Sniglet'] text-[11px]">
+                          {selectedSource.authors || selectedSource.citation}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        {selectedSource.year && (
+                          <div className="flex items-center gap-2">
+                            <Badge variant="secondary" className="text-[10px]">
+                              {selectedSource.year}
+                            </Badge>
+                            {selectedSource.type && (
+                              <Badge variant="outline" className="text-[10px]">
+                                {selectedSource.type}
+                              </Badge>
+                            )}
+                          </div>
+                        )}
+                        {selectedSource.abstract && (
+                          <div>
+                            <Label className="font-['Fredoka_One'] text-[10px] text-black/60 dark:text-white/60">
+                              ABSTRACT
+                            </Label>
+                            <p className="font-['Sniglet'] text-[11px] text-black/80 dark:text-white/80 mt-1 line-clamp-4">
+                              {selectedSource.abstract}
+                            </p>
+                          </div>
+                        )}
+                        {selectedSource.doi && (
+                          <div>
+                            <Label className="font-['Fredoka_One'] text-[10px] text-black/60 dark:text-white/60">
+                              DOI
+                            </Label>
+                            <p className="font-['Sniglet'] text-[11px] text-blue-600 dark:text-blue-400 mt-1">
+                              {selectedSource.doi}
+                            </p>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    <div className="p-6 border-2 border-dashed border-[#211f1c]/20 dark:border-white/20 rounded-lg text-center">
+                      <FileText
+                        size={32}
+                        className="mx-auto mb-3 text-black/20 dark:text-white/20"
+                      />
+                      <p className="font-['Sniglet'] text-[12px] text-black/60 dark:text-white/60">
+                        Select a source from the list on the left to begin
+                        extracting evidence.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Step 2: Material Selection */}
               {currentStep >= 2 && (
                 <div
