@@ -1,4 +1,32 @@
 {
-  "deno.enablePaths": ["src/supabase/functions"],
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "deno.enablePaths": ["src/supabase/functions", "supabase/functions"],
+  "typescript.tsdk": "node_modules/typescript/lib",
+
+  // Editor settings for this project
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+
+  // File associations
+  "files.associations": {
+    "*.tsx": "typescriptreact"
+  },
+
+  // Search exclusions for faster searches
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/build": true,
+    "**/dist": true,
+    "**/.git": true
+  },
+
+  // Recommended extensions for this workspace
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "bradlc.vscode-tailwindcss",
+    "denoland.vscode-deno"
+  ]
 }

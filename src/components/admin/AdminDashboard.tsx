@@ -307,14 +307,6 @@ export function AdminDashboard({
                         ↳ Active Phase
                       </button>
                     )}
-                    {onNavigateToRoadmap && (
-                      <button
-                        onClick={onNavigateToRoadmap}
-                        className="menu-item-nested"
-                      >
-                        Phase 9.0
-                      </button>
-                    )}
                   </div>
                 )}
               </div>
