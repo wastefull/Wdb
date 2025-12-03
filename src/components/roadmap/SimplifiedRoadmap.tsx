@@ -134,6 +134,13 @@ export function SimplifiedRoadmap({
           status: "Future work from Phase 9.0 Day 5",
         },
         {
+          title: "CrossRef Import for Source Creation",
+          description:
+            "Add CrossRef API integration to Source Library Manager for automatic metadata population when creating new sources",
+          effort: "4-5 hours",
+          status: "Identified in Phase 9.2",
+        },
+        {
           title: "Citation Generator",
           description:
             "Generate formatted citations in multiple styles (APA, MLA, Chicago)",
@@ -232,6 +239,13 @@ export function SimplifiedRoadmap({
           description:
             "Arrow keys to switch between CR/CC/RU tabs with localStorage memory",
           effort: "1-2 hours",
+          status: "Future work from Phase 4",
+        },
+        {
+          title: "Dark Mode Chart Support",
+          description:
+            "Configure sustainability graphs (CR/CC/RU visualizations) to render properly in dark mode",
+          effort: "3-4 hours",
           status: "Future work from Phase 4",
         },
       ],

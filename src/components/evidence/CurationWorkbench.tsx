@@ -13,6 +13,11 @@ import {
   ExternalLink,
   Lock,
   Unlock,
+  Calendar,
+  Users,
+  Globe,
+  Building2,
+  FileSearch,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import {
@@ -570,16 +575,166 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
               <div className="p-6">
                 {selectedSource ? (
                   <Card className="border-2">
-                    <CardHeader>
+                    <CardHeader className="pb-3">
                       <CardTitle className="font-['Fredoka_One'] text-[14px]">
                         {selectedSource.title || "Untitled Source"}
                       </CardTitle>
-                      <CardDescription className="font-['Sniglet'] text-[11px]">
-                        {selectedSource.citation || selectedSource.authors}
-                      </CardDescription>
+                      {/* Metadata row */}
+                      <div className="flex flex-wrap items-center gap-3 mt-2">
+                        {selectedSource.authors && (
+                          <div className="flex items-center gap-1 text-[10px] text-black/60 dark:text-white/60">
+                            <Users size={10} />
+                            <span className="font-['Sniglet']">
+                              {selectedSource.authors}
+                            </span>
+                          </div>
+                        )}
+                        {selectedSource.year && (
+                          <div className="flex items-center gap-1 text-[10px] text-black/60 dark:text-white/60">
+                            <Calendar size={10} />
+                            <span className="font-['Sniglet']">
+                              {selectedSource.year}
+                            </span>
+                          </div>
+                        )}
+                        {selectedSource.type && (
+                          <Badge
+                            variant="outline"
+                            className="text-[8px] capitalize"
+                          >
+                            {selectedSource.type === "peer-reviewed" && (
+                              <BookOpen className="w-2 h-2 mr-0.5" />
+                            )}
+                            {selectedSource.type === "government" && (
+                              <Building2 className="w-2 h-2 mr-0.5" />
+                            )}
+                            {selectedSource.type === "industrial" && (
+                              <Globe className="w-2 h-2 mr-0.5" />
+                            )}
+                            {selectedSource.type}
+                          </Badge>
+                        )}
+                      </div>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
+                        {/* Quick Access Buttons */}
+                        <div className="flex flex-wrap gap-2">
+                          {selectedSource.doi && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-7 text-[10px]"
+                              onClick={() =>
+                                window.open(
+                                  `https://doi.org/${selectedSource.doi}`,
+                                  "_blank"
+                                )
+                              }
+                            >
+                              <ExternalLink size={10} className="mr-1" />
+                              Open via DOI
+                            </Button>
+                          )}
+                          {selectedSource.url && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-7 text-[10px]"
+                              onClick={() =>
+                                window.open(selectedSource.url, "_blank")
+                              }
+                            >
+                              <Globe size={10} className="mr-1" />
+                              Open Source URL
+                            </Button>
+                          )}
+                          {selectedSource.doi && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-7 text-[10px]"
+                              onClick={() =>
+                                window.open(
+                                  `https://scholar.google.com/scholar?q=${encodeURIComponent(
+                                    selectedSource.doi
+                                  )}`,
+                                  "_blank"
+                                )
+                              }
+                            >
+                              <FileSearch size={10} className="mr-1" />
+                              Google Scholar
+                            </Button>
+                          )}
+                          {!selectedSource.doi && selectedSource.title && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-7 text-[10px]"
+                              onClick={() =>
+                                window.open(
+                                  `https://scholar.google.com/scholar?q=${encodeURIComponent(
+                                    selectedSource.title
+                                  )}`,
+                                  "_blank"
+                                )
+                              }
+                            >
+                              <FileSearch size={10} className="mr-1" />
+                              Search Google Scholar
+                            </Button>
+                          )}
+                          {/* OA Status Badge */}
+                          {selectedSource.is_open_access === true && (
+                            <Badge
+                              className={`text-[8px] ${
+                                selectedSource.manual_oa_override
+                                  ? "bg-teal-100 text-teal-800 dark:bg-teal-900/20 dark:text-teal-300 border border-teal-400"
+                                  : "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
+                              }`}
+                              title={`Open Access${
+                                selectedSource.manual_oa_override
+                                  ? " (Manual Override)"
+                                  : ""
+                              }`}
+                            >
+                              <Unlock className="w-2 h-2 mr-0.5" />
+                              Open Access
+                            </Badge>
+                          )}
+                          {selectedSource.is_open_access === false && (
+                            <Badge
+                              className={`text-[8px] ${
+                                selectedSource.manual_oa_override
+                                  ? "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300 border border-orange-400"
+                                  : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
+                              }`}
+                              title={`Closed Access${
+                                selectedSource.manual_oa_override
+                                  ? " (Manual Override)"
+                                  : ""
+                              }`}
+                            >
+                              <Lock className="w-2 h-2 mr-0.5" />
+                              Closed Access
+                            </Badge>
+                          )}
+                        </div>
+
+                        {/* DOI display */}
+                        {selectedSource.doi && (
+                          <div>
+                            <Label className="font-['Fredoka_One'] text-[10px] text-black/60 dark:text-white/60">
+                              DOI
+                            </Label>
+                            <p className="font-['Sniglet'] text-[11px] text-black/80 dark:text-white/80 mt-1 font-mono">
+                              {selectedSource.doi}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Abstract */}
                         <div>
                           <Label className="font-['Fredoka_One'] text-[10px] text-black/60 dark:text-white/60">
                             ABSTRACT / SUMMARY
@@ -587,71 +742,39 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                           <p className="font-['Sniglet'] text-[11px] text-black dark:text-white mt-2 leading-relaxed">
                             {selectedSource.abstract ||
                               selectedSource.summary ||
-                              "No abstract available. Please refer to the full document for content."}
+                              "No abstract available. Use the buttons above to access the full document."}
                           </p>
                         </div>
 
-                        {selectedSource.doi && (
-                          <div>
+                        {/* PDF Viewer or Access Helper */}
+                        {selectedSource.pdfFileName ? (
+                          <div className="space-y-2">
                             <Label className="font-['Fredoka_One'] text-[10px] text-black/60 dark:text-white/60">
-                              DOI
+                              SOURCE DOCUMENT
                             </Label>
-                            <div className="flex items-center gap-2 mt-1">
-                              <a
-                                href={`https://doi.org/${selectedSource.doi}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="font-['Sniglet'] text-[11px] text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
-                              >
-                                {selectedSource.doi}
-                                <ExternalLink size={10} />
-                              </a>
-                              {/* OA Status Badge */}
-                              {selectedSource.is_open_access === true && (
-                                <Badge
-                                  className={`text-[8px] ${
-                                    selectedSource.manual_oa_override
-                                      ? "bg-teal-100 text-teal-800 dark:bg-teal-900/20 dark:text-teal-300"
-                                      : "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
-                                  }`}
-                                  title={`Open Access${
-                                    selectedSource.manual_oa_override
-                                      ? " (Manual Override)"
-                                      : ""
-                                  }`}
-                                >
-                                  <Unlock className="w-2 h-2 mr-0.5" />
-                                  OA
-                                </Badge>
-                              )}
-                              {selectedSource.is_open_access === false && (
-                                <Badge
-                                  className={`text-[8px] ${
-                                    selectedSource.manual_oa_override
-                                      ? "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300"
-                                      : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
-                                  }`}
-                                  title={`Closed Access${
-                                    selectedSource.manual_oa_override
-                                      ? " (Manual Override)"
-                                      : ""
-                                  }`}
-                                >
-                                  <Lock className="w-2 h-2 mr-0.5" />
-                                  Closed
-                                </Badge>
-                              )}
-                            </div>
+                            <iframe
+                              src={`https://${projectId}.supabase.co/storage/v1/object/public/make-17cae920-source-pdfs/${selectedSource.pdfFileName}`}
+                              className="w-full h-[500px] rounded-md border-2 border-[#211f1c]/20 dark:border-white/20"
+                              title={selectedSource.title || "PDF Document"}
+                            />
+                            <p className="font-['Sniglet'] text-[9px] text-black/50 dark:text-white/50">
+                              💡 Use the PDF viewer above to find and copy text
+                              snippets for evidence extraction.
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="p-3 bg-[#fff9e6] dark:bg-[#3a3220] border border-[#f4d5a6] dark:border-[#5a4820] rounded-md space-y-2">
+                            <p className="font-['Sniglet'] text-[10px] text-black/80 dark:text-white/80">
+                              💡 <strong>No PDF uploaded yet.</strong>
+                            </p>
+                            <p className="font-['Sniglet'] text-[9px] text-black/60 dark:text-white/60">
+                              Use the buttons above to access the source
+                              document. Once you have the PDF, upload it via the
+                              Source Library Manager to enable inline viewing
+                              here.
+                            </p>
                           </div>
                         )}
-
-                        <div className="p-3 bg-[#fff9e6] dark:bg-[#3a3220] border border-[#f4d5a6] dark:border-[#5a4820] rounded-md">
-                          <p className="font-['Sniglet'] text-[10px] text-black/80 dark:text-white/80">
-                            💡 <strong>Tip:</strong> In a production version,
-                            this pane would display the full PDF or document
-                            content for text selection and highlighting.
-                          </p>
-                        </div>
                       </div>
                     </CardContent>
                   </Card>

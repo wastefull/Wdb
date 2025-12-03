@@ -2,7 +2,7 @@
 
 _Future enhancements and deferred work items_
 
-**Last Updated:** November 17, 2025
+**Last Updated:** December 3, 2025
 
 ---
 
@@ -108,7 +108,21 @@ This document tracks all backlog items, future enhancements, and deferred work f
      - [ ] Auto-populate title, authors, year, journal fields
    - **Estimated Effort:** 2-3 hours
 
-3. **Citation Generator**
+3. **CrossRef Import for Source Creation**
+
+   - **Description:** Add CrossRef API integration to Source Library Manager for automatic metadata population when creating new sources
+   - **Tasks:**
+     - [ ] Create CrossRef API integration (api.crossref.org/works)
+     - [ ] Add "Import from DOI" button in source creation modal
+     - [ ] Add "Search CrossRef" feature to find papers by title/author
+     - [ ] Auto-populate all available fields (title, authors, year, DOI, abstract, journal)
+     - [ ] Handle Open Access status from CrossRef license data
+     - [ ] Add loading states and error handling
+   - **Estimated Effort:** 4-5 hours
+   - **Dependencies:** None
+   - **Related:** Phase 9.2 Curation Workbench improvements
+
+4. **Citation Generator**
 
    - **Description:** Generate formatted citations in multiple styles (APA, MLA, Chicago)
    - **Tasks:**
@@ -117,7 +131,7 @@ This document tracks all backlog items, future enhancements, and deferred work f
      - [ ] Add "Copy Citation" dropdown in Source Library
    - **Estimated Effort:** 3-4 hours
 
-4. **Source Versioning**
+5. **Source Versioning**
 
    - **Description:** Track changes to source metadata over time
    - **Tasks:**
@@ -126,7 +140,7 @@ This document tracks all backlog items, future enhancements, and deferred work f
      - [ ] Add revert to previous version functionality
    - **Estimated Effort:** 6-8 hours
 
-5. **Advanced Search with Boolean Operators**
+6. **Advanced Search with Boolean Operators**
    - **Description:** Support complex searches like `(aluminum OR aluminium) AND recycling NOT contamination`
    - **Tasks:**
      - [ ] Implement query parser
@@ -331,7 +345,7 @@ This document tracks all backlog items, future enhancements, and deferred work f
 | ------------------ | ----- | ------ | ------ | ------ |
 | Data Retention     | 4     | 0      | 0      | 4      |
 | Content Management | 0     | 1      | 0      | 1      |
-| Source Library     | 0     | 5      | 0      | 5      |
+| Source Library     | 0     | 6      | 0      | 6      |
 | Audit Logging      | 0     | 1      | 0      | 1      |
 | Authentication     | 0     | 0      | 4      | 4      |
 | Visualization      | 0     | 0      | 4      | 4      |
@@ -339,7 +353,7 @@ This document tracks all backlog items, future enhancements, and deferred work f
 | Logging            | 0     | 0      | 3      | 3      |
 | Caching            | 0     | 0      | 3      | 3      |
 | API/Dev Tools      | 0     | 0      | 3      | 3      |
-| **Total**          | **4** | **7**  | **20** | **31** |
+| **Total**          | **4** | **8**  | **20** | **32** |
 
 ---
 

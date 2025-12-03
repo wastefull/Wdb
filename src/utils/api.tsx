@@ -467,10 +467,17 @@ export async function updateSource(
   id: string,
   source: Source
 ): Promise<Source> {
+  logger.log("📤 updateSource called:", {
+    id,
+    pdfFileName: source.pdfFileName,
+    is_open_access: source.is_open_access,
+    manual_oa_override: source.manual_oa_override,
+  });
   const data = await apiCall(`/sources/${id}`, {
     method: "PUT",
     body: JSON.stringify(source),
   });
+  logger.log("📥 updateSource response:", data);
   return data.source;
 }
 

@@ -492,8 +492,13 @@ export function SourceLibraryManager({
       // Sync the updated source to cloud
       const updatedSource = updatedSources.find((s) => s.id === sourceId);
       if (updatedSource) {
-        console.log("☁️ Syncing updated source to cloud...");
-        await api.updateSource(sourceId, updatedSource);
+        console.log("☁️ Syncing updated source to cloud...", {
+          sourceId,
+          pdfFileName: updatedSource.pdfFileName,
+          fullSource: updatedSource,
+        });
+        const syncResult = await api.updateSource(sourceId, updatedSource);
+        console.log("☁️ Sync result:", syncResult);
       }
 
       toast.success("PDF uploaded successfully");
