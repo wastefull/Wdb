@@ -537,6 +537,64 @@ export function SourceLibraryManager({
     }
   };
 
+  // Toggle Open Access status manually (override Unpaywall)
+  const handleToggleOAStatus = async (sourceId: string) => {
+    if (!isAuthenticated || !isAdmin) {
+      toast.error("Admin access required");
+      return;
+    }
+
+    const source = sources.find((s) => s.id === sourceId);
+    if (!source) return;
+
+    // Determine current OA status (from manual override, oaStatus state, or source field)
+    const currentOaFromState = oaStatus.get(sourceId);
+    const currentIsOA =
+      source.is_open_access ?? currentOaFromState?.is_open_access ?? false;
+    const newIsOA = !currentIsOA;
+
+    // Update local state
+    const updatedSources = sources.map((s) =>
+      s.id === sourceId
+        ? {
+            ...s,
+            is_open_access: newIsOA,
+            manual_oa_override: true,
+            oa_status: newIsOA ? "manual" : "closed",
+          }
+        : s
+    );
+    setSources(updatedSources);
+
+    // Also update the oaStatus map so the UI reflects immediately
+    setOaStatus((prev) => {
+      const newMap = new Map(prev);
+      newMap.set(sourceId, {
+        is_open_access: newIsOA,
+        oa_status: newIsOA ? "manual" : "closed",
+        manual_override: true,
+      });
+      return newMap;
+    });
+
+    // Sync to cloud
+    try {
+      const updatedSource = updatedSources.find((s) => s.id === sourceId);
+      if (updatedSource) {
+        await api.updateSource(sourceId, updatedSource);
+        toast.success(
+          newIsOA
+            ? "Marked as Open Access (manual override)"
+            : "Marked as Closed Access (manual override)"
+        );
+        setCloudSynced(true);
+      }
+    } catch (error) {
+      console.error("Failed to update OA status:", error);
+      toast.error("Failed to save OA status");
+    }
+  };
+
   // No longer needed - using direct <a> links now
   // const handleViewPdf = async (pdfFileName: string) => { ... };
 
@@ -664,8 +722,35 @@ export function SourceLibraryManager({
 
       const data = await response.json();
 
-      // Store OA status
+      // Store OA status in state
       setOaStatus((prev) => new Map(prev).set(sourceId, data));
+
+      // Also persist to source object and cloud (clears manual override)
+      const updatedSources = sources.map((s) =>
+        s.id === sourceId
+          ? {
+              ...s,
+              is_open_access: data.is_open_access,
+              oa_status: data.oa_status || null,
+              best_oa_url: data.best_oa_location?.url || null,
+              manual_oa_override: false, // Clear manual override since we just checked via Unpaywall
+            }
+          : s
+      );
+      setSources(updatedSources);
+
+      // Sync to cloud if admin
+      if (isAuthenticated && isAdmin) {
+        const updatedSource = updatedSources.find((s) => s.id === sourceId);
+        if (updatedSource) {
+          try {
+            await api.updateSource(sourceId, updatedSource);
+            setCloudSynced(true);
+          } catch (err) {
+            console.error("Failed to sync OA status to cloud:", err);
+          }
+        }
+      }
 
       // Show success message
       if (data.is_open_access) {
@@ -1061,53 +1146,174 @@ export function SourceLibraryManager({
                                 >
                                   DOI <ExternalLink className="w-2 h-2" />
                                 </a>
-                                {/* OA Status Badge */}
-                                {oaStatus.has(source.id) ? (
-                                  oaStatus.get(source.id)?.is_open_access ? (
-                                    <Badge
-                                      className="text-[8px] bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300 cursor-pointer"
-                                      title={`Open Access: ${
-                                        oaStatus.get(source.id)?.oa_status ||
-                                        "Available"
-                                      }`}
-                                      onClick={() => {
-                                        const url = oaStatus.get(source.id)
-                                          ?.best_oa_location?.url;
-                                        if (url) window.open(url, "_blank");
-                                      }}
-                                    >
-                                      <Unlock className="w-2 h-2 mr-1" />
-                                      OA
-                                    </Badge>
-                                  ) : (
-                                    <Badge
-                                      className="text-[8px] bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
-                                      title="Closed Access - Not openly available"
-                                    >
-                                      <Lock className="w-2 h-2 mr-1" />
-                                      Closed
-                                    </Badge>
-                                  )
-                                ) : (
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="h-5 px-2 text-[8px]"
-                                    onClick={() =>
-                                      checkOAStatus(source.id, source.doi!)
-                                    }
-                                    disabled={checkingOA.has(source.id)}
-                                    title="Check Open Access status"
-                                  >
-                                    {checkingOA.has(source.id) ? (
-                                      <RefreshCw className="w-2 h-2 animate-spin" />
-                                    ) : (
-                                      <>
-                                        <Unlock className="w-2 h-2 mr-1" />
-                                        Check OA
-                                      </>
+                                {/* OA Status Badge - check source field first, then oaStatus state */}
+                                {(() => {
+                                  // Determine OA status: source field (manual override) > oaStatus state > unknown
+                                  const hasManualOverride =
+                                    source.manual_oa_override === true;
+                                  // Check for stored OA status (handles both undefined and null)
+                                  const hasSourceOA =
+                                    source.is_open_access === true ||
+                                    source.is_open_access === false;
+                                  const hasStateOA = oaStatus.has(source.id);
+
+                                  const isOA = hasSourceOA
+                                    ? source.is_open_access
+                                    : hasStateOA
+                                    ? oaStatus.get(source.id)?.is_open_access
+                                    : undefined;
+
+                                  const oaStatusText = hasManualOverride
+                                    ? "Manual"
+                                    : source.oa_status ||
+                                      oaStatus.get(source.id)?.oa_status ||
+                                      "";
+
+                                  // Show status badge if we have OA info (from source or state)
+                                  if (isOA === true) {
+                                    return (
+                                      <div className="flex items-center gap-1">
+                                        <Badge
+                                          className={`text-[8px] cursor-pointer ${
+                                            hasManualOverride
+                                              ? "bg-teal-100 text-teal-800 dark:bg-teal-900/20 dark:text-teal-300 border border-teal-400 dark:border-teal-600"
+                                              : "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
+                                          }`}
+                                          title={`Open Access${
+                                            hasManualOverride
+                                              ? " (Manual Override)"
+                                              : ""
+                                          }: ${oaStatusText || "Available"}${
+                                            isAdmin ? " - Click to toggle" : ""
+                                          }`}
+                                          onClick={() => {
+                                            if (isAdmin) {
+                                              handleToggleOAStatus(source.id);
+                                            } else {
+                                              const url = oaStatus.get(
+                                                source.id
+                                              )?.best_oa_location?.url;
+                                              if (url)
+                                                window.open(url, "_blank");
+                                            }
+                                          }}
+                                        >
+                                          <Unlock className="w-2 h-2 mr-1" />
+                                          OA{hasManualOverride ? "*" : ""}
+                                        </Badge>
+                                        {/* Refresh button to re-check via Unpaywall */}
+                                        {isAdmin && (
+                                          <button
+                                            onClick={() =>
+                                              checkOAStatus(
+                                                source.id,
+                                                source.doi!
+                                              )
+                                            }
+                                            disabled={checkingOA.has(source.id)}
+                                            className="p-0.5 hover:bg-black/5 dark:hover:bg-white/10 rounded"
+                                            title="Re-check via Unpaywall"
+                                          >
+                                            <RefreshCw
+                                              className={`w-2.5 h-2.5 text-black/40 dark:text-white/40 ${
+                                                checkingOA.has(source.id)
+                                                  ? "animate-spin"
+                                                  : ""
+                                              }`}
+                                            />
+                                          </button>
+                                        )}
+                                      </div>
+                                    );
+                                  } else if (isOA === false) {
+                                    return (
+                                      <div className="flex items-center gap-1">
+                                        <Badge
+                                          className={`text-[8px] ${
+                                            isAdmin ? "cursor-pointer" : ""
+                                          } ${
+                                            hasManualOverride
+                                              ? "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300 border border-orange-400 dark:border-orange-600"
+                                              : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
+                                          }`}
+                                          title={`Closed Access${
+                                            hasManualOverride
+                                              ? " (Manual Override)"
+                                              : " - Per Unpaywall (may be inaccurate for gov/IGO sources)"
+                                          }${
+                                            isAdmin ? " - Click to toggle" : ""
+                                          }`}
+                                          onClick={() => {
+                                            if (isAdmin) {
+                                              handleToggleOAStatus(source.id);
+                                            }
+                                          }}
+                                        >
+                                          <Lock className="w-2 h-2 mr-1" />
+                                          Closed{hasManualOverride ? "*" : ""}
+                                        </Badge>
+                                        {/* Refresh button to re-check via Unpaywall */}
+                                        {isAdmin && (
+                                          <button
+                                            onClick={() =>
+                                              checkOAStatus(
+                                                source.id,
+                                                source.doi!
+                                              )
+                                            }
+                                            disabled={checkingOA.has(source.id)}
+                                            className="p-0.5 hover:bg-black/5 dark:hover:bg-white/10 rounded"
+                                            title="Re-check via Unpaywall"
+                                          >
+                                            <RefreshCw
+                                              className={`w-2.5 h-2.5 text-black/40 dark:text-white/40 ${
+                                                checkingOA.has(source.id)
+                                                  ? "animate-spin"
+                                                  : ""
+                                              }`}
+                                            />
+                                          </button>
+                                        )}
+                                      </div>
+                                    );
+                                  } else {
+                                    // Unknown - show check button
+                                    return (
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="h-5 px-2 text-[8px]"
+                                        onClick={() =>
+                                          checkOAStatus(source.id, source.doi!)
+                                        }
+                                        disabled={checkingOA.has(source.id)}
+                                        title="Check Open Access status"
+                                      >
+                                        {checkingOA.has(source.id) ? (
+                                          <RefreshCw className="w-2 h-2 animate-spin" />
+                                        ) : (
+                                          <>
+                                            <Unlock className="w-2 h-2 mr-1" />
+                                            Check OA
+                                          </>
+                                        )}
+                                      </Button>
+                                    );
+                                  }
+                                })()}
+                                {/* Show PDF link for sources with DOI that also have uploaded PDF */}
+                                {source.pdfFileName && (
+                                  <a
+                                    href={api.getSourcePdfViewUrl(
+                                      source.pdfFileName
                                     )}
-                                  </Button>
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-[9px] text-green-600 dark:text-green-400 hover:underline flex items-center gap-1 cursor-pointer"
+                                    title="View uploaded PDF"
+                                  >
+                                    <BookOpen className="w-2 h-2" /> PDF
+                                  </a>
                                 )}
                               </>
                             ) : source.pdfFileName ? (
@@ -1260,7 +1466,7 @@ export function SourceLibraryManager({
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-1 justify-center">
-                          {isAdmin && !source.doi && (
+                          {isAdmin && (
                             <>
                               {source.pdfFileName ? (
                                 <Button

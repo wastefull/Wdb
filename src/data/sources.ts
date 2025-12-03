@@ -28,9 +28,10 @@ export interface Source {
   abstract?: string;
   tags?: string[]; // e.g., ['cardboard', 'paper', 'recyclability', 'composting']
   pdfFileName?: string; // Filename of uploaded PDF in Supabase Storage
-  is_open_access?: boolean; // Open Access status (from Unpaywall API)
+  is_open_access?: boolean; // Open Access status (from Unpaywall API or manual override)
   oa_status?: string | null; // OA status: 'gold', 'green', 'hybrid', 'bronze', 'closed'
   best_oa_url?: string | null; // Best OA location URL (if available)
+  manual_oa_override?: boolean; // True if is_open_access was manually set by admin (not from Unpaywall)
 }
 
 // Empty source library - add verified sources only
