@@ -496,6 +496,22 @@ export async function deleteAllSources(): Promise<{
   return data;
 }
 
+// Remove duplicate sources (admin only) - keeps first occurrence, removes exact title duplicates
+export async function removeDuplicateSources(): Promise<{
+  success: boolean;
+  duplicatesFound: number;
+  deletedCount: number;
+  deletedIds: string[];
+  skippedCount: number;
+  skippedIds: string[];
+  message: string;
+}> {
+  const data = await apiCall("/sources/remove-duplicates", {
+    method: "DELETE",
+  });
+  return data;
+}
+
 // Batch save sources (admin only)
 export async function batchSaveSources(
   sources: Source[]

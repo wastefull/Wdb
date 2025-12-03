@@ -19,6 +19,7 @@ import {
   Unlock,
   Lock,
   AlertTriangle,
+  Copy,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -104,6 +105,7 @@ export function SourceLibraryManager({
   const [pendingSource, setPendingSource] = useState<Source | null>(null);
   const [deletingAll, setDeletingAll] = useState(false);
   const [showDeleteAllDialog, setShowDeleteAllDialog] = useState(false);
+  const [removingDuplicates, setRemovingDuplicates] = useState(false);
   const [formData, setFormData] = useState<Partial<Source>>({
     title: "",
     authors: "",
@@ -376,6 +378,46 @@ export function SourceLibraryManager({
       toast.error(error.message || "Failed to delete all sources");
     } finally {
       setDeletingAll(false);
+    }
+  };
+
+  const handleRemoveDuplicates = async () => {
+    if (!isAuthenticated || !isAdmin) {
+      toast.error("Admin access required");
+      return;
+    }
+
+    try {
+      setRemovingDuplicates(true);
+      const result = await api.removeDuplicateSources();
+
+      if (result.deletedCount > 0) {
+        // Remove deleted sources from local state
+        setSources(sources.filter((s) => !result.deletedIds.includes(s.id)));
+
+        if (result.skippedCount > 0) {
+          toast.warning(
+            `Removed ${result.deletedCount} duplicates. ${result.skippedCount} skipped (have dependencies).`
+          );
+        } else {
+          toast.success(
+            `Successfully removed ${result.deletedCount} duplicate sources.`
+          );
+        }
+      } else if (result.duplicatesFound > 0) {
+        toast.info(
+          `Found ${result.duplicatesFound} duplicates but all have dependencies.`
+        );
+      } else {
+        toast.info("No duplicate sources found.");
+      }
+
+      setCloudSynced(true);
+    } catch (error: any) {
+      console.error("Failed to remove duplicates:", error);
+      toast.error(error.message || "Failed to remove duplicates");
+    } finally {
+      setRemovingDuplicates(false);
     }
   };
 
@@ -766,6 +808,21 @@ export function SourceLibraryManager({
               <Plus className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
               <span className="whitespace-nowrap">Add Source</span>
             </Button>
+
+            {/* Remove Duplicates button */}
+            {isAuthenticated && isAdmin && sources.length > 1 && (
+              <Button
+                onClick={handleRemoveDuplicates}
+                variant="outline"
+                className="border-amber-500/50 text-amber-600 hover:bg-amber-500/10 dark:border-amber-500/30 dark:text-amber-400 text-[11px] md:text-sm"
+                disabled={removingDuplicates}
+              >
+                <Copy className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
+                <span className="whitespace-nowrap">
+                  {removingDuplicates ? "Removing..." : "Remove Duplicates"}
+                </span>
+              </Button>
+            )}
 
             {/* Delete All Sources button with confirmation */}
             {isAuthenticated && isAdmin && sources.length > 0 && (

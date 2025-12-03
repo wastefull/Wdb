@@ -5473,6 +5473,256 @@ app.delete(
   }
 );
 
+// Remove duplicate sources (admin only) - keeps first occurrence, removes exact title duplicates with no dependencies
+// NOTE: This route MUST come before /sources/:id to avoid :id matching "remove-duplicates"
+app.delete(
+  "/make-server-17cae920/sources/remove-duplicates",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const userId = c.get("userId");
+      const userEmail = c.get("userEmail");
+
+      // Get all sources
+      const allSources = await kv.getByPrefix("source:");
+
+      if (allSources.length === 0) {
+        return c.json({
+          success: true,
+          deletedCount: 0,
+          message: "No sources to check for duplicates",
+        });
+      }
+
+      // Helper function to create a normalized fingerprint of a source
+      // Uses all key fields: title, authors, year, type, doi, url
+      const getSourceFingerprint = (source: any): string => {
+        const parts = [
+          (source.title || "").toLowerCase().trim(),
+          (source.authors || "").toLowerCase().trim(),
+          (source.year || "").toString(),
+          (source.doi || "").toLowerCase().trim(),
+        ];
+        return parts.join("|");
+      };
+
+      // Group sources by their fingerprint (all key fields)
+      const sourcesByFingerprint: Map<string, any[]> = new Map();
+      for (const source of allSources) {
+        const fingerprint = getSourceFingerprint(source);
+        if (!sourcesByFingerprint.has(fingerprint)) {
+          sourcesByFingerprint.set(fingerprint, []);
+        }
+        sourcesByFingerprint.get(fingerprint)!.push(source);
+      }
+
+      // Find duplicates (groups with more than one source with identical fingerprint)
+      const duplicatesToDelete: any[] = [];
+      const keptSources: string[] = [];
+
+      for (const [fingerprint, sources] of sourcesByFingerprint) {
+        if (sources.length > 1) {
+          // Sort by created_at to keep the oldest one, or by id if no created_at
+          sources.sort((a, b) => {
+            if (a.created_at && b.created_at) {
+              return (
+                new Date(a.created_at).getTime() -
+                new Date(b.created_at).getTime()
+              );
+            }
+            return (a.id || "").localeCompare(b.id || "");
+          });
+
+          // Keep the first (oldest), mark rest as duplicates
+          keptSources.push(sources[0].id);
+          for (let i = 1; i < sources.length; i++) {
+            duplicatesToDelete.push(sources[i]);
+          }
+        }
+      }
+
+      if (duplicatesToDelete.length === 0) {
+        return c.json({
+          success: true,
+          deletedCount: 0,
+          message: "No duplicate sources found",
+        });
+      }
+
+      // Check for dependencies before deleting
+      const deletableDuplicates: any[] = [];
+      const skippedDuplicates: string[] = [];
+
+      for (const source of duplicatesToDelete) {
+        // Check indexed evidence
+        const evidenceIndexKey = `evidence_index:source:${source.id}`;
+        const evidenceIds = (await kv.get(evidenceIndexKey)) || [];
+
+        if (evidenceIds.length > 0) {
+          skippedDuplicates.push(source.id);
+        } else {
+          deletableDuplicates.push(source);
+        }
+      }
+
+      // Delete the duplicates without dependencies
+      let deletedCount = 0;
+      const deletedIds: string[] = [];
+      const deletedTitles: string[] = [];
+
+      for (const source of deletableDuplicates) {
+        await kv.del(`source:${source.id}`);
+        deletedCount++;
+        deletedIds.push(source.id);
+        deletedTitles.push(source.title);
+      }
+
+      console.log(
+        `✓ Removed ${deletedCount} duplicate sources by user ${userId}`
+      );
+
+      // Create ONE audit log entry for the duplicate removal
+      const auditId = `audit:${Date.now()}:${crypto.randomUUID()}`;
+      const entry: AuditLogEntry = {
+        id: auditId,
+        timestamp: new Date().toISOString(),
+        userId,
+        userEmail,
+        entityType: "source",
+        entityId: "REMOVE_DUPLICATES",
+        action: "delete",
+        before: {
+          totalDuplicatesFound: duplicatesToDelete.length,
+          deletedCount,
+          deletedIds,
+          skippedCount: skippedDuplicates.length,
+          skippedIds: skippedDuplicates,
+        },
+        after: null,
+        changes: [
+          `Removed ${deletedCount} duplicate sources${
+            skippedDuplicates.length > 0
+              ? ` (${skippedDuplicates.length} skipped due to dependencies)`
+              : ""
+          }`,
+        ],
+        ipAddress: getClientId(c).split(":")[0],
+        userAgent: c.req.header("user-agent") || "unknown",
+      };
+
+      await kv.set(auditId, entry);
+      console.log(`📝 Audit log created for duplicate removal: ${auditId}`);
+
+      // Send ONE summary email notification
+      const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+      if (RESEND_API_KEY && deletedCount > 0) {
+        try {
+          const adminEmails = ["natto@wastefull.org"];
+          const html = `
+            <!DOCTYPE html>
+            <html>
+              <head>
+                <style>
+                  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; }
+                  .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                  .header { background: #f59e0b; color: white; padding: 20px; border-radius: 8px 8px 0 0; }
+                  .content { background: #ffffff; border: 1px solid #e5e7eb; border-top: none; padding: 20px; border-radius: 0 0 8px 8px; }
+                  .metadata { background: #fffbeb; padding: 15px; border-radius: 6px; margin: 15px 0; }
+                  .metadata-item { margin: 8px 0; }
+                  .label { font-weight: 600; color: #374151; }
+                  .footer { text-align: center; color: #6b7280; font-size: 12px; margin-top: 20px; }
+                </style>
+              </head>
+              <body>
+                <div class="container">
+                  <div class="header">
+                    <h2 style="margin: 0;">🧹 WasteDB Duplicate Removal</h2>
+                  </div>
+                  <div class="content">
+                    <p><strong>Duplicate sources were cleaned up:</strong></p>
+                    
+                    <div class="metadata">
+                      <div class="metadata-item">
+                        <span class="label">Duplicates Found:</span> ${
+                          duplicatesToDelete.length
+                        }
+                      </div>
+                      <div class="metadata-item">
+                        <span class="label">Duplicates Removed:</span> ${deletedCount}
+                      </div>
+                      ${
+                        skippedDuplicates.length > 0
+                          ? `
+                      <div class="metadata-item">
+                        <span class="label">Skipped (have dependencies):</span> ${skippedDuplicates.length}
+                      </div>
+                      `
+                          : ""
+                      }
+                      <div class="metadata-item">
+                        <span class="label">Performed By:</span> ${userEmail}
+                      </div>
+                      <div class="metadata-item">
+                        <span class="label">Time:</span> ${new Date().toISOString()}
+                      </div>
+                    </div>
+                    
+                    <div class="footer">
+                      <p>This is an automated notification from WasteDB.</p>
+                    </div>
+                  </div>
+                </div>
+              </body>
+            </html>
+          `;
+
+          await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${RESEND_API_KEY}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              from: "WasteDB <admin@wastefull.org>",
+              to: adminEmails,
+              subject: `🧹 WasteDB: Removed ${deletedCount} duplicate sources`,
+              html,
+            }),
+          });
+          console.log("📧 Duplicate removal audit email sent");
+        } catch (emailError) {
+          console.error(
+            "Failed to send duplicate removal audit email:",
+            emailError
+          );
+        }
+      }
+
+      return c.json({
+        success: true,
+        duplicatesFound: duplicatesToDelete.length,
+        deletedCount,
+        deletedIds,
+        skippedCount: skippedDuplicates.length,
+        skippedIds: skippedDuplicates,
+        message:
+          deletedCount === 0
+            ? `Found ${duplicatesToDelete.length} duplicates but all have dependencies and were skipped.`
+            : skippedDuplicates.length > 0
+            ? `Removed ${deletedCount} duplicate sources. ${skippedDuplicates.length} skipped (have dependencies).`
+            : `Successfully removed ${deletedCount} duplicate sources.`,
+      });
+    } catch (error) {
+      console.error("Error in remove duplicate sources:", error);
+      return c.json(
+        { error: "Failed to remove duplicate sources", details: String(error) },
+        500
+      );
+    }
+  }
+);
+
 // Delete source (admin only)
 app.delete(
   "/make-server-17cae920/sources/:id",
