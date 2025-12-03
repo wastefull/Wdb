@@ -11,6 +11,8 @@ import {
   BookOpen,
   AlertCircle,
   ExternalLink,
+  Lock,
+  Unlock,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import {
@@ -507,14 +509,56 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                               </p>
                             </div>
                           </div>
-                          {source.year && (
-                            <Badge
-                              variant="secondary"
-                              className="font-['Sniglet'] text-[9px]"
-                            >
-                              {source.year}
-                            </Badge>
-                          )}
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            {source.year && (
+                              <Badge
+                                variant="secondary"
+                                className="font-['Sniglet'] text-[9px]"
+                              >
+                                {source.year}
+                              </Badge>
+                            )}
+                            {/* OA Status Badge */}
+                            {source.is_open_access === true && (
+                              <Badge
+                                className={`text-[8px] ${
+                                  source.manual_oa_override
+                                    ? "bg-teal-100 text-teal-800 dark:bg-teal-900/20 dark:text-teal-300"
+                                    : "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
+                                }`}
+                                title={`Open Access${
+                                  source.manual_oa_override ? " (Manual)" : ""
+                                }`}
+                              >
+                                <Unlock className="w-2 h-2 mr-0.5" />
+                                OA
+                              </Badge>
+                            )}
+                            {source.is_open_access === false && (
+                              <Badge
+                                className={`text-[8px] ${
+                                  source.manual_oa_override
+                                    ? "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300"
+                                    : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
+                                }`}
+                                title={`Closed Access${
+                                  source.manual_oa_override ? " (Manual)" : ""
+                                }`}
+                              >
+                                <Lock className="w-2 h-2 mr-0.5" />
+                                Closed
+                              </Badge>
+                            )}
+                            {source.pdfFileName && (
+                              <Badge
+                                variant="outline"
+                                className="text-[8px] bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
+                                title="PDF Available"
+                              >
+                                PDF
+                              </Badge>
+                            )}
+                          </div>
                         </button>
                       ))
                     )}
@@ -552,15 +596,52 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                             <Label className="font-['Fredoka_One'] text-[10px] text-black/60 dark:text-white/60">
                               DOI
                             </Label>
-                            <a
-                              href={`https://doi.org/${selectedSource.doi}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="font-['Sniglet'] text-[11px] text-blue-600 dark:text-blue-400 mt-1 hover:underline flex items-center gap-1"
-                            >
-                              {selectedSource.doi}
-                              <ExternalLink size={10} />
-                            </a>
+                            <div className="flex items-center gap-2 mt-1">
+                              <a
+                                href={`https://doi.org/${selectedSource.doi}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="font-['Sniglet'] text-[11px] text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+                              >
+                                {selectedSource.doi}
+                                <ExternalLink size={10} />
+                              </a>
+                              {/* OA Status Badge */}
+                              {selectedSource.is_open_access === true && (
+                                <Badge
+                                  className={`text-[8px] ${
+                                    selectedSource.manual_oa_override
+                                      ? "bg-teal-100 text-teal-800 dark:bg-teal-900/20 dark:text-teal-300"
+                                      : "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
+                                  }`}
+                                  title={`Open Access${
+                                    selectedSource.manual_oa_override
+                                      ? " (Manual Override)"
+                                      : ""
+                                  }`}
+                                >
+                                  <Unlock className="w-2 h-2 mr-0.5" />
+                                  OA
+                                </Badge>
+                              )}
+                              {selectedSource.is_open_access === false && (
+                                <Badge
+                                  className={`text-[8px] ${
+                                    selectedSource.manual_oa_override
+                                      ? "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300"
+                                      : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
+                                  }`}
+                                  title={`Closed Access${
+                                    selectedSource.manual_oa_override
+                                      ? " (Manual Override)"
+                                      : ""
+                                  }`}
+                                >
+                                  <Lock className="w-2 h-2 mr-0.5" />
+                                  Closed
+                                </Badge>
+                              )}
+                            </div>
                           </div>
                         )}
 
@@ -655,15 +736,52 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                             <Label className="font-['Fredoka_One'] text-[10px] text-black/60 dark:text-white/60">
                               DOI
                             </Label>
-                            <a
-                              href={`https://doi.org/${selectedSource.doi}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="font-['Sniglet'] text-[11px] text-blue-600 dark:text-blue-400 mt-1 hover:underline flex items-center gap-1"
-                            >
-                              {selectedSource.doi}
-                              <ExternalLink size={10} />
-                            </a>
+                            <div className="flex items-center gap-2 mt-1">
+                              <a
+                                href={`https://doi.org/${selectedSource.doi}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="font-['Sniglet'] text-[11px] text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+                              >
+                                {selectedSource.doi}
+                                <ExternalLink size={10} />
+                              </a>
+                              {/* OA Status Badge */}
+                              {selectedSource.is_open_access === true && (
+                                <Badge
+                                  className={`text-[8px] ${
+                                    selectedSource.manual_oa_override
+                                      ? "bg-teal-100 text-teal-800 dark:bg-teal-900/20 dark:text-teal-300"
+                                      : "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
+                                  }`}
+                                  title={`Open Access${
+                                    selectedSource.manual_oa_override
+                                      ? " (Manual Override)"
+                                      : ""
+                                  }`}
+                                >
+                                  <Unlock className="w-2 h-2 mr-0.5" />
+                                  OA
+                                </Badge>
+                              )}
+                              {selectedSource.is_open_access === false && (
+                                <Badge
+                                  className={`text-[8px] ${
+                                    selectedSource.manual_oa_override
+                                      ? "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300"
+                                      : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
+                                  }`}
+                                  title={`Closed Access${
+                                    selectedSource.manual_oa_override
+                                      ? " (Manual Override)"
+                                      : ""
+                                  }`}
+                                >
+                                  <Lock className="w-2 h-2 mr-0.5" />
+                                  Closed
+                                </Badge>
+                              )}
+                            </div>
                           </div>
                         )}
                       </CardContent>

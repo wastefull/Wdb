@@ -5244,6 +5244,28 @@ app.put(
               ? updates.tags.filter((t: any) => t && t.trim())
               : existing.tags
             : existing.tags,
+        // Open Access fields
+        is_open_access:
+          updates.is_open_access !== undefined
+            ? updates.is_open_access
+            : existing.is_open_access,
+        oa_status:
+          updates.oa_status !== undefined
+            ? updates.oa_status
+            : existing.oa_status,
+        best_oa_url:
+          updates.best_oa_url !== undefined
+            ? updates.best_oa_url
+            : existing.best_oa_url,
+        manual_oa_override:
+          updates.manual_oa_override !== undefined
+            ? updates.manual_oa_override
+            : existing.manual_oa_override,
+        // PDF filename
+        pdfFileName:
+          updates.pdfFileName !== undefined
+            ? updates.pdfFileName
+            : existing.pdfFileName,
         updated_at: new Date().toISOString(),
         updated_by: userId,
       };

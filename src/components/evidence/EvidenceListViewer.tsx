@@ -22,6 +22,8 @@ import {
   Save,
   X,
   AlertTriangle,
+  Lock,
+  Unlock,
 } from "lucide-react";
 import { toast } from "sonner";
 import { projectId, publicAnonKey } from "../../utils/supabase/info";
@@ -55,6 +57,16 @@ interface MIU {
   created_by: string;
 }
 
+interface Source {
+  id: string;
+  title: string;
+  doi?: string;
+  is_open_access?: boolean;
+  manual_oa_override?: boolean;
+  oa_status?: string;
+  pdfFileName?: string;
+}
+
 interface EvidenceListViewerProps {
   materialFilter?: string;
   parameterFilter?: string;
@@ -83,6 +95,7 @@ export function EvidenceListViewer({
   parameterFilter,
 }: EvidenceListViewerProps) {
   const [mius, setMius] = useState<MIU[]>([]);
+  const [sources, setSources] = useState<Map<string, Source>>(new Map());
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMaterial, setSelectedMaterial] = useState<string>(
@@ -108,7 +121,34 @@ export function EvidenceListViewer({
 
   useEffect(() => {
     loadMIUs();
+    loadSources();
   }, []);
+
+  const loadSources = async () => {
+    try {
+      const response = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/sources`,
+        {
+          headers: {
+            Authorization: `Bearer ${publicAnonKey}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.sources) {
+          const sourceMap = new Map<string, Source>();
+          data.sources.forEach((source: Source) => {
+            sourceMap.set(source.id, source);
+          });
+          setSources(sourceMap);
+        }
+      }
+    } catch (error) {
+      console.error("Error loading sources:", error);
+    }
+  };
 
   const loadMIUs = async () => {
     try {
@@ -485,9 +525,55 @@ export function EvidenceListViewer({
                             <Label className="font-['Sniglet'] text-[12px] text-muted-foreground">
                               Citation
                             </Label>
-                            <p className="font-['Sniglet'] text-[12px] mt-1">
-                              {miu.citation}
-                            </p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <p className="font-['Sniglet'] text-[12px]">
+                                {miu.citation}
+                              </p>
+                              {/* OA Status Badge from source */}
+                              {(() => {
+                                const source = sources.get(miu.source_ref);
+                                if (!source) return null;
+                                if (source.is_open_access === true) {
+                                  return (
+                                    <Badge
+                                      className={`text-[8px] ${
+                                        source.manual_oa_override
+                                          ? "bg-teal-100 text-teal-800 dark:bg-teal-900/20 dark:text-teal-300"
+                                          : "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
+                                      }`}
+                                      title={`Open Access${
+                                        source.manual_oa_override
+                                          ? " (Manual)"
+                                          : ""
+                                      }`}
+                                    >
+                                      <Unlock className="w-2 h-2 mr-0.5" />
+                                      OA
+                                    </Badge>
+                                  );
+                                }
+                                if (source.is_open_access === false) {
+                                  return (
+                                    <Badge
+                                      className={`text-[8px] ${
+                                        source.manual_oa_override
+                                          ? "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300"
+                                          : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
+                                      }`}
+                                      title={`Closed Access${
+                                        source.manual_oa_override
+                                          ? " (Manual)"
+                                          : ""
+                                      }`}
+                                    >
+                                      <Lock className="w-2 h-2 mr-0.5" />
+                                      Closed
+                                    </Badge>
+                                  );
+                                }
+                                return null;
+                              })()}
+                            </div>
                           </div>
 
                           <div className="grid grid-cols-3 gap-4">
@@ -586,9 +672,47 @@ export function EvidenceListViewer({
                       <span className="font-['Sniglet'] text-[12px] font-semibold min-w-[60px]">
                         Source:
                       </span>
-                      <p className="font-['Sniglet'] text-[12px] text-muted-foreground line-clamp-1">
-                        {miu.citation}
-                      </p>
+                      <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                        <p className="font-['Sniglet'] text-[12px] text-muted-foreground line-clamp-1 flex-1">
+                          {miu.citation}
+                        </p>
+                        {/* OA Status Badge */}
+                        {(() => {
+                          const source = sources.get(miu.source_ref);
+                          if (!source) return null;
+                          if (source.is_open_access === true) {
+                            return (
+                              <Badge
+                                className={`text-[7px] shrink-0 ${
+                                  source.manual_oa_override
+                                    ? "bg-teal-100 text-teal-800 dark:bg-teal-900/20 dark:text-teal-300"
+                                    : "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
+                                }`}
+                                title="Open Access"
+                              >
+                                <Unlock className="w-2 h-2 mr-0.5" />
+                                OA
+                              </Badge>
+                            );
+                          }
+                          if (source.is_open_access === false) {
+                            return (
+                              <Badge
+                                className={`text-[7px] shrink-0 ${
+                                  source.manual_oa_override
+                                    ? "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300"
+                                    : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
+                                }`}
+                                title="Closed Access"
+                              >
+                                <Lock className="w-2 h-2 mr-0.5" />
+                                Closed
+                              </Badge>
+                            );
+                          }
+                          return null;
+                        })()}
+                      </div>
                     </div>
                   </div>
                 </CardContent>
