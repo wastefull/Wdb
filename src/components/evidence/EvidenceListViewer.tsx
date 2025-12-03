@@ -68,10 +68,14 @@ const CR_PARAMETERS = [
   { code: "E", name: "Ecotoxicity" },
 ];
 
+// Pilot materials for Phase 9.2 - all real materials
 const PILOT_MATERIALS = [
-  { id: "aluminum", name: "Aluminum" },
-  { id: "pet", name: "PET" },
-  { id: "cardboard", name: "Cardboard" },
+  { id: "cardboard-corrugated", name: "Cardboard (Corrugated)" },
+  { id: "glass-clear", name: "Glass (Clear/Flint)" },
+  { id: "glass-colored", name: "Glass (Colored)" },
+  { id: "pet-bottles", name: "PET" },
+  { id: "paper-mixed", name: "Paper (Mixed)" },
+  { id: "hdpe-bottles", name: "HDPE" },
 ];
 
 export function EvidenceListViewer({
@@ -122,11 +126,13 @@ export function EvidenceListViewer({
         const data = await response.json();
         if (data.success && data.evidence) {
           // Filter to only pilot materials and CR dimension
+          const pilotMaterialIds = PILOT_MATERIALS.map((m) =>
+            m.id.toLowerCase()
+          );
           const pilotMIUs = data.evidence.filter(
             (miu: MIU) =>
-              ["aluminum", "pet", "cardboard"].includes(
-                miu.material_id.toLowerCase()
-              ) && miu.dimension === "CR"
+              pilotMaterialIds.includes(miu.material_id.toLowerCase()) &&
+              miu.dimension === "CR"
           );
           setMius(pilotMIUs);
         }
@@ -145,8 +151,8 @@ export function EvidenceListViewer({
   const startEdit = (miu: MIU) => {
     setEditingMIU(miu);
     setEditForm({
-      value: miu.value?.toString() || "",
-      unit: miu.unit || "",
+      value: miu.raw_value?.toString() || "",
+      unit: miu.raw_unit || "",
       notes: miu.notes || "",
     });
     setSelectedMIU(null); // Close view dialog
@@ -595,7 +601,7 @@ export function EvidenceListViewer({
       {/* Edit MIU Dialog */}
       <Dialog
         open={!!editingMIU}
-        onOpenChange={(open) => !open && setEditingMIU(null)}
+        onOpenChange={(open: boolean) => !open && setEditingMIU(null)}
       >
         <DialogContent className="max-w-md border-2 border-[#211f1c] dark:border-white/20">
           <DialogHeader>
@@ -684,7 +690,7 @@ export function EvidenceListViewer({
       {/* Delete Confirmation Dialog */}
       <Dialog
         open={!!deletingMIU}
-        onOpenChange={(open) => !open && setDeletingMIU(null)}
+        onOpenChange={(open: boolean) => !open && setDeletingMIU(null)}
       >
         <DialogContent className="max-w-md border-2 border-[#211f1c] dark:border-white/20">
           <DialogHeader>

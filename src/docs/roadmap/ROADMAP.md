@@ -300,7 +300,7 @@ WasteDB will:
 - 🔄 MIU review and edit functionality
 - ⏸️ PDF annotation tools (DEFERRED to Phase 9.4 - better ROI when scaling)
 - ⬜ Double-extraction validation (task assignment, κ calculation, conflict resolution)
-- ⬜ Pilot extraction (45+ MIUs: 3 materials × 5 parameters × 3+ MIUs)
+- ⬜ Pilot extraction (90+ MIUs: 6 materials × 5 parameters × 3+ MIUs)
 
 **Phase 9.3: Aggregation Engine & Validation** ⬜ PLANNED
 

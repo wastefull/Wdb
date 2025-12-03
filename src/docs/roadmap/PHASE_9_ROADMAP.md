@@ -168,7 +168,7 @@ Drawing from proven platforms (EC3, iNaturalist, Open Food Facts, ecoinvent):
 **Scope:**
 
 - **Pilot:** CR dimension only (Recyclability)
-- **Materials:** 3 high-priority (Aluminum, PET, Cardboard)
+- **Materials:** 6 materials (PET, HDPE, Cardboard, Paper, Glass Clear, Glass Colored)
 - **Parameters:** Y, D, C, M, E (5 parameters)
 
 **Deliverables:**
@@ -190,7 +190,7 @@ Drawing from proven platforms (EC3, iNaturalist, Open Food Facts, ecoinvent):
 #### Evidence Wizard (5 Steps) ✅ COMPLETE
 
 1. ✅ **Select Source** - Browse and select from Source Library
-2. ✅ **Choose Material** - Select from pilot materials (Aluminum, PET, Cardboard)
+2. ✅ **Choose Material** - Select from pilot materials (PET, HDPE, Cardboard, Paper, Glass Clear, Glass Colored)
 3. ✅ **Pick Parameter** - Select from CR parameters (Y, D, C, M, E)
 4. ✅ **Extract Value** - Input raw value + units, paste text snippet
 5. ✅ **Add Metadata** - Specify locator (page/figure/table), confidence level, notes
@@ -238,20 +238,20 @@ Drawing from proven platforms (EC3, iNaturalist, Open Food Facts, ecoinvent):
 
 #### Pilot Extraction 📋 NOT STARTED
 
-- [ ] Extract 45+ MIUs (3 materials × 5 parameters × 3+ MIUs)
+- [ ] Extract 90+ MIUs (6 materials × 5 parameters × 3+ MIUs)
 - [ ] Test workflow end-to-end
 - [ ] Document pain points and improvements
 
 **Success Criteria:**
 
-- 3 materials have ≥3 MIUs per parameter
+- 6 materials have ≥3 MIUs per parameter
 - κ ≥ 0.7 for all double-extracted sources (can be manual)
 - <3 minutes average extraction time
 
 **Why Defer PDF Tools to 9.4?**
 
-- **Low volume in pilot:** 3 materials × 5 parameters × 3 MIUs = ~45 total evidence points
-- **Workaround acceptable:** Curators can open PDFs in separate tabs and copy/paste (minimal friction for small pilot)
+- **Manageable volume in pilot:** 6 materials × 5 parameters × 3 MIUs = ~90 total evidence points
+- **Workaround acceptable:** Curators can open PDFs in separate tabs and copy/paste (minimal friction for pilot)
 - **Focus on validation:** Phase 9.2 validates the workflow and data model, not extraction speed
 - **Better ROI in 9.4:** When scaling to 8 materials × 13 parameters (~300+ MIUs), saving 30 seconds per MIU = 2.5+ hours saved
 

@@ -524,7 +524,7 @@ Transform WasteDB from a parameter-entry system to an evidence-extraction platfo
 
 1. MIU edit functionality (3-4 hours) - REQUIRED
 2. Double-extraction validation (6-8 hours) - RECOMMENDED
-3. Pilot extraction (10-15 hours) - REQUIRED: 45+ MIUs across 3 materials
+3. Pilot extraction (15-25 hours) - REQUIRED: 90+ MIUs across 6 materials
 
 ### Phases 9.3-9.5: Planned ⬜
 

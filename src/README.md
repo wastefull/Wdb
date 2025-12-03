@@ -128,7 +128,7 @@ wastedb/
 - 5-step evidence wizard
 - Smart context pre-fill (AI-powered)
 - Unit validation against ontologies
-- Pilot scope (3 materials: Aluminum, PET, Cardboard)
+- Pilot scope (6 materials: PET, HDPE, Cardboard, Paper, Glass Clear, Glass Colored)
 - CR parameters (Y, D, C, M, E)
 
 ### 🔐 Authentication & Authorization
