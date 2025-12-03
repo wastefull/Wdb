@@ -3423,11 +3423,15 @@ app.get("/make-server-17cae920/export/full-OLD", async (c) => {
 app.get("/make-server-17cae920/sources", async (c) => {
   try {
     const sources = await kv.getByPrefix("source:");
-    return c.json({ sources: sources || [] });
+    return c.json({ success: true, sources: sources || [] });
   } catch (error) {
     console.error("Error fetching sources:", error);
     return c.json(
-      { error: "Failed to fetch sources", details: String(error) },
+      {
+        success: false,
+        error: "Failed to fetch sources",
+        details: String(error),
+      },
       500
     );
   }
@@ -4836,20 +4840,8 @@ app.delete(
 );
 
 // ===== SOURCE LIBRARY MANAGEMENT =====
-
-// Get all sources
-app.get("/make-server-17cae920/sources", async (c) => {
-  try {
-    const sources = await kv.getByPrefix("source:");
-    return c.json({ sources: sources || [] });
-  } catch (error) {
-    console.error("Error fetching sources:", error);
-    return c.json(
-      { error: "Failed to fetch sources", details: String(error) },
-      500
-    );
-  }
-});
+// Note: Main GET /sources route is defined earlier in the file (around line 3423)
+// Only additional source routes are defined here
 
 // Search CrossRef for academic papers by material/topic
 // IMPORTANT: This route must be defined BEFORE /sources/:id to avoid route conflicts
@@ -9108,59 +9100,55 @@ app.get("/make-server-17cae920/evidence", verifyAuth, async (c) => {
   }
 });
 
-// Get evidence points for a material (authenticated users only)
-app.get(
-  "/make-server-17cae920/evidence/material/:materialId",
-  verifyAuth,
-  async (c) => {
-    try {
-      const materialId = c.req.param("materialId");
+// Get evidence points for a material (public - no auth required)
+app.get("/make-server-17cae920/evidence/material/:materialId", async (c) => {
+  try {
+    const materialId = c.req.param("materialId");
 
-      // Get all evidence IDs for this material
-      const evidenceRefs = await kv.getByPrefix(
-        `evidence_by_material:${materialId}:`
-      );
+    // Get all evidence IDs for this material
+    const evidenceRefs = await kv.getByPrefix(
+      `evidence_by_material:${materialId}:`
+    );
 
-      if (!evidenceRefs || evidenceRefs.length === 0) {
-        return c.json({
-          success: true,
-          evidence: [],
-          count: 0,
-        });
-      }
-
-      // Fetch full evidence objects
-      const evidencePromises = evidenceRefs.map(async (ref: any) => {
-        const evidenceId = ref.value;
-        const evidence = await kv.get(`evidence:${evidenceId}`);
-        return evidence;
-      });
-
-      const evidence = await Promise.all(evidencePromises);
-      const validEvidence = evidence.filter((e) => e !== null);
-
-      console.log(
-        `✓ Retrieved ${validEvidence.length} evidence points for material ${materialId}`
-      );
-
+    if (!evidenceRefs || evidenceRefs.length === 0) {
       return c.json({
         success: true,
-        evidence: validEvidence,
-        count: validEvidence.length,
+        evidence: [],
+        count: 0,
       });
-    } catch (error) {
-      console.error("Error retrieving evidence by material:", error);
-      return c.json(
-        {
-          success: false,
-          error: "Failed to retrieve evidence",
-          details: String(error),
-        },
-        500
-      );
     }
+
+    // Fetch full evidence objects
+    const evidencePromises = evidenceRefs.map(async (ref: any) => {
+      const evidenceId = ref.value;
+      const evidence = await kv.get(`evidence:${evidenceId}`);
+      return evidence;
+    });
+
+    const evidence = await Promise.all(evidencePromises);
+    const validEvidence = evidence.filter((e) => e !== null);
+
+    console.log(
+      `✓ Retrieved ${validEvidence.length} evidence points for material ${materialId}`
+    );
+
+    return c.json({
+      success: true,
+      evidence: validEvidence,
+      count: validEvidence.length,
+    });
+  } catch (error) {
+    console.error("Error retrieving evidence by material:", error);
+    return c.json(
+      {
+        success: false,
+        error: "Failed to retrieve evidence",
+        details: String(error),
+      },
+      500
+    );
   }
-);
+});
 
 // Get single evidence point (authenticated users only)
 app.get("/make-server-17cae920/evidence/:evidenceId", verifyAuth, async (c) => {

@@ -1,14 +1,9 @@
 import { useState, useEffect } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { ScrollArea } from "../ui/scroll-area";
 import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
 import {
   Select,
   SelectContent,
@@ -21,10 +16,12 @@ import { Button } from "../ui/button";
 import {
   Search,
   FileText,
-  ExternalLink,
   Filter,
   Trash2,
   Edit,
+  Save,
+  X,
+  AlertTriangle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { projectId, publicAnonKey } from "../../utils/supabase/info";
@@ -35,6 +32,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
 } from "../ui/dialog";
 
 interface MIU {
@@ -91,6 +89,19 @@ export function EvidenceListViewer({
   );
   const [selectedMIU, setSelectedMIU] = useState<MIU | null>(null);
 
+  // Edit state
+  const [editingMIU, setEditingMIU] = useState<MIU | null>(null);
+  const [editForm, setEditForm] = useState<{
+    value: string;
+    unit: string;
+    notes: string;
+  }>({ value: "", unit: "", notes: "" });
+  const [saving, setSaving] = useState(false);
+
+  // Delete state
+  const [deletingMIU, setDeletingMIU] = useState<MIU | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
   useEffect(() => {
     loadMIUs();
   }, []);
@@ -127,6 +138,88 @@ export function EvidenceListViewer({
       toast.error("Failed to load evidence points");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Start editing a MIU
+  const startEdit = (miu: MIU) => {
+    setEditingMIU(miu);
+    setEditForm({
+      value: miu.value?.toString() || "",
+      unit: miu.unit || "",
+      notes: miu.notes || "",
+    });
+    setSelectedMIU(null); // Close view dialog
+  };
+
+  // Save edited MIU
+  const handleSaveEdit = async () => {
+    if (!editingMIU) return;
+
+    setSaving(true);
+    try {
+      const response = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/evidence/${editingMIU.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${publicAnonKey}`,
+          },
+          body: JSON.stringify({
+            value: editForm.value ? parseFloat(editForm.value) : null,
+            unit: editForm.unit || null,
+            notes: editForm.notes || null,
+          }),
+        }
+      );
+
+      if (response.ok) {
+        toast.success("Evidence point updated successfully");
+        setEditingMIU(null);
+        loadMIUs(); // Refresh the list
+      } else {
+        const error = await response.json();
+        toast.error(error.message || "Failed to update evidence point");
+      }
+    } catch (error) {
+      console.error("Error updating MIU:", error);
+      toast.error("Failed to update evidence point");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Delete a MIU
+  const handleDelete = async () => {
+    if (!deletingMIU) return;
+
+    setDeleting(true);
+    try {
+      const response = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/evidence/${deletingMIU.id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${publicAnonKey}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        toast.success("Evidence point deleted successfully");
+        setDeletingMIU(null);
+        setSelectedMIU(null);
+        loadMIUs(); // Refresh the list
+      } else {
+        const error = await response.json();
+        toast.error(error.message || "Failed to delete evidence point");
+      }
+    } catch (error) {
+      console.error("Error deleting MIU:", error);
+      toast.error("Failed to delete evidence point");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -441,6 +534,26 @@ export function EvidenceListViewer({
                             {miu.created_by}
                           </div>
                         </div>
+                        <DialogFooter className="flex gap-2 pt-4 border-t">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => startEdit(miu)}
+                            className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c] dark:border-white/20"
+                          >
+                            <Edit className="size-4 mr-2" />
+                            Edit
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => setDeletingMIU(miu)}
+                            className="font-['Sniglet'] text-[12px]"
+                          >
+                            <Trash2 className="size-4 mr-2" />
+                            Delete
+                          </Button>
+                        </DialogFooter>
                       </DialogContent>
                     </Dialog>
                   </div>
@@ -478,6 +591,156 @@ export function EvidenceListViewer({
           )}
         </div>
       </ScrollArea>
+
+      {/* Edit MIU Dialog */}
+      <Dialog
+        open={!!editingMIU}
+        onOpenChange={(open) => !open && setEditingMIU(null)}
+      >
+        <DialogContent className="max-w-md border-2 border-[#211f1c] dark:border-white/20">
+          <DialogHeader>
+            <DialogTitle className="font-['Fredoka_One'] text-[20px]">
+              Edit Evidence Point
+            </DialogTitle>
+            <DialogDescription className="font-['Sniglet'] text-[12px]">
+              Update the value, unit, or notes for this MIU.
+            </DialogDescription>
+          </DialogHeader>
+
+          {editingMIU && (
+            <div className="space-y-4">
+              <div className="p-3 bg-muted rounded-md border border-[#211f1c] dark:border-white/20">
+                <p className="font-['Sniglet'] text-[12px] text-muted-foreground">
+                  <strong>Material:</strong>{" "}
+                  {getMaterialName(editingMIU.material_id)} |
+                  <strong> Parameter:</strong> {editingMIU.parameter_code}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="font-['Sniglet'] text-[12px]">Value</Label>
+                  <Input
+                    type="number"
+                    step="any"
+                    value={editForm.value}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, value: e.target.value })
+                    }
+                    placeholder="e.g., 75.5"
+                    className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c] dark:border-white/20"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="font-['Sniglet'] text-[12px]">Unit</Label>
+                  <Input
+                    type="text"
+                    value={editForm.unit}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, unit: e.target.value })
+                    }
+                    placeholder="e.g., %"
+                    className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c] dark:border-white/20"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="font-['Sniglet'] text-[12px]">Notes</Label>
+                <Textarea
+                  value={editForm.notes}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, notes: e.target.value })
+                  }
+                  placeholder="Add curator notes..."
+                  className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c] dark:border-white/20 min-h-[80px]"
+                />
+              </div>
+            </div>
+          )}
+
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setEditingMIU(null)}
+              disabled={saving}
+              className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c] dark:border-white/20"
+            >
+              <X className="size-4 mr-2" />
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSaveEdit}
+              disabled={saving}
+              className="font-['Sniglet'] text-[12px] bg-[#baffc9] text-black border-2 border-[#211f1c] hover:bg-[#a0e8b0]"
+            >
+              <Save className="size-4 mr-2" />
+              {saving ? "Saving..." : "Save Changes"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={!!deletingMIU}
+        onOpenChange={(open) => !open && setDeletingMIU(null)}
+      >
+        <DialogContent className="max-w-md border-2 border-[#211f1c] dark:border-white/20">
+          <DialogHeader>
+            <DialogTitle className="font-['Fredoka_One'] text-[20px] flex items-center gap-2 text-red-600">
+              <AlertTriangle className="size-6" />
+              Delete Evidence Point
+            </DialogTitle>
+            <DialogDescription className="font-['Sniglet'] text-[12px]">
+              This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+
+          {deletingMIU && (
+            <div className="space-y-4">
+              <div className="p-4 bg-red-50 dark:bg-red-950 rounded-md border-2 border-red-300 dark:border-red-800">
+                <p className="font-['Sniglet'] text-[14px] mb-2">
+                  <strong>Material:</strong>{" "}
+                  {getMaterialName(deletingMIU.material_id)}
+                </p>
+                <p className="font-['Sniglet'] text-[14px] mb-2">
+                  <strong>Parameter:</strong> {deletingMIU.parameter_code} -{" "}
+                  {getParameterName(deletingMIU.parameter_code)}
+                </p>
+                <p className="font-['Sniglet'] text-[12px] text-muted-foreground">
+                  <strong>Value:</strong> {deletingMIU.raw_value}{" "}
+                  {deletingMIU.raw_unit}
+                </p>
+              </div>
+
+              <p className="font-['Sniglet'] text-[12px] text-muted-foreground">
+                Are you sure you want to permanently delete this evidence point?
+              </p>
+            </div>
+          )}
+
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setDeletingMIU(null)}
+              disabled={deleting}
+              className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c] dark:border-white/20"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={deleting}
+              className="font-['Sniglet'] text-[12px]"
+            >
+              <Trash2 className="size-4 mr-2" />
+              {deleting ? "Deleting..." : "Delete Permanently"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

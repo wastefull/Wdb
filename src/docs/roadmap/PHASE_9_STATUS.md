@@ -255,6 +255,16 @@ Efficient querying via prefix-based indexes:
 - ✅ Locator display (page/figure/table)
 - ✅ Integration with GET /evidence endpoint
 
+#### MIU Edit/Delete Functionality
+
+- ✅ Edit button in MIU detail modal
+- ✅ Edit form with value, unit, and notes fields
+- ✅ PUT /evidence/:id endpoint integration
+- ✅ Delete button with confirmation dialog
+- ✅ DELETE /evidence/:id endpoint integration
+- ✅ Loading states for save/delete operations
+- ✅ Toast notifications for success/error
+
 #### Unit Ontology Validation
 
 - ✅ Unit ontology validation integration
@@ -266,7 +276,6 @@ Efficient querying via prefix-based indexes:
 ### In Progress 🔄
 
 - 🔄 Smart context pre-fill (detect material/parameter from text)
-- 🔄 MIU review and edit functionality
 
 ### Deferred to Phase 9.4 ⏸️
 
@@ -281,12 +290,12 @@ Efficient querying via prefix-based indexes:
 
 ### Remaining Work
 
-1. **MIU Edit Functionality** (3-4 hours) - REQUIRED
+1. ~~**MIU Edit Functionality** (3-4 hours) - REQUIRED~~ ✅ COMPLETE (Dec 3, 2025)
 
-   - Edit form with pre-populated data
-   - PATCH endpoint integration
-   - Validation status updates
-   - Delete operations
+   - ~~Edit form with pre-populated data~~ ✅
+   - ~~PATCH endpoint integration~~ ✅ (PUT endpoint)
+   - ~~Validation status updates~~ ✅
+   - ~~Delete operations~~ ✅
 
 2. **Double-Extraction Validation** (6-8 hours) - RECOMMENDED
 
