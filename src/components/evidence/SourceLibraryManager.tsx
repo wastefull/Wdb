@@ -20,6 +20,7 @@ import {
   Lock,
   AlertTriangle,
   Copy,
+  Link,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -106,6 +107,11 @@ export function SourceLibraryManager({
   const [deletingAll, setDeletingAll] = useState(false);
   const [showDeleteAllDialog, setShowDeleteAllDialog] = useState(false);
   const [removingDuplicates, setRemovingDuplicates] = useState(false);
+  const [showUrlImportDialog, setShowUrlImportDialog] = useState<string | null>(
+    null
+  ); // sourceId for URL import
+  const [importingPdfUrl, setImportingPdfUrl] = useState(false);
+  const [pdfUrlInput, setPdfUrlInput] = useState("");
   const [formData, setFormData] = useState<Partial<Source>>({
     title: "",
     authors: "",
@@ -511,6 +517,65 @@ export function SourceLibraryManager({
       );
     } finally {
       setUploadingPdf(null);
+    }
+  };
+
+  // Import PDF from external URL (Open Access sources)
+  const handlePdfImportFromUrl = async (sourceId: string, url: string) => {
+    console.log("🔗 handlePdfImportFromUrl called:", { sourceId, url });
+
+    if (!isAuthenticated || !isAdmin) {
+      toast.error("Admin access required to import PDFs");
+      return;
+    }
+
+    if (!url.trim()) {
+      toast.error("Please enter a URL");
+      return;
+    }
+
+    // Basic URL validation
+    try {
+      new URL(url);
+    } catch {
+      toast.error("Please enter a valid URL");
+      return;
+    }
+
+    try {
+      setImportingPdfUrl(true);
+      console.log("⏳ Importing PDF from URL...");
+
+      const result = await api.importPdfFromUrl(url.trim(), sourceId);
+      console.log("✅ Import result:", result);
+
+      // Update the source with the PDF filename
+      const updatedSources = sources.map((s) =>
+        s.id === sourceId ? { ...s, pdfFileName: result.fileName } : s
+      );
+      setSources(updatedSources);
+
+      // Sync the updated source to cloud
+      const updatedSource = updatedSources.find((s) => s.id === sourceId);
+      if (updatedSource) {
+        console.log("☁️ Syncing updated source to cloud...");
+        await api.updateSource(sourceId, updatedSource);
+      }
+
+      toast.success(
+        `PDF imported successfully (${Math.round(result.size / 1024)}KB)`
+      );
+      setShowUrlImportDialog(null);
+      setPdfUrlInput("");
+    } catch (error) {
+      console.error("❌ Failed to import PDF:", error);
+      toast.error(
+        `Failed to import PDF: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+    } finally {
+      setImportingPdfUrl(false);
     }
   };
 
@@ -1489,32 +1554,61 @@ export function SourceLibraryManager({
                                   <X className="w-3 h-3" />
                                 </Button>
                               ) : (
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => {
-                                    const input =
-                                      document.createElement("input");
-                                    input.type = "file";
-                                    input.accept = "application/pdf";
-                                    input.onchange = (e) => {
-                                      const file = (
-                                        e.target as HTMLInputElement
-                                      ).files?.[0];
-                                      if (file)
-                                        handlePdfUpload(source.id, file);
-                                    };
-                                    input.click();
-                                  }}
-                                  disabled={uploadingPdf === source.id}
-                                  title="Upload PDF"
-                                >
-                                  {uploadingPdf === source.id ? (
-                                    <RefreshCw className="w-3 h-3 animate-spin" />
-                                  ) : (
-                                    <Upload className="w-3 h-3" />
-                                  )}
-                                </Button>
+                                <>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                      const input =
+                                        document.createElement("input");
+                                      input.type = "file";
+                                      input.accept = "application/pdf";
+                                      input.onchange = (e) => {
+                                        const file = (
+                                          e.target as HTMLInputElement
+                                        ).files?.[0];
+                                        if (file)
+                                          handlePdfUpload(source.id, file);
+                                      };
+                                      input.click();
+                                    }}
+                                    disabled={
+                                      uploadingPdf === source.id ||
+                                      importingPdfUrl
+                                    }
+                                    title="Upload PDF from file"
+                                  >
+                                    {uploadingPdf === source.id ? (
+                                      <RefreshCw className="w-3 h-3 animate-spin" />
+                                    ) : (
+                                      <Upload className="w-3 h-3" />
+                                    )}
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                      setShowUrlImportDialog(source.id);
+                                      // Pre-fill with source URL if it looks like a PDF
+                                      if (
+                                        source.url
+                                          ?.toLowerCase()
+                                          .endsWith(".pdf")
+                                      ) {
+                                        setPdfUrlInput(source.url);
+                                      } else {
+                                        setPdfUrlInput("");
+                                      }
+                                    }}
+                                    disabled={
+                                      uploadingPdf === source.id ||
+                                      importingPdfUrl
+                                    }
+                                    title="Import PDF from URL (Open Access)"
+                                  >
+                                    <Link className="w-3 h-3" />
+                                  </Button>
+                                </>
                               )}
                             </>
                           )}
@@ -1733,6 +1827,87 @@ export function SourceLibraryManager({
                 >
                   <Save className="w-4 h-4 mr-2" />
                   {editingSource ? "Update" : "Add"} Source
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* PDF Import from URL Dialog */}
+        <Dialog
+          open={showUrlImportDialog !== null}
+          onOpenChange={(open: boolean) => {
+            if (!open) {
+              setShowUrlImportDialog(null);
+              setPdfUrlInput("");
+            }
+          }}
+        >
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Link className="w-4 h-4" />
+                Import PDF from URL
+              </DialogTitle>
+              <DialogDescription className="text-[11px]">
+                Download and store a PDF from an external URL. Works best with
+                Open Access sources (MDPI, arXiv, PubMed Central, etc.).
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4 py-2">
+              <div>
+                <Label className="text-[11px]">PDF URL</Label>
+                <Input
+                  value={pdfUrlInput}
+                  onChange={(e) => setPdfUrlInput(e.target.value)}
+                  placeholder="https://www.mdpi.com/.../pdf or https://arxiv.org/pdf/..."
+                  className="text-[12px]"
+                  disabled={importingPdfUrl}
+                />
+              </div>
+
+              <Alert className="bg-amber-50 dark:bg-amber-900/20 border-amber-300 dark:border-amber-700">
+                <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                <AlertDescription className="text-[10px] text-amber-800 dark:text-amber-200">
+                  <strong>Note:</strong> This works for publicly accessible PDFs
+                  only. Paywalled or login-protected PDFs will fail. For those,
+                  download manually and use the file upload button.
+                </AlertDescription>
+              </Alert>
+
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setShowUrlImportDialog(null);
+                    setPdfUrlInput("");
+                  }}
+                  disabled={importingPdfUrl}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    if (showUrlImportDialog) {
+                      handlePdfImportFromUrl(showUrlImportDialog, pdfUrlInput);
+                    }
+                  }}
+                  disabled={importingPdfUrl || !pdfUrlInput.trim()}
+                >
+                  {importingPdfUrl ? (
+                    <>
+                      <RefreshCw className="w-3 h-3 mr-2 animate-spin" />
+                      Importing...
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-3 h-3 mr-2" />
+                      Import PDF
+                    </>
+                  )}
                 </Button>
               </div>
             </div>

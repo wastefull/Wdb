@@ -2008,6 +2008,204 @@ app.post(
   }
 );
 
+// Import PDF from URL (admin only) - downloads from external URL and stores in Supabase
+app.post(
+  "/make-server-17cae920/source-pdfs/import-from-url",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      console.log("Received PDF import-from-url request");
+
+      const { url, sourceId } = await c.req.json();
+
+      console.log("Request params:", { url, sourceId });
+
+      if (!url) {
+        return c.json({ error: "URL is required" }, 400);
+      }
+
+      if (!sourceId) {
+        return c.json({ error: "Source ID is required" }, 400);
+      }
+
+      // Validate URL format
+      let parsedUrl: URL;
+      try {
+        parsedUrl = new URL(url);
+        if (!parsedUrl.protocol.startsWith("http")) {
+          throw new Error("Invalid protocol");
+        }
+      } catch {
+        return c.json(
+          { error: "Invalid URL format. Must be http or https." },
+          400
+        );
+      }
+
+      console.log("Fetching PDF from URL...");
+
+      // Set timeout for fetch (30 seconds)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+      let response: Response;
+      try {
+        response = await fetch(url, {
+          signal: controller.signal,
+          headers: {
+            "User-Agent": "WasteDB-SourceImporter/1.0",
+            Accept: "application/pdf,*/*",
+          },
+        });
+        clearTimeout(timeoutId);
+      } catch (fetchError: any) {
+        clearTimeout(timeoutId);
+        if (fetchError.name === "AbortError") {
+          return c.json(
+            {
+              error:
+                "Request timed out. The PDF server took too long to respond.",
+            },
+            408
+          );
+        }
+        console.error("Fetch error:", fetchError);
+        return c.json(
+          {
+            error: "Failed to fetch PDF from URL",
+            details: fetchError.message,
+          },
+          502
+        );
+      }
+
+      console.log("Fetch response:", {
+        status: response.status,
+        contentType: response.headers.get("content-type"),
+        contentLength: response.headers.get("content-length"),
+      });
+
+      if (!response.ok) {
+        return c.json(
+          {
+            error: `Failed to download PDF: ${response.status} ${response.statusText}`,
+            details:
+              response.status === 403
+                ? "Access denied. The PDF may require authentication."
+                : response.status === 404
+                ? "PDF not found at the specified URL."
+                : "The server returned an error.",
+          },
+          502
+        );
+      }
+
+      // Validate content type
+      const contentType = response.headers.get("content-type") || "";
+      if (
+        !contentType.includes("application/pdf") &&
+        !contentType.includes("octet-stream")
+      ) {
+        // Check if it's HTML (likely a login page or redirect)
+        if (contentType.includes("text/html")) {
+          return c.json(
+            {
+              error: "The URL returned an HTML page instead of a PDF.",
+              details:
+                "This usually means the PDF requires authentication or the URL is incorrect.",
+            },
+            400
+          );
+        }
+        console.warn(
+          `Unexpected content-type: ${contentType}, proceeding anyway...`
+        );
+      }
+
+      // Check file size from headers (optional, some servers don't provide it)
+      const contentLength = parseInt(
+        response.headers.get("content-length") || "0",
+        10
+      );
+      if (contentLength > 20971520) {
+        return c.json(
+          { error: "PDF is too large. Maximum size is 20MB." },
+          400
+        );
+      }
+
+      // Download the file
+      console.log("Downloading PDF content...");
+      const arrayBuffer = await response.arrayBuffer();
+      const uint8Array = new Uint8Array(arrayBuffer);
+
+      console.log(`Downloaded ${uint8Array.length} bytes`);
+
+      // Validate actual file size
+      if (uint8Array.length > 20971520) {
+        return c.json(
+          { error: "PDF is too large. Maximum size is 20MB." },
+          400
+        );
+      }
+
+      // Basic PDF validation: check for PDF magic bytes
+      const pdfMagic = new TextDecoder().decode(uint8Array.slice(0, 5));
+      if (!pdfMagic.startsWith("%PDF-")) {
+        return c.json(
+          {
+            error: "The downloaded file is not a valid PDF.",
+            details: "The file does not have the expected PDF header.",
+          },
+          400
+        );
+      }
+
+      console.log("PDF validation passed, uploading to Supabase Storage...");
+
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      );
+
+      const bucketName = "make-17cae920-source-pdfs";
+      const fileName = `${sourceId}-${Date.now()}.pdf`;
+
+      const { data, error } = await supabase.storage
+        .from(bucketName)
+        .upload(fileName, uint8Array, {
+          contentType: "application/pdf",
+          upsert: false,
+        });
+
+      if (error) {
+        console.error("Error uploading PDF to storage:", error);
+        return c.json(
+          { error: "Failed to save PDF to storage", details: error.message },
+          500
+        );
+      }
+
+      console.log(`PDF imported successfully from URL: ${fileName}`);
+
+      return c.json({
+        success: true,
+        fileName,
+        sourceId,
+        size: uint8Array.length,
+        originalUrl: url,
+      });
+    } catch (error) {
+      console.error("💥 Exception in PDF import from URL:", error);
+      return c.json(
+        { error: "Failed to import PDF from URL", details: String(error) },
+        500
+      );
+    }
+  }
+);
+
 // Direct PDF view endpoint - redirects to public URL (for <a> tag links)
 // IMPORTANT: This must come BEFORE the generic /:fileName route to avoid the auth middleware
 app.get("/make-server-17cae920/source-pdfs/:fileName/view", async (c) => {

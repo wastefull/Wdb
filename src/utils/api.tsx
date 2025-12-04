@@ -799,6 +799,27 @@ export async function deleteSourcePdf(fileName: string): Promise<void> {
   });
 }
 
+// Import PDF from URL (admin only) - downloads from external URL and stores in Supabase
+export async function importPdfFromUrl(
+  url: string,
+  sourceId: string
+): Promise<{
+  success: boolean;
+  fileName: string;
+  size: number;
+  originalUrl: string;
+}> {
+  logger.log("🔗 Starting PDF import from URL:", { url, sourceId });
+
+  const result = await apiCall(`/source-pdfs/import-from-url`, {
+    method: "POST",
+    body: JSON.stringify({ url, sourceId }),
+  });
+
+  logger.log("✅ PDF import successful:", result);
+  return result;
+}
+
 // Get diagnostics for a source PDF (debug tool)
 export async function getSourcePdfDiagnostics(fileName: string): Promise<any> {
   logger.log(`🔍 Fetching diagnostics for PDF: ${fileName}`);
