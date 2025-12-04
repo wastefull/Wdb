@@ -452,7 +452,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
       {/* Main Split-Pane Layout */}
       <div className="flex-1 flex overflow-hidden">
         {/* Left Pane: Source Viewer */}
-        <div className="flex-1 bg-white dark:bg-[#2a2825] flex flex-col border-r border-[#211f1c]/20 dark:border-white/20">
+        <div className="w-[400px] min-w-[300px] max-w-[500px] bg-white dark:bg-[#2a2825] flex flex-col border-r border-[#211f1c]/20 dark:border-white/20">
           <div className="panel-bordered">
             <h3 className="font-['Fredoka_One'] text-[16px] text-black dark:text-white mb-1">
               Source Viewer
@@ -793,7 +793,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
         </div>
 
         {/* Right Pane: Evidence Wizard */}
-        <div className="w-[480px] bg-white dark:bg-[#2a2825] flex flex-col">
+        <div className="flex-1 min-w-[400px] bg-white dark:bg-[#2a2825] flex flex-col">
           <div className="panel-bordered">
             <h3 className="font-['Fredoka_One'] text-[16px] text-black dark:text-white mb-1">
               Evidence Wizard

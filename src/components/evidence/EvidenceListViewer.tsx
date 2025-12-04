@@ -165,16 +165,8 @@ export function EvidenceListViewer({
       if (response.ok) {
         const data = await response.json();
         if (data.success && data.evidence) {
-          // Filter to only pilot materials and CR dimension
-          const pilotMaterialIds = PILOT_MATERIALS.map((m) =>
-            m.id.toLowerCase()
-          );
-          const pilotMIUs = data.evidence.filter(
-            (miu: MIU) =>
-              pilotMaterialIds.includes(miu.material_id.toLowerCase()) &&
-              miu.dimension === "CR"
-          );
-          setMius(pilotMIUs);
+          // Show all evidence (no pilot material filter - we want to see test data too)
+          setMius(data.evidence);
         }
       } else {
         toast.error("Failed to load evidence points");
@@ -348,12 +340,35 @@ export function EvidenceListViewer({
                   <SelectValue placeholder="Select material" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Materials</SelectItem>
-                  {PILOT_MATERIALS.map((mat) => (
+                  <SelectItem value="all">
+                    All Materials (
+                    {[...new Set(mius.map((m) => m.material_id))].length})
+                  </SelectItem>
+                  {/* Show pilot materials first */}
+                  {PILOT_MATERIALS.filter((mat) =>
+                    mius.some(
+                      (m) =>
+                        m.material_id.toLowerCase() === mat.id.toLowerCase()
+                    )
+                  ).map((mat) => (
                     <SelectItem key={mat.id} value={mat.id}>
                       {mat.name}
                     </SelectItem>
                   ))}
+                  {/* Show other materials (test data, etc.) */}
+                  {[...new Set(mius.map((m) => m.material_id))]
+                    .filter(
+                      (id) =>
+                        !PILOT_MATERIALS.some(
+                          (p) => p.id.toLowerCase() === id.toLowerCase()
+                        )
+                    )
+                    .sort()
+                    .map((id) => (
+                      <SelectItem key={id} value={id}>
+                        {id.startsWith("test-") ? `🧪 ${id}` : id}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
             </div>

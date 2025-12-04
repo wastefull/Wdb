@@ -343,20 +343,30 @@ export function SourceLibraryManager({
       return;
     }
 
-    // Update local state
-    setSources(sources.filter((s) => s.id !== sourceId));
-
-    // Sync to cloud if authenticated and admin
+    // For cloud-synced sources, try API deletion first before updating local state
     if (isAuthenticated && isAdmin) {
       try {
         await api.deleteSource(sourceId);
-        toast.success("Source removed and synced to cloud");
+        // Only update local state after successful API deletion
+        setSources(sources.filter((s) => s.id !== sourceId));
+        toast.success("Source deleted");
         setCloudSynced(true);
-      } catch (error) {
-        console.error("Failed to sync source deletion to cloud:", error);
-        toast.error("Source removed locally but failed to sync to cloud");
+      } catch (error: any) {
+        console.error("Failed to delete source:", error);
+        // Show the actual error message from the server
+        const errorMessage = error?.message || "Failed to delete source";
+        if (errorMessage.includes("dependent evidence")) {
+          toast.error(
+            "Cannot delete: Source has dependent evidence (MIUs). Delete the evidence first."
+          );
+        } else {
+          toast.error(errorMessage);
+        }
+        // Don't update local state - source still exists
       }
     } else {
+      // Local-only deletion (non-admin or not authenticated)
+      setSources(sources.filter((s) => s.id !== sourceId));
       toast.success("Source removed from library");
     }
   };
