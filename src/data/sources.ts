@@ -32,6 +32,7 @@ export interface Source {
   oa_status?: string | null; // OA status: 'gold', 'green', 'hybrid', 'bronze', 'closed'
   best_oa_url?: string | null; // Best OA location URL (if available)
   manual_oa_override?: boolean; // True if is_open_access was manually set by admin (not from Unpaywall)
+  citation_count?: number; // Number of citations at entry time (from CrossRef is-referenced-by-count)
 }
 
 // Empty source library - add verified sources only

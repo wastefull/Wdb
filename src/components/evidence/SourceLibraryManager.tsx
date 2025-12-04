@@ -127,6 +127,7 @@ export function SourceLibraryManager({
     type: "peer-reviewed",
     abstract: "",
     tags: [],
+    citation_count: undefined,
   });
 
   // Load sources from cloud on mount
@@ -234,6 +235,7 @@ export function SourceLibraryManager({
       type: formData.type as Source["type"],
       abstract: formData.abstract?.trim(),
       tags: formData.tags || [],
+      citation_count: formData.citation_count,
     };
 
     // Check for duplicates using backend API
@@ -447,6 +449,7 @@ export function SourceLibraryManager({
       type: "peer-reviewed",
       abstract: "",
       tags: [],
+      citation_count: undefined,
     });
   };
 
@@ -505,9 +508,40 @@ export function SourceLibraryManager({
         publisher: message.publisher || "",
         issn: message.ISSN?.[0] || "",
         license: message.license?.[0]?.URL || "",
+        citationCount: message["is-referenced-by-count"] || 0, // Citation count from CrossRef
       };
 
       setCrossRefData(formatted);
+
+      // Auto-update citation count for existing sources that don't have one
+      if (
+        editingSource &&
+        !editingSource.citation_count &&
+        formatted.citationCount > 0
+      ) {
+        try {
+          const updatedSource = {
+            ...editingSource,
+            citation_count: formatted.citationCount,
+          };
+          await api.updateSource(editingSource.id, updatedSource);
+          // Update local state
+          setSources((prev) =>
+            prev.map((s) => (s.id === editingSource.id ? updatedSource : s))
+          );
+          setEditingSource(updatedSource);
+          setFormData((prev) => ({
+            ...prev,
+            citation_count: formatted.citationCount,
+          }));
+          toast.success(
+            `Citation count (${formatted.citationCount.toLocaleString()}) saved automatically`
+          );
+        } catch (error) {
+          console.error("Failed to auto-update citation count:", error);
+          // Silent fail - user can still manually save
+        }
+      }
     } catch (error) {
       console.error("CrossRef fetch error:", error);
       setCrossRefError(
@@ -1297,6 +1331,20 @@ export function SourceLibraryManager({
                                 {source.year}
                               </Badge>
                             )}
+                            {source.citation_count !== undefined &&
+                              source.citation_count > 0 && (
+                                <Badge
+                                  className="bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-300 text-[8px]"
+                                  title={`${source.citation_count.toLocaleString()} citations at entry time (from CrossRef)`}
+                                >
+                                  {source.citation_count >= 1000
+                                    ? `${(source.citation_count / 1000).toFixed(
+                                        1
+                                      )}k`
+                                    : source.citation_count}{" "}
+                                  cited
+                                </Badge>
+                              )}
                             {source.doi ? (
                               <>
                                 <a
@@ -1739,15 +1787,7 @@ export function SourceLibraryManager({
 
         {/* Add/Edit Source Dialog */}
         <Dialog open={showForm} onOpenChange={(open) => !open && resetForm()}>
-          <DialogContent
-            className="max-w-2xl max-h-[80vh] overflow-y-auto"
-            style={{
-              position: "fixed",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-            }}
-          >
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="">
                 {editingSource ? "Edit Source" : "Add New Source"}
@@ -1763,7 +1803,7 @@ export function SourceLibraryManager({
               <div>
                 <Label className="text-[11px]">Title *</Label>
                 <Input
-                  value={formData.title}
+                  value={formData.title || ""}
                   onChange={(e) =>
                     setFormData({ ...formData, title: e.target.value })
                   }
@@ -1776,7 +1816,7 @@ export function SourceLibraryManager({
               <div>
                 <Label className="text-[11px]">Authors</Label>
                 <Input
-                  value={formData.authors}
+                  value={formData.authors || ""}
                   onChange={(e) =>
                     setFormData({ ...formData, authors: e.target.value })
                   }
@@ -1835,7 +1875,7 @@ export function SourceLibraryManager({
                   <Label className="text-[11px]">DOI</Label>
                   <div className="flex gap-1">
                     <Input
-                      value={formData.doi}
+                      value={formData.doi || ""}
                       onChange={(e) =>
                         setFormData({ ...formData, doi: e.target.value })
                       }
@@ -1867,7 +1907,7 @@ export function SourceLibraryManager({
                 <div>
                   <Label className="text-[11px]">URL</Label>
                   <Input
-                    value={formData.url}
+                    value={formData.url || ""}
                     onChange={(e) =>
                       setFormData({ ...formData, url: e.target.value })
                     }
@@ -1942,6 +1982,15 @@ export function SourceLibraryManager({
                         <span className="select-all">{crossRefData.tags}</span>
                       </div>
                     )}
+                    {crossRefData.citationCount !== undefined &&
+                      crossRefData.citationCount > 0 && (
+                        <div>
+                          <span className="font-medium">Citations:</span>{" "}
+                          <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-300 text-[9px]">
+                            {crossRefData.citationCount.toLocaleString()} cited
+                          </Badge>
+                        </div>
+                      )}
                     {crossRefData.abstract && (
                       <div className="mt-2">
                         <span className="font-medium">Abstract:</span>
@@ -1950,6 +1999,35 @@ export function SourceLibraryManager({
                         </p>
                       </div>
                     )}
+                  </div>
+                  <div className="mt-3 pt-2 border-t border-blue-200">
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={() => {
+                        setFormData({
+                          ...formData,
+                          title: crossRefData.title || formData.title,
+                          authors: crossRefData.authors || formData.authors,
+                          year: crossRefData.year || formData.year,
+                          url: crossRefData.url || formData.url,
+                          abstract: crossRefData.abstract || formData.abstract,
+                          tags: crossRefData.tags
+                            ? crossRefData.tags
+                                .split(", ")
+                                .map((t: string) => t.trim())
+                                .filter(Boolean)
+                            : formData.tags,
+                          citation_count:
+                            crossRefData.citationCount || undefined,
+                        });
+                        toast.success("Form populated with CrossRef data");
+                      }}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white text-[11px]"
+                    >
+                      <Download className="h-3 w-3 mr-2" />
+                      Auto-fill Form with CrossRef Data
+                    </Button>
                   </div>
                 </div>
               )}
@@ -1980,7 +2058,7 @@ export function SourceLibraryManager({
               <div>
                 <Label className="text-[11px]">Abstract</Label>
                 <Textarea
-                  value={formData.abstract}
+                  value={formData.abstract || ""}
                   onChange={(e) =>
                     setFormData({ ...formData, abstract: e.target.value })
                   }
@@ -1992,19 +2070,22 @@ export function SourceLibraryManager({
 
               {/* Tags */}
               <div>
-                <Label className="text-[11px]">Tags (comma-separated)</Label>
+                <Label className="text-[11px]">
+                  Tags (comma or semicolon-separated)
+                </Label>
                 <Input
-                  value={formData.tags?.join(", ")}
+                  value={formData.tags?.join(", ") || ""}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
                       tags: e.target.value
+                        .replace(/;/g, ",") // Convert semicolons to commas
                         .split(",")
                         .map((t) => t.trim())
                         .filter(Boolean),
                     })
                   }
-                  placeholder="plastic, recycling, pet, yield"
+                  placeholder="PET, recycling, HDPE, yield"
                   className="text-[12px]"
                 />
                 <p className="caption">
@@ -2041,15 +2122,7 @@ export function SourceLibraryManager({
             }
           }}
         >
-          <DialogContent
-            className="max-w-lg"
-            style={{
-              position: "fixed",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-            }}
-          >
+          <DialogContent className="max-w-lg">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <Link className="w-4 h-4" />

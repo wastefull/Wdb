@@ -240,7 +240,7 @@ Efficient querying via prefix-based indexes:
 - ✅ Split-pane layout with source viewer and evidence wizard
 - ✅ 5-step progressive wizard with validation
 - ✅ Source selection from Source Library Manager
-- ✅ Material and parameter selection (pilot scope: Aluminum, PET, Cardboard)
+- ✅ Material and parameter selection (pilot scope: PET, HDPE, Cardboard, Paper, Glass Clear, Glass Colored)
 - ✅ Form validation and error handling
 - ✅ Integration with POST /evidence endpoint
 - ✅ Wastefull brand retro design system

@@ -17,11 +17,13 @@ After reverting to a stable version (before MIU review/edit functionality), we'v
 ### Unit Validation Tests (3 tests)
 
 1. **`phase9.2-units-ontology-load`** - Load Units Ontology
+
    - Verifies `/ontologies/units.json` loads correctly
    - Validates presence of all CR parameters (Y, D, C, M, E)
    - Checks required fields: canonical_unit, allowed_units
 
 2. **`phase9.2-units-validation-valid`** - Validate Allowed Unit
+
    - Tests that valid units from allowed_units list are accepted
    - Example: "years" for parameter Y
 
@@ -32,10 +34,12 @@ After reverting to a stable version (before MIU review/edit functionality), we'v
 ### Form Validation Tests (3 tests)
 
 4. **`phase9.2-wizard-form-validation`** - Evidence Wizard Form Validation
+
    - Validates required fields: material_id, parameter_code, snippet, raw_value, raw_unit, source_ref
    - Tests that empty form correctly identifies 6 required fields
 
 5. **`phase9.2-confidence-level-badges`** - Verify Confidence Level Options
+
    - Validates 3 confidence levels: high, medium, low
    - Ensures all expected levels are available
 
@@ -46,7 +50,8 @@ After reverting to a stable version (before MIU review/edit functionality), we'v
 ### Scope Validation Tests (2 tests)
 
 7. **`phase9.2-pilot-materials-scope`** - Verify Pilot Materials Scope
-   - Validates only 3 pilot materials available: aluminum, pet, cardboard
+
+   - Validates only 3 pilot materials available: PET, HDPE, Cardboard, Paper, Glass Clear, Glass Colored
    - Ensures scope is correctly limited for Phase 9.2 pilot
 
 8. **`phase9.2-cr-parameters-scope`** - Verify CR Parameters Scope
@@ -56,10 +61,12 @@ After reverting to a stable version (before MIU review/edit functionality), we'v
 ### Evidence List Tests (3 tests)
 
 9. **`phase9.2-evidence-list-filter-material`** - Filter Evidence by Material
+
    - Tests material ID filtering functionality
    - Validates all returned evidence matches the material_id filter
 
 10. **`phase9.2-evidence-list-filter-parameter`** - Filter Evidence by Parameter
+
     - Tests parameter code filtering functionality
     - Validates client-side filter for parameter 'Y'
 
@@ -70,6 +77,7 @@ After reverting to a stable version (before MIU review/edit functionality), we'v
 ### UI Components Tests (2 tests)
 
 12. **`phase9.2-wizard-step-progression`** - Verify 5-Step Wizard Structure
+
     - Validates 5-step Evidence Wizard structure:
       1. Select Source
       2. Choose Material
@@ -103,13 +111,13 @@ Several Phase 9.2 tests depend on Phase 9.1 test data:
 
 - Tests that require `phase91_test_evidence_id`:
   - `phase9.2-locator-fields`
-  
 - Tests that require `phase91_test_material_id`:
   - `phase9.2-evidence-list-filter-material`
   - `phase9.2-evidence-list-filter-parameter`
   - `phase9.2-evidence-list-search`
 
 **Recommended Test Execution Order:**
+
 1. Run Phase 9.1 tests first (to create test evidence)
 2. Run Phase 9.2 tests (to validate UI features)
 
@@ -122,6 +130,7 @@ All tests correspond to completed features from `/docs/PHASE_9_ROADMAP.md`:
 ### ✅ Completed Features (All Tested)
 
 - **Curation Workbench** ✅
+
   - Split-pane interface (tested via UI Components)
   - Source selection from Source Library Manager (tested)
   - Source metadata display (tested)
@@ -131,9 +140,11 @@ All tests correspond to completed features from `/docs/PHASE_9_ROADMAP.md`:
   - Integration with POST /evidence endpoint (tested in Phase 9.1)
 
 - **Evidence Wizard (5 Steps)** ✅
+
   - All 5 steps validated via `phase9.2-wizard-step-progression`
 
 - **Unit Ontology Validation** ✅
+
   - Real-time unit validation (tested)
   - Unit dropdown with parameter-specific options (tested)
   - Canonical unit display (tested via ontology structure)
@@ -173,6 +184,7 @@ All tests correspond to completed features from `/docs/PHASE_9_ROADMAP.md`:
 ## Success Criteria
 
 ✅ **All 13 tests passing** indicates:
+
 - Units ontology is correctly structured
 - Form validation is working
 - Pilot scope is correctly limited (3 materials, 5 parameters)
@@ -187,6 +199,7 @@ All tests correspond to completed features from `/docs/PHASE_9_ROADMAP.md`:
 When these features are implemented, add tests for:
 
 1. **Smart Context Pre-Fill**
+
    - Test AI-powered material detection from pasted text
    - Test parameter detection from context
    - Test confidence scoring for suggestions
