@@ -9668,6 +9668,110 @@ app.delete(
   }
 );
 
+// Bulk delete evidence points (admin only) - single audit log entry, no email spam
+app.post(
+  "/make-server-17cae920/evidence/bulk-delete",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const { evidenceIds } = await c.req.json();
+
+      if (!Array.isArray(evidenceIds) || evidenceIds.length === 0) {
+        return c.json(
+          { success: false, error: "evidenceIds must be a non-empty array" },
+          400
+        );
+      }
+
+      const deletedIds: string[] = [];
+      const failedIds: string[] = [];
+      const deletedDetails: any[] = [];
+
+      for (const evidenceId of evidenceIds) {
+        try {
+          // Get existing evidence to find material_id
+          const existing = (await kv.get(`evidence:${evidenceId}`)) as any;
+
+          if (!existing) {
+            failedIds.push(evidenceId);
+            continue;
+          }
+
+          // Delete evidence point
+          await kv.del(`evidence:${evidenceId}`);
+
+          // Delete material reference
+          const materialEvidenceKey = `evidence_by_material:${existing.material_id}:${existing.parameter_code}:${evidenceId}`;
+          await kv.del(materialEvidenceKey);
+
+          deletedIds.push(evidenceId);
+          deletedDetails.push({
+            id: evidenceId,
+            material_id: existing.material_id,
+            parameter_code: existing.parameter_code,
+          });
+        } catch (err) {
+          console.error(`Failed to delete evidence ${evidenceId}:`, err);
+          failedIds.push(evidenceId);
+        }
+      }
+
+      console.log(
+        `✓ Bulk deleted ${deletedIds.length} evidence points, ${failedIds.length} failed`
+      );
+
+      // Single consolidated audit log entry (no email notification for bulk operations)
+      const auditId = `audit:${Date.now()}:${crypto.randomUUID()}`;
+      const entry = {
+        id: auditId,
+        timestamp: new Date().toISOString(),
+        userId: c.get("userId"),
+        userEmail: c.get("userEmail"),
+        entityType: "evidence_bulk",
+        entityId: `bulk:${deletedIds.length}_items`,
+        action: "delete",
+        before: { count: deletedIds.length, ids: deletedIds },
+        after: null,
+        changes: [
+          `Bulk deleted ${deletedIds.length} evidence points`,
+          ...deletedDetails
+            .slice(0, 10)
+            .map(
+              (d) => `Deleted ${d.id} (${d.material_id}/${d.parameter_code})`
+            ),
+          ...(deletedDetails.length > 10
+            ? [`... and ${deletedDetails.length - 10} more`]
+            : []),
+        ],
+        ipAddress: getClientId(c).split(":")[0],
+        userAgent: c.req.header("user-agent") || "unknown",
+      };
+      await kv.set(auditId, entry);
+      console.log(`📝 Bulk audit log created: ${auditId}`);
+
+      return c.json({
+        success: true,
+        message: `Deleted ${deletedIds.length} evidence points`,
+        deletedCount: deletedIds.length,
+        failedCount: failedIds.length,
+        deletedIds,
+        failedIds: failedIds.length > 0 ? failedIds : undefined,
+      });
+    } catch (error) {
+      console.error("Error in bulk delete:", error);
+      return c.json(
+        {
+          success: false,
+          error: "Failed to bulk delete evidence",
+          details: String(error),
+        },
+        500
+      );
+    }
+  }
+);
+
 // ==================== AGGREGATION ENDPOINTS ====================
 
 /**
