@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useAccessibility } from "../shared/AccessibilityContext";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { ScrollArea } from "../ui/scroll-area";
@@ -94,6 +95,7 @@ export function EvidenceListViewer({
   materialFilter,
   parameterFilter,
 }: EvidenceListViewerProps) {
+  const { settings } = useAccessibility();
   const [mius, setMius] = useState<MIU[]>([]);
   const [sources, setSources] = useState<Map<string, Source>>(new Map());
   const [loading, setLoading] = useState(true);
@@ -118,6 +120,10 @@ export function EvidenceListViewer({
   // Delete state
   const [deletingMIU, setDeletingMIU] = useState<MIU | null>(null);
   const [deleting, setDeleting] = useState(false);
+
+  // Bulk delete state
+  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
 
   useEffect(() => {
     loadMIUs();
@@ -153,11 +159,19 @@ export function EvidenceListViewer({
   const loadMIUs = async () => {
     try {
       setLoading(true);
+
+      const accessToken = sessionStorage.getItem("wastedb_access_token");
+      if (!accessToken) {
+        toast.error("You must be logged in to view evidence points");
+        setLoading(false);
+        return;
+      }
+
       const response = await fetch(
         `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/evidence`,
         {
           headers: {
-            Authorization: `Bearer ${publicAnonKey}`,
+            Authorization: `Bearer ${accessToken}`,
           },
         }
       );
@@ -258,6 +272,48 @@ export function EvidenceListViewer({
       toast.error("Failed to delete evidence point");
     } finally {
       setDeleting(false);
+    }
+  };
+
+  // Bulk delete all filtered MIUs
+  const handleBulkDelete = async () => {
+    setBulkDeleting(true);
+    try {
+      const accessToken = sessionStorage.getItem("wastedb_access_token");
+      if (!accessToken) {
+        toast.error("You must be logged in to delete evidence points");
+        return;
+      }
+
+      const idsToDelete = filteredMIUs.map((miu) => miu.id);
+
+      const response = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/evidence/bulk-delete`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({ evidenceIds: idsToDelete }),
+        }
+      );
+
+      if (response.ok) {
+        const result = await response.json();
+        toast.success(`Deleted ${result.deletedCount} evidence points`);
+        setShowBulkDeleteConfirm(false);
+        setSelectedMIU(null);
+        loadMIUs(); // Refresh the list
+      } else {
+        const error = await response.json();
+        toast.error(error.message || "Failed to bulk delete evidence points");
+      }
+    } catch (error) {
+      console.error("Error in bulk delete:", error);
+      toast.error("Failed to bulk delete evidence points");
+    } finally {
+      setBulkDeleting(false);
     }
   };
 
@@ -404,14 +460,27 @@ export function EvidenceListViewer({
         <p className="font-['Sniglet'] text-[12px] text-muted-foreground">
           Showing {filteredMIUs.length} of {mius.length} evidence points
         </p>
-        <Button
-          onClick={loadMIUs}
-          variant="outline"
-          size="sm"
-          className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c] dark:border-white/20"
-        >
-          Refresh
-        </Button>
+        <div className="flex gap-2">
+          {settings.adminMode && filteredMIUs.length > 0 && (
+            <Button
+              onClick={() => setShowBulkDeleteConfirm(true)}
+              variant="outline"
+              size="sm"
+              className="font-['Sniglet'] text-[12px] border-2 border-red-400 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+            >
+              <Trash2 className="size-3 mr-1" />
+              Delete All ({filteredMIUs.length})
+            </Button>
+          )}
+          <Button
+            onClick={loadMIUs}
+            variant="outline"
+            size="sm"
+            className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c] dark:border-white/20"
+          >
+            Refresh
+          </Button>
+        </div>
       </div>
 
       {/* MIU List */}
@@ -884,6 +953,73 @@ export function EvidenceListViewer({
             >
               <Trash2 className="size-4 mr-2" />
               {deleting ? "Deleting..." : "Delete Permanently"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Bulk Delete Confirmation Dialog */}
+      <Dialog
+        open={showBulkDeleteConfirm}
+        onOpenChange={setShowBulkDeleteConfirm}
+      >
+        <DialogContent className="max-w-md border-2 border-[#211f1c] dark:border-white/20">
+          <DialogHeader>
+            <DialogTitle className="font-['Fredoka_One'] text-[20px] text-red-600 flex items-center gap-2">
+              <AlertTriangle className="size-5" />
+              Bulk Delete Evidence
+            </DialogTitle>
+            <DialogDescription className="font-['Sniglet'] text-[12px]">
+              This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+              <p className="font-['Sniglet'] text-[14px] text-red-800 dark:text-red-200 font-medium">
+                You are about to delete {filteredMIUs.length} evidence points.
+              </p>
+              <p className="font-['Sniglet'] text-[12px] text-red-600 dark:text-red-300 mt-2">
+                Current filters:
+              </p>
+              <ul className="font-['Sniglet'] text-[11px] text-red-600 dark:text-red-300 mt-1 ml-4 list-disc">
+                <li>
+                  Material:{" "}
+                  {selectedMaterial === "all" ? "All" : selectedMaterial}
+                </li>
+                <li>
+                  Parameter:{" "}
+                  {selectedParameter === "all" ? "All" : selectedParameter}
+                </li>
+                {searchQuery && <li>Search: "{searchQuery}"</li>}
+              </ul>
+            </div>
+
+            <p className="font-['Sniglet'] text-[12px] text-muted-foreground">
+              This will send one consolidated audit notification instead of{" "}
+              {filteredMIUs.length} individual emails.
+            </p>
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowBulkDeleteConfirm(false)}
+              disabled={bulkDeleting}
+              className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c] dark:border-white/20"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleBulkDelete}
+              disabled={bulkDeleting}
+              className="font-['Sniglet'] text-[12px]"
+            >
+              <Trash2 className="size-4 mr-2" />
+              {bulkDeleting
+                ? "Deleting..."
+                : `Delete ${filteredMIUs.length} Points`}
             </Button>
           </DialogFooter>
         </DialogContent>
