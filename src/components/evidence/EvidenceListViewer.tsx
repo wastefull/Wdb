@@ -340,7 +340,7 @@ export function EvidenceListViewer({
                   <SelectValue placeholder="Select material" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">
+                  <SelectItem key="all-materials" value="all">
                     All Materials (
                     {[...new Set(mius.map((m) => m.material_id))].length})
                   </SelectItem>
@@ -384,7 +384,9 @@ export function EvidenceListViewer({
                   <SelectValue placeholder="Select parameter" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Parameters</SelectItem>
+                  <SelectItem key="all-parameters" value="all">
+                    All Parameters
+                  </SelectItem>
                   {CR_PARAMETERS.map((param) => (
                     <SelectItem key={param.code} value={param.code}>
                       {param.code} - {param.name}

@@ -16,6 +16,7 @@ import {
   CheckCircle,
   XCircle,
   Library,
+  List,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -44,8 +45,9 @@ import { useAuthContext } from "../../contexts/AuthContext";
 import { useMaterialsContext } from "../../contexts/MaterialsContext";
 import * as api from "../../utils/api";
 import type { CrossRefSearchResult, DOILookupResult } from "../../utils/api";
+import { EvidenceListViewer } from "../evidence/EvidenceListViewer";
 
-type ViewMode = "evidence" | "source-search";
+type ViewMode = "evidence" | "source-search" | "browse-all";
 
 interface EvidenceLabViewProps {
   onBack: () => void;
@@ -83,6 +85,9 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
   const [selectedMIU, setSelectedMIU] = useState<MIU | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [evidencePoints, setEvidencePoints] = useState<MIU[]>([]);
+  const [allEvidenceCounts, setAllEvidenceCounts] = useState<
+    Record<string, number>
+  >({});
   const [loading, setLoading] = useState(false);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -140,6 +145,44 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
     { code: "C_RU", name: "Combined R+U", color: "#e1d5e7" },
   ];
 
+  // Load all evidence counts on mount (includes test data)
+  useEffect(() => {
+    loadAllEvidenceCounts();
+  }, []);
+
+  const loadAllEvidenceCounts = async () => {
+    try {
+      const accessToken = sessionStorage.getItem("wastedb_access_token");
+      if (!accessToken) {
+        // Not logged in - skip loading counts
+        return;
+      }
+
+      const response = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/evidence`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.evidence) {
+          // Count MIUs per parameter
+          const counts: Record<string, number> = {};
+          data.evidence.forEach((miu: MIU) => {
+            counts[miu.parameter_code] = (counts[miu.parameter_code] || 0) + 1;
+          });
+          setAllEvidenceCounts(counts);
+        }
+      }
+    } catch (error) {
+      console.error("Error loading evidence counts:", error);
+    }
+  };
+
   // Load evidence points for selected material and parameter
   useEffect(() => {
     if (materials.length > 0 && selectedParameter) {
@@ -152,31 +195,33 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
 
     setLoading(true);
     try {
-      // Load evidence for all materials and filter by parameter
-      const allEvidence: MIU[] = [];
-
-      for (const material of materials) {
-        const response = await fetch(
-          `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/evidence/material/${material.id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${publicAnonKey}`,
-            },
-          }
-        );
-
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success && data.evidence) {
-            const paramEvidence = data.evidence.filter(
-              (e: MIU) => e.parameter_code === selectedParameter
-            );
-            allEvidence.push(...paramEvidence);
-          }
-        }
+      const accessToken = sessionStorage.getItem("wastedb_access_token");
+      if (!accessToken) {
+        // Not logged in - can't load evidence
+        setEvidencePoints([]);
+        return;
       }
 
-      setEvidencePoints(allEvidence);
+      // Load ALL evidence from authenticated endpoint (includes test materials)
+      const response = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/evidence`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.evidence) {
+          // Filter to selected parameter
+          const paramEvidence = data.evidence.filter(
+            (e: MIU) => e.parameter_code === selectedParameter
+          );
+          setEvidencePoints(paramEvidence);
+        }
+      }
     } catch (error) {
       console.error("Error loading evidence:", error);
       toast.error("Failed to load evidence points");
@@ -457,9 +502,9 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
     }
   };
 
-  // Count evidence points per parameter
+  // Count evidence points per parameter (uses all evidence, not just loaded materials)
   const getEvidenceCount = (paramCode: string) => {
-    return evidencePoints.filter((e) => e.parameter_code === paramCode).length;
+    return allEvidenceCounts[paramCode] || 0;
   };
 
   const filteredEvidence = evidencePoints.filter(
@@ -482,6 +527,8 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
           <p className="label-muted">
             {viewMode === "evidence"
               ? "Collect and organize scientific evidence for material parameters"
+              : viewMode === "browse-all"
+              ? "Browse and manage all evidence points (including test data)"
               : "Search academic databases for relevant sources"}
           </p>
         </div>
@@ -498,6 +545,17 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
           >
             <Database size={14} className="inline mr-1.5" />
             Evidence
+          </button>
+          <button
+            onClick={() => setViewMode("browse-all")}
+            className={`px-3 py-1.5 rounded-md text-[12px] font-['Sniglet'] transition-all ${
+              viewMode === "browse-all"
+                ? "bg-white dark:bg-[#2a2825] shadow-sm text-black dark:text-white"
+                : "text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white"
+            }`}
+          >
+            <List size={14} className="inline mr-1.5" />
+            Browse All
           </button>
           <button
             onClick={() => setViewMode("source-search")}
@@ -837,7 +895,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
             )}
           </div>
         </div>
-      ) : (
+      ) : viewMode === "source-search" ? (
         /* Source Search Mode */
         <div className="flex-1 flex overflow-hidden">
           {/* Left Pane: Search */}
@@ -1123,7 +1181,12 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
             )}
           </div>
         </div>
-      )}
+      ) : viewMode === "browse-all" ? (
+        /* Browse All Mode - EvidenceListViewer */
+        <div className="flex-1 overflow-auto p-6 bg-[#e5e4dc] dark:bg-[#1a1917]">
+          <EvidenceListViewer />
+        </div>
+      ) : null}
 
       {/* Create Evidence Point Dialog */}
       <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
@@ -1592,13 +1655,21 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="peer-reviewed">
+                      <SelectItem key="peer-reviewed" value="peer-reviewed">
                         Peer-Reviewed
                       </SelectItem>
-                      <SelectItem value="government">Government</SelectItem>
-                      <SelectItem value="industrial">Industrial</SelectItem>
-                      <SelectItem value="ngo">NGO</SelectItem>
-                      <SelectItem value="internal">Internal</SelectItem>
+                      <SelectItem key="government" value="government">
+                        Government
+                      </SelectItem>
+                      <SelectItem key="industrial" value="industrial">
+                        Industrial
+                      </SelectItem>
+                      <SelectItem key="ngo" value="ngo">
+                        NGO
+                      </SelectItem>
+                      <SelectItem key="internal" value="internal">
+                        Internal
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
