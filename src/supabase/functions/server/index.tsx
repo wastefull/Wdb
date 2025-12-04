@@ -2043,6 +2043,42 @@ app.post(
         );
       }
 
+      // Check for known problematic domains that require browser authentication
+      const hostname = parsedUrl.hostname.toLowerCase();
+      const blockedDomains = [
+        "science.org",
+        "sciencemag.org",
+        "nature.com",
+        "springer.com",
+        "springerlink.com",
+        "wiley.com",
+        "onlinelibrary.wiley.com",
+        "elsevier.com",
+        "sciencedirect.com",
+        "tandfonline.com",
+        "jstor.org",
+        "ieee.org",
+        "ieeexplore.ieee.org",
+        "acm.org",
+        "dl.acm.org",
+      ];
+
+      const isBlockedDomain = blockedDomains.some(
+        (domain) => hostname === domain || hostname.endsWith("." + domain)
+      );
+
+      if (isBlockedDomain) {
+        console.log(`Blocked domain detected: ${hostname}`);
+        return c.json(
+          {
+            error: "This publisher blocks automated downloads",
+            details: `${hostname} requires browser authentication. Please download the PDF manually in your browser and use the file upload button instead.`,
+            suggestion: "manual_download",
+          },
+          403
+        );
+      }
+
       console.log("Fetching PDF from URL...");
 
       // Set timeout for fetch (30 seconds)
@@ -2051,12 +2087,21 @@ app.post(
 
       let response: Response;
       try {
+        // Use browser-like headers to avoid bot detection
         response = await fetch(url, {
           signal: controller.signal,
           headers: {
-            "User-Agent": "WasteDB-SourceImporter/1.0",
-            Accept: "application/pdf,*/*",
+            "User-Agent":
+              "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            Accept: "application/pdf,application/octet-stream,*/*",
+            "Accept-Language": "en-US,en;q=0.9",
+            "Accept-Encoding": "gzip, deflate, br",
+            Connection: "keep-alive",
+            "Sec-Fetch-Dest": "document",
+            "Sec-Fetch-Mode": "navigate",
+            "Sec-Fetch-Site": "cross-site",
           },
+          redirect: "follow",
         });
         clearTimeout(timeoutId);
       } catch (fetchError: any) {
@@ -2087,15 +2132,21 @@ app.post(
       });
 
       if (!response.ok) {
+        const suggestion =
+          response.status === 403 || response.status === 401
+            ? "This PDF requires authentication. Please download it manually in your browser and use the file upload button."
+            : response.status === 404
+            ? "PDF not found. Check that the URL points directly to a PDF file."
+            : "The server returned an error. Try downloading manually.";
+
         return c.json(
           {
             error: `Failed to download PDF: ${response.status} ${response.statusText}`,
-            details:
-              response.status === 403
-                ? "Access denied. The PDF may require authentication."
-                : response.status === 404
-                ? "PDF not found at the specified URL."
-                : "The server returned an error.",
+            details: suggestion,
+            suggestion:
+              response.status === 403 || response.status === 401
+                ? "manual_download"
+                : undefined,
           },
           502
         );

@@ -21,6 +21,7 @@ import {
   AlertTriangle,
   Copy,
   Link,
+  Loader2,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -112,6 +113,10 @@ export function SourceLibraryManager({
   ); // sourceId for URL import
   const [importingPdfUrl, setImportingPdfUrl] = useState(false);
   const [pdfUrlInput, setPdfUrlInput] = useState("");
+  // CrossRef lookup state
+  const [crossRefData, setCrossRefData] = useState<any>(null);
+  const [fetchingCrossRef, setFetchingCrossRef] = useState(false);
+  const [crossRefError, setCrossRefError] = useState<string | null>(null);
   const [formData, setFormData] = useState<Partial<Source>>({
     title: "",
     authors: "",
@@ -430,6 +435,8 @@ export function SourceLibraryManager({
   const resetForm = () => {
     setShowForm(false);
     setEditingSource(null);
+    setCrossRefData(null);
+    setCrossRefError(null);
     setFormData({
       title: "",
       authors: "",
@@ -441,6 +448,74 @@ export function SourceLibraryManager({
       abstract: "",
       tags: [],
     });
+  };
+
+  // Fetch metadata from CrossRef API
+  const handleFetchCrossRef = async () => {
+    const doi = formData.doi?.trim();
+    if (!doi) {
+      setCrossRefError("Please enter a DOI first");
+      return;
+    }
+
+    // Clean the DOI (remove URL prefix if present)
+    const cleanDoi = doi.replace(/^https?:\/\/(dx\.)?doi\.org\//, "");
+
+    try {
+      setFetchingCrossRef(true);
+      setCrossRefError(null);
+      setCrossRefData(null);
+
+      const response = await fetch(
+        `https://api.crossref.org/works/${encodeURIComponent(cleanDoi)}`
+      );
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error("DOI not found in CrossRef");
+        }
+        throw new Error(`CrossRef API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const message = data.message;
+
+      // Format the data for display
+      const formatted = {
+        title: message.title?.[0] || "",
+        authors:
+          message.author
+            ?.map((a: any) => {
+              if (a.given && a.family) return `${a.family}, ${a.given}`;
+              if (a.family) return a.family;
+              if (a.name) return a.name;
+              return "";
+            })
+            .filter(Boolean)
+            .join("; ") || "",
+        year:
+          message.published?.["date-parts"]?.[0]?.[0] ||
+          message.created?.["date-parts"]?.[0]?.[0] ||
+          "",
+        journal: message["container-title"]?.[0] || "",
+        url: message.URL || `https://doi.org/${cleanDoi}`,
+        abstract: message.abstract?.replace(/<[^>]*>/g, "") || "", // Strip HTML tags
+        tags: message.subject?.join(", ") || "", // CrossRef uses "subject" for tags/keywords
+        type: message.type || "",
+        publisher: message.publisher || "",
+        issn: message.ISSN?.[0] || "",
+        license: message.license?.[0]?.URL || "",
+      };
+
+      setCrossRefData(formatted);
+    } catch (error) {
+      console.error("CrossRef fetch error:", error);
+      setCrossRefError(
+        error instanceof Error ? error.message : "Failed to fetch from CrossRef"
+      );
+    } finally {
+      setFetchingCrossRef(false);
+    }
   };
 
   const getTypeColor = (type: Source["type"]) => {
@@ -567,13 +642,25 @@ export function SourceLibraryManager({
       );
       setShowUrlImportDialog(null);
       setPdfUrlInput("");
-    } catch (error) {
+    } catch (error: any) {
       console.error("❌ Failed to import PDF:", error);
-      toast.error(
-        `Failed to import PDF: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`
-      );
+
+      // Check if the error suggests manual download
+      const errorMessage = error?.message || "Unknown error";
+      const isAuthError =
+        errorMessage.includes("authentication") ||
+        errorMessage.includes("blocks automated") ||
+        errorMessage.includes("403") ||
+        errorMessage.includes("401");
+
+      if (isAuthError) {
+        toast.error(
+          "This publisher blocks automated downloads. Please download the PDF manually and use the upload button.",
+          { duration: 6000 }
+        );
+      } else {
+        toast.error(`Failed to import PDF: ${errorMessage}`);
+      }
     } finally {
       setImportingPdfUrl(false);
     }
@@ -857,7 +944,7 @@ export function SourceLibraryManager({
   }
 
   return (
-    <div>
+    <div className="p-5">
       <div className="max-w-7xl mx-auto">
         {/* Back button - only show when onBack is provided and not in tab mode */}
         {onBack && (
@@ -1170,19 +1257,17 @@ export function SourceLibraryManager({
         {/* Sources Table */}
         <Card className="bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
           <div className="overflow-x-auto">
-            <Table>
+            <Table className="table-fixed w-[99%]">
               <TableHeader>
                 <TableRow>
-                  <TableHead className="text-[11px]">Source</TableHead>
-                  <TableHead className="text-[11px]">Type</TableHead>
-                  <TableHead className="text-[11px]">Weight</TableHead>
-                  <TableHead className="text-[11px]">Tags</TableHead>
-                  <TableHead className="text-[11px] text-center">
+                  <TableHead className="text-[11px] w-[38%]">Source</TableHead>
+                  <TableHead className="text-[11px] w-[9%]">Type</TableHead>
+                  <TableHead className="text-[11px] w-[7%]">Weight</TableHead>
+                  <TableHead className="text-[11px] w-[17%]">Tags</TableHead>
+                  <TableHead className="text-[11px] text-center w-[9%]">
                     Usage
                   </TableHead>
-                  <TableHead className="text-[11px] text-center">
-                    Actions
-                  </TableHead>
+                  <TableHead className="text-[11px] w-[20%]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -1192,11 +1277,17 @@ export function SourceLibraryManager({
                     <TableRow key={source.id}>
                       <TableCell>
                         <div className="space-y-1">
-                          <p className="text-[11px] text-black dark:text-white font-medium">
+                          <p
+                            className="text-[11px] text-black dark:text-white font-medium truncate"
+                            title={source.title}
+                          >
                             {source.title}
                           </p>
                           {source.authors && (
-                            <p className="text-[9px] text-black/60 dark:text-white/60">
+                            <p
+                              className="text-[9px] text-black/60 dark:text-white/60 truncate"
+                              title={source.authors}
+                            >
                               {source.authors}
                             </p>
                           )}
@@ -1535,7 +1626,7 @@ export function SourceLibraryManager({
                         )}
                       </TableCell>
                       <TableCell>
-                        <div className="flex gap-1 justify-center">
+                        <div className="flex gap-1">
                           {isAdmin && (
                             <>
                               {source.pdfFileName ? (
@@ -1648,7 +1739,15 @@ export function SourceLibraryManager({
 
         {/* Add/Edit Source Dialog */}
         <Dialog open={showForm} onOpenChange={(open) => !open && resetForm()}>
-          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogContent
+            className="max-w-2xl max-h-[80vh] overflow-y-auto"
+            style={{
+              position: "fixed",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+            }}
+          >
             <DialogHeader>
               <DialogTitle className="">
                 {editingSource ? "Edit Source" : "Add New Source"}
@@ -1734,14 +1833,36 @@ export function SourceLibraryManager({
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label className="text-[11px]">DOI</Label>
-                  <Input
-                    value={formData.doi}
-                    onChange={(e) =>
-                      setFormData({ ...formData, doi: e.target.value })
-                    }
-                    placeholder="10.1016/j.example.2024.01.001"
-                    className="text-[12px]"
-                  />
+                  <div className="flex gap-1">
+                    <Input
+                      value={formData.doi}
+                      onChange={(e) =>
+                        setFormData({ ...formData, doi: e.target.value })
+                      }
+                      placeholder="10.1016/j.example.2024.01.001"
+                      className="text-[12px]"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleFetchCrossRef}
+                      disabled={!formData.doi || fetchingCrossRef}
+                      title="Fetch metadata from CrossRef"
+                    >
+                      {fetchingCrossRef ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <Search className="h-3 w-3" />
+                      )}
+                    </Button>
+                  </div>
+                  {crossRefError && (
+                    <p className="text-[10px] text-amber-600 mt-1 flex items-center gap-1">
+                      <AlertTriangle className="h-3 w-3" />
+                      {crossRefError}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <Label className="text-[11px]">URL</Label>
@@ -1755,6 +1876,83 @@ export function SourceLibraryManager({
                   />
                 </div>
               </div>
+
+              {/* CrossRef Metadata Panel */}
+              {crossRefData && (
+                <div className="rounded-md border border-blue-200 bg-blue-50 p-3 text-[11px]">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-medium text-blue-800">
+                      CrossRef Metadata (for reference)
+                    </span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setCrossRefData(null)}
+                      className="h-5 w-5 p-0"
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                  <div className="space-y-1 text-gray-700">
+                    {crossRefData.title && (
+                      <div>
+                        <span className="font-medium">Title:</span>{" "}
+                        <span className="select-all">{crossRefData.title}</span>
+                      </div>
+                    )}
+                    {crossRefData.authors && (
+                      <div>
+                        <span className="font-medium">Authors:</span>{" "}
+                        <span className="select-all">
+                          {crossRefData.authors}
+                        </span>
+                      </div>
+                    )}
+                    {crossRefData.year && (
+                      <div>
+                        <span className="font-medium">Year:</span>{" "}
+                        <span className="select-all">{crossRefData.year}</span>
+                      </div>
+                    )}
+                    {crossRefData.journal && (
+                      <div>
+                        <span className="font-medium">Journal:</span>{" "}
+                        <span className="select-all">
+                          {crossRefData.journal}
+                        </span>
+                      </div>
+                    )}
+                    {crossRefData.url && (
+                      <div>
+                        <span className="font-medium">URL:</span>{" "}
+                        <a
+                          href={crossRefData.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 underline select-all"
+                        >
+                          {crossRefData.url}
+                        </a>
+                      </div>
+                    )}
+                    {crossRefData.tags && (
+                      <div>
+                        <span className="font-medium">Tags:</span>{" "}
+                        <span className="select-all">{crossRefData.tags}</span>
+                      </div>
+                    )}
+                    {crossRefData.abstract && (
+                      <div className="mt-2">
+                        <span className="font-medium">Abstract:</span>
+                        <p className="mt-1 text-[10px] leading-relaxed select-all text-gray-600 max-h-32 overflow-y-auto">
+                          {crossRefData.abstract}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* Weight */}
               <div>
@@ -1843,7 +2041,15 @@ export function SourceLibraryManager({
             }
           }}
         >
-          <DialogContent className="max-w-lg">
+          <DialogContent
+            className="max-w-lg"
+            style={{
+              position: "fixed",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+            }}
+          >
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <Link className="w-4 h-4" />
@@ -1865,14 +2071,20 @@ export function SourceLibraryManager({
                   className="text-[12px]"
                   disabled={importingPdfUrl}
                 />
+                <p className="text-[9px] text-muted-foreground mt-1">
+                  ✅ Works: MDPI, arXiv, PubMed Central, bioRxiv, Zenodo,
+                  ResearchGate (some)
+                </p>
               </div>
 
               <Alert className="bg-amber-50 dark:bg-amber-900/20 border-amber-300 dark:border-amber-700">
                 <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                 <AlertDescription className="text-[10px] text-amber-800 dark:text-amber-200">
-                  <strong>Note:</strong> This works for publicly accessible PDFs
-                  only. Paywalled or login-protected PDFs will fail. For those,
-                  download manually and use the file upload button.
+                  <strong>Blocked publishers:</strong> Science.org, Nature,
+                  Springer, Wiley, Elsevier, IEEE, ACM block automated
+                  downloads. For these, download the PDF in your browser and use
+                  the <Upload className="w-3 h-3 inline mx-0.5" /> upload
+                  button.
                 </AlertDescription>
               </Alert>
 
