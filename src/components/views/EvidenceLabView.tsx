@@ -111,6 +111,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
   const [sourceToAdd, setSourceToAdd] = useState<Partial<api.Source> | null>(
     null
   );
+  const [showAllMaterials, setShowAllMaterials] = useState(false);
 
   // Form state for create/edit
   const [formData, setFormData] = useState({
@@ -408,10 +409,16 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
   };
 
   // Source search functions
-  const handleSourceSearch = async () => {
-    if (!sourceSearchQuery.trim()) {
+  const handleSourceSearch = async (query?: string) => {
+    const searchTerm = query ?? sourceSearchQuery;
+    if (!searchTerm.trim()) {
       toast.error("Please enter a search term");
       return;
+    }
+
+    // Update the input field if a query was passed directly
+    if (query) {
+      setSourceSearchQuery(query);
     }
 
     setSearchingCrossRef(true);
@@ -420,7 +427,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
     setOaStatus(null);
 
     try {
-      const result = await api.searchSources(sourceSearchQuery, 15);
+      const result = await api.searchSources(searchTerm, 15);
       setSourceSearchResults(result.results);
 
       if (result.results.length === 0) {
@@ -942,18 +949,28 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                       Quick search by material:
                     </Label>
                     <div className="flex flex-wrap gap-1.5">
-                      {materials.slice(0, 5).map((m) => (
+                      {(showAllMaterials
+                        ? materials
+                        : materials.slice(0, 5)
+                      ).map((m) => (
                         <button
                           key={m.id}
-                          onClick={() => {
-                            setSourceSearchQuery(m.name);
-                            handleSourceSearch();
-                          }}
+                          onClick={() => handleSourceSearch(m.name)}
                           className="px-2 py-1 text-[10px] font-['Sniglet'] bg-[#e5e4dc] dark:bg-[#1a1917] border border-[#211f1c]/20 dark:border-white/20 rounded-md hover:border-[#211f1c]/40 dark:hover:border-white/40 transition-colors"
                         >
                           {m.name}
                         </button>
                       ))}
+                      {materials.length > 5 && (
+                        <button
+                          onClick={() => setShowAllMaterials(!showAllMaterials)}
+                          className="px-2 py-1 text-[10px] font-['Sniglet'] bg-[#b8c8cb] dark:bg-[#3a3835] border border-[#211f1c]/20 dark:border-white/20 rounded-md hover:border-[#211f1c]/40 dark:hover:border-white/40 transition-colors"
+                        >
+                          {showAllMaterials
+                            ? "Show less"
+                            : `+${materials.length - 5} more`}
+                        </button>
+                      )}
                     </div>
                   </div>
                 )}
