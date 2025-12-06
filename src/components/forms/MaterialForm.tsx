@@ -34,7 +34,7 @@ export function MaterialForm({
   const handleKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    // Prevent Figma from intercepting text editing shortcuts
+    // Prevent browser from intercepting text editing shortcuts
     if (e.metaKey || e.ctrlKey) {
       e.stopPropagation();
     }
@@ -70,9 +70,7 @@ export function MaterialForm({
         </div>
 
         <div>
-          <label className="text-[13px] text-black block mb-1">
-            Category
-          </label>
+          <label className="text-[13px] text-black block mb-1">Category</label>
           <select
             value={formData.category}
             onChange={(e) =>

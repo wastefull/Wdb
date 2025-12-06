@@ -11,7 +11,7 @@ export function SearchBar({ value, onChange, onSearch }: SearchBarProps) {
   const isMobile = useIsMobile();
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    // Prevent Figma from intercepting text editing shortcuts
+    // Prevent browser from intercepting text editing shortcuts
     if (e.metaKey || e.ctrlKey) {
       e.stopPropagation();
     }

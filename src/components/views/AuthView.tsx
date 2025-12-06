@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { LogIn, UserPlus, Eye, EyeOff, Mail, ArrowLeft, X } from "lucide-react";
 import * as api from "../../utils/api";
 import { toast } from "sonner";
-import { isFigmaMake, logEnvironmentInfo } from "../../utils/environment";
+import { isDevelopment, logEnvironmentInfo } from "../../utils/environment";
 import { logger } from "../../utils/logger";
 
 interface AuthViewProps {
@@ -18,7 +18,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
   const [loading, setLoading] = useState(false);
   const [honeypot, setHoneypot] = useState(""); // Anti-bot honeypot field
   // Detect environment and set initial auth mode
-  const showPasswordAuth = isFigmaMake();
+  const showPasswordAuth = isDevelopment();
   const [authMode, setAuthMode] = useState<
     "traditional" | "magic-link" | "magic-link-sent"
   >(showPasswordAuth ? "traditional" : "magic-link");
@@ -36,8 +36,8 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
   // Auto-redirect to correct mode based on environment
   useEffect(() => {
     if (showPasswordAuth && authMode === "magic-link") {
-      // In Figma Make, default to password
-      logger.log("🔄 Figma Make environment - using Password auth");
+      // In development, default to password
+      logger.log("🔄 Development environment - using Password auth");
       setAuthMode("traditional");
     } else if (!showPasswordAuth && authMode === "traditional") {
       // In production, default to magic link
@@ -47,7 +47,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
   }, [showPasswordAuth, authMode]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    // Prevent Figma from intercepting text editing shortcuts
+    // Prevent browser from intercepting text editing shortcuts
     if (e.metaKey || e.ctrlKey) {
       e.stopPropagation();
     }

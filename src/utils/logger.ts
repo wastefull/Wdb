@@ -2,17 +2,17 @@
  * Centralized Logging System for WasteDB
  *
  * Suppresses console logging unless in TEST mode.
- * TEST mode defaults to TRUE in figma-make environment, FALSE in production.
+ * TEST mode defaults to TRUE in development (localhost), FALSE in production.
  * Can be explicitly overridden by setting TEST_MODE.
  */
 
-import { isFigmaMake } from "./environment";
+import { isDevelopment } from "./environment";
 
 /**
  * TEST_MODE configuration
  * - Set to true to enable all logging
  * - Set to false to suppress all logging
- * - Set to null to use environment-based default (figma-make = true, production = false)
+ * - Set to null to use environment-based default (development = true, production = false)
  *
  * @example
  * // Enable logging for debugging session
@@ -33,8 +33,8 @@ function isTestMode(): boolean {
   if (TEST_MODE !== null) {
     return TEST_MODE;
   }
-  // Default: TRUE in figma-make, FALSE in production
-  return isFigmaMake();
+  // Default: TRUE in development (localhost), FALSE in production
+  return isDevelopment();
 }
 
 /**
@@ -48,7 +48,7 @@ export function setTestMode(mode: boolean | null): void {
     console.log(`LOGGER: TEST_MODE explicitly set to ${mode}`);
   } else {
     console.log(
-      `LOGGER: TEST_MODE reset to environment default (${isFigmaMake()})`
+      `LOGGER: TEST_MODE reset to environment default (${isDevelopment()})`
     );
   }
 }
@@ -177,7 +177,7 @@ export function loggerInfo(): void {
   console.log("LOGGER CONFIG:", {
     TEST_MODE: TEST_MODE === null ? "auto (environment-based)" : TEST_MODE,
     effectiveMode: isTestMode(),
-    environment: isFigmaMake() ? "figma-make" : "production",
+    environment: isDevelopment() ? "development" : "production",
     hostname: typeof window !== "undefined" ? window.location.hostname : "N/A",
   });
 }
@@ -213,7 +213,9 @@ if (isTestMode() && typeof window !== "undefined") {
       TEST_MODE === null ? "auto" : "explicit"
     })`
   );
-  console.log(`   Environment: ${isFigmaMake() ? "figma-make" : "production"}`);
+  console.log(
+    `   Environment: ${isDevelopment() ? "development" : "production"}`
+  );
   console.log(
     `   To change: import { setTestMode } from './utils/logger'; setTestMode(true/false);`
   );

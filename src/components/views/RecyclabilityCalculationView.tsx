@@ -55,7 +55,7 @@ Where:
   }, []);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    // Prevent Figma from intercepting text editing shortcuts
+    // Prevent browser from intercepting text editing shortcuts
     if (e.metaKey || e.ctrlKey) {
       e.stopPropagation();
     }
@@ -134,22 +134,13 @@ Where:
               rehypePlugins={[rehypeKatex]}
               components={{
                 h1: ({ node, ...props }) => (
-                  <h1
-                    className="text-[20px] text-black mb-4"
-                    {...props}
-                  />
+                  <h1 className="text-[20px] text-black mb-4" {...props} />
                 ),
                 h2: ({ node, ...props }) => (
-                  <h2
-                    className="text-[18px] text-black mb-3"
-                    {...props}
-                  />
+                  <h2 className="text-[18px] text-black mb-3" {...props} />
                 ),
                 h3: ({ node, ...props }) => (
-                  <h3
-                    className="text-[16px] text-black mb-2"
-                    {...props}
-                  />
+                  <h3 className="text-[16px] text-black mb-2" {...props} />
                 ),
                 p: ({ node, ...props }) => (
                   <p

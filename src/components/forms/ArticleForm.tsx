@@ -40,7 +40,7 @@ export function ArticleForm({ article, onSave, onCancel }: ArticleFormProps) {
   const handleKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    // Prevent Figma from intercepting text editing shortcuts
+    // Prevent browser from intercepting text editing shortcuts
     if (e.metaKey || e.ctrlKey) {
       e.stopPropagation();
     }
@@ -56,9 +56,7 @@ export function ArticleForm({ article, onSave, onCancel }: ArticleFormProps) {
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         {/* Overview Section */}
         <div className="bg-white rounded-[8px] border-[1.5px] border-[#211f1c] p-4">
-          <h3 className="text-[15px] text-black mb-4">
-            Overview
-          </h3>
+          <h3 className="text-[15px] text-black mb-4">Overview</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <ImageUploadArea
@@ -137,9 +135,7 @@ export function ArticleForm({ article, onSave, onCancel }: ArticleFormProps) {
 
         {/* Introduction Section */}
         <div className="bg-white rounded-[8px] border-[1.5px] border-[#211f1c] p-4">
-          <h3 className="text-[15px] text-black mb-4">
-            Introduction
-          </h3>
+          <h3 className="text-[15px] text-black mb-4">Introduction</h3>
           <div className="flex flex-col gap-4">
             <ImageUploadArea
               image={formData.introduction.image}
@@ -177,9 +173,7 @@ export function ArticleForm({ article, onSave, onCancel }: ArticleFormProps) {
 
         {/* Supplies Section */}
         <div className="bg-white rounded-[8px] border-[1.5px] border-[#211f1c] p-4">
-          <h3 className="text-[15px] text-black mb-4">
-            Supplies
-          </h3>
+          <h3 className="text-[15px] text-black mb-4">Supplies</h3>
           <div className="flex flex-col gap-4">
             <ImageUploadArea
               image={formData.supplies.image}
@@ -214,9 +208,7 @@ export function ArticleForm({ article, onSave, onCancel }: ArticleFormProps) {
 
         {/* Step 1 Section */}
         <div className="bg-white rounded-[8px] border-[1.5px] border-[#211f1c] p-4">
-          <h3 className="text-[15px] text-black mb-4">
-            Step 1
-          </h3>
+          <h3 className="text-[15px] text-black mb-4">Step 1</h3>
           <div className="flex flex-col gap-4">
             <ImageUploadArea
               image={formData.step1.image}
