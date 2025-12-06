@@ -1190,7 +1190,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
 
       {/* Create Evidence Point Dialog */}
       <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Create Evidence Point</DialogTitle>
             <DialogDescription>
@@ -1397,7 +1397,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
 
       {/* Edit Evidence Point Dialog */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Edit Evidence Point</DialogTitle>
             <DialogDescription>
@@ -1604,7 +1604,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
 
       {/* Add Source to Library Dialog */}
       <Dialog open={showAddSourceDialog} onOpenChange={setShowAddSourceDialog}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>Add Source to Library</DialogTitle>
             <DialogDescription>

@@ -384,7 +384,7 @@ export function AdminTakedownList() {
 
         {/* Review Dialog */}
         <Dialog open={reviewDialogOpen} onOpenChange={setReviewDialogOpen}>
-          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Review Takedown Request</DialogTitle>
               <DialogDescription>

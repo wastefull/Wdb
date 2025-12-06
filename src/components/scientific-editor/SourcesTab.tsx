@@ -310,11 +310,9 @@ export function SourcesTab({
                 Browse Source Library ({SOURCE_LIBRARY.length} available)
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+            <DialogContent className="max-w-3xl">
               <DialogHeader>
-                <DialogTitle className="">
-                  Source Library
-                </DialogTitle>
+                <DialogTitle className="">Source Library</DialogTitle>
                 <DialogDescription className="text-[11px]">
                   Browse and add academic sources from our curated library to
                   support your scientific data.
@@ -356,9 +354,7 @@ export function SourcesTab({
                                   {source.title}
                                 </p>
                                 {source.authors && (
-                                  <p className="caption">
-                                    {source.authors}
-                                  </p>
+                                  <p className="caption">{source.authors}</p>
                                 )}
                                 <div className="flex items-center gap-2 mt-2 flex-wrap">
                                   {source.year && (
@@ -424,9 +420,7 @@ export function SourcesTab({
                             {source.title}
                           </p>
                           {source.authors && (
-                            <p className="caption">
-                              {source.authors}
-                            </p>
+                            <p className="caption">{source.authors}</p>
                           )}
                           <div className="flex items-center gap-2 mt-2 flex-wrap">
                             {source.year && (
