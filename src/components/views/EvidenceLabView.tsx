@@ -39,6 +39,7 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Textarea } from "../ui/textarea";
+import { Switch } from "../ui/switch";
 import { toast } from "sonner";
 import { projectId, publicAnonKey } from "../../utils/supabase/info";
 import { useAuthContext } from "../../contexts/AuthContext";
@@ -113,6 +114,11 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
   );
   const [showAllMaterials, setShowAllMaterials] = useState(false);
   const [libraryDOIs, setLibraryDOIs] = useState<Set<string>>(new Set());
+  const [filterOpenAccess, setFilterOpenAccess] = useState(false);
+  const [oaStatusCache, setOaStatusCache] = useState<Map<string, boolean>>(
+    new Map()
+  );
+  const [checkingOABatch, setCheckingOABatch] = useState(false);
 
   // Form state for create/edit
   const [formData, setFormData] = useState({
@@ -447,13 +453,23 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
     setOaStatus(null);
 
     try {
-      const result = await api.searchSources(searchTerm, 15);
+      const result = await api.searchSources(searchTerm, 20);
       setSourceSearchResults(result.results);
 
       if (result.results.length === 0) {
         toast.info("No sources found. Try different search terms.");
       } else {
         toast.success(`Found ${result.results.length} sources`);
+
+        // Batch check OA status for results not already cached
+        const uncachedDOIs = result.results
+          .filter((r) => !oaStatusCache.has(r.doi.toLowerCase()))
+          .map((r) => r.doi);
+
+        if (uncachedDOIs.length > 0) {
+          // Check OA status in background
+          checkOAStatusBatch(uncachedDOIs);
+        }
       }
     } catch (error) {
       console.error("Error searching sources:", error);
@@ -471,12 +487,47 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
     try {
       const oa = await api.checkOAStatus(result.doi);
       setOaStatus(oa);
+      // Update cache
+      setOaStatusCache((prev) =>
+        new Map(prev).set(result.doi.toLowerCase(), oa.is_open_access)
+      );
     } catch (error) {
       console.error("Error checking OA status:", error);
       setOaStatus({ is_open_access: false });
+      setOaStatusCache((prev) =>
+        new Map(prev).set(result.doi.toLowerCase(), false)
+      );
     } finally {
       setCheckingOA(false);
     }
+  };
+
+  const checkOAStatusBatch = async (dois: string[]) => {
+    setCheckingOABatch(true);
+    const newCache = new Map(oaStatusCache);
+
+    // Check in parallel with a limit of 5 concurrent requests
+    const batchSize = 5;
+    for (let i = 0; i < dois.length; i += batchSize) {
+      const batch = dois.slice(i, i + batchSize);
+      const results = await Promise.allSettled(
+        batch.map((doi) => api.checkOAStatus(doi))
+      );
+
+      results.forEach((result, idx) => {
+        const doi = batch[idx].toLowerCase();
+        if (result.status === "fulfilled") {
+          newCache.set(doi, result.value.is_open_access);
+        } else {
+          newCache.set(doi, false);
+        }
+      });
+
+      // Update cache progressively
+      setOaStatusCache(new Map(newCache));
+    }
+
+    setCheckingOABatch(false);
   };
 
   const handlePrepareAddSource = () => {
@@ -970,6 +1021,26 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                   </div>
                 </div>
 
+                {/* Open Access Filter */}
+                <div className="flex items-center justify-between">
+                  <Label className="label-muted-xs flex items-center gap-1.5">
+                    <CheckCircle size={12} className="text-green-600" />
+                    Open Access only
+                  </Label>
+                  <div className="flex items-center gap-2">
+                    {checkingOABatch && (
+                      <Loader2
+                        size={12}
+                        className="animate-spin text-black/40 dark:text-white/40"
+                      />
+                    )}
+                    <Switch
+                      checked={filterOpenAccess}
+                      onCheckedChange={setFilterOpenAccess}
+                    />
+                  </div>
+                </div>
+
                 {/* Quick search suggestions based on materials */}
                 {materials.length > 0 && (
                   <div>
@@ -1031,52 +1102,97 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                     </p>
                   </div>
                 ) : (
-                  sourceSearchResults.map((result, idx) => {
-                    const isInLibrary = libraryDOIs.has(
-                      result.doi.toLowerCase()
-                    );
-                    return (
-                      <button
-                        key={`${result.doi}-${idx}`}
-                        onClick={() => handleSelectSearchResult(result)}
-                        className={`w-full p-3 rounded-lg border transition-all text-left ${
-                          selectedSearchResult?.doi === result.doi
-                            ? "border-[#211f1c] dark:border-white bg-[#e5e4dc] dark:bg-[#3a3835] shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]"
-                            : isInLibrary
-                            ? "border-[#a8d5ba] dark:border-[#a8d5ba]/60 bg-[#a8d5ba]/10 dark:bg-[#a8d5ba]/5"
-                            : "border-[#211f1c]/20 dark:border-white/20 hover:border-[#211f1c]/40 dark:hover:border-white/40"
-                        }`}
-                      >
-                        <div className="flex items-start justify-between gap-2 mb-1">
-                          <h4 className="font-['Sniglet'] text-[12px] text-black dark:text-white line-clamp-2 flex-1">
-                            {result.title}
+                  (() => {
+                    // Filter results based on OA toggle
+                    const filteredResults = filterOpenAccess
+                      ? sourceSearchResults.filter(
+                          (r) => oaStatusCache.get(r.doi.toLowerCase()) === true
+                        )
+                      : sourceSearchResults;
+
+                    if (
+                      filteredResults.length === 0 &&
+                      filterOpenAccess &&
+                      sourceSearchResults.length > 0
+                    ) {
+                      return (
+                        <div className="text-center py-12">
+                          <CheckCircle
+                            size={48}
+                            className="mx-auto mb-4 text-black/20 dark:text-white/20"
+                          />
+                          <h4 className="font-['Fredoka_One'] text-[14px] text-black dark:text-white mb-2">
+                            {checkingOABatch
+                              ? "Checking Open Access..."
+                              : "No Open Access Results"}
                           </h4>
-                          {isInLibrary && (
-                            <Badge className="bg-[#a8d5ba] text-black text-[8px] shrink-0">
-                              <Library size={10} className="mr-1" />
-                              In Library
-                            </Badge>
-                          )}
+                          <p className="label-muted-sm max-w-xs mx-auto">
+                            {checkingOABatch
+                              ? `Checking ${sourceSearchResults.length} sources...`
+                              : "None of the results are openly accessible. Try disabling the filter."}
+                          </p>
                         </div>
-                        <p className="label-muted-xs mb-1">
-                          {result.authors.slice(0, 2).join(", ")}
-                          {result.authors.length > 2 && " et al."}
-                        </p>
-                        <div className="flex items-center gap-2">
-                          {result.year && (
-                            <Badge variant="secondary" className="text-[9px]">
-                              {result.year}
-                            </Badge>
-                          )}
-                          {result.journal && (
-                            <span className="label-muted-xs truncate max-w-[150px]">
-                              {result.journal}
-                            </span>
-                          )}
-                        </div>
-                      </button>
-                    );
-                  })
+                      );
+                    }
+
+                    return filteredResults.map((result, idx) => {
+                      const isInLibrary = libraryDOIs.has(
+                        result.doi.toLowerCase()
+                      );
+                      const isOpenAccess = oaStatusCache.get(
+                        result.doi.toLowerCase()
+                      );
+                      return (
+                        <button
+                          key={`${result.doi}-${idx}`}
+                          onClick={() => handleSelectSearchResult(result)}
+                          className={`w-full p-3 rounded-lg border transition-all text-left ${
+                            selectedSearchResult?.doi === result.doi
+                              ? "border-[#211f1c] dark:border-white bg-[#e5e4dc] dark:bg-[#3a3835] shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]"
+                              : isInLibrary
+                              ? "border-[#a8d5ba] dark:border-[#a8d5ba]/60 bg-[#a8d5ba]/10 dark:bg-[#a8d5ba]/5"
+                              : "border-[#211f1c]/20 dark:border-white/20 hover:border-[#211f1c]/40 dark:hover:border-white/40"
+                          }`}
+                        >
+                          <div className="flex items-start justify-between gap-2 mb-1">
+                            <h4 className="font-['Sniglet'] text-[12px] text-black dark:text-white line-clamp-2 flex-1">
+                              {result.title}
+                            </h4>
+                            <div className="flex gap-1 shrink-0">
+                              {isOpenAccess === true && (
+                                <Badge className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-[8px]">
+                                  <CheckCircle size={10} className="mr-0.5" />
+                                  OA
+                                </Badge>
+                              )}
+                              {isInLibrary && (
+                                <Badge className="bg-[#a8d5ba] text-black text-[8px]">
+                                  <Library size={10} className="mr-1" />
+                                  In Library
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                          <p className="label-muted-xs mb-1">
+                            {result.authors.slice(0, 2).join(", ")}
+                            {result.authors.length > 2 && " et al."}
+                          </p>
+                          <div className="flex items-center gap-2">
+                            {result.year && (
+                              <Badge variant="secondary" className="text-[9px]">
+                                {result.year}
+                              </Badge>
+                            )}
+                            {result.journal && (
+                              <span className="label-muted-xs truncate max-w-[150px]">
+                                {result.journal}
+                              </span>
+                            )}
+                          </div>
+                        </button>
+                      );
+                    });
+                  })()
                 )}
               </div>
             </ScrollArea>
