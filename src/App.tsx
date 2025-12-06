@@ -656,15 +656,12 @@ function AppContent() {
                         you.
                       </p>
                       <p className="text-[12px] text-black/60 dark:text-white/60">
-                        The database currently has{" "}
-                        <span className="font-bold">{materials.length}</span>{" "}
-                        materials and{" "}
-                        <span className="font-bold">
-                          {materials.reduce(
-                            (sum, m) => sum + getTotalArticleCount(m),
-                            0
-                          )}
-                        </span>{" "}
+                        The database currently has {materials.length} materials
+                        and{" "}
+                        {materials.reduce(
+                          (sum, m) => sum + getTotalArticleCount(m),
+                          0
+                        )}{" "}
                         articles.
                       </p>
                     </div>
