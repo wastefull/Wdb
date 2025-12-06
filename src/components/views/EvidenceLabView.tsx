@@ -112,6 +112,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
     null
   );
   const [showAllMaterials, setShowAllMaterials] = useState(false);
+  const [libraryDOIs, setLibraryDOIs] = useState<Set<string>>(new Set());
 
   // Form state for create/edit
   const [formData, setFormData] = useState({
@@ -150,6 +151,25 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
   useEffect(() => {
     loadAllEvidenceCounts();
   }, []);
+
+  // Load library DOIs when switching to source search mode
+  useEffect(() => {
+    if (viewMode === "source-search") {
+      loadLibraryDOIs();
+    }
+  }, [viewMode]);
+
+  const loadLibraryDOIs = async () => {
+    try {
+      const sources = await api.getAllSources();
+      const dois = new Set(
+        sources.filter((s) => s.doi).map((s) => s.doi!.toLowerCase())
+      );
+      setLibraryDOIs(dois);
+    } catch (error) {
+      console.error("Error loading library DOIs:", error);
+    }
+  };
 
   const loadAllEvidenceCounts = async () => {
     try {
@@ -498,6 +518,14 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
       // Create the source
       await api.createSource(sourceToAdd as api.Source);
       toast.success("Source added to library!");
+
+      // Update library DOIs cache
+      if (sourceToAdd.doi) {
+        setLibraryDOIs(
+          (prev) => new Set([...prev, sourceToAdd.doi!.toLowerCase()])
+        );
+      }
+
       setShowAddSourceDialog(false);
       setSourceToAdd(null);
       setSelectedSearchResult(null);
@@ -1003,37 +1031,52 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                     </p>
                   </div>
                 ) : (
-                  sourceSearchResults.map((result, idx) => (
-                    <button
-                      key={`${result.doi}-${idx}`}
-                      onClick={() => handleSelectSearchResult(result)}
-                      className={`w-full p-3 rounded-lg border transition-all text-left ${
-                        selectedSearchResult?.doi === result.doi
-                          ? "border-[#211f1c] dark:border-white bg-[#e5e4dc] dark:bg-[#3a3835] shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]"
-                          : "border-[#211f1c]/20 dark:border-white/20 hover:border-[#211f1c]/40 dark:hover:border-white/40"
-                      }`}
-                    >
-                      <h4 className="font-['Sniglet'] text-[12px] text-black dark:text-white mb-1 line-clamp-2">
-                        {result.title}
-                      </h4>
-                      <p className="label-muted-xs mb-1">
-                        {result.authors.slice(0, 2).join(", ")}
-                        {result.authors.length > 2 && " et al."}
-                      </p>
-                      <div className="flex items-center gap-2">
-                        {result.year && (
-                          <Badge variant="secondary" className="text-[9px]">
-                            {result.year}
-                          </Badge>
-                        )}
-                        {result.journal && (
-                          <span className="label-muted-xs truncate max-w-[150px]">
-                            {result.journal}
-                          </span>
-                        )}
-                      </div>
-                    </button>
-                  ))
+                  sourceSearchResults.map((result, idx) => {
+                    const isInLibrary = libraryDOIs.has(
+                      result.doi.toLowerCase()
+                    );
+                    return (
+                      <button
+                        key={`${result.doi}-${idx}`}
+                        onClick={() => handleSelectSearchResult(result)}
+                        className={`w-full p-3 rounded-lg border transition-all text-left ${
+                          selectedSearchResult?.doi === result.doi
+                            ? "border-[#211f1c] dark:border-white bg-[#e5e4dc] dark:bg-[#3a3835] shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]"
+                            : isInLibrary
+                            ? "border-[#a8d5ba] dark:border-[#a8d5ba]/60 bg-[#a8d5ba]/10 dark:bg-[#a8d5ba]/5"
+                            : "border-[#211f1c]/20 dark:border-white/20 hover:border-[#211f1c]/40 dark:hover:border-white/40"
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-2 mb-1">
+                          <h4 className="font-['Sniglet'] text-[12px] text-black dark:text-white line-clamp-2 flex-1">
+                            {result.title}
+                          </h4>
+                          {isInLibrary && (
+                            <Badge className="bg-[#a8d5ba] text-black text-[8px] shrink-0">
+                              <Library size={10} className="mr-1" />
+                              In Library
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="label-muted-xs mb-1">
+                          {result.authors.slice(0, 2).join(", ")}
+                          {result.authors.length > 2 && " et al."}
+                        </p>
+                        <div className="flex items-center gap-2">
+                          {result.year && (
+                            <Badge variant="secondary" className="text-[9px]">
+                              {result.year}
+                            </Badge>
+                          )}
+                          {result.journal && (
+                            <span className="label-muted-xs truncate max-w-[150px]">
+                              {result.journal}
+                            </span>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })
                 )}
               </div>
             </ScrollArea>
@@ -1042,143 +1085,171 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
           {/* Right Pane: Source Details */}
           <div className="flex-1 bg-white dark:bg-[#2a2825] flex flex-col">
             {selectedSearchResult ? (
-              <>
-                {/* Detail Header */}
-                <div className="p-4 border-b border-[#211f1c]/20 dark:border-white/20">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <h3 className="font-['Fredoka_One'] text-[16px] text-black dark:text-white mb-2">
-                        {selectedSearchResult.title}
-                      </h3>
-                      <p className="label-muted text-[11px]">
-                        {selectedSearchResult.authors.join(", ")}
-                      </p>
-                    </div>
-                    <Button
-                      onClick={handlePrepareAddSource}
-                      className="bg-[#a8d5ba] hover:bg-[#a8d5ba]/90 border border-[#211f1c] text-black"
-                    >
-                      <Library size={14} className="mr-2" />
-                      Add to Library
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Detail Content */}
-                <ScrollArea className="flex-1">
-                  <div className="p-4 space-y-4">
-                    {/* Metadata */}
-                    <div className="grid grid-cols-2 gap-4">
-                      {selectedSearchResult.year && (
-                        <div>
-                          <label className="label-muted-xs block mb-1">
-                            Year
-                          </label>
-                          <span className="label">
-                            {selectedSearchResult.year}
-                          </span>
+              (() => {
+                const isInLibrary = libraryDOIs.has(
+                  selectedSearchResult.doi.toLowerCase()
+                );
+                return (
+                  <>
+                    {/* Detail Header */}
+                    <div className="p-4 border-b border-[#211f1c]/20 dark:border-white/20">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <h3 className="font-['Fredoka_One'] text-[16px] text-black dark:text-white">
+                              {selectedSearchResult.title}
+                            </h3>
+                            {isInLibrary && (
+                              <Badge className="bg-[#a8d5ba] text-black text-[9px]">
+                                <CheckCircle size={10} className="mr-1" />
+                                In Library
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="label-muted text-[11px]">
+                            {selectedSearchResult.authors.join(", ")}
+                          </p>
                         </div>
-                      )}
-                      {selectedSearchResult.journal && (
-                        <div>
-                          <label className="label-muted-xs block mb-1">
-                            Journal
-                          </label>
-                          <span className="label">
-                            {selectedSearchResult.journal}
-                          </span>
-                        </div>
-                      )}
+                        {isInLibrary ? (
+                          <Button
+                            variant="outline"
+                            disabled
+                            className="text-black/50 dark:text-white/50"
+                          >
+                            <CheckCircle size={14} className="mr-2" />
+                            Already Added
+                          </Button>
+                        ) : (
+                          <Button
+                            onClick={handlePrepareAddSource}
+                            className="bg-[#a8d5ba] hover:bg-[#a8d5ba]/90 border border-[#211f1c] text-black"
+                          >
+                            <Library size={14} className="mr-2" />
+                            Add to Library
+                          </Button>
+                        )}
+                      </div>
                     </div>
 
-                    {/* DOI */}
-                    <div>
-                      <label className="label-muted-xs block mb-1">DOI</label>
-                      <a
-                        href={`https://doi.org/${selectedSearchResult.doi}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="label text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1"
-                      >
-                        {selectedSearchResult.doi}
-                        <ExternalLink size={12} />
-                      </a>
-                    </div>
-
-                    {/* Open Access Status */}
-                    <div>
-                      <label className="label-muted-xs block mb-1">
-                        Open Access Status
-                      </label>
-                      {checkingOA ? (
-                        <div className="flex items-center gap-2">
-                          <Loader2
-                            size={14}
-                            className="animate-spin text-black/40 dark:text-white/40"
-                          />
-                          <span className="label-muted">Checking...</span>
-                        </div>
-                      ) : oaStatus ? (
-                        <div className="flex items-center gap-2">
-                          {oaStatus.is_open_access ? (
-                            <>
-                              <CheckCircle
-                                size={16}
-                                className="text-green-600"
-                              />
-                              <span className="label text-green-600">
-                                Open Access
+                    {/* Detail Content */}
+                    <ScrollArea className="flex-1">
+                      <div className="p-4 space-y-4">
+                        {/* Metadata */}
+                        <div className="grid grid-cols-2 gap-4">
+                          {selectedSearchResult.year && (
+                            <div>
+                              <label className="label-muted-xs block mb-1">
+                                Year
+                              </label>
+                              <span className="label">
+                                {selectedSearchResult.year}
                               </span>
-                              {oaStatus.oa_status && (
-                                <Badge
-                                  variant="secondary"
-                                  className="text-[9px]"
-                                >
-                                  {oaStatus.oa_status}
-                                </Badge>
-                              )}
-                            </>
-                          ) : (
-                            <>
-                              <XCircle size={16} className="text-red-500" />
-                              <span className="label text-red-500">
-                                Closed Access
+                            </div>
+                          )}
+                          {selectedSearchResult.journal && (
+                            <div>
+                              <label className="label-muted-xs block mb-1">
+                                Journal
+                              </label>
+                              <span className="label">
+                                {selectedSearchResult.journal}
                               </span>
-                            </>
+                            </div>
                           )}
                         </div>
-                      ) : null}
 
-                      {oaStatus?.best_oa_location?.url && (
-                        <a
-                          href={oaStatus.best_oa_location.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="mt-2 inline-flex items-center gap-1 text-[11px] font-['Sniglet'] text-blue-600 dark:text-blue-400 hover:underline"
-                        >
-                          <ExternalLink size={12} />
-                          View Open Access Version
-                        </a>
-                      )}
-                    </div>
+                        {/* DOI */}
+                        <div>
+                          <label className="label-muted-xs block mb-1">
+                            DOI
+                          </label>
+                          <a
+                            href={`https://doi.org/${selectedSearchResult.doi}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="label text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1"
+                          >
+                            {selectedSearchResult.doi}
+                            <ExternalLink size={12} />
+                          </a>
+                        </div>
 
-                    {/* Abstract */}
-                    {selectedSearchResult.abstract && (
-                      <div>
-                        <label className="label-muted-xs block mb-1">
-                          Abstract
-                        </label>
-                        <div
-                          className="p-3 rounded-lg bg-[#e5e4dc] dark:bg-[#1a1917] border border-[#211f1c]/20 dark:border-white/20"
-                          dangerouslySetInnerHTML={{
-                            __html: selectedSearchResult.abstract,
-                          }}
-                        />
+                        {/* Open Access Status */}
+                        <div>
+                          <label className="label-muted-xs block mb-1">
+                            Open Access Status
+                          </label>
+                          {checkingOA ? (
+                            <div className="flex items-center gap-2">
+                              <Loader2
+                                size={14}
+                                className="animate-spin text-black/40 dark:text-white/40"
+                              />
+                              <span className="label-muted">Checking...</span>
+                            </div>
+                          ) : oaStatus ? (
+                            <div className="flex items-center gap-2">
+                              {oaStatus.is_open_access ? (
+                                <>
+                                  <CheckCircle
+                                    size={16}
+                                    className="text-green-600"
+                                  />
+                                  <span className="label text-green-600">
+                                    Open Access
+                                  </span>
+                                  {oaStatus.oa_status && (
+                                    <Badge
+                                      variant="secondary"
+                                      className="text-[9px]"
+                                    >
+                                      {oaStatus.oa_status}
+                                    </Badge>
+                                  )}
+                                </>
+                              ) : (
+                                <>
+                                  <XCircle size={16} className="text-red-500" />
+                                  <span className="label text-red-500">
+                                    Closed Access
+                                  </span>
+                                </>
+                              )}
+                            </div>
+                          ) : null}
+
+                          {oaStatus?.best_oa_location?.url && (
+                            <a
+                              href={oaStatus.best_oa_location.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="mt-2 inline-flex items-center gap-1 text-[11px] font-['Sniglet'] text-blue-600 dark:text-blue-400 hover:underline"
+                            >
+                              <ExternalLink size={12} />
+                              View Open Access Version
+                            </a>
+                          )}
+                        </div>
+
+                        {/* Abstract */}
+                        {selectedSearchResult.abstract && (
+                          <div>
+                            <label className="label-muted-xs block mb-1">
+                              Abstract
+                            </label>
+                            <div
+                              className="p-3 rounded-lg bg-[#e5e4dc] dark:bg-[#1a1917] border border-[#211f1c]/20 dark:border-white/20"
+                              dangerouslySetInnerHTML={{
+                                __html: selectedSearchResult.abstract,
+                              }}
+                            />
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                </ScrollArea>
-              </>
+                    </ScrollArea>
+                  </>
+                );
+              })()
             ) : (
               <div className="flex-1 flex items-center justify-center p-8">
                 <div className="text-center">
