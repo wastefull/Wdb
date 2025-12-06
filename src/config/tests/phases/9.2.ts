@@ -264,22 +264,36 @@ export function getPhase92Tests(user: any): Test[] {
       id: "phase9.2-pilot-materials-scope",
       name: "Verify Pilot Materials Scope",
       description:
-        "Verify only pilot materials (Aluminum, PET, Cardboard) are available in Phase 9.2",
+        "Verify only pilot materials (Cardboard, Glass Clear, Glass Colored, PET, Paper Mixed, HDPE) are available in Phase 9.2",
       phase: "9.2",
       category: "Scope Validation",
       testFn: async () => {
-        const PILOT_MATERIALS = ["aluminum", "pet", "cardboard"];
+        const PILOT_MATERIALS = [
+          "cardboard-corrugated",
+          "glass-clear",
+          "glass-colored",
+          "pet-bottles",
+          "paper-mixed",
+          "hdpe-bottles",
+        ];
 
         // In the real app, this would check the CurationWorkbench component's material filter
         // For now, we test the constant definition
-        if (PILOT_MATERIALS.length !== 3) {
+        if (PILOT_MATERIALS.length !== 6) {
           return {
             success: false,
-            message: `Expected 3 pilot materials, got ${PILOT_MATERIALS.length}`,
+            message: `Expected 6 pilot materials, got ${PILOT_MATERIALS.length}`,
           };
         }
 
-        const expectedMaterials = ["aluminum", "pet", "cardboard"];
+        const expectedMaterials = [
+          "cardboard-corrugated",
+          "glass-clear",
+          "glass-colored",
+          "pet-bottles",
+          "paper-mixed",
+          "hdpe-bottles",
+        ];
         const matches = PILOT_MATERIALS.every((m) =>
           expectedMaterials.includes(m)
         );
