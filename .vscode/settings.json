@@ -2,6 +2,9 @@
   "deno.enablePaths": ["src/supabase/functions", "supabase/functions"],
   "typescript.tsdk": "node_modules/typescript/lib",
 
+  // Disable false positive warnings for GitHub Actions secrets
+  "github-actions.workflows.checkSecrets": false,
+
   // Editor settings for this project
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
