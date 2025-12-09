@@ -1,20 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import React, { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
 import { Button } from "../ui/button";
 import { Alert, AlertDescription } from "../ui/alert";
 import { Badge } from "../ui/badge";
-import { 
-  Trash2, 
-  AlertTriangle, 
-  CheckCircle2, 
-  FileText, 
+import {
+  Trash2,
+  AlertTriangle,
+  CheckCircle2,
+  FileText,
   Database,
   Clock,
   Loader2,
-  RefreshCw
-} from 'lucide-react';
-import { projectId, publicAnonKey } from '../../utils/supabase/info';
-import { useAuthContext } from '../../contexts/AuthContext';
+  RefreshCw,
+} from "lucide-react";
+import { projectId, publicAnonKey } from "../../utils/supabase/info";
+import { useAuthContext } from "../../contexts/AuthContext";
 
 interface RetentionStats {
   screenshots: {
@@ -51,13 +57,20 @@ interface SourceIntegrityCheck {
   }>;
 }
 
-export function DataRetentionManager() {
+interface DataRetentionManagerProps {
+  className?: string;
+}
+
+export function DataRetentionManager({
+  className,
+}: DataRetentionManagerProps = {}) {
   const { accessToken } = useAuthContext();
   const [stats, setStats] = useState<RetentionStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [cleanupLoading, setCleanupLoading] = useState<string | null>(null);
-  const [sourceId, setSourceId] = useState('');
-  const [integrityCheck, setIntegrityCheck] = useState<SourceIntegrityCheck | null>(null);
+  const [sourceId, setSourceId] = useState("");
+  const [integrityCheck, setIntegrityCheck] =
+    useState<SourceIntegrityCheck | null>(null);
   const [checkingIntegrity, setCheckingIntegrity] = useState(false);
 
   useEffect(() => {
@@ -71,21 +84,21 @@ export function DataRetentionManager() {
         `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/admin/retention/stats`,
         {
           headers: {
-            'Authorization': `Bearer ${accessToken || publicAnonKey}`,
+            Authorization: `Bearer ${accessToken || publicAnonKey}`,
           },
         }
       );
 
       if (!response.ok) {
         const error = await response.json();
-        console.error('Failed to fetch retention stats:', error);
+        console.error("Failed to fetch retention stats:", error);
         return;
       }
 
       const data = await response.json();
       setStats(data.stats);
     } catch (error) {
-      console.error('Error fetching retention stats:', error);
+      console.error("Error fetching retention stats:", error);
     } finally {
       setLoading(false);
     }
@@ -93,29 +106,29 @@ export function DataRetentionManager() {
 
   const handleCleanupScreenshots = async () => {
     if (!stats || stats.screenshots.expired === 0) return;
-    
+
     const confirmed = window.confirm(
       `Are you sure you want to remove ${stats.screenshots.expired} expired screenshot(s)? This action cannot be undone.`
     );
-    
+
     if (!confirmed) return;
 
     try {
-      setCleanupLoading('screenshots');
+      setCleanupLoading("screenshots");
       const response = await fetch(
         `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/admin/retention/cleanup-screenshots`,
         {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Authorization': `Bearer ${accessToken || publicAnonKey}`,
+            Authorization: `Bearer ${accessToken || publicAnonKey}`,
           },
         }
       );
 
       if (!response.ok) {
         const error = await response.json();
-        console.error('Failed to cleanup screenshots:', error);
-        alert('Failed to cleanup screenshots. See console for details.');
+        console.error("Failed to cleanup screenshots:", error);
+        alert("Failed to cleanup screenshots. See console for details.");
         return;
       }
 
@@ -123,8 +136,8 @@ export function DataRetentionManager() {
       alert(`Successfully removed ${data.cleanedCount} expired screenshot(s)`);
       fetchStats(); // Refresh stats
     } catch (error) {
-      console.error('Error cleaning up screenshots:', error);
-      alert('Error cleaning up screenshots. See console for details.');
+      console.error("Error cleaning up screenshots:", error);
+      alert("Error cleaning up screenshots. See console for details.");
     } finally {
       setCleanupLoading(null);
     }
@@ -132,29 +145,29 @@ export function DataRetentionManager() {
 
   const handleCleanupAuditLogs = async () => {
     if (!stats || stats.auditLogs.expired === 0) return;
-    
+
     const confirmed = window.confirm(
       `Are you sure you want to delete ${stats.auditLogs.expired} expired audit log(s)? This action cannot be undone.`
     );
-    
+
     if (!confirmed) return;
 
     try {
-      setCleanupLoading('audit-logs');
+      setCleanupLoading("audit-logs");
       const response = await fetch(
         `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/admin/retention/cleanup-audit-logs`,
         {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Authorization': `Bearer ${accessToken || publicAnonKey}`,
+            Authorization: `Bearer ${accessToken || publicAnonKey}`,
           },
         }
       );
 
       if (!response.ok) {
         const error = await response.json();
-        console.error('Failed to cleanup audit logs:', error);
-        alert('Failed to cleanup audit logs. See console for details.');
+        console.error("Failed to cleanup audit logs:", error);
+        alert("Failed to cleanup audit logs. See console for details.");
         return;
       }
 
@@ -162,8 +175,8 @@ export function DataRetentionManager() {
       alert(`Successfully deleted ${data.deletedCount} expired audit log(s)`);
       fetchStats(); // Refresh stats
     } catch (error) {
-      console.error('Error cleaning up audit logs:', error);
-      alert('Error cleaning up audit logs. See console for details.');
+      console.error("Error cleaning up audit logs:", error);
+      alert("Error cleaning up audit logs. See console for details.");
     } finally {
       setCleanupLoading(null);
     }
@@ -171,7 +184,7 @@ export function DataRetentionManager() {
 
   const handleCheckIntegrity = async () => {
     if (!sourceId.trim()) {
-      alert('Please enter a source ID');
+      alert("Please enter a source ID");
       return;
     }
 
@@ -181,23 +194,23 @@ export function DataRetentionManager() {
         `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/admin/retention/check-source/${sourceId}`,
         {
           headers: {
-            'Authorization': `Bearer ${accessToken || publicAnonKey}`,
+            Authorization: `Bearer ${accessToken || publicAnonKey}`,
           },
         }
       );
 
       if (!response.ok) {
         const error = await response.json();
-        console.error('Failed to check source integrity:', error);
-        alert('Failed to check source. See console for details.');
+        console.error("Failed to check source integrity:", error);
+        alert("Failed to check source. See console for details.");
         return;
       }
 
       const data = await response.json();
       setIntegrityCheck(data);
     } catch (error) {
-      console.error('Error checking source integrity:', error);
-      alert('Error checking source. See console for details.');
+      console.error("Error checking source integrity:", error);
+      alert("Error checking source. See console for details.");
     } finally {
       setCheckingIntegrity(false);
     }
@@ -205,20 +218,20 @@ export function DataRetentionManager() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-12">
+      <div
+        className={`flex items-center justify-center p-12 ${className || ""}`}
+      >
         <Loader2 className="size-8 animate-spin text-black/50" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className={`space-y-6 ${className || ""}`}>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="heading-xl">
-            Data Retention Manager
-          </h2>
+          <h2 className="heading-xl">Data Retention Manager</h2>
           <p className="label-muted">
             Manage data lifecycle and retention policies
           </p>
@@ -250,25 +263,27 @@ export function DataRetentionManager() {
             <div className="p-3 bg-muted/50 rounded-lg">
               <div className="flex items-center gap-2 mb-1">
                 <Database className="size-4 text-blue-600" />
-                <span className="font-['Sniglet'] text-[12px] font-semibold">Screenshots</span>
+                <span className="font-['Sniglet'] text-[12px] font-semibold">
+                  Screenshots
+                </span>
               </div>
-              <p className="label-muted-xs">
-                7 years from capture
-              </p>
+              <p className="label-muted-xs">7 years from capture</p>
             </div>
             <div className="p-3 bg-muted/50 rounded-lg">
               <div className="flex items-center gap-2 mb-1">
                 <Database className="size-4 text-green-600" />
-                <span className="font-['Sniglet'] text-[12px] font-semibold">Audit Logs</span>
+                <span className="font-['Sniglet'] text-[12px] font-semibold">
+                  Audit Logs
+                </span>
               </div>
-              <p className="label-muted-xs">
-                7 years from creation
-              </p>
+              <p className="label-muted-xs">7 years from creation</p>
             </div>
             <div className="p-3 bg-muted/50 rounded-lg">
               <div className="flex items-center gap-2 mb-1">
                 <Database className="size-4 text-purple-600" />
-                <span className="font-['Sniglet'] text-[12px] font-semibold">Sources/Evidence</span>
+                <span className="font-['Sniglet'] text-[12px] font-semibold">
+                  Sources/Evidence
+                </span>
               </div>
               <p className="label-muted-xs">
                 Indefinite (manual deletion only)
@@ -295,17 +310,13 @@ export function DataRetentionManager() {
               <div className="text-[32px] font-['Fredoka_One'] text-blue-600">
                 {stats?.screenshots.total || 0}
               </div>
-              <p className="label-muted">
-                Total screenshots
-              </p>
+              <p className="label-muted">Total screenshots</p>
             </div>
             <div className="p-4 bg-orange-50 dark:bg-orange-950/20 rounded-lg">
               <div className="text-[32px] font-['Fredoka_One'] text-orange-600">
                 {stats?.screenshots.expired || 0}
               </div>
-              <p className="label-muted">
-                Expired (7+ years)
-              </p>
+              <p className="label-muted">Expired (7+ years)</p>
             </div>
           </div>
 
@@ -314,16 +325,19 @@ export function DataRetentionManager() {
               <Alert>
                 <AlertTriangle className="size-4" />
                 <AlertDescription>
-                  <strong>{stats.screenshots.expired} screenshot(s)</strong> have exceeded the 7-year retention period.
-                  You can remove these to reclaim storage space.
+                  <strong>{stats.screenshots.expired} screenshot(s)</strong>{" "}
+                  have exceeded the 7-year retention period. You can remove
+                  these to reclaim storage space.
                 </AlertDescription>
               </Alert>
 
               <div className="space-y-2">
-                <h4 className="font-['Sniglet'] text-[12px] font-semibold">Expired Screenshots:</h4>
+                <h4 className="font-['Sniglet'] text-[12px] font-semibold">
+                  Expired Screenshots:
+                </h4>
                 <div className="max-h-[200px] overflow-y-auto space-y-2">
                   {stats.screenshots.expiredSources.map((source) => (
-                    <div 
+                    <div
                       key={source.id}
                       className="p-3 bg-muted/50 rounded-lg border border-orange-200 dark:border-orange-800"
                     >
@@ -333,13 +347,17 @@ export function DataRetentionManager() {
                             {source.title}
                           </p>
                           <p className="font-['Sniglet'] text-[10px] text-black/50 dark:text-white/50">
-                            Created: {new Date(source.created_at).toLocaleDateString()}
+                            Created:{" "}
+                            {new Date(source.created_at).toLocaleDateString()}
                           </p>
                           <p className="font-['Sniglet'] text-[9px] text-black/40 dark:text-white/40 truncate">
                             ID: {source.id}
                           </p>
                         </div>
-                        <Badge variant="outline" className="text-orange-600 border-orange-600 shrink-0">
+                        <Badge
+                          variant="outline"
+                          className="text-orange-600 border-orange-600 shrink-0"
+                        >
                           Expired
                         </Badge>
                       </div>
@@ -350,10 +368,10 @@ export function DataRetentionManager() {
 
               <Button
                 onClick={handleCleanupScreenshots}
-                disabled={cleanupLoading === 'screenshots'}
+                disabled={cleanupLoading === "screenshots"}
                 className="w-full gap-2 bg-orange-600 hover:bg-orange-700"
               >
-                {cleanupLoading === 'screenshots' ? (
+                {cleanupLoading === "screenshots" ? (
                   <>
                     <Loader2 className="size-4 animate-spin" />
                     Cleaning up...
@@ -372,7 +390,8 @@ export function DataRetentionManager() {
             <Alert>
               <CheckCircle2 className="size-4" />
               <AlertDescription>
-                ✅ All screenshots are within the 7-year retention period. No cleanup needed.
+                ✅ All screenshots are within the 7-year retention period. No
+                cleanup needed.
               </AlertDescription>
             </Alert>
           )}
@@ -396,17 +415,13 @@ export function DataRetentionManager() {
               <div className="text-[32px] font-['Fredoka_One'] text-green-600">
                 {stats?.auditLogs.total || 0}
               </div>
-              <p className="label-muted">
-                Total audit logs
-              </p>
+              <p className="label-muted">Total audit logs</p>
             </div>
             <div className="p-4 bg-red-50 dark:bg-red-950/20 rounded-lg">
               <div className="text-[32px] font-['Fredoka_One'] text-red-600">
                 {stats?.auditLogs.expired || 0}
               </div>
-              <p className="label-muted">
-                Expired (7+ years)
-              </p>
+              <p className="label-muted">Expired (7+ years)</p>
             </div>
           </div>
 
@@ -415,17 +430,18 @@ export function DataRetentionManager() {
               <Alert>
                 <AlertTriangle className="size-4" />
                 <AlertDescription>
-                  <strong>{stats.auditLogs.expired} audit log(s)</strong> have exceeded the 7-year retention period.
-                  These can be safely deleted.
+                  <strong>{stats.auditLogs.expired} audit log(s)</strong> have
+                  exceeded the 7-year retention period. These can be safely
+                  deleted.
                 </AlertDescription>
               </Alert>
 
               <Button
                 onClick={handleCleanupAuditLogs}
-                disabled={cleanupLoading === 'audit-logs'}
+                disabled={cleanupLoading === "audit-logs"}
                 className="w-full gap-2 bg-red-600 hover:bg-red-700"
               >
-                {cleanupLoading === 'audit-logs' ? (
+                {cleanupLoading === "audit-logs" ? (
                   <>
                     <Loader2 className="size-4 animate-spin" />
                     Deleting...
@@ -444,7 +460,8 @@ export function DataRetentionManager() {
             <Alert>
               <CheckCircle2 className="size-4" />
               <AlertDescription>
-                ✅ All audit logs are within the 7-year retention period. No cleanup needed.
+                ✅ All audit logs are within the 7-year retention period. No
+                cleanup needed.
               </AlertDescription>
             </Alert>
           )}
@@ -455,7 +472,9 @@ export function DataRetentionManager() {
                 Oldest Audit Log:
               </p>
               <p className="label-muted-xs">
-                {new Date(stats.auditLogs.oldestLog.timestamp).toLocaleString()} - {stats.auditLogs.oldestLog.action} on {stats.auditLogs.oldestLog.entityType}
+                {new Date(stats.auditLogs.oldestLog.timestamp).toLocaleString()}{" "}
+                - {stats.auditLogs.oldestLog.action} on{" "}
+                {stats.auditLogs.oldestLog.entityType}
               </p>
             </div>
           )}
@@ -518,10 +537,12 @@ export function DataRetentionManager() {
                       </p>
                     )}
                   </div>
-                  <Badge 
-                    variant={integrityCheck.canDelete ? "default" : "destructive"}
+                  <Badge
+                    variant={
+                      integrityCheck.canDelete ? "default" : "destructive"
+                    }
                   >
-                    {integrityCheck.canDelete ? 'Can Delete' : 'Cannot Delete'}
+                    {integrityCheck.canDelete ? "Can Delete" : "Cannot Delete"}
                   </Badge>
                 </div>
 
@@ -529,7 +550,8 @@ export function DataRetentionManager() {
                   <Alert>
                     <CheckCircle2 className="size-4" />
                     <AlertDescription>
-                      ✅ This source has no dependent evidence points. It can be safely deleted.
+                      ✅ This source has no dependent evidence points. It can be
+                      safely deleted.
                     </AlertDescription>
                   </Alert>
                 ) : (
@@ -537,16 +559,22 @@ export function DataRetentionManager() {
                     <Alert>
                       <AlertTriangle className="size-4" />
                       <AlertDescription>
-                        ⛔ This source is referenced by <strong>{integrityCheck.dependentCount} evidence point(s)</strong>.
-                        Delete the evidence first, or mark the source as deprecated.
+                        ⛔ This source is referenced by{" "}
+                        <strong>
+                          {integrityCheck.dependentCount} evidence point(s)
+                        </strong>
+                        . Delete the evidence first, or mark the source as
+                        deprecated.
                       </AlertDescription>
                     </Alert>
 
                     <div className="mt-3 space-y-2">
-                      <h5 className="font-['Sniglet'] text-[11px] font-semibold">Dependent Evidence:</h5>
+                      <h5 className="font-['Sniglet'] text-[11px] font-semibold">
+                        Dependent Evidence:
+                      </h5>
                       <div className="max-h-[150px] overflow-y-auto space-y-2">
                         {integrityCheck.dependentEvidence.map((evidence) => (
-                          <div 
+                          <div
                             key={evidence.id}
                             className="p-2 bg-white dark:bg-black/20 rounded border border-red-200 dark:border-red-800"
                           >
@@ -554,10 +582,15 @@ export function DataRetentionManager() {
                               <strong>Material:</strong> {evidence.material_id}
                             </p>
                             <p className="font-['Sniglet'] text-[10px]">
-                              <strong>Parameter:</strong> {evidence.parameter_code}
+                              <strong>Parameter:</strong>{" "}
+                              {evidence.parameter_code}
                             </p>
                             <p className="font-['Sniglet'] text-[9px] text-black/50 dark:text-white/50">
-                              Created: {new Date(evidence.created_at).toLocaleDateString()} by {evidence.created_by}
+                              Created:{" "}
+                              {new Date(
+                                evidence.created_at
+                              ).toLocaleDateString()}{" "}
+                              by {evidence.created_by}
                             </p>
                           </div>
                         ))}
@@ -582,25 +615,19 @@ export function DataRetentionManager() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="p-3 bg-muted/50 rounded-lg">
-              <p className="label-muted-xs mb-1">
-                Total Evidence Points
-              </p>
+              <p className="label-muted-xs mb-1">Total Evidence Points</p>
               <div className="text-[24px] font-['Fredoka_One'] text-purple-600">
                 {stats?.evidence.total || 0}
               </div>
             </div>
             <div className="p-3 bg-muted/50 rounded-lg">
-              <p className="label-muted-xs mb-1">
-                Last Checked
-              </p>
+              <p className="label-muted-xs mb-1">Last Checked</p>
               <div className="font-['Sniglet'] text-[11px]">
-                {stats ? new Date(stats.lastChecked).toLocaleTimeString() : '-'}
+                {stats ? new Date(stats.lastChecked).toLocaleTimeString() : "-"}
               </div>
             </div>
             <div className="p-3 bg-muted/50 rounded-lg">
-              <p className="label-muted-xs mb-1">
-                Policy Version
-              </p>
+              <p className="label-muted-xs mb-1">Policy Version</p>
               <div className="font-['Sniglet'] text-[11px]">
                 v1.0 (Nov 2025)
               </div>

@@ -4,48 +4,53 @@
    ========================================================================== */
 
 @custom-variant dark (&:is(.dark *));
-
+@custom-variant high-contrast (&:is(.high-contrast *));
 /* ==========================================================================
    Design Tokens - Light Mode
    ========================================================================== */
 :root {
-  /* Archived colors for reference */
-  /* 
-  --purpleblack: #030213;
-  --egg: oklch(0.95 0.0058 264.53); 
-  */
+  /* Colors */
+  --white: oklch(1 0 0);
+  --whitish: oklch(0.92 0.02 95);
+  --black: oklch(0 0 0);
+  --blackish: oklch(0.08 0.01 260);
+  --grey: oklch(55.458% 0.02621 285.488);
+  --red: #d4183d;
+  --subtle: oklab(0% 0 0 / 0.1);
+  --quicksilver: oklch(0.708 0 0);
+
   /* Typography scale */
-  --font-size: 16px;
+  --font-size: 12px;
   --a11y-font-scale: 1;
   --font-weight-normal: 400;
-  --font-weight-medium: 500;
+  --font-weight-medium: 600;
 
   /* Surface colors */
-  --background: #ffffff;
-  --foreground: oklch(0.145 0 0);
-  --card: #ffffff;
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
+  --background: var(--white);
+  --foreground: var(--black);
+  --card: var(--white);
+  --card-foreground: var(--black);
+  --popover: var(--white);
+  --popover-foreground: var(--black);
 
   /* Interactive colors */
-  --primary: #030213;
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.95 0.0058 264.53);
-  --secondary-foreground: #030213;
-  --muted: #ececf0;
-  --muted-foreground: #717182;
-  --accent: #e9ebef;
-  --accent-foreground: #030213;
-  --destructive: #d4183d;
-  --destructive-foreground: #ffffff;
+  --primary: var(--black);
+  --primary-foreground: var(--white);
+  --secondary: var(--white);
+  --secondary-foreground: var(--black);
+  --muted: var(--white);
+  --muted-foreground: var(--grey);
+  --accent: var(--white);
+  --accent-foreground: var(--black);
+  --destructive: var(--red);
+  --destructive-foreground: var(--white);
 
   /* Form colors */
-  --border: rgba(0, 0, 0, 0.1);
+  --border: var(--subtle);
   --input: transparent;
   --input-background: #f3f3f5;
   --switch-background: #cbced4;
-  --ring: oklch(0.708 0 0);
+  --ring: var(--quicksilver);
 
   /* Chart palette */
   --chart-1: oklch(0.646 0.222 41.116);
@@ -58,10 +63,10 @@
   --radius: 0.625rem;
 
   /* Sidebar */
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: #030213;
-  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar: var(--white);
+  --sidebar-foreground: var(--black);
+  --sidebar-primary: var(--black);
+  --sidebar-primary-foreground: var(--white);
   --sidebar-accent: oklch(0.97 0 0);
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
@@ -72,6 +77,9 @@
   --waste-recycle: #e4e3ac;
   --waste-reuse: #b8c8cb;
   --waste-science: #bdd4b7;
+
+  --texture: url("https://www.transparenttextures.com/patterns/3px-tile.png");
+  --texture-size: 3px 3px;
 }
 
 /* ==========================================================================
@@ -140,6 +148,10 @@
   --waste-science: oklch(0.72 0.18 145); /* Green terminal */
 }
 
+.textured {
+  background-image: var(--texture);
+  background-size: var(--texture-size);
+}
 /* ==========================================================================
    Tailwind Theme Extensions
    ========================================================================== */

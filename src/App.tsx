@@ -434,12 +434,17 @@ function AppContent() {
     settings.adminMode
   );
 
+  const authModalOuterDivClasses =
+    "fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4";
+  const authModalInnerDivClasses = "relative max-w-md w-full";
+  const authModalBackgroundClasses =
+    "min-h-screen p-3 md:p-8 bg-[#faf7f2] dark:bg-[#2a2825] textured";
   return (
     <>
       {/* Auth Modal */}
       {showAuthModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="relative max-w-md w-full">
+        <div className={authModalOuterDivClasses}>
+          <div className={authModalInnerDivClasses}>
             <AuthView
               onAuthSuccess={(userData) => {
                 handleAuthSuccess(userData);
@@ -451,13 +456,7 @@ function AppContent() {
         </div>
       )}
 
-      <div
-        className="min-h-screen p-3 md:p-8 bg-[#faf7f2] dark:bg-[#2a2825]"
-        style={{
-          backgroundImage: `url("https://www.transparenttextures.com/patterns/3px-tile.png")`,
-          backgroundSize: "3px 3px",
-        }}
-      >
+      <div className={authModalBackgroundClasses}>
         <div className="max-w-6xl mx-auto">
           <div className="bg-[#faf7f2] dark:bg-[#1a1917] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 overflow-hidden mb-6">
             <StatusBar
@@ -476,7 +475,7 @@ function AppContent() {
                 {/* Sync error/offline banner - only show for authenticated users */}
                 {user &&
                   (syncStatus === "error" || syncStatus === "offline") && (
-                    <div className="mb-4 p-3 bg-[#e6beb5] dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px] flex items-center justify-between">
+                    <div className="mb-4 p-3 bg-[#e6beb5] dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-xl flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <CloudOff
                           size={16}
@@ -677,7 +676,7 @@ function AppContent() {
                             setShowSubmitMaterialForm(true);
                           }
                         }}
-                        className={`h-[48px] px-6 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(100,255,100,0.3)] dark:border-white/20 text-[14px] hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(100,255,100,0.3)] transition-all inline-flex items-center justify-center gap-2 ${
+                        className={`h-12 px-6 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(100,255,100,0.3)] dark:border-white/20 text-[14px] hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(100,255,100,0.3)] transition-all inline-flex items-center justify-center gap-2 ${
                           isAdminModeActive
                             ? "arcade-bg-cyan arcade-btn-cyan"
                             : "arcade-bg-green arcade-btn-green"
@@ -1011,27 +1010,23 @@ function AppContent() {
             ) : currentView.type === "takedown-form" ? (
               <TakedownRequestForm onBack={navigateToLegalHub} />
             ) : currentView.type === "takedown-status" ? (
-              <div className="p-6">
-                <TakedownStatusView requestId={currentView.requestId} />
-              </div>
+              <TakedownStatusView
+                requestId={currentView.requestId}
+                className="p-6"
+              />
             ) : currentView.type === "admin-takedown-list" ? (
-              <div className="p-6">
-                <AdminTakedownList />
-              </div>
+              <AdminTakedownList />
             ) : currentView.type === "audit-log" ? (
               <AuditLogViewer onBack={navigateToAdminDashboard} />
             ) : currentView.type === "data-retention" ? (
-              <div className="p-6">
-                <DataRetentionManager />
-              </div>
+              <DataRetentionManager className="p-6" />
             ) : currentView.type === "transform-manager" ? (
-              <div className="p-6">
-                <TransformVersionManager />
-              </div>
+              <TransformVersionManager className="p-6" />
             ) : currentView.type === "whitepapers-management" ? (
-              <div className="p-6">
-                <WhitepaperSyncTool onBack={navigateToAdminDashboard} />
-              </div>
+              <WhitepaperSyncTool
+                onBack={navigateToAdminDashboard}
+                className="p-6"
+              />
             ) : currentView.type === "assets-management" ? (
               <AssetsManagementPage />
             ) : currentView.type === "math-tools" ? (

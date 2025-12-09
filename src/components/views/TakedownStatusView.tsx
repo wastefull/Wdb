@@ -1,25 +1,47 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import React, { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
 import { Alert, AlertDescription } from "../ui/alert";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
-import { Loader2, CheckCircle2, Clock, AlertCircle, FileText, ArrowLeft } from 'lucide-react';
-import { projectId, publicAnonKey } from '../../utils/supabase/info';
-import { useNavigationContext } from '../../contexts/NavigationContext';
+import {
+  Loader2,
+  CheckCircle2,
+  Clock,
+  AlertCircle,
+  FileText,
+  ArrowLeft,
+} from "lucide-react";
+import { projectId, publicAnonKey } from "../../utils/supabase/info";
+import { useNavigationContext } from "../../contexts/NavigationContext";
 
 interface TakedownStatusViewProps {
   requestId: string;
+  className?: string;
 }
 
 interface TakedownRequest {
   requestID: string;
-  status: 'pending' | 'under_review' | 'resolved' | 'rejected';
+  status: "pending" | "under_review" | "resolved" | "rejected";
   submittedAt: string;
   reviewedAt: string | null;
-  resolution: 'full_removal' | 'partial_redaction' | 'attribution_correction' | 'no_action' | null;
+  resolution:
+    | "full_removal"
+    | "partial_redaction"
+    | "attribution_correction"
+    | "no_action"
+    | null;
 }
 
-export function TakedownStatusView({ requestId }: TakedownStatusViewProps) {
+export function TakedownStatusView({
+  requestId,
+  className,
+}: TakedownStatusViewProps) {
   const [request, setRequest] = useState<TakedownRequest | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -38,7 +60,7 @@ export function TakedownStatusView({ requestId }: TakedownStatusViewProps) {
         `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/legal/takedown/status/${requestId}`,
         {
           headers: {
-            'Authorization': `Bearer ${publicAnonKey}`,
+            Authorization: `Bearer ${publicAnonKey}`,
           },
         }
       );
@@ -47,14 +69,14 @@ export function TakedownStatusView({ requestId }: TakedownStatusViewProps) {
         const data = await response.json();
         setRequest(data);
       } else if (response.status === 404) {
-        setError('Request not found. Please check the request ID.');
+        setError("Request not found. Please check the request ID.");
       } else {
         const errorData = await response.json();
-        setError(errorData.error || 'Failed to fetch request status');
+        setError(errorData.error || "Failed to fetch request status");
       }
     } catch (err) {
-      console.error('Error fetching takedown status:', err);
-      setError('Network error. Please try again.');
+      console.error("Error fetching takedown status:", err);
+      setError("Network error. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -62,13 +84,13 @@ export function TakedownStatusView({ requestId }: TakedownStatusViewProps) {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'pending':
+      case "pending":
         return <Clock className="size-5 text-yellow-600" />;
-      case 'under_review':
+      case "under_review":
         return <Loader2 className="size-5 text-blue-600 animate-spin" />;
-      case 'resolved':
+      case "resolved":
         return <CheckCircle2 className="size-5 text-green-600" />;
-      case 'rejected':
+      case "rejected":
         return <AlertCircle className="size-5 text-red-600" />;
       default:
         return <FileText className="size-5 text-gray-600" />;
@@ -76,16 +98,19 @@ export function TakedownStatusView({ requestId }: TakedownStatusViewProps) {
   };
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-      'pending': 'secondary',
-      'under_review': 'default',
-      'resolved': 'outline',
-      'rejected': 'destructive',
+    const variants: Record<
+      string,
+      "default" | "secondary" | "destructive" | "outline"
+    > = {
+      pending: "secondary",
+      under_review: "default",
+      resolved: "outline",
+      rejected: "destructive",
     };
 
     return (
-      <Badge variant={variants[status] || 'default'}>
-        {status.replace('_', ' ').toUpperCase()}
+      <Badge variant={variants[status] || "default"}>
+        {status.replace("_", " ").toUpperCase()}
       </Badge>
     );
   };
@@ -94,28 +119,34 @@ export function TakedownStatusView({ requestId }: TakedownStatusViewProps) {
     if (!resolution) return null;
 
     const texts: Record<string, string> = {
-      'full_removal': 'Full Removal - Content has been completely removed',
-      'partial_redaction': 'Partial Redaction - Snippets redacted, citations preserved',
-      'attribution_correction': 'Attribution Corrected - Citation updated per your request',
-      'no_action': 'No Action - Content determined to be fair use',
+      full_removal: "Full Removal - Content has been completely removed",
+      partial_redaction:
+        "Partial Redaction - Snippets redacted, citations preserved",
+      attribution_correction:
+        "Attribution Corrected - Citation updated per your request",
+      no_action: "No Action - Content determined to be fair use",
     };
 
     return texts[resolution] || resolution;
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    return new Date(dateString).toLocaleString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   if (loading) {
     return (
-      <div className="max-w-2xl mx-auto flex items-center justify-center py-12">
+      <div
+        className={`max-w-2xl mx-auto flex items-center justify-center py-12 ${
+          className || ""
+        }`}
+      >
         <Loader2 className="size-8 animate-spin text-muted-foreground" />
       </div>
     );
@@ -123,7 +154,7 @@ export function TakedownStatusView({ requestId }: TakedownStatusViewProps) {
 
   if (error) {
     return (
-      <div className="max-w-2xl mx-auto space-y-4">
+      <div className={`max-w-2xl mx-auto space-y-4 ${className || ""}`}>
         <Alert variant="destructive">
           <AlertCircle className="size-4" />
           <AlertDescription>{error}</AlertDescription>
@@ -141,7 +172,7 @@ export function TakedownStatusView({ requestId }: TakedownStatusViewProps) {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className={`max-w-2xl mx-auto space-y-6 ${className || ""}`}>
       <Button variant="ghost" onClick={goBack} className="mb-4">
         <ArrowLeft className="size-4 mr-2" />
         Back
@@ -154,7 +185,9 @@ export function TakedownStatusView({ requestId }: TakedownStatusViewProps) {
               {getStatusIcon(request.status)}
               <div>
                 <CardTitle>Takedown Request Status</CardTitle>
-                <CardDescription>Request ID: {request.requestID}</CardDescription>
+                <CardDescription>
+                  Request ID: {request.requestID}
+                </CardDescription>
               </div>
             </div>
             {getStatusBadge(request.status)}
@@ -189,7 +222,7 @@ export function TakedownStatusView({ requestId }: TakedownStatusViewProps) {
               </div>
             )}
 
-            {!request.reviewedAt && request.status === 'pending' && (
+            {!request.reviewedAt && request.status === "pending" && (
               <div className="flex items-start gap-4">
                 <div className="mt-1">
                   <Clock className="size-5 text-yellow-600" />
@@ -213,7 +246,7 @@ export function TakedownStatusView({ requestId }: TakedownStatusViewProps) {
           )}
 
           {/* Next Steps */}
-          {request.status === 'pending' && (
+          {request.status === "pending" && (
             <Alert>
               <Clock className="size-4" />
               <AlertDescription>
@@ -227,27 +260,27 @@ export function TakedownStatusView({ requestId }: TakedownStatusViewProps) {
             </Alert>
           )}
 
-          {request.status === 'under_review' && (
+          {request.status === "under_review" && (
             <Alert>
               <Loader2 className="size-4 animate-spin" />
               <AlertDescription>
                 <strong>Currently under review</strong>
                 <p className="mt-2 text-sm">
-                  Our legal team is actively reviewing your request. We will notify you
-                  once a decision has been made.
+                  Our legal team is actively reviewing your request. We will
+                  notify you once a decision has been made.
                 </p>
               </AlertDescription>
             </Alert>
           )}
 
-          {request.status === 'resolved' && (
+          {request.status === "resolved" && (
             <Alert>
               <CheckCircle2 className="size-4" />
               <AlertDescription>
                 <strong>Request resolved</strong>
                 <p className="mt-2 text-sm">
-                  Your takedown request has been resolved. If you have questions about
-                  the resolution, please contact compliance@wastefull.org
+                  Your takedown request has been resolved. If you have questions
+                  about the resolution, please contact compliance@wastefull.org
                 </p>
               </AlertDescription>
             </Alert>
@@ -277,8 +310,8 @@ export function TakedownStatusView({ requestId }: TakedownStatusViewProps) {
             <strong>Response Time:</strong> 72 hours for initial review
           </p>
           <p>
-            <strong>Have questions?</strong> Include your request ID ({request.requestID})
-            in any correspondence.
+            <strong>Have questions?</strong> Include your request ID (
+            {request.requestID}) in any correspondence.
           </p>
         </CardContent>
       </Card>

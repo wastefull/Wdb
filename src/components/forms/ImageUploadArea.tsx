@@ -43,15 +43,13 @@ export function ImageUploadArea({
   return (
     <div className="w-full">
       {label && (
-        <label className="text-[13px] text-black block mb-2">
-          {label}
-        </label>
+        <label className="text-[13px] text-black block mb-2">{label}</label>
       )}
       <div
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
-        className={`relative border-[1.5px] border-dashed rounded-[8px] p-4 transition-all ${
+        className={`relative border-[1.5px] border-dashed rounded-xl p-4 transition-all ${
           isDragging
             ? "border-[#211f1c] bg-[#211f1c]/5"
             : "border-[#211f1c]/30 bg-white"
@@ -62,12 +60,12 @@ export function ImageUploadArea({
             <img
               src={image}
               alt="Preview"
-              className="w-full h-auto rounded-[4px] border border-[#211f1c]"
+              className="w-full h-auto rounded-lg border border-[#211f1c]"
             />
             <button
               type="button"
               onClick={() => onImageChange(undefined)}
-              className="absolute top-2 right-2 bg-[#e6beb5] px-3 py-1 rounded-md border border-[#211f1c] shadow-[2px_2px_0px_0px_#000000] text-[11px] text-black hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] transition-all"
+              className="absolute top-2 right-2 bg-[#e6beb5] px-3 py-1 rounded-md border border-[#211f1c] shadow-[2px_2px_0px_0px_#000000] text-[11px] text-black hover:translate-y-px hover:shadow-[1px_1px_0px_0px_#000000] transition-all"
             >
               Remove
             </button>

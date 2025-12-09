@@ -15,6 +15,7 @@ import * as api from "../../utils/api";
 
 interface WhitepaperSyncToolProps {
   onBack: () => void;
+  className?: string;
 }
 
 interface WhitepaperFile {
@@ -51,7 +52,10 @@ const WHITEPAPER_MAPPINGS: { [key: string]: { slug: string; title: string } } =
     },
   };
 
-export function WhitepaperSyncTool({ onBack }: WhitepaperSyncToolProps) {
+export function WhitepaperSyncTool({
+  onBack,
+  className,
+}: WhitepaperSyncToolProps) {
   const [syncing, setSyncing] = useState(false);
   const [whitepapers, setWhitepapers] = useState<WhitepaperFile[]>([]);
   const [syncResults, setSyncResults] = useState<{
@@ -228,14 +232,15 @@ export function WhitepaperSyncTool({ onBack }: WhitepaperSyncToolProps) {
   };
 
   return (
-    <div className="min-h-screen bg-[#f5f3ed] dark:bg-[#1a1817] p-6">
+    <div
+      className={`min-h-screen bg-[#f5f3ed] dark:bg-[#1a1817] p-6 ${
+        className || ""
+      }`}
+    >
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex items-center gap-4 mb-6">
-          <button
-            onClick={onBack}
-            className="card-interactive"
-          >
+          <button onClick={onBack} className="card-interactive">
             <ArrowLeft size={16} className="text-black" />
           </button>
           <div className="flex-1">

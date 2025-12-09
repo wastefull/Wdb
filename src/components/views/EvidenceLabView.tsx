@@ -1007,7 +1007,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                       className="h-9 font-['Sniglet'] text-[12px]"
                     />
                     <Button
-                      onClick={handleSourceSearch}
+                      onClick={() => handleSourceSearch()}
                       disabled={searchingCrossRef}
                       size="sm"
                       className="bg-[#b8c8cb] hover:bg-[#b8c8cb]/90 border border-[#211f1c] text-black"

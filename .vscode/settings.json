@@ -17,6 +17,21 @@
     "*.tsx": "typescriptreact"
   },
 
+  // CSS validation: Enable SCSS, disable only for Tailwind-specific files
+  "scss.validate": true,
+  "css.validate": true,
+
+  // Tell the built-in CSS validator to ignore Tailwind at-rules
+  "css.customData": [],
+  "css.lint.unknownAtRules": "ignore",
+
+  // Let Tailwind extension handle validation for CSS files with Tailwind syntax
+  "tailwindCSS.includeLanguages": {
+    "plaintext": "html"
+  },
+  "tailwindCSS.emmetCompletions": true,
+  "tailwindCSS.validate": true,
+
   // Search exclusions for faster searches
   "search.exclude": {
     "**/node_modules": true,

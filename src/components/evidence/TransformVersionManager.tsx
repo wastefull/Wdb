@@ -61,7 +61,13 @@ interface RecomputeJob {
   errorMessage: string | null;
 }
 
-export function TransformVersionManager() {
+interface TransformVersionManagerProps {
+  className?: string;
+}
+
+export function TransformVersionManager({
+  className,
+}: TransformVersionManagerProps = {}) {
   const [transforms, setTransforms] = useState<TransformsData | null>(null);
   const [jobs, setJobs] = useState<RecomputeJob[]>([]);
   const [loading, setLoading] = useState(true);
@@ -185,14 +191,16 @@ export function TransformVersionManager() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
+      <div
+        className={`flex items-center justify-center py-12 ${className || ""}`}
+      >
         <RefreshCw className="w-6 h-6 animate-spin text-black dark:text-white" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className={`space-y-6 ${className || ""}`}>
       {/* Header */}
       <div>
         <h1 className="font-['Fredoka_One',_sans-serif] text-[24px] text-black dark:text-white mb-2">
@@ -465,9 +473,7 @@ export function TransformVersionManager() {
           {jobs.length === 0 ? (
             <div className="text-center py-8 text-black/50 dark:text-white/50">
               <History className="w-12 h-12 mx-auto mb-3 opacity-30" />
-              <p className="text-[12px]">
-                No recompute jobs yet
-              </p>
+              <p className="text-[12px]">No recompute jobs yet</p>
             </div>
           ) : (
             <div className="space-y-3">
