@@ -1406,7 +1406,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
               <Label htmlFor="material_id">Material</Label>
               <Select
                 value={formData.material_id}
-                onValueChange={(value) =>
+                onValueChange={(value: string) =>
                   setFormData({ ...formData, material_id: value })
                 }
               >
@@ -1426,7 +1426,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
               <Label htmlFor="parameter_code">Parameter</Label>
               <Select
                 value={formData.parameter_code}
-                onValueChange={(value) =>
+                onValueChange={(value: string) =>
                   setFormData({ ...formData, parameter_code: value })
                 }
               >
@@ -1480,9 +1480,9 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
               <Label htmlFor="source_type">Source Type</Label>
               <Select
                 value={formData.source_type}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, source_type: value })
-                }
+                onValueChange={(
+                  value: "whitepaper" | "article" | "external" | "manual"
+                ) => setFormData({ ...formData, source_type: value })}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a source type" />
@@ -1518,7 +1518,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
               <Label htmlFor="confidence_level">Confidence Level</Label>
               <Select
                 value={formData.confidence_level}
-                onValueChange={(value) =>
+                onValueChange={(value: "high" | "medium" | "low") =>
                   setFormData({ ...formData, confidence_level: value })
                 }
               >
@@ -1613,7 +1613,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
               <Label htmlFor="material_id">Material</Label>
               <Select
                 value={formData.material_id}
-                onValueChange={(value) =>
+                onValueChange={(value: string) =>
                   setFormData({ ...formData, material_id: value })
                 }
               >
@@ -1633,7 +1633,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
               <Label htmlFor="parameter_code">Parameter</Label>
               <Select
                 value={formData.parameter_code}
-                onValueChange={(value) =>
+                onValueChange={(value: string) =>
                   setFormData({ ...formData, parameter_code: value })
                 }
               >
@@ -1687,9 +1687,9 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
               <Label htmlFor="source_type">Source Type</Label>
               <Select
                 value={formData.source_type}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, source_type: value })
-                }
+                onValueChange={(
+                  value: "whitepaper" | "article" | "external" | "manual"
+                ) => setFormData({ ...formData, source_type: value })}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a source type" />
@@ -1725,7 +1725,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
               <Label htmlFor="confidence_level">Confidence Level</Label>
               <Select
                 value={formData.confidence_level}
-                onValueChange={(value) =>
+                onValueChange={(value: "high" | "medium" | "low") =>
                   setFormData({ ...formData, confidence_level: value })
                 }
               >

@@ -1548,12 +1548,12 @@ export function SourceLibraryManager({
                                   onClick={(e) => {
                                     logger.log(
                                       `🖱️ User clicked "View PDF" for:`,
-                                      source.pdfFileName
+                                      source.pdfFileName!
                                     );
                                     logger.log(
                                       `   URL:`,
                                       api.getSourcePdfViewUrl(
-                                        source.pdfFileName
+                                        source.pdfFileName!
                                       )
                                     );
                                     logger.log(`   Source:`, source.title);
@@ -1565,12 +1565,12 @@ export function SourceLibraryManager({
                                   onClick={async () => {
                                     logger.log(
                                       `🔍 Running diagnostics for:`,
-                                      source.pdfFileName
+                                      source.pdfFileName!
                                     );
                                     try {
                                       const diagnostics =
                                         await api.getSourcePdfDiagnostics(
-                                          source.pdfFileName
+                                          source.pdfFileName!
                                         );
                                       logger.log(
                                         ` Diagnostics results:`,
@@ -1796,7 +1796,10 @@ export function SourceLibraryManager({
         </Card>
 
         {/* Add/Edit Source Dialog */}
-        <Dialog open={showForm} onOpenChange={(open) => !open && resetForm()}>
+        <Dialog
+          open={showForm}
+          onOpenChange={(open: boolean) => !open && resetForm()}
+        >
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle className="">
