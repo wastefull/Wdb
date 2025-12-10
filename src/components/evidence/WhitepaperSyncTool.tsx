@@ -106,10 +106,10 @@ export function WhitepaperSyncTool({
         });
 
         console.log(
-          `✅ Loaded ${file.name} (${(file.size / 1024).toFixed(1)} KB)`
+          `Loaded ${file.name} (${(file.size / 1024).toFixed(1)} KB)`
         );
       } catch (error) {
-        console.error(`❌ Error reading ${file.name}:`, error);
+        console.error(`Error reading ${file.name}:`, error);
         errors.push(
           `Failed to read ${file.name}: ${
             error instanceof Error ? error.message : "Unknown error"
@@ -193,9 +193,9 @@ export function WhitepaperSyncTool({
 
         results[whitepaper.slug] = "success";
         setSyncResults({ ...results });
-        console.log(`✅ Successfully synced: ${whitepaper.slug}`);
+        console.log(`Successfully synced: ${whitepaper.slug}`);
       } catch (error) {
-        console.error(`❌ Error syncing ${whitepaper.slug}:`, error);
+        console.error(`Error syncing ${whitepaper.slug}:`, error);
         results[whitepaper.slug] = "error";
         setSyncResults({ ...results });
       }
@@ -333,7 +333,7 @@ export function WhitepaperSyncTool({
                   key={wp.slug}
                   className="flex items-center gap-4 p-4 bg-[#faf9f6] dark:bg-[#1a1918] rounded-md border border-[#211f1c] dark:border-white/20"
                 >
-                  <div className="flex-shrink-0">
+                  <div className="shrink-0">
                     {getStatusIcon(syncResults[wp.slug])}
                   </div>
                   <div className="flex-1 min-w-0">

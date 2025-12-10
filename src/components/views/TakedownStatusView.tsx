@@ -19,7 +19,8 @@ import {
 } from "lucide-react";
 import { projectId, publicAnonKey } from "../../utils/supabase/info";
 import { useNavigationContext } from "../../contexts/NavigationContext";
-
+import { text } from "stream/consumers";
+import { styles, classes, classBank } from "../ui/classBank";
 interface TakedownStatusViewProps {
   requestId: string;
   className?: string;
@@ -81,19 +82,35 @@ export function TakedownStatusView({
       setLoading(false);
     }
   };
-
+  const statusStyles = classBank.statuses;
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "pending":
-        return <Clock className="size-5 text-yellow-600" />;
+        return (
+          <Clock className={classes(statusStyles.all, statusStyles.pending)} />
+        );
       case "under_review":
-        return <Loader2 className="size-5 text-blue-600 animate-spin" />;
+        return (
+          <Loader2 className={classes(statusStyles.all, statusStyles.review)} />
+        );
       case "resolved":
-        return <CheckCircle2 className="size-5 text-green-600" />;
+        return (
+          <CheckCircle2
+            className={classes(statusStyles.all, statusStyles.resolved)}
+          />
+        );
       case "rejected":
-        return <AlertCircle className="size-5 text-red-600" />;
+        return (
+          <AlertCircle
+            className={classes(statusStyles.all, statusStyles.rejected)}
+          />
+        );
       default:
-        return <FileText className="size-5 text-gray-600" />;
+        return (
+          <FileText
+            className={classes({ size: styles.size5, color: styles.gray600 })}
+          />
+        );
     }
   };
 
@@ -142,25 +159,21 @@ export function TakedownStatusView({
 
   if (loading) {
     return (
-      <div
-        className={`max-w-2xl mx-auto flex items-center justify-center py-12 ${
-          className || ""
-        }`}
-      >
-        <Loader2 className="size-8 animate-spin text-muted-foreground" />
+      <div className={`${styles.flexCenter}${" " + className || ""}`}>
+        <Loader2 className={styles.spinnerSize8} />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className={`max-w-2xl mx-auto space-y-4 ${className || ""}`}>
+      <div className={`${styles.autoFlex}${" " + className || ""}`}>
         <Alert variant="destructive">
-          <AlertCircle className="size-4" />
+          <AlertCircle className={styles.size4} />
           <AlertDescription>{error}</AlertDescription>
         </Alert>
         <Button variant="outline" onClick={goBack}>
-          <ArrowLeft className="size-4 mr-2" />
+          <ArrowLeft className={styles.arrowLeft} />
           Go Back
         </Button>
       </div>
@@ -172,16 +185,16 @@ export function TakedownStatusView({
   }
 
   return (
-    <div className={`max-w-2xl mx-auto space-y-6 ${className || ""}`}>
-      <Button variant="ghost" onClick={goBack} className="mb-4">
-        <ArrowLeft className="size-4 mr-2" />
+    <div className={`${styles.flex2}${className || ""}`}>
+      <Button variant="ghost" onClick={goBack} className={styles.mb4}>
+        <ArrowLeft className={styles.arrowLeft} />
         Back
       </Button>
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+          <div className={styles.flexContainerJustifyBetween}>
+            <div className={styles.gap3CenterItems}>
               {getStatusIcon(request.status)}
               <div>
                 <CardTitle>Takedown Request Status</CardTitle>
@@ -193,29 +206,33 @@ export function TakedownStatusView({
             {getStatusBadge(request.status)}
           </div>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className={styles.spaceY6}>
           {/* Timeline */}
-          <div className="space-y-4">
-            <div className="flex items-start gap-4">
+          <div className={styles.spaceY4}>
+            <div className={styles.flexGap4}>
               <div className="mt-1">
-                <CheckCircle2 className="size-5 text-green-600" />
+                <CheckCircle2
+                  className={classes(statusStyles.all, statusStyles.resolved)}
+                />
               </div>
-              <div className="flex-1">
+              <div className={styles.flex1}>
                 <h3 className="font-semibold">Submitted</h3>
-                <p className="text-sm text-muted-foreground">
+                <p className={styles.smallMuted}>
                   {formatDate(request.submittedAt)}
                 </p>
               </div>
             </div>
 
             {request.reviewedAt && (
-              <div className="flex items-start gap-4">
+              <div className={styles.flexItems}>
                 <div className="mt-1">
-                  <CheckCircle2 className="size-5 text-green-600" />
+                  <CheckCircle2
+                    className={classes(statusStyles.all, statusStyles.resolved)}
+                  />
                 </div>
-                <div className="flex-1">
+                <div className={styles.flex1}>
                   <h3 className="font-semibold">Reviewed</h3>
-                  <p className="text-sm text-muted-foreground">
+                  <p className={styles.smallMuted}>
                     {formatDate(request.reviewedAt)}
                   </p>
                 </div>
@@ -223,13 +240,15 @@ export function TakedownStatusView({
             )}
 
             {!request.reviewedAt && request.status === "pending" && (
-              <div className="flex items-start gap-4">
+              <div className={styles.flexGap4}>
                 <div className="mt-1">
-                  <Clock className="size-5 text-yellow-600" />
+                  <Clock
+                    className={classes(statusStyles.all, statusStyles.pending)}
+                  />
                 </div>
-                <div className="flex-1">
+                <div className={styles.flex1}>
                   <h3 className="font-semibold">Under Review</h3>
-                  <p className="text-sm text-muted-foreground">
+                  <p className={styles.smallMuted}>
                     We will respond within 72 hours
                   </p>
                 </div>
@@ -239,19 +258,21 @@ export function TakedownStatusView({
 
           {/* Resolution Details */}
           {request.resolution && (
-            <div className="bg-muted p-4 rounded-lg">
-              <h3 className="font-semibold mb-2">Resolution</h3>
-              <p className="text-sm">{getResolutionText(request.resolution)}</p>
+            <div className={styles.roundMutedP4}>
+              <h3 className={styles.semiBoldMB2}>Resolution</h3>
+              <p className={styles.textSm}>
+                {getResolutionText(request.resolution)}
+              </p>
             </div>
           )}
 
           {/* Next Steps */}
           {request.status === "pending" && (
             <Alert>
-              <Clock className="size-4" />
+              <Clock className={styles.size4} />
               <AlertDescription>
                 <strong>What happens next?</strong>
-                <ul className="list-disc list-inside mt-2 space-y-1 text-sm">
+                <ul className={styles.smallDiscList}>
                   <li>Our legal team is reviewing your request</li>
                   <li>You will receive an email update within 72 hours</li>
                   <li>Check this page anytime for the latest status</li>
@@ -262,10 +283,10 @@ export function TakedownStatusView({
 
           {request.status === "under_review" && (
             <Alert>
-              <Loader2 className="size-4 animate-spin" />
+              <Loader2 className={styles.spinnerSize4} />
               <AlertDescription>
                 <strong>Currently under review</strong>
-                <p className="mt-2 text-sm">
+                <p className={styles.smallMT2}>
                   Our legal team is actively reviewing your request. We will
                   notify you once a decision has been made.
                 </p>
@@ -275,10 +296,10 @@ export function TakedownStatusView({
 
           {request.status === "resolved" && (
             <Alert>
-              <CheckCircle2 className="size-4" />
+              <CheckCircle2 className={styles.size4} />
               <AlertDescription>
                 <strong>Request resolved</strong>
-                <p className="mt-2 text-sm">
+                <p className={styles.smallMT2}>
                   Your takedown request has been resolved. If you have questions
                   about the resolution, please contact compliance@wastefull.org
                 </p>
@@ -287,7 +308,7 @@ export function TakedownStatusView({
           )}
 
           {/* Actions */}
-          <div className="flex gap-3">
+          <div className={styles.flexGap3}>
             <Button variant="outline" onClick={fetchStatus}>
               Refresh Status
             </Button>
@@ -302,7 +323,7 @@ export function TakedownStatusView({
         <CardHeader>
           <CardTitle className="text-lg">Contact Information</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2 text-sm">
+        <CardContent className={styles.smallSpaceY2}>
           <p>
             <strong>Email:</strong> compliance@wastefull.org
           </p>

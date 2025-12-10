@@ -182,7 +182,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-[400px]">
         {/* Auth Window */}
-        <div className="retro-card overflow-hidden backdrop-blur-md !bg-white/70 dark:!bg-[#2a2825]/70">
+        <div className="retro-card overflow-hidden backdrop-blur-md bg-white/70! dark:bg-[#2a2825]/70!">
           {/* Mini Status Bar */}
           <StatusBar variant="mini" title="Welcome back!" onClose={onClose} />
 
@@ -190,7 +190,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
           <div className="p-6 bg-[#faf7f2]/90 dark:bg-[#2a2825]/90">
             {authMode === "magic-link-sent" ? (
               <div className="text-center space-y-3">
-                <div className="p-5 bg-[#e4e3ac]/30 dark:bg-[#e4e3ac]/10 border border-[#211f1c]/20 dark:border-white/20 rounded-[8px]">
+                <div className="p-5 bg-[#e4e3ac]/30 dark:bg-[#e4e3ac]/10 border border-[#211f1c]/20 dark:border-white/20 rounded-xl">
                   <Mail
                     size={28}
                     className="mx-auto mb-2 text-black dark:text-white"
@@ -209,7 +209,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
 
                 <button
                   onClick={() => setAuthMode("magic-link")}
-                  className="w-full h-[36px] retro-btn-primary arcade-bg-cyan arcade-btn-cyan text-[12px] flex items-center justify-center gap-2"
+                  className="w-full h-9 retro-btn-primary arcade-bg-cyan arcade-btn-cyan text-[12px] flex items-center justify-center gap-2"
                 >
                   <ArrowLeft size={14} />
                   Send Another Link
@@ -255,7 +255,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
                 <button
                   onClick={handleSendMagicLink}
                   disabled={loading}
-                  className="w-full h-[40px] retro-btn-primary arcade-bg-amber arcade-btn-amber text-[13px] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
+                  className="w-full h-10 retro-btn-primary arcade-bg-amber arcade-btn-amber text-[13px] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
                 >
                   <Mail size={16} />
                   {loading ? "Sending..." : "Send Magic Link"}
@@ -339,7 +339,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
                 </div>
 
                 {/* Email Confirmation Notice */}
-                <div className="p-2.5 bg-blue-50 dark:bg-blue-900/20 border border-blue-300 dark:border-blue-700 rounded-[8px]">
+                <div className="p-2.5 bg-blue-50 dark:bg-blue-900/20 border border-blue-300 dark:border-blue-700 rounded-xl">
                   <p className="text-[10px] text-blue-800 dark:text-blue-200">
                     New accounts require email confirmation. You'll receive a
                     confirmation link after signing up.
@@ -351,7 +351,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
                   <button
                     onClick={handleSignIn}
                     disabled={loading}
-                    className="flex-1 h-[40px] retro-btn-primary arcade-bg-cyan arcade-btn-cyan text-[13px] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
+                    className="flex-1 h-10 retro-btn-primary arcade-bg-cyan arcade-btn-cyan text-[13px] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
                   >
                     <LogIn size={16} />
                     {loading ? "Loading..." : "Sign In"}
@@ -359,7 +359,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
                   <button
                     onClick={handleSignUp}
                     disabled={loading}
-                    className="flex-1 h-[40px] retro-btn-primary arcade-bg-amber arcade-btn-amber text-[13px] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
+                    className="flex-1 h-10 retro-btn-primary arcade-bg-amber arcade-btn-amber text-[13px] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
                   >
                     <UserPlus size={16} />
                     {loading ? "Loading..." : "Sign Up"}
@@ -369,13 +369,13 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
             ) : (
               /* Fallback: If password auth is disabled but mode is traditional, show magic link */
               <div className="space-y-3">
-                <div className="p-3 bg-[#e4e3ac]/40 dark:bg-[#e4e3ac]/20 border-2 border-[#211f1c]/30 dark:border-white/30 rounded-[8px]">
+                <div className="p-3 bg-[#e4e3ac]/40 dark:bg-[#e4e3ac]/20 border-2 border-[#211f1c]/30 dark:border-white/30 rounded-xl">
                   <p className="text-[11px] text-black dark:text-white text-center mb-2">
                     Password authentication is not available in production.
                   </p>
                   <button
                     onClick={() => setAuthMode("magic-link")}
-                    className="w-full h-[36px] retro-btn-primary arcade-bg-amber arcade-btn-amber text-[12px] flex items-center justify-center gap-2"
+                    className="w-full h-9 retro-btn-primary arcade-bg-amber arcade-btn-amber text-[12px] flex items-center justify-center gap-2"
                   >
                     <Mail size={14} />
                     Use Magic Link Instead

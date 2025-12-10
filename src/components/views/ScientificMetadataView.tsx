@@ -22,13 +22,14 @@ import { Button } from "../ui/button";
 import { Alert, AlertDescription } from "../ui/alert";
 import { useState } from "react";
 import { Material } from "../../types/material";
-
+import { classes, classBank, styles } from "../ui/classBank";
 interface ScientificMetadataViewProps {
   material: Material;
   onEditScientific?: () => void;
   isAdminModeActive?: boolean;
 }
-
+const badgeClasses = classBank.badges;
+const confidenceIconClasses = classBank.icons.confidence;
 export function ScientificMetadataView({
   material,
   onEditScientific,
@@ -70,17 +71,14 @@ export function ScientificMetadataView({
   const validationWarning = validateConfidenceLevel();
 
   const getConfidenceIcon = (level?: string) => {
+    const cic = confidenceIconClasses;
     switch (level) {
       case "High":
-        return (
-          <CheckCircle2 className="w-4 h-4 text-green-700 dark:text-green-400" />
-        );
+        return <CheckCircle2 className={classes(cic.size, cic.level.high)} />;
       case "Medium":
-        return (
-          <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-        );
+        return <AlertCircle className={classes(cic.size, cic.level.medium)} />;
       case "Low":
-        return <XCircle className="w-4 h-4 text-red-600 dark:text-red-400" />;
+        return <XCircle className={classes(cic.size, cic.level.low)} />;
       default:
         return null;
     }
@@ -108,12 +106,18 @@ export function ScientificMetadataView({
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <CollapsibleTrigger className="w-full">
-        <div className="flex items-center gap-2 p-3 arcade-bg-green arcade-btn-green border border-[#211f1c] dark:border-white/20 rounded-md hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all">
-          <FlaskConical className="w-4 h-4" />
+      <CollapsibleTrigger className={styles.wFull}>
+        <div className={styles.metaDataViewStyles}>
+          <FlaskConical className={styles.w4h4} />
           <span className="text-[13px]">Scientific Data</span>
           {validationWarning && (
-            <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 ml-auto" />
+            <AlertTriangle
+              className={classes(
+                styles.w4h4,
+                confidenceIconClasses.level.medium,
+                confidenceIconClasses.margin
+              )}
+            />
           )}
           {material.confidence_level && (
             <div className={`${validationWarning ? "" : "ml-auto"}`}>
@@ -121,7 +125,7 @@ export function ScientificMetadataView({
             </div>
           )}
           <ChevronDown
-            className={`w-4 h-4 transition-transform ${
+            className={`${styles.w4h4} transition-transform ${
               isOpen ? "rotate-180" : ""
             }`}
           />
@@ -129,7 +133,7 @@ export function ScientificMetadataView({
       </CollapsibleTrigger>
 
       <CollapsibleContent>
-        <Card className="mt-2 p-4 bg-white dark:bg-[#1a1918] border border-[#211f1c] dark:border-white/20">
+        <Card className={classes(classBank.cards.flat)}>
           {/* Validation Warning */}
           {validationWarning && (
             <Alert className="mb-4 bg-amber-50 dark:bg-amber-900/20 border-amber-300 dark:border-amber-700">
@@ -171,20 +175,38 @@ export function ScientificMetadataView({
               {(material.Y_value !== undefined ||
                 material.D_value !== undefined) && (
                 <div>
-                  <div className="flex items-center gap-2 mb-2">
+                  <div
+                    className={classes({
+                      style: styles.scientificMetadataLayout,
+                    })}
+                  >
                     <Database className="w-4 h-4 text-black dark:text-white" />
-                    <h4 className="text-[12px] text-black dark:text-white">
+                    <h4
+                      className={classes({
+                        colors: styles.BW,
+                        sizes: styles.med,
+                      })}
+                    >
                       Raw Parameters (0-1 normalized)
                     </h4>
                   </div>
                   <div className="grid grid-cols-1 gap-3 text-[11px]">
                     {material.Y_value !== undefined && (
                       <div>
-                        <div className="flex justify-between items-center mb-1">
-                          <span className="text-black/60 dark:text-white/60">
+                        <div
+                          className={classes({
+                            style: styles.flexJustifyCenterMB1,
+                          })}
+                        >
+                          <span className={classes({ style: styles.BW60 })}>
                             Yield (Y):
                           </span>
-                          <span className="text-black dark:text-white font-medium">
+                          <span
+                            className={classes({
+                              colors: styles.BW,
+                              sizes: styles.med,
+                            })}
+                          >
                             {material.Y_value.toFixed(2)}
                           </span>
                         </div>
@@ -209,21 +231,28 @@ export function ScientificMetadataView({
                     )}
                     {material.D_value !== undefined && (
                       <div>
-                        <div className="flex justify-between items-center mb-1">
-                          <span className="text-black/60 dark:text-white/60">
+                        <div className={styles.flexJustifyCenterMB1}>
+                          <span className={styles.BW60}>
                             Degradability (D):
                           </span>
-                          <span className="text-black dark:text-white font-medium">
+                          <span
+                            className={classes({
+                              colors: styles.BW,
+                              sizes: styles.med,
+                            })}
+                          >
                             {material.D_value.toFixed(2)}
                           </span>
                         </div>
                         {getSourcesForParameter("D_value").length > 0 && (
-                          <div className="flex flex-wrap gap-1 pl-2">
+                          <div className={styles.flexWrapGap1Pl2}>
                             {getSourcesForParameter("D_value").map((source) => (
                               <Badge
                                 key={source.index}
                                 variant="outline"
-                                className="text-[8px] bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
+                                className={classes(
+                                  badgeClasses.variant.outline
+                                )}
                               >
                                 [{source.index + 1}]{" "}
                                 {source.authors
@@ -238,21 +267,28 @@ export function ScientificMetadataView({
                     )}
                     {material.C_value !== undefined && (
                       <div>
-                        <div className="flex justify-between items-center mb-1">
-                          <span className="text-black/60 dark:text-white/60">
+                        <div className={styles.flexJustifyCenterMB1}>
+                          <span className={styles.BW60}>
                             Contamination (C):
                           </span>
-                          <span className="text-black dark:text-white font-medium">
+                          <span
+                            className={classes({
+                              colors: styles.BW,
+                              sizes: styles.med,
+                            })}
+                          >
                             {material.C_value.toFixed(2)}
                           </span>
                         </div>
                         {getSourcesForParameter("C_value").length > 0 && (
-                          <div className="flex flex-wrap gap-1 pl-2">
+                          <div className={styles.flexWrapGap1Pl2}>
                             {getSourcesForParameter("C_value").map((source) => (
                               <Badge
                                 key={source.index}
                                 variant="outline"
-                                className="text-[8px] bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
+                                className={classes(
+                                  badgeClasses.variant.outline
+                                )}
                               >
                                 [{source.index + 1}]{" "}
                                 {source.authors
@@ -267,11 +303,16 @@ export function ScientificMetadataView({
                     )}
                     {material.M_value !== undefined && (
                       <div>
-                        <div className="flex justify-between items-center mb-1">
-                          <span className="text-black/60 dark:text-white/60">
+                        <div className={styles.flexJustifyCenterMB1}>
+                          <span className={classes({ style: styles.BW60 })}>
                             Maturity (M):
                           </span>
-                          <span className="text-black dark:text-white font-medium">
+                          <span
+                            className={classes({
+                              colors: styles.BW,
+                              sizes: styles.med,
+                            })}
+                          >
                             {material.M_value.toFixed(2)}
                           </span>
                         </div>
@@ -281,7 +322,9 @@ export function ScientificMetadataView({
                               <Badge
                                 key={source.index}
                                 variant="outline"
-                                className="text-[8px] bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
+                                className={classes(
+                                  badgeClasses.variant.outline
+                                )}
                               >
                                 [{source.index + 1}]{" "}
                                 {source.authors
@@ -296,21 +339,31 @@ export function ScientificMetadataView({
                     )}
                     {material.E_value !== undefined && material.E_value > 0 && (
                       <div>
-                        <div className="flex justify-between items-center mb-1">
-                          <span className="text-black/60 dark:text-white/60">
-                            Energy (E):
-                          </span>
-                          <span className="text-black dark:text-white font-medium">
+                        <div className={styles.flexJustifyCenterMB1}>
+                          <span className={styles.BW60}>Energy (E):</span>
+                          <span
+                            className={classes({
+                              colors: styles.BW,
+                              sizes: styles.med,
+                            })}
+                          >
                             {material.E_value.toFixed(2)}
                           </span>
                         </div>
                         {getSourcesForParameter("E_value").length > 0 && (
-                          <div className="flex flex-wrap gap-1 pl-2">
+                          <div
+                            className={classes({
+                              layout: styles.flexWrapGap1Pl2,
+                              pl: styles.PL2,
+                            })}
+                          >
                             {getSourcesForParameter("E_value").map((source) => (
                               <Badge
                                 key={source.index}
                                 variant="outline"
-                                className="text-[8px] bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
+                                className={classes(
+                                  badgeClasses.variant.outline
+                                )}
                               >
                                 [{source.index + 1}]{" "}
                                 {source.authors
@@ -331,9 +384,18 @@ export function ScientificMetadataView({
               {(material.CR_practical_mean !== undefined ||
                 material.CR_theoretical_mean !== undefined) && (
                 <div>
-                  <div className="flex items-center gap-2 mb-2">
+                  <div
+                    className={classes({
+                      layout: styles.scientificMetadataLayout,
+                    })}
+                  >
                     <TrendingUp className="w-4 h-4 text-black dark:text-white" />
-                    <h4 className="text-[12px] text-black dark:text-white">
+                    <h4
+                      className={classes({
+                        colors: styles.BW,
+                        sizes: styles.med,
+                      })}
+                    >
                       Composite Recyclability Index (CR)
                     </h4>
                   </div>
@@ -341,10 +403,15 @@ export function ScientificMetadataView({
                     {material.CR_practical_mean !== undefined && (
                       <div>
                         <div className="flex justify-between mb-1">
-                          <span className="text-black/60 dark:text-white/60">
+                          <span className={classes({ style: styles.BW60 })}>
                             Practical:
                           </span>
-                          <span className="text-black dark:text-white font-medium">
+                          <span
+                            className={classes({
+                              colors: styles.BW,
+                              sizes: styles.med,
+                            })}
+                          >
                             {(material.CR_practical_mean * 100).toFixed(1)}%
                           </span>
                         </div>
@@ -386,10 +453,15 @@ export function ScientificMetadataView({
                     {material.CR_theoretical_mean !== undefined && (
                       <div>
                         <div className="flex justify-between mb-1">
-                          <span className="text-black/60 dark:text-white/60">
+                          <span className={classes({ style: styles.BW60 })}>
                             Theoretical:
                           </span>
-                          <span className="text-black dark:text-white font-medium">
+                          <span
+                            className={classes({
+                              colors: styles.BW,
+                              sizes: styles.med,
+                            })}
+                          >
                             {(material.CR_theoretical_mean * 100).toFixed(1)}%
                           </span>
                         </div>
@@ -437,7 +509,12 @@ export function ScientificMetadataView({
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <FileText className="w-4 h-4 text-black dark:text-white" />
-                    <h4 className="text-[12px] text-black dark:text-white">
+                    <h4
+                      className={classes({
+                        colors: styles.BW,
+                        sizes: styles.med,
+                      })}
+                    >
                       Sources ({material.sources.length})
                     </h4>
                   </div>
@@ -494,7 +571,12 @@ export function ScientificMetadataView({
               <div className="pt-2 border-t border-[#211f1c] dark:border-white/20">
                 <div className="flex items-center gap-2 mb-2">
                   <Calendar className="w-4 h-4 text-black dark:text-white" />
-                  <h4 className="text-[12px] text-black dark:text-white">
+                  <h4
+                    className={classes({
+                      colors: styles.BW,
+                      sizes: styles.med,
+                    })}
+                  >
                     Calculation Metadata
                   </h4>
                 </div>

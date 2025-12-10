@@ -121,7 +121,7 @@ export function StatusBar({
                         }
                         className="flex items-center gap-1 px-1.5 md:px-2 py-1 bg-white/50 dark:bg-black/20 rounded-md border border-[#211f1c]/20 dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all cursor-pointer"
                       >
-                        <User className="w-3 h-3 md:w-[12px] md:h-[12px] text-black dark:text-white" />
+                        <User className="w-3 h-3 md:w-3 md:h-3 text-black dark:text-white" />
                         <span className="hidden md:inline text-[10px] text-black dark:text-white max-w-[100px] truncate">
                           {user.name || user.email.split("@")[0]}
                         </span>
@@ -154,7 +154,7 @@ export function StatusBar({
                           className="p-1 md:p-1.5 rounded-md border border-[#211f1c] dark:border-white/20 arcade-bg-red hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
                           aria-label="Sign out"
                         >
-                          <LogOut className="w-3 h-3 md:w-[12px] md:h-[12px] arcade-btn-red" />
+                          <LogOut className="w-3 h-3 md:w-3 md:h-3 arcade-btn-red" />
                         </button>
                       </TooltipTrigger>
                       <TooltipContent
@@ -186,25 +186,25 @@ export function StatusBar({
                   >
                     {syncStatus === "synced" && (
                       <Cloud
-                        className="w-3 h-3 md:w-[14px] md:h-[14px] text-[#4a90a4] dark:text-[#6bb6d0]"
+                        className="w-3 h-3 md:w-3.5 md:h-3.5 text-[#4a90a4] dark:text-[#6bb6d0]"
                         aria-hidden="true"
                       />
                     )}
                     {syncStatus === "syncing" && (
                       <Cloud
-                        className="w-3 h-3 md:w-[14px] md:h-[14px] text-[#d4b400] dark:text-[#ffd700] animate-pulse"
+                        className="w-3 h-3 md:w-3.5 md:h-3.5 text-[#d4b400] dark:text-[#ffd700] animate-pulse"
                         aria-hidden="true"
                       />
                     )}
                     {syncStatus === "offline" && (
                       <CloudOff
-                        className="w-3 h-3 md:w-[14px] md:h-[14px] text-black/40 dark:text-white/40"
+                        className="w-3 h-3 md:w-3.5 md:h-3.5 text-black/40 dark:text-white/40"
                         aria-hidden="true"
                       />
                     )}
                     {syncStatus === "error" && (
                       <CloudOff
-                        className="w-3 h-3 md:w-[14px] md:h-[14px] text-[#c74444] dark:text-[#ff6b6b]"
+                        className="w-3 h-3 md:w-3.5 md:h-3.5 text-[#c74444] dark:text-[#ff6b6b]"
                         aria-hidden="true"
                       />
                     )}
