@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { LogIn, UserPlus, Eye, EyeOff, Mail, ArrowLeft, X } from "lucide-react";
+import { LogIn, UserPlus, Eye, EyeOff, Mail, ArrowLeft } from "lucide-react";
 import * as api from "../../utils/api";
 import { toast } from "sonner";
 import { isDevelopment, logEnvironmentInfo } from "../../utils/environment";
 import { logger } from "../../utils/logger";
+import { StatusBar } from "../layout/StatusBar";
 
 interface AuthViewProps {
   onAuthSuccess: (user: { id: string; email: string; name?: string }) => void;
@@ -26,7 +27,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
   // Log environment info on mount
   useEffect(() => {
     logEnvironmentInfo();
-    logger.log("🔐 Auth View - Password auth enabled:", showPasswordAuth);
+    logger.log("Auth View - Password auth enabled:", showPasswordAuth);
     logger.log(
       "🔐 Initial auth mode:",
       showPasswordAuth ? "traditional" : "magic-link"
@@ -37,11 +38,11 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
   useEffect(() => {
     if (showPasswordAuth && authMode === "magic-link") {
       // In development, default to password
-      logger.log("🔄 Development environment - using Password auth");
+      logger.log("Development environment - using Password auth");
       setAuthMode("traditional");
     } else if (!showPasswordAuth && authMode === "traditional") {
       // In production, default to magic link
-      logger.log("🔄 Production environment - switching to Magic Link auth");
+      logger.log("Production environment - switching to Magic Link auth");
       setAuthMode("magic-link");
     }
   }, [showPasswordAuth, authMode]);
@@ -183,38 +184,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
         {/* Auth Window */}
         <div className="retro-card overflow-hidden backdrop-blur-md !bg-white/70 dark:!bg-[#2a2825]/70">
           {/* Mini Status Bar */}
-          <div className="h-[32px] bg-[#faf7f2] dark:bg-[#2a2825] border-b-[1.5px] border-[#211f1c] dark:border-white/20 flex items-center justify-center relative">
-            {/* Red Close Button - Positioned absolutely on the left */}
-            <button
-              onClick={onClose}
-              className="group absolute left-2 w-[11px] h-[11px] cursor-pointer"
-            >
-              <div className="absolute inset-[-8.333%]">
-                <svg
-                  className="block size-full"
-                  fill="none"
-                  preserveAspectRatio="none"
-                  viewBox="0 0 14 14"
-                >
-                  <circle
-                    cx="7"
-                    cy="7"
-                    fill="#E6BCB5"
-                    r="6.5"
-                    stroke="#211F1C"
-                  />
-                </svg>
-              </div>
-              {/* X appears on hover */}
-              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <X size={8} className="text-black" strokeWidth={2.5} />
-              </div>
-            </button>
-            {/* Window Title - Centered */}
-            <span className="text-[11px] text-black dark:text-white">
-              Welcome back!
-            </span>
-          </div>
+          <StatusBar variant="mini" title="Welcome back!" onClose={onClose} />
 
           {/* Form Content */}
           <div className="p-6 bg-[#faf7f2]/90 dark:bg-[#2a2825]/90">

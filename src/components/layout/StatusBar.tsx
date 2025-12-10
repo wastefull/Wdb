@@ -1,4 +1,4 @@
-import { User, LogOut, Cloud, CloudOff } from "lucide-react";
+import { User, LogOut, Cloud, CloudOff, X } from "lucide-react";
 import { NotificationBell } from "../shared/NotificationBell";
 import { RetroButtons } from "./RetroButtons";
 import { AdminModeButton } from "./AdminModeButton";
@@ -10,14 +10,26 @@ import {
 } from "../ui/tooltip";
 
 export interface StatusBarProps {
+  /** Title displayed in the status bar (used by RetroButtons in full variant, centered in mini variant) */
   title: string;
-  currentView: any;
-  onViewChange: (view: any) => void;
+  /** Current view state for navigation */
+  currentView?: any;
+  /** Navigation handler */
+  onViewChange?: (view: any) => void;
+  /** Cloud sync status indicator */
   syncStatus?: "synced" | "syncing" | "offline" | "error";
+  /** Current user */
   user?: { id: string; email: string; name?: string } | null;
+  /** User role for admin features */
   userRole?: "user" | "admin";
+  /** Logout handler */
   onLogout?: () => void;
+  /** Sign in handler (shows Sign In button when no user) */
   onSignIn?: () => void;
+  /** Variant: "full" for main app bar, "mini" for modals/dialogs */
+  variant?: "full" | "mini";
+  /** Close handler for mini variant */
+  onClose?: () => void;
 }
 
 export function StatusBar({
@@ -29,7 +41,49 @@ export function StatusBar({
   userRole,
   onLogout,
   onSignIn,
+  variant = "full",
+  onClose,
 }: StatusBarProps) {
+  // Mini variant for modals - simplified with just close button and title
+  if (variant === "mini") {
+    return (
+      <div className="h-8 bg-[#faf7f2] dark:bg-[#2a2825] border-b-[1.5px] border-[#211f1c] dark:border-white/20 flex items-center justify-center relative">
+        {/* Close Button - Red circle on left */}
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="group absolute left-2 w-[11px] h-[11px] cursor-pointer"
+            aria-label="Close"
+          >
+            <div className="absolute inset-[-8.333%] arcade-fill-red">
+              <svg
+                className="block size-full"
+                fill="none"
+                preserveAspectRatio="none"
+                viewBox="0 0 14 14"
+              >
+                <circle
+                  cx="7"
+                  cy="7"
+                  fill="var(--fill-0, #E6BCB5)"
+                  r="6.5"
+                  stroke="var(--stroke-0, #211F1C)"
+                />
+              </svg>
+            </div>
+            {/* X appears on hover */}
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <X size={8} className="text-black" strokeWidth={2.5} />
+            </div>
+          </button>
+        )}
+        {/* Centered Title */}
+        <span className="text-[11px] text-black dark:text-white">{title}</span>
+      </div>
+    );
+  }
+
+  // Full variant - main app status bar
   return (
     <header
       className="h-[42px] md:min-w-[400px] relative shrink-0 w-full"
@@ -53,7 +107,7 @@ export function StatusBar({
                 Sign In
               </button>
             )}
-            {user && (
+            {user && onViewChange && (
               <>
                 <TooltipProvider delayDuration={300}>
                   <UITooltip>
@@ -85,7 +139,7 @@ export function StatusBar({
                   userId={user.id}
                   isAdmin={userRole === "admin"}
                 />
-                {userRole === "admin" && (
+                {userRole === "admin" && currentView && (
                   <AdminModeButton
                     currentView={currentView}
                     onViewChange={onViewChange}

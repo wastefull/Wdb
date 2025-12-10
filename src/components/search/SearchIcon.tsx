@@ -2,7 +2,7 @@ import svgPaths from "../../imports/svg-qhqftidoeu";
 
 export function SearchIcon() {
   return (
-    <div className="h-[16px] relative shrink-0 w-[18px]">
+    <div className="h-4 relative shrink-0 w-[18px]">
       <div className="absolute inset-[-3.11%_-4.26%_-1.44%_-2.92%]">
         <svg
           className="block size-full"
