@@ -1,5 +1,3 @@
-import { CheckboxIndicator } from "@radix-ui/react-checkbox";
-
 export const classBank = {
   badges: {
     variant: {
