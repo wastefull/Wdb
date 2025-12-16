@@ -281,13 +281,8 @@ export function RetroButtons({ title }: RetroButtonsProps) {
             </div>
           </TooltipProvider>
 
-          <div className="basis-0 grow min-h-px min-w-px flex items-center justify-center gap-1.5 md:gap-2">
-            <h1 className="leading-[25px] not-italic text-[18px] md:text-[28px] normal text-center uppercase">
-              {title}
-            </h1>
-            <span className="text-[8px] md:text-[10px] px-1 md:px-1.5 py-0 md:py-0.5 rounded-full arcade-bg-green arcade-btn-green border border-[#211f1c] dark:border-white/20 uppercase">
-              Beta
-            </span>
+          <div className="basis-0 grow min-h-px min-w-px flex items-center justify-center">
+            <h1 className="leading-[25px] not-italic uppercase">{title}</h1>
           </div>
         </div>
       </div>

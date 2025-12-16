@@ -225,6 +225,11 @@
   body {
     @apply bg-background text-foreground font-sniglet;
   }
+  h1 {
+    font-size: var(--text-2xl);
+    font-weight: var(--font-weight-light);
+    line-height: 1.5;
+  }
 }
 
 /* Typography defaults for elements without Tailwind text classes */
@@ -286,6 +291,10 @@ body {
   transform: scale(var(--a11y-font-scale));
   width: calc(100% / var(--a11y-font-scale));
   height: calc(100% / var(--a11y-font-scale));
+}
+
+.status-bar-layout {
+  @apply box-border content-stretch flex h-[42px] items-center justify-between px-[5px] py-0 relative w-full;
 }
 
 /* ==========================================================================
@@ -834,6 +843,104 @@ body {
 .menu-subheader {
   @apply text-[11px] px-3 py-1;
   @apply text-black/50 dark:text-white/50;
+}
+
+/* ==========================================================================
+   Navigation Tabs (horizontal menu below status bar)
+   ========================================================================== */
+.nav-tabs {
+  @apply border-b-[1.5px] border-[#211f1c] dark:border-white/20;
+  @apply px-4 py-2;
+  @apply transition-colors duration-300;
+}
+
+/* Nav background colors based on active tab */
+.nav-tabs[data-color="reuse"] {
+  background-color: color-mix(
+    in oklch,
+    var(--waste-reuse) 40%,
+    var(--background)
+  );
+}
+.nav-tabs[data-color="science"] {
+  background-color: color-mix(
+    in oklch,
+    var(--waste-science) 40%,
+    var(--background)
+  );
+}
+.nav-tabs[data-color="recycle"] {
+  background-color: color-mix(
+    in oklch,
+    var(--waste-recycle) 40%,
+    var(--background)
+  );
+}
+.nav-tabs[data-color="compost"] {
+  background-color: color-mix(
+    in oklch,
+    var(--waste-compost) 40%,
+    var(--background)
+  );
+}
+
+/* Default background when no tab is active */
+.nav-tabs:not([data-color]) {
+  @apply bg-[#faf7f2] dark:bg-[#1a1917];
+}
+
+.nav-tabs-inner {
+  @apply flex items-center justify-center gap-1;
+  @apply max-w-2xl mx-auto;
+}
+
+.nav-tab {
+  @apply flex items-center gap-1.5 px-3 py-1.5 rounded-lg;
+  @apply text-[12px] text-black/70 dark:text-white/70;
+  @apply hover:text-black dark:hover:text-white;
+  @apply hover:bg-black/5 dark:hover:bg-white/10;
+  @apply transition-colors;
+}
+
+/* Tab hover changes nav background color (lighter tint on hover) */
+.nav-tabs:has(.nav-tab[data-color="reuse"]:hover) {
+  background-color: color-mix(
+    in oklch,
+    var(--waste-reuse) 100%,
+    var(--background)
+  ) !important;
+}
+.nav-tabs:has(.nav-tab[data-color="science"]:hover) {
+  background-color: color-mix(
+    in oklch,
+    var(--waste-science) 100%,
+    var(--background)
+  ) !important;
+}
+.nav-tabs:has(.nav-tab[data-color="recycle"]:hover) {
+  background-color: color-mix(
+    in oklch,
+    var(--waste-recycle) 100%,
+    var(--background)
+  ) !important;
+}
+.nav-tabs:has(.nav-tab[data-color="compost"]:hover) {
+  background-color: color-mix(
+    in oklch,
+    var(--waste-compost) 100%,
+    var(--background)
+  ) !important;
+}
+
+.nav-tab-active {
+  @apply text-black dark:text-white;
+  @apply bg-black/10 dark:bg-white/20;
+}
+
+.nav-tab-badge {
+  @apply text-[8px] px-1.5 py-0.5 rounded-full uppercase;
+  @apply bg-waste-science text-black;
+  @apply border border-[#211f1c] dark:border-white/20;
 }
 
 /* ==========================================================================

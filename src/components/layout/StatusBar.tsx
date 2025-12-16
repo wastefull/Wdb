@@ -78,7 +78,7 @@ export function StatusBar({
           </button>
         )}
         {/* Centered Title */}
-        <span className="text-[11px] normal">{title}</span>
+        <span className="normal">{title}</span>
       </div>
     );
   }
@@ -94,7 +94,7 @@ export function StatusBar({
         className="absolute border-[#211f1c] dark:border-white/20 border-[0px_0px_1.5px] border-solid inset-0 pointer-events-none"
       />
       <div className="size-full">
-        <div className="box-border content-stretch flex h-[42px] items-center justify-between px-[5px] py-0 relative w-full">
+        <div className="status-bar-layout">
           <RetroButtons title={title} />
 
           <div className="flex items-center gap-1 md:gap-2">

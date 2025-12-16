@@ -102,7 +102,8 @@ import { SimplifiedRoadmap } from "./components/roadmap";
 // Other component groups
 import { Toaster } from "./components/ui/sonner";
 import { SearchBar } from "./components/search";
-import { StatusBar } from "./components/layout";
+import { StatusBar, NavTabs } from "./components/layout";
+import type { NavTabId } from "./components/layout";
 import { MaterialCard } from "./components/cards";
 import { ScientificDataEditor } from "./components/scientific-editor";
 
@@ -460,7 +461,7 @@ function AppContent() {
         <div className="max-w-6xl mx-auto">
           <div className="bg-[#faf7f2] dark:bg-[#1a1917] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 overflow-hidden mb-6">
             <StatusBar
-              title="WasteDB"
+              title="Wastefull"
               currentView={currentView}
               onViewChange={navigateTo}
               syncStatus={syncStatus === "idle" ? undefined : syncStatus}
@@ -469,6 +470,17 @@ function AppContent() {
               onLogout={handleLogout}
               onSignIn={() => setShowAuthModal(true)}
             />
+
+            {/* Navigation tabs - only show on front page */}
+            {currentView.type === "materials" && (
+              <NavTabs
+                activeTab="search"
+                onTabChange={(tab: NavTabId) => {
+                  // TODO: Handle tab navigation
+                  console.log("Tab clicked:", tab);
+                }}
+              />
+            )}
 
             {currentView.type === "materials" ? (
               <div className="p-6">
