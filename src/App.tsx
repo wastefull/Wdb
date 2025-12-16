@@ -475,13 +475,10 @@ function AppContent() {
                 {/* Sync error/offline banner - only show for authenticated users */}
                 {user &&
                   (syncStatus === "error" || syncStatus === "offline") && (
-                    <div className="mb-4 p-3 bg-[#e6beb5] dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-xl flex items-center justify-between">
+                    <div className="mb-4 p-3 bg-waste-compost dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-xl flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <CloudOff
-                          size={16}
-                          className="text-black dark:text-white"
-                        />
-                        <p className="text-[12px] text-black dark:text-white">
+                        <CloudOff size={16} className="normal" />
+                        <p className="text-[12px] normal">
                           {syncStatus === "offline"
                             ? "Working offline - data saved locally only"
                             : "Failed to sync to cloud"}
@@ -489,7 +486,7 @@ function AppContent() {
                       </div>
                       <button
                         onClick={retrySync}
-                        className="px-3 py-1.5 bg-[#b8c8cb] rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[11px] text-black flex items-center gap-1"
+                        className="px-3 py-1.5 bg-waste-reuse rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[11px] text-black flex items-center gap-1"
                       >
                         <Cloud size={12} />
                         Retry Sync
@@ -543,7 +540,7 @@ function AppContent() {
                             <div className="mt-4 flex items-center justify-center">
                               <button
                                 onClick={() => setShowChart(true)}
-                                className="p-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#e4e3ac] hover:bg-[#e4e3ac]/80 transition-all hover:shadow-[3px_4px_0px_-1px_#000000] dark:hover:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)]"
+                                className="p-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-waste-recycle hover:bg-waste-recycle/80 transition-all hover:shadow-[3px_4px_0px_-1px_#000000] dark:hover:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)]"
                                 aria-label="Show chart (work in progress)"
                               >
                                 <Eye size={32} className="text-black" />
@@ -650,7 +647,7 @@ function AppContent() {
                   <div className="text-center py-12 max-w-2xl mx-auto">
                     {/* Beta contributor message */}
                     <div className="mb-6 px-4">
-                      <p className="text-[14px] text-black dark:text-white mb-1">
+                      <p className="text-[14px] normal mb-1">
                         WasteDB is in beta and needs help from contributors like
                         you.
                       </p>
@@ -676,7 +673,7 @@ function AppContent() {
                             setShowSubmitMaterialForm(true);
                           }
                         }}
-                        className={`h-12 px-6 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(100,255,100,0.3)] dark:border-white/20 text-[14px] hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(100,255,100,0.3)] transition-all inline-flex items-center justify-center gap-2 ${
+                        className={`h-12 px-6 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(100,255,100,0.3)] dark:border-white/20 text-[14px] hover:translate-y-px hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(100,255,100,0.3)] transition-all inline-flex items-center justify-center gap-2 ${
                           isAdminModeActive
                             ? "arcade-bg-cyan arcade-btn-cyan"
                             : "arcade-bg-green arcade-btn-green"
@@ -712,12 +709,12 @@ function AppContent() {
                       setSearchQuery("");
                       navigateToMaterials();
                     }}
-                    className="flex items-center gap-2 px-4 py-2 arcade-bg-cyan arcade-btn-cyan rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
+                    className="flex items-center gap-2 px-4 py-2 arcade-bg-cyan arcade-btn-cyan rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] hover:translate-y-px hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
                   >
                     <ArrowLeft size={16} />
                     <span className="text-[14px]">Back to Home</span>
                   </button>
-                  <div className="text-[14px] text-black dark:text-white">
+                  <div className="text-[14px] normal">
                     Search results for:{" "}
                     <span className="font-bold">"{currentView.query}"</span>
                   </div>

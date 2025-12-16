@@ -54,9 +54,9 @@ import { DataProcessingView } from "./components/DataProcessingView";
 ```tsx
 <button
   onClick={() => setActiveTab("processing")}
-  className={`px-4 py-2 font-['Sniglet:Regular',_sans-serif] text-[12px] transition-colors ${
+  className={`px-4 py-2 text-[12px] transition-colors ${
     activeTab === "processing"
-      ? "text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white"
+      ? "normal border-b-2 border-[#211f1c] dark:border-white"
       : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
   }`}
 >

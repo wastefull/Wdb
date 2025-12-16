@@ -244,9 +244,7 @@ export function WhitepaperSyncTool({
             <ArrowLeft size={16} className="text-black" />
           </button>
           <div className="flex-1">
-            <h1 className="text-[24px] text-black dark:text-white mb-1">
-              Whitepaper Sync Tool
-            </h1>
+            <h1 className="text-[24px] normal mb-1">Whitepaper Sync Tool</h1>
             <p className="text-[12px] text-black/60 dark:text-white/60">
               Upload whitepaper markdown files to Supabase
             </p>
@@ -255,15 +253,13 @@ export function WhitepaperSyncTool({
 
         {/* Info Card */}
         <Card className="mb-6 p-6 bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
-          <h2 className="text-[16px] text-black dark:text-white mb-3">
-            About This Tool
-          </h2>
+          <h2 className="text-[16px] normal mb-3">About This Tool</h2>
           <p className="text-[12px] text-black/70 dark:text-white/70 mb-3">
             Upload whitepaper markdown files from your computer to sync them to
             the Supabase KV store, making them available in the Methodology &
             Whitepapers section.
           </p>
-          <div className="bg-[#e4e3ac] dark:bg-[#211f1c] p-3 rounded-md mb-3">
+          <div className="bg-waste-recycle dark:bg-[#211f1c] p-3 rounded-md mb-3">
             <p className="text-[11px] text-black/80 dark:text-white/80 mb-2">
               <strong>Expected files:</strong>
             </p>
@@ -283,9 +279,7 @@ export function WhitepaperSyncTool({
 
         {/* File Upload */}
         <Card className="mb-6 p-6 bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
-          <h2 className="text-[16px] text-black dark:text-white mb-4">
-            Upload Files
-          </h2>
+          <h2 className="text-[16px] normal mb-4">Upload Files</h2>
 
           <div className="flex flex-col items-center justify-center py-8 border-2 border-dashed border-[#211f1c] dark:border-white/20 rounded-md bg-[#faf9f6] dark:bg-[#1a1918]">
             <FolderOpen className="w-12 h-12 text-black/30 dark:text-white/30 mb-4" />
@@ -306,7 +300,7 @@ export function WhitepaperSyncTool({
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={syncing}
-                className="bg-[#e4e3ac] hover:bg-[#d4d39c] text-black"
+                className="bg-waste-recycle hover:bg-waste-recycle/80 text-black"
               >
                 <Upload className="w-4 h-4 mr-2" />
                 Choose Files
@@ -322,7 +316,7 @@ export function WhitepaperSyncTool({
         {whitepapers.length > 0 && (
           <Card className="mb-6 p-6 bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-[16px] text-black dark:text-white">
+              <h2 className="text-[16px] normal">
                 Loaded Whitepapers ({whitepapers.length})
               </h2>
             </div>
@@ -337,9 +331,7 @@ export function WhitepaperSyncTool({
                     {getStatusIcon(syncResults[wp.slug])}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-[14px] text-black dark:text-white truncate">
-                      {wp.title}
-                    </h3>
+                    <h3 className="text-[14px] normal truncate">{wp.title}</h3>
                     <p className="text-[10px] text-black/60 dark:text-white/60">
                       {wp.filename} → whitepaper:{wp.slug} (
                       {(wp.size / 1024).toFixed(1)} KB)
@@ -356,7 +348,7 @@ export function WhitepaperSyncTool({
           <Button
             onClick={handleSyncAll}
             disabled={syncing || whitepapers.length === 0}
-            className="bg-[#e4e3ac] hover:bg-[#d4d39c] text-black h-auto py-4 px-8 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-waste-recycle hover:bg-waste-recycle/80 text-black h-auto py-4 px-8 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {syncing ? (
               <>
@@ -382,9 +374,7 @@ export function WhitepaperSyncTool({
         {/* Results Summary */}
         {Object.keys(syncResults).length > 0 && !syncing && (
           <Card className="mt-6 p-6 bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
-            <h2 className="text-[16px] text-black dark:text-white mb-3">
-              Sync Results
-            </h2>
+            <h2 className="text-[16px] normal mb-3">Sync Results</h2>
             <div className="grid grid-cols-3 gap-4">
               <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-md border border-green-200 dark:border-green-800">
                 <div className="text-[24px] font-bold text-green-600 dark:text-green-400">

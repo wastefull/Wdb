@@ -246,7 +246,7 @@ export const styles = {
   flexWrapGap1Pl2: "flex flex-wrap gap-1 pl-2",
   flexJustifyCenterMB1: "flex justify-between items-center mb-1",
   BW60: "text-black/60 dark:text-white/60",
-  BW: "text-black dark:text-white",
+  BW: "normal",
   med: "font-medium",
   PL2: "pl-2",
   scientificMetadataLayout: "flex items-center gap-2 mb-2",

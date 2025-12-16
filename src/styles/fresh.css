@@ -15,9 +15,12 @@
   --black: oklch(0 0 0);
   --blackish: oklch(0.08 0.01 260);
   --grey: oklch(55.458% 0.02621 285.488);
-  --red: #d4183d;
-  --subtle: oklab(0% 0 0 / 0.1);
+  --red: oklch(55.798% 0.21367 19.385);
+  --subtle: oklch(0% 0 0 / 0.1);
   --quicksilver: oklch(0.708 0 0);
+  --mysteryblack: oklch(27.788% 0.00613 78.167);
+  --wisp: oklch(100% 0.00011 271.152 / 0.2);
+  --inky: oklch(0% 0 0 / 0.8);
 
   /* Typography scale */
   --font-size: 12px;
@@ -267,6 +270,7 @@
       font-weight: var(--font-weight-normal);
       line-height: 1.5;
     }
+    font-family: "Fredoka One", cursive;
   }
 }
 
@@ -305,151 +309,169 @@ body {
 }
 
 .dark .bg-white:not(.dark\:bg-\[#2a2825\], .dark\:bg-\[#1a1917\]) {
-  background-color: #2a2825 !important;
+  background-color: var(--mysteryblack);
 }
 
 .dark .border-\[#211f1c\]:not(.dark\:border-white\/20) {
-  border-color: rgba(255, 255, 255, 0.2) !important;
+  border-color: var(--wisp) !important;
 }
 
 /* ==========================================================================
    Accessibility: High Contrast Mode
    ========================================================================== */
 .high-contrast {
-  --border: rgba(0, 0, 0, 0.8);
+  --border: var(--inky);
+
+  &.dark {
+    --border: var(--white);
+  }
+
+  * {
+    border-color: var(--border);
+  }
+
+  button,
+  input,
+  select,
+  textarea,
+  [class*="border"] {
+    border-width: 2px !important;
+  }
+
+  .shadow-sm,
+  [class*="shadow-"] {
+    box-shadow: 3px 3px 0px 0px #000000 !important;
+  }
+
+  &.dark .shadow-sm,
+  &.dark [class*="shadow-"] {
+    box-shadow: 3px 3px 0px 0px #ffffff !important;
+  }
+
+  /* High-contrast color overrides via CSS variables */
+  --waste-compost: #c74444;
+  --waste-recycle: #d4b400;
+  --waste-reuse: #4a90a4;
+  --waste-science: #5a9a4d;
+
+  &.dark {
+    --waste-compost: #ff6b6b;
+    --waste-recycle: #ffd700;
+    --waste-reuse: #6bb6d0;
+    --waste-science: #7bb86f;
+  }
+
+  /* SVG fill overrides for window buttons */
+  [style*="--fill-0: rgba(230, 188, 181, 1)"] {
+    --fill-0: rgba(199, 68, 68, 1) !important;
+  }
+
+  &.dark [style*="--fill-0: rgba(230, 188, 181, 1)"] {
+    --fill-0: rgba(255, 107, 107, 1) !important;
+  }
+
+  [style*="--fill-0: rgba(228, 227, 172, 1)"] {
+    --fill-0: rgba(212, 180, 0, 1) !important;
+  }
+
+  &.dark [style*="--fill-0: rgba(228, 227, 172, 1)"] {
+    --fill-0: rgba(255, 215, 0, 1) !important;
+  }
+
+  [style*="--fill-0: rgba(184, 200, 203, 1)"] {
+    --fill-0: rgba(74, 144, 164, 1) !important;
+  }
+
+  &.dark [style*="--fill-0: rgba(184, 200, 203, 1)"] {
+    --fill-0: rgba(107, 182, 208, 1) !important;
+  }
+
+  [style*="--fill-0: rgba(189, 212, 183, 1)"] {
+    --fill-0: rgba(90, 154, 77, 1) !important;
+  }
+
+  &.dark [style*="--fill-0: rgba(189, 212, 183, 1)"] {
+    --fill-0: rgba(123, 184, 111, 1) !important;
+  }
+
+  .table-scroll-wrapper::-webkit-scrollbar-thumb {
+    background: #4a90a4;
+    border-width: 2px;
+  }
+
+  &.dark .table-scroll-wrapper::-webkit-scrollbar-thumb {
+    background: #6bb6d0;
+    border-width: 2px;
+  }
+
+  .table-scroll-wrapper::-webkit-scrollbar-track {
+    border-width: 2px;
+  }
 }
 
-.high-contrast * {
-  border-color: #000000 !important;
-}
+/* No Pastel mode - shares many overrides with high-contrast */
+.no-pastel {
+  /* High-contrast color overrides via CSS variables */
+  --waste-compost: #c74444;
+  --waste-recycle: #d4b400;
+  --waste-reuse: #4a90a4;
+  --waste-science: #5a9a4d;
 
-.high-contrast.dark * {
-  border-color: #ffffff !important;
-}
+  &.dark {
+    --waste-compost: #ff6b6b;
+    --waste-recycle: #ffd700;
+    --waste-reuse: #6bb6d0;
+    --waste-science: #7bb86f;
+  }
 
-.high-contrast button,
-.high-contrast input,
-.high-contrast select,
-.high-contrast textarea,
-.high-contrast [class*="border"] {
-  border-width: 2px !important;
-}
+  /* SVG fill overrides */
+  [style*="--fill-0: rgba(230, 188, 181, 1)"] {
+    --fill-0: rgba(199, 68, 68, 1) !important;
+  }
 
-.high-contrast .shadow-sm,
-.high-contrast [class*="shadow-"] {
-  box-shadow: 3px 3px 0px 0px #000000 !important;
-}
+  &.dark [style*="--fill-0: rgba(230, 188, 181, 1)"] {
+    --fill-0: rgba(255, 107, 107, 1) !important;
+  }
 
-.high-contrast.dark .shadow-sm,
-.high-contrast.dark [class*="shadow-"] {
-  box-shadow: 3px 3px 0px 0px #ffffff !important;
-}
+  [style*="--fill-0: rgba(228, 227, 172, 1)"] {
+    --fill-0: rgba(212, 180, 0, 1) !important;
+  }
 
-/* High contrast pastel replacements */
-.high-contrast .bg-\[#e6beb5\],
-.high-contrast [class*="bg-[#e6beb5]"],
-.no-pastel .bg-\[#e6beb5\],
-.no-pastel [class*="bg-[#e6beb5]"] {
-  background-color: #c74444 !important;
-}
+  &.dark [style*="--fill-0: rgba(228, 227, 172, 1)"] {
+    --fill-0: rgba(255, 215, 0, 1) !important;
+  }
 
-.high-contrast.dark .bg-\[#e6beb5\],
-.high-contrast.dark [class*="bg-[#e6beb5]"],
-.no-pastel.dark .bg-\[#e6beb5\],
-.no-pastel.dark [class*="bg-[#e6beb5]"] {
-  background-color: #ff6b6b !important;
-}
+  [style*="--fill-0: rgba(184, 200, 203, 1)"] {
+    --fill-0: rgba(74, 144, 164, 1) !important;
+  }
 
-.high-contrast .bg-\[#e4e3ac\]:not(.prose code),
-.high-contrast [class*="bg-[#e4e3ac]"]:not(.prose code),
-.no-pastel .bg-\[#e4e3ac\]:not(.prose code),
-.no-pastel [class*="bg-[#e4e3ac]"]:not(.prose code) {
-  background-color: #d4b400 !important;
-}
+  &.dark [style*="--fill-0: rgba(184, 200, 203, 1)"] {
+    --fill-0: rgba(107, 182, 208, 1) !important;
+  }
 
-.high-contrast.dark .bg-\[#e4e3ac\]:not(.prose code),
-.high-contrast.dark [class*="bg-[#e4e3ac]"]:not(.prose code),
-.no-pastel.dark .bg-\[#e4e3ac\]:not(.prose code),
-.no-pastel.dark [class*="bg-[#e4e3ac]"]:not(.prose code) {
-  background-color: #ffd700 !important;
-}
+  [style*="--fill-0: rgba(189, 212, 183, 1)"] {
+    --fill-0: rgba(90, 154, 77, 1) !important;
+  }
 
-.high-contrast .bg-\[#b8c8cb\],
-.high-contrast [class*="bg-[#b8c8cb]"],
-.no-pastel .bg-\[#b8c8cb\],
-.no-pastel [class*="bg-[#b8c8cb]"] {
-  background-color: #4a90a4 !important;
-}
+  &.dark [style*="--fill-0: rgba(189, 212, 183, 1)"] {
+    --fill-0: rgba(123, 184, 111, 1) !important;
+  }
 
-.high-contrast.dark .bg-\[#b8c8cb\],
-.high-contrast.dark [class*="bg-[#b8c8cb]"],
-.no-pastel.dark .bg-\[#b8c8cb\],
-.no-pastel.dark [class*="bg-[#b8c8cb]"] {
-  background-color: #6bb6d0 !important;
-}
+  .prose thead {
+    background-color: #d4b400 !important;
+  }
 
-.high-contrast .bg-\[#bdd4b7\],
-.high-contrast [class*="bg-[#bdd4b7]"],
-.no-pastel .bg-\[#bdd4b7\],
-.no-pastel [class*="bg-[#bdd4b7]"] {
-  background-color: #5a9a4d !important;
-}
+  &.dark .prose thead {
+    background-color: #8b7500 !important;
+  }
 
-.high-contrast.dark .bg-\[#bdd4b7\],
-.high-contrast.dark [class*="bg-[#bdd4b7]"],
-.no-pastel.dark .bg-\[#bdd4b7\],
-.no-pastel.dark [class*="bg-[#bdd4b7\]"] {
-  background-color: #7bb86f !important;
-}
+  .table-scroll-wrapper::-webkit-scrollbar-thumb {
+    background: #4a90a4;
+  }
 
-/* High contrast CSS custom property overrides for window buttons */
-.high-contrast [style*="--fill-0: rgba(230, 188, 181, 1)"],
-.no-pastel [style*="--fill-0: rgba(230, 188, 181, 1)"] {
-  --fill-0: rgba(199, 68, 68, 1) !important;
-}
-
-.high-contrast.dark [style*="--fill-0: rgba(230, 188, 181, 1)"],
-.no-pastel.dark [style*="--fill-0: rgba(230, 188, 181, 1)"] {
-  --fill-0: rgba(255, 107, 107, 1) !important;
-}
-
-.high-contrast [style*="--fill-0: rgba(228, 227, 172, 1)"],
-.no-pastel [style*="--fill-0: rgba(228, 227, 172, 1)"] {
-  --fill-0: rgba(212, 180, 0, 1) !important;
-}
-
-.high-contrast.dark [style*="--fill-0: rgba(228, 227, 172, 1)"],
-.no-pastel.dark [style*="--fill-0: rgba(228, 227, 172, 1)"] {
-  --fill-0: rgba(255, 215, 0, 1) !important;
-}
-
-.high-contrast [style*="--fill-0: rgba(184, 200, 203, 1)"],
-.no-pastel [style*="--fill-0: rgba(184, 200, 203, 1)"] {
-  --fill-0: rgba(74, 144, 164, 1) !important;
-}
-
-.high-contrast.dark [style*="--fill-0: rgba(184, 200, 203, 1)"],
-.no-pastel.dark [style*="--fill-0: rgba(184, 200, 203, 1)"] {
-  --fill-0: rgba(107, 182, 208, 1) !important;
-}
-
-.high-contrast [style*="--fill-0: rgba(189, 212, 183, 1)"],
-.no-pastel [style*="--fill-0: rgba(189, 212, 183, 1)"] {
-  --fill-0: rgba(90, 154, 77, 1) !important;
-}
-
-.high-contrast.dark [style*="--fill-0: rgba(189, 212, 183, 1)"],
-.no-pastel.dark [style*="--fill-0: rgba(189, 212, 183, 1)"] {
-  --fill-0: rgba(123, 184, 111, 1) !important;
-}
-
-/* No Pastel mode: Only affect table headers, not code blocks */
-.no-pastel .prose thead {
-  background-color: #d4b400 !important;
-}
-
-.no-pastel.dark .prose thead {
-  background-color: #8b7500 !important;
+  &.dark .table-scroll-wrapper::-webkit-scrollbar-thumb {
+    background: #6bb6d0;
+  }
 }
 
 /* ==========================================================================
@@ -644,30 +666,6 @@ body {
   background: #5a6871;
 }
 
-/* High contrast scrollbar */
-.high-contrast .table-scroll-wrapper::-webkit-scrollbar-thumb {
-  background: #4a90a4;
-  border-width: 2px;
-}
-
-.high-contrast.dark .table-scroll-wrapper::-webkit-scrollbar-thumb {
-  background: #6bb6d0;
-  border-width: 2px;
-}
-
-.high-contrast .table-scroll-wrapper::-webkit-scrollbar-track {
-  border-width: 2px;
-}
-
-/* No pastel scrollbar */
-.no-pastel .table-scroll-wrapper::-webkit-scrollbar-thumb {
-  background: #4a90a4;
-}
-
-.no-pastel.dark .table-scroll-wrapper::-webkit-scrollbar-thumb {
-  background: #6bb6d0;
-}
-
 /* ==========================================================================
    Arcade Button Styles (Space Invaders Dark Mode)
    Reusable classes for buttons with pastel light / neon dark themes
@@ -841,11 +839,11 @@ body {
 /* ==========================================================================
    Labels & Text
    ========================================================================== */
-.label {
+.normal {
   @apply text-[12px] text-black dark:text-white;
 }
 
-.label-muted {
+.muted {
   @apply text-[12px] text-black/60 dark:text-white/60;
 }
 
@@ -896,14 +894,22 @@ body {
 }
 
 .card-interactive {
-  @apply p-2 bg-[#b8c8cb] dark:bg-[#2a3235] rounded-md border border-[#211f1c] dark:border-white/20;
+  @apply p-2 bg-waste-reuse dark:bg-[#2a3235] rounded-md border border-[#211f1c] dark:border-white/20;
   @apply hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all;
 }
 
 .card-muted {
-  @apply bg-[#b8c8cb]/30 dark:bg-[#2a3235]/30 border border-[#211f1c]/20 dark:border-white/10 rounded-md p-3;
+  @apply bg-waste-reuse/30 dark:bg-[#2a3235]/30 border border-[#211f1c]/20 dark:border-white/10 rounded-md p-3;
 }
 
+/* Reversed variants - inline retro-card styles since @apply can't reference custom classes */
+.reversed {
+  @apply bg-white dark:bg-[#1a1917] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20;
+  @apply shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)];
+}
+.flat-reversed {
+  @apply bg-white dark:bg-[#1a1917] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20;
+}
 /* ==========================================================================
    Form Inputs
    ========================================================================== */
@@ -947,7 +953,7 @@ body {
 
 .tag-cyan {
   @apply inline-block px-2 py-0.5 rounded-md border border-[#211f1c] dark:border-white/20 text-[9px];
-  @apply text-black bg-[#b8c8cb];
+  @apply text-black bg-waste-reuse;
 }
 
 .dark .tag-cyan {
@@ -956,7 +962,7 @@ body {
 
 .tag-yellow {
   @apply inline-block px-2 py-0.5 rounded-md border border-[#211f1c] dark:border-white/20 text-[9px];
-  @apply text-black bg-[#e4e3ac];
+  @apply text-black bg-waste-recycle;
 }
 
 .dark .tag-yellow {
@@ -965,7 +971,7 @@ body {
 
 .tag-pink {
   @apply inline-block px-2 py-0.5 rounded-md border border-[#211f1c] dark:border-white/20 text-[9px];
-  @apply text-black bg-[#e6beb5];
+  @apply text-black bg-waste-compost;
 }
 
 .dark .tag-pink {

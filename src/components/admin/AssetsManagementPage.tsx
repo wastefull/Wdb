@@ -252,7 +252,7 @@ export function AssetsManagementPage() {
                     className="flex items-center gap-4 p-4 border border-[#211f1c]/10 dark:border-white/10 rounded-lg"
                   >
                     {/* Asset Preview */}
-                    <div className="size-16 rounded-md overflow-hidden bg-muted flex-shrink-0">
+                    <div className="size-16 rounded-md overflow-hidden bg-muted shrink-0">
                       <img
                         src={asset.publicUrl}
                         alt={asset.name}
@@ -262,7 +262,7 @@ export function AssetsManagementPage() {
 
                     {/* Asset Info */}
                     <div className="flex-1 min-w-0">
-                      <p className="text-[14px] text-black dark:text-white truncate">
+                      <p className="text-[14px] normal truncate">
                         {asset.name}
                       </p>
                       <p className="text-[11px] text-black/50 dark:text-white/50">
@@ -274,7 +274,7 @@ export function AssetsManagementPage() {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex gap-2 flex-shrink-0">
+                    <div className="flex gap-2 shrink-0">
                       <Button
                         variant="outline"
                         size="sm"

@@ -105,7 +105,7 @@ export function AnimatedWasteChart({
       {/* Title outside box on smaller screens */}
       {isMobile && (
         <motion.h2
-          className="text-black dark:text-white text-center mb-3"
+          className="normal text-center mb-3"
           style={{ fontSize: `${18 * fontScale}px` }}
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -167,7 +167,7 @@ export function AnimatedWasteChart({
                 </defs>
 
                 <text
-                  className="text-black dark:text-white fill-black dark:fill-white"
+                  className="normal fill-black dark:fill-white"
                   fontSize="22"
                   textAnchor="middle"
                 >
@@ -181,7 +181,7 @@ export function AnimatedWasteChart({
 
           {/* Animated donut chart with rolling effect */}
           <motion.div
-            className="absolute [&_*]:outline-none"
+            className="absolute **:outline-none"
             style={{
               width: "100%",
               height: "280px",
@@ -373,7 +373,7 @@ export function AnimatedWasteChart({
                       };
                       return (
                         <div className="bg-white dark:bg-[#2a2825] rounded-md border border-[#211f1c] dark:border-white/20 p-2 shadow-md">
-                          <p className="text-[12px] text-black dark:text-white">
+                          <p className="text-[12px] normal">
                             {data.value}% {categoryMap[data.name] || data.name}
                           </p>
                           <p className="text-[10px] text-black/60 dark:text-white/60">

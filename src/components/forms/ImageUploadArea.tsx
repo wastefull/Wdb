@@ -65,7 +65,7 @@ export function ImageUploadArea({
             <button
               type="button"
               onClick={() => onImageChange(undefined)}
-              className="absolute top-2 right-2 bg-[#e6beb5] px-3 py-1 rounded-md border border-[#211f1c] shadow-[2px_2px_0px_0px_#000000] text-[11px] text-black hover:translate-y-px hover:shadow-[1px_1px_0px_0px_#000000] transition-all"
+              className="absolute top-2 right-2 bg-waste-compost px-3 py-1 rounded-md border border-[#211f1c] shadow-[2px_2px_0px_0px_#000000] text-[11px] text-black hover:translate-y-px hover:shadow-[1px_1px_0px_0px_#000000] transition-all"
             >
               Remove
             </button>

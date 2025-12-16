@@ -413,24 +413,20 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                     {isCompleted ? (
                       <Check size={18} className="text-black" />
                     ) : (
-                      <Icon size={18} className="text-black dark:text-white" />
+                      <Icon size={18} className="normal" />
                     )}
                   </div>
                   <div className="text-left hidden md:block">
                     <div
                       className={`font-['Fredoka_One'] text-[11px] ${
-                        isActive
-                          ? "text-black dark:text-white"
-                          : "text-black/40 dark:text-white/40"
+                        isActive ? "normal" : "text-black/40 dark:text-white/40"
                       }`}
                     >
                       Step {step.number}
                     </div>
                     <div
                       className={`font-['Sniglet'] text-[10px] ${
-                        isActive
-                          ? "text-black dark:text-white"
-                          : "text-black/40 dark:text-white/40"
+                        isActive ? "normal" : "text-black/40 dark:text-white/40"
                       }`}
                     >
                       {step.title}
@@ -454,7 +450,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
         {/* Left Pane: Source Viewer */}
         <div className="w-[400px] min-w-[300px] max-w-[500px] bg-white dark:bg-[#2a2825] flex flex-col border-r border-[#211f1c]/20 dark:border-white/20">
           <div className="panel-bordered">
-            <h3 className="font-['Fredoka_One'] text-[16px] text-black dark:text-white mb-1">
+            <h3 className="font-['Fredoka_One'] text-[16px] normal mb-1">
               Source Viewer
             </h3>
             <p className="label-muted-sm">
@@ -480,7 +476,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                           size={48}
                           className="mx-auto mb-4 text-black/20 dark:text-white/20"
                         />
-                        <h4 className="font-['Fredoka_One'] text-[14px] text-black dark:text-white mb-2">
+                        <h4 className="font-['Fredoka_One'] text-[14px] normal mb-2">
                           No Sources Available
                         </h4>
                         <p className="label-muted-sm">
@@ -501,10 +497,10 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                           <div className="flex items-start gap-2 mb-2">
                             <BookOpen
                               size={14}
-                              className="text-black/60 dark:text-white/60 mt-0.5 flex-shrink-0"
+                              className="text-black/60 dark:text-white/60 mt-0.5 shrink-0"
                             />
                             <div className="flex-1 min-w-0">
-                              <h4 className="font-['Fredoka_One'] text-[13px] text-black dark:text-white truncate">
+                              <h4 className="font-['Fredoka_One'] text-[13px] normal truncate">
                                 {source.title || "Untitled"}
                               </h4>
                               <p className="label-muted-sm line-clamp-2">
@@ -728,7 +724,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                             <Label className="font-['Fredoka_One'] text-[10px] text-black/60 dark:text-white/60">
                               DOI
                             </Label>
-                            <p className="font-['Sniglet'] text-[11px] text-black/80 dark:text-white/80 mt-1 font-mono">
+                            <p className="font-['Sniglet'] text-[11px] text-black/80 dark:text-white/80 mt-1">
                               {selectedSource.doi}
                             </p>
                           </div>
@@ -739,7 +735,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                           <Label className="font-['Fredoka_One'] text-[10px] text-black/60 dark:text-white/60">
                             ABSTRACT / SUMMARY
                           </Label>
-                          <p className="font-['Sniglet'] text-[11px] text-black dark:text-white mt-2 leading-relaxed">
+                          <p className="font-['Sniglet'] text-[11px] normal mt-2 leading-relaxed">
                             {selectedSource.abstract ||
                               selectedSource.summary ||
                               "No abstract available. Use the buttons above to access the full document."}
@@ -795,7 +791,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
         {/* Right Pane: Evidence Wizard */}
         <div className="flex-1 min-w-[400px] bg-white dark:bg-[#2a2825] flex flex-col">
           <div className="panel-bordered">
-            <h3 className="font-['Fredoka_One'] text-[16px] text-black dark:text-white mb-1">
+            <h3 className="font-['Fredoka_One'] text-[16px] normal mb-1">
               Evidence Wizard
             </h3>
             <p className="label-muted-sm">5-Step MIU Creation Flow</p>

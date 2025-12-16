@@ -97,7 +97,7 @@ export function UserProfileView({
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#211f1c] dark:border-white mx-auto mb-4"></div>
-          <p className="text-black dark:text-white">Loading profile...</p>
+          <p className="normal">Loading profile...</p>
         </div>
       </div>
     );
@@ -112,7 +112,7 @@ export function UserProfileView({
         >
           <ArrowLeft size={16} />
         </button>
-        <p className="text-black dark:text-white">Profile not found</p>
+        <p className="normal">Profile not found</p>
       </div>
     );
   }
@@ -130,7 +130,7 @@ export function UserProfileView({
         {isOwnProfile && !editing && (
           <button
             onClick={() => setEditing(true)}
-            className="retro-btn-primary arcade-bg-cyan arcade-btn-cyan px-4 h-[36px] flex items-center gap-2 text-[13px]"
+            className="retro-btn-primary arcade-bg-cyan arcade-btn-cyan px-4 h-9 flex items-center gap-2 text-[13px]"
           >
             <Edit2 size={14} />
             Edit Profile
@@ -143,7 +143,7 @@ export function UserProfileView({
         <CardHeader>
           <div className="flex items-start gap-4">
             {/* Avatar */}
-            <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full border-2 border-[#211f1c] dark:border-white/20 overflow-hidden bg-[#e5e4dc] dark:bg-[#3a3835] flex items-center justify-center flex-shrink-0">
+            <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full border-2 border-[#211f1c] dark:border-white/20 overflow-hidden bg-[#e5e4dc] dark:bg-[#3a3835] flex items-center justify-center shrink-0">
               {(editing ? editedAvatarUrl : profile.avatar_url) ? (
                 <img
                   src={editing ? editedAvatarUrl : profile.avatar_url}
@@ -154,7 +154,7 @@ export function UserProfileView({
                   }}
                 />
               ) : (
-                <span className="text-2xl sm:text-3xl text-black dark:text-white">
+                <span className="text-2xl sm:text-3xl normal">
                   {profile.name.charAt(0).toUpperCase()}
                 </span>
               )}
@@ -162,7 +162,7 @@ export function UserProfileView({
 
             {/* Name and Email */}
             <div className="flex-1 min-w-0">
-              <CardTitle className="text-black dark:text-white mb-1 break-words">
+              <CardTitle className="normal mb-1 wrap-break-word">
                 {profile.name}
                 {profile.role === "admin" && (
                   <span className="ml-2 px-2 py-0.5 text-[10px] bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded whitespace-nowrap">
@@ -188,10 +188,7 @@ export function UserProfileView({
           {/* Avatar URL (editing only) */}
           {editing && (
             <div className="space-y-2">
-              <Label
-                htmlFor="avatar_url"
-                className="text-black dark:text-white"
-              >
+              <Label htmlFor="avatar_url" className="normal">
                 Avatar URL
               </Label>
               <Input
@@ -210,7 +207,7 @@ export function UserProfileView({
 
           {/* Bio */}
           <div className="space-y-2">
-            <Label htmlFor="bio" className="text-black dark:text-white">
+            <Label htmlFor="bio" className="normal">
               Bio
             </Label>
             {editing ? (
@@ -223,7 +220,7 @@ export function UserProfileView({
                 className="text-[13px]"
               />
             ) : (
-              <p className="text-[13px] text-black dark:text-white whitespace-pre-wrap">
+              <p className="text-[13px] normal whitespace-pre-wrap">
                 {profile.bio || (
                   <span className="text-black/50 dark:text-white/50 italic">
                     No bio yet
@@ -235,7 +232,7 @@ export function UserProfileView({
 
           {/* Social Link */}
           <div className="space-y-2">
-            <Label htmlFor="social_link" className="text-black dark:text-white">
+            <Label htmlFor="social_link" className="normal">
               Website / Social Link
             </Label>
             {editing ? (
@@ -270,7 +267,7 @@ export function UserProfileView({
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="retro-btn-primary arcade-bg-green arcade-btn-green px-4 h-[36px] flex items-center justify-center gap-2 text-[13px] disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
+                className="retro-btn-primary arcade-bg-green arcade-btn-green px-4 h-9 flex items-center justify-center gap-2 text-[13px] disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
               >
                 <Save size={14} />
                 {saving ? "Saving..." : "Save Changes"}
@@ -278,7 +275,7 @@ export function UserProfileView({
               <button
                 onClick={handleCancel}
                 disabled={saving}
-                className="retro-btn-primary arcade-bg-red arcade-btn-red px-4 h-[36px] flex items-center justify-center gap-2 text-[13px] disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
+                className="retro-btn-primary arcade-bg-red arcade-btn-red px-4 h-9 flex items-center justify-center gap-2 text-[13px] disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
               >
                 <X size={14} />
                 Cancel
@@ -293,9 +290,7 @@ export function UserProfileView({
         <CardHeader>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <CardTitle className="text-black dark:text-white">
-                Contributions
-              </CardTitle>
+              <CardTitle className="normal">Contributions</CardTitle>
               <CardDescription className="">
                 Materials and articles submitted by this user
               </CardDescription>
@@ -303,7 +298,7 @@ export function UserProfileView({
             {isOwnProfile && onNavigateToMySubmissions && (
               <button
                 onClick={onNavigateToMySubmissions}
-                className="retro-card-button arcade-bg-amber arcade-btn-amber px-4 h-[36px] text-[13px] w-full sm:w-auto"
+                className="retro-card-button arcade-bg-amber arcade-btn-amber px-4 h-9 text-[13px] w-full sm:w-auto"
               >
                 My Submissions
               </button>

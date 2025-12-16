@@ -127,7 +127,7 @@ export function LicensesView({ onBack }: { onBack: () => void }) {
           <div key={index} className="retro-card-hover p-5">
             <div className="flex items-start justify-between gap-4 mb-2">
               <div className="flex-1">
-                <h3 className="text-[16px] text-black dark:text-white">
+                <h3 className="text-[16px] normal">
                   {license.name}
                   {license.version && (
                     <span className="text-[12px] text-black/60 dark:text-white/60 ml-2">

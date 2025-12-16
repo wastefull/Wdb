@@ -90,9 +90,7 @@ export function MaterialDetailView({
           <ArrowLeft size={16} className="text-black" />
         </button>
         <div className="flex-1">
-          <h2 className="text-[20px] text-black dark:text-white">
-            {material.name}
-          </h2>
+          <h2 className="text-[20px] normal">{material.name}</h2>
           <div className="flex items-center gap-2 mt-1">
             <span className="tag-cyan">{material.category}</span>
             <p className="text-[12px] text-black/60 dark:text-white/60">
@@ -109,9 +107,7 @@ export function MaterialDetailView({
       )}
 
       <div className="retro-card-flat p-4 mb-6">
-        <h3 className="text-[15px] text-black dark:text-white mb-4">
-          Sustainability Scores
-        </h3>
+        <h3 className="text-[15px] normal mb-4">Sustainability Scores</h3>
         <div className="flex flex-col gap-3">
           <RasterizedQuantileVisualization
             materialId={material.id}

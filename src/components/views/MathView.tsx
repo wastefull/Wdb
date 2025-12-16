@@ -16,12 +16,8 @@ export function MathView({ onBack, defaultTab = "overview" }: MathViewProps) {
           <ArrowLeft size={16} className="text-black" />
         </button>
         <div className="flex-1">
-          <h2 className="font-['Fredoka_One:Regular',_sans-serif] text-[24px] text-black dark:text-white">
-            Math Tools
-          </h2>
-          <p className="text-[12px] text-black/60 dark:text-white/60">
-            Mathematical operations and utilities
-          </p>
+          <h2 className="normal">Math Tools</h2>
+          <p className="muted">Mathematical operations and utilities</p>
         </div>
       </div>
 
@@ -34,10 +30,10 @@ export function MathView({ onBack, defaultTab = "overview" }: MathViewProps) {
         </TabsList>
 
         <TabsContent value="overview">
-          <div className="retro-card !bg-white dark:!bg-[#1a1917] p-6">
+          <div className="reversed p-6">
             <div className="text-center py-12">
               <div className="text-[48px] mb-4">∫</div>
-              <h3 className="font-['Fredoka_One:Regular',_sans-serif] text-[18px] text-black dark:text-white mb-2">
+              <h3 className="text-[18px] normal mb-2">
                 Math Tools Coming Soon
               </h3>
               <p className="text-[12px] text-black/60 dark:text-white/60">
@@ -49,7 +45,7 @@ export function MathView({ onBack, defaultTab = "overview" }: MathViewProps) {
         </TabsContent>
 
         <TabsContent value="transform-manager">
-          <div className="retro-card !bg-white dark:!bg-[#1a1917] p-6">
+          <div className="reversed p-6">
             <TransformVersionManager />
           </div>
         </TabsContent>

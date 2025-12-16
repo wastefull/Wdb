@@ -102,7 +102,7 @@ export function ScientificDataEditor({
   return (
     <div className="bg-white dark:bg-[#2a2825] relative rounded-[11.464px] p-6 border-[1.5px] border-[#211f1c] dark:border-white/20 max-h-[80vh] overflow-y-auto">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-[18px] text-black dark:text-white">
+        <h2 className="text-[18px] normal">
           Scientific Data Editor: {material.name}
         </h2>
         <div className="flex gap-2">
@@ -116,7 +116,7 @@ export function ScientificDataEditor({
           </Button>
           <Button
             onClick={handleSave}
-            className="bg-[#e4e3ac] hover:bg-[#d4d39c] text-black border-[#211f1c] dark:border-white/20"
+            className="bg-waste-recycle hover:bg-waste-recycle/80 text-black border-[#211f1c] dark:border-white/20"
           >
             <Save className="w-4 h-4 mr-2" />
             Save

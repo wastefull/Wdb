@@ -101,20 +101,18 @@ export function SuggestMaterialEditForm({
     <div className="fixed inset-0 bg-black/30 dark:bg-black/60 flex items-center justify-center p-4 z-50">
       <div className="bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 w-full max-w-md shadow-[4px_4px_0px_0px_#000000] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-4 border-b border-[#211f1c] dark:border-white/20 sticky top-0 bg-white dark:bg-[#2a2825] z-10">
-          <h3 className="font-['Fredoka_One',_sans-serif] text-black dark:text-white">
-            Suggest Edit
-          </h3>
+          <h3 className="normal">Suggest Edit</h3>
           <button
             onClick={onClose}
             className="p-1.5 rounded-md hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
           >
-            <X size={16} className="text-black dark:text-white" />
+            <X size={16} className="normal" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div className="bg-[#b8c8cb] dark:bg-[#2a3235] border border-[#211f1c] dark:border-white/20 rounded-md p-3 mb-4">
-            <p className="text-[11px] text-black dark:text-white">
+          <div className="bg-waste-reuse dark:bg-[#2a3235] border border-[#211f1c] dark:border-white/20 rounded-md p-3 mb-4">
+            <p className="text-[11px] normal">
               ✏️ <strong>Editing:</strong> {material.name}
             </p>
             <p className="text-[10px] text-black/70 dark:text-white/70 mt-1">
@@ -124,10 +122,7 @@ export function SuggestMaterialEditForm({
           </div>
 
           <div>
-            <Label
-              htmlFor="edit-name"
-              className="text-[12px] text-black dark:text-white"
-            >
+            <Label htmlFor="edit-name" className="text-[12px] normal">
               Material Name *
             </Label>
             <Input
@@ -140,26 +135,16 @@ export function SuggestMaterialEditForm({
           </div>
 
           <div>
-            <Label
-              htmlFor="edit-category"
-              className="text-[12px] text-black dark:text-white"
-            >
+            <Label htmlFor="edit-category" className="text-[12px] normal">
               Category *
             </Label>
             <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger
-                id="edit-category"
-                className="mt-1"
-              >
+              <SelectTrigger id="edit-category" className="mt-1">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {CATEGORIES.map((cat) => (
-                  <SelectItem
-                    key={cat}
-                    value={cat}
-                    className=""
-                  >
+                  <SelectItem key={cat} value={cat} className="">
                     {cat}
                   </SelectItem>
                 ))}
@@ -168,26 +153,20 @@ export function SuggestMaterialEditForm({
           </div>
 
           <div>
-            <Label
-              htmlFor="edit-description"
-              className="text-[12px] text-black dark:text-white"
-            >
+            <Label htmlFor="edit-description" className="text-[12px] normal">
               Description
             </Label>
             <Textarea
               id="edit-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="mt-1 min-h-[80px]"
+              className="mt-1 min-h-20"
               rows={3}
             />
           </div>
 
           <div className="pt-2 border-t border-[#211f1c]/20 dark:border-white/10">
-            <Label
-              htmlFor="change-reason"
-              className="text-[12px] text-black dark:text-white"
-            >
+            <Label htmlFor="change-reason" className="text-[12px] normal">
               Reason for Change *
             </Label>
             <Textarea
@@ -208,14 +187,14 @@ export function SuggestMaterialEditForm({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 h-[40px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#e6beb5] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[12px] text-black"
+              className="flex-1 h-10 px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-waste-compost hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[12px] text-black"
               disabled={submitting}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 h-[40px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#b8c8cb] hover:shadow-[3px_4px_0px_-1px_#000000] dark:hover:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] transition-all text-[12px] text-black disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 h-10 px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-waste-reuse hover:shadow-[3px_4px_0px_-1px_#000000] dark:hover:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] transition-all text-[12px] text-black disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={submitting || !hasChanges()}
             >
               {submitting ? "Submitting..." : "Submit Suggestion"}

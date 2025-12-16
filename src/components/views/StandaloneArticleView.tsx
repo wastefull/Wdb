@@ -38,9 +38,7 @@ export function StandaloneArticleView({
           <ArrowLeft size={16} className="text-black" />
         </button>
         <div className="flex-1">
-          <h2 className="text-[18px] text-black dark:text-white">
-            {article.title}
-          </h2>
+          <h2 className="text-[18px] normal">{article.title}</h2>
           <div className="flex items-center gap-2 mt-1">
             <span className="tag-yellow">{article.category}</span>
             {sustainabilityCategory && (
@@ -85,7 +83,7 @@ export function StandaloneArticleView({
               <img
                 src={article.overview.image}
                 alt="Overview"
-                className="w-full h-auto rounded-[4px] border border-[#211f1c]"
+                className="w-full h-auto rounded-lg border border-[#211f1c]"
               />
             </div>
           )}
@@ -97,7 +95,7 @@ export function StandaloneArticleView({
               <img
                 src={article.introduction.image}
                 alt="Introduction"
-                className="w-full h-auto rounded-[4px] border border-[#211f1c] mb-3"
+                className="w-full h-auto rounded-lg border border-[#211f1c] mb-3"
               />
             )}
             <p className="text-[13px] text-black/80 whitespace-pre-wrap leading-relaxed">
@@ -112,7 +110,7 @@ export function StandaloneArticleView({
               <img
                 src={article.supplies.image}
                 alt="Supplies"
-                className="w-full h-auto rounded-[4px] border border-[#211f1c] mb-3"
+                className="w-full h-auto rounded-lg border border-[#211f1c] mb-3"
               />
             )}
             <p className="text-[13px] text-black/80 whitespace-pre-wrap leading-relaxed">
@@ -127,7 +125,7 @@ export function StandaloneArticleView({
               <img
                 src={article.step1.image}
                 alt="Step 1"
-                className="w-full h-auto rounded-[4px] border border-[#211f1c] mb-3"
+                className="w-full h-auto rounded-lg border border-[#211f1c] mb-3"
               />
             )}
             <p className="text-[13px] text-black/80 whitespace-pre-wrap leading-relaxed">
@@ -145,7 +143,7 @@ export function StandaloneArticleView({
               </p>
               <button
                 onClick={copyPermalink}
-                className="icon-box-sm bg-[#e4e3ac] shrink-0"
+                className="icon-box-sm bg-waste-recycle shrink-0"
                 title="Copy permalink"
               >
                 {copied ? <Check size={12} /> : <Copy size={12} />}

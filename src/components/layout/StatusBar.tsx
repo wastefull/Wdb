@@ -78,7 +78,7 @@ export function StatusBar({
           </button>
         )}
         {/* Centered Title */}
-        <span className="text-[11px] text-black dark:text-white">{title}</span>
+        <span className="text-[11px] normal">{title}</span>
       </div>
     );
   }
@@ -121,8 +121,8 @@ export function StatusBar({
                         }
                         className="flex items-center gap-1 px-1.5 md:px-2 py-1 bg-white/50 dark:bg-black/20 rounded-md border border-[#211f1c]/20 dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all cursor-pointer"
                       >
-                        <User className="w-3 h-3 md:w-3 md:h-3 text-black dark:text-white" />
-                        <span className="hidden md:inline text-[10px] text-black dark:text-white max-w-[100px] truncate">
+                        <User className="w-3 h-3 md:w-3 md:h-3 normal" />
+                        <span className="hidden md:inline text-[10px] normal max-w-[100px] truncate">
                           {user.name || user.email.split("@")[0]}
                         </span>
                       </button>

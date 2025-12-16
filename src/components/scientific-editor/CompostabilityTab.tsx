@@ -68,7 +68,7 @@ export function CompostabilityTab({
     <div className="space-y-4">
       {/* Parameters Card */}
       <Card className="panel">
-        <h3 className="text-[14px] text-black dark:text-white mb-3">
+        <h3 className="text-[14px] normal mb-3">
           Compostability Parameters (CC-v1)
         </h3>
 
@@ -86,9 +86,7 @@ export function CompostabilityTab({
               }
               className="text-[12px]"
             />
-            <p className="caption">
-              Biodegradation rate constant
-            </p>
+            <p className="caption">Biodegradation rate constant</p>
           </div>
 
           <div>
@@ -104,9 +102,7 @@ export function CompostabilityTab({
               }
               className="text-[12px]"
             />
-            <p className="caption">
-              C:N:P ratio suitability
-            </p>
+            <p className="caption">C:N:P ratio suitability</p>
           </div>
 
           <div>
@@ -122,9 +118,7 @@ export function CompostabilityTab({
               }
               className="text-[12px]"
             />
-            <p className="caption">
-              Toxicity / residue index
-            </p>
+            <p className="caption">Toxicity / residue index</p>
           </div>
 
           <div>
@@ -140,9 +134,7 @@ export function CompostabilityTab({
               }
               className="text-[12px]"
             />
-            <p className="caption">
-              Fraction of composting systems
-            </p>
+            <p className="caption">Fraction of composting systems</p>
           </div>
 
           <div>
@@ -160,9 +152,7 @@ export function CompostabilityTab({
               }
               className="text-[12px]"
             />
-            <p className="caption">
-              Composting facility availability
-            </p>
+            <p className="caption">Composting facility availability</p>
           </div>
         </div>
 
@@ -171,7 +161,7 @@ export function CompostabilityTab({
           <Button
             onClick={() => handleCalculateCC("practical")}
             disabled={calculating}
-            className="bg-[#e6beb5] hover:bg-[#d6aea5] text-black"
+            className="bg-waste-compost hover:bg-waste-compost/80 text-black"
           >
             <Calculator className="w-4 h-4 mr-2" />
             Calculate Practical CC
@@ -189,13 +179,13 @@ export function CompostabilityTab({
 
       {/* Composite Scores Card */}
       <Card className="panel">
-        <h3 className="text-[14px] text-black dark:text-white mb-3">
+        <h3 className="text-[14px] normal mb-3">
           Composite Compostability Index (CC)
         </h3>
 
         {/* Practical Score */}
         <div className="mb-4 pb-4 border-b border-[#211f1c] dark:border-white/20">
-          <h4 className="text-[12px] text-black dark:text-white mb-2">
+          <h4 className="text-[12px] normal mb-2">
             Practical (Regional Facilities)
           </h4>
 
@@ -269,7 +259,7 @@ export function CompostabilityTab({
 
         {/* Theoretical Score */}
         <div>
-          <h4 className="text-[12px] text-black dark:text-white mb-2">
+          <h4 className="text-[12px] normal mb-2">
             Theoretical (Ideal Conditions)
           </h4>
 

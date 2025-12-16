@@ -69,14 +69,14 @@ export function AdminDashboard({
         <div className="mb-6">
           <button
             onClick={onBack}
-            className="flex items-center gap-2 text-black dark:text-white hover:opacity-70 transition-opacity"
+            className="flex items-center gap-2 normal hover:opacity-70 transition-opacity"
           >
             <ArrowLeft size={16} />
             <span className="font-sniglet text-[14px]">Back</span>
           </button>
         </div>
 
-        <h2 className="font-display text-[24px] text-black dark:text-white mb-6">
+        <h2 className="font-display text-[24px] normal mb-6">
           Admin Dashboard
         </h2>
 
@@ -86,7 +86,7 @@ export function AdminDashboard({
             value="moderation"
             className="border-[#211f1c]/10 dark:border-white/10"
           >
-            <AccordionTrigger className="font-sniglet text-[14px] text-black dark:text-white hover:no-underline">
+            <AccordionTrigger className="font-sniglet text-[14px] normal hover:no-underline">
               <div className="flex items-center gap-2">
                 <AlertTriangle size={16} />
                 <span>Moderation</span>
@@ -133,7 +133,7 @@ export function AdminDashboard({
               value="admin"
               className="border-[#211f1c]/10 dark:border-white/10"
             >
-              <AccordionTrigger className="font-sniglet text-[14px] text-black dark:text-white hover:no-underline">
+              <AccordionTrigger className="font-sniglet text-[14px] normal hover:no-underline">
                 <div className="flex items-center gap-2">
                   <Users size={16} />
                   <span>Admin</span>
@@ -165,7 +165,7 @@ export function AdminDashboard({
             value="database"
             className="border-[#211f1c]/10 dark:border-white/10"
           >
-            <AccordionTrigger className="font-sniglet text-[14px] text-black dark:text-white hover:no-underline">
+            <AccordionTrigger className="font-sniglet text-[14px] normal hover:no-underline">
               <div className="flex items-center gap-2">
                 <Database size={16} />
                 <span>Database</span>
@@ -251,7 +251,7 @@ export function AdminDashboard({
             value="testing"
             className="border-[#211f1c]/10 dark:border-white/10"
           >
-            <AccordionTrigger className="font-sniglet text-[14px] text-black dark:text-white hover:no-underline">
+            <AccordionTrigger className="font-sniglet text-[14px] normal hover:no-underline">
               <div className="flex items-center gap-2">
                 <FlaskConical size={16} />
                 <span>Testing</span>

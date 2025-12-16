@@ -80,7 +80,7 @@ Where:
       <div className="flex items-center gap-4 mb-6">
         <button
           onClick={onBack}
-          className="p-2 bg-[#b8c8cb] rounded-md border border-[#211f1c] hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
+          className="p-2 bg-waste-reuse rounded-md border border-[#211f1c] hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
         >
           <ArrowLeft size={16} />
         </button>
@@ -90,7 +90,7 @@ Where:
         {!isEditing ? (
           <button
             onClick={() => setIsEditing(true)}
-            className="p-2 bg-[#e4e3ac] rounded-md border border-[#211f1c] hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
+            className="p-2 bg-waste-recycle rounded-md border border-[#211f1c] hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
           >
             <Edit2 size={14} />
           </button>
@@ -98,13 +98,13 @@ Where:
           <div className="flex gap-2">
             <button
               onClick={handleSave}
-              className="bg-[#e4e3ac] h-[36px] px-6 rounded-[6px] border border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] text-[13px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] transition-all"
+              className="bg-waste-recycle h-9 px-6 rounded-[6px] border border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] text-[13px] text-black hover:translate-y-px hover:shadow-[2px_3px_0px_-1px_#000000] transition-all"
             >
               Save
             </button>
             <button
               onClick={handleCancel}
-              className="bg-[#e6beb5] h-[36px] px-6 rounded-[6px] border border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] text-[13px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] transition-all"
+              className="bg-waste-compost h-9 px-6 rounded-[6px] border border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] text-[13px] text-black hover:translate-y-px hover:shadow-[2px_3px_0px_-1px_#000000] transition-all"
             >
               Cancel
             </button>
@@ -123,7 +123,7 @@ Where:
               onChange={(e) => setMarkdownContent(e.target.value)}
               onKeyDownCapture={handleKeyDown}
               rows={20}
-              className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-[8px] font-mono text-[12px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all resize-y"
+              className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-xl font-mono text-[12px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all resize-y"
               placeholder="Enter markdown content..."
             />
           </div>
@@ -158,14 +158,14 @@ Where:
                 table: ({ node, ...props }) => (
                   <div className="overflow-x-auto mb-6">
                     <table
-                      className="w-full border-[1.5px] border-[#211f1c] rounded-[8px]"
+                      className="w-full border-[1.5px] border-[#211f1c] rounded-xl"
                       {...props}
                     />
                   </div>
                 ),
                 thead: ({ node, ...props }) => (
                   <thead
-                    className="bg-[#e4e3ac] border-b-[1.5px] border-[#211f1c]"
+                    className="bg-waste-recycle border-b-[1.5px] border-[#211f1c]"
                     {...props}
                   />
                 ),
@@ -212,7 +212,7 @@ Where:
                 },
                 pre: ({ node, ...props }) => (
                   <pre
-                    className="bg-[#211f1c]/5 border-[1.5px] border-[#211f1c] rounded-[8px] p-4 mb-4 overflow-x-auto"
+                    className="bg-[#211f1c]/5 border-[1.5px] border-[#211f1c] rounded-xl p-4 mb-4 overflow-x-auto"
                     style={{
                       fontFamily:
                         "DaddyTimeMono Nerd Font Mono, Press Start 2P, monospace",

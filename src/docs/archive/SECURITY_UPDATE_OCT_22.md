@@ -21,7 +21,7 @@
 **Removed (2 instances):**
 
 ```tsx
-<p className="font-['Sniglet:Regular',_sans-serif] text-[10px] text-black/50 dark:text-white/50 mt-1">
+<p className="text-[10px] text-black/50 dark:text-white/50 mt-1">
   Use @wastefull.org email for admin access
 </p>
 ```

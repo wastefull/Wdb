@@ -169,13 +169,11 @@ export function UserManagementView({
       <div className="flex items-center gap-4 mb-6">
         <button
           onClick={onBack}
-          className="p-2 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#e6beb5] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+          className="p-2 rounded-md border border-[#211f1c] dark:border-white/20 bg-waste-compost hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
         >
           <ArrowLeft size={16} className="text-black" />
         </button>
-        <h2 className="text-black dark:text-white uppercase">
-          User Management
-        </h2>
+        <h2 className="normal uppercase">User Management</h2>
       </div>
 
       {loading ? (
@@ -189,30 +187,18 @@ export function UserManagementView({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="text-black dark:text-white">
-                  Email
-                </TableHead>
-                <TableHead className="text-black dark:text-white">
-                  Name
-                </TableHead>
-                <TableHead className="text-black dark:text-white">
-                  Role
-                </TableHead>
-                <TableHead className="text-black dark:text-white">
-                  Created
-                </TableHead>
-                <TableHead className="text-black dark:text-white">
-                  Last Sign In
-                </TableHead>
-                <TableHead className="text-black dark:text-white text-right">
-                  Actions
-                </TableHead>
+                <TableHead className="normal">Email</TableHead>
+                <TableHead className="normal">Name</TableHead>
+                <TableHead className="normal">Role</TableHead>
+                <TableHead className="normal">Created</TableHead>
+                <TableHead className="normal">Last Sign In</TableHead>
+                <TableHead className="normal text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {users.map((user) => (
                 <TableRow key={user.id}>
-                  <TableCell className="text-[12px] text-black dark:text-white">
+                  <TableCell className="text-[12px] normal">
                     {user.email}
                     {user.id === currentUserId && (
                       <span className="ml-2 text-[10px] text-black/50 dark:text-white/50">
@@ -225,7 +211,7 @@ export function UserManagementView({
                       </span>
                     )}
                   </TableCell>
-                  <TableCell className="text-[12px] text-black dark:text-white">
+                  <TableCell className="text-[12px] normal">
                     {user.name}
                   </TableCell>
                   <TableCell>
@@ -265,7 +251,7 @@ export function UserManagementView({
                     <div className="flex gap-2 justify-end">
                       <button
                         onClick={() => handleEditUser(user)}
-                        className="p-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#b8c8cb] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                        className="p-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-waste-reuse hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
                         title="Edit user"
                       >
                         <Edit2 size={12} className="text-black" />
@@ -284,7 +270,7 @@ export function UserManagementView({
                               </AlertDialogTrigger>
                               <AlertDialogContent className="bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20">
                                 <AlertDialogHeader>
-                                  <AlertDialogTitle className="text-black dark:text-white">
+                                  <AlertDialogTitle className="normal">
                                     Inactivate User
                                   </AlertDialogTitle>
                                   <AlertDialogDescription className="text-black/70 dark:text-white/70">
@@ -320,7 +306,7 @@ export function UserManagementView({
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
                               <button
-                                className="p-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#e6beb5] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                                className="p-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-waste-compost hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
                                 title="Delete user"
                               >
                                 <Trash2 size={12} className="text-black" />
@@ -328,7 +314,7 @@ export function UserManagementView({
                             </AlertDialogTrigger>
                             <AlertDialogContent className="bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20">
                               <AlertDialogHeader>
-                                <AlertDialogTitle className="text-black dark:text-white">
+                                <AlertDialogTitle className="normal">
                                   Delete User
                                 </AlertDialogTitle>
                                 <AlertDialogDescription className="text-black/70 dark:text-white/70">
@@ -342,7 +328,7 @@ export function UserManagementView({
                                 </AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={() => handleDeleteUser(user.id)}
-                                  className="bg-[#e6beb5] text-black hover:bg-[#d4aea5]"
+                                  className="bg-waste-compost text-black hover:bg-waste-compost/80"
                                 >
                                   Delete
                                 </AlertDialogAction>
@@ -368,16 +354,11 @@ export function UserManagementView({
         >
           <AlertDialogContent className="bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20">
             <AlertDialogHeader>
-              <AlertDialogTitle className="text-black dark:text-white">
-                Edit User
-              </AlertDialogTitle>
+              <AlertDialogTitle className="normal">Edit User</AlertDialogTitle>
             </AlertDialogHeader>
             <div className="space-y-4 py-4">
               <div>
-                <Label
-                  htmlFor="edit-name"
-                  className="text-[12px] text-black dark:text-white"
-                >
+                <Label htmlFor="edit-name" className="text-[12px] normal">
                   Name
                 </Label>
                 <Input
@@ -388,10 +369,7 @@ export function UserManagementView({
                 />
               </div>
               <div>
-                <Label
-                  htmlFor="edit-email"
-                  className="text-[12px] text-black dark:text-white"
-                >
+                <Label htmlFor="edit-email" className="text-[12px] normal">
                   Email
                 </Label>
                 <Input
@@ -403,10 +381,7 @@ export function UserManagementView({
                 />
               </div>
               <div>
-                <Label
-                  htmlFor="edit-password"
-                  className="text-[12px] text-black dark:text-white"
-                >
+                <Label htmlFor="edit-password" className="text-[12px] normal">
                   New Password (leave blank to keep current)
                 </Label>
                 <Input
@@ -420,12 +395,10 @@ export function UserManagementView({
               </div>
             </div>
             <AlertDialogFooter>
-              <AlertDialogCancel className="">
-                Cancel
-              </AlertDialogCancel>
+              <AlertDialogCancel className="">Cancel</AlertDialogCancel>
               <AlertDialogAction
                 onClick={handleSaveEdit}
-                className="bg-[#b8c8cb] text-black hover:bg-[#a8b8bb]"
+                className="bg-waste-reuse text-black hover:bg-[#a8b8bb]"
               >
                 Save Changes
               </AlertDialogAction>

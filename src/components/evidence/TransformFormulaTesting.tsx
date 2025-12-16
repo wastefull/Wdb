@@ -21,7 +21,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { loadTransforms, type TransformsData } from "../../utils/transformLoader";
+import {
+  loadTransforms,
+  type TransformsData,
+} from "../../utils/transformLoader";
 import { Material } from "../../types/material";
 
 interface TransformFormulaTestingProps {
@@ -254,16 +257,11 @@ export function TransformFormulaTesting({
     <div className="h-full flex flex-col bg-[#e5e4dc] dark:bg-[#1a1917]">
       {/* Header */}
       <div className="flex items-center gap-4 p-6 border-b border-[#211f1c]/20 dark:border-white/20 bg-white dark:bg-[#2a2825]">
-        <button
-          onClick={onBack}
-          className="card-interactive"
-        >
+        <button onClick={onBack} className="card-interactive">
           <ArrowLeft size={16} className="text-black" />
         </button>
         <div className="flex-1">
-          <h2 className="heading-xl">
-            Transform Formula Testing
-          </h2>
+          <h2 className="heading-xl">Transform Formula Testing</h2>
           <p className="label-muted">
             Validate v1.0 transform formulas against material data
           </p>
@@ -283,13 +281,9 @@ export function TransformFormulaTesting({
                 size={16}
                 className="text-black/60 dark:text-white/60"
               />
-              <span className="label-muted-sm">
-                Total Tests
-              </span>
+              <span className="label-muted-sm">Total Tests</span>
             </div>
-            <div className="heading-xl">
-              {overallStats.total}
-            </div>
+            <div className="heading-xl">{overallStats.total}</div>
           </div>
 
           <div className="p-4 rounded-lg bg-[#e5e4dc] dark:bg-[#1a1917] border border-[#211f1c]/20 dark:border-white/20">
@@ -298,9 +292,7 @@ export function TransformFormulaTesting({
                 size={16}
                 className="text-green-600 dark:text-green-400"
               />
-              <span className="label-muted-sm">
-                Successful
-              </span>
+              <span className="label-muted-sm">Successful</span>
             </div>
             <div className="font-['Fredoka_One'] text-[24px] text-green-600 dark:text-green-400">
               {overallStats.success}
@@ -310,9 +302,7 @@ export function TransformFormulaTesting({
           <div className="p-4 rounded-lg bg-[#e5e4dc] dark:bg-[#1a1917] border border-[#211f1c]/20 dark:border-white/20">
             <div className="flex items-center gap-2 mb-2">
               <XCircle size={16} className="text-red-600 dark:text-red-400" />
-              <span className="label-muted-sm">
-                Errors
-              </span>
+              <span className="label-muted-sm">Errors</span>
             </div>
             <div className="font-['Fredoka_One'] text-[24px] text-red-600 dark:text-red-400">
               {overallStats.errors}
@@ -325,9 +315,7 @@ export function TransformFormulaTesting({
                 size={16}
                 className="text-black/60 dark:text-white/60"
               />
-              <span className="label-muted-sm">
-                Success Rate
-              </span>
+              <span className="label-muted-sm">Success Rate</span>
             </div>
             <div className="heading-xl">
               {overallStats.successRate.toFixed(1)}%
@@ -339,7 +327,7 @@ export function TransformFormulaTesting({
 
       {/* Parameter Statistics */}
       <div className="p-6 bg-white dark:bg-[#2a2825] border-b border-[#211f1c]/20 dark:border-white/20">
-        <h3 className="font-['Fredoka_One'] text-[16px] text-black dark:text-white mb-4">
+        <h3 className="font-['Fredoka_One'] text-[16px] normal mb-4">
           Parameter Statistics
         </h3>
         <div className="grid grid-cols-7 gap-3">
@@ -405,9 +393,7 @@ export function TransformFormulaTesting({
 
         <div className="flex-1" />
 
-        <span className="label-muted">
-          {filteredResults.length} results
-        </span>
+        <span className="label-muted">{filteredResults.length} results</span>
       </div>
 
       {/* Results Table */}
@@ -417,27 +403,15 @@ export function TransformFormulaTesting({
             <table className="w-full">
               <thead className="bg-[#e5e4dc] dark:bg-[#1a1917] border-b border-[#211f1c]/20 dark:border-white/20">
                 <tr>
-                  <th className="px-4 py-3 text-left heading-sm">
-                    Parameter
-                  </th>
-                  <th className="px-4 py-3 text-left heading-sm">
-                    Material
-                  </th>
-                  <th className="px-4 py-3 text-right heading-sm">
-                    Raw Value
-                  </th>
-                  <th className="px-4 py-3 text-right heading-sm">
-                    Computed
-                  </th>
-                  <th className="px-4 py-3 text-right heading-sm">
-                    Actual
-                  </th>
+                  <th className="px-4 py-3 text-left heading-sm">Parameter</th>
+                  <th className="px-4 py-3 text-left heading-sm">Material</th>
+                  <th className="px-4 py-3 text-right heading-sm">Raw Value</th>
+                  <th className="px-4 py-3 text-right heading-sm">Computed</th>
+                  <th className="px-4 py-3 text-right heading-sm">Actual</th>
                   <th className="px-4 py-3 text-right heading-sm">
                     Difference
                   </th>
-                  <th className="px-4 py-3 text-left heading-sm">
-                    Status
-                  </th>
+                  <th className="px-4 py-3 text-left heading-sm">Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -457,9 +431,7 @@ export function TransformFormulaTesting({
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <span className="label">
-                        {result.materialName}
-                      </span>
+                      <span className="label">{result.materialName}</span>
                     </td>
                     <td className="px-4 py-3 text-right">
                       <span className="label">
@@ -525,9 +497,7 @@ export function TransformFormulaTesting({
                   size={48}
                   className="mx-auto mb-4 text-black/20 dark:text-white/20"
                 />
-                <p className="label-muted">
-                  No results to display
-                </p>
+                <p className="label-muted">No results to display</p>
               </div>
             )}
           </div>

@@ -44,26 +44,22 @@ export function ScoreBar({
       <div className="flex justify-between items-center">
         <button
           onClick={onClick}
-          className="text-[11px] text-black dark:text-white hover:underline cursor-pointer text-left flex items-center gap-1"
+          className="text-[11px] normal hover:underline cursor-pointer text-left flex items-center gap-1"
           aria-label={`View ${label.toLowerCase()} articles (${
             articleCount || 0
           } articles, score: ${score})`}
         >
-          <span className="text-[11px] text-black dark:text-white">
-            {label}
-          </span>
+          <span className="text-[11px] normal">{label}</span>
           {articleCount !== undefined && articleCount > 0 && (
             <span className="text-[9px] text-black/60 dark:text-white/60">
               ({articleCount})
             </span>
           )}
         </button>
-        <span className="text-[11px] text-black dark:text-white">
-          {score}
-        </span>
+        <span className="text-[11px] normal">{score}</span>
       </div>
       <div
-        className="h-[8px] bg-[#211f1c]/10 dark:bg-white/10 rounded-full overflow-hidden border border-[#211f1c] dark:border-white/20"
+        className="h-2 bg-[#211f1c]/10 dark:bg-white/10 rounded-full overflow-hidden border border-[#211f1c] dark:border-white/20"
         role="progressbar"
         aria-valuenow={score}
         aria-valuemin={0}

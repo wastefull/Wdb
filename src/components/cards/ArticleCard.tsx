@@ -35,7 +35,7 @@ export function ArticleCard({
             <h4 className="text-[14px] text-black">{article.title}</h4>
           )}
           <div className="flex items-center gap-2 mt-1">
-            <span className="inline-block px-2 py-0.5 bg-[#e4e3ac] rounded-md border border-[#211f1c] text-[9px] text-black">
+            <span className="inline-block px-2 py-0.5 bg-waste-recycle rounded-md border border-[#211f1c] text-[9px] text-black">
               {article.category}
             </span>
             {sustainabilityCategory && (
@@ -52,13 +52,13 @@ export function ArticleCard({
           <div className="flex gap-2">
             <button
               onClick={onEdit}
-              className="icon-box-sm bg-[#e4e3ac] !dark:border-[#211f1c] !dark:hover:shadow-[2px_2px_0px_0px_#000000]"
+              className="icon-box-sm bg-waste-recycle !dark:border-[#211f1c] !dark:hover:shadow-[2px_2px_0px_0px_#000000]"
             >
               <Edit2 size={12} />
             </button>
             <button
               onClick={onDelete}
-              className="icon-box-sm bg-[#e6beb5] !dark:border-[#211f1c] !dark:hover:shadow-[2px_2px_0px_0px_#000000]"
+              className="icon-box-sm bg-waste-compost !dark:border-[#211f1c] !dark:hover:shadow-[2px_2px_0px_0px_#000000]"
             >
               <Trash2 size={12} />
             </button>
@@ -74,7 +74,7 @@ export function ArticleCard({
             <img
               src={article.overview.image}
               alt="Overview"
-              className="w-full h-auto rounded-[4px] border border-[#211f1c]"
+              className="w-full h-auto rounded-lg border border-[#211f1c]"
             />
           </div>
         )}
@@ -86,7 +86,7 @@ export function ArticleCard({
             <img
               src={article.introduction.image}
               alt="Introduction"
-              className="w-full h-auto rounded-[4px] border border-[#211f1c] mb-2"
+              className="w-full h-auto rounded-lg border border-[#211f1c] mb-2"
             />
           )}
           <p className="text-[11px] text-black/70 whitespace-pre-wrap">
@@ -101,7 +101,7 @@ export function ArticleCard({
             <img
               src={article.supplies.image}
               alt="Supplies"
-              className="w-full h-auto rounded-[4px] border border-[#211f1c] mb-2"
+              className="w-full h-auto rounded-lg border border-[#211f1c] mb-2"
             />
           )}
           <p className="text-[11px] text-black/70 whitespace-pre-wrap">

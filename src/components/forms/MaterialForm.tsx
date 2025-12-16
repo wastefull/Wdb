@@ -65,7 +65,7 @@ export function MaterialForm({
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             onKeyDownCapture={handleKeyDown}
             required
-            className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-[8px] text-[14px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all"
+            className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-xl text-[14px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all"
           />
         </div>
 
@@ -79,7 +79,7 @@ export function MaterialForm({
                 category: e.target.value as typeof formData.category,
               })
             }
-            className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-[8px] text-[14px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all"
+            className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-xl text-[14px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all"
           >
             <option value="Plastics">Plastics</option>
             <option value="Metals">Metals</option>
@@ -105,12 +105,12 @@ export function MaterialForm({
             }
             onKeyDownCapture={handleKeyDown}
             rows={3}
-            className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-[8px] text-[12px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all resize-none"
+            className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-xl text-[12px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all resize-none"
           />
         </div>
 
         {/* Note about sustainability scores */}
-        <div className="bg-[#e5e4dc] dark:bg-[#3a3835] rounded-[8px] p-3 border border-[#211f1c]/20 dark:border-white/20">
+        <div className="bg-[#e5e4dc] dark:bg-[#3a3835] rounded-xl p-3 border border-[#211f1c]/20 dark:border-white/20">
           <p className="text-[11px] text-black/70 dark:text-white/70">
             ℹ️ Sustainability scores (Compostability, Recyclability,
             Reusability) will be calculated by admins in the Data Management
@@ -121,14 +121,14 @@ export function MaterialForm({
         <div className="flex gap-3 mt-2 justify-center">
           <button
             type="submit"
-            className="bg-[#e4e3ac] h-[40px] px-8 rounded-[6px] border border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] text-[14px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] transition-all"
+            className="bg-waste-recycle h-10 px-8 rounded-[6px] border border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] text-[14px] text-black hover:translate-y-px hover:shadow-[2px_3px_0px_-1px_#000000] transition-all"
           >
             {material ? "Update" : "Create"}
           </button>
           <button
             type="button"
             onClick={onCancel}
-            className="bg-[#e6beb5] h-[40px] px-8 rounded-[6px] border border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] text-[14px] text-black hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] transition-all"
+            className="bg-waste-compost h-10 px-8 rounded-[6px] border border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] text-[14px] text-black hover:translate-y-px hover:shadow-[2px_3px_0px_-1px_#000000] transition-all"
           >
             Cancel
           </button>

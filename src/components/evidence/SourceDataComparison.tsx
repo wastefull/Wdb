@@ -264,9 +264,7 @@ export function SourceDataComparison({
 
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-[16px] text-black dark:text-white">
-              Source Data Comparison
-            </h1>
+            <h1 className="text-[16px] normal">Source Data Comparison</h1>
             <p className="text-[12px] text-black/60 dark:text-white/60">
               Compare how different sources contribute to parameter values
             </p>
@@ -279,9 +277,7 @@ export function SourceDataComparison({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Material Selection */}
           <div>
-            <label className="text-[11px] text-black dark:text-white mb-2 block">
-              Material
-            </label>
+            <label className="text-[11px] normal mb-2 block">Material</label>
             <Select
               value={selectedMaterial}
               onValueChange={setSelectedMaterial}
@@ -304,9 +300,7 @@ export function SourceDataComparison({
 
           {/* Dimension Filter */}
           <div>
-            <label className="text-[11px] text-black dark:text-white mb-2 block">
-              Dimension
-            </label>
+            <label className="text-[11px] normal mb-2 block">Dimension</label>
             <Select
               value={selectedDimension}
               onValueChange={setSelectedDimension}
@@ -325,9 +319,7 @@ export function SourceDataComparison({
 
           {/* Parameter Selection */}
           <div>
-            <label className="text-[11px] text-black dark:text-white mb-2 block">
-              Parameter
-            </label>
+            <label className="text-[11px] normal mb-2 block">Parameter</label>
             <Select
               value={selectedParameter}
               onValueChange={setSelectedParameter}
@@ -383,7 +375,7 @@ export function SourceDataComparison({
           <Card className="panel">
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h2 className="text-[14px] text-black dark:text-white mb-1">
+                <h2 className="text-[14px] normal mb-1">
                   {material.name} - {PARAMETER_INFO[selectedParameter].name}
                 </h2>
                 <p className="text-[11px] text-black/60 dark:text-white/60">
@@ -406,7 +398,7 @@ export function SourceDataComparison({
                 <p className="text-[9px] text-black/60 dark:text-white/60 mb-1">
                   Weighted Value
                 </p>
-                <p className="text-[18px] text-black dark:text-white">
+                <p className="text-[18px] normal">
                   {comparisonData.paramValue.toFixed(1)}
                   <span className="text-[11px] ml-1">
                     {PARAMETER_INFO[selectedParameter].unit}
@@ -418,7 +410,7 @@ export function SourceDataComparison({
                 <p className="text-[9px] text-black/60 dark:text-white/60 mb-1">
                   Contributing Sources
                 </p>
-                <p className="text-[18px] text-black dark:text-white">
+                <p className="text-[18px] normal">
                   {comparisonData.sourceCount}
                 </p>
               </div>
@@ -427,7 +419,7 @@ export function SourceDataComparison({
                 <p className="text-[9px] text-black/60 dark:text-white/60 mb-1">
                   Total Weight
                 </p>
-                <p className="text-[18px] text-black dark:text-white">
+                <p className="text-[18px] normal">
                   {comparisonData.totalWeight.toFixed(2)}
                 </p>
               </div>
@@ -446,9 +438,7 @@ export function SourceDataComparison({
           {/* Source Breakdown */}
           <Card className="bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
             <div className="p-4 border-b border-[#211f1c] dark:border-white/20">
-              <h3 className="text-[14px] text-black dark:text-white">
-                Source Contributions
-              </h3>
+              <h3 className="text-[14px] normal">Source Contributions</h3>
               <p className="text-[11px] text-black/60 dark:text-white/60">
                 How each source contributes to the final weighted value
               </p>
@@ -458,21 +448,15 @@ export function SourceDataComparison({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="text-[11px]">
-                      Source
-                    </TableHead>
-                    <TableHead className="text-[11px]">
-                      Type
-                    </TableHead>
+                    <TableHead className="text-[11px]">Source</TableHead>
+                    <TableHead className="text-[11px]">Type</TableHead>
                     <TableHead className="text-[11px] text-right">
                       Weight
                     </TableHead>
                     <TableHead className="text-[11px] text-right">
                       Contribution
                     </TableHead>
-                    <TableHead className="text-[11px]">
-                      Links
-                    </TableHead>
+                    <TableHead className="text-[11px]">Links</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -480,7 +464,7 @@ export function SourceDataComparison({
                     <TableRow key={idx}>
                       <TableCell>
                         <div>
-                          <p className="text-[11px] text-black dark:text-white font-medium">
+                          <p className="text-[11px] normal font-medium">
                             {sc.source.title}
                           </p>
                           {sc.source.authors && (
@@ -521,7 +505,7 @@ export function SourceDataComparison({
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
-                        <span className="text-[11px] text-black dark:text-white">
+                        <span className="text-[11px] normal">
                           {sc.weight.toFixed(2)}
                         </span>
                       </TableCell>
@@ -533,7 +517,7 @@ export function SourceDataComparison({
                               style={{ width: `${sc.contribution}%` }}
                             />
                           </div>
-                          <span className="text-[11px] text-black dark:text-white font-medium w-12 text-right">
+                          <span className="text-[11px] normal font-medium w-12 text-right">
                             {sc.contribution.toFixed(1)}%
                           </span>
                         </div>

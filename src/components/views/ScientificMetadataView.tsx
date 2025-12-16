@@ -152,7 +152,7 @@ export function ScientificMetadataView({
               <Button
                 onClick={onEditScientific}
                 size="sm"
-                className="w-full bg-[#e4e3ac] hover:bg-[#d4d39c] text-black"
+                className="w-full bg-waste-recycle hover:bg-waste-recycle/80 text-black"
               >
                 <Edit2 className="w-3 h-3 mr-2" />
                 {hasScientificData
@@ -180,7 +180,7 @@ export function ScientificMetadataView({
                       style: styles.scientificMetadataLayout,
                     })}
                   >
-                    <Database className="w-4 h-4 text-black dark:text-white" />
+                    <Database className="w-4 h-4 normal" />
                     <h4
                       className={classes({
                         colors: styles.BW,
@@ -389,7 +389,7 @@ export function ScientificMetadataView({
                       layout: styles.scientificMetadataLayout,
                     })}
                   >
-                    <TrendingUp className="w-4 h-4 text-black dark:text-white" />
+                    <TrendingUp className="w-4 h-4 normal" />
                     <h4
                       className={classes({
                         colors: styles.BW,
@@ -508,7 +508,7 @@ export function ScientificMetadataView({
               {material.sources && material.sources.length > 0 && (
                 <div>
                   <div className="flex items-center gap-2 mb-2">
-                    <FileText className="w-4 h-4 text-black dark:text-white" />
+                    <FileText className="w-4 h-4 normal" />
                     <h4
                       className={classes({
                         colors: styles.BW,
@@ -570,7 +570,7 @@ export function ScientificMetadataView({
               {/* Metadata */}
               <div className="pt-2 border-t border-[#211f1c] dark:border-white/20">
                 <div className="flex items-center gap-2 mb-2">
-                  <Calendar className="w-4 h-4 text-black dark:text-white" />
+                  <Calendar className="w-4 h-4 normal" />
                   <h4
                     className={classes({
                       colors: styles.BW,

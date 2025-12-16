@@ -131,7 +131,7 @@ export function ArticleEditor({
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h2 className="text-black dark:text-white mb-2">
+        <h2 className="normal mb-2">
           {article ? "Edit Article" : "New Article"}
         </h2>
         <p className="text-[13px] text-black/70 dark:text-white/70">
@@ -143,10 +143,7 @@ export function ArticleEditor({
       <div className="space-y-4">
         {/* Title */}
         <div className="space-y-2">
-          <Label
-            htmlFor="title"
-            className="text-black dark:text-white"
-          >
+          <Label htmlFor="title" className="normal">
             Title
           </Label>
           <Input
@@ -160,10 +157,7 @@ export function ArticleEditor({
 
         {/* Slug */}
         <div className="space-y-2">
-          <Label
-            htmlFor="slug"
-            className="text-black dark:text-white"
-          >
+          <Label htmlFor="slug" className="normal">
             Slug (URL path)
           </Label>
           <Input
@@ -181,20 +175,14 @@ export function ArticleEditor({
         {/* Category and Material */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label
-              htmlFor="category"
-              className="text-black dark:text-white"
-            >
+            <Label htmlFor="category" className="normal">
               Category
             </Label>
             <Select
               value={category}
               onValueChange={(val: any) => setCategory(val)}
             >
-              <SelectTrigger
-                id="category"
-                className=""
-              >
+              <SelectTrigger id="category" className="">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -206,17 +194,11 @@ export function ArticleEditor({
           </div>
 
           <div className="space-y-2">
-            <Label
-              htmlFor="material"
-              className="text-black dark:text-white"
-            >
+            <Label htmlFor="material" className="normal">
               Material
             </Label>
             <Select value={materialId} onValueChange={setMaterialId}>
-              <SelectTrigger
-                id="material"
-                className=""
-              >
+              <SelectTrigger id="material" className="">
                 <SelectValue placeholder="Select material..." />
               </SelectTrigger>
               <SelectContent>
@@ -233,10 +215,7 @@ export function ArticleEditor({
         {/* Content Editor with Markdown Toolbar */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <Label
-              htmlFor="content"
-              className="text-black dark:text-white"
-            >
+            <Label htmlFor="content" className="normal">
               Content
             </Label>
             <div className="flex gap-1">
@@ -288,16 +267,10 @@ export function ArticleEditor({
             onValueChange={(val: any) => setActiveTab(val)}
           >
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger
-                value="edit"
-                className=""
-              >
+              <TabsTrigger value="edit" className="">
                 Edit
               </TabsTrigger>
-              <TabsTrigger
-                value="preview"
-                className=""
-              >
+              <TabsTrigger value="preview" className="">
                 <Eye size={14} className="mr-2" />
                 Preview
               </TabsTrigger>
@@ -325,46 +298,31 @@ export function ArticleEditor({
                     <ReactMarkdown
                       components={{
                         h1: ({ node, ...props }) => (
-                          <h1
-                            className="text-black dark:text-white mb-4"
-                            {...props}
-                          />
+                          <h1 className="normal mb-4" {...props} />
                         ),
                         h2: ({ node, ...props }) => (
-                          <h2
-                            className="text-black dark:text-white mb-3 mt-6"
-                            {...props}
-                          />
+                          <h2 className="normal mb-3 mt-6" {...props} />
                         ),
                         h3: ({ node, ...props }) => (
-                          <h3
-                            className="text-black dark:text-white mb-2 mt-4"
-                            {...props}
-                          />
+                          <h3 className="normal mb-2 mt-4" {...props} />
                         ),
                         p: ({ node, ...props }) => (
-                          <p
-                            className="text-black dark:text-white mb-4"
-                            {...props}
-                          />
+                          <p className="normal mb-4" {...props} />
                         ),
                         ul: ({ node, ...props }) => (
                           <ul
-                            className="text-black dark:text-white mb-4 list-disc pl-6"
+                            className="normal mb-4 list-disc pl-6"
                             {...props}
                           />
                         ),
                         ol: ({ node, ...props }) => (
                           <ol
-                            className="text-black dark:text-white mb-4 list-decimal pl-6"
+                            className="normal mb-4 list-decimal pl-6"
                             {...props}
                           />
                         ),
                         li: ({ node, ...props }) => (
-                          <li
-                            className="text-black dark:text-white mb-1"
-                            {...props}
-                          />
+                          <li className="normal mb-1" {...props} />
                         ),
                         a: ({ node, ...props }) => (
                           <a
@@ -373,16 +331,10 @@ export function ArticleEditor({
                           />
                         ),
                         strong: ({ node, ...props }) => (
-                          <strong
-                            className=""
-                            {...props}
-                          />
+                          <strong className="" {...props} />
                         ),
                         em: ({ node, ...props }) => (
-                          <em
-                            className=""
-                            {...props}
-                          />
+                          <em className="" {...props} />
                         ),
                       }}
                     >

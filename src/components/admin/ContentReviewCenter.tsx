@@ -394,11 +394,11 @@ export function ContentReviewCenter({
       <div className="flex items-center gap-4 mb-6">
         <button
           onClick={onBack}
-          className="p-2 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#e6beb5] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+          className="p-2 rounded-md border border-[#211f1c] dark:border-white/20 bg-waste-compost hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
         >
           <ArrowLeft size={16} className="text-black" />
         </button>
-        <h2 className="font-['Fredoka_One',_sans-serif] text-black dark:text-white">
+        <h2 className="font-['Fredoka_One',sans-serif] normal">
           Content Review Center
         </h2>
       </div>
@@ -437,7 +437,7 @@ export function ContentReviewCenter({
           </TabsTrigger>
           <TabsTrigger
             value="moderation"
-            className="text-[10px] md:text-sm px-2 py-2 data-[state=active]:bg-[#e6beb5]"
+            className="text-[10px] md:text-sm px-2 py-2 data-[state=active]:bg-waste-compost"
           >
             <Flag size={12} className="mr-1 shrink-0" />
             <span className="truncate">
@@ -539,14 +539,14 @@ function SubmissionCard({
   const getSubmissionIcon = () => {
     switch (submission.type) {
       case "new_material":
-        return <Package size={16} className="text-black dark:text-white" />;
+        return <Package size={16} className="normal" />;
       case "edit_material":
-        return <Edit3 size={16} className="text-black dark:text-white" />;
+        return <Edit3 size={16} className="normal" />;
       case "new_article":
       case "update_article":
-        return <FileText size={16} className="text-black dark:text-white" />;
+        return <FileText size={16} className="normal" />;
       default:
-        return <FileText size={16} className="text-black dark:text-white" />;
+        return <FileText size={16} className="normal" />;
     }
   };
 
@@ -609,14 +609,12 @@ function SubmissionCard({
   return (
     <div className="bg-white dark:bg-[#1a1917] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 p-4 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all">
       <div className="flex items-start gap-3">
-        <div className="p-2 rounded-md bg-[#b8c8cb] dark:bg-[#2a3235] border border-[#211f1c] dark:border-white/20 shrink-0">
+        <div className="p-2 rounded-md bg-waste-reuse dark:bg-[#2a3235] border border-[#211f1c] dark:border-white/20 shrink-0">
           {getSubmissionIcon()}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2 mb-1">
-            <h3 className="text-black dark:text-white truncate">
-              {getSubmissionTitle()}
-            </h3>
+            <h3 className="normal truncate">{getSubmissionTitle()}</h3>
             <span className="shrink-0 text-[10px] text-black/50 dark:text-white/50">
               {formatDate(submission.created_at)}
             </span>
@@ -628,8 +626,8 @@ function SubmissionCard({
             {getSubmissionSnippet()}
           </p>
           {submission.feedback && (
-            <div className="bg-[#e4e3ac] dark:bg-[#3a3825] border border-[#211f1c] dark:border-white/20 rounded-md p-2 mb-3">
-              <p className="text-[10px] text-black dark:text-white">
+            <div className="bg-waste-recycle dark:bg-[#3a3825] border border-[#211f1c] dark:border-white/20 rounded-md p-2 mb-3">
+              <p className="text-[10px] normal">
                 <strong>Feedback:</strong> {submission.feedback}
               </p>
             </div>
@@ -646,7 +644,7 @@ function SubmissionCard({
                 </button>
                 <button
                   onClick={onFlag}
-                  className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#e6beb5] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[11px] text-black flex items-center gap-1"
+                  className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-waste-compost hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[11px] text-black flex items-center gap-1"
                 >
                   <Flag size={12} />
                   Flag
@@ -657,14 +655,14 @@ function SubmissionCard({
               <>
                 <button
                   onClick={onReview}
-                  className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#b8c8cb] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[11px] text-black"
+                  className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-waste-reuse hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[11px] text-black"
                 >
                   View Details
                 </button>
                 {submission.status === "needs_revision" && (
                   <button
                     onClick={onRemitToReview}
-                    className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#e4e3ac] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[11px] text-black flex items-center gap-1"
+                    className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-waste-recycle hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[11px] text-black flex items-center gap-1"
                   >
                     <Clock size={12} />
                     Remit to Review
@@ -672,7 +670,7 @@ function SubmissionCard({
                 )}
                 <button
                   onClick={onDelete}
-                  className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#e6beb5] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[11px] text-black flex items-center gap-1"
+                  className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-waste-compost hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[11px] text-black flex items-center gap-1"
                 >
                   <XCircle size={12} />
                   Delete
@@ -689,7 +687,7 @@ function SubmissionCard({
                 </button>
                 <button
                   onClick={onDelete}
-                  className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#e6beb5] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[11px] text-black flex items-center gap-1"
+                  className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-waste-compost hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[11px] text-black flex items-center gap-1"
                 >
                   <XCircle size={12} />
                   Delete

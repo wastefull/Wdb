@@ -818,7 +818,7 @@ body {
 
 .menu-header {
   @apply text-[12px] px-3 py-2;
-  @apply text-black dark:text-white;
+  @apply normal;
 }
 
 .menu-subheader {
@@ -830,7 +830,7 @@ body {
    Labels & Text
    ========================================================================== */
 .label {
-  @apply text-[12px] text-black dark:text-white;
+  @apply text-[12px] normal;
 }
 
 .label-muted {
@@ -853,15 +853,15 @@ body {
    Headings
    ========================================================================== */
 .heading-xl {
-  @apply font-display text-[24px] text-black dark:text-white;
+  @apply font-display text-[24px] normal;
 }
 
 .heading-lg {
-  @apply font-display text-[18px] text-black dark:text-white;
+  @apply font-display text-[18px] normal;
 }
 
 .heading-md {
-  @apply font-display text-[14px] text-black dark:text-white;
+  @apply font-display text-[14px] normal;
 }
 
 .heading-sm {
@@ -896,8 +896,8 @@ body {
    Form Inputs
    ========================================================================== */
 .input-field {
-  @apply w-full px-3 py-2 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px];
-  @apply text-[13px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50;
+  @apply w-full px-3 py-2 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-xl;
+  @apply text-[13px] normal placeholder:text-black/50 dark:placeholder:text-white/50;
   @apply outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all;
 }
 
@@ -907,8 +907,8 @@ body {
 }
 
 .textarea-field {
-  @apply w-full px-3 py-2 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px];
-  @apply text-[13px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50;
+  @apply w-full px-3 py-2 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-xl;
+  @apply text-[13px] normal placeholder:text-black/50 dark:placeholder:text-white/50;
   @apply outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all;
   @apply resize-none;
 }
@@ -930,7 +930,7 @@ body {
    Tags / Badges (small colored labels)
    ========================================================================== */
 .tag {
-  @apply inline-block px-2 py-0.5 rounded-md border border-[#211f1c] dark:border-white/20 text-[9px] text-black dark:text-white;
+  @apply inline-block px-2 py-0.5 rounded-md border border-[#211f1c] dark:border-white/20 text-[9px] normal;
 }
 
 .tag-cyan {
@@ -973,11 +973,11 @@ body {
    Table Headers (right-aligned, display font)
    ========================================================================== */
 .table-header {
-  @apply px-4 py-3 text-right font-display text-[11px] text-black dark:text-white;
+  @apply px-4 py-3 text-right font-display text-[11px] normal;
 }
 
 .table-cell {
-  @apply px-4 py-3 text-[12px] text-black dark:text-white;
+  @apply px-4 py-3 text-[12px] normal;
 }
 
 /* ==========================================================================
@@ -999,7 +999,7 @@ body {
 .retro-card-button {
   @apply bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20;
   @apply shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)];
-  @apply hover:translate-y-[1px] hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all;
+  @apply hover:translate-y-px hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all;
 }
 
 /* Small interactive retro button */
@@ -1010,9 +1010,9 @@ body {
 
 /* Primary action button with press effect */
 .retro-btn-primary {
-  @apply rounded-[8px] border border-[#211f1c] dark:border-white/20;
+  @apply rounded-xl border border-[#211f1c] dark:border-white/20;
   @apply shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)];
-  @apply hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all;
+  @apply hover:translate-y-px hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all;
 }
 
 /* Card with subtle hover effect (2x2 -> 3x3 shadow on hover) */
@@ -1026,8 +1026,8 @@ body {
    Form Inputs (retro style)
    ========================================================================== */
 .retro-input {
-  @apply w-full px-3 py-2 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-[8px];
-  @apply text-[13px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50;
+  @apply w-full px-3 py-2 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-xl;
+  @apply text-[13px] normal placeholder:text-black/50 dark:placeholder:text-white/50;
   @apply outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all;
 }
 

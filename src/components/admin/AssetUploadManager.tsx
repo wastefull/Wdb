@@ -248,7 +248,7 @@ export function AssetUploadManager({ accessToken }: AssetUploadManagerProps) {
                   className="flex items-center gap-3 p-3 border rounded-lg bg-card hover:bg-accent/50 transition-colors"
                 >
                   {/* Preview */}
-                  <div className="w-12 h-12 rounded border overflow-hidden flex-shrink-0 bg-muted">
+                  <div className="w-12 h-12 rounded border overflow-hidden shrink-0 bg-muted">
                     <img
                       src={asset.publicUrl}
                       alt={asset.name}

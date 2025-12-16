@@ -665,7 +665,7 @@ editor_name?: string;              // Display name of editor
 }
 {
   (material.writer_name || material.editor_name) && (
-    <div className="mt-1 flex items-center gap-1 flex-wrap font-['Sniglet:Regular',_sans-serif] text-[8px] text-black/40 dark:text-white/40">
+    <div className="mt-1 flex items-center gap-1 flex-wrap text-[8px] text-black/40 dark:text-white/40">
       {material.writer_name && material.editor_name ? (
         <>
           <span>by {material.writer_name}</span>

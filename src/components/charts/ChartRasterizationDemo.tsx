@@ -75,7 +75,7 @@ export function ChartRasterizationDemo() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h2 className="text-xl md:text-2xl font-['Fredoka_One',_cursive]">
+          <h2 className="text-xl md:text-2xl font-['Fredoka_One',cursive]">
             Chart Rasterization Demo
           </h2>
           <p className="text-xs md:text-sm text-black/60 dark:text-white/60 mt-1">
@@ -111,9 +111,7 @@ export function ChartRasterizationDemo() {
         {/* Side-by-Side Comparison */}
         <TabsContent value="comparison" className="space-y-6">
           <Card className="p-6">
-            <h3 className="text-lg mb-4">
-              Visual Comparison
-            </h3>
+            <h3 className="text-lg mb-4">Visual Comparison</h3>
             <p className="text-sm text-black/60 dark:text-white/60 mb-6">
               Compare live SVG rendering (left) with rasterized cached version
               (right). On first load, both should look identical. On refresh,
@@ -130,9 +128,7 @@ export function ChartRasterizationDemo() {
                   <Card className="p-4 bg-blue-50 dark:bg-blue-900/20">
                     <div className="flex items-center gap-2 mb-3">
                       <Activity className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                      <span className="text-sm">
-                        Live SVG
-                      </span>
+                      <span className="text-sm">Live SVG</span>
                     </div>
                     <QuantileVisualization
                       key={`svg-${key}-${renderCount}`}
@@ -150,9 +146,7 @@ export function ChartRasterizationDemo() {
                   <Card className="p-4 bg-green-50 dark:bg-green-900/20">
                     <div className="flex items-center gap-2 mb-3">
                       <ImageIcon className="h-4 w-4 text-green-600 dark:text-green-400" />
-                      <span className="text-sm">
-                        Rasterized (Cached)
-                      </span>
+                      <span className="text-sm">Rasterized (Cached)</span>
                     </div>
                     <RasterizedQuantileVisualization
                       key={`raster-${key}-${renderCount}`}
@@ -173,9 +167,7 @@ export function ChartRasterizationDemo() {
           </Card>
 
           <Card className="p-6 bg-yellow-50 dark:bg-yellow-900/20">
-            <h4 className="mb-2">
-              Testing Instructions
-            </h4>
+            <h4 className="mb-2">Testing Instructions</h4>
             <ol className="text-sm space-y-2 list-decimal list-inside text-black/70 dark:text-white/70">
               <li>
                 <strong>First Load:</strong> Both columns render fresh.
@@ -275,9 +267,7 @@ function PerformanceTest() {
   return (
     <div className="space-y-6">
       <Card className="p-6">
-        <h3 className="text-lg mb-4">
-          Render Performance Test
-        </h3>
+        <h3 className="text-lg mb-4">Render Performance Test</h3>
 
         <div className="space-y-4">
           <div>
@@ -312,9 +302,7 @@ function PerformanceTest() {
 
       {results && (
         <Card className="p-6 bg-green-50 dark:bg-green-900/20">
-          <h4 className="mb-4">
-            Test Results
-          </h4>
+          <h4 className="mb-4">Test Results</h4>
           <div className="grid grid-cols-3 gap-4">
             <div>
               <p className="text-sm text-black/60 dark:text-white/60 mb-1">
@@ -343,9 +331,7 @@ function PerformanceTest() {
       )}
 
       <Card className="p-6 bg-blue-50 dark:bg-blue-900/20">
-        <h4 className="mb-2">
-          About This Test
-        </h4>
+        <h4 className="mb-2">About This Test</h4>
         <p className="text-sm text-black/70 dark:text-white/70">
           This simulated test demonstrates the performance difference between
           rendering live SVG charts and displaying cached rasterized images. In
@@ -389,9 +375,7 @@ function StressTest() {
   return (
     <div className="space-y-6">
       <Card className="p-6">
-        <h3 className="text-lg mb-4">
-          Stress Test
-        </h3>
+        <h3 className="text-lg mb-4">Stress Test</h3>
         <p className="text-sm text-black/60 dark:text-white/60 mb-4">
           Render many charts simultaneously to test performance under load.
         </p>
@@ -481,9 +465,7 @@ function StressTest() {
       )}
 
       <Card className="p-6 bg-yellow-50 dark:bg-yellow-900/20">
-        <h4 className="mb-2">
-          Performance Tips
-        </h4>
+        <h4 className="mb-2">Performance Tips</h4>
         <ul className="text-sm space-y-1 list-disc list-inside text-black/70 dark:text-white/70">
           <li>Open DevTools → Performance to see frame rate</li>
           <li>Open DevTools → Rendering → Paint flashing to see repaints</li>

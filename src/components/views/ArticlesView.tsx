@@ -99,7 +99,7 @@ export function ArticlesView({
           <ArrowLeft size={16} className="text-black" />
         </button>
         <div className="flex-1">
-          <h2 className="text-[18px] text-black dark:text-white">
+          <h2 className="text-[18px] normal">
             {material.name} - {categoryLabels[category]}
           </h2>
           <p className="text-[12px] text-black/60 dark:text-white/60">
@@ -112,7 +112,7 @@ export function ArticlesView({
               setShowForm(true);
               setEditingArticle(null);
             }}
-            className="retro-card-button h-[40px] px-6 text-[14px] text-black flex items-center gap-2"
+            className="retro-card-button h-10 px-6 text-[14px] text-black flex items-center gap-2"
             style={{ backgroundColor: categoryColors[category] }}
           >
             <Plus size={16} className="text-black" />
@@ -138,7 +138,7 @@ export function ArticlesView({
         material.CR_theoretical_mean && (
           <div className="retro-card mb-6 p-6">
             <div className="max-w-2xl mx-auto">
-              <h3 className="text-[16px] text-black dark:text-white mb-4">
+              <h3 className="text-[16px] normal mb-4">
                 Recyclability Score Overview
               </h3>
               <RasterizedQuantileVisualization
@@ -186,7 +186,7 @@ export function ArticlesView({
                 No articles yet.{" "}
                 <button
                   onClick={onSignUp}
-                  className="text-black dark:text-white underline hover:no-underline transition-all"
+                  className="normal underline hover:no-underline transition-all"
                 >
                   Sign up
                 </button>{" "}

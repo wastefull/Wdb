@@ -1,7 +1,19 @@
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import React from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
 import { Badge } from "../ui/badge";
-import { FileText, Database, BookOpen, GitBranch, ExternalLink } from 'lucide-react';
+import {
+  FileText,
+  Database,
+  BookOpen,
+  GitBranch,
+  ExternalLink,
+} from "lucide-react";
 import { Button } from "../ui/button";
 
 interface AggregationData {
@@ -34,7 +46,10 @@ interface AggregationSnapshotProps {
  * for a parameter aggregation, showing all versions used in the computation.
  * This ensures full reproducibility and audit trail.
  */
-export function AggregationSnapshot({ aggregation, onViewEvidence }: AggregationSnapshotProps) {
+export function AggregationSnapshot({
+  aggregation,
+  onViewEvidence,
+}: AggregationSnapshotProps) {
   const {
     parameter_code,
     aggregated_value,
@@ -59,7 +74,8 @@ export function AggregationSnapshot({ aggregation, onViewEvidence }: Aggregation
               Aggregation Snapshot: {parameter_code}
             </CardTitle>
             <CardDescription className="font-['Sniglet'] text-[11px] mt-1">
-              Computed {computedDate.toLocaleDateString()} at {computedDate.toLocaleTimeString()}
+              Computed {computedDate.toLocaleDateString()} at{" "}
+              {computedDate.toLocaleTimeString()}
             </CardDescription>
           </div>
           <Badge variant="outline" className="font-['Sniglet'] text-[10px]">
@@ -90,12 +106,15 @@ export function AggregationSnapshot({ aggregation, onViewEvidence }: Aggregation
             <div className="flex items-center justify-between p-2 bg-muted/50 rounded-md">
               <div className="flex items-center gap-2">
                 <FileText className="h-3 w-3 text-black/60 dark:text-white/60" />
-                <span className="font-['Sniglet'] text-[10px] text-black dark:text-white">
+                <span className="font-['Sniglet'] text-[10px] normal">
                   Transform
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <Badge variant="outline" className="font-['Sniglet'] text-[9px]">
+                <Badge
+                  variant="outline"
+                  className="font-['Sniglet'] text-[9px]"
+                >
                   v{transform_version}
                 </Badge>
                 <a
@@ -113,12 +132,15 @@ export function AggregationSnapshot({ aggregation, onViewEvidence }: Aggregation
             <div className="flex items-center justify-between p-2 bg-muted/50 rounded-md">
               <div className="flex items-center gap-2">
                 <Database className="h-3 w-3 text-black/60 dark:text-white/60" />
-                <span className="font-['Sniglet'] text-[10px] text-black dark:text-white">
+                <span className="font-['Sniglet'] text-[10px] normal">
                   Ontology
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <Badge variant="outline" className="font-['Sniglet'] text-[9px]">
+                <Badge
+                  variant="outline"
+                  className="font-['Sniglet'] text-[9px]"
+                >
                   v{ontology_version}
                 </Badge>
                 <a
@@ -136,12 +158,15 @@ export function AggregationSnapshot({ aggregation, onViewEvidence }: Aggregation
             <div className="flex items-center justify-between p-2 bg-muted/50 rounded-md">
               <div className="flex items-center gap-2">
                 <BookOpen className="h-3 w-3 text-black/60 dark:text-white/60" />
-                <span className="font-['Sniglet'] text-[10px] text-black dark:text-white">
+                <span className="font-['Sniglet'] text-[10px] normal">
                   Weight Policy
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <Badge variant="outline" className="font-['Sniglet'] text-[9px]">
+                <Badge
+                  variant="outline"
+                  className="font-['Sniglet'] text-[9px]"
+                >
                   v{weight_policy_version}
                 </Badge>
                 <span className="font-['Sniglet'] text-[9px] text-black/60 dark:text-white/60">
@@ -154,7 +179,7 @@ export function AggregationSnapshot({ aggregation, onViewEvidence }: Aggregation
             <div className="flex items-center justify-between p-2 bg-muted/50 rounded-md">
               <div className="flex items-center gap-2">
                 <BookOpen className="h-3 w-3 text-black/60 dark:text-white/60" />
-                <span className="font-['Sniglet'] text-[10px] text-black dark:text-white">
+                <span className="font-['Sniglet'] text-[10px] normal">
                   Codebook
                 </span>
               </div>
@@ -167,9 +192,7 @@ export function AggregationSnapshot({ aggregation, onViewEvidence }: Aggregation
 
         {/* Weights Used */}
         <div className="space-y-2">
-          <h4 className="label">
-            Confidence Weights
-          </h4>
+          <h4 className="label">Confidence Weights</h4>
           <div className="space-y-1">
             {weights_used.map((w, index) => (
               <div
@@ -183,16 +206,16 @@ export function AggregationSnapshot({ aggregation, onViewEvidence }: Aggregation
                   <Badge
                     variant="outline"
                     className={`font-['Sniglet'] text-[9px] ${
-                      w.confidence_level === 'high'
-                        ? 'border-green-500 text-green-700 dark:text-green-400'
-                        : w.confidence_level === 'medium'
-                        ? 'border-yellow-500 text-yellow-700 dark:text-yellow-400'
-                        : 'border-red-500 text-red-700 dark:text-red-400'
+                      w.confidence_level === "high"
+                        ? "border-green-500 text-green-700 dark:text-green-400"
+                        : w.confidence_level === "medium"
+                        ? "border-yellow-500 text-yellow-700 dark:text-yellow-400"
+                        : "border-red-500 text-red-700 dark:text-red-400"
                     }`}
                   >
                     {w.confidence_level}
                   </Badge>
-                  <span className="font-['Sniglet'] text-black dark:text-white">
+                  <span className="font-['Sniglet'] normal">
                     {w.weight.toFixed(1)}
                   </span>
                 </div>
@@ -209,7 +232,7 @@ export function AggregationSnapshot({ aggregation, onViewEvidence }: Aggregation
             size="sm"
             className="w-full font-['Sniglet'] text-[11px]"
           >
-            View {miu_count} Evidence Point{miu_count !== 1 ? 's' : ''}
+            View {miu_count} Evidence Point{miu_count !== 1 ? "s" : ""}
           </Button>
         )}
 

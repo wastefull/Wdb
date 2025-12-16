@@ -110,20 +110,18 @@ export function SubmitArticleForm({
     <div className="fixed inset-0 bg-black/30 dark:bg-black/60 flex items-center justify-center p-4 z-50">
       <div className="bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 w-full max-w-2xl shadow-[4px_4px_0px_0px_#000000] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-4 border-b border-[#211f1c] dark:border-white/20 sticky top-0 bg-white dark:bg-[#2a2825] z-10">
-          <h3 className="font-['Fredoka_One',_sans-serif] text-black dark:text-white">
-            Submit New Article
-          </h3>
+          <h3 className="normal">Submit New Article</h3>
           <button
             onClick={onClose}
             className="p-1.5 rounded-md hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
           >
-            <X size={16} className="text-black dark:text-white" />
+            <X size={16} className="normal" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div className="bg-[#e4e3ac] dark:bg-[#3a3825] border border-[#211f1c] dark:border-white/20 rounded-md p-3 mb-4">
-            <p className="text-[11px] text-black dark:text-white">
+          <div className="bg-waste-recycle dark:bg-[#3a3825] border border-[#211f1c] dark:border-white/20 rounded-md p-3 mb-4">
+            <p className="text-[11px] normal">
               📝 <strong>Note:</strong> Your article will be reviewed by an
               admin before publication. You can use Markdown formatting in the
               content field.
@@ -131,10 +129,7 @@ export function SubmitArticleForm({
           </div>
 
           <div>
-            <Label
-              htmlFor="article-title"
-              className="text-[12px] text-black dark:text-white"
-            >
+            <Label htmlFor="article-title" className="text-[12px] normal">
               Article Title *
             </Label>
             <Input
@@ -149,26 +144,16 @@ export function SubmitArticleForm({
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label
-                htmlFor="article-category"
-                className="text-[12px] text-black dark:text-white"
-              >
+              <Label htmlFor="article-category" className="text-[12px] normal">
                 Category *
               </Label>
               <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger
-                  id="article-category"
-                  className="mt-1"
-                >
+                <SelectTrigger id="article-category" className="mt-1">
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
                   {ARTICLE_CATEGORIES.map((cat) => (
-                    <SelectItem
-                      key={cat}
-                      value={cat}
-                      className=""
-                    >
+                    <SelectItem key={cat} value={cat} className="">
                       {cat}
                     </SelectItem>
                   ))}
@@ -177,10 +162,7 @@ export function SubmitArticleForm({
             </div>
 
             <div>
-              <Label
-                htmlFor="article-material"
-                className="text-[12px] text-black dark:text-white"
-              >
+              <Label htmlFor="article-material" className="text-[12px] normal">
                 Related Material *
               </Label>
               <Select
@@ -188,10 +170,7 @@ export function SubmitArticleForm({
                 onValueChange={setMaterialId}
                 disabled={loadingMaterials}
               >
-                <SelectTrigger
-                  id="article-material"
-                  className="mt-1"
-                >
+                <SelectTrigger id="article-material" className="mt-1">
                   <SelectValue
                     placeholder={
                       loadingMaterials ? "Loading..." : "Select material"
@@ -214,7 +193,7 @@ export function SubmitArticleForm({
           </div>
 
           {selectedMaterial && (
-            <div className="bg-[#b8c8cb]/30 dark:bg-[#2a3235]/30 border border-[#211f1c]/20 dark:border-white/10 rounded-md p-2">
+            <div className="bg-waste-reuse/30 dark:bg-[#2a3235]/30 border border-[#211f1c]/20 dark:border-white/10 rounded-md p-2">
               <p className="text-[10px] text-black/70 dark:text-white/70">
                 <strong>Selected:</strong> {selectedMaterial.name} (
                 {selectedMaterial.category})
@@ -223,10 +202,7 @@ export function SubmitArticleForm({
           )}
 
           <div>
-            <Label
-              htmlFor="article-content"
-              className="text-[12px] text-black dark:text-white"
-            >
+            <Label htmlFor="article-content" className="text-[12px] normal">
               Article Content *{" "}
               <span className="text-[10px] text-black/50 dark:text-white/50">
                 (Markdown supported)
@@ -237,7 +213,7 @@ export function SubmitArticleForm({
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="Write your article here using Markdown formatting...&#10;&#10;## Example Heading&#10;&#10;Here's some **bold text** and *italic text*.&#10;&#10;- Bullet point 1&#10;- Bullet point 2"
-              className="mt-1 font-['DaddyTimeMono_Nerd_Font_Mono',_'Press_Start_2P',_ui-monospace,_monospace] text-[11px] min-h-[300px]"
+              className="mt-1 text-[11px] min-h-[300px]"
               rows={15}
               required
             />
@@ -251,14 +227,14 @@ export function SubmitArticleForm({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 h-[40px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#e6beb5] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[12px] text-black"
+              className="flex-1 h-10 px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-waste-compost hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[12px] text-black"
               disabled={submitting}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 h-[40px] px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#c8e5c8] hover:shadow-[3px_4px_0px_-1px_#000000] dark:hover:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] transition-all text-[12px] text-black disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 h-10 px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#c8e5c8] hover:shadow-[3px_4px_0px_-1px_#000000] dark:hover:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] transition-all text-[12px] text-black disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={submitting}
             >
               {submitting ? "Submitting..." : "Submit for Review"}

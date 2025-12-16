@@ -207,7 +207,7 @@ export function TakedownRequestForm({
         <Card>
           <CardHeader>
             <div className="flex items-center gap-3">
-              <CheckCircle2 className="size-8 text-green-600 flex-shrink-0" />
+              <CheckCircle2 className="size-8 text-green-600 shrink-0" />
               <div>
                 <CardTitle>Request Confirmed</CardTitle>
                 <CardDescription>

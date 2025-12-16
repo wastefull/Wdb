@@ -1,5 +1,5 @@
-import { useState, ReactNode } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { useState, ReactNode } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 interface Deliverable {
   title: string;
@@ -27,7 +27,7 @@ export function RoadmapPhaseTab({
   return (
     <div>
       {/* Deliverables Section */}
-      <h3 className="font-['Sniglet'] text-[18px] text-black dark:text-white mb-4">
+      <h3 className="font-['Sniglet'] text-[18px] normal mb-4">
         {phase} - {dayNumber}
       </h3>
       <div className="space-y-4 font-['Sniglet'] text-[12px] text-black/70 dark:text-white/70">
@@ -36,16 +36,16 @@ export function RoadmapPhaseTab({
             <div
               className={`w-5 h-5 rounded-full ${
                 deliverable.completed
-                  ? 'bg-[#c8e5c8] dark:bg-[#c8e5c8]/30'
-                  : 'bg-[#e4e3ac] dark:bg-[#e4e3ac]/30'
+                  ? "bg-[#c8e5c8] dark:bg-[#c8e5c8]/30"
+                  : "bg-waste-recycle dark:bg-waste-recycle/30"
               } flex items-center justify-center mt-0.5`}
             >
-              <span className="text-[10px]">{deliverable.completed ? '✓' : '○'}</span>
+              <span className="text-[10px]">
+                {deliverable.completed ? "✓" : "○"}
+              </span>
             </div>
             <div>
-              <div className="label">
-                {deliverable.title}
-              </div>
+              <div className="label">{deliverable.title}</div>
               <div className="text-[11px] text-black/60 dark:text-white/60">
                 {deliverable.description}
               </div>
@@ -64,18 +64,19 @@ export function RoadmapPhaseTab({
             <div className="flex items-center gap-3">
               <span className="text-[18px]">🧪</span>
               <div className="text-left">
-                <div className="font-['Sniglet'] text-[14px] text-black dark:text-white">
+                <div className="font-['Sniglet'] text-[14px] normal">
                   Testing View
                 </div>
                 <div className="label-muted-sm">
-                  {showTesting ? 'Hide' : 'Show'} test scenarios and verification checklist
+                  {showTesting ? "Hide" : "Show"} test scenarios and
+                  verification checklist
                 </div>
               </div>
             </div>
             {showTesting ? (
-              <ChevronUp size={20} className="text-black dark:text-white" />
+              <ChevronUp size={20} className="normal" />
             ) : (
-              <ChevronDown size={20} className="text-black dark:text-white" />
+              <ChevronDown size={20} className="normal" />
             )}
           </button>
 

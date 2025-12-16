@@ -1008,9 +1008,7 @@ export function SourceLibraryManager({
         <div className="mb-6 flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-[16px] text-black dark:text-white">
-                Source Library Management
-              </h1>
+              <h1 className="text-[16px] normal">Source Library Management</h1>
               {cloudSynced ? (
                 <Cloud className="w-4 h-4 text-green-600 dark:text-green-400" />
               ) : (
@@ -1088,7 +1086,7 @@ export function SourceLibraryManager({
                 resetForm();
                 setShowForm(true);
               }}
-              className="bg-[#b8c8cb] hover:bg-[#a8b8bb] text-black text-[11px] md:text-sm"
+              className="bg-waste-reuse hover:bg-[#a8b8bb] text-black text-[11px] md:text-sm"
               disabled={!isAuthenticated || !isAdmin}
             >
               <Plus className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
@@ -1322,7 +1320,7 @@ export function SourceLibraryManager({
                       <TableCell>
                         <div className="space-y-1">
                           <p
-                            className="text-[11px] text-black dark:text-white font-medium truncate"
+                            className="text-[11px] normal font-medium truncate"
                             title={source.title}
                           >
                             {source.title}
@@ -1649,7 +1647,7 @@ export function SourceLibraryManager({
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <span className="text-[10px] text-black dark:text-white">
+                        <span className="text-[10px] normal">
                           {source.weight?.toFixed(1) || "1.0"}
                         </span>
                       </TableCell>
@@ -2115,7 +2113,7 @@ export function SourceLibraryManager({
                 </Button>
                 <Button
                   onClick={editingSource ? handleUpdate : handleAdd}
-                  className="bg-[#b8c8cb] hover:bg-[#a8b8bb] text-black"
+                  className="bg-waste-reuse hover:bg-[#a8b8bb] text-black"
                 >
                   <Save className="w-4 h-4 mr-2" />
                   {editingSource ? "Update" : "Add"} Source

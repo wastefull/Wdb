@@ -869,7 +869,7 @@ export function EvidenceListViewer({
                     setEditForm({ ...editForm, notes: e.target.value })
                   }
                   placeholder="Add curator notes..."
-                  className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c] dark:border-white/20 min-h-[80px]"
+                  className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c] dark:border-white/20 min-h-20"
                 />
               </div>
             </div>

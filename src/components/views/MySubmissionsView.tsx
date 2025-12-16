@@ -58,14 +58,14 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
   const getSubmissionIcon = (type: Submission["type"]) => {
     switch (type) {
       case "new_material":
-        return <Package size={16} className="text-black dark:text-white" />;
+        return <Package size={16} className="normal" />;
       case "edit_material":
-        return <Edit3 size={16} className="text-black dark:text-white" />;
+        return <Edit3 size={16} className="normal" />;
       case "new_article":
       case "update_article":
-        return <FileText size={16} className="text-black dark:text-white" />;
+        return <FileText size={16} className="normal" />;
       default:
-        return <FileText size={16} className="text-black dark:text-white" />;
+        return <FileText size={16} className="normal" />;
     }
   };
 
@@ -92,28 +92,28 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
     switch (status) {
       case "pending_review":
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[#f4d3a0] dark:bg-[#4a3f2a] border border-[#211f1c] dark:border-white/20 text-[10px] text-black dark:text-white">
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[#f4d3a0] dark:bg-[#4a3f2a] border border-[#211f1c] dark:border-white/20 text-[10px] normal">
             <Clock size={10} />
             Pending Review
           </span>
         );
       case "approved":
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[#c8e5c8] dark:bg-[#2a3f2a] border border-[#211f1c] dark:border-white/20 text-[10px] text-black dark:text-white">
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[#c8e5c8] dark:bg-[#2a3f2a] border border-[#211f1c] dark:border-white/20 text-[10px] normal">
             <CheckCircle size={10} />
             Approved
           </span>
         );
       case "rejected":
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[#e6beb5] dark:bg-[#3f2a2a] border border-[#211f1c] dark:border-white/20 text-[10px] text-black dark:text-white">
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-waste-compost dark:bg-[#3f2a2a] border border-[#211f1c] dark:border-white/20 text-[10px] normal">
             <XCircle size={10} />
             Rejected
           </span>
         );
       case "needs_revision":
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[#e4e3ac] dark:bg-[#3a3825] border border-[#211f1c] dark:border-white/20 text-[10px] text-black dark:text-white">
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-waste-recycle dark:bg-[#3a3825] border border-[#211f1c] dark:border-white/20 text-[10px] normal">
             <Edit3 size={10} />
             Needs Revision
           </span>
@@ -148,9 +148,7 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
         >
           <ArrowLeft size={16} />
         </button>
-        <h2 className="font-['Fredoka_One',_sans-serif] text-black dark:text-white">
-          My Submissions
-        </h2>
+        <h2 className="normal">My Submissions</h2>
       </div>
 
       {loading ? (
@@ -177,16 +175,16 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
           {submissions.map((submission) => (
             <div
               key={submission.id}
-              className="retro-card-flat !bg-white dark:!bg-[#1a1917] p-4 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+              className="flat-reversed p-4 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-start gap-3 flex-1">
-                  <div className="icon-box bg-[#b8c8cb] dark:bg-[#2a3235] p-2">
+                  <div className="icon-box bg-waste-reuse dark:bg-[#2a3235] p-2">
                     {getSubmissionIcon(submission.type)}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-black dark:text-white">
+                      <h3 className="normal">
                         {getSubmissionTitle(submission)}
                       </h3>
                     </div>
@@ -195,8 +193,8 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
                       {formatDate(submission.created_at)}
                     </p>
                     {submission.feedback && (
-                      <div className="bg-[#e4e3ac] dark:bg-[#3a3825] border border-[#211f1c] dark:border-white/20 rounded-md p-2 mt-2">
-                        <p className="text-[10px] text-black dark:text-white">
+                      <div className="bg-waste-recycle dark:bg-[#3a3825] border border-[#211f1c] dark:border-white/20 rounded-md p-2 mt-2">
+                        <p className="text-[10px] normal">
                           <strong>Feedback:</strong> {submission.feedback}
                         </p>
                       </div>

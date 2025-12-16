@@ -550,7 +550,7 @@ export function SimplifiedRoadmap({
             onClick={() => setActiveTab("overview")}
             className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
               activeTab === "overview"
-                ? "text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white"
+                ? "normal border-b-2 border-[#211f1c] dark:border-white"
                 : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
             }`}
           >
@@ -560,7 +560,7 @@ export function SimplifiedRoadmap({
             onClick={() => setActiveTab("9.2")}
             className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
               activeTab === "9.2"
-                ? "text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white"
+                ? "normal border-b-2 border-[#211f1c] dark:border-white"
                 : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
             }`}
           >
@@ -570,7 +570,7 @@ export function SimplifiedRoadmap({
             onClick={() => setActiveTab("9.3")}
             className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
               activeTab === "9.3"
-                ? "text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white"
+                ? "normal border-b-2 border-[#211f1c] dark:border-white"
                 : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
             }`}
           >
@@ -580,7 +580,7 @@ export function SimplifiedRoadmap({
             onClick={() => setActiveTab("9.4")}
             className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
               activeTab === "9.4"
-                ? "text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white"
+                ? "normal border-b-2 border-[#211f1c] dark:border-white"
                 : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
             }`}
           >
@@ -590,7 +590,7 @@ export function SimplifiedRoadmap({
             onClick={() => setActiveTab("9.5")}
             className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
               activeTab === "9.5"
-                ? "text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white"
+                ? "normal border-b-2 border-[#211f1c] dark:border-white"
                 : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
             }`}
           >
@@ -600,7 +600,7 @@ export function SimplifiedRoadmap({
             onClick={() => setActiveTab("10")}
             className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
               activeTab === "10"
-                ? "text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white"
+                ? "normal border-b-2 border-[#211f1c] dark:border-white"
                 : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
             }`}
           >
@@ -610,7 +610,7 @@ export function SimplifiedRoadmap({
             onClick={() => setActiveTab("tests")}
             className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
               activeTab === "tests"
-                ? "text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white"
+                ? "normal border-b-2 border-[#211f1c] dark:border-white"
                 : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
             }`}
           >
@@ -620,7 +620,7 @@ export function SimplifiedRoadmap({
             onClick={() => setActiveTab("backlog")}
             className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
               activeTab === "backlog"
-                ? "text-black dark:text-white border-b-2 border-[#211f1c] dark:border-white"
+                ? "normal border-b-2 border-[#211f1c] dark:border-white"
                 : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
             }`}
           >
@@ -643,11 +643,11 @@ export function SimplifiedRoadmap({
               <div className="flex items-center gap-4">
                 <div className="flex-1 h-4 bg-muted rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-green-500 to-green-600 transition-all duration-500"
+                    className="h-full bg-linear-to-r from-green-500 to-green-600 transition-all duration-500"
                     style={{ width: `${progressPercentage}%` }}
                   />
                 </div>
-                <span className="font-bold text-2xl min-w-[4rem] text-right">
+                <span className="font-bold text-2xl min-w-16 text-right">
                   {progressPercentage}%
                 </span>
               </div>
@@ -683,7 +683,7 @@ export function SimplifiedRoadmap({
                 <div key={phase.number} className="flex gap-4">
                   {/* Timeline Line */}
                   <div className="flex flex-col items-center">
-                    <div className="flex-shrink-0">
+                    <div className="shrink-0">
                       {getStatusIcon(phase.status)}
                     </div>
                     {index < phases.length - 1 && (
@@ -833,28 +833,28 @@ export function SimplifiedRoadmap({
               <CardContent>
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="size-4 text-green-600 mt-0.5 flex-shrink-0" />
+                    <CheckCircle2 className="size-4 text-green-600 mt-0.5 shrink-0" />
                     <span>
                       <strong>Split-pane layout:</strong> Source Viewer (left) +
                       Evidence Wizard (right)
                     </span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="size-4 text-green-600 mt-0.5 flex-shrink-0" />
+                    <CheckCircle2 className="size-4 text-green-600 mt-0.5 shrink-0" />
                     <span>
                       <strong>Source selection:</strong> Browse and select from
                       Source Library Manager
                     </span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="size-4 text-green-600 mt-0.5 flex-shrink-0" />
+                    <CheckCircle2 className="size-4 text-green-600 mt-0.5 shrink-0" />
                     <span>
                       <strong>Source viewer:</strong> Display source metadata,
                       abstract, DOI
                     </span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <Circle className="size-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                    <Circle className="size-4 text-gray-400 mt-0.5 shrink-0" />
                     <span>
                       <strong>Smart context pre-fill:</strong> Auto-detect
                       material/parameter from context (future enhancement)
@@ -894,11 +894,11 @@ export function SimplifiedRoadmap({
                     </h4>
                     <ul className="space-y-1 text-sm text-muted-foreground ml-4">
                       <li className="flex items-start gap-2">
-                        <CheckCircle2 className="size-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <CheckCircle2 className="size-4 text-green-600 mt-0.5 shrink-0" />
                         <span>Browse source library with search/filter</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <CheckCircle2 className="size-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <CheckCircle2 className="size-4 text-green-600 mt-0.5 shrink-0" />
                         <span>Auto-populate citation from selected source</span>
                       </li>
                     </ul>
@@ -910,13 +910,13 @@ export function SimplifiedRoadmap({
                     </h4>
                     <ul className="space-y-1 text-sm text-muted-foreground ml-4">
                       <li className="flex items-start gap-2">
-                        <CheckCircle2 className="size-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <CheckCircle2 className="size-4 text-green-600 mt-0.5 shrink-0" />
                         <span>
                           Select from pilot materials (Aluminum, PET, Cardboard)
                         </span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <CheckCircle2 className="size-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <CheckCircle2 className="size-4 text-green-600 mt-0.5 shrink-0" />
                         <span>Material badge indicates pilot status</span>
                       </li>
                     </ul>
@@ -928,11 +928,11 @@ export function SimplifiedRoadmap({
                     </h4>
                     <ul className="space-y-1 text-sm text-muted-foreground ml-4">
                       <li className="flex items-start gap-2">
-                        <CheckCircle2 className="size-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <CheckCircle2 className="size-4 text-green-600 mt-0.5 shrink-0" />
                         <span>Select from CR parameters (Y, D, C, M, E)</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <CheckCircle2 className="size-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <CheckCircle2 className="size-4 text-green-600 mt-0.5 shrink-0" />
                         <span>Parameter descriptions with unit guidance</span>
                       </li>
                     </ul>
@@ -944,17 +944,17 @@ export function SimplifiedRoadmap({
                     </h4>
                     <ul className="space-y-1 text-sm text-muted-foreground ml-4">
                       <li className="flex items-start gap-2">
-                        <CheckCircle2 className="size-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <CheckCircle2 className="size-4 text-green-600 mt-0.5 shrink-0" />
                         <span>
                           Paste text snippet from source (&lt;250 words)
                         </span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <CheckCircle2 className="size-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <CheckCircle2 className="size-4 text-green-600 mt-0.5 shrink-0" />
                         <span>Input raw value (numeric) and unit</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <CheckCircle2 className="size-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <CheckCircle2 className="size-4 text-green-600 mt-0.5 shrink-0" />
                         <span>Unit validation against ontology (future)</span>
                       </li>
                     </ul>
@@ -966,21 +966,21 @@ export function SimplifiedRoadmap({
                     </h4>
                     <ul className="space-y-1 text-sm text-muted-foreground ml-4">
                       <li className="flex items-start gap-2">
-                        <CheckCircle2 className="size-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <CheckCircle2 className="size-4 text-green-600 mt-0.5 shrink-0" />
                         <span>
                           Specify locator (page, figure, or table number)
                         </span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <CheckCircle2 className="size-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <CheckCircle2 className="size-4 text-green-600 mt-0.5 shrink-0" />
                         <span>Set confidence level (high/medium/low)</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <CheckCircle2 className="size-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <CheckCircle2 className="size-4 text-green-600 mt-0.5 shrink-0" />
                         <span>Add optional curator notes</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <CheckCircle2 className="size-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <CheckCircle2 className="size-4 text-green-600 mt-0.5 shrink-0" />
                         <span>
                           Submit creates MIU via POST /evidence endpoint
                         </span>

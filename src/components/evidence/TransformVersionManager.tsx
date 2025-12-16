@@ -194,7 +194,7 @@ export function TransformVersionManager({
       <div
         className={`flex items-center justify-center py-12 ${className || ""}`}
       >
-        <RefreshCw className="w-6 h-6 animate-spin text-black dark:text-white" />
+        <RefreshCw className="w-6 h-6 animate-spin normal" />
       </div>
     );
   }
@@ -203,7 +203,7 @@ export function TransformVersionManager({
     <div className={`space-y-6 ${className || ""}`}>
       {/* Header */}
       <div>
-        <h1 className="font-['Fredoka_One',_sans-serif] text-[24px] text-black dark:text-white mb-2">
+        <h1 className="font-['Fredoka_One',sans-serif] text-[24px] normal mb-2">
           Transform Version Manager
         </h1>
         <p className="text-[14px] text-black/70 dark:text-white/70">
@@ -229,7 +229,7 @@ export function TransformVersionManager({
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-[18px] text-black dark:text-white">
+                <CardTitle className="text-[18px] normal">
                   Transform Definitions
                 </CardTitle>
                 <CardDescription className="text-[12px] text-black/60 dark:text-white/60">
@@ -252,7 +252,7 @@ export function TransformVersionManager({
 
                 return (
                   <div key={dimension}>
-                    <h3 className="text-[14px] text-black dark:text-white mb-2 flex items-center gap-2">
+                    <h3 className="text-[14px] normal mb-2 flex items-center gap-2">
                       <Badge className={getDimensionColor(dimension)}>
                         {dimension}
                       </Badge>
@@ -277,7 +277,7 @@ export function TransformVersionManager({
                           <CardContent className="p-4">
                             <div className="flex items-start justify-between mb-2">
                               <div>
-                                <div className="text-[16px] text-black dark:text-white">
+                                <div className="text-[16px] normal">
                                   {transform.parameter}
                                 </div>
                                 <div className="text-[11px] text-black/60 dark:text-white/60">
@@ -290,7 +290,7 @@ export function TransformVersionManager({
                             </div>
 
                             <div className="bg-white dark:bg-[#2a2825] rounded p-2 mb-2 border border-[#211f1c]/20 dark:border-white/10">
-                              <code className="font-mono text-[10px] text-black dark:text-white">
+                              <code className="font-mono text-[10px] normal">
                                 {transform.formula}
                               </code>
                             </div>
@@ -318,7 +318,7 @@ export function TransformVersionManager({
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-[18px] text-black dark:text-white flex items-center gap-2">
+                <CardTitle className="text-[18px] normal flex items-center gap-2">
                   <GitBranch className="w-5 h-5" />
                   Trigger Recompute for {selectedTransform.parameter}
                 </CardTitle>
@@ -357,7 +357,7 @@ export function TransformVersionManager({
                   <Label className="text-[11px] text-black/70 dark:text-white/70">
                     Current Version
                   </Label>
-                  <div className="font-mono text-[12px] text-black dark:text-white">
+                  <div className="font-mono text-[12px] normal">
                     {selectedTransform.version}
                   </div>
                 </div>
@@ -365,7 +365,7 @@ export function TransformVersionManager({
                   <Label className="text-[11px] text-black/70 dark:text-white/70">
                     Current Formula
                   </Label>
-                  <div className="font-mono text-[12px] text-black dark:text-white">
+                  <div className="font-mono text-[12px] normal">
                     {selectedTransform.formula}
                   </div>
                 </div>
@@ -373,10 +373,7 @@ export function TransformVersionManager({
 
               <div className="space-y-3">
                 <div>
-                  <Label
-                    htmlFor="newVersion"
-                    className="text-[12px] text-black dark:text-white"
-                  >
+                  <Label htmlFor="newVersion" className="text-[12px] normal">
                     New Version Number
                   </Label>
                   <Input
@@ -389,10 +386,7 @@ export function TransformVersionManager({
                 </div>
 
                 <div>
-                  <Label
-                    htmlFor="reason"
-                    className="text-[12px] text-black dark:text-white"
-                  >
+                  <Label htmlFor="reason" className="text-[12px] normal">
                     Reason for Change
                   </Label>
                   <Textarea
@@ -432,7 +426,7 @@ export function TransformVersionManager({
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-[18px] text-black dark:text-white flex items-center gap-2">
+              <CardTitle className="text-[18px] normal flex items-center gap-2">
                 <History className="w-5 h-5" />
                 Recompute Jobs
               </CardTitle>
@@ -486,7 +480,7 @@ export function TransformVersionManager({
                     <div className="flex items-center gap-2">
                       {getStatusIcon(job.status)}
                       <div>
-                        <div className="text-[14px] text-black dark:text-white">
+                        <div className="text-[14px] normal">
                           {job.parameter} Transform Update
                         </div>
                         <div className="text-[11px] text-black/60 dark:text-white/60">

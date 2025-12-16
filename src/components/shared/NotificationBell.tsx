@@ -161,7 +161,7 @@ export function NotificationBell({ userId, isAdmin }: NotificationBellProps) {
       >
         {/* Header */}
         <div className="flex items-center justify-between panel-bordered">
-          <h3 className="text-black dark:text-white">Notifications</h3>
+          <h3 className="normal">Notifications</h3>
           {unreadCount > 0 && (
             <button
               onClick={handleMarkAllAsRead}
@@ -203,11 +203,11 @@ export function NotificationBell({ userId, isAdmin }: NotificationBellProps) {
                   }}
                 >
                   <div className="flex items-start gap-3">
-                    <span className="text-xl flex-shrink-0">
+                    <span className="text-xl shrink-0">
                       {getNotificationIcon(notification.type)}
                     </span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[12px] text-black dark:text-white mb-1">
+                      <p className="text-[12px] normal mb-1">
                         {notification.message}
                       </p>
                       <p className="text-[10px] text-black/50 dark:text-white/50">
@@ -215,7 +215,7 @@ export function NotificationBell({ userId, isAdmin }: NotificationBellProps) {
                       </p>
                     </div>
                     {!notification.read && (
-                      <div className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400 flex-shrink-0 mt-1"></div>
+                      <div className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400 shrink-0 mt-1"></div>
                     )}
                   </div>
                 </div>

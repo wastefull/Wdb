@@ -190,14 +190,9 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
           <div className="p-6 bg-[#faf7f2]/90 dark:bg-[#2a2825]/90">
             {authMode === "magic-link-sent" ? (
               <div className="text-center space-y-3">
-                <div className="p-5 bg-[#e4e3ac]/30 dark:bg-[#e4e3ac]/10 border border-[#211f1c]/20 dark:border-white/20 rounded-xl">
-                  <Mail
-                    size={28}
-                    className="mx-auto mb-2 text-black dark:text-white"
-                  />
-                  <h3 className="text-[14px] text-black dark:text-white mb-2">
-                    Magic Link Sent!
-                  </h3>
+                <div className="p-5 bg-waste-recycle/30 dark:bg-waste-recycle/10 border border-[#211f1c]/20 dark:border-white/20 rounded-xl">
+                  <Mail size={28} className="mx-auto mb-2 normal" />
+                  <h3 className="text-[14px] normal mb-2">Magic Link Sent!</h3>
                   <p className="text-[12px] text-black/70 dark:text-white/70 mb-3">
                     We've sent a secure sign-in link to <strong>{email}</strong>
                     . Click the link in your email to sign in instantly.
@@ -218,7 +213,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
             ) : authMode === "magic-link" ? (
               <div className="space-y-3">
                 <div>
-                  <label className="text-[12px] text-black dark:text-white block mb-1">
+                  <label className="text-[12px] normal block mb-1">
                     Email Address
                   </label>
                   <input
@@ -264,7 +259,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
             ) : authMode === "traditional" && showPasswordAuth ? (
               <div className="space-y-3">
                 <div>
-                  <label className="text-[12px] text-black dark:text-white block mb-1">
+                  <label className="text-[12px] normal block mb-1">
                     Name (optional)
                   </label>
                   <input
@@ -281,9 +276,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
                 </div>
 
                 <div>
-                  <label className="text-[12px] text-black dark:text-white block mb-1">
-                    Email
-                  </label>
+                  <label className="text-[12px] normal block mb-1">Email</label>
                   <input
                     type="email"
                     value={email}
@@ -311,7 +304,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
                 />
 
                 <div>
-                  <label className="text-[12px] text-black dark:text-white block mb-1">
+                  <label className="text-[12px] normal block mb-1">
                     Password
                   </label>
                   <div className="relative">
@@ -369,8 +362,8 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
             ) : (
               /* Fallback: If password auth is disabled but mode is traditional, show magic link */
               <div className="space-y-3">
-                <div className="p-3 bg-[#e4e3ac]/40 dark:bg-[#e4e3ac]/20 border-2 border-[#211f1c]/30 dark:border-white/30 rounded-xl">
-                  <p className="text-[11px] text-black dark:text-white text-center mb-2">
+                <div className="p-3 bg-waste-recycle/40 dark:bg-waste-recycle/20 border-2 border-[#211f1c]/30 dark:border-white/30 rounded-xl">
+                  <p className="text-[11px] normal text-center mb-2">
                     Password authentication is not available in production.
                   </p>
                   <button

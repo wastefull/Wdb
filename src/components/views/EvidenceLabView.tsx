@@ -625,7 +625,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
             onClick={() => setViewMode("evidence")}
             className={`px-3 py-1.5 rounded-md text-[12px] font-['Sniglet'] transition-all ${
               viewMode === "evidence"
-                ? "bg-white dark:bg-[#2a2825] shadow-sm text-black dark:text-white"
+                ? "bg-white dark:bg-[#2a2825] shadow-sm normal"
                 : "text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white"
             }`}
           >
@@ -636,7 +636,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
             onClick={() => setViewMode("browse-all")}
             className={`px-3 py-1.5 rounded-md text-[12px] font-['Sniglet'] transition-all ${
               viewMode === "browse-all"
-                ? "bg-white dark:bg-[#2a2825] shadow-sm text-black dark:text-white"
+                ? "bg-white dark:bg-[#2a2825] shadow-sm normal"
                 : "text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white"
             }`}
           >
@@ -647,7 +647,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
             onClick={() => setViewMode("source-search")}
             className={`px-3 py-1.5 rounded-md text-[12px] font-['Sniglet'] transition-all ${
               viewMode === "source-search"
-                ? "bg-white dark:bg-[#2a2825] shadow-sm text-black dark:text-white"
+                ? "bg-white dark:bg-[#2a2825] shadow-sm normal"
                 : "text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white"
             }`}
           >
@@ -658,7 +658,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
 
         {viewMode === "evidence" && (
           <Button
-            className="bg-[#e6beb5] hover:bg-[#e6beb5]/90 border border-[#211f1c] dark:border-white/20"
+            className="bg-waste-compost hover:bg-waste-compost/90 border border-[#211f1c] dark:border-white/20"
             onClick={() => setShowCreateDialog(true)}
           >
             <Plus size={16} className="mr-2" />
@@ -710,7 +710,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                         >
                           {param.code}
                         </div>
-                        <span className="font-['Sniglet'] text-[13px] text-black dark:text-white">
+                        <span className="font-['Sniglet'] text-[13px] normal">
                           {param.name}
                         </span>
                       </div>
@@ -734,7 +734,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                 {/* MIU List Header */}
                 <div className="panel-bordered">
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-['Fredoka_One'] text-[16px] text-black dark:text-white">
+                    <h3 className="font-['Fredoka_One'] text-[16px] normal">
                       Evidence Points for{" "}
                       {
                         parameters.find((p) => p.code === selectedParameter)
@@ -768,7 +768,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                         <div className="flex items-start gap-2 mb-2">
                           <BookOpen
                             size={14}
-                            className="text-black/40 dark:text-white/40 mt-0.5 flex-shrink-0"
+                            className="text-black/40 dark:text-white/40 mt-0.5 shrink-0"
                           />
                           <span className="label">{miu.citation}</span>
                         </div>
@@ -779,7 +779,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                             size={14}
                             className="text-black/40 dark:text-white/40"
                           />
-                          <span className="font-['Fredoka_One'] text-[14px] text-black dark:text-white">
+                          <span className="font-['Fredoka_One'] text-[14px] normal">
                             {miu.raw_value} {miu.raw_unit}
                           </span>
                           <Badge
@@ -823,7 +823,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                     size={48}
                     className="mx-auto mb-4 text-black/20 dark:text-white/20"
                   />
-                  <h3 className="font-['Fredoka_One'] text-[16px] text-black dark:text-white mb-2">
+                  <h3 className="font-['Fredoka_One'] text-[16px] normal mb-2">
                     Select a Parameter
                   </h3>
                   <p className="label-muted max-w-xs">
@@ -841,7 +841,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
               <>
                 {/* Detail Header */}
                 <div className="panel-bordered">
-                  <h3 className="font-['Fredoka_One'] text-[16px] text-black dark:text-white mb-1">
+                  <h3 className="font-['Fredoka_One'] text-[16px] normal mb-1">
                     Evidence Point Details
                   </h3>
                   <p className="font-['Sniglet'] text-[10px] text-black/40 dark:text-white/40">
@@ -883,7 +883,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                         EXTRACTED VALUE
                       </label>
                       <div className="p-3 rounded-lg bg-[#e5e4dc] dark:bg-[#1a1917] border border-[#211f1c]/20 dark:border-white/20">
-                        <span className="font-['Fredoka_One'] text-[20px] text-black dark:text-white">
+                        <span className="font-['Fredoka_One'] text-[20px] normal">
                           {selectedMIU.raw_value} {selectedMIU.raw_unit}
                         </span>
                       </div>
@@ -926,13 +926,13 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                       <div className="space-y-2">
                         <div className="flex items-center justify-between p-2 rounded bg-[#e5e4dc] dark:bg-[#1a1917]">
                           <span className="label-muted-sm">Created by</span>
-                          <span className="font-['Sniglet'] text-[11px] text-black dark:text-white">
+                          <span className="font-['Sniglet'] text-[11px] normal">
                             {selectedMIU.created_by}
                           </span>
                         </div>
                         <div className="flex items-center justify-between p-2 rounded bg-[#e5e4dc] dark:bg-[#1a1917]">
                           <span className="label-muted-sm">Created at</span>
-                          <span className="font-['Sniglet'] text-[11px] text-black dark:text-white">
+                          <span className="font-['Sniglet'] text-[11px] normal">
                             {new Date(
                               selectedMIU.created_at
                             ).toLocaleDateString()}
@@ -970,7 +970,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                     size={48}
                     className="mx-auto mb-4 text-black/20 dark:text-white/20"
                   />
-                  <h3 className="font-['Fredoka_One'] text-[16px] text-black dark:text-white mb-2">
+                  <h3 className="font-['Fredoka_One'] text-[16px] normal mb-2">
                     No Selection
                   </h3>
                   <p className="label-muted max-w-xs">
@@ -988,7 +988,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
           <div className="w-96 border-r border-[#211f1c]/20 dark:border-white/20 bg-white dark:bg-[#2a2825] flex flex-col">
             {/* Material-Based Search */}
             <div className="p-4 border-b border-[#211f1c]/20 dark:border-white/20">
-              <h3 className="font-['Fredoka_One'] text-[14px] text-black dark:text-white mb-3">
+              <h3 className="font-['Fredoka_One'] text-[14px] normal mb-3">
                 Search Academic Sources
               </h3>
               <div className="space-y-3">
@@ -1010,7 +1010,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                       onClick={() => handleSourceSearch()}
                       disabled={searchingCrossRef}
                       size="sm"
-                      className="bg-[#b8c8cb] hover:bg-[#b8c8cb]/90 border border-[#211f1c] text-black"
+                      className="bg-waste-reuse hover:bg-waste-reuse/90 border border-[#211f1c] text-black"
                     >
                       {searchingCrossRef ? (
                         <Loader2 size={14} className="animate-spin" />
@@ -1063,7 +1063,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                       {materials.length > 5 && (
                         <button
                           onClick={() => setShowAllMaterials(!showAllMaterials)}
-                          className="px-2 py-1 text-[10px] font-['Sniglet'] bg-[#b8c8cb] dark:bg-[#3a3835] border border-[#211f1c]/20 dark:border-white/20 rounded-md hover:border-[#211f1c]/40 dark:hover:border-white/40 transition-colors"
+                          className="px-2 py-1 text-[10px] font-['Sniglet'] bg-waste-reuse dark:bg-[#3a3835] border border-[#211f1c]/20 dark:border-white/20 rounded-md hover:border-[#211f1c]/40 dark:hover:border-white/40 transition-colors"
                         >
                           {showAllMaterials
                             ? "Show less"
@@ -1093,7 +1093,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                       size={48}
                       className="mx-auto mb-4 text-black/20 dark:text-white/20"
                     />
-                    <h4 className="font-['Fredoka_One'] text-[14px] text-black dark:text-white mb-2">
+                    <h4 className="font-['Fredoka_One'] text-[14px] normal mb-2">
                       Search for Sources
                     </h4>
                     <p className="label-muted-sm max-w-xs mx-auto">
@@ -1121,7 +1121,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                             size={48}
                             className="mx-auto mb-4 text-black/20 dark:text-white/20"
                           />
-                          <h4 className="font-['Fredoka_One'] text-[14px] text-black dark:text-white mb-2">
+                          <h4 className="font-['Fredoka_One'] text-[14px] normal mb-2">
                             {checkingOABatch
                               ? "Checking Open Access..."
                               : "No Open Access Results"}
@@ -1155,7 +1155,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                           }`}
                         >
                           <div className="flex items-start justify-between gap-2 mb-1">
-                            <h4 className="font-['Sniglet'] text-[12px] text-black dark:text-white line-clamp-2 flex-1">
+                            <h4 className="font-['Sniglet'] text-[12px] normal line-clamp-2 flex-1">
                               {result.title}
                             </h4>
                             <div className="flex gap-1 shrink-0">
@@ -1212,7 +1212,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
-                            <h3 className="font-['Fredoka_One'] text-[16px] text-black dark:text-white">
+                            <h3 className="font-['Fredoka_One'] text-[16px] normal">
                               {selectedSearchResult.title}
                             </h3>
                             {isInLibrary && (
@@ -1373,7 +1373,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                     size={48}
                     className="mx-auto mb-4 text-black/20 dark:text-white/20"
                   />
-                  <h3 className="font-['Fredoka_One'] text-[16px] text-black dark:text-white mb-2">
+                  <h3 className="font-['Fredoka_One'] text-[16px] normal mb-2">
                     Select a Source
                   </h3>
                   <p className="label-muted max-w-xs">

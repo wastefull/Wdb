@@ -162,9 +162,7 @@ export function SourcesTab({
 
       {/* Metadata Card */}
       <Card className="panel">
-        <h3 className="text-[14px] text-black dark:text-white mb-3">
-          Metadata
-        </h3>
+        <h3 className="text-[14px] normal mb-3">Metadata</h3>
 
         <div className="grid grid-cols-2 gap-3">
           <div>
@@ -208,7 +206,7 @@ export function SourcesTab({
 
       {/* Existing Sources */}
       <Card className="panel">
-        <h3 className="text-[14px] text-black dark:text-white mb-3">
+        <h3 className="text-[14px] normal mb-3">
           Citation Sources ({sources.length})
         </h3>
 
@@ -220,7 +218,7 @@ export function SourcesTab({
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <p className="text-[11px] text-black dark:text-white font-medium">
+                  <p className="text-[11px] normal font-medium">
                     {source.title}
                   </p>
                   {source.authors && (
@@ -339,7 +337,7 @@ export function SourcesTab({
                 if (materialSources.length > 0) {
                   return (
                     <div className="mb-4">
-                      <h4 className="text-[12px] text-black dark:text-white mb-2">
+                      <h4 className="text-[12px] normal mb-2">
                         Recommended for {material.name}
                       </h4>
                       <div className="space-y-2">
@@ -350,7 +348,7 @@ export function SourcesTab({
                           >
                             <div className="flex items-start justify-between gap-3">
                               <div className="flex-1">
-                                <p className="text-[11px] text-black dark:text-white font-medium">
+                                <p className="text-[11px] normal font-medium">
                                   {source.title}
                                 </p>
                                 {source.authors && (
@@ -382,7 +380,7 @@ export function SourcesTab({
                               <Button
                                 onClick={() => handleAddFromLibrary(source)}
                                 size="sm"
-                                className="bg-[#b8c8cb] hover:bg-[#a8b8bb] text-black shrink-0"
+                                className="bg-waste-reuse hover:bg-[#a8b8bb] text-black shrink-0"
                               >
                                 <Plus className="w-3 h-3 mr-1" />
                                 Add
@@ -399,9 +397,7 @@ export function SourcesTab({
 
               {/* All sources */}
               <div>
-                <h4 className="text-[12px] text-black dark:text-white mb-2">
-                  All Sources
-                </h4>
+                <h4 className="text-[12px] normal mb-2">All Sources</h4>
                 <div className="space-y-2">
                   {SOURCE_LIBRARY.filter((source) => {
                     if (!librarySearch) return true;
@@ -416,7 +412,7 @@ export function SourcesTab({
                     <Card key={source.id} className="p-3">
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1">
-                          <p className="text-[11px] text-black dark:text-white font-medium">
+                          <p className="text-[11px] normal font-medium">
                             {source.title}
                           </p>
                           {source.authors && (
@@ -446,7 +442,7 @@ export function SourcesTab({
                         <Button
                           onClick={() => handleAddFromLibrary(source)}
                           size="sm"
-                          className="bg-[#b8c8cb] hover:bg-[#a8b8bb] text-black shrink-0"
+                          className="bg-waste-reuse hover:bg-[#a8b8bb] text-black shrink-0"
                         >
                           <Plus className="w-3 h-3 mr-1" />
                           Add

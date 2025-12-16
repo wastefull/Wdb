@@ -33,7 +33,7 @@ export function MaterialCard({
         <div className="flex-1">
           <button
             onClick={onViewMaterial}
-            className="text-[16px] text-black dark:text-white mb-1 hover:underline cursor-pointer text-left block"
+            className="text-[16px] normal mb-1 hover:underline cursor-pointer text-left block"
             aria-label={`View details for ${material.name}`}
           >
             {material.name}
@@ -61,14 +61,14 @@ export function MaterialCard({
           <div className="flex gap-2">
             <button
               onClick={onEdit}
-              className="icon-box-sm bg-[#e4e3ac]"
+              className="icon-box-sm bg-waste-recycle"
               aria-label={`Edit ${material.name}`}
             >
               <Edit2 size={14} className="text-black" aria-hidden="true" />
             </button>
             <button
               onClick={onDelete}
-              className="icon-box-sm bg-[#e6beb5]"
+              className="icon-box-sm bg-waste-compost"
               aria-label={`Delete ${material.name}`}
             >
               <Trash2 size={14} className="text-black" aria-hidden="true" />
@@ -77,7 +77,7 @@ export function MaterialCard({
         ) : isAuthenticated && onSuggestEdit ? (
           <button
             onClick={onSuggestEdit}
-            className="icon-box-sm bg-[#b8c8cb]"
+            className="icon-box-sm bg-waste-reuse"
             aria-label={`Suggest edit for ${material.name}`}
             title="Suggest an edit"
           >

@@ -126,23 +126,19 @@ export function QuantileVisualization({
         <div className="flex justify-between items-center">
           <button
             onClick={onClick}
-            className="text-[11px] text-black dark:text-white hover:underline cursor-pointer text-left flex items-center gap-1"
+            className="text-[11px] normal hover:underline cursor-pointer text-left flex items-center gap-1"
             aria-label={`View ${label.toLowerCase()} articles (${
               articleCount || 0
             } articles)`}
           >
-            <span className="text-[11px] text-black dark:text-white">
-              {label}
-            </span>
+            <span className="text-[11px] normal">{label}</span>
             {articleCount !== undefined && articleCount > 0 && (
               <span className="text-[9px] text-black/60 dark:text-white/60">
                 ({articleCount})
               </span>
             )}
           </button>
-          <span className="text-[11px] text-black dark:text-white">
-            {displayScore}
-          </span>
+          <span className="text-[11px] normal">{displayScore}</span>
         </div>
       )}
 
@@ -765,7 +761,7 @@ function TooltipContent({
   return (
     <div className="absolute left-0 right-0 -top-2 transform -translate-y-full z-10 pointer-events-none">
       <div className="bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-md p-2 shadow-lg">
-        <div className="text-[9px] text-black dark:text-white space-y-0.5">
+        <div className="text-[9px] normal space-y-0.5">
           <div className="flex justify-between gap-3">
             <span className="text-black/60 dark:text-white/60">Practical:</span>
             <span>

@@ -471,9 +471,9 @@ export function RoadmapView({ onBack }: RoadmapViewProps) {
       </div>
 
       {/* Content */}
-      <div className="retro-card !bg-white dark:!bg-[#1a1917] p-6">
+      <div className="reversed p-6">
         <div>
-          <h3 className="font-['Sniglet'] text-[14px] text-black dark:text-white mb-6">
+          <h3 className="font-['Sniglet'] text-[14px] normal mb-6">
             Days 1-11: Complete Infrastructure Implementation
           </h3>
           <RoadmapPhaseTab

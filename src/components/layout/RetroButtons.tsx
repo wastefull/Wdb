@@ -32,9 +32,9 @@ export function RetroButtons({ title }: RetroButtonsProps) {
   return (
     <div className="basis-0 grow h-full min-h-px min-w-px relative shrink-0">
       <div className="flex flex-row items-center justify-start md:justify-center size-full">
-        <div className="box-border content-stretch flex gap-[4px] md:gap-[10px] items-center justify-start md:justify-center px-[3px] md:px-[7px] py-[2px] relative size-full">
+        <div className="box-border content-stretch flex gap-1 md:gap-2.5 items-center justify-start md:justify-center px-[3px] md:px-[7px] py-0.5 relative size-full">
           <TooltipProvider delayDuration={300}>
-            <div className="flex flex-row gap-[4px] md:gap-[10px] items-center h-full">
+            <div className="flex flex-row gap-1 md:gap-2.5 items-center h-full">
               {/* Red Button - Reset Settings */}
               <UITooltip>
                 <TooltipTrigger asChild>
@@ -79,7 +79,7 @@ export function RetroButtons({ title }: RetroButtonsProps) {
                               resetSettings();
                               setRedOpen(false);
                             }}
-                            className="w-full bg-[#e6beb5] h-[36px] rounded-[6px] border border-[#211f1c] shadow-[2px_2px_0px_0px_#000000] text-[12px] text-black hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_#000000] transition-all flex items-center justify-center"
+                            className="w-full bg-waste-compost h-9 rounded-[6px] border border-[#211f1c] shadow-[2px_2px_0px_0px_#000000] text-[12px] text-black hover:translate-y-px hover:shadow-[1px_1px_0px_0px_#000000] transition-all flex items-center justify-center"
                           >
                             Reset All
                           </button>
@@ -135,30 +135,30 @@ export function RetroButtons({ title }: RetroButtonsProps) {
                           <div className="space-y-2">
                             <button
                               onClick={() => setFontSize("normal")}
-                              className={`w-full h-[36px] rounded-[6px] border border-[#211f1c] text-[12px] dark:text-white transition-all flex items-center justify-center ${
+                              className={`w-full h-9 rounded-[6px] border border-[#211f1c] text-[12px] dark:text-white transition-all flex items-center justify-center ${
                                 settings.fontSize === "normal"
-                                  ? "bg-[#e4e3ac] text-black shadow-[2px_2px_0px_0px_#000000]"
-                                  : "bg-white dark:bg-[#2a2825] hover:bg-[#e4e3ac]/20"
+                                  ? "bg-waste-recycle text-black shadow-[2px_2px_0px_0px_#000000]"
+                                  : "bg-white dark:bg-[#2a2825] hover:bg-waste-recycle/20"
                               }`}
                             >
                               Normal
                             </button>
                             <button
                               onClick={() => setFontSize("large")}
-                              className={`w-full h-[36px] rounded-[6px] border border-[#211f1c] text-[13px] dark:text-white transition-all flex items-center justify-center ${
+                              className={`w-full h-9 rounded-[6px] border border-[#211f1c] text-[13px] dark:text-white transition-all flex items-center justify-center ${
                                 settings.fontSize === "large"
-                                  ? "bg-[#e4e3ac] text-black shadow-[2px_2px_0px_0px_#000000]"
-                                  : "bg-white dark:bg-[#2a2825] hover:bg-[#e4e3ac]/20"
+                                  ? "bg-waste-recycle text-black shadow-[2px_2px_0px_0px_#000000]"
+                                  : "bg-white dark:bg-[#2a2825] hover:bg-waste-recycle/20"
                               }`}
                             >
                               Large
                             </button>
                             <button
                               onClick={() => setFontSize("xlarge")}
-                              className={`w-full h-[36px] rounded-[6px] border border-[#211f1c] text-[14px] dark:text-white transition-all flex items-center justify-center ${
+                              className={`w-full h-9 rounded-[6px] border border-[#211f1c] text-[14px] dark:text-white transition-all flex items-center justify-center ${
                                 settings.fontSize === "xlarge"
-                                  ? "bg-[#e4e3ac] text-black shadow-[2px_2px_0px_0px_#000000]"
-                                  : "bg-white dark:bg-[#2a2825] hover:bg-[#e4e3ac]/20"
+                                  ? "bg-waste-recycle text-black shadow-[2px_2px_0px_0px_#000000]"
+                                  : "bg-white dark:bg-[#2a2825] hover:bg-waste-recycle/20"
                               }`}
                             >
                               Extra Large
@@ -282,7 +282,7 @@ export function RetroButtons({ title }: RetroButtonsProps) {
           </TooltipProvider>
 
           <div className="basis-0 grow min-h-px min-w-px flex items-center justify-center gap-1.5 md:gap-2">
-            <h1 className="leading-[25px] not-italic text-[18px] md:text-[28px] text-black dark:text-white text-center uppercase">
+            <h1 className="leading-[25px] not-italic text-[18px] md:text-[28px] normal text-center uppercase">
               {title}
             </h1>
             <span className="text-[8px] md:text-[10px] px-1 md:px-1.5 py-0 md:py-0.5 rounded-full arcade-bg-green arcade-btn-green border border-[#211f1c] dark:border-white/20 uppercase">

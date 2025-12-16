@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Dialog,
   DialogContent,
@@ -9,7 +9,7 @@ import {
 } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
-import { AlertTriangle, FileText, Calendar, Users, Link2 } from 'lucide-react';
+import { AlertTriangle, FileText, Calendar, Users, Link2 } from "lucide-react";
 
 interface DuplicateSource {
   id: string;
@@ -26,7 +26,7 @@ interface DuplicateSourceWarningProps {
   onMerge?: () => void;
   duplicateInfo: {
     isDuplicate: boolean;
-    matchType: 'doi' | 'title';
+    matchType: "doi" | "title";
     confidence: number;
     similarity?: number;
     existingSource: DuplicateSource;
@@ -65,13 +65,15 @@ export function DuplicateSourceWarning({
         <div className="space-y-4 my-4">
           {/* Match Information */}
           <div className="flex items-center gap-2">
-            <Badge 
-              variant={matchType === 'doi' ? 'default' : 'secondary'}
+            <Badge
+              variant={matchType === "doi" ? "default" : "secondary"}
               className="font-['Sniglet'] text-[10px]"
             >
-              {matchType === 'doi' ? '100% DOI Match' : `${confidence}% Title Match`}
+              {matchType === "doi"
+                ? "100% DOI Match"
+                : `${confidence}% Title Match`}
             </Badge>
-            {matchType === 'title' && (
+            {matchType === "title" && (
               <span className="font-['Sniglet'] text-[10px] text-gray-500 dark:text-gray-400">
                 Fuzzy match using Levenshtein distance
               </span>
@@ -83,11 +85,11 @@ export function DuplicateSourceWarning({
             <h4 className="font-['Sniglet'] text-[12px] text-gray-700 dark:text-gray-300 mb-2">
               Existing Source in Library:
             </h4>
-            
+
             <div className="flex items-start gap-2">
-              <FileText className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 flex-shrink-0" />
+              <FileText className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
               <div className="flex-1">
-                <p className="font-['Sniglet'] text-[13px] text-black dark:text-white">
+                <p className="font-['Sniglet'] text-[13px] normal">
                   {existingSource.title}
                 </p>
               </div>
@@ -95,17 +97,18 @@ export function DuplicateSourceWarning({
 
             {existingSource.authors && existingSource.authors.length > 0 && (
               <div className="flex items-start gap-2">
-                <Users className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 flex-shrink-0" />
+                <Users className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
                 <p className="font-['Sniglet'] text-[11px] text-gray-600 dark:text-gray-400">
-                  {existingSource.authors.slice(0, 3).join(', ')}
-                  {existingSource.authors.length > 3 && ` +${existingSource.authors.length - 3} more`}
+                  {existingSource.authors.slice(0, 3).join(", ")}
+                  {existingSource.authors.length > 3 &&
+                    ` +${existingSource.authors.length - 3} more`}
                 </p>
               </div>
             )}
 
             {existingSource.year && (
               <div className="flex items-start gap-2">
-                <Calendar className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 flex-shrink-0" />
+                <Calendar className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
                 <p className="font-['Sniglet'] text-[11px] text-gray-600 dark:text-gray-400">
                   {existingSource.year}
                 </p>
@@ -114,7 +117,7 @@ export function DuplicateSourceWarning({
 
             {existingSource.doi && (
               <div className="flex items-start gap-2">
-                <Link2 className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 flex-shrink-0" />
+                <Link2 className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
                 <p className="font-['Sniglet'] text-[11px] text-gray-600 dark:text-gray-400 break-all">
                   {existingSource.doi}
                 </p>
@@ -125,10 +128,9 @@ export function DuplicateSourceWarning({
           {/* Explanation */}
           <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
             <p className="font-['Sniglet'] text-[11px] text-blue-900 dark:text-blue-200">
-              {matchType === 'doi' 
-                ? '🔍 DOI matches are 100% accurate. This is very likely the same publication.'
-                : `🔍 This title is ${confidence}% similar to an existing source. Review carefully before adding.`
-              }
+              {matchType === "doi"
+                ? "🔍 DOI matches are 100% accurate. This is very likely the same publication."
+                : `🔍 This title is ${confidence}% similar to an existing source. Review carefully before adding.`}
             </p>
           </div>
         </div>
@@ -141,8 +143,8 @@ export function DuplicateSourceWarning({
           >
             Cancel
           </Button>
-          
-          {isAdmin && onMerge && matchType === 'doi' && (
+
+          {isAdmin && onMerge && matchType === "doi" && (
             <Button
               variant="secondary"
               onClick={onMerge}
@@ -151,7 +153,7 @@ export function DuplicateSourceWarning({
               Merge Sources
             </Button>
           )}
-          
+
           <Button
             onClick={onAddAnyway}
             className="font-['Sniglet'] text-[12px] w-full sm:w-auto"

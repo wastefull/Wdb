@@ -28,20 +28,17 @@ export function CookieConsent() {
           transition={{ duration: 0.3 }}
           className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-md z-50"
         >
-          <div className="bg-[#b8c8cb] dark:bg-[#2a2a2a] rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[4px_5px_0px_-1px_#000000] dark:shadow-[4px_5px_0px_-1px_rgba(255,255,255,0.2)] p-4">
+          <div className="bg-waste-reuse dark:bg-[#2a2a2a] rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[4px_5px_0px_-1px_#000000] dark:shadow-[4px_5px_0px_-1px_rgba(255,255,255,0.2)] p-4">
             <div className="flex items-start gap-3">
-              <Cookie
-                className="text-black dark:text-white mt-1 flex-shrink-0"
-                size={20}
-              />
+              <Cookie className="normal mt-1 shrink-0" size={20} />
               <div className="flex-1">
-                <p className="text-[13px] text-black dark:text-white mb-3">
+                <p className="text-[13px] normal mb-3">
                   We use cookies for authentication to keep you signed in. By
                   continuing to use WasteDB, you consent to our use of cookies.
                 </p>
                 <button
                   onClick={handleAccept}
-                  className="retro-card-button arcade-bg-green arcade-btn-green h-[36px] px-4 text-[12px]"
+                  className="retro-card-button arcade-bg-green arcade-btn-green h-9 px-4 text-[12px]"
                 >
                   Accept
                 </button>

@@ -29,7 +29,7 @@ export function SearchBar({ value, onChange, onSearch }: SearchBarProps) {
         className="absolute border-[#211f1c] dark:border-white/20 border-[1.5px] border-solid inset-[-0.75px] pointer-events-none rounded-[12.21px]"
       />
       <div className="flex flex-row items-center justify-center size-full">
-        <div className="box-border content-stretch flex gap-[15px] items-center justify-start px-[12px] py-[8px] relative w-full">
+        <div className="box-border content-stretch flex gap-[15px] items-center justify-start px-3 py-2 relative w-full">
           <SearchIcon />
           <input
             type="text"
@@ -37,7 +37,7 @@ export function SearchBar({ value, onChange, onSearch }: SearchBarProps) {
             onChange={(e) => onChange(e.target.value)}
             onKeyDownCapture={handleKeyDown}
             placeholder={isMobile ? "Search…" : "What do I do with…?"}
-            className="bg-transparent border-none outline-none text-[15px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50 flex-1 min-w-0"
+            className="bg-transparent border-none outline-none text-[15px] normal placeholder:text-black/50 dark:placeholder:text-white/50 flex-1 min-w-0"
             aria-label="Search materials"
           />
         </div>
