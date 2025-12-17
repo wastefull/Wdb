@@ -73,7 +73,11 @@ export type ViewType =
         | "10"
         | "tests"
         | "backlog";
-    };
+    }
+  | { type: "guides" }
+  | { type: "blog" }
+  | { type: "about" }
+  | { type: "donate" };
 
 interface NavigationContextType {
   // State
@@ -138,6 +142,10 @@ interface NavigationContextType {
       | "tests"
       | "backlog"
   ) => void;
+  navigateToGuides: () => void;
+  navigateToBlog: () => void;
+  navigateToAbout: () => void;
+  navigateToDonate: () => void;
   goBack: () => void;
 }
 
@@ -356,6 +364,22 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
     navigateTo({ type: "roadmap-overview", defaultTab });
   };
 
+  const navigateToGuides = () => {
+    navigateTo({ type: "guides" });
+  };
+
+  const navigateToBlog = () => {
+    navigateTo({ type: "blog" });
+  };
+
+  const navigateToAbout = () => {
+    navigateTo({ type: "about" });
+  };
+
+  const navigateToDonate = () => {
+    navigateTo({ type: "donate" });
+  };
+
   const goBack = () => {
     if (viewHistory.length > 1) {
       const newHistory = viewHistory.slice(0, -1);
@@ -414,6 +438,10 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
     navigateToChartsPerformance,
     navigateToRoadmap,
     navigateToRoadmapOverview,
+    navigateToGuides,
+    navigateToBlog,
+    navigateToAbout,
+    navigateToDonate,
     goBack,
   };
 

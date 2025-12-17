@@ -17,6 +17,12 @@ export { ScienceHubView } from "./ScienceHubView";
 // Whitepaper views
 export { MethodologyListView, WhitepaperView } from "./WhitepaperViews";
 
+// Navigation tab views
+export { AboutView } from "./AboutView";
+export { BlogView } from "./BlogView";
+export { DonateView } from "./DonateView";
+export { GuidesView } from "./GuidesView";
+
 // Other views
 export { ChartsPerformanceView } from "./ChartsPerformanceView";
 export { EvidenceLabView } from "./EvidenceLabView";

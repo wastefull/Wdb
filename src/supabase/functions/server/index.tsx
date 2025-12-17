@@ -11445,6 +11445,760 @@ app.get("/make-server-17cae920/debug/phase91-status", (c) => {
   });
 });
 
+// ==================== GUIDE ROUTES ====================
+
+// Get published guides (with optional filters)
+app.get("/make-server-17cae920/guides", rateLimit("API"), async (c) => {
+  try {
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+    );
+
+    const status = c.req.query("status") || "published";
+    const method = c.req.query("method");
+
+    let query = supabase
+      .from("guides")
+      .select("*")
+      .eq("status", status)
+      .order("created_at", { ascending: false });
+
+    if (method) {
+      query = query.eq("method", method);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error("Error fetching guides:", error);
+      return c.json(
+        {
+          error: "Failed to fetch guides",
+          details: error.message,
+          code: error.code,
+          hint: error.hint,
+        },
+        500
+      );
+    }
+
+    return c.json(data || []);
+  } catch (error) {
+    console.error("Error fetching guides:", error);
+    return c.json(
+      { error: "Failed to fetch guides", details: String(error) },
+      500
+    );
+  }
+});
+
+// Get guide by slug
+app.get("/make-server-17cae920/guides/:slug", rateLimit("API"), async (c) => {
+  try {
+    const slug = c.req.param("slug");
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+    );
+
+    const { data, error } = await supabase
+      .from("guides")
+      .select("*")
+      .eq("slug", slug)
+      .eq("status", "published")
+      .single();
+
+    if (error) {
+      console.error("Error fetching guide by slug:", error);
+      return c.json({ error: "Guide not found" }, 404);
+    }
+
+    return c.json(data);
+  } catch (error) {
+    console.error("Error fetching guide by slug:", error);
+    return c.json(
+      { error: "Failed to fetch guide", details: String(error) },
+      500
+    );
+  }
+});
+
+// Get guide by ID
+app.get(
+  "/make-server-17cae920/guides/by-id/:id",
+  rateLimit("API"),
+  async (c) => {
+    try {
+      const id = c.req.param("id");
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+      );
+
+      const { data, error } = await supabase
+        .from("guides")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+      if (error) {
+        console.error("Error fetching guide by ID:", error);
+        return c.json({ error: "Guide not found" }, 404);
+      }
+
+      return c.json(data);
+    } catch (error) {
+      console.error("Error fetching guide by ID:", error);
+      return c.json(
+        { error: "Failed to fetch guide", details: String(error) },
+        500
+      );
+    }
+  }
+);
+
+// Get current user's guides
+app.get("/make-server-17cae920/guides/my-guides", verifyAuth, async (c) => {
+  try {
+    const userId = c.get("userId");
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
+
+    const { data, error } = await supabase
+      .from("guides")
+      .select("*")
+      .eq("created_by", userId)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching my guides:", error);
+      return c.json({ error: "Failed to fetch guides" }, 500);
+    }
+
+    return c.json(data || []);
+  } catch (error) {
+    console.error("Error fetching my guides:", error);
+    return c.json(
+      { error: "Failed to fetch guides", details: String(error) },
+      500
+    );
+  }
+});
+
+// Create a new guide
+app.post("/make-server-17cae920/guides", verifyAuth, async (c) => {
+  try {
+    const userId = c.get("userId");
+    const userEmail = c.get("userEmail");
+    const guideData = await c.req.json();
+
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
+
+    // Get author name from user
+    const { data: userData } = await supabase.auth.admin.getUserById(userId);
+    const authorName =
+      userData?.user?.user_metadata?.name || userEmail || "Anonymous";
+
+    // Get material name if material_id is provided
+    let materialName: string | undefined;
+    if (guideData.material_id) {
+      const materials = await kv.getByPrefix("material:");
+      const material = materials?.find(
+        (m: any) => m.id === guideData.material_id
+      );
+      materialName = material?.name;
+    }
+
+    const { data, error } = await supabase
+      .from("guides")
+      .insert({
+        ...guideData,
+        created_by: userId,
+        author_name: authorName,
+        material_name: materialName,
+        status: "published", // Auto-publish for now
+        published_at: new Date().toISOString(),
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error creating guide:", error);
+      return c.json({ error: "Failed to create guide" }, 500);
+    }
+
+    // Audit log
+    await createAuditLog({
+      userId,
+      userEmail,
+      entityType: "guide",
+      entityId: data.id,
+      action: "create",
+      after: data,
+      req: c,
+    });
+
+    return c.json(data);
+  } catch (error) {
+    console.error("Error creating guide:", error);
+    return c.json(
+      { error: "Failed to create guide", details: String(error) },
+      500
+    );
+  }
+});
+
+// Update a guide
+app.patch("/make-server-17cae920/guides/:id", verifyAuth, async (c) => {
+  try {
+    const id = c.req.param("id");
+    const userId = c.get("userId");
+    const userEmail = c.get("userEmail");
+    const updates = await c.req.json();
+
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
+
+    // Get material name if material_id changed
+    let materialName: string | undefined;
+    if (updates.material_id) {
+      const materials = await kv.getByPrefix("material:");
+      const material = materials?.find(
+        (m: any) => m.id === updates.material_id
+      );
+      materialName = material?.name;
+    }
+
+    const { data: before } = await supabase
+      .from("guides")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    const { data, error } = await supabase
+      .from("guides")
+      .update({
+        ...updates,
+        material_name: materialName,
+      })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error updating guide:", error);
+      return c.json({ error: "Failed to update guide" }, 500);
+    }
+
+    // Audit log
+    await createAuditLog({
+      userId,
+      userEmail,
+      entityType: "guide",
+      entityId: id,
+      action: "update",
+      before,
+      after: data,
+      req: c,
+    });
+
+    return c.json(data);
+  } catch (error) {
+    console.error("Error updating guide:", error);
+    return c.json(
+      { error: "Failed to update guide", details: String(error) },
+      500
+    );
+  }
+});
+
+// Delete a guide
+app.delete("/make-server-17cae920/guides/:id", verifyAuth, async (c) => {
+  try {
+    const id = c.req.param("id");
+    const userId = c.get("userId");
+    const userEmail = c.get("userEmail");
+
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
+
+    const { data: before } = await supabase
+      .from("guides")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    const { error } = await supabase.from("guides").delete().eq("id", id);
+
+    if (error) {
+      console.error("Error deleting guide:", error);
+      return c.json({ error: "Failed to delete guide" }, 500);
+    }
+
+    // Audit log
+    await createAuditLog({
+      userId,
+      userEmail,
+      entityType: "guide",
+      entityId: id,
+      action: "delete",
+      before,
+      req: c,
+    });
+
+    return c.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting guide:", error);
+    return c.json(
+      { error: "Failed to delete guide", details: String(error) },
+      500
+    );
+  }
+});
+
+// Increment guide views
+app.post(
+  "/make-server-17cae920/guides/:id/views",
+  rateLimit("API"),
+  async (c) => {
+    try {
+      const id = c.req.param("id");
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      );
+
+      // Get current view count
+      const { data: guide } = await supabase
+        .from("guides")
+        .select("views_count")
+        .eq("id", id)
+        .single();
+
+      if (guide) {
+        await supabase
+          .from("guides")
+          .update({ views_count: (guide.views_count || 0) + 1 })
+          .eq("id", id);
+      }
+
+      return c.json({ success: true });
+    } catch (error) {
+      console.error("Error incrementing guide views:", error);
+      return c.json(
+        { error: "Failed to increment views", details: String(error) },
+        500
+      );
+    }
+  }
+);
+
+// Search guides
+app.get("/make-server-17cae920/guides/search", rateLimit("API"), async (c) => {
+  try {
+    const query = c.req.query("q") || "";
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+    );
+
+    const { data, error } = await supabase
+      .from("guides")
+      .select("*")
+      .eq("status", "published")
+      .or(`title.ilike.%${query}%,description.ilike.%${query}%`)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error searching guides:", error);
+      return c.json({ error: "Failed to search guides" }, 500);
+    }
+
+    return c.json(data || []);
+  } catch (error) {
+    console.error("Error searching guides:", error);
+    return c.json(
+      { error: "Failed to search guides", details: String(error) },
+      500
+    );
+  }
+});
+
+// ==================== END GUIDE ROUTES ====================
+
+// ==================== BLOG ROUTES ====================
+
+// Get published blog posts (with optional filters)
+app.get("/make-server-17cae920/blog", rateLimit("API"), async (c) => {
+  try {
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+    );
+
+    const status = c.req.query("status") || "published";
+    const category = c.req.query("category");
+
+    let query = supabase
+      .from("blog_posts")
+      .select("*")
+      .eq("status", status)
+      .order("published_at", { ascending: false });
+
+    if (category) {
+      query = query.eq("category", category);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error("Error fetching blog posts:", error);
+      return c.json(
+        {
+          error: "Failed to fetch blog posts",
+          details: error.message,
+          code: error.code,
+          hint: error.hint,
+        },
+        500
+      );
+    }
+
+    return c.json(data || []);
+  } catch (error) {
+    console.error("Error fetching blog posts:", error);
+    return c.json(
+      { error: "Failed to fetch blog posts", details: String(error) },
+      500
+    );
+  }
+});
+
+// Get blog post by slug
+app.get("/make-server-17cae920/blog/:slug", rateLimit("API"), async (c) => {
+  try {
+    const slug = c.req.param("slug");
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+    );
+
+    const { data, error } = await supabase
+      .from("blog_posts")
+      .select("*")
+      .eq("slug", slug)
+      .eq("status", "published")
+      .single();
+
+    if (error) {
+      console.error("Error fetching blog post by slug:", error);
+      return c.json({ error: "Blog post not found" }, 404);
+    }
+
+    return c.json(data);
+  } catch (error) {
+    console.error("Error fetching blog post by slug:", error);
+    return c.json(
+      { error: "Failed to fetch blog post", details: String(error) },
+      500
+    );
+  }
+});
+
+// Get blog post by ID
+app.get("/make-server-17cae920/blog/by-id/:id", rateLimit("API"), async (c) => {
+  try {
+    const id = c.req.param("id");
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+    );
+
+    const { data, error } = await supabase
+      .from("blog_posts")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (error) {
+      console.error("Error fetching blog post by ID:", error);
+      return c.json({ error: "Blog post not found" }, 404);
+    }
+
+    return c.json(data);
+  } catch (error) {
+    console.error("Error fetching blog post by ID:", error);
+    return c.json(
+      { error: "Failed to fetch blog post", details: String(error) },
+      500
+    );
+  }
+});
+
+// Get current user's blog posts
+app.get("/make-server-17cae920/blog/my-posts", verifyAuth, async (c) => {
+  try {
+    const userId = c.get("userId");
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
+
+    const { data, error } = await supabase
+      .from("blog_posts")
+      .select("*")
+      .eq("created_by", userId)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching my blog posts:", error);
+      return c.json({ error: "Failed to fetch blog posts" }, 500);
+    }
+
+    return c.json(data || []);
+  } catch (error) {
+    console.error("Error fetching my blog posts:", error);
+    return c.json(
+      { error: "Failed to fetch blog posts", details: String(error) },
+      500
+    );
+  }
+});
+
+// Create a new blog post
+app.post("/make-server-17cae920/blog", verifyAuth, async (c) => {
+  try {
+    const userId = c.get("userId");
+    const userEmail = c.get("userEmail");
+    const postData = await c.req.json();
+
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
+
+    // Get author name from user
+    const { data: userData } = await supabase.auth.admin.getUserById(userId);
+    const authorName =
+      userData?.user?.user_metadata?.name || userEmail || "Anonymous";
+
+    const { data, error } = await supabase
+      .from("blog_posts")
+      .insert({
+        ...postData,
+        created_by: userId,
+        author_name: authorName,
+        status: "published", // Auto-publish for now
+        published_at: new Date().toISOString(),
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error creating blog post:", error);
+      return c.json({ error: "Failed to create blog post" }, 500);
+    }
+
+    // Audit log
+    await createAuditLog({
+      userId,
+      userEmail,
+      entityType: "blog_post",
+      entityId: data.id,
+      action: "create",
+      after: data,
+      req: c,
+    });
+
+    return c.json(data);
+  } catch (error) {
+    console.error("Error creating blog post:", error);
+    return c.json(
+      { error: "Failed to create blog post", details: String(error) },
+      500
+    );
+  }
+});
+
+// Update a blog post
+app.patch("/make-server-17cae920/blog/:id", verifyAuth, async (c) => {
+  try {
+    const id = c.req.param("id");
+    const userId = c.get("userId");
+    const userEmail = c.get("userEmail");
+    const updates = await c.req.json();
+
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
+
+    const { data: before } = await supabase
+      .from("blog_posts")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    const { data, error } = await supabase
+      .from("blog_posts")
+      .update(updates)
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error updating blog post:", error);
+      return c.json({ error: "Failed to update blog post" }, 500);
+    }
+
+    // Audit log
+    await createAuditLog({
+      userId,
+      userEmail,
+      entityType: "blog_post",
+      entityId: id,
+      action: "update",
+      before,
+      after: data,
+      req: c,
+    });
+
+    return c.json(data);
+  } catch (error) {
+    console.error("Error updating blog post:", error);
+    return c.json(
+      { error: "Failed to update blog post", details: String(error) },
+      500
+    );
+  }
+});
+
+// Delete a blog post
+app.delete("/make-server-17cae920/blog/:id", verifyAuth, async (c) => {
+  try {
+    const id = c.req.param("id");
+    const userId = c.get("userId");
+    const userEmail = c.get("userEmail");
+
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
+
+    const { data: before } = await supabase
+      .from("blog_posts")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    const { error } = await supabase.from("blog_posts").delete().eq("id", id);
+
+    if (error) {
+      console.error("Error deleting blog post:", error);
+      return c.json({ error: "Failed to delete blog post" }, 500);
+    }
+
+    // Audit log
+    await createAuditLog({
+      userId,
+      userEmail,
+      entityType: "blog_post",
+      entityId: id,
+      action: "delete",
+      before,
+      req: c,
+    });
+
+    return c.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting blog post:", error);
+    return c.json(
+      { error: "Failed to delete blog post", details: String(error) },
+      500
+    );
+  }
+});
+
+// Increment blog post views
+app.post(
+  "/make-server-17cae920/blog/:id/views",
+  rateLimit("API"),
+  async (c) => {
+    try {
+      const id = c.req.param("id");
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      );
+
+      // Get current view count
+      const { data: post } = await supabase
+        .from("blog_posts")
+        .select("views_count")
+        .eq("id", id)
+        .single();
+
+      if (post) {
+        await supabase
+          .from("blog_posts")
+          .update({ views_count: (post.views_count || 0) + 1 })
+          .eq("id", id);
+      }
+
+      return c.json({ success: true });
+    } catch (error) {
+      console.error("Error incrementing blog post views:", error);
+      return c.json(
+        { error: "Failed to increment views", details: String(error) },
+        500
+      );
+    }
+  }
+);
+
+// Search blog posts
+app.get("/make-server-17cae920/blog/search", rateLimit("API"), async (c) => {
+  try {
+    const query = c.req.query("q") || "";
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+    );
+
+    const { data, error } = await supabase
+      .from("blog_posts")
+      .select("*")
+      .eq("status", "published")
+      .or(`title.ilike.%${query}%,excerpt.ilike.%${query}%`)
+      .order("published_at", { ascending: false });
+
+    if (error) {
+      console.error("Error searching blog posts:", error);
+      return c.json({ error: "Failed to search blog posts" }, 500);
+    }
+
+    return c.json(data || []);
+  } catch (error) {
+    console.error("Error searching blog posts:", error);
+    return c.json(
+      { error: "Failed to search blog posts", details: String(error) },
+      500
+    );
+  }
+});
+
+// ==================== END BLOG ROUTES ====================
+
 // Catch-all 404 handler for debugging - MUST be last route
 app.all("*", (c) => {
   console.log(`❌ 404 - Unmatched route: ${c.req.method} ${c.req.url}`);

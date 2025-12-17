@@ -51,6 +51,10 @@ import {
   AllArticlesView,
   StandaloneArticleView,
   DataManagementView,
+  GuidesView,
+  BlogView,
+  AboutView,
+  DonateView,
 } from "./components/views";
 
 // Admin
@@ -148,6 +152,10 @@ function AppContent() {
     navigateToEvidenceLab,
     navigateToCurationWorkbench,
     navigateToTransformTesting,
+    navigateToGuides,
+    navigateToBlog,
+    navigateToAbout,
+    navigateToDonate,
   } = useNavigationContext();
   const { user, userRole, isAuthenticated, signIn, signOut, updateUserRole } =
     useAuthContext();
@@ -476,8 +484,89 @@ function AppContent() {
               <NavTabs
                 activeTab="search"
                 onTabChange={(tab: NavTabId) => {
-                  // TODO: Handle tab navigation
-                  console.log("Tab clicked:", tab);
+                  if (tab === "search") {
+                    navigateToMaterials();
+                  } else if (tab === "guides") {
+                    navigateToGuides();
+                  } else if (tab === "blog") {
+                    navigateToBlog();
+                  } else if (tab === "about") {
+                    navigateToAbout();
+                  } else if (tab === "donate") {
+                    navigateToDonate();
+                  }
+                }}
+              />
+            )}
+            {currentView.type === "guides" && (
+              <NavTabs
+                activeTab="guides"
+                onTabChange={(tab: NavTabId) => {
+                  if (tab === "search") {
+                    navigateToMaterials();
+                  } else if (tab === "guides") {
+                    navigateToGuides();
+                  } else if (tab === "blog") {
+                    navigateToBlog();
+                  } else if (tab === "about") {
+                    navigateToAbout();
+                  } else if (tab === "donate") {
+                    navigateToDonate();
+                  }
+                }}
+              />
+            )}
+            {currentView.type === "blog" && (
+              <NavTabs
+                activeTab="blog"
+                onTabChange={(tab: NavTabId) => {
+                  if (tab === "search") {
+                    navigateToMaterials();
+                  } else if (tab === "guides") {
+                    navigateToGuides();
+                  } else if (tab === "blog") {
+                    navigateToBlog();
+                  } else if (tab === "about") {
+                    navigateToAbout();
+                  } else if (tab === "donate") {
+                    navigateToDonate();
+                  }
+                }}
+              />
+            )}
+            {currentView.type === "about" && (
+              <NavTabs
+                activeTab="about"
+                onTabChange={(tab: NavTabId) => {
+                  if (tab === "search") {
+                    navigateToMaterials();
+                  } else if (tab === "guides") {
+                    navigateToGuides();
+                  } else if (tab === "blog") {
+                    navigateToBlog();
+                  } else if (tab === "about") {
+                    navigateToAbout();
+                  } else if (tab === "donate") {
+                    navigateToDonate();
+                  }
+                }}
+              />
+            )}
+            {currentView.type === "donate" && (
+              <NavTabs
+                activeTab="donate"
+                onTabChange={(tab: NavTabId) => {
+                  if (tab === "search") {
+                    navigateToMaterials();
+                  } else if (tab === "guides") {
+                    navigateToGuides();
+                  } else if (tab === "blog") {
+                    navigateToBlog();
+                  } else if (tab === "about") {
+                    navigateToAbout();
+                  } else if (tab === "donate") {
+                    navigateToDonate();
+                  }
                 }}
               />
             )}
@@ -1052,6 +1141,14 @@ function AppContent() {
                 onBack={navigateToAdminDashboard}
                 defaultTab={currentView.defaultTab}
               />
+            ) : currentView.type === "guides" ? (
+              <GuidesView onBack={navigateToMaterials} />
+            ) : currentView.type === "blog" ? (
+              <BlogView onBack={navigateToMaterials} />
+            ) : currentView.type === "about" ? (
+              <AboutView onBack={navigateToMaterials} />
+            ) : currentView.type === "donate" ? (
+              <DonateView onBack={navigateToMaterials} />
             ) : null}
 
             {/* Footer - inside rounded container */}

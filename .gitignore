@@ -5,3 +5,4 @@ build/*
 package-lock.json
 private.txt
 .vscode
+supabase/.temp/*
