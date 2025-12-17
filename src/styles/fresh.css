@@ -1167,3 +1167,33 @@ body {
   @apply p-1.5 rounded-md border border-[#211f1c] dark:border-white/20;
   @apply hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all;
 }
+
+/* ==========================================================================
+   Guide Editor Styles
+   ========================================================================== */
+.retro-icon-button {
+  @apply p-2 rounded-md border border-[#211f1c] dark:border-white/20;
+  @apply bg-white dark:bg-[#1a1917] text-black dark:text-white;
+  @apply hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all;
+}
+
+.retro-icon-button.active {
+  @apply bg-black dark:bg-white text-white dark:text-black;
+  @apply shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)];
+}
+
+.retro-button {
+  @apply px-4 py-2 rounded-md border border-[#211f1c] dark:border-white/20;
+  @apply bg-white dark:bg-[#1a1917] text-black dark:text-white text-[13px];
+  @apply hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all;
+}
+
+/* Tiptap editor content styles */
+.guide-editor .ProseMirror {
+  @apply outline-none;
+}
+
+.guide-editor .ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  @apply text-black/40 dark:text-white/40 float-left h-0 pointer-events-none;
+}

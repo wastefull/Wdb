@@ -5,42 +5,62 @@ import { Material } from "../../types/material";
 import GuideEditor from "../editor/GuideEditor";
 import type { TiptapContent } from "../../types/guide";
 
-interface SubmitGuideFormProps {
+interface EditGuideFormProps {
+  guide: Guide;
   onClose: () => void;
-  onSubmit: (guide: GuideSubmission) => Promise<void>;
+  onSubmit: (
+    guideId: string,
+    updates: Partial<GuideSubmission>
+  ) => Promise<void>;
   materials: Material[];
 }
 
-export function SubmitGuideForm({
+export function EditGuideForm({
+  guide,
   onClose,
   onSubmit,
   materials,
-}: SubmitGuideFormProps) {
+}: EditGuideFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Parse content if it's a JSON string
+  const parseContent = (content: any): TiptapContent => {
+    if (typeof content === "string") {
+      try {
+        return JSON.parse(content);
+      } catch (error) {
+        console.error("Error parsing guide content:", error);
+        return { type: "doc", content: [] };
+      }
+    }
+    return content as TiptapContent;
+  };
+
   const [formData, setFormData] = useState<GuideSubmission>({
-    title: "",
-    description: "",
-    content: { type: "doc", content: [] } as TiptapContent,
-    method: "DIY",
-    material_id: undefined,
-    difficulty_level: "beginner",
-    estimated_time: "",
-    required_materials: [],
-    tags: [],
-    cover_image_url: "",
-    meta_description: "",
+    title: guide.title,
+    description: guide.description,
+    content: parseContent(guide.content),
+    method: guide.method,
+    material_id: guide.material_id,
+    difficulty_level: guide.difficulty_level,
+    estimated_time: guide.estimated_time || "",
+    required_materials: guide.required_materials || [],
+    tags: guide.tags || [],
+    cover_image_url: guide.cover_image_url || "",
+    meta_description: guide.meta_description || "",
   });
 
-  const [materialsInput, setMaterialsInput] = useState("");
-  const [tagsInput, setTagsInput] = useState("");
+  const [materialsInput, setMaterialsInput] = useState(
+    guide.required_materials?.join(", ") || ""
+  );
+  const [tagsInput, setTagsInput] = useState(guide.tags?.join(", ") || "");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
-      // Parse comma-separated lists
-      const guide: GuideSubmission = {
+      const updates: Partial<GuideSubmission> = {
         ...formData,
         required_materials: materialsInput
           ? materialsInput
@@ -56,10 +76,10 @@ export function SubmitGuideForm({
           : [],
       };
 
-      await onSubmit(guide);
+      await onSubmit(guide.id, updates);
       onClose();
     } catch (error) {
-      console.error("Error submitting guide:", error);
+      console.error("Error updating guide:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -74,7 +94,7 @@ export function SubmitGuideForm({
               <BookOpen size={24} />
             </div>
             <h2 className="text-[18px] font-display text-black dark:text-white">
-              Submit a Guide
+              Edit Guide
             </h2>
           </div>
           <button
@@ -100,14 +120,14 @@ export function SubmitGuideForm({
                 setFormData({ ...formData, title: e.target.value })
               }
               className="input-field"
-              placeholder="e.g., How to Start Composting at Home"
+              placeholder="e.g., How to Make Compost at Home"
             />
           </div>
 
           {/* Description */}
           <div>
             <label className="block text-[12px] normal mb-2">
-              Short Description <span className="text-red-500">*</span>
+              Description <span className="text-red-500">*</span>
             </label>
             <textarea
               required
@@ -115,7 +135,7 @@ export function SubmitGuideForm({
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
               }
-              className="textarea-field h-20"
+              className="input-field min-h-[80px]"
               placeholder="Brief overview of what this guide covers"
             />
           </div>
@@ -294,26 +314,23 @@ export function SubmitGuideForm({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 retro-btn px-4 py-3 bg-white dark:bg-[#2a2825] text-black dark:text-white text-[13px]"
               disabled={isSubmitting}
+              className="retro-button flex-1"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 retro-btn-primary px-4 py-3 bg-waste-science text-black text-[13px] flex items-center justify-center gap-2"
               disabled={isSubmitting}
+              className="retro-button arcade-bg-green arcade-btn-green flex-1 flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <>
                   <Loader2 size={16} className="animate-spin" />
-                  Submitting...
+                  Updating...
                 </>
               ) : (
-                <>
-                  <BookOpen size={16} />
-                  Submit Guide
-                </>
+                "Update Guide"
               )}
             </button>
           </div>

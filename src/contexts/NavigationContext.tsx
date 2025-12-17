@@ -75,7 +75,9 @@ export type ViewType =
         | "backlog";
     }
   | { type: "guides" }
+  | { type: "guide-detail"; guideId: string }
   | { type: "blog" }
+  | { type: "editor-test" }
   | { type: "about" }
   | { type: "donate" };
 

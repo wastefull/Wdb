@@ -21,6 +21,7 @@ export { MethodologyListView, WhitepaperView } from "./WhitepaperViews";
 export { AboutView } from "./AboutView";
 export { BlogView } from "./BlogView";
 export { DonateView } from "./DonateView";
+export { GuideDetailView } from "./GuideDetailView";
 export { GuidesView } from "./GuidesView";
 
 // Other views

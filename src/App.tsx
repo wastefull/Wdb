@@ -52,10 +52,12 @@ import {
   StandaloneArticleView,
   DataManagementView,
   GuidesView,
+  GuideDetailView,
   BlogView,
   AboutView,
   DonateView,
 } from "./components/views";
+import EditorTestView from "./components/views/EditorTestView";
 
 // Admin
 import {
@@ -1143,8 +1145,15 @@ function AppContent() {
               />
             ) : currentView.type === "guides" ? (
               <GuidesView onBack={navigateToMaterials} />
+            ) : currentView.type === "guide-detail" ? (
+              <GuideDetailView
+                guideId={currentView.guideId}
+                onBack={() => navigateTo({ type: "guides" })}
+              />
             ) : currentView.type === "blog" ? (
               <BlogView onBack={navigateToMaterials} />
+            ) : currentView.type === "editor-test" ? (
+              <EditorTestView />
             ) : currentView.type === "about" ? (
               <AboutView onBack={navigateToMaterials} />
             ) : currentView.type === "donate" ? (
@@ -1273,7 +1282,7 @@ function AppWithAuth() {
 
   return (
     <AuthProvider onSessionExpired={handleSessionExpired}>
-      <Toaster />
+      <Toaster position="top-center" />
       <AppWithMaterialsContext />
       <CookieConsent />
     </AuthProvider>

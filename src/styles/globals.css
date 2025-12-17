@@ -969,6 +969,69 @@ body {
   @apply text-[oklch(0.75_0.18_145)] bg-[oklch(0.2_0.06_145)];
 }
 
+.tag-gray {
+  @apply inline-block px-2 py-0.5 rounded-md border border-[#211f1c] dark:border-white/20 text-[9px];
+  @apply text-black bg-[#d4d4d4];
+}
+
+.dark .tag-gray {
+  @apply text-[oklch(0.7_0.02_260)] bg-[oklch(0.25_0.02_260)];
+}
+
+.tag-red {
+  @apply inline-block px-2 py-0.5 rounded-md border border-[#211f1c] dark:border-white/20 text-[9px];
+  @apply text-white bg-[#c74444];
+}
+
+.dark .tag-red {
+  @apply text-[oklch(0.85_0.15_15)] bg-[oklch(0.25_0.08_15)];
+}
+
+/* Small tags for compact displays */
+.tag-sm {
+  @apply inline-block px-1.5 py-0.5 rounded-md border border-[#211f1c] dark:border-white/20 text-[8px] font-medium;
+}
+
+.tag-sm.tag-cyan {
+  @apply text-black bg-[#b8c8cb];
+}
+
+.dark .tag-sm.tag-cyan {
+  @apply text-[oklch(0.65_0.15_195)] bg-[oklch(0.2_0.05_195)];
+}
+
+.tag-sm.tag-yellow {
+  @apply text-black bg-[#e4e3ac];
+}
+
+.dark .tag-sm.tag-yellow {
+  @apply text-[oklch(0.85_0.15_85)] bg-[oklch(0.25_0.08_85)];
+}
+
+.tag-sm.tag-green {
+  @apply text-black bg-[#bae1c3];
+}
+
+.dark .tag-sm.tag-green {
+  @apply text-[oklch(0.75_0.18_145)] bg-[oklch(0.2_0.06_145)];
+}
+
+.tag-sm.tag-gray {
+  @apply text-black bg-[#d4d4d4];
+}
+
+.dark .tag-sm.tag-gray {
+  @apply text-[oklch(0.7_0.02_260)] bg-[oklch(0.25_0.02_260)];
+}
+
+.tag-sm.tag-red {
+  @apply text-white bg-[#c74444];
+}
+
+.dark .tag-sm.tag-red {
+  @apply text-[oklch(0.85_0.15_15)] bg-[oklch(0.25_0.08_15)];
+}
+
 /* ==========================================================================
    Table Headers (right-aligned, display font)
    ========================================================================== */

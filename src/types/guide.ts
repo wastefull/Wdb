@@ -6,12 +6,26 @@
 export type GuideMethod = "DIY" | "Industrial" | "Experimental";
 export type GuideStatus = "draft" | "published" | "pending_review" | "archived";
 
+// Tiptap JSON content structure
+export interface TiptapContent {
+  type: "doc";
+  content: TiptapNode[];
+}
+
+export interface TiptapNode {
+  type: string;
+  attrs?: Record<string, any>;
+  content?: TiptapNode[];
+  marks?: Array<{ type: string; attrs?: Record<string, any> }>;
+  text?: string;
+}
+
 export interface Guide {
   id: string;
   title: string;
   slug: string;
   description: string;
-  content: string; // Markdown content
+  content: TiptapContent; // Rich text content in Tiptap JSON format
   method: GuideMethod;
   material_id?: string; // Optional link to a material
   material_name?: string; // Denormalized for display
@@ -51,7 +65,7 @@ export interface Guide {
 export interface GuideSubmission {
   title: string;
   description: string;
-  content: string;
+  content: TiptapContent;
   method: GuideMethod;
   material_id?: string;
   difficulty_level?: "beginner" | "intermediate" | "advanced";
