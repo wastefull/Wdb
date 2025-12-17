@@ -104,6 +104,54 @@ export function SimplifiedRoadmap({
     },
     {
       priority: "medium",
+      category: "Guides System",
+      items: [
+        {
+          title: "Guide Renderer Common Mistakes Section",
+          description:
+            "Add support for rendering 'Common Mistakes' section in GuideRenderer with retro-card styling",
+          effort: "1 hour",
+          status: "Identified December 17, 2025",
+        },
+        {
+          title: "View Count Increment",
+          description:
+            "Track and increment view count when guide detail page loads",
+          effort: "30 minutes",
+          status: "Identified December 17, 2025",
+        },
+        {
+          title: "Read Time Calculation and Display",
+          description:
+            "Calculate estimated read time and display on guide cards with clock icon",
+          effort: "30 minutes",
+          status: "Identified December 17, 2025",
+        },
+        {
+          title: "Share Guide Functionality",
+          description:
+            "Add share button using Web Share API with clipboard fallback",
+          effort: "1 hour",
+          status: "Identified December 17, 2025",
+        },
+        {
+          title: "PDF Export for Guides",
+          description:
+            "Generate downloadable PDF version of guides with download tracking",
+          effort: "2-3 hours",
+          status: "Identified December 17, 2025",
+        },
+        {
+          title: "Create Paper Recycling 101 Example Guide",
+          description:
+            "Create the example guide from mockup to demonstrate full system capabilities",
+          effort: "1 hour",
+          status: "Identified December 17, 2025",
+        },
+      ],
+    },
+    {
+      priority: "medium",
       category: "Content Management",
       items: [
         {
@@ -160,6 +208,54 @@ export function SimplifiedRoadmap({
             "Support complex searches like (aluminum OR aluminium) AND recycling NOT contamination",
           effort: "5-6 hours",
           status: "Future work from Phase 9.0 Day 5",
+        },
+      ],
+    },
+    {
+      priority: "medium",
+      category: "Guides System",
+      items: [
+        {
+          title: "Guide Renderer Common Mistakes Section",
+          description:
+            "Add support for rendering 'Common Mistakes' section in GuideRenderer with retro-card styling",
+          effort: "1 hour",
+          status: "Identified December 17, 2025",
+        },
+        {
+          title: "View Count Increment",
+          description:
+            "Track and increment view count when guide detail page loads",
+          effort: "30 minutes",
+          status: "Identified December 17, 2025",
+        },
+        {
+          title: "Read Time Calculation and Display",
+          description:
+            "Calculate estimated read time and display on guide cards with clock icon",
+          effort: "30 minutes",
+          status: "Identified December 17, 2025",
+        },
+        {
+          title: "Share Guide Functionality",
+          description:
+            "Add share button using Web Share API with clipboard fallback",
+          effort: "1 hour",
+          status: "Identified December 17, 2025",
+        },
+        {
+          title: "PDF Export for Guides",
+          description:
+            "Generate downloadable PDF version of guides with download tracking",
+          effort: "2-3 hours",
+          status: "Identified December 17, 2025",
+        },
+        {
+          title: "Create Paper Recycling 101 Example Guide",
+          description:
+            "Create the example guide from mockup to demonstrate full system capabilities",
+          effort: "1 hour",
+          status: "Identified December 17, 2025",
         },
       ],
     },

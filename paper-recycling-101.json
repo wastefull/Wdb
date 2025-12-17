@@ -1,0 +1,692 @@
+{
+    "title": "Paper Recycling 101: A Complete Guide",
+    "slug": "paper-recycling-101",
+    "description": "Learn how to properly recycle paper products in most jurisdictions, including what's accepted, preparation steps, and common mistakes to avoid.",
+    "method": "DIY",
+    "difficulty_level": "beginner",
+    "estimated_time": "8 minutes",
+    "cover_image_url": "https://images.unsplash.com/photo-1594322436404-5a0526db4d13?w=1200&q=80",
+    "required_materials": [
+        "Paper products",
+        "Recycling bin",
+        "Basic knowledge of local recycling rules"
+    ],
+    "tags": [
+        "recycling",
+        "paper",
+        "beginner",
+        "sustainability"
+    ],
+    "content": {
+        "type": "doc",
+        "content": [
+            {
+                "type": "paragraph",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": "Paper recycling is one of the easiest and most impactful ways to reduce waste. In most jurisdictions, paper products make up 25-40% of household waste, and the majority can be recycled. This guide covers everything you need to know about recycling paper correctly, from identifying recyclable paper types to preparing them for your curbside bin."
+                    }
+                ]
+            },
+            {
+                "type": "section",
+                "attrs": {
+                    "title": "What Paper Can Be Recycled?"
+                },
+                "content": [
+                    {
+                        "type": "paragraph",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": "Most clean, dry paper products are recyclable. The key is understanding which types are accepted in your local program."
+                            }
+                        ]
+                    },
+                    {
+                        "type": "bulletList",
+                        "content": [
+                            {
+                                "type": "listItem",
+                                "content": [
+                                    {
+                                        "type": "paragraph",
+                                        "content": [
+                                            {
+                                                "type": "text",
+                                                "marks": [
+                                                    {
+                                                        "type": "bold"
+                                                    }
+                                                ],
+                                                "text": "Office paper"
+                                            },
+                                            {
+                                                "type": "text",
+                                                "text": " - printer paper, notebook paper, letterhead"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "listItem",
+                                "content": [
+                                    {
+                                        "type": "paragraph",
+                                        "content": [
+                                            {
+                                                "type": "text",
+                                                "marks": [
+                                                    {
+                                                        "type": "bold"
+                                                    }
+                                                ],
+                                                "text": "Newspapers and magazines"
+                                            },
+                                            {
+                                                "type": "text",
+                                                "text": " - including glossy pages and inserts"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "listItem",
+                                "content": [
+                                    {
+                                        "type": "paragraph",
+                                        "content": [
+                                            {
+                                                "type": "text",
+                                                "marks": [
+                                                    {
+                                                        "type": "bold"
+                                                    }
+                                                ],
+                                                "text": "Cardboard boxes"
+                                            },
+                                            {
+                                                "type": "text",
+                                                "text": " - flattened (see separate cardboard guide for details)"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "listItem",
+                                "content": [
+                                    {
+                                        "type": "paragraph",
+                                        "content": [
+                                            {
+                                                "type": "text",
+                                                "marks": [
+                                                    {
+                                                        "type": "bold"
+                                                    }
+                                                ],
+                                                "text": "Paper bags"
+                                            },
+                                            {
+                                                "type": "text",
+                                                "text": " - shopping bags, lunch bags, and kraft paper"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "listItem",
+                                "content": [
+                                    {
+                                        "type": "paragraph",
+                                        "content": [
+                                            {
+                                                "type": "text",
+                                                "marks": [
+                                                    {
+                                                        "type": "bold"
+                                                    }
+                                                ],
+                                                "text": "Mail and envelopes"
+                                            },
+                                            {
+                                                "type": "text",
+                                                "text": " - including windowed envelopes (windows are OK)"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "section",
+                "attrs": {
+                    "title": "What Paper CANNOT Be Recycled?"
+                },
+                "content": [
+                    {
+                        "type": "paragraph",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": "These items contaminate recycling streams and should go in trash or compost (where applicable):"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "bulletList",
+                        "content": [
+                            {
+                                "type": "listItem",
+                                "content": [
+                                    {
+                                        "type": "paragraph",
+                                        "content": [
+                                            {
+                                                "type": "text",
+                                                "marks": [
+                                                    {
+                                                        "type": "bold"
+                                                    }
+                                                ],
+                                                "text": "Soiled paper"
+                                            },
+                                            {
+                                                "type": "text",
+                                                "text": " - greasy pizza boxes (bottom), food-stained napkins, paper towels"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "listItem",
+                                "content": [
+                                    {
+                                        "type": "paragraph",
+                                        "content": [
+                                            {
+                                                "type": "text",
+                                                "marks": [
+                                                    {
+                                                        "type": "bold"
+                                                    }
+                                                ],
+                                                "text": "Waxed paper"
+                                            },
+                                            {
+                                                "type": "text",
+                                                "text": " - includes most milk/juice cartons (check for plastic lining)"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "listItem",
+                                "content": [
+                                    {
+                                        "type": "paragraph",
+                                        "content": [
+                                            {
+                                                "type": "text",
+                                                "marks": [
+                                                    {
+                                                        "type": "bold"
+                                                    }
+                                                ],
+                                                "text": "Thermal paper"
+                                            },
+                                            {
+                                                "type": "text",
+                                                "text": " - receipts, some fax paper, lottery tickets"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "listItem",
+                                "content": [
+                                    {
+                                        "type": "paragraph",
+                                        "content": [
+                                            {
+                                                "type": "text",
+                                                "marks": [
+                                                    {
+                                                        "type": "bold"
+                                                    }
+                                                ],
+                                                "text": "Laminated paper"
+                                            },
+                                            {
+                                                "type": "text",
+                                                "text": " - ID badges, some business cards"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "warning",
+                        "content": [
+                            {
+                                "type": "paragraph",
+                                "content": [
+                                    {
+                                        "type": "text",
+                                        "text": "When in doubt, check your local recycling guidelines. Rules vary by municipality and recycling facility capabilities."
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "section",
+                "attrs": {
+                    "title": "How to Prepare Paper for Recycling"
+                },
+                "content": [
+                    {
+                        "type": "paragraph",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": "Proper preparation ensures your paper actually gets recycled and doesn't contaminate other materials."
+                            }
+                        ]
+                    },
+                    {
+                        "type": "orderedList",
+                        "content": [
+                            {
+                                "type": "listItem",
+                                "content": [
+                                    {
+                                        "type": "paragraph",
+                                        "content": [
+                                            {
+                                                "type": "text",
+                                                "marks": [
+                                                    {
+                                                        "type": "bold"
+                                                    }
+                                                ],
+                                                "text": "Remove contaminants"
+                                            },
+                                            {
+                                                "type": "text",
+                                                "text": " - Take out plastic windows from envelopes, remove spiral bindings from notebooks, tear off tape from boxes"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "listItem",
+                                "content": [
+                                    {
+                                        "type": "paragraph",
+                                        "content": [
+                                            {
+                                                "type": "text",
+                                                "marks": [
+                                                    {
+                                                        "type": "bold"
+                                                    }
+                                                ],
+                                                "text": "Keep it dry"
+                                            },
+                                            {
+                                                "type": "text",
+                                                "text": " - Wet paper clogs machinery. Store recyclables indoors or use covered bins"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "listItem",
+                                "content": [
+                                    {
+                                        "type": "paragraph",
+                                        "content": [
+                                            {
+                                                "type": "text",
+                                                "marks": [
+                                                    {
+                                                        "type": "bold"
+                                                    }
+                                                ],
+                                                "text": "No bagging"
+                                            },
+                                            {
+                                                "type": "text",
+                                                "text": " - Place paper loose in your recycling bin, never in plastic bags"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "listItem",
+                                "content": [
+                                    {
+                                        "type": "paragraph",
+                                        "content": [
+                                            {
+                                                "type": "text",
+                                                "marks": [
+                                                    {
+                                                        "type": "bold"
+                                                    }
+                                                ],
+                                                "text": "Flatten boxes"
+                                            },
+                                            {
+                                                "type": "text",
+                                                "text": " - Break down cardboard to save space and make processing easier"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "section",
+                "attrs": {
+                    "title": "The Paper Recycling Process"
+                },
+                "content": [
+                    {
+                        "type": "paragraph",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": "Understanding what happens after collection helps you recycle better:"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "bulletList",
+                        "content": [
+                            {
+                                "type": "listItem",
+                                "content": [
+                                    {
+                                        "type": "paragraph",
+                                        "content": [
+                                            {
+                                                "type": "text",
+                                                "marks": [
+                                                    {
+                                                        "type": "bold"
+                                                    }
+                                                ],
+                                                "text": "Collection"
+                                            },
+                                            {
+                                                "type": "text",
+                                                "text": " - Your curbside bin is transported to a Materials Recovery Facility (MRF)"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "listItem",
+                                "content": [
+                                    {
+                                        "type": "paragraph",
+                                        "content": [
+                                            {
+                                                "type": "text",
+                                                "marks": [
+                                                    {
+                                                        "type": "bold"
+                                                    }
+                                                ],
+                                                "text": "Sorting"
+                                            },
+                                            {
+                                                "type": "text",
+                                                "text": " - Paper is separated by grade using screens and optical scanners"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "listItem",
+                                "content": [
+                                    {
+                                        "type": "paragraph",
+                                        "content": [
+                                            {
+                                                "type": "text",
+                                                "marks": [
+                                                    {
+                                                        "type": "bold"
+                                                    }
+                                                ],
+                                                "text": "Pulping"
+                                            },
+                                            {
+                                                "type": "text",
+                                                "text": " - At the mill, paper is mixed with water and chemicals to break down fibers"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "listItem",
+                                "content": [
+                                    {
+                                        "type": "paragraph",
+                                        "content": [
+                                            {
+                                                "type": "text",
+                                                "marks": [
+                                                    {
+                                                        "type": "bold"
+                                                    }
+                                                ],
+                                                "text": "New products"
+                                            },
+                                            {
+                                                "type": "text",
+                                                "text": " - Recycled pulp becomes newspaper, cardboard, tissue, or office paper"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "section",
+                "attrs": {
+                    "title": "Environmental Impact"
+                },
+                "content": [
+                    {
+                        "type": "paragraph",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": "The benefits of paper recycling are significant:"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "bulletList",
+                        "content": [
+                            {
+                                "type": "listItem",
+                                "content": [
+                                    {
+                                        "type": "paragraph",
+                                        "content": [
+                                            {
+                                                "type": "text",
+                                                "marks": [
+                                                    {
+                                                        "type": "bold"
+                                                    }
+                                                ],
+                                                "text": "Saves trees"
+                                            },
+                                            {
+                                                "type": "text",
+                                                "text": " - Recycling 1 ton of paper saves 17 trees"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "listItem",
+                                "content": [
+                                    {
+                                        "type": "paragraph",
+                                        "content": [
+                                            {
+                                                "type": "text",
+                                                "marks": [
+                                                    {
+                                                        "type": "bold"
+                                                    }
+                                                ],
+                                                "text": "Conserves water"
+                                            },
+                                            {
+                                                "type": "text",
+                                                "text": " - Uses 70% less water than making virgin paper"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "listItem",
+                                "content": [
+                                    {
+                                        "type": "paragraph",
+                                        "content": [
+                                            {
+                                                "type": "text",
+                                                "marks": [
+                                                    {
+                                                        "type": "bold"
+                                                    }
+                                                ],
+                                                "text": "Reduces energy"
+                                            },
+                                            {
+                                                "type": "text",
+                                                "text": " - Requires 40% less energy than making new paper from trees"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "listItem",
+                                "content": [
+                                    {
+                                        "type": "paragraph",
+                                        "content": [
+                                            {
+                                                "type": "text",
+                                                "marks": [
+                                                    {
+                                                        "type": "bold"
+                                                    }
+                                                ],
+                                                "text": "Cuts emissions"
+                                            },
+                                            {
+                                                "type": "text",
+                                                "text": " - Reduces greenhouse gas emissions by up to 74%"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "listItem",
+                                "content": [
+                                    {
+                                        "type": "paragraph",
+                                        "content": [
+                                            {
+                                                "type": "text",
+                                                "marks": [
+                                                    {
+                                                        "type": "bold"
+                                                    }
+                                                ],
+                                                "text": "Creates jobs"
+                                            },
+                                            {
+                                                "type": "text",
+                                                "text": " - Recycling creates 4x more jobs than landfilling"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "tip",
+                "content": [
+                    {
+                        "type": "paragraph",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": "Set up a dedicated paper recycling bin in your home office to make it a habit. Use the scrunch test - if paper springs back after crumpling, it may have plastic coating."
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "resource",
+                "attrs": {
+                    "title": "Earth911 Recycling Search",
+                    "url": "https://earth911.com/recycling-center-search-guides/"
+                }
+            },
+            {
+                "type": "resource",
+                "attrs": {
+                    "title": "EPA Paper Recycling Guide",
+                    "url": "https://www.epa.gov/recycle/how-do-i-recycle-common-recyclables"
+                }
+            }
+        ]
+    }
+}

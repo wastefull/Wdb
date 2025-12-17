@@ -195,6 +195,36 @@ export default function GuideRenderer({ content }: GuideRendererProps) {
           </ol>
         );
 
+      case "checkItem":
+        const isCheck = node.attrs?.variant !== "cross";
+        return (
+          <div key={index} className="flex items-start gap-3 my-2">
+            <span
+              className={`mt-0.5 shrink-0 text-base ${
+                isCheck
+                  ? "text-green-600 dark:text-green-400"
+                  : "text-red-600 dark:text-red-400"
+              }`}
+            >
+              {isCheck ? "✓" : "✗"}
+            </span>
+            <div className="flex-1 text-[13px] text-black dark:text-white">
+              {node.content?.map((child: any, i: number) => {
+                if (child.type === "paragraph") {
+                  return (
+                    <span key={i}>
+                      {child.content?.map((c: any, j: number) =>
+                        renderInline(c, j)
+                      )}
+                    </span>
+                  );
+                }
+                return renderNode(child, i);
+              })}
+            </div>
+          </div>
+        );
+
       default:
         return null;
     }

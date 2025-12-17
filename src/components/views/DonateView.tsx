@@ -1,5 +1,5 @@
 import React from "react";
-import { Heart, Github, Leaf, Database } from "lucide-react";
+import { Heart, Megaphone, FlaskConical, Server } from "lucide-react";
 import { PageTemplate } from "../shared/PageTemplate";
 
 interface DonateViewProps {
@@ -9,47 +9,50 @@ interface DonateViewProps {
 export function DonateView({ onBack }: DonateViewProps) {
   const projects = [
     {
-      id: "wastedb",
-      title: "WasteDB Platform",
+      id: "visibility",
+      title: "Visibility & Integrity Drive",
       description:
-        "Support the development and maintenance of the WasteDB platform, including server costs, data infrastructure, and new features.",
-      icon: Database,
-      iconClass: "arcade-bg-cyan arcade-btn-cyan",
-      link: "#", // TODO: Add actual donation link
-    },
-    {
-      id: "open-source",
-      title: "Open Source Tools",
-      description:
-        "Help us build and maintain open source tools for waste data analysis, visualization, and research collaboration.",
-      icon: Github,
+        "Help us advertise! Our research and educational resources are only as useful as the public's awareness of them.",
+      icon: Megaphone,
       iconClass: "arcade-bg-amber arcade-btn-amber",
-      link: "#", // TODO: Add actual donation link
+      link: "https://www.zeffy.com/donation-form/visibility-and-integrity-drive",
     },
     {
-      id: "sustainability",
-      title: "Sustainability Research",
+      id: "research",
+      title: "Research Fund",
       description:
-        "Fund research initiatives focused on waste reduction, circular economy, and sustainable material management.",
-      icon: Leaf,
+        "Contribute directly to our compost and recycling research. The biggest bill here is testing consumer products for things like microplastics, which has do be done at specialty labs.",
+      icon: FlaskConical,
       iconClass: "arcade-bg-green arcade-btn-green",
-      link: "#", // TODO: Add actual donation link
+      link: "https://www.zeffy.com/donation-form/research-fund",
+    },
+    {
+      id: "digital",
+      title: "Digital Foundations Fund",
+      description:
+        "Developing tools like the WasteDB and educational materials for the public is a critical part of our mission, and while our staff are volunteers, hosting and tooling are not free.",
+      icon: Server,
+      iconClass: "arcade-bg-cyan arcade-btn-cyan",
+      link: "https://www.zeffy.com/donation-form/donate-to-make-a-difference-11641",
     },
   ];
 
   return (
     <PageTemplate
-      title="Support WasteDB"
-      description="Help us keep WasteDB free and accessible to everyone"
+      title="Support our Mission"
+      description="Your money. Your choice."
       onBack={onBack}
     >
       <div className="max-w-4xl mx-auto">
         {/* Intro */}
         <div className="mb-8 text-center">
+          <p className="text-[14px] text-black/70 dark:text-white/70 leading-relaxed mb-4">
+            Wastefull is a nonprofit, nonpolitical organization dedicated to
+            open research and free educational resources.
+          </p>
           <p className="text-[14px] text-black/70 dark:text-white/70 leading-relaxed">
-            WasteDB is a community-driven, open source project. Your support
-            helps us maintain the platform, develop new features, and keep all
-            data freely accessible.
+            We're your organization, and you have a say in where every penny you
+            contribute actually goes.
           </p>
         </div>
 
@@ -71,63 +74,36 @@ export function DonateView({ onBack }: DonateViewProps) {
                 <p className="text-[12px] text-black/60 dark:text-white/60 leading-relaxed mb-4 flex-1">
                   {project.description}
                 </p>
-                <button
-                  className="retro-btn-primary w-full px-4 py-2 bg-waste-science hover:bg-waste-science/80 text-black text-[12px]"
-                  onClick={() => {
-                    // TODO: Integrate with actual donation system
-                    console.log("Donate to:", project.id);
-                  }}
+                <a
+                  href={project.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="retro-btn-primary w-full px-4 py-2 bg-waste-science hover:bg-waste-science/80 text-black text-[12px] text-center"
                 >
                   <Heart size={14} className="inline-block mr-2" />
                   Donate
-                </button>
+                </a>
               </div>
             );
           })}
         </div>
 
-        {/* Other Ways to Help */}
-        <div className="retro-card p-6">
-          <h3 className="text-[16px] font-display text-black dark:text-white mb-4 text-center">
-            Other Ways to Help
-          </h3>
-          <div className="space-y-3 text-[13px] text-black/70 dark:text-white/70">
-            <div className="flex items-start gap-3">
-              <span className="text-[18px]">📚</span>
-              <p>
-                <strong>Contribute Data:</strong> Share research, articles, or
-                case studies about waste management
-              </p>
-            </div>
-            <div className="flex items-start gap-3">
-              <span className="text-[18px]">💻</span>
-              <p>
-                <strong>Contribute Code:</strong> Help develop new features or
-                fix bugs on GitHub
-              </p>
-            </div>
-            <div className="flex items-start gap-3">
-              <span className="text-[18px]">📢</span>
-              <p>
-                <strong>Spread the Word:</strong> Share WasteDB with
-                researchers, educators, and sustainability advocates
-              </p>
-            </div>
-            <div className="flex items-start gap-3">
-              <span className="text-[18px]">✅</span>
-              <p>
-                <strong>Review Content:</strong> Help verify and improve the
-                quality of submitted data
-              </p>
-            </div>
-          </div>
+        {/* Thank You Message */}
+        <div className="retro-card p-6 text-center mb-8">
+          <p className="text-[15px] text-black/70 dark:text-white/70 leading-relaxed">
+            Every dollar means so much to us. Thank you for considering
+            supporting our mission. <br />
+            While we hope to do this full-time in the distant future, no one is
+            getting paid to work here, but research and development require
+            money.
+          </p>
         </div>
 
-        {/* Thank You */}
-        <div className="mt-8 p-4 border border-[#211f1c]/20 dark:border-white/20 rounded-lg text-center">
-          <p className="text-[13px] text-black/60 dark:text-white/60">
-            <Heart size={16} className="inline-block mr-2" />
-            Thank you for supporting open, accessible environmental data!
+        {/* Footer Note */}
+        <div className="p-4 border border-[#211f1c]/20 dark:border-white/20 rounded-lg text-center">
+          <p className="text-[12px] text-black/60 dark:text-white/60">
+            Wastefull, Inc. is a registered California 501(c)(3) nonprofit
+            organization. Donations to the organization may be tax deductible.
           </p>
         </div>
       </div>

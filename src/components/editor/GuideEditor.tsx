@@ -13,12 +13,15 @@ import {
   AlertCircle,
   ExternalLink,
   Layout,
+  CheckCircle,
+  XCircle,
 } from "lucide-react";
 import { Section } from "./extensions/Section";
 import { Tip } from "./extensions/Tip";
 import { Warning } from "./extensions/Warning";
 import { StepList, StepItem } from "./extensions/StepList";
 import { Resource } from "./extensions/Resource";
+import { CheckItem } from "./extensions/CheckItem";
 
 interface GuideEditorProps {
   initialContent?: any;
@@ -48,6 +51,7 @@ export default function GuideEditor({
       StepList,
       StepItem,
       Resource,
+      CheckItem,
     ],
     content: initialContent,
     onUpdate: ({ editor }) => {
@@ -176,6 +180,25 @@ export default function GuideEditor({
           title="Add Warning"
         >
           <AlertCircle size={16} />
+        </button>
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().toggleCheckItems().run()}
+          className="retro-icon-button"
+          title="Add Check Item (✅) - or convert selected list"
+        >
+          <CheckCircle
+            size={16}
+            className="text-green-600 dark:text-green-400"
+          />
+        </button>
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().toggleCrossItems().run()}
+          className="retro-icon-button"
+          title="Add Cross Item (❌) - or convert selected list"
+        >
+          <XCircle size={16} className="text-red-600 dark:text-red-400" />
         </button>
         <button
           type="button"

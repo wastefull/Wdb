@@ -615,7 +615,7 @@ function AppContent() {
                             ? "https://bdvfwjmaufjeqmxphmtv.supabase.co/storage/v1/object/public/make-17cae920-assets/logo_darkmode-1763068549938.png"
                             : "https://bdvfwjmaufjeqmxphmtv.supabase.co/storage/v1/object/public/make-17cae920-assets/uplogo_transparent-1761169051994.png"
                         }
-                        alt="WasteDB Logo"
+                        alt="Wastefull Logo"
                         className={
                           settings.darkMode
                             ? "h-52 lg:h-64 w-auto"

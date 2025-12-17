@@ -84,6 +84,72 @@ This document tracks all backlog items, future enhancements, and deferred work f
    - **Estimated Effort:** 3-4 hours
    - **Dependencies:** None
 
+### Guides System Enhancements
+
+**Status:** Identified December 17, 2025  
+**Related:** `/docs/roadmap/guides/overview.md`, `/docs/roadmap/guides/editor.md`
+
+1. **Guide Renderer Common Mistakes Section**
+
+   - **Description:** Add support for rendering "Common Mistakes" section in GuideRenderer
+   - **Tasks:**
+     - [ ] Add common mistakes rendering in GuideRenderer component
+     - [ ] Match styling from mockup (retro-card with AlertCircle icon)
+     - [ ] Parse markdown formatting in mistakes list
+   - **Estimated Effort:** 1 hour
+   - **Dependencies:** None
+
+2. **View Count Increment**
+
+   - **Description:** Track and increment view count when guide detail page loads
+   - **Tasks:**
+     - [ ] Add view count increment endpoint
+     - [ ] Call endpoint on guide detail page mount
+     - [ ] Update local state after increment
+   - **Estimated Effort:** 30 minutes
+   - **Dependencies:** None
+
+3. **Read Time Calculation and Display**
+
+   - **Description:** Calculate estimated read time and display on guide cards
+   - **Tasks:**
+     - [ ] Add read time calculation utility (words per minute)
+     - [ ] Display read time on guide cards
+     - [ ] Add clock icon with time estimate
+   - **Estimated Effort:** 30 minutes
+   - **Dependencies:** None
+
+4. **Share Guide Functionality**
+
+   - **Description:** Add share button to copy guide URL or use Web Share API
+   - **Tasks:**
+     - [ ] Add share button to guide detail page
+     - [ ] Implement Web Share API with fallback to clipboard
+     - [ ] Add toast notification on successful share
+   - **Estimated Effort:** 1 hour
+   - **Dependencies:** None
+
+5. **PDF Export for Guides**
+
+   - **Description:** Generate downloadable PDF version of guides
+   - **Tasks:**
+     - [ ] Add PDF generation library (react-pdf or jsPDF)
+     - [ ] Create PDF template matching guide styling
+     - [ ] Add download PDF button to guide detail page
+     - [ ] Track download count
+   - **Estimated Effort:** 2-3 hours
+   - **Dependencies:** None
+
+6. **Create Paper Recycling 101 Example Guide**
+   - **Description:** Create the example guide from mockup to demonstrate full system
+   - **Tasks:**
+     - [ ] Create guide using submission form
+     - [ ] Add all sections from mockup (What Can Be Recycled, Cannot Be Recycled, Preparation, Process, Impact)
+     - [ ] Add tips and resources
+     - [ ] Add appropriate cover image from Unsplash
+   - **Estimated Effort:** 1 hour
+   - **Dependencies:** None
+
 ### Source Library Enhancements
 
 **Status:** Future work identified in Phase 9.0 Day 5  
@@ -345,6 +411,7 @@ This document tracks all backlog items, future enhancements, and deferred work f
 | ------------------ | ----- | ------ | ------ | ------ |
 | Data Retention     | 4     | 0      | 0      | 4      |
 | Content Management | 0     | 1      | 0      | 1      |
+| Guides System      | 0     | 6      | 0      | 6      |
 | Source Library     | 0     | 6      | 0      | 6      |
 | Audit Logging      | 0     | 1      | 0      | 1      |
 | Authentication     | 0     | 0      | 4      | 4      |
@@ -353,7 +420,7 @@ This document tracks all backlog items, future enhancements, and deferred work f
 | Logging            | 0     | 0      | 3      | 3      |
 | Caching            | 0     | 0      | 3      | 3      |
 | API/Dev Tools      | 0     | 0      | 3      | 3      |
-| **Total**          | **4** | **8**  | **20** | **32** |
+| **Total**          | **4** | **14** | **20** | **38** |
 
 ---
 
