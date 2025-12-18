@@ -29,6 +29,41 @@ interface GuideEditorProps {
   placeholder?: string;
 }
 
+// Helper to remove bold marks from heading nodes (Sniglet looks bad in bold)
+const stripBoldFromHeadings = (content: any): any => {
+  if (!content) return content;
+
+  if (Array.isArray(content)) {
+    return content.map(stripBoldFromHeadings);
+  }
+
+  if (typeof content === "object") {
+    const node = { ...content };
+
+    // If this is a heading, strip bold marks from its content
+    if (node.type === "heading" && node.content) {
+      node.content = node.content.map((child: any) => {
+        if (child.type === "text" && child.marks) {
+          return {
+            ...child,
+            marks: child.marks.filter((mark: any) => mark.type !== "bold"),
+          };
+        }
+        return child;
+      });
+    }
+
+    // Recursively process children
+    if (node.content) {
+      node.content = stripBoldFromHeadings(node.content);
+    }
+
+    return node;
+  }
+
+  return content;
+};
+
 export default function GuideEditor({
   initialContent,
   onChange,
@@ -55,7 +90,9 @@ export default function GuideEditor({
     ],
     content: initialContent,
     onUpdate: ({ editor }) => {
-      onChange?.(editor.getJSON());
+      // Strip bold marks from headings before passing to onChange
+      const sanitizedContent = stripBoldFromHeadings(editor.getJSON());
+      onChange?.(sanitizedContent);
     },
   });
 

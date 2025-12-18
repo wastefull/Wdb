@@ -1,3 +1,4 @@
+import React from "react";
 import { Lightbulb, AlertCircle, ExternalLink } from "lucide-react";
 
 interface GuideRendererProps {
@@ -230,20 +231,53 @@ export default function GuideRenderer({ content }: GuideRendererProps) {
     }
   };
 
+  // Helper to format text with reference superscripts [1], [2], etc.
+  const formatReferences = (text: string, baseKey: number): React.ReactNode => {
+    // Match patterns like [1], [2], [12], etc.
+    const refPattern = /\[(\d+)\]/g;
+    const parts: React.ReactNode[] = [];
+    let lastIndex = 0;
+    let match;
+    let partIndex = 0;
+
+    while ((match = refPattern.exec(text)) !== null) {
+      // Add text before the match
+      if (match.index > lastIndex) {
+        parts.push(text.slice(lastIndex, match.index));
+      }
+      // Add the reference as superscript
+      parts.push(
+        <sup key={`${baseKey}-ref-${partIndex}`} className="ref-sup">
+          [{match[1]}]
+        </sup>
+      );
+      lastIndex = match.index + match[0].length;
+      partIndex++;
+    }
+
+    // Add remaining text
+    if (lastIndex < text.length) {
+      parts.push(text.slice(lastIndex));
+    }
+
+    // Return original text if no references found
+    return parts.length > 0 ? parts : text;
+  };
+
   const renderInline = (node: any, index: number) => {
     if (node.type === "text") {
-      let text = node.text;
+      let content: React.ReactNode = formatReferences(node.text, index);
 
       if (node.marks) {
         node.marks.forEach((mark: any) => {
           if (mark.type === "bold") {
-            text = <strong key={index}>{text}</strong>;
+            content = <strong key={index}>{content}</strong>;
           }
           if (mark.type === "italic") {
-            text = <em key={index}>{text}</em>;
+            content = <em key={index}>{content}</em>;
           }
           if (mark.type === "link") {
-            text = (
+            content = (
               <a
                 key={index}
                 href={mark.attrs.href}
@@ -251,14 +285,14 @@ export default function GuideRenderer({ content }: GuideRendererProps) {
                 rel="noopener noreferrer"
                 className="underline text-black dark:text-white hover:opacity-60"
               >
-                {text}
+                {content}
               </a>
             );
           }
         });
       }
 
-      return text;
+      return content;
     }
     return null;
   };

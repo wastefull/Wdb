@@ -155,6 +155,27 @@
   background-image: var(--texture);
   background-size: var(--texture-size);
 }
+
+/* ==========================================================================
+   Typography Overrides
+   ========================================================================== */
+/* Bold text uses Tilt Warp font (Sniglet doesn't look good bold) */
+/* Exclude headings so they stay in Sniglet/display font */
+strong:not(h1 strong, h2 strong, h3 strong, h4 strong, h5 strong, h6 strong),
+b:not(h1 b, h2 b, h3 b, h4 b, h5 b, h6 b),
+.font-bold:not(h1, h2, h3, h4, h5, h6, [class*="font-display"]) {
+  font-family: "Tilt Warp", "Sniglet", sans-serif;
+  font-weight: 400; /* Tilt Warp only has one weight */
+}
+
+/* Reference numbers [1], [2], etc. rendered as superscript */
+.ref-sup {
+  font-size: 0.75em;
+  vertical-align: super;
+  line-height: 0;
+  color: var(--waste-science);
+}
+
 /* ==========================================================================
    Tailwind Theme Extensions
    ========================================================================== */
