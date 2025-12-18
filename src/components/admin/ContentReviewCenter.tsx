@@ -104,12 +104,6 @@ export function ContentReviewCenter({
     wasEditedByAdmin: boolean = false
   ) => {
     try {
-      // Update submission status
-      await api.updateSubmission(submissionId, {
-        status: "approved",
-        reviewed_by: currentUserId,
-      });
-
       const submission = submissions.find((s) => s.id === submissionId);
       if (!submission) return;
 
@@ -136,11 +130,15 @@ export function ContentReviewCenter({
         }
       }
 
-      // Process based on submission type
+      // Process based on submission type - CREATE CONTENT FIRST before marking as approved
       if (submission.type === "new_material") {
         // Create new material
         const materialData = editedContent || submission.content_data;
+        // Generate a unique ID for the new material
+        const materialId =
+          Date.now().toString() + Math.random().toString(36).substr(2, 9);
         await api.saveMaterial({
+          id: materialId,
           name: materialData.name,
           category: materialData.category,
           description: materialData.description,
@@ -180,7 +178,13 @@ export function ContentReviewCenter({
         console.log("Article approval:", articleData);
       }
 
-      // Send approval email and notification
+      // Content creation succeeded - NOW update submission status to approved
+      await api.updateSubmission(submissionId, {
+        status: "approved",
+        reviewed_by: currentUserId,
+      });
+
+      // Send approval email and notification ONLY after content is created and status is updated
       try {
         const writerProfile = await api.getUserProfile(submission.submitted_by);
         const contentName =
