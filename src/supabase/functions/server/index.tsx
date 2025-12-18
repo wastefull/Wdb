@@ -1357,17 +1357,55 @@ app.post(
 
       // First, get all existing materials
       const existingMaterials = await kv.getByPrefix("material:");
+      const existingCount = existingMaterials?.length || 0;
+
+      // AUDIT: Log bulk operations, especially potential data loss
+      const isBulkDelete = existingCount > 0 && materials.length === 0;
+      const isPotentialDataLoss = existingCount > 1 && materials.length <= 1;
+      const isSignificantChange =
+        Math.abs(existingCount - materials.length) > 5;
+
+      if (isBulkDelete || isPotentialDataLoss || isSignificantChange) {
+        // Create audit log for significant bulk operations
+        await createAuditLog({
+          userId: c.get("userId"),
+          userEmail: c.get("userEmail"),
+          entityType: "materials_bulk",
+          entityId: "batch_save",
+          action: isBulkDelete ? "delete" : "update",
+          before: {
+            count: existingCount,
+            materials_preview: existingMaterials
+              ?.slice(0, 5)
+              .map((m: any) => ({ id: m.id, name: m.name })),
+          },
+          after: {
+            count: materials.length,
+            is_bulk_delete: isBulkDelete,
+            is_potential_data_loss: isPotentialDataLoss,
+            materials_preview: materials
+              .slice(0, 5)
+              .map((m: any) => ({ id: m.id, name: m.name })),
+          },
+          req: c,
+        });
+        console.log(
+          `AUDIT: Bulk material operation - ${existingCount} → ${materials.length} materials`
+        );
+      }
 
       // Delete all existing materials
       if (existingMaterials && existingMaterials.length > 0) {
-        const keysToDelete = existingMaterials.map((m) => `material:${m.id}`);
+        const keysToDelete = existingMaterials.map(
+          (m: any) => `material:${m.id}`
+        );
         await kv.mdel(keysToDelete);
         console.log(`Deleted ${keysToDelete.length} existing materials`);
       }
 
       // Now save the new materials (if any)
       if (materials.length > 0) {
-        const keys = materials.map((m) => `material:${m.id}`);
+        const keys = materials.map((m: any) => `material:${m.id}`);
         const values = materials;
         await kv.mset(keys, values);
         console.log(`Saved ${materials.length} materials`);

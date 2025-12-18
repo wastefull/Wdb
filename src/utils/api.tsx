@@ -291,6 +291,21 @@ export async function deleteAllMaterials(): Promise<void> {
   });
 }
 
+// Create audit log entry (for frontend-initiated audit events)
+export async function createAuditLog(params: {
+  entityType: string;
+  entityId: string;
+  action: "create" | "update" | "delete";
+  before?: any;
+  after?: any;
+}): Promise<string> {
+  const data = await apiCall("/audit/log", {
+    method: "POST",
+    body: JSON.stringify(params),
+  });
+  return data.auditId;
+}
+
 // Get current user's role
 export async function getUserRole(): Promise<"user" | "admin"> {
   const data = await apiCall("/users/me/role");

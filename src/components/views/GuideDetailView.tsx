@@ -29,7 +29,7 @@ export function GuideDetailView({ guideId, onBack }: GuideDetailViewProps) {
   const [showEditForm, setShowEditForm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const { materials } = useMaterialsContext();
-  const { user } = useAuthContext();
+  const { user, userRole } = useAuthContext();
 
   useEffect(() => {
     loadGuide();
@@ -240,7 +240,26 @@ export function GuideDetailView({ guideId, onBack }: GuideDetailViewProps) {
               <div className="flex flex-wrap gap-2">
                 <span className="tag-cyan">{guide.method}</span>
                 {guide.material_name && (
-                  <span className="tag-green">{guide.material_name}</span>
+                  <span
+                    className={`tag-green ${
+                      guide.material_id &&
+                      !materials.find((m) => m.id === guide.material_id)
+                        ? "opacity-60 line-through"
+                        : ""
+                    }`}
+                    title={
+                      guide.material_id &&
+                      !materials.find((m) => m.id === guide.material_id)
+                        ? "This material was deleted"
+                        : undefined
+                    }
+                  >
+                    {guide.material_name}
+                    {guide.material_id &&
+                      !materials.find((m) => m.id === guide.material_id) && (
+                        <span className="ml-1 text-amber-600">⚠️</span>
+                      )}
+                  </span>
                 )}
                 {guide.difficulty_level && (
                   <span className="tag-yellow">{guide.difficulty_level}</span>
@@ -316,6 +335,7 @@ export function GuideDetailView({ guideId, onBack }: GuideDetailViewProps) {
             materials={materials}
             onClose={() => setShowEditForm(false)}
             onSubmit={handleUpdateGuide}
+            isAdmin={userRole === "admin"}
           />
         )}
 

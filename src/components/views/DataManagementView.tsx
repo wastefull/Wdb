@@ -10,6 +10,8 @@ import {
   Eye,
   Save,
   X,
+  Database,
+  UploadCloud,
 } from "lucide-react";
 import { Material } from "../../types/material";
 import { getArticleCount } from "../../utils/materialArticles";
@@ -156,10 +158,29 @@ export function DataManagementView({
 
         if (!row.name || !row.category) continue;
 
+        // Validate category against allowed values
+        const validCategories = [
+          "Plastics",
+          "Metals",
+          "Glass",
+          "Paper & Cardboard",
+          "Fabrics & Textiles",
+          "Electronics & Batteries",
+          "Building Materials",
+          "Organic/Natural Waste",
+        ];
+        const category = row.category as Material["category"];
+        if (!validCategories.includes(category)) {
+          console.warn(
+            `Skipping material "${row.name}" with invalid category: ${row.category}`
+          );
+          continue;
+        }
+
         const newMaterial: Material = {
           id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
           name: row.name,
-          category: row.category,
+          category: category,
           description: row.description || "",
           compostability: Math.min(
             100,
@@ -254,6 +275,76 @@ export function DataManagementView({
     a.click();
     URL.revokeObjectURL(url);
     toast.success("Data exported successfully");
+  };
+
+  // Full JSON backup with all scientific data
+  const handleExportBackup = () => {
+    const backup = {
+      version: "1.0",
+      exported_at: new Date().toISOString(),
+      exported_by: user?.email || "unknown",
+      material_count: materials.length,
+      materials: materials,
+    };
+
+    const blob = new Blob([JSON.stringify(backup, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `wastedb-backup-${
+      new Date().toISOString().split("T")[0]
+    }.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success(
+      `Backup created: ${materials.length} materials with full scientific data`
+    );
+  };
+
+  // Import from JSON backup
+  const handleImportBackup = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const backup = JSON.parse(e.target?.result as string);
+
+        if (!backup.materials || !Array.isArray(backup.materials)) {
+          toast.error("Invalid backup file format");
+          return;
+        }
+
+        // Validate materials have required fields
+        const validMaterials = backup.materials.filter(
+          (m: any) =>
+            m.name &&
+            m.category &&
+            typeof m.compostability === "number" &&
+            typeof m.recyclability === "number" &&
+            typeof m.reusability === "number"
+        );
+
+        if (validMaterials.length === 0) {
+          toast.error("No valid materials found in backup");
+          return;
+        }
+
+        onBulkImport(validMaterials);
+        toast.success(
+          `Restored ${validMaterials.length} materials from backup (dated ${
+            backup.exported_at || "unknown"
+          })`
+        );
+      } catch (error) {
+        toast.error("Failed to parse backup file");
+      }
+      event.target.value = ""; // Reset file input
+    };
+    reader.readAsText(file);
   };
 
   return (
@@ -365,6 +456,42 @@ export function DataManagementView({
                 </AlertDialogContent>
               </AlertDialog>
             </div>
+          </div>
+
+          {/* Backup Section */}
+          <div className="retro-card-flat mb-4 p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <h3 className="text-[14px] normal">Full Database Backup</h3>
+                <p className="text-[11px] text-black/60 dark:text-white/60">
+                  Export/import all materials with complete scientific data
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleExportBackup}
+                  className="bg-waste-science h-9 px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] text-[11px] md:text-[12px] text-black hover:translate-y-px hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-1 md:gap-2"
+                >
+                  <Database size={14} className="text-black" />
+                  <span className="whitespace-nowrap">Download Backup</span>
+                </button>
+                <label className="bg-waste-recycle h-9 px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] text-[11px] md:text-[12px] text-black hover:translate-y-px hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-1 md:gap-2 cursor-pointer">
+                  <UploadCloud size={14} className="text-black" />
+                  <span className="whitespace-nowrap">Restore Backup</span>
+                  <input
+                    type="file"
+                    accept=".json"
+                    onChange={handleImportBackup}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+            </div>
+            <p className="text-[10px] text-black/50 dark:text-white/50">
+              Backups include all scientific parameters (CR, CC, RU values),
+              sources, and articles. Use this for weekly backups or before
+              making major changes.
+            </p>
           </div>
 
           {/* Import Options */}

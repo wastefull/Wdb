@@ -1,0 +1,51 @@
+name,category,description,compostability,recyclability,reusability
+PET Plastic Bottle,Plastics,Clear plastic bottles for beverages and household products,0,85,40
+HDPE Plastic Container,Plastics,High-density polyethylene containers like milk jugs and detergent bottles,0,90,50
+LDPE Plastic Bag,Plastics,Low-density polyethylene grocery bags and produce bags,0,25,45
+Polypropylene Container,Plastics,PP containers including yogurt cups and takeout containers,0,65,55
+Polystyrene Foam Cup,Plastics,Expanded polystyrene coffee cups and food containers,0,5,10
+PVC Pipe,Plastics,Polyvinyl chloride pipes and plumbing materials,0,15,70
+Mixed Plastic Packaging,Plastics,Multi-layer plastic packaging and flexible films,0,10,15
+Aluminum Can,Metals,Beverage cans and food containers made from aluminum,0,95,75
+Steel Food Can,Metals,Tin-plated steel cans for canned goods,0,90,60
+Aluminum Foil,Metals,Thin aluminum sheets used for food wrapping,0,80,35
+Copper Wire,Metals,Electrical wiring and plumbing fixtures,0,95,80
+Mixed Scrap Metal,Metals,Various metal items including hardware and fixtures,0,85,70
+Clear Glass Bottle,Glass,Transparent glass containers for beverages,0,95,85
+Colored Glass Bottle,Glass,Green or brown glass bottles,0,85,80
+Glass Jar,Glass,Food storage and canning jars,0,90,95
+Broken Glass,Glass,Shattered or damaged glass pieces,0,70,0
+Newspaper,Paper & Cardboard,Daily newspapers and newsprint,95,85,30
+Cardboard Box,Paper & Cardboard,Corrugated cardboard shipping boxes,90,90,60
+Office Paper,Paper & Cardboard,White printer and copy paper,80,90,25
+Magazine,Paper & Cardboard,Glossy coated magazines and catalogs,20,70,40
+Paper Towel,Paper & Cardboard,Used paper towels and napkins,100,0,0
+Tissue Paper,Paper & Cardboard,Facial tissues and toilet paper,100,0,0
+Pizza Box,Paper & Cardboard,Cardboard pizza boxes often with food contamination,70,50,20
+Egg Carton (Paper),Paper & Cardboard,Molded pulp egg cartons,100,75,40
+Cotton T-Shirt,Fabrics & Textiles,100% cotton clothing items,85,30,90
+Polyester Clothing,Fabrics & Textiles,Synthetic polyester garments,0,25,85
+Denim Jeans,Fabrics & Textiles,Heavy cotton denim pants,75,20,95
+Wool Sweater,Fabrics & Textiles,Natural wool knit garments,70,15,90
+Nylon Fabric,Fabrics & Textiles,Synthetic nylon materials and stockings,0,20,70
+Mixed Fabric Scraps,Fabrics & Textiles,Blended fabric waste from clothing and textiles,30,15,50
+Leather Goods,Fabrics & Textiles,Genuine leather bags and accessories,40,10,95
+Alkaline Battery,Electronics & Batteries,Standard AA AAA C D household batteries,0,60,0
+Lithium-Ion Battery,Electronics & Batteries,Rechargeable laptop and phone batteries,0,45,65
+Smartphone,Electronics & Batteries,Mobile phones and smartphones,0,35,75
+Laptop Computer,Electronics & Batteries,Portable computers and notebooks,0,40,80
+LED Light Bulb,Electronics & Batteries,Energy-efficient LED lighting,0,50,15
+Incandescent Bulb,Electronics & Batteries,Traditional tungsten filament light bulbs,0,20,0
+Electronics Cables,Electronics & Batteries,USB cables power cords and chargers,0,55,60
+Wood Pallet,Building Materials,Shipping pallets and untreated lumber,85,15,95
+Concrete Rubble,Building Materials,Broken concrete and cement pieces,0,70,50
+Ceramic Tile,Building Materials,Clay-based floor and wall tiles,0,40,75
+Drywall,Building Materials,Gypsum wallboard and plasterboard,30,45,25
+Asphalt Shingle,Building Materials,Roofing shingles and tar materials,0,50,20
+Vinyl Flooring,Building Materials,PVC floor coverings and tiles,0,15,60
+Food Scraps,Organic/Natural Waste,Fruit peels vegetable trimmings and leftovers,100,0,0
+Coffee Grounds,Organic/Natural Waste,Used coffee grounds and filters,100,0,0
+Yard Waste,Organic/Natural Waste,Grass clippings leaves and small branches,100,0,10
+Eggshells,Organic/Natural Waste,Chicken egg shells,100,0,0
+Wood Chips,Organic/Natural Waste,Chipped untreated wood and sawdust,95,0,40
+Cork,Organic/Natural Waste,Wine corks and cork board material,95,30,80

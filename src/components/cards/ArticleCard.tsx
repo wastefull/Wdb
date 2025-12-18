@@ -11,6 +11,43 @@ export interface ArticleCardProps {
   isAdminModeActive?: boolean;
 }
 
+// Helper to extract plain text preview from TiptapContent
+function getContentPreview(article: Article, maxLength: number = 150): string {
+  // Try new TiptapContent first
+  if (
+    article.content &&
+    article.content.type === "doc" &&
+    article.content.content
+  ) {
+    const extractText = (nodes: any[]): string => {
+      return nodes
+        .map((node) => {
+          if (node.type === "text") return node.text || "";
+          if (node.content) return extractText(node.content);
+          return "";
+        })
+        .join(" ");
+    };
+    const text = extractText(article.content.content).trim();
+    if (text) {
+      return text.length > maxLength
+        ? text.substring(0, maxLength) + "..."
+        : text;
+    }
+  }
+
+  // Fall back to legacy content
+  const legacyText =
+    article.introduction?.content || article.supplies?.content || "";
+  if (legacyText) {
+    return legacyText.length > maxLength
+      ? legacyText.substring(0, maxLength) + "..."
+      : legacyText;
+  }
+
+  return "No content preview available.";
+}
+
 export function ArticleCard({
   article,
   onEdit,
@@ -20,23 +57,28 @@ export function ArticleCard({
   onReadMore,
   isAdminModeActive,
 }: ArticleCardProps) {
+  const coverImage = article.cover_image_url || article.overview?.image;
+  const preview = getContentPreview(article);
+
   return (
-    <div className="bg-white relative rounded-[11.464px] p-4 shadow-[3px_4px_0px_-1px_#000000] border-[1.5px] border-[#211f1c]">
+    <div className="bg-white dark:bg-[#2a2825] relative rounded-[11.464px] p-4 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] border-[1.5px] border-[#211f1c] dark:border-white/20">
       <div className="flex justify-between items-start mb-3">
         <div className="flex-1">
           {onReadMore ? (
             <button
               onClick={onReadMore}
-              className="text-[14px] text-black hover:underline cursor-pointer text-left block"
+              className="text-[14px] text-black dark:text-white hover:underline cursor-pointer text-left block"
             >
               {article.title}
             </button>
           ) : (
-            <h4 className="text-[14px] text-black">{article.title}</h4>
+            <h4 className="text-[14px] text-black dark:text-white">
+              {article.title}
+            </h4>
           )}
           <div className="flex items-center gap-2 mt-1">
             <span className="inline-block px-2 py-0.5 bg-waste-recycle rounded-md border border-[#211f1c] text-[9px] text-black">
-              {article.category}
+              {article.article_type || article.category}
             </span>
             {sustainabilityCategory && (
               <span
@@ -67,53 +109,27 @@ export function ArticleCard({
       </div>
 
       <div className="space-y-3">
-        {/* Overview Section */}
-        {article.overview.image && (
+        {/* Cover Image */}
+        {coverImage && (
           <div>
-            <h5 className="text-[12px] text-black mb-1">Overview</h5>
             <img
-              src={article.overview.image}
-              alt="Overview"
-              className="w-full h-auto rounded-lg border border-[#211f1c]"
+              src={coverImage}
+              alt={article.title}
+              className="w-full h-32 object-cover rounded-lg border border-[#211f1c] dark:border-white/20"
             />
           </div>
         )}
 
-        {/* Introduction Section */}
-        <div>
-          <h5 className="text-[12px] text-black mb-1">Introduction</h5>
-          {article.introduction.image && (
-            <img
-              src={article.introduction.image}
-              alt="Introduction"
-              className="w-full h-auto rounded-lg border border-[#211f1c] mb-2"
-            />
-          )}
-          <p className="text-[11px] text-black/70 whitespace-pre-wrap">
-            {article.introduction.content}
-          </p>
-        </div>
-
-        {/* Supplies Section */}
-        <div>
-          <h5 className="text-[12px] text-black mb-1">Supplies</h5>
-          {article.supplies.image && (
-            <img
-              src={article.supplies.image}
-              alt="Supplies"
-              className="w-full h-auto rounded-lg border border-[#211f1c] mb-2"
-            />
-          )}
-          <p className="text-[11px] text-black/70 whitespace-pre-wrap">
-            {article.supplies.content}
-          </p>
-        </div>
+        {/* Content Preview */}
+        <p className="text-[11px] text-black/70 dark:text-white/70 line-clamp-3">
+          {preview}
+        </p>
 
         {/* Read more link */}
         {onReadMore && (
           <button
             onClick={onReadMore}
-            className="text-[11px] text-black hover:underline"
+            className="text-[11px] text-black dark:text-white hover:underline"
           >
             Read more...
           </button>

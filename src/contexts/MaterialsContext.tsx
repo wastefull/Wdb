@@ -148,6 +148,11 @@ export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({
             "materials",
             JSON.stringify(materialsWithArticles)
           );
+          // Track the count for safeguard
+          localStorage.setItem(
+            "materials_last_known_count",
+            String(materialsWithArticles.length)
+          );
           if (user) {
             setSyncStatus("synced");
           }
@@ -194,8 +199,69 @@ export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({
 
     // Sync to Supabase only if user is authenticated, has admin role, and supabase is available
     if (user && userRole === "admin" && supabaseAvailable) {
+      // SAFEGUARD: Don't sync if we're about to wipe out data
+      // This prevents accidental data loss from stale state or bugs
+      const currentStoredCount = (() => {
+        try {
+          const stored = localStorage.getItem("materials_last_known_count");
+          return stored ? parseInt(stored, 10) : 0;
+        } catch {
+          return 0;
+        }
+      })();
+
+      // If we had more than 1 material before and now have 0 or 1, require confirmation
+      if (currentStoredCount > 1 && newMaterials.length <= 1) {
+        const warningMessage =
+          `SAFEGUARD: Refusing to sync potentially destructive change. ` +
+          `Previous count: ${currentStoredCount}, New count: ${newMaterials.length}. ` +
+          `Data saved to localStorage only.`;
+        syncLogger.warn(warningMessage);
+        toast.warning(
+          "Sync skipped: Detected potential data loss. Your changes are saved locally."
+        );
+        setSyncStatus("offline");
+
+        // Create audit log for this blocked sync attempt (triggers email notification)
+        try {
+          await api.createAuditLog({
+            entityType: "materials_bulk",
+            entityId: "safeguard_blocked",
+            action: "delete",
+            before: {
+              count: currentStoredCount,
+              description: "Materials before blocked sync",
+            },
+            after: {
+              count: newMaterials.length,
+              blocked: true,
+              reason: "Safeguard triggered: potential bulk data loss detected",
+              materials_preview: newMaterials
+                .slice(0, 3)
+                .map((m) => ({ id: m.id, name: m.name })),
+            },
+          });
+          syncLogger.info("Audit log created for blocked sync attempt");
+        } catch (auditError) {
+          syncLogger.error(
+            "Failed to create audit log for blocked sync:",
+            auditError
+          );
+        }
+
+        return;
+      }
+
+      // Update the last known count
+      localStorage.setItem(
+        "materials_last_known_count",
+        String(newMaterials.length)
+      );
+
       setSyncStatus("syncing");
       syncLogger.info("Syncing to Supabase...");
+
+      // Try syncing with retry logic
 
       // Try syncing with retry logic
       let lastError: any = null;
