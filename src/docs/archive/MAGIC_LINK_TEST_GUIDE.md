@@ -1,5 +1,7 @@
 # Magic Link Authentication - Testing Guide
 
+**Updated:** December 18, 2025
+
 ## ✅ What Was Fixed
 
 The magic link authentication system is now fully operational. Here's what was corrected:
@@ -138,7 +140,7 @@ Expected behavior:
 
 **Check 3: Server Logs**
 
-- In Figma Make console, check for email sending errors
+- in localhost console, check for email sending errors
 - Look for "Magic link email sent to..." confirmation
 
 **Check 4: Rate Limiting**
@@ -371,4 +373,4 @@ Copy and fill out when testing:
 
 The system is fully operational and ready for production use. Follow the testing steps above to verify everything works as expected.
 
-**Questions or issues?** Check the debugging section or review the server logs in Figma Make console.
+**Questions or issues?** Check the debugging section or review the server logs in localhost console.

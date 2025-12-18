@@ -2,9 +2,7 @@
 
 _Future enhancements and deferred work items_
 
-**Last Updated:** December 3, 2025
-
----
+## **Updated:** December 18, 2025
 
 ## 📋 Overview
 

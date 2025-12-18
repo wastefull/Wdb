@@ -1,5 +1,6 @@
 # **ROADMAP.md**
 
+**Updated:** December 18, 2025
 _A development roadmap for integrating Wastefull's data science methodology into the WasteDB platform._
 
 ---

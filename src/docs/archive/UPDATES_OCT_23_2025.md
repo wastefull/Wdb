@@ -1,4 +1,4 @@
-# Updates - October 23, 2025
+**Edited:** December 18, 2025
 
 ## Summary
 
@@ -79,7 +79,7 @@ Two security improvements implemented today:
 
 **Development:**
 
-- ✅ Fast testing in Figma Make
+- ✅ Fast testing in localhost
 - ✅ No email dependency during dev
 
 ### Files Created
@@ -101,9 +101,7 @@ Two security improvements implemented today:
 import { isFigmaMake, isProduction } from "../utils/environment";
 
 // Detects based on hostname:
-// - make.figma.com → Figma Make
-// - *.figma.io → Figma Make
-// - localhost → Figma Make
+// - localhost → Development
 // - Everything else → Production
 ```
 
@@ -112,7 +110,7 @@ import { isFigmaMake, isProduction } from "../utils/environment";
 ```typescript
 const showPasswordAuth = isFigmaMake();
 
-// Only show password toggle in Figma Make
+// Only show password toggle in localhost
 {
   showPasswordAuth && <button>Password</button>;
 }
@@ -127,7 +125,7 @@ useEffect(() => {
 
 ### Testing
 
-#### In Figma Make:
+#### in localhost:
 
 - ✅ See both "Magic Link" and "Password" buttons
 - ✅ Can toggle between both
@@ -204,7 +202,7 @@ useEffect(() => {
 **No action required!**
 
 - ✅ Users with passwords can still use Magic Link
-- ✅ Password auth works in Figma Make (testing)
+- ✅ Password auth works in localhost (testing)
 - ✅ Password auth NOT available in production (use Magic Link)
 - ✅ Admin access still works (@wastefull.org emails)
 
@@ -289,7 +287,7 @@ useEffect(() => {
 ```typescript
 export function isFigmaMake(): boolean;
 export function isProduction(): boolean;
-export function getEnvironment(): "figma-make" | "production";
+export function getEnvironment(): "development" | "production";
 export function logEnvironmentInfo(): void;
 ```
 
@@ -416,7 +414,7 @@ const PASSWORDLESS_DOMAINS = ["wastedb.com"];
 
 ### Testing
 
-- [x] Login works in Figma Make (both methods)
+- [x] Login works in localhost (both methods)
 - [x] Magic Link works in production
 - [x] Password hidden in production
 - [x] Admin access still works

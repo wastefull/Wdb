@@ -1,5 +1,7 @@
 # WasteDB 🌍
 
+**Updated:** December 18, 2025
+
 **A comprehensive CMS for managing material sustainability data with retro Wastefull brand design and Apple Liquid Glass inspired elements.**
 
 WasteDB helps organizations track and curate sustainability scores for materials, powered by scientific evidence and peer-reviewed sources. Features include CRUD operations, evidence curation workbench, policy snapshots, and comprehensive testing infrastructure.
@@ -55,7 +57,7 @@ Database (Supabase PostgreSQL + KV Store)
 - **Database**: Supabase (PostgreSQL + Key-Value Store)
 - **Auth**: Supabase Auth with magic links (Resend)
 - **Charts**: Recharts
-- **Deployment**: Figma Make (production), Local (development)
+- **Deployment**: Cloudflare via Github Actions (production), Local (development)
 
 ---
 
@@ -65,8 +67,7 @@ Database (Supabase PostgreSQL + KV Store)
 wastedb/
 ├── /components/          # React components
 │   ├── /ui/             # ShadCN UI components
-│   ├── /scientific-editor/  # Parameter editor tabs
-│   └── /figma/          # Figma import utilities
+│   └── /scientific-editor/  # Parameter editor tabs
 ├── /config/              # Test definitions & phase configs
 │   └── /tests/
 │       ├── /phases/      # Phase-specific test modules
@@ -107,7 +108,7 @@ wastedb/
 
 ## Key Features
 
-### ✅ Phase 9.0 - Evidence Infrastructure
+### Evidence Infrastructure
 
 - Evidence CRUD operations
 - Policy snapshots with version tracking
@@ -115,7 +116,7 @@ wastedb/
 - Units & context ontologies
 - Comprehensive test suite (50+ tests)
 
-### ✅ Phase 9.1 - Evidence API
+### ✅ Evidence API
 
 - Evidence creation with validation
 - Material-scoped evidence queries
@@ -123,12 +124,11 @@ wastedb/
 - Source citation tracking
 - Confidence levels (high/medium/low)
 
-### ✅ Phase 9.2 - Curation Workbench
+### ✅ Curation Workbench
 
 - 5-step evidence wizard
 - Smart context pre-fill (AI-powered)
 - Unit validation against ontologies
-- Pilot scope (6 materials: PET, HDPE, Cardboard, Paper, Glass Clear, Glass Colored)
 - CR parameters (Y, D, C, M, E)
 
 ### 🔐 Authentication & Authorization

@@ -1,5 +1,6 @@
 # Authentication Error Handling - Security Update
 
+**Updated:** December 18, 2025
 **Date:** November 10, 2025  
 **Status:** ✅ Implemented
 
@@ -191,7 +192,7 @@ User Can Sign In Again
 
 1. **Test Mode Detection (Environment-Based):**
 
-   - **Figma Make/localhost:** `TEST_MODE = true` (endpoints logged for debugging)
+   - **localhost:** `TEST_MODE = true` (endpoints logged for debugging)
    - **Production (db.wastefull.org):** `TEST_MODE = false` (endpoints hidden, logs suppressed)
    - **Manual Override:** Available via `window.wastedbLogger.setTestMode(true/false)`
    - **Automatic:** No explicit flag needed - detects environment on load

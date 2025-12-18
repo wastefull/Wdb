@@ -1,8 +1,8 @@
 # Phase 9 Status Summary
 
-**Last Updated:** November 20, 2025  
 **Current Phase:** Phase 9.2 - Curation Workbench UI  
 **Overall Status:** Phase 9.0 ✅ | Phase 9.1 ✅ | Phase 9.2 🚧
+**Updated:** December 18, 2025
 
 ---
 
@@ -343,7 +343,7 @@ All Phase 9.1 endpoints and data structures ready for UI to consume.
 
 ### Why KV Store?
 
-- No database migrations required in Figma Make environment
+- No database migrations required in localhost environment
 - Prefix-based indexes provide efficient querying
 - Easy to migrate to Postgres later (export + bulk insert)
 - Sufficient for Phase 9 prototype/pilot scope

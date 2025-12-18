@@ -2,7 +2,7 @@
 
 **Organization:** Wastefull  
 **Project:** WasteDB - Open Materials Sustainability Database  
-**Last Updated:** November 24, 2025  
+**Updated:** December 18, 2025
 **Production URL:** https://db.wastefull.org
 
 ---

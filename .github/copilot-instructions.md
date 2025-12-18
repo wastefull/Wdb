@@ -1,5 +1,7 @@
 # WasteDB Copilot Instructions
 
+**Updated:** December 18, 2025
+
 ## Project Overview
 
 WasteDB is a React + TypeScript CMS for managing material sustainability data. It's a project by nonprofit Wastefull, Inc. with a retro arcade-inspired design. The app runs on Vite locally and deploys to production at db.wastefull.org upon merge to the main branch via GitHub Actions.
@@ -143,6 +145,25 @@ All project documentation lives in `src/docs/`. Key documents:
 - `SECURITY.md` - Auth and RBAC details
 
 When creating new documentation, always place it in `src/docs/` (or appropriate subdirectory).
+
+## Documentation Structure
+
+```
+src/docs/
+├── admin/          # Admin feature docs
+├── archive/        # Historical/deprecated docs
+├── auth/           # Authentication docs
+├── data/           # Data pipeline & processing
+├── roadmap/        # Project roadmap & status
+│   ├── complete/   # Completed phase records
+│   ├── guides/     # Guides system roadmap
+│   └── ui-bugs/    # UI bug tracking
+├── security/       # Security & RBAC
+├── setup/          # Development setup
+├── smtp/           # Email configuration
+├── source/         # Source library docs
+└── visualization/  # Chart/viz docs
+```
 
 ## Common Mistakes to Avoid
 

@@ -1,5 +1,6 @@
 # WasteDB Source Integration & Evidence Pipeline Specification
 
+**Updated:** December 18, 2025
 _A foundation document for future product, data, and design changes._
 
 ---
@@ -166,7 +167,7 @@ _Validation:_ MIU requires parameter, raw value + units, locator, snippet, trans
 
 ---
 
-## 9. Visual design updates (Figma)
+## 9. Visual design updates
 
 ### Components
 

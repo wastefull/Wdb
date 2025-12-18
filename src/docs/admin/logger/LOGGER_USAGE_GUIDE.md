@@ -2,6 +2,7 @@
 
 **Created:** October 23, 2025  
 **Status:** Active
+**Updated:** December 18, 2025
 
 ## Overview
 
@@ -44,10 +45,10 @@ warn("Deprecated API usage detected");
 
 ### Default Behavior
 
-| Environment                                         | TEST_MODE Default | Logging Enabled? |
-| --------------------------------------------------- | ----------------- | ---------------- |
-| **figma-make** (localhost, _.figma.com, _.figma.io) | `TRUE`            | ✅ Yes           |
-| **production** (custom domains)                     | `FALSE`           | ❌ No            |
+| Environment                     | TEST_MODE Default | Logging Enabled? |
+| ------------------------------- | ----------------- | ---------------- |
+| **development** (localhost)     | `TRUE`            | ✅ Yes           |
+| **production** (custom domains) | `FALSE`           | ❌ No            |
 
 ### Override TEST_MODE
 
@@ -78,7 +79,7 @@ loggerInfo();
 //  Logger Configuration: {
 //   TEST_MODE: 'auto (environment-based)',
 //   effectiveMode: true,
-//   environment: 'figma-make',
+//   environment: 'development',
 //   hostname: 'localhost'
 // }
 ```
@@ -391,12 +392,9 @@ function validateForm(data: FormData) {
 The logger automatically detects the environment:
 
 ```typescript
-// Figma Make Environment (TEST_MODE = true)
+// Development Environment (TEST_MODE = true)
 - localhost
 - 127.0.0.1
-- *.figma.com
-- *.figma.io
-- *.figma.site
 
 // Production Environment (TEST_MODE = false)
 - Custom domains

@@ -1,5 +1,7 @@
 # WasteDB Quick Start Guide
 
+**Updated:** December 18, 2025
+
 ## First-Time Setup (5 minutes)
 
 ### 1. Access the Site
@@ -273,7 +275,7 @@ wastedbLogger.setTestMode(false);
 
 **In Development:**
 
-- Logging is **enabled by default** in Figma Make environment
+- Logging is **enabled by default** in local dev environment
 - Logging is **disabled by default** in production
 - Errors are **always visible** regardless of mode
 

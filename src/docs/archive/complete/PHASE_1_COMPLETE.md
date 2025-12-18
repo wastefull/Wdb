@@ -5,6 +5,7 @@
 **Status:** Completed  
 **Date:** October 20, 2025  
 **Implementation:** KV Store-based (no schema migrations required)
+**Updated:** December 18, 2025
 
 ---
 
@@ -15,12 +16,15 @@
 All materials in WasteDB now support a dual-layer data model:
 
 #### **Public Layer** (0-100 scale, user-friendly)
+
 - Compostability score
 - Recyclability score
 - Reusability score
 
 #### **Scientific Layer** (0-1 normalized, research-grade)
+
 - **Raw Parameters:**
+
   - `Y_value` - Yield (material recovery rate)
   - `D_value` - Degradability (quality retention)
   - `C_value` - Contamination tolerance
@@ -28,6 +32,7 @@ All materials in WasteDB now support a dual-layer data model:
   - `E_value` - Energy demand (normalized)
 
 - **Composite Scores:**
+
   - `CR_practical_mean` - Practical recyclability index
   - `CR_theoretical_mean` - Theoretical recyclability index
   - `CR_practical_CI95` - 95% confidence interval (practical)
@@ -65,6 +70,7 @@ New `ScientificMetadataView` component:
 ### 4. Type Definitions
 
 Created `/types/material.ts` with comprehensive TypeScript interfaces:
+
 - `Material` - Complete material type with all scientific fields
 - `Source` - Citation metadata structure
 - `ConfidenceInterval` - CI95 bounds
@@ -81,15 +87,29 @@ Materials are stored as rich JSON objects in the KV store:
 ```typescript
 await kv.set(`material:${id}`, {
   // Public fields
-  id, name, category, description,
-  compostability, recyclability, reusability,
-  
+  id,
+  name,
+  category,
+  description,
+  compostability,
+  recyclability,
+  reusability,
+
   // Scientific fields
-  Y_value, D_value, C_value, M_value, E_value,
-  CR_practical_mean, CR_theoretical_mean,
-  CR_practical_CI95, CR_theoretical_CI95,
-  confidence_level, sources,
-  whitepaper_version, calculation_timestamp, method_version
+  Y_value,
+  D_value,
+  C_value,
+  M_value,
+  E_value,
+  CR_practical_mean,
+  CR_theoretical_mean,
+  CR_practical_CI95,
+  CR_theoretical_CI95,
+  confidence_level,
+  sources,
+  whitepaper_version,
+  calculation_timestamp,
+  method_version,
 });
 ```
 
@@ -121,16 +141,19 @@ Where:
 ## Files Modified
 
 ### New Files
+
 - `/types/material.ts` - TypeScript type definitions
 - `/components/ScientificMetadataView.tsx` - Scientific data display component
 - `/PHASE_1_COMPLETE.md` - This documentation
 
 ### Modified Files
+
 - `/utils/api.tsx` - Extended Material interface
 - `/components/DataProcessingView.tsx` - Enhanced calculation and storage
 - `/App.tsx` - Integrated ScientificMetadataView, extended Material interface
 
 ### Backend (No Changes Required)
+
 - KV store already supports arbitrary JSON structures
 - All endpoints work with extended Material type
 
@@ -152,16 +175,19 @@ Where:
 Now that the data model is in place, we can proceed to:
 
 1. **Enhanced Admin Tools** (Phase 2)
+
    - Source citation manager
    - Parameter detail editor
    - Batch confidence recalculation
 
 2. **Export Layer** (Phase 3)
+
    - CSV/JSON export with scientific metadata
    - Public API endpoints
    - Data snapshots for research
 
 3. **UI Enhancements** (Phase 4)
+
    - Advanced view toggle
    - Confidence visualization (whiskers/bars)
    - Methodology tooltips
@@ -189,6 +215,7 @@ To test the implementation:
 ## Impact
 
 WasteDB now has:
+
 - ✅ Research-grade scientific data layer
 - ✅ Full audit trail for all calculations
 - ✅ Confidence indicators for data quality

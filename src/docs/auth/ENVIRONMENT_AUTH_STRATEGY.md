@@ -1,6 +1,6 @@
 # Environment-Based Authentication Strategy
 
-**Updated:** October 23, 2025  
+**Updated:** Dec 18, 2025  
 **Status:** ✅ Implemented
 
 ---
@@ -9,7 +9,7 @@
 
 WasteDB implements **environment-aware authentication** that adapts based on where the app is running:
 
-- **Figma Make (Testing):** Both Magic Link AND Password authentication available
+- **local (Testing):** Both Magic Link AND Password authentication available
 - **Production (Deployed):** Magic Link authentication ONLY (passwordless)
 
 ---
@@ -19,6 +19,7 @@ WasteDB implements **environment-aware authentication** that adapts based on whe
 ### Security Benefits
 
 **Production (Passwordless):**
+
 - ✅ No passwords to remember or manage
 - ✅ No password reuse vulnerabilities
 - ✅ No brute force attacks on passwords
@@ -26,7 +27,8 @@ WasteDB implements **environment-aware authentication** that adapts based on whe
 - ✅ Better user experience
 - ✅ Industry best practice (Auth0, Supabase, etc.)
 
-**Figma Make (Testing):**
+**local (Testing):**
+
 - ✅ Faster testing workflow (no email required)
 - ✅ Offline testing capability
 - ✅ Traditional auth for debugging
@@ -53,34 +55,33 @@ WasteDB implements **environment-aware authentication** that adapts based on whe
 **File:** `/utils/environment.ts`
 
 ```typescript
-export function isFigmaMake(): boolean {
+export function isDevelopment(): boolean {
   const hostname = window.location.hostname;
-  
+
   return (
-    hostname.includes('figma.com') ||  // make.figma.com
-    hostname.includes('figma.io') ||   // *.figma.io
-    hostname === 'localhost' ||        // Local development
-    hostname === '127.0.0.1'           // Local IP
+    hostname === "localhost" || // Local development
+    hostname === "127.0.0.1" // Local IP
   );
 }
 ```
 
 ### API Functions
 
-| Function | Returns | Description |
-|----------|---------|-------------|
-| `isFigmaMake()` | `boolean` | True if in Figma Make/local |
-| `isProduction()` | `boolean` | True if in production |
-| `getEnvironment()` | `'figma-make' \| 'production'` | Current environment |
-| `logEnvironmentInfo()` | `void` | Logs debug info to console |
+| Function               | Returns                         | Description                  |
+| ---------------------- | ------------------------------- | ---------------------------- |
+| `isDevelopment()`      | `boolean`                       | True if in local environment |
+| `isProduction()`       | `boolean`                       | True if in production        |
+| `getEnvironment()`     | `'development' \| 'production'` | Current environment          |
+| `logEnvironmentInfo()` | `void`                          | Logs debug info to console   |
 
 ---
 
 ## UI Behavior
 
-### Figma Make (Testing)
+### local (Testing)
 
 **Login Screen:**
+
 ```
 ┌─────────────────────────────────────┐
 │         WasteDB                     │
@@ -98,6 +99,7 @@ export function isFigmaMake(): boolean {
 ```
 
 **Features:**
+
 - Toggle between Magic Link and Password
 - Both authentication methods available
 - Full Sign Up / Sign In flows
@@ -109,6 +111,7 @@ export function isFigmaMake(): boolean {
 ### Production (Deployed)
 
 **Login Screen:**
+
 ```
 ┌─────────────────────────────────────┐
 │         WasteDB                     │
@@ -129,6 +132,7 @@ export function isFigmaMake(): boolean {
 ```
 
 **Features:**
+
 - Magic Link ONLY
 - No password toggle visible
 - Cleaner, simpler interface
@@ -142,47 +146,60 @@ export function isFigmaMake(): boolean {
 ### AuthView.tsx Updates
 
 **1. Added Environment Detection:**
-```typescript
-import { isFigmaMake, logEnvironmentInfo } from '../utils/environment';
 
-const showPasswordAuth = isFigmaMake();
+```typescript
+import { isDevelopment, logEnvironmentInfo } from "../utils/environment";
+
+const showPasswordAuth = isDevelopment();
 ```
 
 **2. Conditional Toggle Rendering:**
+
 ```typescript
-{/* Auth Mode Toggle - Only show in Figma Make */}
-{authMode !== 'magic-link-sent' && showPasswordAuth && (
-  <div className="mb-6 flex gap-2">
-    {/* Magic Link and Password buttons */}
-  </div>
-)}
+{
+  /* Auth Mode Toggle - Only show in local */
+}
+{
+  authMode !== "magic-link-sent" && showPasswordAuth && (
+    <div className="mb-6 flex gap-2">
+      {/* Magic Link and Password buttons */}
+    </div>
+  );
+}
 ```
 
 **3. Production Notice:**
+
 ```typescript
-{/* Production Mode - Magic Link Only Notice */}
-{authMode !== 'magic-link-sent' && !showPasswordAuth && (
-  <div className="mb-6 p-3 bg-[#e4e3ac]/30...">
-    <p>Secure passwordless authentication</p>
-  </div>
-)}
+{
+  /* Production Mode - Magic Link Only Notice */
+}
+{
+  authMode !== "magic-link-sent" && !showPasswordAuth && (
+    <div className="mb-6 p-3 bg-[#e4e3ac]/30...">
+      <p>Secure passwordless authentication</p>
+    </div>
+  );
+}
 ```
 
 **4. Form Conditional:**
+
 ```typescript
 ) : authMode === 'traditional' && showPasswordAuth ? (
-  {/* Password form - only in Figma Make */}
+  {/* Password form - only in local */}
 ) : (
   {/* Fallback: redirect to Magic Link */}
 )
 ```
 
 **5. Auto-Redirect Effect:**
+
 ```typescript
 useEffect(() => {
-  if (!showPasswordAuth && authMode === 'traditional') {
-    console.log('🔄 Switching to Magic Link auth in production');
-    setAuthMode('magic-link');
+  if (!showPasswordAuth && authMode === "traditional") {
+    console.log("🔄 Switching to Magic Link auth in production");
+    setAuthMode("magic-link");
   }
 }, [showPasswordAuth, authMode]);
 ```
@@ -191,21 +208,23 @@ useEffect(() => {
 
 ## Testing
 
-### Test in Figma Make
+### Test in local
 
 **1. Verify Environment Detection:**
+
 ```
 Open browser console:
 🌍 Environment Detection: {
-  environment: 'figma-make',
-  isFigmaMake: true,
+  environment: 'development',
+  isDevelopment: true,
   isProduction: false,
-  hostname: 'make.figma.com',
+  hostname: 'localhost',
   ...
 }
 ```
 
 **2. Verify Both Auth Methods:**
+
 - ✅ See "Magic Link" and "Password" toggle
 - ✅ Can switch between both
 - ✅ Both work correctly
@@ -216,11 +235,12 @@ Open browser console:
 ### Test in Production
 
 **1. Verify Environment Detection:**
+
 ```
 Open browser console:
 🌍 Environment Detection: {
   environment: 'production',
-  isFigmaMake: false,
+  isDevelopment: false,
   isProduction: true,
   hostname: 'yourdomain.com',
   ...
@@ -228,6 +248,7 @@ Open browser console:
 ```
 
 **2. Verify Magic Link Only:**
+
 - ✅ NO "Password" toggle visible
 - ✅ Only Magic Link interface shown
 - ✅ "Secure passwordless authentication" notice visible
@@ -239,13 +260,15 @@ Open browser console:
 ### Test Auto-Redirect
 
 **1. Manually Force Password Mode in Production:**
+
 ```typescript
 // In browser console:
 // This should auto-redirect to magic-link
-setAuthMode('traditional')
+setAuthMode("traditional");
 ```
 
 **Expected:**
+
 - Immediately redirects back to 'magic-link'
 - Console log: "🔄 Switching to Magic Link auth in production"
 - User never sees password form
@@ -257,6 +280,7 @@ setAuthMode('traditional')
 ### Why Magic Link is More Secure
 
 **Password Vulnerabilities:**
+
 - ❌ Weak passwords
 - ❌ Password reuse across sites
 - ❌ Brute force attacks
@@ -266,6 +290,7 @@ setAuthMode('traditional')
 - ❌ Password reset vulnerabilities
 
 **Magic Link Advantages:**
+
 - ✅ No password to compromise
 - ✅ Time-limited (1 hour expiry)
 - ✅ Single-use tokens
@@ -277,6 +302,7 @@ setAuthMode('traditional')
 ### Email Security is Key
 
 **Magic Link relies on:**
+
 1. ✅ Email account security (user's responsibility)
 2. ✅ HTTPS transport (Supabase provides)
 3. ✅ Token expiration (1 hour)
@@ -292,16 +318,18 @@ setAuthMode('traditional')
 ### How Admin Role Works
 
 **Backend Logic (unchanged):**
+
 ```typescript
 // /supabase/functions/server/index.tsx
-if (email.endsWith('@wastefull.org')) {
-  role = 'admin';
+if (email.endsWith("@wastefull.org")) {
+  role = "admin";
 } else {
-  role = 'user';
+  role = "user";
 }
 ```
 
 **Works with BOTH auth methods:**
+
 - ✅ Magic Link: Admin role assigned if @wastefull.org
 - ✅ Password: Admin role assigned if @wastefull.org
 
@@ -314,17 +342,20 @@ if (email.endsWith('@wastefull.org')) {
 ### Existing Users
 
 **Users with passwords:**
+
 - ✅ Can still use Magic Link
-- ✅ Password still works in Figma Make (for testing)
+- ✅ Password still works in local (for testing)
 - ✅ Password NOT available in production (use Magic Link)
 
 **Recommendation:**
+
 - Encourage all users to switch to Magic Link
 - Consider deprecating password auth entirely in future
 
 ### Future Improvements
 
 **Consider:**
+
 1. Social auth (Google, GitHub)
 2. WebAuthn / Passkeys
 3. Multi-factor authentication (MFA)
@@ -337,24 +368,27 @@ if (email.endsWith('@wastefull.org')) {
 ### Issue: "Password button still showing in production"
 
 **Check:**
+
 1. Verify hostname detection:
+
    ```typescript
    console.log(window.location.hostname);
-   console.log(isFigmaMake());
+   console.log(isDevelopment());
    ```
 
 2. Check if hostname is in detection list:
    ```typescript
    // Add your production hostname if needed
-   return hostname === 'yourdomain.com' ? false : isFigmaMake();
+   return hostname === "yourdomain.com" ? false : isDevelopment();
    ```
 
 ---
 
-### Issue: "Can't test password auth in Figma Make"
+### Issue: "Can't test password auth in local"
 
 **Check:**
-1. Confirm running in Figma Make environment
+
+1. Confirm running in local environment
 2. Check browser console for environment logs
 3. Verify `showPasswordAuth` is `true`
 4. Clear cache and reload
@@ -364,6 +398,7 @@ if (email.endsWith('@wastefull.org')) {
 ### Issue: "Magic link not sending"
 
 **Check:**
+
 1. Email configuration in Supabase
 2. Rate limiting (max 10 requests/min)
 3. Honeypot field (must be empty)
@@ -389,25 +424,25 @@ See: `/docs/MAGIC_LINK_TEST_GUIDE.md`
 ### Environment Detection
 
 ```typescript
-import { 
-  isFigmaMake, 
-  isProduction, 
+import {
+  isDevelopment,
+  isProduction,
   getEnvironment,
-  logEnvironmentInfo 
-} from '../utils/environment';
+  logEnvironmentInfo,
+} from "../utils/environment";
 
-// Check if in Figma Make
-if (isFigmaMake()) {
-  console.log('Running in Figma Make!');
+// Check if in local
+if (isDevelopment()) {
+  console.log("Running in local!");
 }
 
 // Check if in production
 if (isProduction()) {
-  console.log('Running in production!');
+  console.log("Running in production!");
 }
 
 // Get environment name
-const env = getEnvironment(); // 'figma-make' | 'production'
+const env = getEnvironment(); // 'development' | 'production'
 
 // Log debug info
 logEnvironmentInfo();
@@ -436,10 +471,10 @@ logEnvironmentInfo();
 
 ✅ **Environment detection implemented**  
 ✅ **Password auth hidden in production**  
-✅ **Password auth available in Figma Make**  
+✅ **Password auth available in local**  
 ✅ **Auto-redirect prevents password access in production**  
 ✅ **Cleaner, more secure UX for end users**  
-✅ **Flexible testing workflow for developers**  
+✅ **Flexible testing workflow for developers**
 
 **Status:** Complete - Ready for use
 

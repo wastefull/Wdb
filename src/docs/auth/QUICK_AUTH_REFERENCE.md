@@ -1,5 +1,6 @@
 # Quick Authentication Reference
 
+**Updated:** December 18, 2025
 **One-page guide for WasteDB authentication**
 
 ---
@@ -10,7 +11,7 @@
 
 **→ Magic Link ONLY** ✉️
 
-### In Figma Make (Testing)
+### in localhost (Testing)
 
 **→ Magic Link OR Password** 🔄
 
@@ -58,7 +59,7 @@ you@example.com
 
 ## Quick Facts
 
-| Feature        | Production     | Figma Make      |
+| Feature        | Production     | Local Dev       |
 | -------------- | -------------- | --------------- |
 | Magic Link     | ✅             | ✅              |
 | Password       | ❌             | ✅              |
@@ -76,9 +77,7 @@ you@example.com
 // Check environment
 console.log(window.location.hostname);
 
-// Figma Make hostnames:
-// - make.figma.com
-// - *.figma.io
+// Development hostnames:
 // - localhost
 
 // Production:
@@ -215,10 +214,10 @@ if (isProduction()) {
 
 ```
 🌍 Environment Detection: {
-  environment: 'figma-make',
-  isFigmaMake: true,
+  environment: 'development',
+  isDevelopment: true,
   isProduction: false,
-  hostname: 'make.figma.com'
+  hostname: 'localhost'
 }
 ```
 

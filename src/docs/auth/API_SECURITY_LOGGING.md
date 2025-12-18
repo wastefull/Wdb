@@ -3,6 +3,7 @@
 **Date:** October 23, 2025  
 **Status:** Critical Security Guidelines  
 **Priority:** HIGH
+**Updated:** December 18, 2025
 
 ---
 

@@ -2,6 +2,7 @@
 
 **Date:** November 10, 2025  
 **Status:** ✅ Active
+**Updated:** December 18, 2025
 
 ---
 
@@ -17,24 +18,17 @@ WasteDB's logger now uses **automatic environment detection** to suppress consol
 
 The logger automatically detects the environment based on hostname:
 
-| Environment    | Hostname Pattern                            | TEST_MODE | Console Logs  |
-| -------------- | ------------------------------------------- | --------- | ------------- |
-| **Production** | `db.wastefull.org`                          | `false`   | ❌ Suppressed |
-| **Figma Make** | `*.figma.com`, `*.figma.io`, `*.figma.site` | `true`    | ✅ Enabled    |
-| **Localhost**  | `localhost`, `127.0.0.1`                    | `true`    | ✅ Enabled    |
+| Environment    | Hostname Pattern         | TEST_MODE | Console Logs  |
+| -------------- | ------------------------ | --------- | ------------- |
+| **Production** | `db.wastefull.org`       | `false`   | ❌ Suppressed |
+| **Localhost**  | `localhost`, `127.0.0.1` | `true`    | ✅ Enabled    |
 
 **Logic:** `/utils/environment.ts`
 
 ```typescript
-export function isFigmaMake(): boolean {
+export function isDevelopment(): boolean {
   const hostname = window.location.hostname;
-  return (
-    hostname.includes("figma.com") ||
-    hostname.includes("figma.io") ||
-    hostname.includes("figma.site") ||
-    hostname === "localhost" ||
-    hostname === "127.0.0.1"
-  );
+  return hostname === "localhost" || hostname === "127.0.0.1";
 }
 ```
 
@@ -55,7 +49,7 @@ export function isFigmaMake(): boolean {
 ❌ console.log() statements - suppressed
 ```
 
-### **In Development (Figma Make/localhost):**
+### **In Development (localhost):**
 
 ```typescript
 ✅ User-facing toasts (sonner)
@@ -155,8 +149,7 @@ export default function App() {
 
 ### **3. Developer-Friendly:**
 
-- Full logging in Figma Make
-- Easy debugging on localhost
+- Full logging on localhost
 - Manual override available if needed
 
 ---
@@ -172,7 +165,7 @@ export default function App() {
 
 ### **Test Development Mode:**
 
-1. Run in Figma Make or `localhost`
+1. Run in localhost
 2. Open DevTools Console
 3. Perform various actions
 4. **Expected:** Detailed logs visible

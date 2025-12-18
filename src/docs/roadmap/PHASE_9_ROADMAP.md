@@ -2,7 +2,7 @@
 
 **Status:** Phase 9.0 ✅ | Phase 9.1 ✅ | Phase 9.2 🚧  
 **Target Completion:** Q1 2026  
-**Last Updated:** November 20, 2025
+**Updated:** December 18, 2025
 
 ---
 
@@ -528,7 +528,7 @@ Drawing from proven platforms (EC3, iNaturalist, Open Food Facts, ecoinvent):
 
 ### Why KV Store (Phase 9.0-9.2)?
 
-- No database migrations in Figma Make environment
+- No database migrations in localhost environment
 - Sufficient for pilot scope
 - Easy migration to Postgres later
 

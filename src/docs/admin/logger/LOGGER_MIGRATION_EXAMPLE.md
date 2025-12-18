@@ -2,6 +2,7 @@
 
 **Date:** October 23, 2025  
 **Status:** Reference Document
+**Updated:** December 18, 2025
 
 ## Overview
 
@@ -137,19 +138,19 @@ if (magicToken) {
 ```typescript
 useEffect(() => {
   logEnvironmentInfo();
-  console.log("🔐 Auth View - Password auth enabled:", showPasswordAuth);
+  console.log("Auth View - Password auth enabled:", showPasswordAuth);
   console.log(
-    "🔐 Initial auth mode:",
+    "Initial auth mode:",
     showPasswordAuth ? "traditional" : "magic-link"
   );
 }, [showPasswordAuth]);
 
 useEffect(() => {
   if (showPasswordAuth && authMode === "magic-link") {
-    console.log("🔄 Figma Make environment - using Password auth");
+    console.log("localhost environment - using Password auth");
     setAuthMode("traditional");
   } else if (!showPasswordAuth && authMode === "traditional") {
-    console.log("🔄 Production environment - using Magic Link auth");
+    console.log("Production environment - using Magic Link auth");
     setAuthMode("magic-link");
   }
 }, [authMode, showPasswordAuth]);
@@ -162,16 +163,16 @@ import { log } from "./utils/logger";
 
 useEffect(() => {
   logEnvironmentInfo();
-  log("🔐 Auth View - Password auth enabled:", showPasswordAuth);
-  log("🔐 Initial auth mode:", showPasswordAuth ? "traditional" : "magic-link");
+  log("Auth View - Password auth enabled:", showPasswordAuth);
+  log("Initial auth mode:", showPasswordAuth ? "traditional" : "magic-link");
 }, [showPasswordAuth]);
 
 useEffect(() => {
   if (showPasswordAuth && authMode === "magic-link") {
-    log("🔄 Figma Make environment - using Password auth");
+    log("localhost environment - using Password auth");
     setAuthMode("traditional");
   } else if (!showPasswordAuth && authMode === "traditional") {
-    log("🔄 Production environment - using Magic Link auth");
+    log("Production environment - using Magic Link auth");
     setAuthMode("magic-link");
   }
 }, [authMode, showPasswordAuth]);
