@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
@@ -95,6 +96,18 @@ export default function GuideEditor({
       onChange?.(sanitizedContent);
     },
   });
+
+  // Update editor content when initialContent changes (e.g., from import)
+  useEffect(() => {
+    if (editor && initialContent) {
+      // Only update if the content is different from what's in the editor
+      const currentContent = JSON.stringify(editor.getJSON());
+      const newContent = JSON.stringify(initialContent);
+      if (currentContent !== newContent) {
+        editor.commands.setContent(initialContent);
+      }
+    }
+  }, [editor, initialContent]);
 
   if (!editor) {
     return null;

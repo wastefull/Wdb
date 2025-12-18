@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { BookOpen, X, Loader2 } from "lucide-react";
+import { BookOpen, X, Loader2, Upload } from "lucide-react";
 import { Guide, GuideMethod, GuideSubmission } from "../../types/guide";
 import { Material } from "../../types/material";
 import GuideEditor from "../editor/GuideEditor";
 import type { TiptapContent } from "../../types/guide";
+import { toast } from "sonner";
 
 interface SubmitGuideFormProps {
   onClose: () => void;
@@ -17,6 +18,8 @@ export function SubmitGuideForm({
   materials,
 }: SubmitGuideFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importJson, setImportJson] = useState("");
   const [formData, setFormData] = useState<GuideSubmission>({
     title: "",
     description: "",
@@ -33,6 +36,52 @@ export function SubmitGuideForm({
 
   const [materialsInput, setMaterialsInput] = useState("");
   const [tagsInput, setTagsInput] = useState("");
+
+  // Handle importing guide data from JSON
+  const handleImport = () => {
+    try {
+      const parsed = JSON.parse(importJson);
+
+      // Validate required fields
+      if (!parsed.content || parsed.content.type !== "doc") {
+        toast.error(
+          "Invalid content format. Must have a 'content' field with type 'doc'."
+        );
+        return;
+      }
+
+      // Update form data with imported values
+      setFormData((prev) => ({
+        ...prev,
+        title: parsed.title || prev.title,
+        description: parsed.description || prev.description,
+        content: parsed.content,
+        method: parsed.method || prev.method,
+        difficulty_level: parsed.difficulty_level || prev.difficulty_level,
+        estimated_time: parsed.estimated_time || prev.estimated_time,
+        required_materials:
+          parsed.required_materials || prev.required_materials,
+        tags: parsed.tags || prev.tags,
+        cover_image_url: parsed.cover_image_url || prev.cover_image_url,
+        meta_description: parsed.meta_description || prev.meta_description,
+      }));
+
+      // Update comma-separated inputs
+      if (parsed.required_materials) {
+        setMaterialsInput(parsed.required_materials.join(", "));
+      }
+      if (parsed.tags) {
+        setTagsInput(parsed.tags.join(", "));
+      }
+
+      setShowImportModal(false);
+      setImportJson("");
+      toast.success("Guide data imported successfully!");
+    } catch (error) {
+      toast.error("Invalid JSON. Please check the format and try again.");
+      console.error("Import error:", error);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,14 +126,89 @@ export function SubmitGuideForm({
               Submit a Guide
             </h2>
           </div>
-          <button
-            onClick={onClose}
-            className="icon-box-sm hover:bg-black/5 dark:hover:bg-white/10"
-            disabled={isSubmitting}
-          >
-            <X size={18} />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowImportModal(true)}
+              className="retro-icon-button flex items-center gap-1 px-3"
+              title="Import guide data from JSON"
+            >
+              <Upload size={16} />
+              <span className="text-[12px]">Import</span>
+            </button>
+            <button
+              onClick={onClose}
+              className="icon-box-sm hover:bg-black/5 dark:hover:bg-white/10"
+              disabled={isSubmitting}
+            >
+              <X size={18} />
+            </button>
+          </div>
         </div>
+
+        {/* Import Modal */}
+        {showImportModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[60]">
+            <div className="retro-card w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+              <div className="p-6 border-b border-[#211f1c]/20 dark:border-white/20 flex items-center justify-between">
+                <h3 className="text-[16px] font-display text-black dark:text-white">
+                  Import Guide Data
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowImportModal(false);
+                    setImportJson("");
+                  }}
+                  className="icon-box-sm hover:bg-black/5 dark:hover:bg-white/10"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+              <div className="p-6 space-y-4">
+                <p className="text-[13px] text-black/70 dark:text-white/70">
+                  Paste guide JSON to import. This will populate the form with
+                  the imported data. See{" "}
+                  <a
+                    href="https://github.com/wastefull/Wdb/blob/main/src/docs/roadmap/guides/import-format.md"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline text-blue-600 dark:text-blue-400"
+                  >
+                    import format documentation
+                  </a>{" "}
+                  for the required structure.
+                </p>
+                <textarea
+                  value={importJson}
+                  onChange={(e) => setImportJson(e.target.value)}
+                  className="input-field min-h-[300px] font-mono text-[12px]"
+                  placeholder='{"title": "...", "content": {"type": "doc", "content": [...]}}'
+                />
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowImportModal(false);
+                      setImportJson("");
+                    }}
+                    className="retro-button flex-1"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleImport}
+                    disabled={!importJson.trim()}
+                    className="retro-button flex-1 arcade-bg-green arcade-btn-green disabled:opacity-50"
+                  >
+                    Import
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Title */}
