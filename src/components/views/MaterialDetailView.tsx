@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { ArrowLeft } from "lucide-react";
 import { Material } from "../../types/material";
 import { Article, CategoryType } from "../../types/article";
 import {
   getAllArticles,
   getArticleCount,
+  getFirstCoverImage,
   updateArticleInMaterial,
   removeArticleFromMaterial,
 } from "../../utils/materialArticles";
@@ -83,9 +84,30 @@ export function MaterialDetailView({
     setShowForm(false);
   };
 
+  // Memoize cover image lookup
+  const coverImage = useMemo(() => getFirstCoverImage(material), [material]);
+
   return (
     <div className="p-6">
-      <div className="flex items-center gap-4 mb-6">
+      {/* Hero backdrop with cover image */}
+      {coverImage && (
+        <div className="relative -mx-6 -mt-6 mb-6 h-32 overflow-hidden">
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `url(${coverImage})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
+          />
+          <div className="absolute inset-0 bg-linear-to-b from-transparent via-white/70 to-white dark:via-[#1a1917]/70 dark:to-[#1a1917]" />
+        </div>
+      )}
+      <div
+        className={`flex items-center gap-4 mb-6 ${
+          coverImage ? "-mt-16 relative" : ""
+        }`}
+      >
         <button onClick={onBack} className="card-interactive">
           <ArrowLeft size={16} className="text-black" />
         </button>

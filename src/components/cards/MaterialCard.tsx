@@ -1,8 +1,10 @@
+import { useMemo } from "react";
 import { Edit2, Trash2 } from "lucide-react";
 import { Material } from "../../types/material";
 import { CategoryType } from "../../types/article";
 import { RasterizedQuantileVisualization } from "../charts/RasterizedQuantileVisualization";
 import { ScientificMetadataView } from "../views/ScientificMetadataView";
+import { getFirstCoverImage } from "../../utils/materialArticles";
 
 export interface MaterialCardProps {
   material: Material;
@@ -29,9 +31,27 @@ export function MaterialCard({
   isAuthenticated,
   showScores = true,
 }: MaterialCardProps) {
+  // Memoize cover image lookup
+  const coverImage = useMemo(() => getFirstCoverImage(material), [material]);
+
   return (
     <div className="retro-card relative p-4 md:overflow-hidden 2xl:overflow-visible">
-      <div className="flex justify-between items-start mb-3">
+      {/* Subtle corner accent background image */}
+      {coverImage && (
+        <div
+          className="absolute top-0 right-0 w-64 h-64 rounded-2xl opacity-33 dark:opacity-15 pointer-events-none"
+          style={{
+            backgroundImage: `url(${coverImage})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            maskImage:
+              "linear-gradient(to bottom left, black 0%, transparent 70%)",
+            WebkitMaskImage:
+              "linear-gradient(to bottom left, black 0%, transparent 70%)",
+          }}
+        />
+      )}
+      <div className="flex justify-between items-start mb-3 relative">
         <div className="flex-1">
           <button
             onClick={onViewMaterial}

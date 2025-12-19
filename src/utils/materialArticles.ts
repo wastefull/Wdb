@@ -134,3 +134,27 @@ export function getTotalArticleCount(material: Material): number {
     getArticleCount(material, "reusability")
   );
 }
+
+/**
+ * Get the first cover image URL found in any of the material's articles.
+ * Searches in order: compostability, recyclability, reusability.
+ * Returns undefined if no articles have a cover image.
+ */
+export function getFirstCoverImage(material: Material): string | undefined {
+  const categories: CategoryType[] = [
+    "compostability",
+    "recyclability",
+    "reusability",
+  ];
+
+  for (const category of categories) {
+    const articles = getArticlesByCategory(material, category);
+    for (const article of articles) {
+      if (article.cover_image_url) {
+        return article.cover_image_url;
+      }
+    }
+  }
+
+  return undefined;
+}
