@@ -194,6 +194,7 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
   };
 
   const navigateToSearchResults = (query: string) => {
+    // Always navigate to search-results, even with empty query (shows all materials)
     navigateTo({ type: "search-results", query });
   };
 

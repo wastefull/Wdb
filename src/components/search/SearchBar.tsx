@@ -16,8 +16,8 @@ export function SearchBar({ value, onChange, onSearch }: SearchBarProps) {
       e.stopPropagation();
     }
 
-    // Trigger search on Enter key
-    if (e.key === "Enter" && onSearch && value.trim()) {
+    // Trigger search on Enter key (including empty search to show all materials)
+    if (e.key === "Enter" && onSearch) {
       onSearch(value.trim());
     }
   };

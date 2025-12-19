@@ -629,7 +629,13 @@ function AppContent() {
                       <SearchBar
                         value={searchQuery}
                         onChange={setSearchQuery}
-                        onSearch={(query) => navigateToSearchResults(query)}
+                        onSearch={(query) => {
+                          if (!query) {
+                            // Empty search - clear query and go to materials
+                            setSearchQuery("");
+                          }
+                          navigateToSearchResults(query);
+                        }}
                       />
                     </div>
 
