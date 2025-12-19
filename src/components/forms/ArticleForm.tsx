@@ -1,10 +1,15 @@
 import { useState } from "react";
+import { Upload, X } from "lucide-react";
 import { ArticleFormProps } from "../../types/article";
 import { TiptapContent } from "../../types/guide";
 import { ImageUploadArea } from "./ImageUploadArea";
 import GuideEditor from "../editor/GuideEditor";
+import { toast } from "sonner";
 
 export function ArticleForm({ article, onSave, onCancel }: ArticleFormProps) {
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importJson, setImportJson] = useState("");
+
   // Initialize content from either new TiptapContent or migrate from legacy sections
   const getInitialContent = (): TiptapContent => {
     if (article?.content) {
@@ -96,6 +101,39 @@ export function ArticleForm({ article, onSave, onCancel }: ArticleFormProps) {
     }
   };
 
+  // Handle importing article data from JSON
+  const handleImport = () => {
+    try {
+      const parsed = JSON.parse(importJson);
+
+      // Validate required fields
+      if (!parsed.content || parsed.content.type !== "doc") {
+        toast.error(
+          "Invalid content format. Must have a 'content' field with type 'doc'."
+        );
+        return;
+      }
+
+      // Update form data with imported values
+      setFormData((prev) => ({
+        ...prev,
+        title: parsed.title || prev.title,
+        content: parsed.content,
+        article_type: parsed.article_type || prev.article_type,
+        sustainability_category:
+          parsed.sustainability_category || prev.sustainability_category,
+        cover_image_url: parsed.cover_image_url || prev.cover_image_url,
+      }));
+
+      setShowImportModal(false);
+      setImportJson("");
+      toast.success("Article data imported successfully!");
+    } catch (error) {
+      toast.error("Invalid JSON. Please check the format and try again.");
+      console.error("Import error:", error);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave(formData);
@@ -103,7 +141,75 @@ export function ArticleForm({ article, onSave, onCancel }: ArticleFormProps) {
 
   return (
     <div className="relative rounded-[11.464px] p-6 ">
+      {/* Import Modal */}
+      {showImportModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-[#2a2825] rounded-xl border-[1.5px] border-[#211f1c] dark:border-white/20 p-6 w-full max-w-2xl mx-4 max-h-[80vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-[16px] text-black dark:text-white">
+                Import Article from JSON
+              </h3>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowImportModal(false);
+                  setImportJson("");
+                }}
+                className="text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <p className="text-[12px] text-black/60 dark:text-white/60 mb-4">
+              Paste your article JSON below. It should include a "content" field
+              with Tiptap format (type: "doc").
+            </p>
+            <textarea
+              value={importJson}
+              onChange={(e) => setImportJson(e.target.value)}
+              placeholder='{"title": "My Article", "content": {"type": "doc", "content": [...]}}'
+              className="w-full h-64 px-3 py-2 bg-white dark:bg-[#1a1817] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-xl text-[13px] text-black dark:text-white font-mono outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.3)] transition-all"
+            />
+            <div className="flex gap-3 mt-4 justify-end">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowImportModal(false);
+                  setImportJson("");
+                }}
+                className="px-4 py-2 text-[13px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleImport}
+                disabled={!importJson.trim()}
+                className="bg-waste-recycle h-9 px-6 rounded-[6px] border border-[#211f1c] shadow-[2px_3px_0px_-1px_#000000] text-[13px] text-black hover:translate-y-px hover:shadow-[1px_2px_0px_-1px_#000000] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Import
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+        {/* Header with Import Button */}
+        <div className="flex items-center justify-between">
+          <h2 className="text-[18px] text-black dark:text-white">
+            {article ? "Edit Article" : "New Article"}
+          </h2>
+          <button
+            type="button"
+            onClick={() => setShowImportModal(true)}
+            className="flex items-center gap-2 px-3 py-1.5 text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white border border-[#211f1c]/30 dark:border-white/20 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-all"
+          >
+            <Upload size={14} />
+            Import JSON
+          </button>
+        </div>
+
         {/* Overview Section */}
         <div className="bg-white dark:bg-[#1a1817] rounded-xl border-[1.5px] border-[#211f1c] dark:border-white/20 p-4">
           <h3 className="text-[15px] text-black dark:text-white mb-4">
