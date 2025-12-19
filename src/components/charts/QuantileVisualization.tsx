@@ -23,6 +23,7 @@ interface QuantileVisualizationProps {
   onClick?: () => void;
   articleCount?: number;
   hideHeader?: boolean; // If true, hides the label/score header (useful when embedded)
+  showScores?: boolean; // If false, hides score bars and numbers (BETA feature)
 }
 
 type VisualizationMode = "overlap" | "near-overlap" | "gap";
@@ -59,6 +60,7 @@ export function QuantileVisualization({
   onClick,
   articleCount,
   hideHeader = false,
+  showScores = true,
 }: QuantileVisualizationProps) {
   const { reduceMotion, highContrast, settings } = useAccessibility();
   const [isHovered, setIsHovered] = useState(false);
@@ -94,6 +96,7 @@ export function QuantileVisualization({
         color={color}
         onClick={onClick}
         articleCount={articleCount}
+        showScores={showScores}
       />
     );
   }
@@ -249,12 +252,14 @@ function SimpleBar({
   color,
   onClick,
   articleCount,
+  showScores = true,
 }: {
   score: number;
   label: string;
   color: string;
   onClick?: () => void;
   articleCount?: number;
+  showScores?: boolean;
 }) {
   return (
     <div
@@ -262,7 +267,7 @@ function SimpleBar({
       onClick={onClick}
       role="button"
       tabIndex={0}
-      aria-label={`${label}: ${score} out of 100${
+      aria-label={`${label}${showScores ? `: ${score} out of 100` : ""}${
         articleCount
           ? `, ${articleCount} article${articleCount !== 1 ? "s" : ""}`
           : ""
@@ -284,20 +289,24 @@ function SimpleBar({
               {articleCount} article{articleCount !== 1 ? "s" : ""}
             </span>
           )}
-          <span className="text-[10px] text-black/70 dark:text-white/70">
-            {score}
-          </span>
+          {showScores && (
+            <span className="text-[10px] text-black/70 dark:text-white/70">
+              {score}
+            </span>
+          )}
         </div>
       </div>
-      <div className="h-2 bg-black/10 dark:bg-white/10 rounded-full overflow-hidden border border-[#211f1c] dark:border-white/20">
-        <motion.div
-          initial={{ width: 0 }}
-          animate={{ width: `${score}%` }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-          className="h-full rounded-full transition-all group-hover:brightness-110"
-          style={{ backgroundColor: color }}
-        />
-      </div>
+      {showScores && (
+        <div className="h-2 bg-black/10 dark:bg-white/10 rounded-full overflow-hidden border border-[#211f1c] dark:border-white/20">
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: `${score}%` }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="h-full rounded-full transition-all group-hover:brightness-110"
+            style={{ backgroundColor: color }}
+          />
+        </div>
+      )}
     </div>
   );
 }

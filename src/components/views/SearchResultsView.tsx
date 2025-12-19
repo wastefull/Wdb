@@ -407,6 +407,7 @@ export function SearchResultsView({
             onSuggestEdit={() => onSuggestEdit(material)}
             isAdminModeActive={isAdminModeActive}
             isAuthenticated={isAuthenticated}
+            showScores={betaFeaturesEnabled}
           />
         ))}
       </div>

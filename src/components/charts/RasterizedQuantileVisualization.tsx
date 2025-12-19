@@ -29,6 +29,7 @@ interface RasterizedQuantileVisualizationProps {
   onClick?: () => void;
   articleCount?: number;
   enableRasterization?: boolean; // Allow disabling rasterization per-component
+  showScores?: boolean; // If false, hides score bars and numbers (BETA feature)
 }
 
 export function RasterizedQuantileVisualization({
@@ -42,6 +43,7 @@ export function RasterizedQuantileVisualization({
   onClick,
   articleCount,
   enableRasterization = true,
+  showScores = true,
 }: RasterizedQuantileVisualizationProps) {
   const { settings, reduceMotion, highContrast } = useAccessibility();
   const [shouldRasterize, setShouldRasterize] = useState(enableRasterization);
@@ -92,6 +94,7 @@ export function RasterizedQuantileVisualization({
         height={height}
         onClick={onClick}
         articleCount={articleCount}
+        showScores={showScores}
       />
     );
   }
@@ -144,6 +147,7 @@ export function RasterizedQuantileVisualization({
           isMobile={isMobile}
           isHovered={isHovered}
           onHoverChange={setIsHovered}
+          showScores={showScores}
         />
       ) : (
         // Show live SVG while loading
@@ -156,6 +160,7 @@ export function RasterizedQuantileVisualization({
           height={height}
           onClick={onClick}
           articleCount={articleCount}
+          showScores={showScores}
         />
       )}
     </div>
@@ -179,6 +184,7 @@ function RasterizedDisplay({
   isMobile,
   isHovered,
   onHoverChange,
+  showScores = true,
 }: {
   dataUrl: string;
   scoreType: ScoreType;
@@ -190,6 +196,7 @@ function RasterizedDisplay({
   isMobile: boolean;
   isHovered: boolean;
   onHoverChange: (hovered: boolean) => void;
+  showScores?: boolean;
 }) {
   // Calculate display values for labels and ARIA
   const pracMean = data.practical_mean || 0;
@@ -247,72 +254,76 @@ function RasterizedDisplay({
             </span>
           )}
         </button>
-        <span className="text-[11px] normal">{displayScore}</span>
+        {showScores && (
+          <span className="text-[11px] normal">{displayScore}</span>
+        )}
       </div>
 
       {/* Chart display: Rasterized PNG or Live SVG based on device/hover */}
-      <div
-        className="relative group w-full cursor-pointer"
-        style={{
-          // Mobile: Responsive width, Desktop: Fixed width
-          width: isMobile ? "100%" : `${width}px`,
-          height: `${height}px`,
-          // Only clip overflow when showing PNG (to handle buffer)
-          // Allow overflow when showing SVG (for tooltips)
-          overflow: isMobile || !isHovered ? "hidden" : "visible",
-        }}
-        onMouseEnter={() => onHoverChange(true)}
-        onMouseLeave={() => onHoverChange(false)}
-        onClick={onClick}
-        role="button"
-        tabIndex={0}
-        aria-label={ariaLabel}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            onClick?.();
-          }
-        }}
-      >
-        {/* 
-          Smart rendering:
-          - Mobile: Always PNG scaled to fit (performance)
-          - Desktop not hovered: PNG at natural size (performance)  
-          - Desktop hovered: Live SVG (quality)
-        */}
-        {isMobile || !isHovered ? (
-          <img
-            src={dataUrl}
-            alt=""
-            aria-hidden="true"
-            style={{
-              display: "block",
-              // Mobile: Scale to fit container, Desktop: Natural size
-              width: isMobile ? "100%" : "auto",
-              height: isMobile ? "auto" : `${height}px`,
-              marginLeft: isMobile ? "0" : "-2px", // Only offset on desktop
-              imageRendering: "-webkit-optimize-contrast",
-            }}
-            className="transition-opacity"
-          />
-        ) : (
-          <QuantileVisualization
-            scoreType={scoreType}
-            data={data}
-            width={width}
-            height={height}
-            onClick={onClick}
-            articleCount={articleCount}
-            hideHeader={true}
-          />
-        )}
+      {showScores && (
+        <div
+          className="relative group w-full cursor-pointer"
+          style={{
+            // Mobile: Responsive width, Desktop: Fixed width
+            width: isMobile ? "100%" : `${width}px`,
+            height: `${height}px`,
+            // Only clip overflow when showing PNG (to handle buffer)
+            // Allow overflow when showing SVG (for tooltips)
+            overflow: isMobile || !isHovered ? "hidden" : "visible",
+          }}
+          onMouseEnter={() => onHoverChange(true)}
+          onMouseLeave={() => onHoverChange(false)}
+          onClick={onClick}
+          role="button"
+          tabIndex={0}
+          aria-label={ariaLabel}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              onClick?.();
+            }
+          }}
+        >
+          {/* 
+            Smart rendering:
+            - Mobile: Always PNG scaled to fit (performance)
+            - Desktop not hovered: PNG at natural size (performance)  
+            - Desktop hovered: Live SVG (quality)
+          */}
+          {isMobile || !isHovered ? (
+            <img
+              src={dataUrl}
+              alt=""
+              aria-hidden="true"
+              style={{
+                display: "block",
+                // Mobile: Scale to fit container, Desktop: Natural size
+                width: isMobile ? "100%" : "auto",
+                height: isMobile ? "auto" : `${height}px`,
+                marginLeft: isMobile ? "0" : "-2px", // Only offset on desktop
+                imageRendering: "-webkit-optimize-contrast",
+              }}
+              className="transition-opacity"
+            />
+          ) : (
+            <QuantileVisualization
+              scoreType={scoreType}
+              data={data}
+              width={width}
+              height={height}
+              onClick={onClick}
+              articleCount={articleCount}
+              hideHeader={true}
+            />
+          )}
 
-        {/* No custom tooltips needed:
-            - Mobile: Tap to navigate, no hover state
-            - Desktop + PNG: No tooltip (performance)
-            - Desktop + SVG: Built-in tooltips from live SVG
-        */}
-      </div>
+          {/* No custom tooltips needed:
+              - Mobile: Tap to navigate, no hover state
+              - Desktop + PNG: No tooltip (performance)
+              - Desktop + SVG: Built-in tooltips from live SVG
+          */}
+        </div>
+      )}
     </div>
   );
 }

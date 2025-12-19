@@ -107,7 +107,7 @@ export function MaterialDetailView({
       )}
 
       <div className="retro-card-flat p-4 mb-6">
-        <h3 className="text-[15px] normal mb-4">Sustainability Scores</h3>
+        <h3 className="text-[15px] normal mb-4">Articles by Category</h3>
         <div className="flex flex-col gap-3">
           <RasterizedQuantileVisualization
             materialId={material.id}
@@ -127,6 +127,7 @@ export function MaterialDetailView({
             height={50}
             onClick={() => onViewArticles("compostability")}
             articleCount={getArticleCount(material, "compostability")}
+            showScores={false}
           />
           <RasterizedQuantileVisualization
             materialId={material.id}
@@ -146,6 +147,7 @@ export function MaterialDetailView({
             height={50}
             onClick={() => onViewArticles("recyclability")}
             articleCount={getArticleCount(material, "recyclability")}
+            showScores={false}
           />
           <RasterizedQuantileVisualization
             materialId={material.id}
@@ -165,6 +167,7 @@ export function MaterialDetailView({
             height={50}
             onClick={() => onViewArticles("reusability")}
             articleCount={getArticleCount(material, "reusability")}
+            showScores={false}
           />
         </div>
       </div>

@@ -14,6 +14,7 @@ export interface MaterialCardProps {
   onSuggestEdit?: () => void;
   isAdminModeActive?: boolean;
   isAuthenticated?: boolean;
+  showScores?: boolean; // If false, hides score bars and numbers (BETA feature)
 }
 
 export function MaterialCard({
@@ -26,6 +27,7 @@ export function MaterialCard({
   onSuggestEdit,
   isAdminModeActive,
   isAuthenticated,
+  showScores = true,
 }: MaterialCardProps) {
   return (
     <div className="retro-card relative p-4 md:overflow-hidden 2xl:overflow-visible">
@@ -111,6 +113,7 @@ export function MaterialCard({
           height={50}
           onClick={() => onViewArticles("compostability")}
           articleCount={material.articles?.compostability.length}
+          showScores={showScores}
         />
         <RasterizedQuantileVisualization
           materialId={material.id}
@@ -130,6 +133,7 @@ export function MaterialCard({
           height={50}
           onClick={() => onViewArticles("recyclability")}
           articleCount={material.articles?.recyclability.length}
+          showScores={showScores}
         />
         <RasterizedQuantileVisualization
           materialId={material.id}
@@ -149,6 +153,7 @@ export function MaterialCard({
           height={50}
           onClick={() => onViewArticles("reusability")}
           articleCount={material.articles?.reusability.length}
+          showScores={showScores}
         />
       </div>
 
