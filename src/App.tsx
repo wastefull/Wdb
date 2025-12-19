@@ -56,6 +56,7 @@ import {
   BlogView,
   AboutView,
   DonateView,
+  SearchResultsView,
 } from "./components/views";
 import EditorTestView from "./components/views/EditorTestView";
 
@@ -110,7 +111,6 @@ import { Toaster } from "./components/ui/sonner";
 import { SearchBar } from "./components/search";
 import { StatusBar, NavTabs } from "./components/layout";
 import type { NavTabId } from "./components/layout";
-import { MaterialCard } from "./components/cards";
 import { ScientificDataEditor } from "./components/scientific-editor";
 
 function AppContent() {
@@ -810,84 +810,29 @@ function AppContent() {
                 )}
               </div>
             ) : currentView.type === "search-results" ? (
-              <div className="p-6">
-                {/* Back button and search info */}
-                <div className="mb-6 flex items-center justify-between">
-                  <button
-                    onClick={() => {
-                      setSearchQuery("");
-                      navigateToMaterials();
-                    }}
-                    className="flex items-center gap-2 px-4 py-2 arcade-bg-cyan arcade-btn-cyan rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] hover:translate-y-px hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
-                  >
-                    <ArrowLeft size={16} />
-                    <span className="text-[14px]">Back to Home</span>
-                  </button>
-                  <div className="text-[14px] normal">
-                    Search results for:{" "}
-                    <span className="font-bold">"{currentView.query}"</span>
-                  </div>
-                </div>
-
-                {/* Filter options placeholder */}
-                <div className="retro-card mb-6 p-4">
-                  <p className="text-[12px] text-black/50 dark:text-white/50 italic">
-                    Filter options coming soon...
-                  </p>
-                </div>
-
-                {/* Materials grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {materials
-                    .filter(
-                      (m) =>
-                        m.name
-                          .toLowerCase()
-                          .includes(currentView.query.toLowerCase()) ||
-                        m.description
-                          ?.toLowerCase()
-                          .includes(currentView.query.toLowerCase())
-                    )
-                    .map((material) => (
-                      <MaterialCard
-                        key={material.id}
-                        material={material}
-                        onEdit={() => {
-                          setEditingMaterial(material);
-                          setShowForm(true);
-                        }}
-                        onDelete={() => handleDeleteMaterial(material.id)}
-                        onViewArticles={(category) =>
-                          handleViewArticles(material.id, category)
-                        }
-                        onViewMaterial={() => handleViewMaterial(material.id)}
-                        onEditScientific={() =>
-                          navigateToScientificEditor(material.id)
-                        }
-                        onSuggestEdit={() => setMaterialToEdit(material)}
-                        isAdminModeActive={isAdminModeActive}
-                        isAuthenticated={!!user}
-                      />
-                    ))}
-                </div>
-
-                {/* No results message */}
-                {materials.filter(
-                  (m) =>
-                    m.name
-                      .toLowerCase()
-                      .includes(currentView.query.toLowerCase()) ||
-                    m.description
-                      ?.toLowerCase()
-                      .includes(currentView.query.toLowerCase())
-                ).length === 0 && (
-                  <div className="text-center py-12">
-                    <p className="text-[16px] text-black/50 dark:text-white/50">
-                      No materials found matching your search.
-                    </p>
-                  </div>
-                )}
-              </div>
+              <SearchResultsView
+                query={currentView.query}
+                materials={materials}
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                onBack={() => {
+                  setSearchQuery("");
+                  navigateToMaterials();
+                }}
+                onEditMaterial={(material) => {
+                  setEditingMaterial(material);
+                  setShowForm(true);
+                }}
+                onDeleteMaterial={handleDeleteMaterial}
+                onViewArticles={handleViewArticles}
+                onViewMaterial={handleViewMaterial}
+                onEditScientific={(materialId) =>
+                  navigateToScientificEditor(materialId)
+                }
+                onSuggestEdit={setMaterialToEdit}
+                isAdminModeActive={isAdminModeActive}
+                isAuthenticated={!!user}
+              />
             ) : currentMaterial && currentView.type === "articles" ? (
               <ArticlesView
                 material={currentMaterial}

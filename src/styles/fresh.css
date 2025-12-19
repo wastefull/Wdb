@@ -163,6 +163,8 @@
 /* Exclude headings so they stay in Sniglet/display font */
 strong:not(h1 strong, h2 strong, h3 strong, h4 strong, h5 strong, h6 strong),
 b:not(h1 b, h2 b, h3 b, h4 b, h5 b, h6 b),
+.font-medium:not(h1, h2, h3, h4, h5, h6, [class*="font-display"]),
+.font-semibold:not(h1, h2, h3, h4, h5, h6, [class*="font-display"]),
 .font-bold:not(h1, h2, h3, h4, h5, h6, [class*="font-display"]) {
   font-family: "Tilt Warp", "Sniglet", sans-serif;
   font-weight: 400; /* Tilt Warp only has one weight */
