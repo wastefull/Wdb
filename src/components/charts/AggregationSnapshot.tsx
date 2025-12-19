@@ -89,7 +89,7 @@ export function AggregationSnapshot({
           <div className="text-[10px] text-black/60 dark:text-white/60 font-['Sniglet'] mb-1">
             Weighted Mean
           </div>
-          <div className="text-[20px] font-['Fredoka_One'] text-blue-600 dark:text-blue-400">
+          <div className="text-[20px] font-['Tilt_Warp'] text-blue-600 dark:text-blue-400">
             {aggregated_value.toFixed(2)}
           </div>
         </div>

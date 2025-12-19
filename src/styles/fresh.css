@@ -185,7 +185,7 @@ b:not(h1 b, h2 b, h3 b, h4 b, h5 b, h6 b),
   /* Font families - use via font-sniglet, font-pixel, etc. */
   --font-sniglet: "Sniglet", sans-serif;
   --font-pixel: "Press Start 2P", cursive;
-  --font-display: "Fredoka One", cursive;
+  --font-display: "Tilt Warp", cursive;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
   /* Map CSS vars to Tailwind colors */
@@ -298,7 +298,7 @@ b:not(h1 b, h2 b, h3 b, h4 b, h5 b, h6 b),
       font-weight: var(--font-weight-normal);
       line-height: 1.5;
     }
-    font-family: "Fredoka One", cursive;
+    font-family: "Tilt Warp", cursive;
   }
 }
 

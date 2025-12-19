@@ -75,7 +75,7 @@ export function ChartRasterizationDemo() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h2 className="text-xl md:text-2xl font-['Fredoka_One',cursive]">
+          <h2 className="text-xl md:text-2xl font-['Tilt_Warp',cursive]">
             Chart Rasterization Demo
           </h2>
           <p className="text-xs md:text-sm text-black/60 dark:text-white/60 mt-1">

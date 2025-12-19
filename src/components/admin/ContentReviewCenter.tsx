@@ -402,7 +402,7 @@ export function ContentReviewCenter({
         >
           <ArrowLeft size={16} className="text-black" />
         </button>
-        <h2 className="font-['Fredoka_One',sans-serif] normal">
+        <h2 className="font-['Tilt_Warp',sans-serif] normal">
           Content Review Center
         </h2>
       </div>

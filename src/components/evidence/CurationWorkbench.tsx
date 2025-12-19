@@ -418,7 +418,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                   </div>
                   <div className="text-left hidden md:block">
                     <div
-                      className={`font-['Fredoka_One'] text-[11px] ${
+                      className={`font-['Tilt_Warp'] text-[11px] ${
                         isActive ? "normal" : "text-black/40 dark:text-white/40"
                       }`}
                     >
@@ -450,7 +450,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
         {/* Left Pane: Source Viewer */}
         <div className="w-[400px] min-w-[300px] max-w-[500px] bg-white dark:bg-[#2a2825] flex flex-col border-r border-[#211f1c]/20 dark:border-white/20">
           <div className="panel-bordered">
-            <h3 className="font-['Fredoka_One'] text-[16px] normal mb-1">
+            <h3 className="font-['Tilt_Warp'] text-[16px] normal mb-1">
               Source Viewer
             </h3>
             <p className="label-muted-sm">
@@ -476,7 +476,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                           size={48}
                           className="mx-auto mb-4 text-black/20 dark:text-white/20"
                         />
-                        <h4 className="font-['Fredoka_One'] text-[14px] normal mb-2">
+                        <h4 className="font-['Tilt_Warp'] text-[14px] normal mb-2">
                           No Sources Available
                         </h4>
                         <p className="label-muted-sm">
@@ -500,7 +500,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                               className="text-black/60 dark:text-white/60 mt-0.5 shrink-0"
                             />
                             <div className="flex-1 min-w-0">
-                              <h4 className="font-['Fredoka_One'] text-[13px] normal truncate">
+                              <h4 className="font-['Tilt_Warp'] text-[13px] normal truncate">
                                 {source.title || "Untitled"}
                               </h4>
                               <p className="label-muted-sm line-clamp-2">
@@ -572,7 +572,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                 {selectedSource ? (
                   <Card className="border-2">
                     <CardHeader className="pb-3">
-                      <CardTitle className="font-['Fredoka_One'] text-[14px]">
+                      <CardTitle className="font-['Tilt_Warp'] text-[14px]">
                         {selectedSource.title || "Untitled Source"}
                       </CardTitle>
                       {/* Metadata row */}
@@ -721,7 +721,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                         {/* DOI display */}
                         {selectedSource.doi && (
                           <div>
-                            <Label className="font-['Fredoka_One'] text-[10px] text-black/60 dark:text-white/60">
+                            <Label className="font-['Tilt_Warp'] text-[10px] text-black/60 dark:text-white/60">
                               DOI
                             </Label>
                             <p className="font-['Sniglet'] text-[11px] text-black/80 dark:text-white/80 mt-1">
@@ -732,7 +732,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
 
                         {/* Abstract */}
                         <div>
-                          <Label className="font-['Fredoka_One'] text-[10px] text-black/60 dark:text-white/60">
+                          <Label className="font-['Tilt_Warp'] text-[10px] text-black/60 dark:text-white/60">
                             ABSTRACT / SUMMARY
                           </Label>
                           <p className="font-['Sniglet'] text-[11px] normal mt-2 leading-relaxed">
@@ -745,7 +745,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                         {/* PDF Viewer or Access Helper */}
                         {selectedSource.pdfFileName ? (
                           <div className="space-y-2">
-                            <Label className="font-['Fredoka_One'] text-[10px] text-black/60 dark:text-white/60">
+                            <Label className="font-['Tilt_Warp'] text-[10px] text-black/60 dark:text-white/60">
                               SOURCE DOCUMENT
                             </Label>
                             <iframe
@@ -791,7 +791,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
         {/* Right Pane: Evidence Wizard */}
         <div className="flex-1 min-w-[400px] bg-white dark:bg-[#2a2825] flex flex-col">
           <div className="panel-bordered">
-            <h3 className="font-['Fredoka_One'] text-[16px] normal mb-1">
+            <h3 className="font-['Tilt_Warp'] text-[16px] normal mb-1">
               Evidence Wizard
             </h3>
             <p className="label-muted-sm">5-Step MIU Creation Flow</p>
@@ -804,7 +804,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                 <div className="space-y-4">
                   <div className="flex items-center gap-2">
                     <div
-                      className={`w-6 h-6 rounded-full border flex items-center justify-center text-[11px] font-['Fredoka_One'] ${
+                      className={`w-6 h-6 rounded-full border flex items-center justify-center text-[11px] font-['Tilt_Warp'] ${
                         selectedSource
                           ? "bg-[#a8d5ba] border-[#211f1c] text-black"
                           : "border-[#211f1c]/40 text-black/40 dark:text-white/40"
@@ -812,7 +812,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                     >
                       1
                     </div>
-                    <Label className="font-['Fredoka_One'] text-[13px]">
+                    <Label className="font-['Tilt_Warp'] text-[13px]">
                       Select Source
                     </Label>
                   </div>
@@ -820,7 +820,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                   {selectedSource ? (
                     <Card className="border-2 border-[#211f1c] dark:border-white/20">
                       <CardHeader className="pb-2">
-                        <CardTitle className="font-['Fredoka_One'] text-[14px]">
+                        <CardTitle className="font-['Tilt_Warp'] text-[14px]">
                           {selectedSource.title || "Untitled Source"}
                         </CardTitle>
                         <CardDescription className="font-['Sniglet'] text-[11px]">
@@ -842,7 +842,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                         )}
                         {selectedSource.abstract && (
                           <div>
-                            <Label className="font-['Fredoka_One'] text-[10px] text-black/60 dark:text-white/60">
+                            <Label className="font-['Tilt_Warp'] text-[10px] text-black/60 dark:text-white/60">
                               ABSTRACT
                             </Label>
                             <p className="font-['Sniglet'] text-[11px] text-black/80 dark:text-white/80 mt-1 line-clamp-4">
@@ -852,7 +852,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                         )}
                         {selectedSource.doi && (
                           <div>
-                            <Label className="font-['Fredoka_One'] text-[10px] text-black/60 dark:text-white/60">
+                            <Label className="font-['Tilt_Warp'] text-[10px] text-black/60 dark:text-white/60">
                               DOI
                             </Label>
                             <div className="flex items-center gap-2 mt-1">
@@ -929,7 +929,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                 >
                   <div className="flex items-center gap-2">
                     <div
-                      className={`w-6 h-6 rounded-full border flex items-center justify-center text-[11px] font-['Fredoka_One'] ${
+                      className={`w-6 h-6 rounded-full border flex items-center justify-center text-[11px] font-['Tilt_Warp'] ${
                         formData.material_id
                           ? "bg-[#a8d5ba] border-[#211f1c] text-black"
                           : "border-[#211f1c]/40 text-black/40 dark:text-white/40"
@@ -937,7 +937,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                     >
                       2
                     </div>
-                    <Label className="font-['Fredoka_One'] text-[13px]">
+                    <Label className="font-['Tilt_Warp'] text-[13px]">
                       Select Material
                     </Label>
                   </div>
@@ -976,7 +976,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                 >
                   <div className="flex items-center gap-2">
                     <div
-                      className={`w-6 h-6 rounded-full border flex items-center justify-center text-[11px] font-['Fredoka_One'] ${
+                      className={`w-6 h-6 rounded-full border flex items-center justify-center text-[11px] font-['Tilt_Warp'] ${
                         formData.parameter_code
                           ? "bg-[#a8d5ba] border-[#211f1c] text-black"
                           : "border-[#211f1c]/40 text-black/40 dark:text-white/40"
@@ -984,7 +984,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                     >
                       3
                     </div>
-                    <Label className="font-['Fredoka_One'] text-[13px]">
+                    <Label className="font-['Tilt_Warp'] text-[13px]">
                       Select Parameter (CR Dimension)
                     </Label>
                   </div>
@@ -1025,7 +1025,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                 >
                   <div className="flex items-center gap-2">
                     <div
-                      className={`w-6 h-6 rounded-full border flex items-center justify-center text-[11px] font-['Fredoka_One'] ${
+                      className={`w-6 h-6 rounded-full border flex items-center justify-center text-[11px] font-['Tilt_Warp'] ${
                         formData.raw_value &&
                         formData.raw_unit &&
                         formData.snippet
@@ -1035,7 +1035,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                     >
                       4
                     </div>
-                    <Label className="font-['Fredoka_One'] text-[13px]">
+                    <Label className="font-['Tilt_Warp'] text-[13px]">
                       Extract Value & Context
                     </Label>
                   </div>
@@ -1188,10 +1188,10 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full border border-[#211f1c]/40 flex items-center justify-center text-[11px] font-['Fredoka_One'] text-black/40 dark:text-white/40">
+                    <div className="w-6 h-6 rounded-full border border-[#211f1c]/40 flex items-center justify-center text-[11px] font-['Tilt_Warp'] text-black/40 dark:text-white/40">
                       5
                     </div>
-                    <Label className="font-['Fredoka_One'] text-[13px]">
+                    <Label className="font-['Tilt_Warp'] text-[13px]">
                       Add Metadata
                     </Label>
                   </div>

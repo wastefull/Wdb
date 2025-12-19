@@ -307,13 +307,13 @@ export function DataRetentionManager({
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
-              <div className="text-[32px] font-['Fredoka_One'] text-blue-600">
+              <div className="text-[32px] font-['Tilt_Warp'] text-blue-600">
                 {stats?.screenshots.total || 0}
               </div>
               <p className="label-muted">Total screenshots</p>
             </div>
             <div className="p-4 bg-orange-50 dark:bg-orange-950/20 rounded-lg">
-              <div className="text-[32px] font-['Fredoka_One'] text-orange-600">
+              <div className="text-[32px] font-['Tilt_Warp'] text-orange-600">
                 {stats?.screenshots.expired || 0}
               </div>
               <p className="label-muted">Expired (7+ years)</p>
@@ -412,13 +412,13 @@ export function DataRetentionManager({
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="p-4 bg-green-50 dark:bg-green-950/20 rounded-lg">
-              <div className="text-[32px] font-['Fredoka_One'] text-green-600">
+              <div className="text-[32px] font-['Tilt_Warp'] text-green-600">
                 {stats?.auditLogs.total || 0}
               </div>
               <p className="label-muted">Total audit logs</p>
             </div>
             <div className="p-4 bg-red-50 dark:bg-red-950/20 rounded-lg">
-              <div className="text-[32px] font-['Fredoka_One'] text-red-600">
+              <div className="text-[32px] font-['Tilt_Warp'] text-red-600">
                 {stats?.auditLogs.expired || 0}
               </div>
               <p className="label-muted">Expired (7+ years)</p>
@@ -616,7 +616,7 @@ export function DataRetentionManager({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="p-3 bg-muted/50 rounded-lg">
               <p className="label-muted-xs mb-1">Total Evidence Points</p>
-              <div className="text-[24px] font-['Fredoka_One'] text-purple-600">
+              <div className="text-[24px] font-['Tilt_Warp'] text-purple-600">
                 {stats?.evidence.total || 0}
               </div>
             </div>

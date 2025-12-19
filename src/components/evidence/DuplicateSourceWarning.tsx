@@ -53,7 +53,7 @@ export function DuplicateSourceWarning({
             <div className="p-2 bg-yellow-100 dark:bg-yellow-900/20 rounded-full">
               <AlertTriangle className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
             </div>
-            <DialogTitle className="font-['Fredoka_One'] text-[18px]">
+            <DialogTitle className="font-['Tilt_Warp'] text-[18px]">
               Potential Duplicate Detected
             </DialogTitle>
           </div>

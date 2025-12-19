@@ -294,7 +294,7 @@ export function TransformFormulaTesting({
               />
               <span className="label-muted-sm">Successful</span>
             </div>
-            <div className="font-['Fredoka_One'] text-[24px] text-green-600 dark:text-green-400">
+            <div className="font-['Tilt_Warp'] text-[24px] text-green-600 dark:text-green-400">
               {overallStats.success}
             </div>
           </div>
@@ -304,7 +304,7 @@ export function TransformFormulaTesting({
               <XCircle size={16} className="text-red-600 dark:text-red-400" />
               <span className="label-muted-sm">Errors</span>
             </div>
-            <div className="font-['Fredoka_One'] text-[24px] text-red-600 dark:text-red-400">
+            <div className="font-['Tilt_Warp'] text-[24px] text-red-600 dark:text-red-400">
               {overallStats.errors}
             </div>
           </div>
@@ -327,7 +327,7 @@ export function TransformFormulaTesting({
 
       {/* Parameter Statistics */}
       <div className="p-6 bg-white dark:bg-[#2a2825] border-b border-[#211f1c]/20 dark:border-white/20">
-        <h3 className="font-['Fredoka_One'] text-[16px] normal mb-4">
+        <h3 className="font-['Tilt_Warp'] text-[16px] normal mb-4">
           Parameter Statistics
         </h3>
         <div className="grid grid-cols-7 gap-3">
@@ -350,7 +350,7 @@ export function TransformFormulaTesting({
                   backgroundColor: getParameterColor(transform.parameter),
                 }}
               >
-                <div className="font-['Fredoka_One'] text-[14px] text-black mb-1">
+                <div className="font-['Tilt_Warp'] text-[14px] text-black mb-1">
                   {transform.parameter}
                 </div>
                 <div className="font-['Sniglet'] text-[10px] text-black/70 mb-2">
@@ -422,7 +422,7 @@ export function TransformFormulaTesting({
                   >
                     <td className="px-4 py-3">
                       <div
-                        className="inline-flex items-center justify-center w-8 h-8 rounded-md border border-[#211f1c] dark:border-white/20 font-['Fredoka_One'] text-[11px]"
+                        className="inline-flex items-center justify-center w-8 h-8 rounded-md border border-[#211f1c] dark:border-white/20 font-['Tilt_Warp'] text-[11px]"
                         style={{
                           backgroundColor: getParameterColor(result.parameter),
                         }}

@@ -203,7 +203,7 @@ export function TransformVersionManager({
     <div className={`space-y-6 ${className || ""}`}>
       {/* Header */}
       <div>
-        <h1 className="font-['Fredoka_One',sans-serif] text-[24px] normal mb-2">
+        <h1 className="font-['Tilt_Warp',sans-serif] text-[24px] normal mb-2">
           Transform Version Manager
         </h1>
         <p className="text-[14px] text-black/70 dark:text-white/70">

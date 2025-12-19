@@ -8,18 +8,18 @@ The `PageTemplate` component provides a standardized layout for informational pa
 
 ✅ **Consistent Back Navigation** - Automatic back button with customizable behavior  
 ✅ **Responsive Layout** - Mobile-first design that adapts to all screen sizes  
-✅ **Typography Standards** - Uses Fredoka One for headers, Sniglet for body text  
+✅ **Typography Standards** - Uses Tilt Warp for headers, Sniglet for body text  
 ✅ **Accessibility Ready** - Respects all WasteDB accessibility settings  
 ✅ **Flexible Width Control** - Choose from multiple max-width constraints
 
 ## Basic Usage
 
 ```tsx
-import { PageTemplate } from './components/PageTemplate';
+import { PageTemplate } from "./components/PageTemplate";
 
 export function MyInformationalPage() {
   return (
-    <PageTemplate 
+    <PageTemplate
       title="My Page Title"
       description="Brief description of what this page is about"
     >
@@ -53,7 +53,7 @@ export function MyInformationalPage() {
 ### With Custom Back Navigation
 
 ```tsx
-<PageTemplate 
+<PageTemplate
   title="Takedown Request"
   onBack={() => navigateToLegalHub()}
   backButtonLabel="Back to Legal Hub"
@@ -65,10 +65,7 @@ export function MyInformationalPage() {
 ### Wider Layout
 
 ```tsx
-<PageTemplate 
-  title="Data Visualization"
-  maxWidth="6xl"
->
+<PageTemplate title="Data Visualization" maxWidth="6xl">
   <WideChartComponent />
 </PageTemplate>
 ```
@@ -76,10 +73,7 @@ export function MyInformationalPage() {
 ### No Back Button
 
 ```tsx
-<PageTemplate 
-  title="Welcome"
-  hideBackButton={true}
->
+<PageTemplate title="Welcome" hideBackButton={true}>
   <OnboardingContent />
 </PageTemplate>
 ```
@@ -89,7 +83,8 @@ export function MyInformationalPage() {
 ### Typography
 
 The PageTemplate automatically applies:
-- **Fredoka One** for the main title (h1)
+
+- **Tilt Warp** for the main title (h1)
 - **Sniglet** for description and body content
 
 You don't need to manually add font classes to the title or description.
@@ -106,17 +101,13 @@ Within the `children`, you should use standard WasteDB patterns:
       <CardHeader>
         <CardTitle>Section Title</CardTitle>
       </CardHeader>
-      <CardContent>
-        {/* Content */}
-      </CardContent>
+      <CardContent>{/* Content */}</CardContent>
     </Card>
-    
+
     {/* Alerts for important notices */}
     <Alert>
       <AlertCircle className="size-4" />
-      <AlertDescription>
-        Important information here
-      </AlertDescription>
+      <AlertDescription>Important information here</AlertDescription>
     </Alert>
   </div>
 </PageTemplate>
@@ -125,6 +116,7 @@ Within the `children`, you should use standard WasteDB patterns:
 ### Responsive Spacing
 
 The template includes responsive padding:
+
 - Mobile: `p-4` (1rem)
 - Tablet: `p-6` (1.5rem)
 - Desktop: `p-8` (2rem)
@@ -138,22 +130,20 @@ Your content should use `space-y-*` utilities for vertical spacing.
 ```tsx
 export function Phase9TestingPage() {
   const { navigateToMaterials } = useNavigationContext();
-  
+
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       <Button onClick={navigateToMaterials}>
         <ArrowLeft className="size-4" />
         Back
       </Button>
-      
+
       <div>
         <h1 className="text-2xl font-bold">Phase 9.0 Day 1 Testing</h1>
         <p>Legal & Licensing Infrastructure</p>
       </div>
-      
-      <Card>
-        {/* Content */}
-      </Card>
+
+      <Card>{/* Content */}</Card>
     </div>
   );
 }
@@ -164,13 +154,11 @@ export function Phase9TestingPage() {
 ```tsx
 export function Phase9TestingPage() {
   return (
-    <PageTemplate 
+    <PageTemplate
       title="Phase 9.0 Day 1 Testing"
       description="Legal & Licensing Infrastructure"
     >
-      <Card>
-        {/* Content */}
-      </Card>
+      <Card>{/* Content */}</Card>
     </PageTemplate>
   );
 }
@@ -188,6 +176,7 @@ export function Phase9TestingPage() {
 ## Accessibility Notes
 
 The PageTemplate automatically inherits all WasteDB accessibility features:
+
 - Font size scaling (controlled by yellow button)
 - Dark mode support
 - High contrast mode
@@ -199,6 +188,7 @@ You don't need to add special accessibility classes - the template and global CS
 ## Common Use Cases
 
 ### Testing/QA Pages
+
 ```tsx
 <PageTemplate title="Phase X Testing" description="Feature description">
   <TestScenarios />
@@ -206,6 +196,7 @@ You don't need to add special accessibility classes - the template and global CS
 ```
 
 ### Legal/Policy Pages
+
 ```tsx
 <PageTemplate title="Takedown Request" description="DMCA Copyright Claim">
   <TakedownForm />
@@ -213,6 +204,7 @@ You don't need to add special accessibility classes - the template and global CS
 ```
 
 ### Documentation Pages
+
 ```tsx
 <PageTemplate title="API Documentation" maxWidth="6xl">
   <ApiDocs />
@@ -220,6 +212,7 @@ You don't need to add special accessibility classes - the template and global CS
 ```
 
 ### Status/Info Pages
+
 ```tsx
 <PageTemplate title="Request Status" hideBackButton={true}>
   <StatusTracker />
@@ -228,7 +221,7 @@ You don't need to add special accessibility classes - the template and global CS
 
 ## Troubleshooting
 
-**Q: My title isn't using Fredoka One**  
+**Q: My title isn't using Tilt Warp**  
 A: Make sure you're not overriding the title with your own h1 tags. Let PageTemplate render the title.
 
 **Q: The layout isn't responsive**  

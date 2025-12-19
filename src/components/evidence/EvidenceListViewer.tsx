@@ -364,7 +364,7 @@ export function EvidenceListViewer({
       {/* Filters and Search */}
       <Card className="border-2 border-[#211f1c] dark:border-white/20 shadow-[4px_4px_0px_0px_#000000] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]">
         <CardHeader>
-          <CardTitle className="font-['Fredoka_One'] text-[18px] flex items-center gap-2">
+          <CardTitle className="font-['Tilt_Warp'] text-[18px] flex items-center gap-2">
             <Filter className="size-5" />
             Filter Evidence Points
           </CardTitle>
@@ -548,7 +548,7 @@ export function EvidenceListViewer({
                       </DialogTrigger>
                       <DialogContent className="max-w-3xl border-2 border-[#211f1c] dark:border-white/20">
                         <DialogHeader>
-                          <DialogTitle className="font-['Fredoka_One'] text-[20px]">
+                          <DialogTitle className="font-['Tilt_Warp'] text-[20px]">
                             Evidence Point Details
                           </DialogTitle>
                           <DialogDescription className="font-['Sniglet'] text-[12px]">
@@ -815,7 +815,7 @@ export function EvidenceListViewer({
       >
         <DialogContent className="max-w-md border-2 border-[#211f1c] dark:border-white/20">
           <DialogHeader>
-            <DialogTitle className="font-['Fredoka_One'] text-[20px]">
+            <DialogTitle className="font-['Tilt_Warp'] text-[20px]">
               Edit Evidence Point
             </DialogTitle>
             <DialogDescription className="font-['Sniglet'] text-[12px]">
@@ -904,7 +904,7 @@ export function EvidenceListViewer({
       >
         <DialogContent className="max-w-md border-2 border-[#211f1c] dark:border-white/20">
           <DialogHeader>
-            <DialogTitle className="font-['Fredoka_One'] text-[20px] flex items-center gap-2 text-red-600">
+            <DialogTitle className="font-['Tilt_Warp'] text-[20px] flex items-center gap-2 text-red-600">
               <AlertTriangle className="size-6" />
               Delete Evidence Point
             </DialogTitle>
@@ -965,7 +965,7 @@ export function EvidenceListViewer({
       >
         <DialogContent className="max-w-md border-2 border-[#211f1c] dark:border-white/20">
           <DialogHeader>
-            <DialogTitle className="font-['Fredoka_One'] text-[20px] text-red-600 flex items-center gap-2">
+            <DialogTitle className="font-['Tilt_Warp'] text-[20px] text-red-600 flex items-center gap-2">
               <AlertTriangle className="size-5" />
               Bulk Delete Evidence
             </DialogTitle>

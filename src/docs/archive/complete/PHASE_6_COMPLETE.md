@@ -586,7 +586,7 @@ Introduces advanced editorial workflow features including email notifications vi
 - **POST `/make-server-17cae920/email/revision-request`**
   - Parameters: `submissionId`, `feedback`, `submitterEmail`, `submitterName`, `submissionType`
   - Beautifully formatted HTML email with:
-    - WasteDB branding (Fredoka One header, Sniglet body)
+    - WasteDB branding (Tilt Warp header, Sniglet body)
     - Retro Wastefull brand design (borders, shadows, color scheme)
     - Reviewer feedback in styled box
     - CTA button to "View My Submissions"

@@ -45,7 +45,7 @@ interface PageTemplateProps {
  * Features:
  * - Consistent back navigation
  * - Responsive layout
- * - Default fonts (Sniglet for body, Fredoka One for headers)
+ * - Default fonts (Sniglet for body, Tilt Warp One for headers)
  * - Proper spacing and padding
  * - Accessibility support
  *

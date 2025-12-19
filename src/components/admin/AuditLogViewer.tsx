@@ -173,7 +173,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
             ← Back to Admin
           </button>
 
-          <h1 className="font-['Fredoka_One'] text-[32px] normal mb-2">
+          <h1 className="font-['Tilt_Warp'] text-[32px] normal mb-2">
             Audit Log Viewer
           </h1>
           <p className="font-['Sniglet'] text-[14px] text-black/60 dark:text-white/60">
@@ -205,7 +205,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
                 <Calendar size={20} className="normal" />
                 <h3 className="label-muted">Creates</h3>
               </div>
-              <p className="font-['Fredoka_One'] text-[24px] text-green-600 dark:text-green-400">
+              <p className="font-['Tilt_Warp'] text-[24px] text-green-600 dark:text-green-400">
                 {stats.byAction.create || 0}
               </p>
             </div>
@@ -215,7 +215,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
                 <Activity size={20} className="normal" />
                 <h3 className="label-muted">Deletes</h3>
               </div>
-              <p className="font-['Fredoka_One'] text-[24px] text-red-600 dark:text-red-400">
+              <p className="font-['Tilt_Warp'] text-[24px] text-red-600 dark:text-red-400">
                 {stats.byAction.delete || 0}
               </p>
             </div>
@@ -226,7 +226,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
         <div className="bg-white dark:bg-[#1a1917] rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] p-4 mb-6">
           <div className="flex items-center gap-2 mb-4">
             <Filter size={16} />
-            <h3 className="font-['Fredoka_One'] text-[16px]">Filters</h3>
+            <h3 className="font-['Tilt_Warp'] text-[16px]">Filters</h3>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
@@ -327,7 +327,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
         {/* Logs Table */}
         <div className="bg-white dark:bg-[#1a1917] rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)]">
           <div className="panel-bordered">
-            <h3 className="font-['Fredoka_One'] text-[18px]">
+            <h3 className="font-['Tilt_Warp'] text-[18px]">
               Audit Logs ({total} total)
             </h3>
           </div>
@@ -453,7 +453,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="p-6">
-              <h2 className="font-['Fredoka_One'] text-[24px] mb-4">
+              <h2 className="font-['Tilt_Warp'] text-[24px] mb-4">
                 Audit Log Details
               </h2>
 
