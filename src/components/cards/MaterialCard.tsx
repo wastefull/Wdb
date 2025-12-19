@@ -35,7 +35,7 @@ export function MaterialCard({
         <div className="flex-1">
           <button
             onClick={onViewMaterial}
-            className="text-[16px] normal mb-1 hover:underline cursor-pointer text-left block"
+            className="text-[18px] text-black dark:text-white mb-1 hover:underline cursor-pointer text-left block"
             aria-label={`View details for ${material.name}`}
           >
             {material.name}
@@ -89,7 +89,7 @@ export function MaterialCard({
       </div>
 
       {material.description && (
-        <p className="text-[11px] text-black/70 dark:text-white/70 mb-3 line-clamp-2">
+        <p className="text-[14px] text-black/70 dark:text-white/70 mb-3 line-clamp-2">
           {material.description}
         </p>
       )}
