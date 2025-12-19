@@ -301,18 +301,69 @@ export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({
     }
   };
 
+  // Sync a single material
+  const syncSingleMaterial = async (
+    material: Material,
+    operation: "create" | "update" | "delete"
+  ): Promise<boolean> => {
+    if (!user || userRole !== "admin" || !supabaseAvailable) {
+      return false; // Can't sync, but local save succeeded
+    }
+
+    setSyncStatus("syncing");
+    try {
+      const materialWithArticles = {
+        ...material,
+        articles: material.articles || {
+          compostability: [],
+          recyclability: [],
+          reusability: [],
+        },
+      };
+
+      if (operation === "create") {
+        await api.saveMaterial(materialWithArticles);
+      } else if (operation === "update") {
+        await api.updateMaterial(materialWithArticles);
+      } else if (operation === "delete") {
+        await api.deleteMaterial(material.id);
+      }
+
+      setSyncStatus("synced");
+      syncLogger.info(
+        `Successfully ${operation}d material "${material.name}" in Supabase`
+      );
+      return true;
+    } catch (error) {
+      syncLogger.error(`Failed to ${operation} material in Supabase:`, error);
+      setSyncStatus("error");
+      toast.error(`Cloud sync failed - saved locally only`);
+      return false;
+    }
+  };
+
   // CRUD Operations
-  const addMaterial = (materialData: Omit<Material, "id">) => {
+  const addMaterial = async (materialData: Omit<Material, "id">) => {
     const newMaterial: Material = {
       ...materialData,
       id: Date.now().toString(),
     };
     materialsLogger.info("Adding material:", newMaterial.name);
-    saveMaterials([...materials, newMaterial]);
+
+    // Update local state and localStorage
+    const updated = [...materials, newMaterial];
+    setMaterials(updated);
+    localStorage.setItem("materials", JSON.stringify(updated));
+    localStorage.setItem("materials_last_known_count", String(updated.length));
+
+    // Sync single material to Supabase
+    await syncSingleMaterial(newMaterial, "create");
     toast.success(`Added ${materialData.name} successfully`);
   };
 
-  const updateMaterial = (materialData: Omit<Material, "id"> | Material) => {
+  const updateMaterial = async (
+    materialData: Omit<Material, "id"> | Material
+  ) => {
     if ("id" in materialData) {
       // Direct update with full material
       const existingIndex = materials.findIndex(
@@ -321,15 +372,32 @@ export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({
       if (existingIndex >= 0) {
         // Update existing material
         materialsLogger.info("Updating material:", materialData.name);
+
+        // Update local state and localStorage
         const updated = materials.map((m) =>
           m.id === materialData.id ? materialData : m
         );
-        saveMaterials(updated);
+        setMaterials(updated);
+        localStorage.setItem("materials", JSON.stringify(updated));
+
+        // Sync single material to Supabase (much faster than batch!)
+        await syncSingleMaterial(materialData, "update");
         toast.success(`Updated ${materialData.name} successfully`);
       } else {
         // Add new material (e.g., from CSV import)
         materialsLogger.info("Adding new material:", materialData.name);
-        saveMaterials([...materials, materialData]);
+
+        // Update local state and localStorage
+        const updated = [...materials, materialData];
+        setMaterials(updated);
+        localStorage.setItem("materials", JSON.stringify(updated));
+        localStorage.setItem(
+          "materials_last_known_count",
+          String(updated.length)
+        );
+
+        // Sync single material to Supabase
+        await syncSingleMaterial(materialData, "create");
         toast.success(`Added ${materialData.name} successfully`);
       }
     } else {
@@ -337,12 +405,23 @@ export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({
     }
   };
 
-  const deleteMaterial = (id: string) => {
+  const deleteMaterial = async (id: string) => {
     const material = materials.find((m) => m.id === id);
     if (confirm("Are you sure you want to delete this material?")) {
       materialsLogger.info("Deleting material:", material?.name || id);
-      saveMaterials(materials.filter((m) => m.id !== id));
+
+      // Update local state and localStorage
+      const updated = materials.filter((m) => m.id !== id);
+      setMaterials(updated);
+      localStorage.setItem("materials", JSON.stringify(updated));
+      localStorage.setItem(
+        "materials_last_known_count",
+        String(updated.length)
+      );
+
+      // Sync deletion to Supabase
       if (material) {
+        await syncSingleMaterial(material, "delete");
         toast.success(`Deleted ${material.name} successfully`);
       }
     }

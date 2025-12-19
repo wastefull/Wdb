@@ -102,7 +102,7 @@ export function ArticleForm({ article, onSave, onCancel }: ArticleFormProps) {
   };
 
   return (
-    <div className="bg-white dark:bg-[#2a2825] relative rounded-[11.464px] p-6 border-[1.5px] border-[#211f1c] dark:border-white/20 mb-6">
+    <div className="relative rounded-[11.464px] p-6 ">
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         {/* Overview Section */}
         <div className="bg-white dark:bg-[#1a1817] rounded-xl border-[1.5px] border-[#211f1c] dark:border-white/20 p-4">
