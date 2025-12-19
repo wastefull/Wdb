@@ -1,5 +1,12 @@
 import { useState, useMemo } from "react";
-import { ArrowLeft, Filter, X, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  ArrowLeft,
+  Filter,
+  X,
+  ChevronDown,
+  ChevronUp,
+  ChevronRight,
+} from "lucide-react";
 import { Material } from "../../types/material";
 import { CategoryType } from "../../types/article";
 import { MaterialCard } from "../cards";
@@ -58,11 +65,13 @@ export function SearchResultsView({
   const [minReusability, setMinReusability] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
   const [showCategories, setShowCategories] = useState(false);
+  const [showScoreFilters, setShowScoreFilters] = useState(false);
   const [sortBy, setSortBy] = useState<
     "name" | "compostability" | "recyclability" | "reusability"
   >("name");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [betaFeaturesEnabled, setBetaFeaturesEnabled] = useState(false);
+  const [hasArticlesOnly, setHasArticlesOnly] = useState(false);
 
   // Toggle category filter
   const toggleCategory = (category: MaterialCategory) => {
@@ -121,6 +130,17 @@ export function SearchResultsView({
       result = result.filter((m) => m.reusability >= minReusability);
     }
 
+    // Has articles filter
+    if (hasArticlesOnly) {
+      result = result.filter((m) => {
+        const totalArticles =
+          (m.articles?.compostability?.length || 0) +
+          (m.articles?.recyclability?.length || 0) +
+          (m.articles?.reusability?.length || 0);
+        return totalArticles > 0;
+      });
+    }
+
     // Sort
     result = [...result].sort((a, b) => {
       let comparison = 0;
@@ -140,6 +160,7 @@ export function SearchResultsView({
     minCompostability,
     minRecyclability,
     minReusability,
+    hasArticlesOnly,
     sortBy,
     sortOrder,
   ]);
@@ -235,34 +256,33 @@ export function SearchResultsView({
                 onClick={() => setShowCategories(!showCategories)}
                 className="w-full flex items-center justify-between mb-2"
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1">
+                  <ChevronRight
+                    size={14}
+                    className={`transition-transform ${
+                      showCategories ? "rotate-90" : ""
+                    }`}
+                  />
                   <span className="text-[12px] text-black/70 dark:text-white/70 font-medium">
                     Categories
                   </span>
                   {selectedCategories.length > 0 && (
-                    <span className="text-[10px] bg-waste-recycle px-1.5 py-0.5 rounded-full border border-[#211f1c]">
+                    <span className="text-[10px] bg-waste-recycle px-1.5 py-0.5 rounded-full border border-[#211f1c] ml-1">
                       {selectedCategories.length} selected
                     </span>
                   )}
                 </div>
-                <div className="flex items-center gap-2">
-                  {selectedCategories.length > 0 && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedCategories([]);
-                      }}
-                      className="text-[11px] text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
-                    >
-                      Clear
-                    </button>
-                  )}
-                  {showCategories ? (
-                    <ChevronUp size={14} />
-                  ) : (
-                    <ChevronDown size={14} />
-                  )}
-                </div>
+                {selectedCategories.length > 0 && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedCategories([]);
+                    }}
+                    className="text-[11px] text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
+                  >
+                    Clear
+                  </button>
+                )}
               </button>
               {showCategories && (
                 <div className="flex flex-wrap gap-2">
@@ -296,126 +316,153 @@ export function SearchResultsView({
             {/* Score Filters - BETA only */}
             {betaFeaturesEnabled && (
               <div className="mb-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-[12px] text-black/70 dark:text-white/70 font-medium">
-                    Minimum Scores
-                  </span>
-                  <span className="text-[9px] bg-waste-science text-black dark:text-white px-1.5 py-0.5 rounded-full font-bold">
-                    BETA
-                  </span>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {/* Compostability */}
-                  <div>
-                    <label className="text-[11px] text-black/60 dark:text-white/60 flex items-center justify-between mb-1">
-                      <span className="flex items-center gap-1">
-                        <span
-                          className="w-2 h-2 rounded-full"
-                          style={{ backgroundColor: "#e6beb5" }}
-                        />
-                        Compostability
-                      </span>
-                      <span>{minCompostability}%</span>
-                    </label>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={minCompostability}
-                      onChange={(e) =>
-                        setMinCompostability(parseInt(e.target.value))
-                      }
-                      className="w-full h-2 bg-[#e6beb5]/30 rounded-lg appearance-none cursor-pointer accent-[#e6beb5]"
+                <button
+                  onClick={() => setShowScoreFilters(!showScoreFilters)}
+                  className="w-full flex items-center justify-between mb-2"
+                >
+                  <div className="flex items-center gap-1">
+                    <ChevronRight
+                      size={14}
+                      className={`transition-transform ${
+                        showScoreFilters ? "rotate-90" : ""
+                      }`}
                     />
+                    <span className="text-[12px] text-black/70 dark:text-white/70 font-medium">
+                      Minimum Scores
+                    </span>
+                    <span className="text-[9px] bg-waste-science text-black dark:text-white px-1.5 py-0.5 rounded-full font-bold ml-1">
+                      BETA
+                    </span>
                   </div>
-                  {/* Recyclability */}
-                  <div>
-                    <label className="text-[11px] text-black/60 dark:text-white/60 flex items-center justify-between mb-1">
-                      <span className="flex items-center gap-1">
-                        <span
-                          className="w-2 h-2 rounded-full"
-                          style={{ backgroundColor: "#e4e3ac" }}
-                        />
-                        Recyclability
-                      </span>
-                      <span>{minRecyclability}%</span>
-                    </label>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={minRecyclability}
-                      onChange={(e) =>
-                        setMinRecyclability(parseInt(e.target.value))
-                      }
-                      className="w-full h-2 bg-[#e4e3ac]/30 rounded-lg appearance-none cursor-pointer accent-[#e4e3ac]"
-                    />
+                </button>
+                {showScoreFilters && (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Compostability */}
+                    <div>
+                      <label className="text-[11px] text-black/60 dark:text-white/60 flex items-center justify-between mb-1">
+                        <span className="flex items-center gap-1">
+                          <span
+                            className="w-2 h-2 rounded-full"
+                            style={{ backgroundColor: "#e6beb5" }}
+                          />
+                          Compostability
+                        </span>
+                        <span>{minCompostability}%</span>
+                      </label>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={minCompostability}
+                        onChange={(e) =>
+                          setMinCompostability(parseInt(e.target.value))
+                        }
+                        className="w-full h-2 bg-[#e6beb5]/30 rounded-lg appearance-none cursor-pointer accent-[#e6beb5]"
+                      />
+                    </div>
+                    {/* Recyclability */}
+                    <div>
+                      <label className="text-[11px] text-black/60 dark:text-white/60 flex items-center justify-between mb-1">
+                        <span className="flex items-center gap-1">
+                          <span
+                            className="w-2 h-2 rounded-full"
+                            style={{ backgroundColor: "#e4e3ac" }}
+                          />
+                          Recyclability
+                        </span>
+                        <span>{minRecyclability}%</span>
+                      </label>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={minRecyclability}
+                        onChange={(e) =>
+                          setMinRecyclability(parseInt(e.target.value))
+                        }
+                        className="w-full h-2 bg-[#e4e3ac]/30 rounded-lg appearance-none cursor-pointer accent-[#e4e3ac]"
+                      />
+                    </div>
+                    {/* Reusability */}
+                    <div>
+                      <label className="text-[11px] text-black/60 dark:text-white/60 flex items-center justify-between mb-1">
+                        <span className="flex items-center gap-1">
+                          <span
+                            className="w-2 h-2 rounded-full"
+                            style={{ backgroundColor: "#b8c8cb" }}
+                          />
+                          Reusability
+                        </span>
+                        <span>{minReusability}%</span>
+                      </label>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={minReusability}
+                        onChange={(e) =>
+                          setMinReusability(parseInt(e.target.value))
+                        }
+                        className="w-full h-2 bg-[#b8c8cb]/30 rounded-lg appearance-none cursor-pointer accent-[#b8c8cb]"
+                      />
+                    </div>
                   </div>
-                  {/* Reusability */}
-                  <div>
-                    <label className="text-[11px] text-black/60 dark:text-white/60 flex items-center justify-between mb-1">
-                      <span className="flex items-center gap-1">
-                        <span
-                          className="w-2 h-2 rounded-full"
-                          style={{ backgroundColor: "#b8c8cb" }}
-                        />
-                        Reusability
-                      </span>
-                      <span>{minReusability}%</span>
-                    </label>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={minReusability}
-                      onChange={(e) =>
-                        setMinReusability(parseInt(e.target.value))
-                      }
-                      className="w-full h-2 bg-[#b8c8cb]/30 rounded-lg appearance-none cursor-pointer accent-[#b8c8cb]"
-                    />
-                  </div>
-                </div>
+                )}
               </div>
             )}
 
-            {/* Sort Options */}
-            <div className="flex items-center gap-4 flex-wrap">
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] text-black/60 dark:text-white/60">
-                  Sort by:
-                </span>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-                  className="text-[11px] px-2 py-1 bg-white dark:bg-[#2a2825] border border-[#211f1c]/30 dark:border-white/20 rounded-lg outline-none"
-                >
-                  <option value="name">Name</option>
-                  <option value="compostability">Compostability</option>
-                  <option value="recyclability">Recyclability</option>
-                  <option value="reusability">Reusability</option>
-                </select>
-                <button
-                  onClick={() =>
-                    setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"))
-                  }
-                  className="text-[11px] px-2 py-1 bg-white dark:bg-[#2a2825] border border-[#211f1c]/30 dark:border-white/20 rounded-lg hover:border-[#211f1c] dark:hover:border-white/40 transition-all"
-                >
-                  {sortOrder === "asc" ? "↑ Asc" : "↓ Desc"}
-                </button>
-              </div>
-
-              {hasActiveFilters && (
-                <button
-                  onClick={clearFilters}
-                  className="flex items-center gap-1 text-[11px] text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
-                >
-                  <X size={12} />
-                  Clear all filters
-                </button>
-              )}
-            </div>
+            {hasActiveFilters && (
+              <button
+                onClick={clearFilters}
+                className="flex items-center gap-1 text-[11px] text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
+              >
+                <X size={12} />
+                Clear all filters
+              </button>
+            )}
           </div>
         )}
+
+        {/* Sort Options - Always visible */}
+        <div className="flex items-center justify-between p-4 border-t border-[#211f1c]/20 dark:border-white/10">
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] text-black/60 dark:text-white/60">
+              Sort by:
+            </span>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+              className="text-[11px] px-2 py-1 bg-white dark:bg-[#2a2825] border border-[#211f1c]/30 dark:border-white/20 rounded-lg outline-none"
+            >
+              <option value="name">Name</option>
+              <option value="compostability">Compostability</option>
+              <option value="recyclability">Recyclability</option>
+              <option value="reusability">Reusability</option>
+            </select>
+            <button
+              onClick={() =>
+                setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"))
+              }
+              className="text-[11px] px-2 py-1 bg-white dark:bg-[#2a2825] border border-[#211f1c]/30 dark:border-white/20 rounded-lg hover:border-[#211f1c] dark:hover:border-white/40 transition-all"
+            >
+              {sortOrder === "asc" ? "↑ Asc" : "↓ Desc"}
+            </button>
+          </div>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <span className="text-[13px] text-black/70 dark:text-white/70">
+              Has articles
+            </span>
+            <div className="relative">
+              <input
+                type="checkbox"
+                checked={hasArticlesOnly}
+                onChange={(e) => setHasArticlesOnly(e.target.checked)}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-gray-300 dark:bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-waste-recycle"></div>
+            </div>
+          </label>
+        </div>
       </div>
 
       {/* Materials Grid */}
