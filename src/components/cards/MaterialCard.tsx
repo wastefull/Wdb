@@ -95,6 +95,8 @@ export function MaterialCard({
       )}
 
       <div className="flex flex-col gap-2 mb-3">
+        <hr />
+        Articles by Category:
         <RasterizedQuantileVisualization
           materialId={material.id}
           scoreType="compostability"
