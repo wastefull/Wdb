@@ -147,7 +147,7 @@
   /* Font families - use via font-sniglet, font-pixel, etc. */
   --font-sniglet: "Sniglet", sans-serif;
   --font-pixel: "Press Start 2P", cursive;
-  --font-display: "Fredoka One", cursive;
+  --font-display: "Tilt Warp", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
   /* Map CSS vars to Tailwind colors */

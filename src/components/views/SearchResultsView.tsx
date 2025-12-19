@@ -56,7 +56,8 @@ export function SearchResultsView({
   const [minCompostability, setMinCompostability] = useState(0);
   const [minRecyclability, setMinRecyclability] = useState(0);
   const [minReusability, setMinReusability] = useState(0);
-  const [showFilters, setShowFilters] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
+  const [showCategories, setShowCategories] = useState(false);
   const [sortBy, setSortBy] = useState<
     "name" | "compostability" | "recyclability" | "reusability"
   >("name");
@@ -230,128 +231,152 @@ export function SearchResultsView({
 
             {/* Category Filters */}
             <div className="mb-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[12px] text-black/70 dark:text-white/70 font-medium">
-                  Categories
-                </span>
-                {selectedCategories.length > 0 && (
-                  <button
-                    onClick={() => setSelectedCategories([])}
-                    className="text-[11px] text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
-                  >
-                    Clear
-                  </button>
-                )}
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {MATERIAL_CATEGORIES.map((category) => {
-                  const count = getCategoryCount(category);
-                  const isSelected = selectedCategories.includes(category);
-                  return (
+              <button
+                onClick={() => setShowCategories(!showCategories)}
+                className="w-full flex items-center justify-between mb-2"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-[12px] text-black/70 dark:text-white/70 font-medium">
+                    Categories
+                  </span>
+                  {selectedCategories.length > 0 && (
+                    <span className="text-[10px] bg-waste-recycle px-1.5 py-0.5 rounded-full border border-[#211f1c]">
+                      {selectedCategories.length} selected
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  {selectedCategories.length > 0 && (
                     <button
-                      key={category}
-                      onClick={() => toggleCategory(category)}
-                      disabled={count === 0 && !isSelected}
-                      className={`text-[11px] px-3 py-1.5 rounded-full border transition-all ${
-                        isSelected
-                          ? "bg-waste-recycle border-[#211f1c] shadow-[2px_2px_0px_0px_#000000]"
-                          : count > 0
-                          ? "bg-white dark:bg-[#2a2825] border-[#211f1c]/30 dark:border-white/20 hover:border-[#211f1c] dark:hover:border-white/40"
-                          : "bg-black/5 dark:bg-white/5 border-transparent text-black/30 dark:text-white/30 cursor-not-allowed"
-                      }`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedCategories([]);
+                      }}
+                      className="text-[11px] text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
                     >
-                      {category}
-                      <span className="ml-1 text-black/50 dark:text-white/50">
-                        ({count})
-                      </span>
+                      Clear
                     </button>
-                  );
-                })}
-              </div>
+                  )}
+                  {showCategories ? (
+                    <ChevronUp size={14} />
+                  ) : (
+                    <ChevronDown size={14} />
+                  )}
+                </div>
+              </button>
+              {showCategories && (
+                <div className="flex flex-wrap gap-2">
+                  {MATERIAL_CATEGORIES.map((category) => {
+                    const count = getCategoryCount(category);
+                    const isSelected = selectedCategories.includes(category);
+                    return (
+                      <button
+                        key={category}
+                        onClick={() => toggleCategory(category)}
+                        disabled={count === 0 && !isSelected}
+                        className={`text-[11px] px-3 py-1.5 rounded-full border transition-all ${
+                          isSelected
+                            ? "bg-waste-recycle border-[#211f1c] shadow-[2px_2px_0px_0px_#000000]"
+                            : count > 0
+                            ? "bg-white dark:bg-[#2a2825] border-[#211f1c]/30 dark:border-white/20 hover:border-[#211f1c] dark:hover:border-white/40"
+                            : "bg-black/5 dark:bg-white/5 border-transparent text-black/30 dark:text-white/30 cursor-not-allowed"
+                        }`}
+                      >
+                        {category}
+                        <span className="ml-1 text-black/50 dark:text-white/50">
+                          ({count})
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
-            {/* Score Filters */}
-            <div className="mb-4">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-[12px] text-black/70 dark:text-white/70 font-medium">
-                  Minimum Scores
-                </span>
-                <span className="text-[9px] bg-waste-science text-black dark:text-white px-1.5 py-0.5 rounded-full font-bold">
-                  BETA
-                </span>
+            {/* Score Filters - BETA only */}
+            {betaFeaturesEnabled && (
+              <div className="mb-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-[12px] text-black/70 dark:text-white/70 font-medium">
+                    Minimum Scores
+                  </span>
+                  <span className="text-[9px] bg-waste-science text-black dark:text-white px-1.5 py-0.5 rounded-full font-bold">
+                    BETA
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Compostability */}
+                  <div>
+                    <label className="text-[11px] text-black/60 dark:text-white/60 flex items-center justify-between mb-1">
+                      <span className="flex items-center gap-1">
+                        <span
+                          className="w-2 h-2 rounded-full"
+                          style={{ backgroundColor: "#e6beb5" }}
+                        />
+                        Compostability
+                      </span>
+                      <span>{minCompostability}%</span>
+                    </label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={minCompostability}
+                      onChange={(e) =>
+                        setMinCompostability(parseInt(e.target.value))
+                      }
+                      className="w-full h-2 bg-[#e6beb5]/30 rounded-lg appearance-none cursor-pointer accent-[#e6beb5]"
+                    />
+                  </div>
+                  {/* Recyclability */}
+                  <div>
+                    <label className="text-[11px] text-black/60 dark:text-white/60 flex items-center justify-between mb-1">
+                      <span className="flex items-center gap-1">
+                        <span
+                          className="w-2 h-2 rounded-full"
+                          style={{ backgroundColor: "#e4e3ac" }}
+                        />
+                        Recyclability
+                      </span>
+                      <span>{minRecyclability}%</span>
+                    </label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={minRecyclability}
+                      onChange={(e) =>
+                        setMinRecyclability(parseInt(e.target.value))
+                      }
+                      className="w-full h-2 bg-[#e4e3ac]/30 rounded-lg appearance-none cursor-pointer accent-[#e4e3ac]"
+                    />
+                  </div>
+                  {/* Reusability */}
+                  <div>
+                    <label className="text-[11px] text-black/60 dark:text-white/60 flex items-center justify-between mb-1">
+                      <span className="flex items-center gap-1">
+                        <span
+                          className="w-2 h-2 rounded-full"
+                          style={{ backgroundColor: "#b8c8cb" }}
+                        />
+                        Reusability
+                      </span>
+                      <span>{minReusability}%</span>
+                    </label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={minReusability}
+                      onChange={(e) =>
+                        setMinReusability(parseInt(e.target.value))
+                      }
+                      className="w-full h-2 bg-[#b8c8cb]/30 rounded-lg appearance-none cursor-pointer accent-[#b8c8cb]"
+                    />
+                  </div>
+                </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* Compostability */}
-                <div>
-                  <label className="text-[11px] text-black/60 dark:text-white/60 flex items-center justify-between mb-1">
-                    <span className="flex items-center gap-1">
-                      <span
-                        className="w-2 h-2 rounded-full"
-                        style={{ backgroundColor: "#e6beb5" }}
-                      />
-                      Compostability
-                    </span>
-                    <span>{minCompostability}%</span>
-                  </label>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={minCompostability}
-                    onChange={(e) =>
-                      setMinCompostability(parseInt(e.target.value))
-                    }
-                    className="w-full h-2 bg-[#e6beb5]/30 rounded-lg appearance-none cursor-pointer accent-[#e6beb5]"
-                  />
-                </div>
-                {/* Recyclability */}
-                <div>
-                  <label className="text-[11px] text-black/60 dark:text-white/60 flex items-center justify-between mb-1">
-                    <span className="flex items-center gap-1">
-                      <span
-                        className="w-2 h-2 rounded-full"
-                        style={{ backgroundColor: "#e4e3ac" }}
-                      />
-                      Recyclability
-                    </span>
-                    <span>{minRecyclability}%</span>
-                  </label>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={minRecyclability}
-                    onChange={(e) =>
-                      setMinRecyclability(parseInt(e.target.value))
-                    }
-                    className="w-full h-2 bg-[#e4e3ac]/30 rounded-lg appearance-none cursor-pointer accent-[#e4e3ac]"
-                  />
-                </div>
-                {/* Reusability */}
-                <div>
-                  <label className="text-[11px] text-black/60 dark:text-white/60 flex items-center justify-between mb-1">
-                    <span className="flex items-center gap-1">
-                      <span
-                        className="w-2 h-2 rounded-full"
-                        style={{ backgroundColor: "#b8c8cb" }}
-                      />
-                      Reusability
-                    </span>
-                    <span>{minReusability}%</span>
-                  </label>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={minReusability}
-                    onChange={(e) =>
-                      setMinReusability(parseInt(e.target.value))
-                    }
-                    className="w-full h-2 bg-[#b8c8cb]/30 rounded-lg appearance-none cursor-pointer accent-[#b8c8cb]"
-                  />
-                </div>
-              </div>
-            </div>
+            )}
 
             {/* Sort Options */}
             <div className="flex items-center gap-4 flex-wrap">
