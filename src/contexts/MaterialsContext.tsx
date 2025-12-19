@@ -307,10 +307,15 @@ export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({
     operation: "create" | "update" | "delete"
   ): Promise<boolean> => {
     if (!user || userRole !== "admin" || !supabaseAvailable) {
+      syncLogger.info(
+        `Skipping sync (user: ${!!user}, role: ${userRole}, supabase: ${supabaseAvailable})`
+      );
       return false; // Can't sync, but local save succeeded
     }
 
     setSyncStatus("syncing");
+    syncLogger.info(`Syncing ${operation} for material "${material.name}"...`);
+
     try {
       const materialWithArticles = {
         ...material,
@@ -322,10 +327,13 @@ export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({
       };
 
       if (operation === "create") {
+        syncLogger.info("Calling api.saveMaterial...");
         await api.saveMaterial(materialWithArticles);
       } else if (operation === "update") {
+        syncLogger.info("Calling api.updateMaterial...");
         await api.updateMaterial(materialWithArticles);
       } else if (operation === "delete") {
+        syncLogger.info("Calling api.deleteMaterial...");
         await api.deleteMaterial(material.id);
       }
 
