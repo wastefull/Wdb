@@ -891,24 +891,36 @@ export function SimplifiedRoadmap({
             <CardContent>
               <div className="space-y-4">
                 <div>
-                  <h4 className="text-sm font-semibold mb-2">Scope:</h4>
+                  <h4 className="text-sm font-semibold mb-2">
+                    Scope (Revised January 2026):
+                  </h4>
                   <ul className="space-y-1 text-sm text-muted-foreground">
                     <li>
                       • <strong>Pilot Dimension:</strong> CR (Recyclability)
                       only
                     </li>
                     <li>
-                      • <strong>Materials:</strong> Aluminum, PET, Cardboard (3
-                      high-priority materials)
+                      • <strong>Materials:</strong> PET (1 material deep-dive)
                     </li>
                     <li>
                       • <strong>Parameters:</strong> Y, D, C, M, E (5 CR
                       parameters)
                     </li>
                     <li>
-                      • <strong>Duration:</strong> 1-2 weeks (estimated)
+                      • <strong>Target:</strong> 15+ MIUs (≥3 per parameter)
+                    </li>
+                    <li>
+                      • <strong>Duration:</strong> 1 week (estimated)
                     </li>
                   </ul>
+                </div>
+                <div className="p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-md">
+                  <p className="text-sm text-amber-900 dark:text-amber-100">
+                    <strong>Scope Reduction (Jan 5, 2026):</strong> Original
+                    plan of 6 materials × 5 parameters (~45 MIUs via copy/paste)
+                    proved impractical. Revised to 1 material with PDF tooling
+                    to validate workflow before scaling.
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -958,17 +970,16 @@ export function SimplifiedRoadmap({
                   </li>
                 </ul>
 
-                <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-md">
-                  <p className="text-sm text-blue-900 dark:text-blue-100">
-                    <strong>Note:</strong> PDF annotation tools, figure zoom,
-                    and page navigation are{" "}
-                    <strong>deferred to Phase 9.4 Week 1</strong> (before
-                    scaling to all materials).
+                <div className="mt-4 p-3 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-md">
+                  <p className="text-sm text-green-900 dark:text-green-100">
+                    <strong>PDF Tooling (Accelerated):</strong> Text selection,
+                    page navigation, and annotation tools are now part of Phase
+                    9.2 to streamline evidence extraction.
                   </p>
-                  <p className="text-xs text-blue-800 dark:text-blue-200 mt-2">
-                    <strong>Rationale:</strong> Low volume in pilot (~45 MIUs)
-                    makes copy/paste workflow acceptable. Better ROI when
-                    scaling to 8 materials × 13 parameters (~300+ MIUs).
+                  <p className="text-xs text-green-800 dark:text-green-200 mt-2">
+                    <strong>Decision (Jan 5, 2026):</strong> Manual copy/paste
+                    proved too time-intensive. Building PDF tools now for better
+                    curator experience.
                   </p>
                 </div>
               </CardContent>
@@ -1008,7 +1019,8 @@ export function SimplifiedRoadmap({
                       <li className="flex items-start gap-2">
                         <CheckCircle2 className="size-4 text-green-600 mt-0.5 shrink-0" />
                         <span>
-                          Select from pilot materials (Aluminum, PET, Cardboard)
+                          Select from pilot material (PET for initial
+                          validation)
                         </span>
                       </li>
                       <li className="flex items-start gap-2">
@@ -1149,24 +1161,25 @@ export function SimplifiedRoadmap({
           {/* Success Criteria */}
           <Card className="bg-muted/50">
             <CardHeader>
-              <CardTitle className="text-lg">Success Criteria</CardTitle>
+              <CardTitle className="text-lg">
+                Success Criteria (Revised)
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="space-y-2 text-sm">
                 <li className="flex items-start gap-2">
                   <span className="text-muted-foreground mt-0.5">•</span>
+                  <span>PET has ≥3 MIUs per CR parameter (15+ MIUs total)</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-muted-foreground mt-0.5">•</span>
+                  <span>PDF viewer with text selection functional</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-muted-foreground mt-0.5">•</span>
                   <span>
-                    3 pilot materials have ≥3 MIUs per parameter (15 MIUs per
-                    material minimum)
+                    &lt;5 minutes average MIU creation time (with PDF tools)
                   </span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-muted-foreground mt-0.5">•</span>
-                  <span>κ ≥ 0.7 for all double-extracted sources</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-muted-foreground mt-0.5">•</span>
-                  <span>&lt;3 minutes average MIU creation time</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-muted-foreground mt-0.5">•</span>
@@ -1211,31 +1224,33 @@ export function SimplifiedRoadmap({
                     <li>✅ Unit dropdown with parameter-specific options</li>
                     <li>✅ Canonical unit display and conversion hints</li>
                     <li>✅ Validation error messages with allowed units</li>
+                    <li>✅ MIU edit form with value, unit, notes fields</li>
+                    <li>✅ MIU delete with confirmation dialog</li>
+                    <li>✅ PUT/DELETE /evidence/:id endpoint integration</li>
                   </ul>
                 </div>
                 <div>
                   <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
                     <Clock className="size-4 text-blue-600" />
-                    In Progress / Refinements
+                    In Progress (PDF Tooling - Accelerated)
                   </h4>
                   <ul className="space-y-1 text-sm text-muted-foreground ml-6">
-                    <li>
-                      🔄 Smart context pre-fill (detect material/parameter from
-                      text)
-                    </li>
-                    <li>🔄 MIU review and edit functionality</li>
+                    <li>🔄 Integrated PDF viewer with text selection</li>
+                    <li>🔄 Text selection → auto-populate snippet field</li>
+                    <li>🔄 Page number click → auto-populate locator</li>
+                    <li>🔄 PDF navigation (page jump, zoom)</li>
                   </ul>
                 </div>
                 <div>
                   <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
                     <Circle className="size-4 text-gray-400" />
-                    Deferred to Production
+                    Deferred to Phase 9.3+
                   </h4>
                   <ul className="space-y-1 text-sm text-muted-foreground ml-6">
-                    <li>⏸️ Integrated PDF viewer with text selection</li>
-                    <li>⏸️ PDF annotation and highlighting tools</li>
-                    <li>⏸️ Page jump and figure zoom navigation</li>
-                    <li>⏸️ OCR text extraction from PDF images</li>
+                    <li>⏸️ PDF annotation/highlighting persistence</li>
+                    <li>⏸️ OCR text extraction from scanned PDFs</li>
+                    <li>⏸️ Smart context pre-fill (AI-assisted)</li>
+                    <li>⏸️ Double-extraction validation workflow</li>
                   </ul>
                 </div>
               </div>

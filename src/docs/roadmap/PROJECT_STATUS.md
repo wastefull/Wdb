@@ -2,7 +2,7 @@
 
 **Organization:** Wastefull  
 **Project:** WasteDB - Open Materials Sustainability Database  
-**Updated:** December 18, 2025
+**Updated:** January 5, 2026
 **Production URL:** https://db.wastefull.org
 
 ---
@@ -39,15 +39,20 @@ Build an open, accessible, and scientifically rigorous materials database that c
   ✅ Phase 8.2: Lazy Loading                   [COMPLETE]
   ✅ Phase 8.3: Virtual Scrolling              [COMPLETE]
   ✅ Phase 8.4: Performance Monitoring         [COMPLETE]
-🔄 Phase 9: Evidence Pipeline & Curation      [IN PROGRESS - 50%]
+🔄 Phase 9: Evidence Pipeline & Curation      [IN PROGRESS - 55%]
   ✅ Phase 9.0: Critical Infrastructure        [COMPLETE]
   ✅ Phase 9.1: Database Schema & Backend      [COMPLETE]
-  🔄 Phase 9.2: Curation Workbench UI          [IN PROGRESS]
+  🔄 Phase 9.2: Curation Workbench UI          [IN PROGRESS - PDF Tooling]
   ⬜ Phase 9.3: Aggregation Engine              [PLANNED]
   ⬜ Phase 9.4: Scale to 30 Materials           [PLANNED]
   ⬜ Phase 9.5: Public Evidence Layer           [PLANNED]
 ⬜ Phase 10: Advanced Performance              [PLANNED]
 ```
+
+### Phase 9.2 Scope Revision (January 5, 2026)
+
+Original pilot scope (6 materials × 5 parameters) reduced to **1 material (PET) × 5 parameters**.  
+PDF tooling accelerated from Phase 9.4 to enable practical evidence extraction workflow.
 
 ---
 

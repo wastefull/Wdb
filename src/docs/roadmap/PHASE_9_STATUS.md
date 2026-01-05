@@ -2,7 +2,7 @@
 
 **Current Phase:** Phase 9.2 - Curation Workbench UI  
 **Overall Status:** Phase 9.0 ✅ | Phase 9.1 ✅ | Phase 9.2 🚧
-**Updated:** December 18, 2025
+**Updated:** January 5, 2026
 
 ---
 
@@ -12,7 +12,7 @@
 | ----- | -------------- | --------------- | --------------------------------------------------------------------------- |
 | 9.0   | ✅ Complete    | Nov 17, 2025    | Critical infrastructure (legal, transforms, notifications, evidence system) |
 | 9.1   | ✅ Complete    | Nov 20, 2025    | Database schema, API endpoints, aggregations backend                        |
-| 9.2   | 🚧 In Progress | TBD             | Curation Workbench UI, Evidence Wizard                                      |
+| 9.2   | 🚧 In Progress | TBD             | Curation Workbench UI, PDF Tooling, PET Pilot (15 MIUs)                     |
 | 9.3   | 📋 Planned     | TBD             | Aggregation engine, validation workflow                                     |
 | 9.4   | 📋 Planned     | TBD             | Scale to 30 materials                                                       |
 | 9.5   | 📋 Planned     | TBD             | Public launch & documentation                                               |
@@ -230,7 +230,20 @@ Efficient querying via prefix-based indexes:
 ## 🚧 Phase 9.2 In Progress (Curation Workbench UI)
 
 **Status:** Active development  
-**Purpose:** Build UI for evidence extraction workflow with pilot implementation
+**Updated:** January 5, 2026  
+**Purpose:** Build UI for evidence extraction workflow with PDF tooling
+
+### Scope Revision (January 5, 2026)
+
+**Original scope** (6 materials × 5 parameters = ~45 MIUs via copy/paste) proved impractical.  
+Manual extraction time was 15-30 min/MIU, not 3 min as estimated.
+
+**Revised scope:**
+
+- **Material:** PET only (single material deep-dive)
+- **Parameters:** Y, D, C, M, E (5 CR parameters)
+- **Target:** 15+ MIUs (≥3 per parameter)
+- **Change:** PDF tooling accelerated from Phase 9.4 to 9.2
 
 ### Completed Deliverables ✅
 
@@ -240,7 +253,7 @@ Efficient querying via prefix-based indexes:
 - ✅ Split-pane layout with source viewer and evidence wizard
 - ✅ 5-step progressive wizard with validation
 - ✅ Source selection from Source Library Manager
-- ✅ Material and parameter selection (pilot scope: PET, HDPE, Cardboard, Paper, Glass Clear, Glass Colored)
+- ✅ Material and parameter selection (pilot scope)
 - ✅ Form validation and error handling
 - ✅ Integration with POST /evidence endpoint
 - ✅ Wastefull brand retro design system
@@ -255,7 +268,7 @@ Efficient querying via prefix-based indexes:
 - ✅ Locator display (page/figure/table)
 - ✅ Integration with GET /evidence endpoint
 
-#### MIU Edit/Delete Functionality
+#### MIU Edit/Delete Functionality ✅ (Dec 3, 2025)
 
 - ✅ Edit button in MIU detail modal
 - ✅ Edit form with value, unit, and notes fields
@@ -273,40 +286,35 @@ Efficient querying via prefix-based indexes:
 - ✅ Canonical unit display and conversion hints
 - ✅ Validation error messages with allowed units
 
-### In Progress 🔄
+### In Progress 🔄 (PDF Tooling - Accelerated)
 
-- 🔄 Smart context pre-fill (detect material/parameter from text)
+**Decision (Jan 5, 2026):** PDF tools moved from Phase 9.4 to Phase 9.2 due to manual extraction being too time-intensive.
 
-### Deferred to Phase 9.4 ⏸️
+- 🔄 Integrated PDF viewer with text selection
+- 🔄 Text selection → auto-populate snippet field
+- 🔄 Page number click → auto-populate locator
+- 🔄 PDF navigation (page jump, zoom)
 
-**Decision:** PDF annotation tools deferred to Phase 9.4 Week 1 (before scaling to all materials)
+### Deferred to Phase 9.3+ ⏸️
 
-- ⏸️ Integrated PDF viewer with text selection
-- ⏸️ PDF annotation and highlighting tools
-- ⏸️ Page jump and figure zoom navigation
-- ⏸️ OCR text extraction from PDF images (conditional based on scanned source prevalence)
-
-**Rationale:** Low volume in pilot (~45 MIUs) makes copy/paste workflow acceptable. Better ROI when scaling to 8 materials × 13 parameters (~300+ MIUs).
+- ⏸️ PDF annotation/highlighting persistence
+- ⏸️ OCR text extraction from scanned PDFs
+- ⏸️ Smart context pre-fill (AI-assisted)
+- ⏸️ Double-extraction validation workflow
 
 ### Remaining Work
 
-1. ~~**MIU Edit Functionality** (3-4 hours) - REQUIRED~~ ✅ COMPLETE (Dec 3, 2025)
+1. **PDF Viewer Integration** (1-2 days) - REQUIRED
 
-   - ~~Edit form with pre-populated data~~ ✅
-   - ~~PATCH endpoint integration~~ ✅ (PUT endpoint)
-   - ~~Validation status updates~~ ✅
-   - ~~Delete operations~~ ✅
+   - Embed PDF viewer in CurationWorkbench left pane
+   - Text selection captures snippet
+   - Page number extraction for locator field
+   - Basic navigation (page jump, zoom)
 
-2. **Double-Extraction Validation** (6-8 hours) - RECOMMENDED
-
-   - Task assignment system
-   - Inter-rater reliability (κ) calculation
-   - Conflict resolution workflow
-
-3. **Pilot Extraction** (10-15 hours curator time) - REQUIRED
-   - Extract 45+ MIUs (3 materials × 5 parameters × 3+ MIUs)
-   - Test workflow end-to-end
-   - Document pain points
+2. **PET Pilot Extraction** (4-6 hours with PDF tools) - REQUIRED
+   - Extract 15+ MIUs (1 material × 5 parameters × 3+ MIUs)
+   - Test full workflow end-to-end
+   - Validate time-per-MIU improvement
 
 ### Backend Ready ✅
 
