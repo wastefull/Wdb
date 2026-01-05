@@ -30,7 +30,8 @@ export interface Source {
   pdfFileName?: string; // Filename of uploaded PDF in Supabase Storage
   is_open_access?: boolean; // Open Access status (from Unpaywall API or manual override)
   oa_status?: string | null; // OA status: 'gold', 'green', 'hybrid', 'bronze', 'closed'
-  best_oa_url?: string | null; // Best OA location URL (if available)
+  best_oa_url?: string | null; // Best OA landing page URL (if available)
+  best_oa_pdf_url?: string | null; // Direct PDF URL from Unpaywall (preferred for import)
   manual_oa_override?: boolean; // True if is_open_access was manually set by admin (not from Unpaywall)
   citation_count?: number; // Number of citations at entry time (from CrossRef is-referenced-by-count)
 }

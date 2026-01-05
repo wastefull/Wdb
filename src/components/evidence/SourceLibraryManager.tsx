@@ -934,6 +934,7 @@ export function SourceLibraryManager({
               is_open_access: data.is_open_access,
               oa_status: data.oa_status || null,
               best_oa_url: data.best_oa_location?.url || null,
+              best_oa_pdf_url: data.best_oa_location?.url_for_pdf || null, // Direct PDF link (preferred)
               manual_oa_override: false, // Clear manual override since we just checked via Unpaywall
             }
           : s
@@ -1736,13 +1737,19 @@ export function SourceLibraryManager({
                                     size="sm"
                                     onClick={() => {
                                       setShowUrlImportDialog(source.id);
-                                      // Pre-fill with source URL if it looks like a PDF
-                                      if (
+                                      // Pre-fill URL priority: direct PDF URL > PDF-ending URL > empty
+                                      // Prefer best_oa_pdf_url (direct PDF link from Unpaywall)
+                                      if (source.best_oa_pdf_url) {
+                                        setPdfUrlInput(source.best_oa_pdf_url);
+                                      } else if (
                                         source.url
                                           ?.toLowerCase()
                                           .endsWith(".pdf")
                                       ) {
                                         setPdfUrlInput(source.url);
+                                      } else if (source.best_oa_url) {
+                                        // Fallback to landing page URL (user can modify)
+                                        setPdfUrlInput(source.best_oa_url);
                                       } else {
                                         setPdfUrlInput("");
                                       }
@@ -2155,10 +2162,37 @@ export function SourceLibraryManager({
                   className="text-[12px]"
                   disabled={importingPdfUrl}
                 />
-                <p className="text-[9px] text-muted-foreground mt-1">
-                  ✅ Works: MDPI, arXiv, PubMed Central, bioRxiv, Zenodo,
-                  ResearchGate (some)
-                </p>
+                {(() => {
+                  const source = sources.find(
+                    (s) => s.id === showUrlImportDialog
+                  );
+                  if (
+                    source?.best_oa_pdf_url &&
+                    pdfUrlInput === source.best_oa_pdf_url
+                  ) {
+                    return (
+                      <p className="text-[9px] text-green-600 dark:text-green-400 mt-1">
+                        ✅ Pre-filled with direct PDF link from Unpaywall
+                      </p>
+                    );
+                  } else if (
+                    source?.best_oa_url &&
+                    pdfUrlInput === source.best_oa_url
+                  ) {
+                    return (
+                      <p className="text-[9px] text-amber-600 dark:text-amber-400 mt-1">
+                        ⚠️ Using landing page URL (no direct PDF link
+                        available). May need to find the actual PDF URL.
+                      </p>
+                    );
+                  }
+                  return (
+                    <p className="text-[9px] text-muted-foreground mt-1">
+                      ✅ Works: MDPI, arXiv, PubMed Central, bioRxiv, Zenodo,
+                      ResearchGate (some)
+                    </p>
+                  );
+                })()}
               </div>
 
               <Alert className="bg-amber-50 dark:bg-amber-900/20 border-amber-300 dark:border-amber-700">
