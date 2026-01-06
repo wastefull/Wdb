@@ -61,7 +61,7 @@ interface CurationWorkbenchProps {
 }
 
 // Pilot materials for Phase 9.2 (matched by name, case-insensitive)
-const PILOT_MATERIAL_PATTERNS = ["cardboard", "pet", "hdpe", "paper", "glass"];
+const PILOT_MATERIAL_PATTERNS = ["pet"];
 
 // CR (Compostability/Recyclability) parameters only for Phase 9.2
 const CR_PARAMETERS = [
