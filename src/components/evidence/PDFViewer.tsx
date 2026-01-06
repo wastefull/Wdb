@@ -37,10 +37,16 @@ import { toast } from "sonner";
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs`;
 
 // Debug logging
-const DEBUG = true;
+// Reduce debug logging now that basic functionality works
+const DEBUG = false;
 const log = (...args: unknown[]) => {
   if (DEBUG) console.log("[PDFViewer]", ...args);
 };
+
+export interface PageTextContent {
+  pageNumber: number;
+  text: string;
+}
 
 interface PDFViewerProps {
   /** URL of the PDF to display */
@@ -49,6 +55,10 @@ interface PDFViewerProps {
   onTextSelect?: (text: string, pageNumber: number) => void;
   /** Callback when page changes */
   onPageChange?: (pageNumber: number) => void;
+  /** Callback when PDF text is extracted - provides all page text for scanning */
+  onTextExtracted?: (pages: PageTextContent[]) => void;
+  /** External page navigation request */
+  goToPage?: number;
   /** Title of the document */
   title?: string;
   /** Height of the viewer */
@@ -59,6 +69,8 @@ export function PDFViewer({
   pdfUrl,
   onTextSelect,
   onPageChange,
+  onTextExtracted,
+  goToPage: externalGoToPage,
   title,
   height = "600px",
 }: PDFViewerProps) {
@@ -81,6 +93,8 @@ export function PDFViewer({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const textLayerRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const renderTaskRef = useRef<any>(null);
 
   // Load PDF document
   useEffect(() => {
@@ -109,6 +123,21 @@ export function PDFViewer({
         setNumPages(pdf.numPages);
         setCurrentPage(1);
         setLoading(false);
+
+        // Extract text from all pages for keyword scanning
+        if (onTextExtracted) {
+          const pages: PageTextContent[] = [];
+          for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const textContent = await page.getTextContent();
+            const text = textContent.items
+              .filter((item): boolean => "str" in item)
+              .map((item) => (item as { str: string }).str)
+              .join(" ");
+            pages.push({ pageNumber: i, text });
+          }
+          onTextExtracted(pages);
+        }
       } catch (err: any) {
         if (isCancelled) return;
 
@@ -123,7 +152,21 @@ export function PDFViewer({
     return () => {
       isCancelled = true;
     };
+    // Note: onTextExtracted intentionally excluded from deps to prevent reload loops
+    // It's called once after PDF loads successfully
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pdfUrl]);
+
+  // Handle external page navigation requests
+  useEffect(() => {
+    if (
+      externalGoToPage &&
+      externalGoToPage >= 1 &&
+      externalGoToPage <= numPages
+    ) {
+      setCurrentPage(externalGoToPage);
+    }
+  }, [externalGoToPage, numPages]);
 
   // Render current page
   useEffect(() => {
@@ -133,6 +176,12 @@ export function PDFViewer({
 
     const renderPage = async () => {
       try {
+        // Cancel any in-progress render
+        if (renderTaskRef.current) {
+          renderTaskRef.current.cancel();
+          renderTaskRef.current = null;
+        }
+
         const page = await pdfDoc.getPage(currentPage);
 
         if (isCancelled) return;
@@ -147,29 +196,37 @@ export function PDFViewer({
         canvas.height = viewport.height;
         canvas.width = viewport.width;
 
+        // Clear the canvas before rendering
+        context.clearRect(0, 0, canvas.width, canvas.height);
+
         // Render PDF page
         const renderContext = {
           canvasContext: context,
           viewport: viewport,
         };
 
-        await page.render(renderContext).promise;
+        const renderTask = page.render(renderContext);
+        renderTaskRef.current = renderTask;
+
+        await renderTask.promise;
 
         if (isCancelled) return;
 
         // Render text layer for selection
-        if (textLayerRef.current) {
+        // Re-check ref after async operation since component could have unmounted
+        const textLayer = textLayerRef.current;
+        if (textLayer) {
           const textContent = await page.getTextContent();
           log("Text content items:", textContent.items.length);
 
           if (isCancelled) return;
 
           // Clear previous text layer
-          textLayerRef.current.innerHTML = "";
+          textLayer.innerHTML = "";
 
           // Set exact dimensions to match canvas
-          textLayerRef.current.style.width = `${viewport.width}px`;
-          textLayerRef.current.style.height = `${viewport.height}px`;
+          textLayer.style.width = `${viewport.width}px`;
+          textLayer.style.height = `${viewport.height}px`;
 
           // Build text layer manually from raw text content
           // This avoids PDF.js's problematic transform-based positioning
@@ -217,17 +274,24 @@ export function PDFViewer({
             span.style.whiteSpace = "pre";
             span.style.pointerEvents = "auto";
             span.style.userSelect = "text";
+            span.style.webkitUserSelect = "text";
             span.style.cursor = "text";
+            // Add slight padding to make selection easier without gaps
+            span.style.padding = "1px 0";
+            span.style.margin = "0";
+            span.style.lineHeight = "1";
 
-            textLayerRef.current!.appendChild(span);
+            textLayer.appendChild(span);
           });
 
-          // Set selection styles on container
-          textLayerRef.current.style.userSelect = "text";
-          (textLayerRef.current.style as any).webkitUserSelect = "text";
+          // Container should NOT be selectable - only the spans inside
+          // This prevents "runover" selection of the entire layer
+          textLayer.style.userSelect = "none";
+          (textLayer.style as any).webkitUserSelect = "none";
+          textLayer.style.pointerEvents = "auto";
 
           // Debug: Check positioning
-          const spans = textLayerRef.current.querySelectorAll("span");
+          const spans = textLayer.querySelectorAll("span");
           log("Manual text layer built, spans:", spans.length);
 
           if (spans.length > 0) {
@@ -247,7 +311,11 @@ export function PDFViewer({
 
         // Notify page change
         onPageChange?.(currentPage);
-      } catch (err) {
+      } catch (err: any) {
+        // Ignore cancellation errors - they're expected when navigating quickly
+        if (err?.name === "RenderingCancelledException") {
+          return;
+        }
         console.error("Error rendering page:", err);
       }
     };
@@ -256,6 +324,11 @@ export function PDFViewer({
 
     return () => {
       isCancelled = true;
+      // Cancel any in-progress render on cleanup
+      if (renderTaskRef.current) {
+        renderTaskRef.current.cancel();
+        renderTaskRef.current = null;
+      }
     };
   }, [pdfDoc, currentPage, scale, onPageChange]);
 
@@ -599,20 +672,31 @@ export function PDFViewer({
   );
 }
 
-// Additional CSS overrides for text selection (official PDF.js CSS handles positioning)
+// Additional CSS overrides for text selection
 const textLayerOverrides = `
   .textLayer {
+    position: absolute;
+    inset: 0;
     z-index: 2;
-    pointer-events: auto !important;
+    overflow: hidden;
+    pointer-events: auto;
+    /* Container is NOT selectable - prevents runover selection */
+    user-select: none !important;
+    -webkit-user-select: none !important;
   }
   
   .textLayer span {
     pointer-events: auto !important;
+    /* Only spans are selectable */
     user-select: text !important;
     -webkit-user-select: text !important;
   }
 
   .textLayer ::selection {
+    background: rgba(0, 100, 200, 0.4);
+  }
+  
+  .textLayer span::selection {
     background: rgba(0, 100, 200, 0.4);
   }
 `;

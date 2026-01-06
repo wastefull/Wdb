@@ -18,6 +18,9 @@ import {
   Globe,
   Building2,
   FileSearch,
+  Search,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import {
@@ -45,7 +48,13 @@ import { projectId, publicAnonKey } from "../../utils/supabase/info";
 import { useMaterialsContext } from "../../contexts/MaterialsContext";
 import { Alert, AlertDescription } from "../ui/alert";
 import { SOURCE_LIBRARY } from "../../data/sources";
-import { PDFViewer } from "./PDFViewer";
+import { PDFViewer, PageTextContent } from "./PDFViewer";
+import {
+  scanPdfForMatches,
+  KeywordMatch,
+  ParameterCode,
+  groupMatchesByPage,
+} from "./keywordMatcher";
 
 interface CurationWorkbenchProps {
   onBack: () => void;
@@ -131,6 +140,13 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
     null
   );
   const [unitValidationError, setUnitValidationError] = useState<string>("");
+
+  // Keyword match state for PDF scanning
+  const [pdfPages, setPdfPages] = useState<PageTextContent[]>([]);
+  const [keywordMatches, setKeywordMatches] = useState<KeywordMatch[]>([]);
+  const [scanParameter, setScanParameter] = useState<ParameterCode | "">("");
+  const [matchesExpanded, setMatchesExpanded] = useState(true);
+  const [goToPageRequest, setGoToPageRequest] = useState<number | undefined>();
 
   const [formData, setFormData] = useState<MIUFormData>({
     material_id: "",
@@ -633,26 +649,185 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
 
                     {/* PDF Viewer - takes most of the space */}
                     {selectedSource.pdfFileName ? (
-                      <div className="flex-1 p-2 overflow-hidden min-h-0">
-                        <PDFViewer
-                          pdfUrl={`https://${projectId}.supabase.co/storage/v1/object/public/make-17cae920-source-pdfs/${selectedSource.pdfFileName}`}
-                          title={selectedSource.title}
-                          height="100%"
-                          onTextSelect={(text, pageNumber) => {
-                            // Auto-fill snippet and page number
-                            setFormData((prev) => ({
-                              ...prev,
-                              snippet: text,
-                              page_number: pageNumber.toString(),
-                            }));
-                            toast.success(
-                              `Text copied to snippet field (Page ${pageNumber})`
-                            );
-                          }}
-                          onPageChange={(pageNumber) => {
-                            // Keep track of current page for manual entry
-                          }}
-                        />
+                      <div className="flex-1 p-2 overflow-hidden min-h-0 flex flex-col">
+                        {/* Keyword Match Scanner */}
+                        <div className="mb-2 p-2 bg-[#f5f5f0] dark:bg-[#2a2825] border border-[#211f1c]/10 dark:border-white/10 rounded-md">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Search
+                              size={14}
+                              className="text-black/60 dark:text-white/60"
+                            />
+                            <span className="font-['Tilt_Warp'] text-[10px] normal">
+                              Find Relevant Passages
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <select
+                              value={scanParameter}
+                              onChange={(e) =>
+                                setScanParameter(
+                                  e.target.value as ParameterCode | ""
+                                )
+                              }
+                              className="h-7 px-2 text-[10px] font-['Sniglet'] bg-white dark:bg-[#1a1917] border border-[#211f1c]/20 dark:border-white/20 rounded"
+                            >
+                              <option value="">Select parameter...</option>
+                              <option value="Y">Y - Years to Degrade</option>
+                              <option value="D">D - Degradability</option>
+                              <option value="C">C - Compostability</option>
+                              <option value="M">M - Methane Production</option>
+                              <option value="E">E - Ecotoxicity</option>
+                            </select>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-7 text-[10px]"
+                              disabled={!scanParameter || pdfPages.length === 0}
+                              onClick={() => {
+                                if (scanParameter && pdfPages.length > 0) {
+                                  const matches = scanPdfForMatches(
+                                    pdfPages,
+                                    scanParameter as ParameterCode
+                                  );
+                                  setKeywordMatches(matches);
+                                  setMatchesExpanded(true);
+                                  if (matches.length === 0) {
+                                    toast.info(
+                                      `No matches found for ${scanParameter} keywords`
+                                    );
+                                  } else {
+                                    toast.success(
+                                      `Found ${matches.length} potential matches`
+                                    );
+                                  }
+                                }
+                              }}
+                            >
+                              <Search size={10} className="mr-1" />
+                              Scan PDF
+                            </Button>
+                            {keywordMatches.length > 0 && (
+                              <span className="text-[9px] font-['Sniglet'] text-black/60 dark:text-white/60">
+                                {keywordMatches.length} matches found
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Keyword Matches Panel */}
+                        {keywordMatches.length > 0 && (
+                          <div className="mb-2 border border-[#211f1c]/10 dark:border-white/10 rounded-md bg-white dark:bg-[#1a1917] overflow-hidden">
+                            <button
+                              onClick={() =>
+                                setMatchesExpanded(!matchesExpanded)
+                              }
+                              className="w-full flex items-center justify-between p-2 hover:bg-[#f5f5f0] dark:hover:bg-[#2a2825] transition-colors"
+                            >
+                              <span className="font-['Tilt_Warp'] text-[10px] normal flex items-center gap-1">
+                                <Target size={12} className="text-[#a8d5ba]" />
+                                Keyword Matches ({keywordMatches.length})
+                              </span>
+                              {matchesExpanded ? (
+                                <ChevronUp size={14} />
+                              ) : (
+                                <ChevronDown size={14} />
+                              )}
+                            </button>
+                            {matchesExpanded && (
+                              <div className="max-h-[150px] overflow-y-auto border-t border-[#211f1c]/10 dark:border-white/10">
+                                {Array.from(
+                                  groupMatchesByPage(keywordMatches).entries()
+                                ).map(([pageNum, pageMatches]) => (
+                                  <div
+                                    key={pageNum}
+                                    className="border-b border-[#211f1c]/5 dark:border-white/5 last:border-b-0"
+                                  >
+                                    <div className="px-2 py-1 bg-[#f5f5f0] dark:bg-[#2a2825] flex items-center justify-between">
+                                      <span className="font-['Sniglet'] text-[9px] text-black/60 dark:text-white/60">
+                                        Page {pageNum} ({pageMatches.length}{" "}
+                                        matches)
+                                      </span>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-5 px-2 text-[9px]"
+                                        onClick={() => {
+                                          setGoToPageRequest(pageNum);
+                                        }}
+                                      >
+                                        Go →
+                                      </Button>
+                                    </div>
+                                    <div className="px-2 py-1 space-y-1">
+                                      {pageMatches
+                                        .slice(0, 3)
+                                        .map(
+                                          (
+                                            match: KeywordMatch,
+                                            idx: number
+                                          ) => (
+                                            <div
+                                              key={idx}
+                                              className="text-[9px] font-['Sniglet'] text-black/70 dark:text-white/70 flex items-start gap-1 cursor-pointer hover:bg-[#e5e4dc] dark:hover:bg-[#3a3835] p-1 rounded"
+                                              onClick={() =>
+                                                setGoToPageRequest(
+                                                  match.pageNumber
+                                                )
+                                              }
+                                            >
+                                              <Badge className="shrink-0 text-[8px] bg-[#a8d5ba] text-black">
+                                                {match.keyword}
+                                              </Badge>
+                                              <span className="line-clamp-1 text-black/50 dark:text-white/50">
+                                                ...{match.context}...
+                                              </span>
+                                            </div>
+                                          )
+                                        )}
+                                      {pageMatches.length > 3 && (
+                                        <span className="text-[8px] text-black/40 dark:text-white/40 pl-1">
+                                          +{pageMatches.length - 3} more matches
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        <div className="flex-1 overflow-hidden min-h-0">
+                          <PDFViewer
+                            pdfUrl={`https://${projectId}.supabase.co/storage/v1/object/public/make-17cae920-source-pdfs/${selectedSource.pdfFileName}`}
+                            title={selectedSource.title}
+                            height="100%"
+                            goToPage={goToPageRequest}
+                            onTextExtracted={(pages) => {
+                              setPdfPages(pages);
+                            }}
+                            onTextSelect={(text, pageNumber) => {
+                              // Auto-fill snippet and page number
+                              setFormData((prev) => ({
+                                ...prev,
+                                snippet: text,
+                                page_number: pageNumber.toString(),
+                              }));
+                              toast.success(
+                                `Text copied to snippet field (Page ${pageNumber})`
+                              );
+                            }}
+                            onPageChange={(pageNumber) => {
+                              // Clear goToPage request once we've navigated
+                              if (
+                                goToPageRequest &&
+                                pageNumber === goToPageRequest
+                              ) {
+                                setGoToPageRequest(undefined);
+                              }
+                            }}
+                          />
+                        </div>
                       </div>
                     ) : (
                       /* No PDF - show abstract and access helpers */
