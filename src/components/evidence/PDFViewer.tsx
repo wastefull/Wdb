@@ -59,6 +59,8 @@ interface PDFViewerProps {
   onTextExtracted?: (pages: PageTextContent[]) => void;
   /** External page navigation request */
   goToPage?: number;
+  /** Keywords to highlight on the current page */
+  highlightKeywords?: string[];
   /** Title of the document */
   title?: string;
   /** Height of the viewer */
@@ -71,6 +73,7 @@ export function PDFViewer({
   onPageChange,
   onTextExtracted,
   goToPage: externalGoToPage,
+  highlightKeywords,
   title,
   height = "600px",
 }: PDFViewerProps) {
@@ -281,8 +284,39 @@ export function PDFViewer({
             span.style.margin = "0";
             span.style.lineHeight = "1";
 
+            // Check if this span contains any highlight keywords
+            if (highlightKeywords && highlightKeywords.length > 0) {
+              const textLower = textItem.str.toLowerCase();
+              const hasMatch = highlightKeywords.some((kw) =>
+                textLower.includes(kw.toLowerCase())
+              );
+              if (hasMatch) {
+                span.classList.add("pdf-highlight");
+                span.style.backgroundColor = "rgba(168, 213, 186, 0.7)"; // waste-compost color
+                span.style.color = "black";
+                span.style.borderRadius = "2px";
+                span.style.animation = "pdf-highlight-pulse 2s ease-out";
+              }
+            }
+
             textLayer.appendChild(span);
           });
+
+          // Scroll to first highlight if any
+          if (highlightKeywords && highlightKeywords.length > 0) {
+            const firstHighlight = textLayer.querySelector(
+              ".pdf-highlight"
+            ) as HTMLElement;
+            if (firstHighlight) {
+              // Small delay to ensure layout is complete
+              setTimeout(() => {
+                firstHighlight.scrollIntoView({
+                  behavior: "smooth",
+                  block: "center",
+                });
+              }, 100);
+            }
+          }
 
           // Container should NOT be selectable - only the spans inside
           // This prevents "runover" selection of the entire layer
@@ -330,7 +364,7 @@ export function PDFViewer({
         renderTaskRef.current = null;
       }
     };
-  }, [pdfDoc, currentPage, scale, onPageChange]);
+  }, [pdfDoc, currentPage, scale, onPageChange, highlightKeywords]);
 
   // Handle text selection using selectionchange event
   useEffect(() => {
@@ -478,6 +512,24 @@ export function PDFViewer({
       className="flex flex-col bg-[#f5f4f0] dark:bg-[#1a1917] rounded-lg border-2 border-[#211f1c]/20 dark:border-white/20 overflow-hidden h-full"
       style={{ height: isFullscreen ? "100vh" : height }}
     >
+      {/* Highlight animation styles */}
+      <style>{`
+        @keyframes pdf-highlight-pulse {
+          0% { 
+            background-color: rgba(168, 213, 186, 0.9);
+            box-shadow: 0 0 8px rgba(168, 213, 186, 0.8);
+          }
+          50% { 
+            background-color: rgba(168, 213, 186, 0.7);
+            box-shadow: 0 0 4px rgba(168, 213, 186, 0.5);
+          }
+          100% { 
+            background-color: rgba(168, 213, 186, 0.5);
+            box-shadow: none;
+          }
+        }
+      `}</style>
+
       {/* Toolbar */}
       <div className="flex items-center justify-between gap-2 p-2 border-b border-[#211f1c]/20 dark:border-white/20 bg-white dark:bg-[#2a2825]">
         {/* Left: Document info */}

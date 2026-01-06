@@ -147,6 +147,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
   const [scanParameter, setScanParameter] = useState<ParameterCode | "">("");
   const [matchesExpanded, setMatchesExpanded] = useState(true);
   const [goToPageRequest, setGoToPageRequest] = useState<number | undefined>();
+  const [highlightKeywords, setHighlightKeywords] = useState<string[]>([]);
 
   const [formData, setFormData] = useState<MIUFormData>({
     material_id: "",
@@ -752,6 +753,13 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                                         size="sm"
                                         className="h-5 px-2 text-[9px]"
                                         onClick={() => {
+                                          // Get unique keywords for this page
+                                          const keywords = [
+                                            ...new Set(
+                                              pageMatches.map((m) => m.keyword)
+                                            ),
+                                          ];
+                                          setHighlightKeywords(keywords);
                                           setGoToPageRequest(pageNum);
                                         }}
                                       >
@@ -769,11 +777,14 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                                             <div
                                               key={idx}
                                               className="text-[9px] font-['Sniglet'] text-black/70 dark:text-white/70 flex items-start gap-1 cursor-pointer hover:bg-[#e5e4dc] dark:hover:bg-[#3a3835] p-1 rounded"
-                                              onClick={() =>
+                                              onClick={() => {
+                                                setHighlightKeywords([
+                                                  match.keyword,
+                                                ]);
                                                 setGoToPageRequest(
                                                   match.pageNumber
-                                                )
-                                              }
+                                                );
+                                              }}
                                             >
                                               <Badge className="shrink-0 text-[8px] bg-[#a8d5ba] text-black">
                                                 {match.keyword}
@@ -803,6 +814,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                             title={selectedSource.title}
                             height="100%"
                             goToPage={goToPageRequest}
+                            highlightKeywords={highlightKeywords}
                             onTextExtracted={(pages) => {
                               setPdfPages(pages);
                             }}
@@ -818,7 +830,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                               );
                             }}
                             onPageChange={(pageNumber) => {
-                              // Clear goToPage request once we've navigated
+                              // Clear goToPage request and highlights once we've navigated
                               if (
                                 goToPageRequest &&
                                 pageNumber === goToPageRequest
