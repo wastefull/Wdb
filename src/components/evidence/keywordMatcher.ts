@@ -34,7 +34,6 @@ const PARAMETER_KEYWORDS: Record<ParameterCode, string[]> = {
     "weight recovery",
     "extraction yield",
     "output",
-    "%", // Often appears with yield values
   ],
 
   // C - Contamination (impurities, rejects)
