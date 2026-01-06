@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   ArrowLeft,
   Check,
@@ -45,6 +45,7 @@ import { projectId, publicAnonKey } from "../../utils/supabase/info";
 import { useMaterialsContext } from "../../contexts/MaterialsContext";
 import { Alert, AlertDescription } from "../ui/alert";
 import { SOURCE_LIBRARY } from "../../data/sources";
+import { PDFViewer } from "./PDFViewer";
 
 interface CurationWorkbenchProps {
   onBack: () => void;
@@ -448,7 +449,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
       {/* Main Split-Pane Layout */}
       <div className="flex-1 flex overflow-hidden">
         {/* Left Pane: Source Viewer */}
-        <div className="w-[400px] min-w-[300px] max-w-[500px] bg-white dark:bg-[#2a2825] flex flex-col border-r border-[#211f1c]/20 dark:border-white/20">
+        <div className="flex-1 min-w-[500px] bg-white dark:bg-[#2a2825] flex flex-col border-r border-[#211f1c]/20 dark:border-white/20">
           <div className="panel-bordered">
             <h3 className="font-['Tilt_Warp'] text-[16px] normal mb-1">
               Source Viewer
@@ -460,305 +461,267 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
             </p>
           </div>
 
-          <ScrollArea className="flex-1">
+          <div className="flex-1 overflow-hidden flex flex-col">
             {currentStep === 1 ? (
               /* Step 1: Source Selection */
-              <div className="p-6">
-                <ScrollArea className="h-[calc(100vh-320px)] max-h-[500px]">
-                  <div className="space-y-4 pr-4">
-                    {loadingSources ? (
-                      <div className="text-center py-12">
-                        <p className="label-muted">Loading sources...</p>
-                      </div>
-                    ) : sources.length === 0 ? (
-                      <div className="text-center py-12">
-                        <FileText
-                          size={48}
-                          className="mx-auto mb-4 text-black/20 dark:text-white/20"
-                        />
-                        <h4 className="font-['Tilt_Warp'] text-[14px] normal mb-2">
-                          No Sources Available
-                        </h4>
-                        <p className="label-muted-sm">
-                          Please add sources to the library first
-                        </p>
-                      </div>
-                    ) : (
-                      sources.map((source) => (
-                        <button
-                          key={source.id}
-                          onClick={() => handleSourceSelect(source)}
-                          className={`w-full p-4 rounded-lg border transition-all text-left ${
-                            selectedSource?.id === source.id
-                              ? "border-[#211f1c] dark:border-white bg-[#e5e4dc] dark:bg-[#3a3835] shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]"
-                              : "border-[#211f1c]/20 dark:border-white/20 hover:border-[#211f1c]/40 dark:hover:border-white/40"
-                          }`}
-                        >
-                          <div className="flex items-start gap-2 mb-2">
-                            <BookOpen
-                              size={14}
-                              className="text-black/60 dark:text-white/60 mt-0.5 shrink-0"
-                            />
-                            <div className="flex-1 min-w-0">
-                              <h4 className="font-['Tilt_Warp'] text-[13px] normal truncate">
-                                {source.title || "Untitled"}
-                              </h4>
-                              <p className="label-muted-sm line-clamp-2">
-                                {source.citation ||
-                                  source.authors ||
-                                  "No citation available"}
-                              </p>
-                            </div>
+              <ScrollArea className="flex-1">
+                <div className="p-6 space-y-4">
+                  {loadingSources ? (
+                    <div className="text-center py-12">
+                      <p className="label-muted">Loading sources...</p>
+                    </div>
+                  ) : sources.length === 0 ? (
+                    <div className="text-center py-12">
+                      <FileText
+                        size={48}
+                        className="mx-auto mb-4 text-black/20 dark:text-white/20"
+                      />
+                      <h4 className="font-['Tilt_Warp'] text-[14px] normal mb-2">
+                        No Sources Available
+                      </h4>
+                      <p className="label-muted-sm">
+                        Please add sources to the library first
+                      </p>
+                    </div>
+                  ) : (
+                    sources.map((source) => (
+                      <button
+                        key={source.id}
+                        onClick={() => handleSourceSelect(source)}
+                        className={`w-full p-4 rounded-lg border transition-all text-left ${
+                          selectedSource?.id === source.id
+                            ? "border-[#211f1c] dark:border-white bg-[#e5e4dc] dark:bg-[#3a3835] shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]"
+                            : "border-[#211f1c]/20 dark:border-white/20 hover:border-[#211f1c]/40 dark:hover:border-white/40"
+                        }`}
+                      >
+                        <div className="flex items-start gap-2 mb-2">
+                          <BookOpen
+                            size={14}
+                            className="text-black/60 dark:text-white/60 mt-0.5 shrink-0"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-['Tilt_Warp'] text-[13px] normal truncate">
+                              {source.title || "Untitled"}
+                            </h4>
+                            <p className="label-muted-sm line-clamp-2">
+                              {source.citation ||
+                                source.authors ||
+                                "No citation available"}
+                            </p>
                           </div>
-                          <div className="flex items-center gap-1.5 flex-wrap">
-                            {source.year && (
-                              <Badge
-                                variant="secondary"
-                                className="font-['Sniglet'] text-[9px]"
-                              >
-                                {source.year}
-                              </Badge>
+                        </div>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {source.year && (
+                            <Badge
+                              variant="secondary"
+                              className="font-['Sniglet'] text-[9px]"
+                            >
+                              {source.year}
+                            </Badge>
+                          )}
+                          {/* OA Status Badge */}
+                          {source.is_open_access === true && (
+                            <Badge
+                              className={`text-[8px] ${
+                                source.manual_oa_override
+                                  ? "bg-teal-100 text-teal-800 dark:bg-teal-900/20 dark:text-teal-300"
+                                  : "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
+                              }`}
+                              title={`Open Access${
+                                source.manual_oa_override ? " (Manual)" : ""
+                              }`}
+                            >
+                              <Unlock className="w-2 h-2 mr-0.5" />
+                              OA
+                            </Badge>
+                          )}
+                          {source.is_open_access === false && (
+                            <Badge
+                              className={`text-[8px] ${
+                                source.manual_oa_override
+                                  ? "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300"
+                                  : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
+                              }`}
+                              title={`Closed Access${
+                                source.manual_oa_override ? " (Manual)" : ""
+                              }`}
+                            >
+                              <Lock className="w-2 h-2 mr-0.5" />
+                              Closed
+                            </Badge>
+                          )}
+                          {source.pdfFileName && (
+                            <Badge
+                              variant="outline"
+                              className="text-[8px] bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
+                              title="PDF Available"
+                            >
+                              PDF
+                            </Badge>
+                          )}
+                        </div>
+                      </button>
+                    ))
+                  )}
+                </div>
+              </ScrollArea>
+            ) : (
+              /* Steps 2-5: Show selected source content with PDF viewer prominent */
+              <>
+                {selectedSource ? (
+                  <>
+                    {/* Compact source metadata bar */}
+                    <div className="p-3 border-b border-[#211f1c]/20 dark:border-white/20 bg-[#f5f4f0] dark:bg-[#1a1917] shrink-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-['Tilt_Warp'] text-[12px] truncate">
+                            {selectedSource.title || "Untitled Source"}
+                          </h4>
+                          <div className="flex flex-wrap items-center gap-2 mt-1">
+                            {selectedSource.authors && (
+                              <span className="font-['Sniglet'] text-[9px] text-black/60 dark:text-white/60 truncate max-w-[150px]">
+                                {selectedSource.authors}
+                              </span>
                             )}
-                            {/* OA Status Badge */}
-                            {source.is_open_access === true && (
-                              <Badge
-                                className={`text-[8px] ${
-                                  source.manual_oa_override
-                                    ? "bg-teal-100 text-teal-800 dark:bg-teal-900/20 dark:text-teal-300"
-                                    : "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
-                                }`}
-                                title={`Open Access${
-                                  source.manual_oa_override ? " (Manual)" : ""
-                                }`}
-                              >
+                            {selectedSource.year && (
+                              <span className="font-['Sniglet'] text-[9px] text-black/60 dark:text-white/60">
+                                ({selectedSource.year})
+                              </span>
+                            )}
+                            {selectedSource.is_open_access === true && (
+                              <Badge className="text-[7px] bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300 h-4">
                                 <Unlock className="w-2 h-2 mr-0.5" />
                                 OA
                               </Badge>
                             )}
-                            {source.is_open_access === false && (
-                              <Badge
-                                className={`text-[8px] ${
-                                  source.manual_oa_override
-                                    ? "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300"
-                                    : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
-                                }`}
-                                title={`Closed Access${
-                                  source.manual_oa_override ? " (Manual)" : ""
-                                }`}
-                              >
-                                <Lock className="w-2 h-2 mr-0.5" />
-                                Closed
-                              </Badge>
-                            )}
-                            {source.pdfFileName && (
-                              <Badge
-                                variant="outline"
-                                className="text-[8px] bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
-                                title="PDF Available"
-                              >
-                                PDF
-                              </Badge>
-                            )}
                           </div>
-                        </button>
-                      ))
-                    )}
-                  </div>
-                </ScrollArea>
-              </div>
-            ) : (
-              /* Steps 2-5: Show selected source content */
-              <div className="p-6">
-                {selectedSource ? (
-                  <Card className="border-2">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="font-['Tilt_Warp'] text-[14px]">
-                        {selectedSource.title || "Untitled Source"}
-                      </CardTitle>
-                      {/* Metadata row */}
-                      <div className="flex flex-wrap items-center gap-3 mt-2">
-                        {selectedSource.authors && (
-                          <div className="flex items-center gap-1 text-[10px] text-black/60 dark:text-white/60">
-                            <Users size={10} />
-                            <span className="font-['Sniglet']">
-                              {selectedSource.authors}
-                            </span>
-                          </div>
-                        )}
-                        {selectedSource.year && (
-                          <div className="flex items-center gap-1 text-[10px] text-black/60 dark:text-white/60">
-                            <Calendar size={10} />
-                            <span className="font-['Sniglet']">
-                              {selectedSource.year}
-                            </span>
-                          </div>
-                        )}
-                        {selectedSource.type && (
-                          <Badge
-                            variant="outline"
-                            className="text-[8px] capitalize"
-                          >
-                            {selectedSource.type === "peer-reviewed" && (
-                              <BookOpen className="w-2 h-2 mr-0.5" />
-                            )}
-                            {selectedSource.type === "government" && (
-                              <Building2 className="w-2 h-2 mr-0.5" />
-                            )}
-                            {selectedSource.type === "industrial" && (
-                              <Globe className="w-2 h-2 mr-0.5" />
-                            )}
-                            {selectedSource.type}
-                          </Badge>
-                        )}
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        {/* Quick Access Buttons */}
-                        <div className="flex flex-wrap gap-2">
+                        </div>
+                        {/* Quick links */}
+                        <div className="flex items-center gap-1 shrink-0">
                           {selectedSource.doi && (
                             <Button
-                              variant="outline"
+                              variant="ghost"
                               size="sm"
-                              className="h-7 text-[10px]"
+                              className="h-6 w-6 p-0"
                               onClick={() =>
                                 window.open(
                                   `https://doi.org/${selectedSource.doi}`,
                                   "_blank"
                                 )
                               }
+                              title="Open via DOI"
                             >
-                              <ExternalLink size={10} className="mr-1" />
-                              Open via DOI
+                              <ExternalLink size={12} />
                             </Button>
                           )}
                           {selectedSource.url && (
                             <Button
-                              variant="outline"
+                              variant="ghost"
                               size="sm"
-                              className="h-7 text-[10px]"
+                              className="h-6 w-6 p-0"
                               onClick={() =>
                                 window.open(selectedSource.url, "_blank")
                               }
+                              title="Open Source URL"
                             >
-                              <Globe size={10} className="mr-1" />
-                              Open Source URL
+                              <Globe size={12} />
                             </Button>
-                          )}
-                          {selectedSource.doi && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="h-7 text-[10px]"
-                              onClick={() =>
-                                window.open(
-                                  `https://scholar.google.com/scholar?q=${encodeURIComponent(
-                                    selectedSource.doi
-                                  )}`,
-                                  "_blank"
-                                )
-                              }
-                            >
-                              <FileSearch size={10} className="mr-1" />
-                              Google Scholar
-                            </Button>
-                          )}
-                          {!selectedSource.doi && selectedSource.title && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="h-7 text-[10px]"
-                              onClick={() =>
-                                window.open(
-                                  `https://scholar.google.com/scholar?q=${encodeURIComponent(
-                                    selectedSource.title
-                                  )}`,
-                                  "_blank"
-                                )
-                              }
-                            >
-                              <FileSearch size={10} className="mr-1" />
-                              Search Google Scholar
-                            </Button>
-                          )}
-                          {/* OA Status Badge */}
-                          {selectedSource.is_open_access === true && (
-                            <Badge
-                              className={`text-[8px] ${
-                                selectedSource.manual_oa_override
-                                  ? "bg-teal-100 text-teal-800 dark:bg-teal-900/20 dark:text-teal-300 border border-teal-400"
-                                  : "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
-                              }`}
-                              title={`Open Access${
-                                selectedSource.manual_oa_override
-                                  ? " (Manual Override)"
-                                  : ""
-                              }`}
-                            >
-                              <Unlock className="w-2 h-2 mr-0.5" />
-                              Open Access
-                            </Badge>
-                          )}
-                          {selectedSource.is_open_access === false && (
-                            <Badge
-                              className={`text-[8px] ${
-                                selectedSource.manual_oa_override
-                                  ? "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300 border border-orange-400"
-                                  : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
-                              }`}
-                              title={`Closed Access${
-                                selectedSource.manual_oa_override
-                                  ? " (Manual Override)"
-                                  : ""
-                              }`}
-                            >
-                              <Lock className="w-2 h-2 mr-0.5" />
-                              Closed Access
-                            </Badge>
                           )}
                         </div>
+                      </div>
+                    </div>
 
-                        {/* DOI display */}
-                        {selectedSource.doi && (
+                    {/* PDF Viewer - takes most of the space */}
+                    {selectedSource.pdfFileName ? (
+                      <div className="flex-1 p-2 overflow-hidden min-h-0">
+                        <PDFViewer
+                          pdfUrl={`https://${projectId}.supabase.co/storage/v1/object/public/make-17cae920-source-pdfs/${selectedSource.pdfFileName}`}
+                          title={selectedSource.title}
+                          height="100%"
+                          onTextSelect={(text, pageNumber) => {
+                            // Auto-fill snippet and page number
+                            setFormData((prev) => ({
+                              ...prev,
+                              snippet: text,
+                              page_number: pageNumber.toString(),
+                            }));
+                            toast.success(
+                              `Text copied to snippet field (Page ${pageNumber})`
+                            );
+                          }}
+                          onPageChange={(pageNumber) => {
+                            // Keep track of current page for manual entry
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      /* No PDF - show abstract and access helpers */
+                      <ScrollArea className="flex-1 min-h-0">
+                        <div className="p-4 space-y-4">
+                          {/* Quick Access Buttons */}
+                          <div className="flex flex-wrap gap-2">
+                            {selectedSource.doi && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-7 text-[10px]"
+                                onClick={() =>
+                                  window.open(
+                                    `https://doi.org/${selectedSource.doi}`,
+                                    "_blank"
+                                  )
+                                }
+                              >
+                                <ExternalLink size={10} className="mr-1" />
+                                Open via DOI
+                              </Button>
+                            )}
+                            {selectedSource.url && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-7 text-[10px]"
+                                onClick={() =>
+                                  window.open(selectedSource.url, "_blank")
+                                }
+                              >
+                                <Globe size={10} className="mr-1" />
+                                Open Source URL
+                              </Button>
+                            )}
+                            {(selectedSource.doi || selectedSource.title) && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-7 text-[10px]"
+                                onClick={() =>
+                                  window.open(
+                                    `https://scholar.google.com/scholar?q=${encodeURIComponent(
+                                      selectedSource.doi || selectedSource.title
+                                    )}`,
+                                    "_blank"
+                                  )
+                                }
+                              >
+                                <FileSearch size={10} className="mr-1" />
+                                Google Scholar
+                              </Button>
+                            )}
+                          </div>
+
+                          {/* Abstract */}
                           <div>
                             <Label className="font-['Tilt_Warp'] text-[10px] text-black/60 dark:text-white/60">
-                              DOI
+                              ABSTRACT / SUMMARY
                             </Label>
-                            <p className="font-['Sniglet'] text-[11px] text-black/80 dark:text-white/80 mt-1">
-                              {selectedSource.doi}
+                            <p className="font-['Sniglet'] text-[11px] normal mt-2 leading-relaxed">
+                              {selectedSource.abstract ||
+                                selectedSource.summary ||
+                                "No abstract available. Use the buttons above to access the full document."}
                             </p>
                           </div>
-                        )}
 
-                        {/* Abstract */}
-                        <div>
-                          <Label className="font-['Tilt_Warp'] text-[10px] text-black/60 dark:text-white/60">
-                            ABSTRACT / SUMMARY
-                          </Label>
-                          <p className="font-['Sniglet'] text-[11px] normal mt-2 leading-relaxed">
-                            {selectedSource.abstract ||
-                              selectedSource.summary ||
-                              "No abstract available. Use the buttons above to access the full document."}
-                          </p>
-                        </div>
-
-                        {/* PDF Viewer or Access Helper */}
-                        {selectedSource.pdfFileName ? (
-                          <div className="space-y-2">
-                            <Label className="font-['Tilt_Warp'] text-[10px] text-black/60 dark:text-white/60">
-                              SOURCE DOCUMENT
-                            </Label>
-                            <iframe
-                              src={`https://${projectId}.supabase.co/storage/v1/object/public/make-17cae920-source-pdfs/${selectedSource.pdfFileName}`}
-                              className="w-full h-[500px] rounded-md border-2 border-[#211f1c]/20 dark:border-white/20"
-                              title={selectedSource.title || "PDF Document"}
-                            />
-                            <p className="font-['Sniglet'] text-[9px] text-black/50 dark:text-white/50">
-                              💡 Use the PDF viewer above to find and copy text
-                              snippets for evidence extraction.
-                            </p>
-                          </div>
-                        ) : (
+                          {/* No PDF helper */}
                           <div className="p-3 bg-[#fff9e6] dark:bg-[#3a3220] border border-[#f4d5a6] dark:border-[#5a4820] rounded-md space-y-2">
                             <p className="font-['Sniglet'] text-[10px] text-black/80 dark:text-white/80">
                               💡 <strong>No PDF uploaded yet.</strong>
@@ -770,26 +733,28 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                               here.
                             </p>
                           </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
+                        </div>
+                      </ScrollArea>
+                    )}
+                  </>
                 ) : (
-                  <div className="text-center py-12">
-                    <FileText
-                      size={48}
-                      className="mx-auto mb-4 text-black/20 dark:text-white/20"
-                    />
-                    <p className="label-muted-sm">No source selected</p>
+                  <div className="flex-1 flex items-center justify-center">
+                    <div className="text-center">
+                      <FileText
+                        size={48}
+                        className="mx-auto mb-4 text-black/20 dark:text-white/20"
+                      />
+                      <p className="label-muted-sm">No source selected</p>
+                    </div>
                   </div>
                 )}
-              </div>
+              </>
             )}
-          </ScrollArea>
+          </div>
         </div>
 
         {/* Right Pane: Evidence Wizard */}
-        <div className="flex-1 min-w-[400px] bg-white dark:bg-[#2a2825] flex flex-col">
+        <div className="w-[380px] min-w-[320px] max-w-[420px] bg-white dark:bg-[#2a2825] flex flex-col">
           <div className="panel-bordered">
             <h3 className="font-['Tilt_Warp'] text-[16px] normal mb-1">
               Evidence Wizard

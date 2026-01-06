@@ -6,6 +6,7 @@ export { SourceLibraryManager } from "./SourceLibraryManager";
 // Evidence management
 export { CurationWorkbench } from "./CurationWorkbench";
 export { EvidenceListViewer } from "./EvidenceListViewer";
+export { PDFViewer } from "./PDFViewer";
 
 // Transforms
 export { TransformFormulaTesting } from "./TransformFormulaTesting";
