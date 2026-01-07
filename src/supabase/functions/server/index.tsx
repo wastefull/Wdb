@@ -4087,6 +4087,260 @@ app.put("/make-server-17cae920/profile/:userId", verifyAuth, async (c) => {
   }
 });
 
+// Get user contribution stats
+app.get(
+  "/make-server-17cae920/profile/:userId/contributions/stats",
+  verifyAuth,
+  async (c) => {
+    try {
+      const userId = c.req.param("userId");
+
+      // Count materials created by user
+      const allMaterials = (await kv.getByPrefix("material:")) || [];
+      const userMaterials = allMaterials.filter((m) => m.created_by === userId);
+
+      // Count articles submitted by user
+      const allArticles = (await kv.getByPrefix("article:")) || [];
+      const userArticles = allArticles.filter((a) => a.author_id === userId);
+
+      // Count MIUs (evidence points) - scan all materials for curator_id in evidence
+      let miuCount = 0;
+      for (const material of allMaterials) {
+        if (material.evidence) {
+          for (const param in material.evidence) {
+            const evidenceList = material.evidence[param];
+            if (Array.isArray(evidenceList)) {
+              miuCount += evidenceList.filter(
+                (e) => e.curator_id === userId
+              ).length;
+            }
+          }
+        }
+      }
+
+      const stats = {
+        materials: userMaterials.length,
+        articles: userArticles.length,
+        mius: miuCount,
+        total: userMaterials.length + userArticles.length + miuCount,
+      };
+
+      return c.json({ stats });
+    } catch (error) {
+      console.error("Error fetching contribution stats:", error);
+      return c.json(
+        { error: "Failed to fetch contribution stats", details: String(error) },
+        500
+      );
+    }
+  }
+);
+
+// Get user activity (for calendar heatmap)
+app.get(
+  "/make-server-17cae920/profile/:userId/contributions/activity",
+  verifyAuth,
+  async (c) => {
+    try {
+      const userId = c.req.param("userId");
+      const startDate = c.req.query("start");
+      const endDate = c.req.query("end");
+
+      // Default to last 365 days
+      const end = endDate ? new Date(endDate) : new Date();
+      const start = startDate
+        ? new Date(startDate)
+        : new Date(end.getFullYear() - 1, end.getMonth(), end.getDate());
+
+      // Collect all contributions with timestamps
+      const contributions: Array<{
+        date: string;
+        type: string;
+      }> = [];
+
+      // Get materials
+      const allMaterials = (await kv.getByPrefix("material:")) || [];
+      const userMaterials = allMaterials.filter((m) => m.created_by === userId);
+      for (const material of userMaterials) {
+        if (material.created_at) {
+          const date = new Date(material.created_at);
+          if (date >= start && date <= end) {
+            contributions.push({
+              date: date.toISOString().split("T")[0],
+              type: "material",
+            });
+          }
+        }
+      }
+
+      // Get articles
+      const allArticles = (await kv.getByPrefix("article:")) || [];
+      const userArticles = allArticles.filter((a) => a.author_id === userId);
+      for (const article of userArticles) {
+        if (article.created_at) {
+          const date = new Date(article.created_at);
+          if (date >= start && date <= end) {
+            contributions.push({
+              date: date.toISOString().split("T")[0],
+              type: "article",
+            });
+          }
+        }
+      }
+
+      // Get MIUs from evidence
+      for (const material of allMaterials) {
+        if (material.evidence) {
+          for (const param in material.evidence) {
+            const evidenceList = material.evidence[param];
+            if (Array.isArray(evidenceList)) {
+              for (const evidence of evidenceList) {
+                if (evidence.curator_id === userId && evidence.timestamp) {
+                  const date = new Date(evidence.timestamp);
+                  if (date >= start && date <= end) {
+                    contributions.push({
+                      date: date.toISOString().split("T")[0],
+                      type: "miu",
+                    });
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // Aggregate by date
+      const dateMap = new Map<
+        string,
+        { date: string; count: number; types: Set<string> }
+      >();
+
+      for (const contrib of contributions) {
+        const existing = dateMap.get(contrib.date);
+        if (existing) {
+          existing.count++;
+          existing.types.add(contrib.type);
+        } else {
+          dateMap.set(contrib.date, {
+            date: contrib.date,
+            count: 1,
+            types: new Set([contrib.type]),
+          });
+        }
+      }
+
+      // Convert to array and add level
+      const activity = Array.from(dateMap.values()).map((item) => ({
+        date: item.date,
+        count: item.count,
+        types: Array.from(item.types),
+        level: getContributionLevel(item.count),
+      }));
+
+      return c.json({ activity });
+    } catch (error) {
+      console.error("Error fetching activity:", error);
+      return c.json(
+        { error: "Failed to fetch activity", details: String(error) },
+        500
+      );
+    }
+  }
+);
+
+// Get recent contributions
+app.get(
+  "/make-server-17cae920/profile/:userId/contributions/recent",
+  verifyAuth,
+  async (c) => {
+    try {
+      const userId = c.req.param("userId");
+      const limit = parseInt(c.req.query("limit") || "10", 10);
+
+      const contributions: Array<{
+        type: "material" | "article" | "miu";
+        title: string;
+        timestamp: string;
+        id: string;
+      }> = [];
+
+      // Get materials
+      const allMaterials = (await kv.getByPrefix("material:")) || [];
+      const userMaterials = allMaterials.filter((m) => m.created_by === userId);
+      for (const material of userMaterials) {
+        contributions.push({
+          type: "material",
+          title: material.name || "Untitled Material",
+          timestamp: material.created_at || new Date().toISOString(),
+          id: material.id,
+        });
+      }
+
+      // Get articles
+      const allArticles = (await kv.getByPrefix("article:")) || [];
+      const userArticles = allArticles.filter((a) => a.author_id === userId);
+      for (const article of userArticles) {
+        contributions.push({
+          type: "article",
+          title: article.title || "Untitled Article",
+          timestamp: article.created_at || new Date().toISOString(),
+          id: article.id,
+        });
+      }
+
+      // Get MIUs from evidence
+      for (const material of allMaterials) {
+        if (material.evidence) {
+          for (const param in material.evidence) {
+            const evidenceList = material.evidence[param];
+            if (Array.isArray(evidenceList)) {
+              for (const evidence of evidenceList) {
+                if (evidence.curator_id === userId) {
+                  contributions.push({
+                    type: "miu",
+                    title: `${param} evidence for ${
+                      material.name || "material"
+                    }`,
+                    timestamp: evidence.timestamp || new Date().toISOString(),
+                    id: `${material.id}:${param}:${evidence.id || Date.now()}`,
+                  });
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // Sort by timestamp and limit
+      contributions.sort(
+        (a, b) =>
+          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+      );
+
+      return c.json({ contributions: contributions.slice(0, limit) });
+    } catch (error) {
+      console.error("Error fetching recent contributions:", error);
+      return c.json(
+        {
+          error: "Failed to fetch recent contributions",
+          details: String(error),
+        },
+        500
+      );
+    }
+  }
+);
+
+// Helper function to calculate contribution level
+function getContributionLevel(count: number): 0 | 1 | 2 | 3 | 4 {
+  if (count === 0) return 0;
+  if (count <= 2) return 1;
+  if (count <= 5) return 2;
+  if (count <= 10) return 3;
+  return 4;
+}
+
 // ===== ARTICLES =====
 
 // Get all articles (public)

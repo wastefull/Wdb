@@ -954,6 +954,57 @@ export async function updateUserProfile(
   return data.profile;
 }
 
+export async function getUserContributionStats(userId: string): Promise<{
+  materials: number;
+  articles: number;
+  mius: number;
+  total: number;
+}> {
+  const data = await apiCall(`/profile/${userId}/contributions/stats`);
+  return data.stats;
+}
+
+export async function getUserActivity(
+  userId: string,
+  startDate?: string,
+  endDate?: string
+): Promise<
+  Array<{
+    date: string;
+    count: number;
+    types: string[];
+    level: 0 | 1 | 2 | 3 | 4;
+  }>
+> {
+  const queryParams = new URLSearchParams();
+  if (startDate) queryParams.append("start", startDate);
+  if (endDate) queryParams.append("end", endDate);
+
+  const url = `/profile/${userId}/contributions/activity${
+    queryParams.toString() ? "?" + queryParams.toString() : ""
+  }`;
+
+  const data = await apiCall(url);
+  return data.activity;
+}
+
+export async function getUserRecentContributions(
+  userId: string,
+  limit: number = 10
+): Promise<
+  Array<{
+    type: "material" | "article" | "miu";
+    title: string;
+    timestamp: string;
+    id: string;
+  }>
+> {
+  const data = await apiCall(
+    `/profile/${userId}/contributions/recent?limit=${limit}`
+  );
+  return data.contributions;
+}
+
 // ===== ARTICLES =====
 
 export async function getArticles(params?: {

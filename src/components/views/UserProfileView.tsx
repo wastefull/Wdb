@@ -1,5 +1,14 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, Edit2, Save, X, ExternalLink } from "lucide-react";
+import {
+  ArrowLeft,
+  Edit2,
+  Save,
+  X,
+  ExternalLink,
+  Package,
+  FileText,
+  Microscope,
+} from "lucide-react";
 import * as api from "../../utils/api";
 import { toast } from "sonner";
 import { Input } from "../ui/input";
@@ -12,6 +21,7 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
+import { ActivityCalendar } from "../ui/ActivityCalendar";
 
 interface UserProfileViewProps {
   userId: string;
@@ -46,8 +56,34 @@ export function UserProfileView({
   const [editedAvatarUrl, setEditedAvatarUrl] = useState("");
   const [saving, setSaving] = useState(false);
 
+  // Contribution tracking state
+  const [stats, setStats] = useState<{
+    materials: number;
+    articles: number;
+    mius: number;
+    total: number;
+  } | null>(null);
+  const [activity, setActivity] = useState<
+    Array<{
+      date: string;
+      count: number;
+      types: string[];
+      level: 0 | 1 | 2 | 3 | 4;
+    }>
+  >([]);
+  const [recentContributions, setRecentContributions] = useState<
+    Array<{
+      type: "material" | "article" | "miu";
+      title: string;
+      timestamp: string;
+      id: string;
+    }>
+  >([]);
+  const [loadingContributions, setLoadingContributions] = useState(true);
+
   useEffect(() => {
     loadProfile();
+    loadContributions();
   }, [userId]);
 
   const loadProfile = async () => {
@@ -63,6 +99,25 @@ export function UserProfileView({
       toast.error("Failed to load profile");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadContributions = async () => {
+    try {
+      setLoadingContributions(true);
+      const [statsData, activityData, recentData] = await Promise.all([
+        api.getUserContributionStats(userId),
+        api.getUserActivity(userId),
+        api.getUserRecentContributions(userId, 5),
+      ]);
+      setStats(statsData);
+      setActivity(activityData);
+      setRecentContributions(recentData);
+    } catch (error) {
+      console.error("Error loading contributions:", error);
+      // Non-critical error, don't show toast
+    } finally {
+      setLoadingContributions(false);
     }
   };
 
@@ -306,9 +361,148 @@ export function UserProfileView({
           </div>
         </CardHeader>
         <CardContent>
-          <p className="text-[13px] text-black/60 dark:text-white/60 italic">
-            Contribution tracking coming in Phase 6.2
-          </p>
+          {loadingContributions ? (
+            <p className="text-[13px] text-black/60 dark:text-white/60 italic">
+              Loading contributions...
+            </p>
+          ) : stats ? (
+            <div className="space-y-6">
+              {/* Stats Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div className="retro-card p-4 text-center">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <Package
+                      size={16}
+                      className="text-waste-recycle dark:text-waste-recycle"
+                    />
+                    <span className="text-2xl font-bold arcade-numbers">
+                      {stats.materials}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-black/60 dark:text-white/60 uppercase tracking-wide">
+                    Materials
+                  </p>
+                </div>
+
+                <div className="retro-card p-4 text-center">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <FileText
+                      size={16}
+                      className="text-waste-reuse dark:text-waste-reuse"
+                    />
+                    <span className="text-2xl font-bold arcade-numbers">
+                      {stats.articles}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-black/60 dark:text-white/60 uppercase tracking-wide">
+                    Articles
+                  </p>
+                </div>
+
+                <div className="retro-card p-4 text-center">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <Microscope
+                      size={16}
+                      className="text-waste-science dark:text-waste-science"
+                    />
+                    <span className="text-2xl font-bold arcade-numbers">
+                      {stats.mius}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-black/60 dark:text-white/60 uppercase tracking-wide">
+                    MIUs
+                  </p>
+                </div>
+
+                <div className="retro-card p-4 text-center bg-black/5 dark:bg-white/5">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <span className="text-2xl font-bold arcade-numbers text-waste-compost dark:text-waste-compost">
+                      {stats.total}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-black/60 dark:text-white/60 uppercase tracking-wide">
+                    Total
+                  </p>
+                </div>
+              </div>
+
+              {/* Activity Calendar */}
+              {activity.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                    Activity
+                    <span className="text-[11px] font-normal text-black/60 dark:text-white/60">
+                      (Last 12 months)
+                    </span>
+                  </h4>
+                  <ActivityCalendar data={activity} />
+                </div>
+              )}
+
+              {/* Recent Contributions */}
+              {recentContributions.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-semibold mb-3">
+                    Recent Contributions
+                  </h4>
+                  <div className="space-y-2">
+                    {recentContributions.map((contrib, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-start gap-3 p-3 retro-card hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                      >
+                        <div className="mt-0.5">
+                          {contrib.type === "material" && (
+                            <Package
+                              size={16}
+                              className="text-waste-recycle dark:text-waste-recycle"
+                            />
+                          )}
+                          {contrib.type === "article" && (
+                            <FileText
+                              size={16}
+                              className="text-waste-reuse dark:text-waste-reuse"
+                            />
+                          )}
+                          {contrib.type === "miu" && (
+                            <Microscope
+                              size={16}
+                              className="text-waste-science dark:text-waste-science"
+                            />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[13px] font-medium truncate">
+                            {contrib.title}
+                          </p>
+                          <p className="text-[11px] text-black/60 dark:text-white/60">
+                            {new Date(contrib.timestamp).toLocaleDateString(
+                              "en-US",
+                              {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                              }
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {stats.total === 0 && (
+                <p className="text-[13px] text-black/60 dark:text-white/60 italic text-center py-8">
+                  No contributions yet
+                </p>
+              )}
+            </div>
+          ) : (
+            <p className="text-[13px] text-black/60 dark:text-white/60 italic">
+              Unable to load contribution data
+            </p>
+          )}
         </CardContent>
       </Card>
     </div>
