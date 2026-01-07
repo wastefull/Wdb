@@ -60,6 +60,7 @@ export function UserProfileView({
   const [stats, setStats] = useState<{
     materials: number;
     articles: number;
+    guides: number;
     mius: number;
     total: number;
   } | null>(null);
@@ -90,6 +91,9 @@ export function UserProfileView({
     try {
       setLoading(true);
       const fetchedProfile = await api.getUserProfile(userId);
+      console.log("[UserProfile] Loaded profile:", fetchedProfile);
+      console.log("[UserProfile] Role:", fetchedProfile.role);
+      console.log("[UserProfile] isOwnProfile:", isOwnProfile);
       setProfile(fetchedProfile);
       setEditedBio(fetchedProfile.bio || "");
       setEditedSocialLink(fetchedProfile.social_link || "");
@@ -105,11 +109,20 @@ export function UserProfileView({
   const loadContributions = async () => {
     try {
       setLoadingContributions(true);
+      console.log("[UserProfile] Loading contributions for userId:", userId);
+
+      // Debug: Check all articles in DB
+      const debugData = await api.debugArticles();
+      console.log("[UserProfile] DEBUG - All articles in DB:", debugData);
+
       const [statsData, activityData, recentData] = await Promise.all([
         api.getUserContributionStats(userId),
         api.getUserActivity(userId),
         api.getUserRecentContributions(userId, 5),
       ]);
+      console.log("[UserProfile] Stats data:", statsData);
+      console.log("[UserProfile] Activity data:", activityData);
+      console.log("[UserProfile] Recent data:", recentData);
       setStats(statsData);
       setActivity(activityData);
       setRecentContributions(recentData);
@@ -118,6 +131,28 @@ export function UserProfileView({
       // Non-critical error, don't show toast
     } finally {
       setLoadingContributions(false);
+    }
+  };
+
+  const handleBackfill = async () => {
+    if (
+      !confirm(
+        "This will set you as the creator of all materials and articles that don't have a creator assigned. Continue?"
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const result = await api.backfillCreatedBy();
+      toast.success(
+        `Backfill complete! Updated ${result.materialsUpdated} materials and ${result.articlesUpdated} articles.`
+      );
+      // Reload contributions
+      loadContributions();
+    } catch (error) {
+      console.error("Error backfilling:", error);
+      toast.error("Failed to backfill data");
     }
   };
 
@@ -368,7 +403,7 @@ export function UserProfileView({
           ) : stats ? (
             <div className="space-y-6">
               {/* Stats Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
                 <div className="retro-card p-4 text-center">
                   <div className="flex items-center justify-center gap-2 mb-2">
                     <Package
@@ -396,6 +431,21 @@ export function UserProfileView({
                   </div>
                   <p className="text-[11px] text-black/60 dark:text-white/60 uppercase tracking-wide">
                     Articles
+                  </p>
+                </div>
+
+                <div className="retro-card p-4 text-center">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <FileText
+                      size={16}
+                      className="text-waste-compost dark:text-waste-compost"
+                    />
+                    <span className="text-2xl font-bold arcade-numbers">
+                      {stats.guides}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-black/60 dark:text-white/60 uppercase tracking-wide">
+                    Guides
                   </p>
                 </div>
 
@@ -493,9 +543,21 @@ export function UserProfileView({
               )}
 
               {stats.total === 0 && (
-                <p className="text-[13px] text-black/60 dark:text-white/60 italic text-center py-8">
-                  No contributions yet
-                </p>
+                <div className="text-center py-8">
+                  <p className="text-[13px] text-black/60 dark:text-white/60 italic mb-4">
+                    No contributions yet
+                  </p>
+
+                  {/* Admin backfill button */}
+                  {profile?.role === "admin" && isOwnProfile && (
+                    <button
+                      onClick={handleBackfill}
+                      className="retro-btn-primary arcade-bg-amber arcade-btn-amber px-4 h-9 text-[13px]"
+                    >
+                      Backfill My Contributions
+                    </button>
+                  )}
+                </div>
               )}
             </div>
           ) : (

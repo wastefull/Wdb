@@ -648,6 +648,9 @@ async function verifyAuth(c: any, next: any) {
 }
 
 // Middleware to verify admin role
+// NOTE: User roles are stored separately from profiles in KV at key `user_role:${userId}`
+// This is because roles are checked frequently in middleware and keeping them separate
+// improves performance. Profile objects do NOT store role; it must be fetched separately.
 async function verifyAdmin(c: any, next: any) {
   const userId = c.get("userId");
   const userEmail = c.get("userEmail");
@@ -1314,10 +1317,21 @@ app.post(
   verifyAdmin,
   async (c) => {
     try {
+      const userId = c.get("userId");
       const material = await c.req.json();
       if (!material.id) {
         return c.json({ error: "Material ID is required" }, 400);
       }
+
+      // Set created_by if not already set
+      if (!material.created_by) {
+        material.created_by = userId;
+      }
+      if (!material.created_at) {
+        material.created_at = new Date().toISOString();
+      }
+      material.updated_at = new Date().toISOString();
+
       await kv.set(`material:${material.id}`, material);
 
       // Audit log
@@ -1434,6 +1448,7 @@ app.put(
   async (c) => {
     try {
       const id = c.req.param("id");
+      const userId = c.get("userId");
       const material = await c.req.json();
 
       // Verify the material exists
@@ -1441,6 +1456,15 @@ app.put(
       if (!existing) {
         return c.json({ error: "Material not found" }, 404);
       }
+
+      // Preserve created_by if it exists, otherwise set it
+      if (!material.created_by && existing.created_by) {
+        material.created_by = existing.created_by;
+      } else if (!material.created_by) {
+        material.created_by = userId;
+      }
+
+      material.updated_at = new Date().toISOString();
 
       await kv.set(`material:${id}`, material);
 
@@ -4040,6 +4064,12 @@ app.get("/make-server-17cae920/profile/:userId", verifyAuth, async (c) => {
       console.log(`Created default profile for user ${userId}`);
     }
 
+    // Fetch user role from separate KV key and attach to profile response
+    // Roles are stored at `user_role:${userId}` for performance (separate from profile object)
+    // Default to "user" if no role is set
+    const userRole = (await kv.get(`user_role:${userId}`)) || "user";
+    profile.role = userRole;
+
     return c.json({ profile });
   } catch (error) {
     console.error("Error fetching profile:", error);
@@ -4087,6 +4117,116 @@ app.put("/make-server-17cae920/profile/:userId", verifyAuth, async (c) => {
   }
 });
 
+// Backfill created_by field for existing materials and articles (admin only)
+app.post(
+  "/make-server-17cae920/admin/backfill-created-by",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const userId = c.get("userId");
+      let materialsUpdated = 0;
+      let articlesUpdated = 0;
+
+      // Update materials without created_by
+      const allMaterials = (await kv.getByPrefix("material:")) || [];
+      for (const material of allMaterials) {
+        if (!material.created_by) {
+          material.created_by = userId;
+          material.updated_at = new Date().toISOString();
+          await kv.set(`material:${material.id}`, material);
+          materialsUpdated++;
+        }
+      }
+
+      // Update articles without author_id
+      const allArticles = (await kv.getByPrefix("article:")) || [];
+      for (const article of allArticles) {
+        if (!article.author_id) {
+          article.author_id = userId;
+          article.updated_at = new Date().toISOString();
+          await kv.set(`article:${article.id}`, article);
+          articlesUpdated++;
+        }
+      }
+
+      return c.json({
+        success: true,
+        materialsUpdated,
+        articlesUpdated,
+        userId,
+      });
+    } catch (error) {
+      console.error("Error backfilling created_by:", error);
+      return c.json(
+        { error: "Failed to backfill", details: String(error) },
+        500
+      );
+    }
+  }
+);
+
+// Debug endpoint - get all articles with author info
+app.get("/make-server-17cae920/debug/articles", verifyAuth, async (c) => {
+  try {
+    const userId = c.get("userId");
+    console.log(`[DEBUG] Getting data for userId: ${userId}`);
+
+    let allArticles, allMaterials;
+    try {
+      allArticles = (await kv.getByPrefix("article:")) || [];
+      console.log(`[DEBUG] Articles fetch result:`, allArticles);
+    } catch (err) {
+      console.error(`[DEBUG] Error fetching articles:`, err);
+      allArticles = [];
+    }
+
+    try {
+      allMaterials = (await kv.getByPrefix("material:")) || [];
+      console.log(`[DEBUG] Materials fetch result count:`, allMaterials.length);
+    } catch (err) {
+      console.error(`[DEBUG] Error fetching materials:`, err);
+      allMaterials = [];
+    }
+
+    const articleInfo = allArticles.map((a) => ({
+      id: a.id,
+      title: a.title,
+      author_id: a.author_id,
+      created_by: a.created_by,
+      submitted_by: a.submitted_by,
+      curator_id: a.curator_id,
+      created_at: a.created_at,
+    }));
+
+    const materialInfo = allMaterials.map((m) => ({
+      id: m.id,
+      name: m.name,
+      created_by: m.created_by,
+      created_at: m.created_at,
+    }));
+
+    const result = {
+      currentUserId: userId,
+      articles: {
+        total: allArticles.length,
+        data: articleInfo,
+        yourArticles: articleInfo.filter((a) => a.author_id === userId),
+      },
+      materials: {
+        total: allMaterials.length,
+        data: materialInfo.slice(0, 5), // First 5 only for debugging
+        yourMaterials: materialInfo.filter((m) => m.created_by === userId),
+      },
+    };
+
+    console.log(`[DEBUG] Returning result:`, JSON.stringify(result, null, 2));
+    return c.json(result);
+  } catch (error) {
+    return c.json({ error: String(error) }, 500);
+  }
+});
+
 // Get user contribution stats
 app.get(
   "/make-server-17cae920/profile/:userId/contributions/stats",
@@ -4094,14 +4234,60 @@ app.get(
   async (c) => {
     try {
       const userId = c.req.param("userId");
+      console.log(`[Contributions] Fetching stats for userId: ${userId}`);
 
       // Count materials created by user
       const allMaterials = (await kv.getByPrefix("material:")) || [];
+      console.log(
+        `[Contributions] Total materials in DB: ${allMaterials.length}`
+      );
       const userMaterials = allMaterials.filter((m) => m.created_by === userId);
+      console.log(
+        `[Contributions] User materials: ${userMaterials.length}`,
+        userMaterials.map((m) => ({
+          id: m.id,
+          name: m.name,
+          created_by: m.created_by,
+        }))
+      );
 
-      // Count articles submitted by user
-      const allArticles = (await kv.getByPrefix("article:")) || [];
-      const userArticles = allArticles.filter((a) => a.author_id === userId);
+      // Count articles written by user (nested inside materials)
+      // Articles are stored in material.articles.{compostability|recyclability|reusability}[]
+      // They inherit attribution from the parent material's created_by field
+      let userArticleCount = 0;
+      for (const material of userMaterials) {
+        if (material.articles) {
+          if (material.articles.compostability) {
+            userArticleCount += material.articles.compostability.length;
+          }
+          if (material.articles.recyclability) {
+            userArticleCount += material.articles.recyclability.length;
+          }
+          if (material.articles.reusability) {
+            userArticleCount += material.articles.reusability.length;
+          }
+        }
+      }
+      console.log(
+        `[Contributions] User articles (nested in materials): ${userArticleCount}`
+      );
+
+      // Count guides created by user (from Postgres)
+      let guidesCount = 0;
+      try {
+        const supabase = createClient(
+          Deno.env.get("SUPABASE_URL") ?? "",
+          Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+        );
+        const { count } = await supabase
+          .from("guides")
+          .select("*", { count: "exact", head: true })
+          .eq("created_by", userId);
+        guidesCount = count || 0;
+        console.log(`[Contributions] User guides: ${guidesCount}`);
+      } catch (err) {
+        console.error(`[Contributions] Error fetching guides:`, err);
+      }
 
       // Count MIUs (evidence points) - scan all materials for curator_id in evidence
       let miuCount = 0;
@@ -4120,9 +4306,10 @@ app.get(
 
       const stats = {
         materials: userMaterials.length,
-        articles: userArticles.length,
+        articles: userArticleCount,
+        guides: guidesCount,
         mius: miuCount,
-        total: userMaterials.length + userArticles.length + miuCount,
+        total: userMaterials.length + userArticleCount + guidesCount + miuCount,
       };
 
       return c.json({ stats });
@@ -4277,16 +4464,32 @@ app.get(
         });
       }
 
-      // Get articles
-      const allArticles = (await kv.getByPrefix("article:")) || [];
-      const userArticles = allArticles.filter((a) => a.author_id === userId);
-      for (const article of userArticles) {
-        contributions.push({
-          type: "article",
-          title: article.title || "Untitled Article",
-          timestamp: article.created_at || new Date().toISOString(),
-          id: article.id,
-        });
+      // Get articles (nested inside materials)
+      for (const material of userMaterials) {
+        if (material.articles) {
+          const categories = [
+            "compostability",
+            "recyclability",
+            "reusability",
+          ] as const;
+          for (const category of categories) {
+            const articleArray = material.articles[category];
+            if (Array.isArray(articleArray)) {
+              for (const article of articleArray) {
+                contributions.push({
+                  type: "article",
+                  title: article.title || "Untitled Article",
+                  timestamp:
+                    article.dateAdded ||
+                    material.created_at ||
+                    new Date().toISOString(),
+                  id:
+                    article.id || `${material.id}:${category}:${article.title}`,
+                });
+              }
+            }
+          }
+        }
       }
 
       // Get MIUs from evidence

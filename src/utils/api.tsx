@@ -957,6 +957,7 @@ export async function updateUserProfile(
 export async function getUserContributionStats(userId: string): Promise<{
   materials: number;
   articles: number;
+  guides: number;
   mius: number;
   total: number;
 }> {
@@ -1003,6 +1004,25 @@ export async function getUserRecentContributions(
     `/profile/${userId}/contributions/recent?limit=${limit}`
   );
   return data.contributions;
+}
+
+// Debug endpoint
+export async function debugArticles(): Promise<any> {
+  const data = await apiCall(`/debug/articles`);
+  return data;
+}
+
+// Backfill created_by for existing materials and articles (admin only)
+export async function backfillCreatedBy(): Promise<{
+  success: boolean;
+  materialsUpdated: number;
+  articlesUpdated: number;
+  userId: string;
+}> {
+  const data = await apiCall(`/admin/backfill-created-by`, {
+    method: "POST",
+  });
+  return data;
 }
 
 // ===== ARTICLES =====
