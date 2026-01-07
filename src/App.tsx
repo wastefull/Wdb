@@ -1012,6 +1012,7 @@ function AppContent() {
                     ? navigateToMySubmissions
                     : undefined
                 }
+                isAdminModeActive={isAdminModeActive}
               />
             ) : currentView.type === "my-submissions" ? (
               <MySubmissionsView onBack={navigateToMaterials} />

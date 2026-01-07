@@ -55,6 +55,9 @@ export function ArticlesView({
       ...articleData,
       id: Date.now().toString(),
       dateAdded: new Date().toISOString(),
+      // Set created_by and author_id to current user
+      created_by: user?.id || articleData.created_by,
+      author_id: user?.id || articleData.author_id,
     };
 
     const updatedMaterial = addArticleToMaterial(

@@ -28,6 +28,7 @@ interface UserProfileViewProps {
   onBack: () => void;
   isOwnProfile: boolean;
   onNavigateToMySubmissions?: () => void;
+  isAdminModeActive?: boolean;
 }
 
 interface Profile {
@@ -47,6 +48,7 @@ export function UserProfileView({
   onBack,
   isOwnProfile,
   onNavigateToMySubmissions,
+  isAdminModeActive,
 }: UserProfileViewProps) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -137,7 +139,7 @@ export function UserProfileView({
   const handleBackfill = async () => {
     if (
       !confirm(
-        "This will set you as the creator of all materials and articles that don't have a creator assigned. Continue?"
+        "This will set you as the author of all articles (nested in materials) that don't have an author assigned. Continue?"
       )
     ) {
       return;
@@ -146,7 +148,7 @@ export function UserProfileView({
     try {
       const result = await api.backfillCreatedBy();
       toast.success(
-        `Backfill complete! Updated ${result.materialsUpdated} materials and ${result.articlesUpdated} articles.`
+        `Backfill complete! Updated ${result.articlesUpdated} articles.`
       );
       // Reload contributions
       loadContributions();
@@ -544,21 +546,27 @@ export function UserProfileView({
 
               {stats.total === 0 && (
                 <div className="text-center py-8">
-                  <p className="text-[13px] text-black/60 dark:text-white/60 italic mb-4">
+                  <p className="text-[13px] text-black/60 dark:text-white/60 italic">
                     No contributions yet
                   </p>
-
-                  {/* Admin backfill button */}
-                  {profile?.role === "admin" && isOwnProfile && (
-                    <button
-                      onClick={handleBackfill}
-                      className="retro-btn-primary arcade-bg-amber arcade-btn-amber px-4 h-9 text-[13px]"
-                    >
-                      Backfill My Contributions
-                    </button>
-                  )}
                 </div>
               )}
+
+              {/* Admin backfill button - DISABLED (uncomment if needed for data recovery)
+              {isAdminModeActive && isOwnProfile && (
+                <div className="pt-4 border-t border-[#211f1c]/20 dark:border-white/20">
+                  <button
+                    onClick={handleBackfill}
+                    className="retro-btn-primary arcade-bg-amber arcade-btn-amber px-4 h-9 text-[13px] w-full sm:w-auto"
+                  >
+                    Backfill Article Attributions
+                  </button>
+                  <p className="text-[11px] text-black/60 dark:text-white/60 mt-2">
+                    Sets you as the author for articles without attribution
+                  </p>
+                </div>
+              )}
+              */}
             </div>
           ) : (
             <p className="text-[13px] text-black/60 dark:text-white/60 italic">

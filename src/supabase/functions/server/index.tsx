@@ -4131,22 +4131,41 @@ app.post(
       // Update materials without created_by
       const allMaterials = (await kv.getByPrefix("material:")) || [];
       for (const material of allMaterials) {
-        if (!material.created_by) {
-          material.created_by = userId;
+        let materialNeedsUpdate = false;
+
+        // NOTE: Material backfill disabled - materials now must be attributed at creation time
+        // Uncomment below if you need to backfill material attributions:
+        // if (!material.created_by) {
+        //   material.created_by = userId;
+        //   materialNeedsUpdate = true;
+        //   materialsUpdated++;
+        // }
+
+        // Update nested articles without created_by/author_id
+        if (material.articles) {
+          const categories = [
+            "compostability",
+            "recyclability",
+            "reusability",
+          ] as const;
+          for (const category of categories) {
+            const articleArray = material.articles[category];
+            if (Array.isArray(articleArray)) {
+              for (const article of articleArray) {
+                if (!article.created_by && !article.author_id) {
+                  article.created_by = userId;
+                  article.author_id = userId;
+                  materialNeedsUpdate = true;
+                  articlesUpdated++;
+                }
+              }
+            }
+          }
+        }
+
+        if (materialNeedsUpdate) {
           material.updated_at = new Date().toISOString();
           await kv.set(`material:${material.id}`, material);
-          materialsUpdated++;
-        }
-      }
-
-      // Update articles without author_id
-      const allArticles = (await kv.getByPrefix("article:")) || [];
-      for (const article of allArticles) {
-        if (!article.author_id) {
-          article.author_id = userId;
-          article.updated_at = new Date().toISOString();
-          await kv.set(`article:${article.id}`, article);
-          articlesUpdated++;
         }
       }
 
@@ -4253,18 +4272,24 @@ app.get(
 
       // Count articles written by user (nested inside materials)
       // Articles are stored in material.articles.{compostability|recyclability|reusability}[]
-      // They inherit attribution from the parent material's created_by field
+      // Each article has its own created_by/author_id field
       let userArticleCount = 0;
-      for (const material of userMaterials) {
+      for (const material of allMaterials) {
         if (material.articles) {
           if (material.articles.compostability) {
-            userArticleCount += material.articles.compostability.length;
+            userArticleCount += material.articles.compostability.filter(
+              (a) => a.created_by === userId || a.author_id === userId
+            ).length;
           }
           if (material.articles.recyclability) {
-            userArticleCount += material.articles.recyclability.length;
+            userArticleCount += material.articles.recyclability.filter(
+              (a) => a.created_by === userId || a.author_id === userId
+            ).length;
           }
           if (material.articles.reusability) {
-            userArticleCount += material.articles.reusability.length;
+            userArticleCount += material.articles.reusability.filter(
+              (a) => a.created_by === userId || a.author_id === userId
+            ).length;
           }
         }
       }
@@ -4465,7 +4490,7 @@ app.get(
       }
 
       // Get articles (nested inside materials)
-      for (const material of userMaterials) {
+      for (const material of allMaterials) {
         if (material.articles) {
           const categories = [
             "compostability",
@@ -4476,16 +4501,23 @@ app.get(
             const articleArray = material.articles[category];
             if (Array.isArray(articleArray)) {
               for (const article of articleArray) {
-                contributions.push({
-                  type: "article",
-                  title: article.title || "Untitled Article",
-                  timestamp:
-                    article.dateAdded ||
-                    material.created_at ||
-                    new Date().toISOString(),
-                  id:
-                    article.id || `${material.id}:${category}:${article.title}`,
-                });
+                // Check both created_by and author_id for compatibility
+                if (
+                  article.created_by === userId ||
+                  article.author_id === userId
+                ) {
+                  contributions.push({
+                    type: "article",
+                    title: article.title || "Untitled Article",
+                    timestamp:
+                      article.dateAdded ||
+                      article.created_at ||
+                      new Date().toISOString(),
+                    id:
+                      article.id ||
+                      `${material.id}:${category}:${article.title}`,
+                  });
+                }
               }
             }
           }
