@@ -256,7 +256,7 @@ export function UserProfileView({
             <div className="flex-1 min-w-0">
               <CardTitle className="normal mb-1 wrap-break-word">
                 {profile.name}
-                {profile.role === "admin" && (
+                {profile.role === "admin" && isAdminModeActive && (
                   <span className="ml-2 px-2 py-0.5 text-[10px] bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded whitespace-nowrap">
                     Admin
                   </span>
