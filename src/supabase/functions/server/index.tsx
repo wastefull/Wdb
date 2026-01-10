@@ -4567,6 +4567,170 @@ app.get(
   }
 );
 
+// Get leaderboard of top contributors (public endpoint)
+app.get("/make-server-17cae920/leaderboard", async (c) => {
+  try {
+    const limit = parseInt(c.req.query("limit") || "10", 10);
+
+    // Create supabase client for Postgres queries
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
+
+    // Aggregate contributions by user
+    const contributionsByUser: Map<
+      string,
+      {
+        userId: string;
+        materials: number;
+        articles: number;
+        guides: number;
+        mius: number;
+      }
+    > = new Map();
+
+    const allMaterials = (await kv.getByPrefix("material:")) || [];
+
+    // Count guides from Postgres
+    const { data: allGuides } = await supabase
+      .from("guides")
+      .select("created_by")
+      .eq("status", "published");
+
+    if (allGuides) {
+      for (const guide of allGuides) {
+        if (guide.created_by) {
+          const entry = contributionsByUser.get(guide.created_by) || {
+            userId: guide.created_by,
+            materials: 0,
+            articles: 0,
+            guides: 0,
+            mius: 0,
+          };
+          entry.guides++;
+          contributionsByUser.set(guide.created_by, entry);
+        }
+      }
+    }
+
+    // Count materials and nested articles
+    for (const material of allMaterials) {
+      if (material.created_by) {
+        const entry = contributionsByUser.get(material.created_by) || {
+          userId: material.created_by,
+          materials: 0,
+          articles: 0,
+          guides: 0,
+          mius: 0,
+        };
+        entry.materials++;
+        contributionsByUser.set(material.created_by, entry);
+      }
+
+      // Count nested articles
+      if (material.articles) {
+        const categories = [
+          "compostability",
+          "recyclability",
+          "reusability",
+        ] as const;
+        for (const category of categories) {
+          const articleArray = material.articles[category];
+          if (Array.isArray(articleArray)) {
+            for (const article of articleArray) {
+              const authorId = article.created_by || article.author_id;
+              if (authorId) {
+                const entry = contributionsByUser.get(authorId) || {
+                  userId: authorId,
+                  materials: 0,
+                  articles: 0,
+                  guides: 0,
+                  mius: 0,
+                };
+                entry.articles++;
+                contributionsByUser.set(authorId, entry);
+              }
+            }
+          }
+        }
+      }
+
+      // Count MIUs
+      if (material.evidence) {
+        for (const param in material.evidence) {
+          const evidenceList = material.evidence[param];
+          if (Array.isArray(evidenceList)) {
+            for (const evidence of evidenceList) {
+              if (evidence.curator_id) {
+                const entry = contributionsByUser.get(evidence.curator_id) || {
+                  userId: evidence.curator_id,
+                  materials: 0,
+                  articles: 0,
+                  guides: 0,
+                  mius: 0,
+                };
+                entry.mius++;
+                contributionsByUser.set(evidence.curator_id, entry);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Build leaderboard with user profile info
+    const leaders = [];
+    for (const [userId, stats] of contributionsByUser) {
+      const total =
+        stats.materials + stats.articles + stats.guides + stats.mius;
+      if (total > 0) {
+        // Fetch user profile for avatar
+        let profile = await kv.get(`user_profile:${userId}`);
+        let name = "Anonymous";
+        let avatar_url = profile?.avatar_url;
+
+        // Get the authoritative name from Supabase auth user_metadata
+        // This matches what StatusBar displays via user.name
+        const { data: authUser } = await supabase.auth.admin.getUserById(
+          userId
+        );
+        if (authUser?.user) {
+          name =
+            authUser.user.user_metadata?.name ||
+            authUser.user.email?.split("@")[0] ||
+            "Anonymous";
+        } else if (profile) {
+          // Fallback to profile if auth lookup fails
+          name = profile.name || profile.email?.split("@")[0] || "Anonymous";
+        }
+
+        leaders.push({
+          userId,
+          name,
+          avatar_url,
+          materials: stats.materials,
+          articles: stats.articles,
+          guides: stats.guides,
+          mius: stats.mius,
+          total,
+        });
+      }
+    }
+
+    // Sort by total contributions descending
+    leaders.sort((a, b) => b.total - a.total);
+
+    return c.json({ leaders: leaders.slice(0, limit) });
+  } catch (error) {
+    console.error("Error fetching leaderboard:", error);
+    return c.json(
+      { error: "Failed to fetch leaderboard", details: String(error) },
+      500
+    );
+  }
+});
+
 // Helper function to calculate contribution level
 function getContributionLevel(count: number): 0 | 1 | 2 | 3 | 4 {
   if (count === 0) return 0;

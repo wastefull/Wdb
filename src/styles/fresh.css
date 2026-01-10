@@ -5,6 +5,12 @@
 
 @custom-variant dark (&:is(.dark *));
 @custom-variant high-contrast (&:is(.high-contrast *));
+
+/* Custom breakpoints */
+@theme {
+  --breakpoint-3xl: 1200px;
+}
+
 /* ==========================================================================
    Design Tokens - Light Mode
    ========================================================================== */

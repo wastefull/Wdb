@@ -1006,6 +1006,22 @@ export async function getUserRecentContributions(
   return data.contributions;
 }
 
+// Get leaderboard of top contributors
+export async function getLeaderboard(limit: number = 10): Promise<
+  Array<{
+    userId: string;
+    name: string;
+    avatar_url?: string;
+    materials: number;
+    articles: number;
+    mius: number;
+    total: number;
+  }>
+> {
+  const data = await apiCall(`/leaderboard?limit=${limit}`, {}, true);
+  return data.leaders || [];
+}
+
 // Debug endpoint
 export async function debugArticles(): Promise<any> {
   const data = await apiCall(`/debug/articles`);

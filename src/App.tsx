@@ -108,6 +108,7 @@ import { SimplifiedRoadmap } from "./components/roadmap";
 
 // Other component groups
 import { Toaster } from "./components/ui/sonner";
+import { Leaderboard } from "./components/ui/Leaderboard";
 import { SearchBar } from "./components/search";
 import { StatusBar, NavTabs } from "./components/layout";
 import type { NavTabId } from "./components/layout";
@@ -468,7 +469,9 @@ function AppContent() {
       )}
 
       <div className={authModalBackgroundClasses}>
-        <div className="max-w-6xl mx-auto">
+        {/* Main layout container - allows window to grow past 1000px with sidebar */}
+        <div className="max-w-[1400px] mx-auto">
+          {/* Simulated window with optional sidebar inside */}
           <div className="bg-[#faf7f2] dark:bg-[#1a1917] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 overflow-hidden mb-6">
             <StatusBar
               title="Wastefull"
@@ -481,7 +484,7 @@ function AppContent() {
               onSignIn={() => setShowAuthModal(true)}
             />
 
-            {/* Navigation tabs - only show on front page */}
+            {/* Navigation tabs - full width above flex container */}
             {currentView.type === "materials" && (
               <NavTabs
                 activeTab="search"
@@ -573,626 +576,645 @@ function AppContent() {
               />
             )}
 
-            {currentView.type === "materials" ? (
-              <div className="p-6">
-                {/* Sync error/offline banner - only show for authenticated users */}
-                {user &&
-                  (syncStatus === "error" || syncStatus === "offline") && (
-                    <div className="mb-4 p-3 bg-waste-compost dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-xl flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <CloudOff size={16} className="normal" />
-                        <p className="text-[12px] normal">
-                          {syncStatus === "offline"
-                            ? "Working offline - data saved locally only"
-                            : "Failed to sync to cloud"}
-                        </p>
-                      </div>
-                      <button
-                        onClick={retrySync}
-                        className="px-3 py-1.5 bg-waste-reuse rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[11px] text-black flex items-center gap-1"
-                      >
-                        <Cloud size={12} />
-                        Retry Sync
-                      </button>
-                    </div>
-                  )}
-                {/* Centered content */}
-                <div className="flex flex-col items-center justify-center mb-6 max-w-2xl mx-auto px-4">
-                  {/* All elements centered in a single column */}
-                  <div className="w-full flex flex-col justify-center items-center gap-4">
-                    {/* Logo */}
-                    <button
-                      onClick={() => {
-                        setSearchQuery("");
-                        navigateTo({ type: "materials" });
-                      }}
-                      className="transition-transform hover:scale-105"
-                      aria-label="Go to home page"
-                    >
-                      <img
-                        src={
-                          settings.darkMode
-                            ? "https://bdvfwjmaufjeqmxphmtv.supabase.co/storage/v1/object/public/make-17cae920-assets/logo_darkmode-1763068549938.png"
-                            : "https://bdvfwjmaufjeqmxphmtv.supabase.co/storage/v1/object/public/make-17cae920-assets/uplogo_transparent-1761169051994.png"
-                        }
-                        alt="Wastefull Logo"
-                        className={
-                          settings.darkMode
-                            ? "h-52 lg:h-64 w-auto"
-                            : "h-36 lg:h-48 w-auto"
-                        }
-                      />
-                    </button>
-
-                    {/* Search bar - centered */}
-                    <div className="w-full max-w-xl">
-                      <SearchBar
-                        value={searchQuery}
-                        onChange={setSearchQuery}
-                        onSearch={(query) => {
-                          if (!query) {
-                            // Empty search - clear query and go to materials
+            {/* Content area with optional sidebar */}
+            <div className="flex">
+              {/* Main content - grows to fill space */}
+              <div className="flex-1 min-w-0">
+                {currentView.type === "materials" ? (
+                  <div className="p-6">
+                    {/* Sync error/offline banner - only show for authenticated users */}
+                    {user &&
+                      (syncStatus === "error" || syncStatus === "offline") && (
+                        <div className="mb-4 p-3 bg-waste-compost dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-xl flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <CloudOff size={16} className="normal" />
+                            <p className="text-[12px] normal">
+                              {syncStatus === "offline"
+                                ? "Working offline - data saved locally only"
+                                : "Failed to sync to cloud"}
+                            </p>
+                          </div>
+                          <button
+                            onClick={retrySync}
+                            className="px-3 py-1.5 bg-waste-reuse rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[11px] text-black flex items-center gap-1"
+                          >
+                            <Cloud size={12} />
+                            Retry Sync
+                          </button>
+                        </div>
+                      )}
+                    {/* Centered content */}
+                    <div className="flex flex-col items-center justify-center mb-6 max-w-2xl mx-auto px-4">
+                      {/* All elements centered in a single column */}
+                      <div className="w-full flex flex-col justify-center items-center gap-4">
+                        {/* Logo */}
+                        <button
+                          onClick={() => {
                             setSearchQuery("");
-                          }
-                          navigateToSearchResults(query);
-                        }}
-                      />
+                            navigateTo({ type: "materials" });
+                          }}
+                          className="transition-transform hover:scale-105"
+                          aria-label="Go to home page"
+                        >
+                          <img
+                            src={
+                              settings.darkMode
+                                ? "https://bdvfwjmaufjeqmxphmtv.supabase.co/storage/v1/object/public/make-17cae920-assets/logo_darkmode-1763068549938.png"
+                                : "https://bdvfwjmaufjeqmxphmtv.supabase.co/storage/v1/object/public/make-17cae920-assets/uplogo_transparent-1761169051994.png"
+                            }
+                            alt="Wastefull Logo"
+                            className={
+                              settings.darkMode
+                                ? "h-52 lg:h-64 w-auto"
+                                : "h-36 lg:h-48 w-auto"
+                            }
+                          />
+                        </button>
+
+                        {/* Search bar - centered */}
+                        <div className="w-full max-w-xl">
+                          <SearchBar
+                            value={searchQuery}
+                            onChange={setSearchQuery}
+                            onSearch={(query) => {
+                              if (!query) {
+                                // Empty search - clear query and go to materials
+                                setSearchQuery("");
+                              }
+                              navigateToSearchResults(query);
+                            }}
+                          />
+                        </div>
+
+                        {/* Chart centered below search */}
+                        {materials.length > 0 &&
+                          currentView.type === "materials" &&
+                          (() => {
+                            // Show eye icon in admin mode, show chart when clicked
+                            if (isAdminModeActive && !showChart) {
+                              return (
+                                <div className="mt-4 flex items-center justify-center">
+                                  <button
+                                    onClick={() => setShowChart(true)}
+                                    className="p-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-waste-recycle hover:bg-waste-recycle/80 transition-all hover:shadow-[3px_4px_0px_-1px_#000000] dark:hover:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)]"
+                                    aria-label="Show chart (work in progress)"
+                                  >
+                                    <Eye size={32} className="text-black" />
+                                  </button>
+                                </div>
+                              );
+                            }
+
+                            if (!showChart) return null;
+
+                            // Compute chart data once so we can reference it in the label
+                            const chartData = [
+                              {
+                                name: "Compostable",
+                                shortName: "compostable",
+                                categoryKey: "compostability",
+                                value: Math.round(
+                                  materials.reduce(
+                                    (sum, m) => sum + m.compostability,
+                                    0
+                                  ) / materials.length
+                                ),
+                                articleCount: materials.reduce(
+                                  (sum, m) =>
+                                    sum + getArticleCount(m, "compostability"),
+                                  0
+                                ),
+                                fill: "#e8a593",
+                              },
+                              {
+                                name: "Recyclable",
+                                shortName: "recyclable",
+                                categoryKey: "recyclability",
+                                value: Math.round(
+                                  materials.reduce(
+                                    (sum, m) => sum + m.recyclability,
+                                    0
+                                  ) / materials.length
+                                ),
+                                articleCount: materials.reduce(
+                                  (sum, m) =>
+                                    sum + getArticleCount(m, "recyclability"),
+                                  0
+                                ),
+                                fill: "#f0e68c",
+                              },
+                              {
+                                name: "Reusable",
+                                shortName: "reusable",
+                                categoryKey: "reusability",
+                                value: Math.round(
+                                  materials.reduce(
+                                    (sum, m) => sum + m.reusability,
+                                    0
+                                  ) / materials.length
+                                ),
+                                articleCount: materials.reduce(
+                                  (sum, m) =>
+                                    sum + getArticleCount(m, "reusability"),
+                                  0
+                                ),
+                                fill: "#a8c5d8",
+                              },
+                            ];
+
+                            return (
+                              <div className="mt-6 w-full max-w-md">
+                                <AnimatedWasteChart
+                                  chartData={chartData}
+                                  onCategoryClick={(categoryKey) =>
+                                    navigateTo({
+                                      type: "all-articles",
+                                      category: categoryKey as CategoryType,
+                                    })
+                                  }
+                                />
+                              </div>
+                            );
+                          })()}
+                      </div>
                     </div>
 
-                    {/* Chart centered below search */}
-                    {materials.length > 0 &&
-                      currentView.type === "materials" &&
-                      (() => {
-                        // Show eye icon in admin mode, show chart when clicked
-                        if (isAdminModeActive && !showChart) {
-                          return (
-                            <div className="mt-4 flex items-center justify-center">
-                              <button
-                                onClick={() => setShowChart(true)}
-                                className="p-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-waste-recycle hover:bg-waste-recycle/80 transition-all hover:shadow-[3px_4px_0px_-1px_#000000] dark:hover:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)]"
-                                aria-label="Show chart (work in progress)"
-                              >
-                                <Eye size={32} className="text-black" />
-                              </button>
-                            </div>
-                          );
-                        }
+                    {showForm && (
+                      <div className="mb-6">
+                        <MaterialForm
+                          material={editingMaterial || undefined}
+                          onSave={
+                            editingMaterial
+                              ? handleUpdateMaterial
+                              : handleAddMaterial
+                          }
+                          onCancel={() => {
+                            setShowForm(false);
+                            setEditingMaterial(null);
+                          }}
+                        />
+                      </div>
+                    )}
 
-                        if (!showChart) return null;
+                    {/* Welcome message when no search */}
+                    {isLoadingMaterials ? (
+                      <LoadingPlaceholder />
+                    ) : (
+                      <div className="text-center py-12 max-w-2xl mx-auto">
+                        {/* Beta contributor message */}
+                        <div className="mb-6 px-4">
+                          <p className="text-[14px] normal mb-1">
+                            WasteDB is in beta and needs help from contributors
+                            like you.
+                          </p>
+                          <p className="text-[12px] text-black/60 dark:text-white/60">
+                            The database currently has {materials.length}{" "}
+                            materials and{" "}
+                            {materials.reduce(
+                              (sum, m) => sum + getTotalArticleCount(m),
+                              0
+                            )}{" "}
+                            articles.
+                          </p>
+                        </div>
 
-                        // Compute chart data once so we can reference it in the label
-                        const chartData = [
-                          {
-                            name: "Compostable",
-                            shortName: "compostable",
-                            categoryKey: "compostability",
-                            value: Math.round(
-                              materials.reduce(
-                                (sum, m) => sum + m.compostability,
-                                0
-                              ) / materials.length
-                            ),
-                            articleCount: materials.reduce(
-                              (sum, m) =>
-                                sum + getArticleCount(m, "compostability"),
-                              0
-                            ),
-                            fill: "#e8a593",
-                          },
-                          {
-                            name: "Recyclable",
-                            shortName: "recyclable",
-                            categoryKey: "recyclability",
-                            value: Math.round(
-                              materials.reduce(
-                                (sum, m) => sum + m.recyclability,
-                                0
-                              ) / materials.length
-                            ),
-                            articleCount: materials.reduce(
-                              (sum, m) =>
-                                sum + getArticleCount(m, "recyclability"),
-                              0
-                            ),
-                            fill: "#f0e68c",
-                          },
-                          {
-                            name: "Reusable",
-                            shortName: "reusable",
-                            categoryKey: "reusability",
-                            value: Math.round(
-                              materials.reduce(
-                                (sum, m) => sum + m.reusability,
-                                0
-                              ) / materials.length
-                            ),
-                            articleCount: materials.reduce(
-                              (sum, m) =>
-                                sum + getArticleCount(m, "reusability"),
-                              0
-                            ),
-                            fill: "#a8c5d8",
-                          },
-                        ];
-
-                        return (
-                          <div className="mt-6 w-full max-w-md">
-                            <AnimatedWasteChart
-                              chartData={chartData}
-                              onCategoryClick={(categoryKey) =>
-                                navigateTo({
-                                  type: "all-articles",
-                                  category: categoryKey as CategoryType,
-                                })
+                        {/* Submit Material button */}
+                        {user && (
+                          <button
+                            onClick={() => {
+                              if (isAdminModeActive) {
+                                setShowForm(true);
+                                setEditingMaterial(null);
+                              } else {
+                                setShowSubmitMaterialForm(true);
+                              }
+                            }}
+                            className={`h-12 px-6 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(100,255,100,0.3)] dark:border-white/20 text-[14px] hover:translate-y-px hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(100,255,100,0.3)] transition-all inline-flex items-center justify-center gap-2 ${
+                              isAdminModeActive
+                                ? "arcade-bg-cyan arcade-btn-cyan"
+                                : "arcade-bg-green arcade-btn-green"
+                            }`}
+                            title={
+                              isAdminModeActive
+                                ? "Add a new material"
+                                : "Submit a new material"
+                            }
+                          >
+                            <Plus
+                              size={16}
+                              className={
+                                isAdminModeActive
+                                  ? "arcade-btn-cyan"
+                                  : "arcade-btn-green"
                               }
                             />
-                          </div>
-                        );
-                      })()}
-                  </div>
-                </div>
-
-                {showForm && (
-                  <div className="mb-6">
-                    <MaterialForm
-                      material={editingMaterial || undefined}
-                      onSave={
-                        editingMaterial
-                          ? handleUpdateMaterial
-                          : handleAddMaterial
-                      }
-                      onCancel={() => {
-                        setShowForm(false);
-                        setEditingMaterial(null);
-                      }}
-                    />
-                  </div>
-                )}
-
-                {/* Welcome message when no search */}
-                {isLoadingMaterials ? (
-                  <LoadingPlaceholder />
-                ) : (
-                  <div className="text-center py-12 max-w-2xl mx-auto">
-                    {/* Beta contributor message */}
-                    <div className="mb-6 px-4">
-                      <p className="text-[14px] normal mb-1">
-                        WasteDB is in beta and needs help from contributors like
-                        you.
-                      </p>
-                      <p className="text-[12px] text-black/60 dark:text-white/60">
-                        The database currently has {materials.length} materials
-                        and{" "}
-                        {materials.reduce(
-                          (sum, m) => sum + getTotalArticleCount(m),
-                          0
-                        )}{" "}
-                        articles.
-                      </p>
-                    </div>
-
-                    {/* Submit Material button */}
-                    {user && (
-                      <button
-                        onClick={() => {
-                          if (isAdminModeActive) {
-                            setShowForm(true);
-                            setEditingMaterial(null);
-                          } else {
-                            setShowSubmitMaterialForm(true);
-                          }
-                        }}
-                        className={`h-12 px-6 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(100,255,100,0.3)] dark:border-white/20 text-[14px] hover:translate-y-px hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(100,255,100,0.3)] transition-all inline-flex items-center justify-center gap-2 ${
-                          isAdminModeActive
-                            ? "arcade-bg-cyan arcade-btn-cyan"
-                            : "arcade-bg-green arcade-btn-green"
-                        }`}
-                        title={
-                          isAdminModeActive
-                            ? "Add a new material"
-                            : "Submit a new material"
-                        }
-                      >
-                        <Plus
-                          size={16}
-                          className={
-                            isAdminModeActive
-                              ? "arcade-btn-cyan"
-                              : "arcade-btn-green"
-                          }
-                        />
-                        <span>
-                          {isAdminModeActive ? "Add" : "Submit"} Material
-                        </span>
-                      </button>
+                            <span>
+                              {isAdminModeActive ? "Add" : "Submit"} Material
+                            </span>
+                          </button>
+                        )}
+                      </div>
                     )}
                   </div>
-                )}
-              </div>
-            ) : currentView.type === "search-results" ? (
-              <SearchResultsView
-                query={currentView.query}
-                materials={materials}
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-                onBack={() => {
-                  setSearchQuery("");
-                  navigateToMaterials();
-                }}
-                onEditMaterial={(material) => {
-                  setEditingMaterial(material);
-                  setShowForm(true);
-                }}
-                onDeleteMaterial={handleDeleteMaterial}
-                onViewArticles={handleViewArticles}
-                onViewMaterial={handleViewMaterial}
-                onEditScientific={(materialId) =>
-                  navigateToScientificEditor(materialId)
-                }
-                onSuggestEdit={setMaterialToEdit}
-                isAdminModeActive={isAdminModeActive}
-                isAuthenticated={!!user}
-              />
-            ) : currentMaterial && currentView.type === "articles" ? (
-              <ArticlesView
-                material={currentMaterial}
-                category={currentView.category}
-                onBack={navigateToMaterials}
-                onUpdateMaterial={handleUpdateMaterial}
-                onViewArticleStandalone={(articleId) =>
-                  handleViewArticleStandalone(
-                    currentMaterial.id,
-                    articleId,
-                    currentView.category
-                  )
-                }
-                isAdminModeActive={isAdminModeActive}
-                user={user}
-                onSignUp={() => setShowAuthModal(true)}
-              />
-            ) : currentView.type === "all-articles" ? (
-              <AllArticlesView
-                category={currentView.category}
-                materials={materials}
-                onBack={navigateToMaterials}
-                onViewArticleStandalone={(articleId, materialId) =>
-                  handleViewArticleStandalone(
-                    materialId,
-                    articleId,
-                    currentView.category
-                  )
-                }
-              />
-            ) : currentMaterial && currentView.type === "material-detail" ? (
-              <MaterialDetailView
-                material={currentMaterial}
-                onBack={navigateToMaterials}
-                onViewArticles={(category) =>
-                  handleViewArticles(currentMaterial.id, category)
-                }
-                onUpdateMaterial={handleUpdateMaterial}
-                onViewArticleStandalone={(articleId, category) =>
-                  handleViewArticleStandalone(
-                    currentMaterial.id,
-                    articleId,
-                    category
-                  )
-                }
-                isAdminModeActive={isAdminModeActive}
-              />
-            ) : currentMaterial && currentView.type === "article-standalone" ? (
-              <StandaloneArticleView
-                article={
-                  getArticlesByCategory(
-                    currentMaterial,
-                    currentView.category
-                  ).find((a) => a.id === currentView.articleId)!
-                }
-                sustainabilityCategory={{
-                  label:
-                    currentView.category === "compostability"
-                      ? "Compostability"
-                      : currentView.category === "recyclability"
-                      ? "Recyclability"
-                      : "Reusability",
-                  color:
-                    currentView.category === "compostability"
-                      ? "#e6beb5"
-                      : currentView.category === "recyclability"
-                      ? "#e4e3ac"
-                      : "#b8c8cb",
-                }}
-                materialName={currentMaterial.name}
-                onBack={() => navigateToMaterialDetail(currentMaterial.id)}
-                onEdit={() => {
-                  // Navigate back to material detail with edit form open
-                  navigateToMaterialDetail(currentMaterial.id);
-                }}
-                onDelete={() => {
-                  if (
-                    confirm("Are you sure you want to delete this article?")
-                  ) {
-                    const updatedMaterial = removeArticleFromMaterial(
-                      currentMaterial,
-                      currentView.category,
-                      currentView.articleId
-                    );
-                    handleUpdateMaterial(updatedMaterial);
-                    navigateToMaterialDetail(currentMaterial.id);
-                  }
-                }}
-                isAdminModeActive={isAdminModeActive}
-              />
-            ) : currentView.type === "methodology-list" ? (
-              <MethodologyListView
-                onBack={navigateToScienceHub}
-                onSelectWhitepaper={navigateToWhitepaper}
-              />
-            ) : currentView.type === "whitepaper" ? (
-              <WhitepaperView
-                whitepaperSlug={currentView.whitepaperSlug}
-                onBack={navigateToMethodologyList}
-              />
-            ) : currentView.type === "admin-dashboard" ? (
-              <AdminDashboard
-                onBack={navigateToMaterials}
-                onNavigateToReviewCenter={navigateToReviewCenter}
-                onNavigateToDataManagement={navigateToDataManagement}
-                onNavigateToUserManagement={navigateToUserManagement}
-                onNavigateToWhitepaperSync={navigateToWhitepaperSync}
-                onNavigateToTransformManager={() =>
-                  navigateToMathTools("transform-manager")
-                }
-                onNavigateToAdminTakedownList={navigateToAdminTakedownList}
-                onNavigateToAuditLog={navigateToAuditLog}
-                onNavigateToDataRetention={navigateToDataRetention}
-                onNavigateToWhitepapers={navigateToWhitepapersManagement}
-                onNavigateToAssets={navigateToAssetsManagement}
-                onNavigateToMath={navigateToMathTools}
-                onNavigateToCharts={navigateToChartsPerformance}
-                onNavigateToRoadmap={navigateToRoadmap}
-                onNavigateToRoadmapOverview={
-                  navigateToRoadmapOverview as (section?: string) => void
-                }
-                onNavigateToSourceLibrary={navigateToSourceLibrary}
-                onNavigateToSourceComparison={navigateToSourceComparison}
-                onNavigateToEvidenceLab={navigateToEvidenceLab}
-                onNavigateToCurationWorkbench={navigateToCurationWorkbench}
-                onNavigateToTransformTesting={navigateToTransformTesting}
-              />
-            ) : currentView.type === "data-management" ? (
-              <DataManagementView
-                materials={materials}
-                onBack={navigateToMaterials}
-                onUpdateMaterial={handleUpdateMaterial}
-                onUpdateMaterials={updateMaterials}
-                onBulkImport={handleBulkImport}
-                onDeleteMaterial={handleDeleteMaterial}
-                onViewMaterial={navigateToMaterialDetail}
-                onDeleteAllData={async () => {
-                  await deleteAllMaterials();
-                  toast.success(
-                    supabaseAvailable
-                      ? "All data deleted from cloud and locally"
-                      : "All data deleted locally"
-                  );
-                  navigateToMaterials();
-                }}
-                user={user}
-                userRole={userRole}
-              />
-            ) : currentView.type === "user-management" ? (
-              <UserManagementView
-                onBack={navigateToMaterials}
-                currentUserId={user?.id || ""}
-              />
-            ) : currentView.type === "whitepaper-sync" ? (
-              <WhitepaperSyncTool onBack={navigateToMaterials} />
-            ) : currentView.type === "scientific-editor" && currentMaterial ? (
-              <ScientificDataEditor
-                material={currentMaterial as any}
-                onSave={(updatedMaterial) => {
-                  handleUpdateMaterial(updatedMaterial as Material);
-                  navigateToMaterials();
-                }}
-                onCancel={navigateToMaterials}
-              />
-            ) : currentView.type === "export" ? (
-              <PublicExportView
-                onBack={navigateToScienceHub}
-                materialsCount={materials.length}
-              />
-            ) : currentView.type === "user-profile" ? (
-              <UserProfileView
-                userId={currentView.userId}
-                onBack={navigateToMaterials}
-                isOwnProfile={currentView.userId === user?.id}
-                onNavigateToMySubmissions={
-                  currentView.userId === user?.id
-                    ? navigateToMySubmissions
-                    : undefined
-                }
-                isAdminModeActive={isAdminModeActive}
-              />
-            ) : currentView.type === "my-submissions" ? (
-              <MySubmissionsView onBack={navigateToMaterials} />
-            ) : currentView.type === "review-center" ? (
-              <ContentReviewCenter
-                onBack={navigateToMaterials}
-                currentUserId={user?.id || ""}
-              />
-            ) : currentView.type === "api-docs" ? (
-              <ApiDocumentation onBack={navigateToScienceHub} />
-            ) : currentView.type === "source-library" ? (
-              <SourceLibraryManager
-                onBack={navigateToMaterials}
-                materials={materials}
-                isAuthenticated={!!user}
-                isAdmin={userRole === "admin"}
-              />
-            ) : currentView.type === "source-comparison" ? (
-              <SourceDataComparison
-                onBack={navigateToMaterials}
-                materials={materials}
-              />
-            ) : currentView.type === "evidence-lab" ? (
-              <EvidenceLabView onBack={navigateToAdminDashboard} />
-            ) : currentView.type === "curation-workbench" ? (
-              <CurationWorkbench onBack={navigateToAdminDashboard} />
-            ) : currentView.type === "transform-formula-testing" ? (
-              <TransformFormulaTesting
-                onBack={navigateToAdminDashboard}
-                materials={materials}
-              />
-            ) : currentView.type === "licenses" ? (
-              <LicensesView onBack={navigateToLegalHub} />
-            ) : currentView.type === "science-hub" ? (
-              <ScienceHubView
-                onBack={navigateToMaterials}
-                onNavigateToWhitePapers={navigateToMethodologyList}
-                onNavigateToOpenAccess={navigateToExport}
-                onNavigateToAPI={navigateToApiDocs}
-              />
-            ) : currentView.type === "legal-hub" ? (
-              <LegalHubView
-                onBack={navigateToMaterials}
-                onNavigateToTakedownForm={navigateToTakedownForm}
-                onNavigateToLicenses={navigateToLicenses}
-              />
-            ) : currentView.type === "takedown-form" ? (
-              <TakedownRequestForm onBack={navigateToLegalHub} />
-            ) : currentView.type === "takedown-status" ? (
-              <TakedownStatusView
-                requestId={currentView.requestId}
-                className="p-6"
-              />
-            ) : currentView.type === "admin-takedown-list" ? (
-              <AdminTakedownList />
-            ) : currentView.type === "audit-log" ? (
-              <AuditLogViewer onBack={navigateToAdminDashboard} />
-            ) : currentView.type === "data-retention" ? (
-              <DataRetentionManager className="p-6" />
-            ) : currentView.type === "transform-manager" ? (
-              <TransformVersionManager className="p-6" />
-            ) : currentView.type === "whitepapers-management" ? (
-              <WhitepaperSyncTool
-                onBack={navigateToAdminDashboard}
-                className="p-6"
-              />
-            ) : currentView.type === "assets-management" ? (
-              <AssetsManagementPage />
-            ) : currentView.type === "math-tools" ? (
-              <MathView
-                onBack={navigateToAdminDashboard}
-                defaultTab={currentView.defaultTab}
-              />
-            ) : currentView.type === "charts-performance" ? (
-              <ChartsPerformanceView onBack={navigateToAdminDashboard} />
-            ) : currentView.type === "roadmap" ? (
-              <RoadmapView onBack={navigateToAdminDashboard} />
-            ) : currentView.type === "roadmap-overview" ? (
-              <SimplifiedRoadmap
-                onBack={navigateToAdminDashboard}
-                defaultTab={currentView.defaultTab}
-              />
-            ) : currentView.type === "guides" ? (
-              <GuidesView onBack={navigateToMaterials} />
-            ) : currentView.type === "guide-detail" ? (
-              <GuideDetailView
-                guideId={currentView.guideId}
-                onBack={() => navigateTo({ type: "guides" })}
-              />
-            ) : currentView.type === "blog" ? (
-              <BlogView onBack={navigateToMaterials} />
-            ) : currentView.type === "editor-test" ? (
-              <EditorTestView />
-            ) : currentView.type === "about" ? (
-              <AboutView onBack={navigateToMaterials} />
-            ) : currentView.type === "donate" ? (
-              <DonateView onBack={navigateToMaterials} />
-            ) : null}
+                ) : currentView.type === "search-results" ? (
+                  <SearchResultsView
+                    query={currentView.query}
+                    materials={materials}
+                    searchQuery={searchQuery}
+                    setSearchQuery={setSearchQuery}
+                    onBack={() => {
+                      setSearchQuery("");
+                      navigateToMaterials();
+                    }}
+                    onEditMaterial={(material) => {
+                      setEditingMaterial(material);
+                      setShowForm(true);
+                    }}
+                    onDeleteMaterial={handleDeleteMaterial}
+                    onViewArticles={handleViewArticles}
+                    onViewMaterial={handleViewMaterial}
+                    onEditScientific={(materialId) =>
+                      navigateToScientificEditor(materialId)
+                    }
+                    onSuggestEdit={setMaterialToEdit}
+                    isAdminModeActive={isAdminModeActive}
+                    isAuthenticated={!!user}
+                  />
+                ) : currentMaterial && currentView.type === "articles" ? (
+                  <ArticlesView
+                    material={currentMaterial}
+                    category={currentView.category}
+                    onBack={navigateToMaterials}
+                    onUpdateMaterial={handleUpdateMaterial}
+                    onViewArticleStandalone={(articleId) =>
+                      handleViewArticleStandalone(
+                        currentMaterial.id,
+                        articleId,
+                        currentView.category
+                      )
+                    }
+                    isAdminModeActive={isAdminModeActive}
+                    user={user}
+                    onSignUp={() => setShowAuthModal(true)}
+                  />
+                ) : currentView.type === "all-articles" ? (
+                  <AllArticlesView
+                    category={currentView.category}
+                    materials={materials}
+                    onBack={navigateToMaterials}
+                    onViewArticleStandalone={(articleId, materialId) =>
+                      handleViewArticleStandalone(
+                        materialId,
+                        articleId,
+                        currentView.category
+                      )
+                    }
+                  />
+                ) : currentMaterial &&
+                  currentView.type === "material-detail" ? (
+                  <MaterialDetailView
+                    material={currentMaterial}
+                    onBack={navigateToMaterials}
+                    onViewArticles={(category) =>
+                      handleViewArticles(currentMaterial.id, category)
+                    }
+                    onUpdateMaterial={handleUpdateMaterial}
+                    onViewArticleStandalone={(articleId, category) =>
+                      handleViewArticleStandalone(
+                        currentMaterial.id,
+                        articleId,
+                        category
+                      )
+                    }
+                    isAdminModeActive={isAdminModeActive}
+                  />
+                ) : currentMaterial &&
+                  currentView.type === "article-standalone" ? (
+                  <StandaloneArticleView
+                    article={
+                      getArticlesByCategory(
+                        currentMaterial,
+                        currentView.category
+                      ).find((a) => a.id === currentView.articleId)!
+                    }
+                    sustainabilityCategory={{
+                      label:
+                        currentView.category === "compostability"
+                          ? "Compostability"
+                          : currentView.category === "recyclability"
+                          ? "Recyclability"
+                          : "Reusability",
+                      color:
+                        currentView.category === "compostability"
+                          ? "#e6beb5"
+                          : currentView.category === "recyclability"
+                          ? "#e4e3ac"
+                          : "#b8c8cb",
+                    }}
+                    materialName={currentMaterial.name}
+                    onBack={() => navigateToMaterialDetail(currentMaterial.id)}
+                    onEdit={() => {
+                      // Navigate back to material detail with edit form open
+                      navigateToMaterialDetail(currentMaterial.id);
+                    }}
+                    onDelete={() => {
+                      if (
+                        confirm("Are you sure you want to delete this article?")
+                      ) {
+                        const updatedMaterial = removeArticleFromMaterial(
+                          currentMaterial,
+                          currentView.category,
+                          currentView.articleId
+                        );
+                        handleUpdateMaterial(updatedMaterial);
+                        navigateToMaterialDetail(currentMaterial.id);
+                      }
+                    }}
+                    isAdminModeActive={isAdminModeActive}
+                  />
+                ) : currentView.type === "methodology-list" ? (
+                  <MethodologyListView
+                    onBack={navigateToScienceHub}
+                    onSelectWhitepaper={navigateToWhitepaper}
+                  />
+                ) : currentView.type === "whitepaper" ? (
+                  <WhitepaperView
+                    whitepaperSlug={currentView.whitepaperSlug}
+                    onBack={navigateToMethodologyList}
+                  />
+                ) : currentView.type === "admin-dashboard" ? (
+                  <AdminDashboard
+                    onBack={navigateToMaterials}
+                    onNavigateToReviewCenter={navigateToReviewCenter}
+                    onNavigateToDataManagement={navigateToDataManagement}
+                    onNavigateToUserManagement={navigateToUserManagement}
+                    onNavigateToWhitepaperSync={navigateToWhitepaperSync}
+                    onNavigateToTransformManager={() =>
+                      navigateToMathTools("transform-manager")
+                    }
+                    onNavigateToAdminTakedownList={navigateToAdminTakedownList}
+                    onNavigateToAuditLog={navigateToAuditLog}
+                    onNavigateToDataRetention={navigateToDataRetention}
+                    onNavigateToWhitepapers={navigateToWhitepapersManagement}
+                    onNavigateToAssets={navigateToAssetsManagement}
+                    onNavigateToMath={navigateToMathTools}
+                    onNavigateToCharts={navigateToChartsPerformance}
+                    onNavigateToRoadmap={navigateToRoadmap}
+                    onNavigateToRoadmapOverview={
+                      navigateToRoadmapOverview as (section?: string) => void
+                    }
+                    onNavigateToSourceLibrary={navigateToSourceLibrary}
+                    onNavigateToSourceComparison={navigateToSourceComparison}
+                    onNavigateToEvidenceLab={navigateToEvidenceLab}
+                    onNavigateToCurationWorkbench={navigateToCurationWorkbench}
+                    onNavigateToTransformTesting={navigateToTransformTesting}
+                  />
+                ) : currentView.type === "data-management" ? (
+                  <DataManagementView
+                    materials={materials}
+                    onBack={navigateToMaterials}
+                    onUpdateMaterial={handleUpdateMaterial}
+                    onUpdateMaterials={updateMaterials}
+                    onBulkImport={handleBulkImport}
+                    onDeleteMaterial={handleDeleteMaterial}
+                    onViewMaterial={navigateToMaterialDetail}
+                    onDeleteAllData={async () => {
+                      await deleteAllMaterials();
+                      toast.success(
+                        supabaseAvailable
+                          ? "All data deleted from cloud and locally"
+                          : "All data deleted locally"
+                      );
+                      navigateToMaterials();
+                    }}
+                    user={user}
+                    userRole={userRole}
+                  />
+                ) : currentView.type === "user-management" ? (
+                  <UserManagementView
+                    onBack={navigateToMaterials}
+                    currentUserId={user?.id || ""}
+                  />
+                ) : currentView.type === "whitepaper-sync" ? (
+                  <WhitepaperSyncTool onBack={navigateToMaterials} />
+                ) : currentView.type === "scientific-editor" &&
+                  currentMaterial ? (
+                  <ScientificDataEditor
+                    material={currentMaterial as any}
+                    onSave={(updatedMaterial) => {
+                      handleUpdateMaterial(updatedMaterial as Material);
+                      navigateToMaterials();
+                    }}
+                    onCancel={navigateToMaterials}
+                  />
+                ) : currentView.type === "export" ? (
+                  <PublicExportView
+                    onBack={navigateToScienceHub}
+                    materialsCount={materials.length}
+                  />
+                ) : currentView.type === "user-profile" ? (
+                  <UserProfileView
+                    userId={currentView.userId}
+                    onBack={navigateToMaterials}
+                    isOwnProfile={currentView.userId === user?.id}
+                    onNavigateToMySubmissions={
+                      currentView.userId === user?.id
+                        ? navigateToMySubmissions
+                        : undefined
+                    }
+                    isAdminModeActive={isAdminModeActive}
+                  />
+                ) : currentView.type === "my-submissions" ? (
+                  <MySubmissionsView onBack={navigateToMaterials} />
+                ) : currentView.type === "review-center" ? (
+                  <ContentReviewCenter
+                    onBack={navigateToMaterials}
+                    currentUserId={user?.id || ""}
+                  />
+                ) : currentView.type === "api-docs" ? (
+                  <ApiDocumentation onBack={navigateToScienceHub} />
+                ) : currentView.type === "source-library" ? (
+                  <SourceLibraryManager
+                    onBack={navigateToMaterials}
+                    materials={materials}
+                    isAuthenticated={!!user}
+                    isAdmin={userRole === "admin"}
+                  />
+                ) : currentView.type === "source-comparison" ? (
+                  <SourceDataComparison
+                    onBack={navigateToMaterials}
+                    materials={materials}
+                  />
+                ) : currentView.type === "evidence-lab" ? (
+                  <EvidenceLabView onBack={navigateToAdminDashboard} />
+                ) : currentView.type === "curation-workbench" ? (
+                  <CurationWorkbench onBack={navigateToAdminDashboard} />
+                ) : currentView.type === "transform-formula-testing" ? (
+                  <TransformFormulaTesting
+                    onBack={navigateToAdminDashboard}
+                    materials={materials}
+                  />
+                ) : currentView.type === "licenses" ? (
+                  <LicensesView onBack={navigateToLegalHub} />
+                ) : currentView.type === "science-hub" ? (
+                  <ScienceHubView
+                    onBack={navigateToMaterials}
+                    onNavigateToWhitePapers={navigateToMethodologyList}
+                    onNavigateToOpenAccess={navigateToExport}
+                    onNavigateToAPI={navigateToApiDocs}
+                  />
+                ) : currentView.type === "legal-hub" ? (
+                  <LegalHubView
+                    onBack={navigateToMaterials}
+                    onNavigateToTakedownForm={navigateToTakedownForm}
+                    onNavigateToLicenses={navigateToLicenses}
+                  />
+                ) : currentView.type === "takedown-form" ? (
+                  <TakedownRequestForm onBack={navigateToLegalHub} />
+                ) : currentView.type === "takedown-status" ? (
+                  <TakedownStatusView
+                    requestId={currentView.requestId}
+                    className="p-6"
+                  />
+                ) : currentView.type === "admin-takedown-list" ? (
+                  <AdminTakedownList />
+                ) : currentView.type === "audit-log" ? (
+                  <AuditLogViewer onBack={navigateToAdminDashboard} />
+                ) : currentView.type === "data-retention" ? (
+                  <DataRetentionManager className="p-6" />
+                ) : currentView.type === "transform-manager" ? (
+                  <TransformVersionManager className="p-6" />
+                ) : currentView.type === "whitepapers-management" ? (
+                  <WhitepaperSyncTool
+                    onBack={navigateToAdminDashboard}
+                    className="p-6"
+                  />
+                ) : currentView.type === "assets-management" ? (
+                  <AssetsManagementPage />
+                ) : currentView.type === "math-tools" ? (
+                  <MathView
+                    onBack={navigateToAdminDashboard}
+                    defaultTab={currentView.defaultTab}
+                  />
+                ) : currentView.type === "charts-performance" ? (
+                  <ChartsPerformanceView onBack={navigateToAdminDashboard} />
+                ) : currentView.type === "roadmap" ? (
+                  <RoadmapView onBack={navigateToAdminDashboard} />
+                ) : currentView.type === "roadmap-overview" ? (
+                  <SimplifiedRoadmap
+                    onBack={navigateToAdminDashboard}
+                    defaultTab={currentView.defaultTab}
+                  />
+                ) : currentView.type === "guides" ? (
+                  <GuidesView onBack={navigateToMaterials} />
+                ) : currentView.type === "guide-detail" ? (
+                  <GuideDetailView
+                    guideId={currentView.guideId}
+                    onBack={() => navigateTo({ type: "guides" })}
+                  />
+                ) : currentView.type === "blog" ? (
+                  <BlogView onBack={navigateToMaterials} />
+                ) : currentView.type === "editor-test" ? (
+                  <EditorTestView />
+                ) : currentView.type === "about" ? (
+                  <AboutView onBack={navigateToMaterials} />
+                ) : currentView.type === "donate" ? (
+                  <DonateView onBack={navigateToMaterials} />
+                ) : null}
 
-            {/* Footer - inside rounded container */}
-            <div className="p-6">
-              <footer className="mt-8 text-center border-t border-[#211f1c]/10 dark:border-white/10 pt-6">
-                {/* Science and Legal links */}
-                <div className="flex justify-center items-center gap-2 mb-6">
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.3 }}
-                    className="flex items-center gap-2"
-                  >
-                    <button
-                      onClick={navigateToScienceHub}
-                      className="text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white md:hover:underline transition-colors flex items-center gap-1"
-                    >
-                      <FlaskConical className="w-5 h-5 md:w-3 md:h-3" />
-                      <span className="hidden md:inline">Science</span>
-                    </button>
-                    <span className="text-black/30 dark:text-white/30">•</span>
-                    <button
-                      onClick={navigateToLegalHub}
-                      className="text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white md:hover:underline transition-colors flex items-center gap-1"
-                    >
-                      <AlertCircle className="w-5 h-5 md:w-3 md:h-3" />
-                      <span className="hidden md:inline">Legal</span>
-                    </button>
-                  </motion.div>
+                {/* Footer - inside rounded container */}
+                <div className="p-6">
+                  <footer className="mt-8 text-center border-t border-[#211f1c]/10 dark:border-white/10 pt-6">
+                    {/* Science and Legal links */}
+                    <div className="flex justify-center items-center gap-2 mb-6">
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.3 }}
+                        className="flex items-center gap-2"
+                      >
+                        <button
+                          onClick={navigateToScienceHub}
+                          className="text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white md:hover:underline transition-colors flex items-center gap-1"
+                        >
+                          <FlaskConical className="w-5 h-5 md:w-3 md:h-3" />
+                          <span className="hidden md:inline">Science</span>
+                        </button>
+                        <span className="text-black/30 dark:text-white/30">
+                          •
+                        </span>
+                        <button
+                          onClick={navigateToLegalHub}
+                          className="text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white md:hover:underline transition-colors flex items-center gap-1"
+                        >
+                          <AlertCircle className="w-5 h-5 md:w-3 md:h-3" />
+                          <span className="hidden md:inline">Legal</span>
+                        </button>
+                      </motion.div>
+                    </div>
+
+                    <p className="text-[11px] md:text-[12px] text-black/60 dark:text-white/60 max-w-3xl mx-auto px-4">
+                      <a
+                        href="https://wastefull.org"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:text-black dark:hover:text-white transition-colors underline"
+                      >
+                        Wastefull, Inc.
+                      </a>{" "}
+                      is a registered California 501(c)(3) nonprofit
+                      organization. Donations to the organization may be tax
+                      deductible.
+                    </p>
+                  </footer>
                 </div>
+              </div>
 
-                <p className="text-[11px] md:text-[12px] text-black/60 dark:text-white/60 max-w-3xl mx-auto px-4">
-                  <a
-                    href="https://wastefull.org"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-black dark:hover:text-white transition-colors underline"
-                  >
-                    Wastefull, Inc.
-                  </a>{" "}
-                  is a registered California 501(c)(3) nonprofit organization.
-                  Donations to the organization may be tax deductible.
-                </p>
-              </footer>
+              {/* Sidebar - only visible on wide screens (1200px+) */}
+              <aside className="hidden 3xl:block w-64 shrink-0 border-l-[1.5px] border-[#211f1c] dark:border-white/20">
+                <div className="sticky top-0 h-[calc(100vh-100px)] overflow-y-auto">
+                  <Leaderboard onUserClick={navigateToUserProfile} />
+                </div>
+              </aside>
             </div>
           </div>
+
+          {/* Submission Forms */}
+          {showSubmitMaterialForm && (
+            <SubmitMaterialForm
+              onClose={() => setShowSubmitMaterialForm(false)}
+              onSubmitSuccess={() => {
+                // Optionally refresh submissions or show a notification
+                toast.success(
+                  'Material submitted! Check "My Submissions" for updates.'
+                );
+              }}
+            />
+          )}
+
+          {materialToEdit && (
+            <SuggestMaterialEditForm
+              material={materialToEdit}
+              onClose={() => setMaterialToEdit(null)}
+              onSubmitSuccess={() => {
+                toast.success(
+                  'Edit suggestion submitted! Check "My Submissions" for updates.'
+                );
+              }}
+            />
+          )}
+
+          {showSubmitArticleForm && (
+            <SubmitArticleForm
+              onClose={() => setShowSubmitArticleForm(false)}
+              onSubmitSuccess={() => {
+                toast.success(
+                  'Article submitted! Check "My Submissions" for updates.'
+                );
+              }}
+            />
+          )}
         </div>
-
-        {/* Submission Forms */}
-        {showSubmitMaterialForm && (
-          <SubmitMaterialForm
-            onClose={() => setShowSubmitMaterialForm(false)}
-            onSubmitSuccess={() => {
-              // Optionally refresh submissions or show a notification
-              toast.success(
-                'Material submitted! Check "My Submissions" for updates.'
-              );
-            }}
-          />
-        )}
-
-        {materialToEdit && (
-          <SuggestMaterialEditForm
-            material={materialToEdit}
-            onClose={() => setMaterialToEdit(null)}
-            onSubmitSuccess={() => {
-              toast.success(
-                'Edit suggestion submitted! Check "My Submissions" for updates.'
-              );
-            }}
-          />
-        )}
-
-        {showSubmitArticleForm && (
-          <SubmitArticleForm
-            onClose={() => setShowSubmitArticleForm(false)}
-            onSubmitSuccess={() => {
-              toast.success(
-                'Article submitted! Check "My Submissions" for updates.'
-              );
-            }}
-          />
-        )}
       </div>
     </>
   );
