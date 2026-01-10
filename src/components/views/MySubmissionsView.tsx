@@ -148,7 +148,7 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
         >
           <ArrowLeft size={16} />
         </button>
-        <h2 className="normal">My Submissions</h2>
+        <h2 className="normal">Pending Submissions</h2>
       </div>
 
       {loading ? (
@@ -164,10 +164,11 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
             className="mx-auto mb-4 text-black/20 dark:text-white/20"
           />
           <p className="text-[14px] text-black/70 dark:text-white/70">
-            You haven't made any submissions yet.
+            No pending submissions
           </p>
           <p className="text-[12px] text-black/50 dark:text-white/50 mt-2">
-            Submit a new material or article to get started!
+            All your submissions have been reviewed. New submissions will appear
+            here until approved.
           </p>
         </div>
       ) : (

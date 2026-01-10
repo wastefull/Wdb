@@ -464,7 +464,7 @@ export function UserProfileView({
                 onClick={onNavigateToMySubmissions}
                 className="retro-card-button arcade-bg-amber arcade-btn-amber px-4 h-9 text-[13px] w-full sm:w-auto"
               >
-                My Submissions
+                Pending Submissions
               </button>
             )}
           </div>
