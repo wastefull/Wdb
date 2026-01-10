@@ -809,6 +809,8 @@ app.post(
         bio: "",
         social_link: "",
         avatar_url: "",
+        display_email: "",
+        org_role: "Volunteer",
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
@@ -4056,6 +4058,8 @@ app.get("/make-server-17cae920/profile/:userId", verifyAuth, async (c) => {
         bio: "",
         social_link: "",
         avatar_url: "",
+        display_email: "",
+        org_role: "Volunteer",
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
@@ -4097,14 +4101,24 @@ app.put("/make-server-17cae920/profile/:userId", verifyAuth, async (c) => {
     const updates = await c.req.json();
     const existing = (await kv.get(`user_profile:${userId}`)) || {};
 
-    // Merge updates (bio, social_link, avatar_url only)
+    // Merge updates (bio, social_link, avatar_url, display_email)
     const updatedProfile = {
       ...existing,
       bio: updates.bio,
       social_link: updates.social_link,
       avatar_url: updates.avatar_url,
+      display_email: updates.display_email ?? existing.display_email ?? "",
       updated_at: new Date().toISOString(),
     };
+
+    // org_role can only be changed by admins
+    if (updates.org_role !== undefined) {
+      const requestingUserRole = await kv.get(`user_role:${requestingUserId}`);
+      if (requestingUserRole === "admin") {
+        updatedProfile.org_role = updates.org_role;
+      }
+      // Non-admins silently ignore org_role changes
+    }
 
     await kv.set(`user_profile:${userId}`, updatedProfile);
     return c.json({ profile: updatedProfile });

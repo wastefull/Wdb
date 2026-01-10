@@ -31,6 +31,13 @@ interface UserProfileViewProps {
   isAdminModeActive?: boolean;
 }
 
+type OrgRole =
+  | "Board President"
+  | "Board Treasurer"
+  | "Board Secretary"
+  | "Board Member"
+  | "Volunteer";
+
 interface Profile {
   user_id: string;
   email: string;
@@ -39,6 +46,8 @@ interface Profile {
   bio?: string;
   social_link?: string;
   avatar_url?: string;
+  display_email?: string;
+  org_role?: OrgRole;
   active: boolean;
   created_at: string;
 }
@@ -56,6 +65,8 @@ export function UserProfileView({
   const [editedBio, setEditedBio] = useState("");
   const [editedSocialLink, setEditedSocialLink] = useState("");
   const [editedAvatarUrl, setEditedAvatarUrl] = useState("");
+  const [editedDisplayEmail, setEditedDisplayEmail] = useState("");
+  const [editedOrgRole, setEditedOrgRole] = useState<OrgRole>("Volunteer");
   const [saving, setSaving] = useState(false);
 
   // Contribution tracking state
@@ -100,6 +111,8 @@ export function UserProfileView({
       setEditedBio(fetchedProfile.bio || "");
       setEditedSocialLink(fetchedProfile.social_link || "");
       setEditedAvatarUrl(fetchedProfile.avatar_url || "");
+      setEditedDisplayEmail(fetchedProfile.display_email || "");
+      setEditedOrgRole(fetchedProfile.org_role || "Volunteer");
     } catch (error) {
       console.error("Error loading profile:", error);
       toast.error("Failed to load profile");
@@ -161,11 +174,17 @@ export function UserProfileView({
   const handleSave = async () => {
     try {
       setSaving(true);
-      const updatedProfile = await api.updateUserProfile(userId, {
+      const updates: Record<string, any> = {
         bio: editedBio,
         social_link: editedSocialLink,
         avatar_url: editedAvatarUrl,
-      });
+        display_email: editedDisplayEmail,
+      };
+      // Only admins can update org_role
+      if (isAdminModeActive) {
+        updates.org_role = editedOrgRole;
+      }
+      const updatedProfile = await api.updateUserProfile(userId, updates);
       setProfile(updatedProfile);
       setEditing(false);
       toast.success("Profile updated successfully");
@@ -181,6 +200,8 @@ export function UserProfileView({
     setEditedBio(profile?.bio || "");
     setEditedSocialLink(profile?.social_link || "");
     setEditedAvatarUrl(profile?.avatar_url || "");
+    setEditedDisplayEmail(profile?.display_email || "");
+    setEditedOrgRole(profile?.org_role || "Volunteer");
     setEditing(false);
   };
 
@@ -262,9 +283,16 @@ export function UserProfileView({
                   </span>
                 )}
               </CardTitle>
-              <CardDescription className="text-[11px] sm:text-[13px] break-all">
-                {profile.email}
-              </CardDescription>
+              {profile.display_email && (
+                <CardDescription className="text-[11px] sm:text-[13px] break-all">
+                  {profile.display_email}
+                </CardDescription>
+              )}
+              {profile.org_role && profile.org_role !== "Volunteer" && (
+                <p className="text-[11px] text-waste-science dark:text-waste-science mt-1">
+                  {profile.org_role}
+                </p>
+              )}
               <p className="text-[11px] text-black/50 dark:text-white/50 mt-2">
                 Member since{" "}
                 {new Date(profile.created_at).toLocaleDateString("en-US", {
@@ -293,6 +321,50 @@ export function UserProfileView({
               />
               <p className="text-[11px] text-black/60 dark:text-white/60">
                 Enter a URL to an image for your profile picture
+              </p>
+            </div>
+          )}
+
+          {/* Display Email (editing only) */}
+          {editing && (
+            <div className="space-y-2">
+              <Label htmlFor="display_email" className="normal">
+                Display Email (optional)
+              </Label>
+              <Input
+                id="display_email"
+                type="email"
+                value={editedDisplayEmail}
+                onChange={(e) => setEditedDisplayEmail(e.target.value)}
+                placeholder="contact@example.com"
+                className="text-[13px]"
+              />
+              <p className="text-[11px] text-black/60 dark:text-white/60">
+                Public contact email (leave blank to hide)
+              </p>
+            </div>
+          )}
+
+          {/* Org Role (admin only) */}
+          {editing && isAdminModeActive && (
+            <div className="space-y-2">
+              <Label htmlFor="org_role" className="normal">
+                Organization Role
+              </Label>
+              <select
+                id="org_role"
+                value={editedOrgRole}
+                onChange={(e) => setEditedOrgRole(e.target.value as OrgRole)}
+                className="w-full px-3 py-2 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-xl text-[13px] text-black dark:text-white"
+              >
+                <option value="Volunteer">Volunteer</option>
+                <option value="Board Member">Board Member</option>
+                <option value="Board Secretary">Board Secretary</option>
+                <option value="Board Treasurer">Board Treasurer</option>
+                <option value="Board President">Board President</option>
+              </select>
+              <p className="text-[11px] text-black/60 dark:text-white/60">
+                This user's role in the Wastefull organization
               </p>
             </div>
           )}
