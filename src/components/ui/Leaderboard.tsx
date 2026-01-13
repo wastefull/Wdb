@@ -77,7 +77,8 @@ export function Leaderboard({ onUserClick }: LeaderboardProps) {
     return (
       <div className="p-4">
         <h3 className="text-[13px] font-display mb-3 flex items-center gap-2">
-          Leaderboard
+          <Trophy size={14} className="text-yellow-500" />
+          Top Contributors
         </h3>
         <p className="text-[11px] text-black/60 dark:text-white/60 italic">
           No contributors yet
@@ -89,7 +90,8 @@ export function Leaderboard({ onUserClick }: LeaderboardProps) {
   return (
     <div className="p-4">
       <h3 className="text-[13px] font-display mb-3 flex items-center gap-2">
-        Leaderboard
+        <Trophy size={14} className="text-yellow-500" />
+        Top Contributors
       </h3>
       <div className="space-y-1">
         {leaders.slice(0, 10).map((entry, index) => (
