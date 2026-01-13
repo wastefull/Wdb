@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Plus,
   ArrowLeft,
@@ -7,6 +7,7 @@ import {
   CloudOff,
   AlertCircle,
   FlaskConical,
+  ChevronDown,
 } from "lucide-react";
 import * as api from "./utils/api";
 import { logger, setTestMode, getTestMode, loggerInfo } from "./utils/logger";
@@ -188,6 +189,32 @@ function AppContent() {
   const [materialToEdit, setMaterialToEdit] = useState<Material | null>(null);
   const [showSubmitArticleForm, setShowSubmitArticleForm] = useState(false);
   const [showChart, setShowChart] = useState(false);
+
+  // Mobile leaderboard scroll reveal
+  const [leaderboardVisible, setLeaderboardVisible] = useState(false);
+  const [showScrollHint, setShowScrollHint] = useState(true);
+  const leaderboardRef = useRef<HTMLDivElement>(null);
+
+  // Intersection observer for leaderboard reveal
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setLeaderboardVisible(true);
+            setShowScrollHint(false);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    if (leaderboardRef.current) {
+      observer.observe(leaderboardRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
 
   // Expose logger to window for browser console debugging
   useEffect(() => {
@@ -1180,6 +1207,31 @@ function AppContent() {
                     </p>
                   </footer>
                 </div>
+
+                {/* Scroll hint arrow - mobile only */}
+                {showScrollHint && (
+                  <motion.div
+                    className="3xl:hidden flex justify-center pb-4"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 1, duration: 0.5 }}
+                  >
+                    <motion.div
+                      animate={{ y: [0, 6, 0] }}
+                      transition={{
+                        duration: 1.5,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      }}
+                      className="flex flex-col items-center gap-1 text-black/30 dark:text-white/30"
+                    >
+                      <span className="text-[10px] uppercase tracking-wider">
+                        See top contributors
+                      </span>
+                      <ChevronDown size={16} />
+                    </motion.div>
+                  </motion.div>
+                )}
               </div>
 
               {/* Sidebar - only visible on wide screens (1200px+) */}
@@ -1190,10 +1242,19 @@ function AppContent() {
               </aside>
             </div>
           </div>
+
           {/* Mobile Leaderboard - separate window below main content, visible below 3xl breakpoint */}
-          <div className="3xl:hidden mt-4 mx-4 md:mx-6 rounded-[16px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#f5f4ef] dark:bg-[#1a1917] overflow-hidden">
+          <motion.div
+            ref={leaderboardRef}
+            className="3xl:hidden mt-4 mx-4 md:mx-6 rounded-2xl border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#f5f4ef] dark:bg-[#1a1917] overflow-hidden"
+            initial={{ opacity: 0, y: 20 }}
+            animate={
+              leaderboardVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }
+            }
+            transition={{ duration: 0.5, ease: "easeOut" }}
+          >
             <Leaderboard onUserClick={navigateToUserProfile} />
-          </div>
+          </motion.div>
 
           {/* Submission Forms */}
           {showSubmitMaterialForm && (
