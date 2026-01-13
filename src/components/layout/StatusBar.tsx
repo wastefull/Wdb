@@ -1,4 +1,14 @@
-import { User, LogOut, Cloud, CloudOff, X } from "lucide-react";
+import { useState } from "react";
+import {
+  User,
+  LogOut,
+  Cloud,
+  CloudOff,
+  X,
+  Menu,
+  Bell,
+  Shield,
+} from "lucide-react";
 import { NotificationBell } from "../shared/NotificationBell";
 import { RetroButtons } from "./RetroButtons";
 import { AdminModeButton } from "./AdminModeButton";
@@ -8,6 +18,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
+import {
+  Sheet,
+  SheetTrigger,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "../ui/sheet";
 
 export interface StatusBarProps {
   /** Title displayed in the status bar (used by RetroButtons in full variant, centered in mini variant) */
@@ -44,6 +62,8 @@ export function StatusBar({
   variant = "full",
   onClose,
 }: StatusBarProps) {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   // Mini variant for modals - simplified with just close button and title
   if (variant === "mini") {
     return (
@@ -107,8 +127,142 @@ export function StatusBar({
                 Sign In
               </button>
             )}
+
+            {/* Mobile Menu (< 768px) */}
             {user && onViewChange && (
-              <>
+              <div className="md:hidden">
+                <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                  <SheetTrigger asChild>
+                    <button
+                      className="p-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-white/50 dark:bg-black/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                      aria-label="Open menu"
+                    >
+                      <Menu className="w-4 h-4" />
+                    </button>
+                  </SheetTrigger>
+                  <SheetContent
+                    side="bottom"
+                    className="bg-[#faf7f2] dark:bg-[#2a2825] border-t-[1.5px] border-[#211f1c] dark:border-white/20 rounded-t-xl px-6"
+                    aria-describedby={undefined}
+                  >
+                    <SheetHeader className="border-b border-[#211f1c]/20 dark:border-white/20 pb-4">
+                      <div className="flex items-center justify-between">
+                        {/* Sync Status - left side */}
+                        <div className="flex items-center gap-1.5 text-[11px] text-black/50 dark:text-white/50 min-w-[70px]">
+                          {syncStatus && (
+                            <>
+                              {syncStatus === "synced" && (
+                                <>
+                                  <Cloud className="w-3 h-3" />
+                                  <span>Synced</span>
+                                </>
+                              )}
+                              {syncStatus === "syncing" && (
+                                <>
+                                  <Cloud className="w-3 h-3 animate-pulse" />
+                                  <span>Syncing...</span>
+                                </>
+                              )}
+                              {syncStatus === "offline" && (
+                                <>
+                                  <CloudOff className="w-3 h-3" />
+                                  <span>Offline</span>
+                                </>
+                              )}
+                              {syncStatus === "error" && (
+                                <>
+                                  <CloudOff className="w-3 h-3 text-[#c74444] dark:text-[#ff6b6b]" />
+                                  <span className="text-[#c74444] dark:text-[#ff6b6b]">
+                                    Sync error
+                                  </span>
+                                </>
+                              )}
+                            </>
+                          )}
+                        </div>
+                        {/* Title - center */}
+                        <SheetTitle className="font-display">Menu</SheetTitle>
+                        {/* Spacer to balance the X button on right */}
+                        <div className="min-w-[70px]" />
+                      </div>
+                    </SheetHeader>
+                    <div className="flex flex-col gap-2 p-4">
+                      {/* Profile */}
+                      <button
+                        onClick={() => {
+                          onViewChange({
+                            type: "user-profile",
+                            userId: user.id,
+                          });
+                          setMobileMenuOpen(false);
+                        }}
+                        className="flex items-center gap-3 p-3 rounded-lg border border-[#211f1c]/20 dark:border-white/20 bg-white/50 dark:bg-black/20 hover:bg-white dark:hover:bg-black/40 transition-colors"
+                      >
+                        <User className="w-5 h-5" />
+                        <div className="flex flex-col items-start">
+                          <span className="text-[13px] font-medium">
+                            {user.name || user.email.split("@")[0]}
+                          </span>
+                          <span className="text-[11px] text-black/60 dark:text-white/60">
+                            View profile
+                          </span>
+                        </div>
+                      </button>
+
+                      {/* Notifications */}
+                      <button
+                        onClick={() => {
+                          // NotificationBell handles its own panel, so we just close menu
+                          setMobileMenuOpen(false);
+                        }}
+                        className="flex items-center gap-3 p-3 rounded-lg border border-[#211f1c]/20 dark:border-white/20 bg-white/50 dark:bg-black/20 hover:bg-white dark:hover:bg-black/40 transition-colors"
+                      >
+                        <Bell className="w-5 h-5" />
+                        <span className="text-[13px] font-medium">
+                          Notifications
+                        </span>
+                      </button>
+
+                      {/* Admin Mode (if admin) */}
+                      {userRole === "admin" && currentView && (
+                        <button
+                          onClick={() => {
+                            onViewChange({ type: "admin-dashboard" });
+                            setMobileMenuOpen(false);
+                          }}
+                          className="flex items-center gap-3 p-3 rounded-lg border border-[#211f1c]/20 dark:border-white/20 bg-white/50 dark:bg-black/20 hover:bg-white dark:hover:bg-black/40 transition-colors"
+                        >
+                          <Shield className="w-5 h-5" />
+                          <span className="text-[13px] font-medium">
+                            Admin Dashboard
+                          </span>
+                        </button>
+                      )}
+
+                      {/* Sign Out */}
+                      {onLogout && (
+                        <button
+                          onClick={() => {
+                            onLogout();
+                            setMobileMenuOpen(false);
+                          }}
+                          className="flex items-center gap-3 p-3 rounded-lg border border-[#211f1c] dark:border-white/20 arcade-bg-red hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all mt-2"
+                        >
+                          <LogOut className="w-5 h-5 arcade-btn-red" />
+                          <span className="text-[13px] font-medium arcade-btn-red">
+                            Sign Out
+                          </span>
+                        </button>
+                      )}
+                    </div>
+                  </SheetContent>
+                </Sheet>
+              </div>
+            )}
+
+            {/* Desktop Controls (>= 768px) */}
+            {user && onViewChange && (
+              <div className="hidden md:flex items-center gap-2">
                 <TooltipProvider delayDuration={300}>
                   <UITooltip>
                     <TooltipTrigger asChild>
@@ -119,10 +273,10 @@ export function StatusBar({
                             userId: user.id,
                           })
                         }
-                        className="flex items-center gap-1 px-1.5 md:px-2 py-1 bg-white/50 dark:bg-black/20 rounded-md border border-[#211f1c]/20 dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all cursor-pointer"
+                        className="flex items-center gap-1 px-2 py-1 bg-white/50 dark:bg-black/20 rounded-md border border-[#211f1c]/20 dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all cursor-pointer"
                       >
-                        <User className="w-3 h-3 md:w-3 md:h-3 normal" />
-                        <span className="hidden md:inline text-[10px] normal max-w-[100px] truncate">
+                        <User className="w-3 h-3 normal" />
+                        <span className="text-[10px] normal max-w-[100px] truncate">
                           {user.name || user.email.split("@")[0]}
                         </span>
                       </button>
@@ -151,10 +305,10 @@ export function StatusBar({
                       <TooltipTrigger asChild>
                         <button
                           onClick={onLogout}
-                          className="p-1 md:p-1.5 rounded-md border border-[#211f1c] dark:border-white/20 arcade-bg-red hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                          className="p-1.5 rounded-md border border-[#211f1c] dark:border-white/20 arcade-bg-red hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
                           aria-label="Sign out"
                         >
-                          <LogOut className="w-3 h-3 md:w-3 md:h-3 arcade-btn-red" />
+                          <LogOut className="w-3 h-3 arcade-btn-red" />
                         </button>
                       </TooltipTrigger>
                       <TooltipContent
@@ -166,11 +320,12 @@ export function StatusBar({
                     </UITooltip>
                   </TooltipProvider>
                 )}
-              </>
+              </div>
             )}
           </div>
+          {/* Sync Status - Desktop only (shown in mobile menu) */}
           {user && syncStatus && (
-            <div className="flex items-center justify-center gap-1 md:gap-2 px-1.5 md:px-3 h-full">
+            <div className="hidden md:flex items-center justify-center gap-2 px-3 h-full">
               <TooltipProvider delayDuration={300}>
                 <UITooltip>
                   <TooltipTrigger
