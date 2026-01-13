@@ -171,7 +171,7 @@ export function RetroButtons({ title }: RetroButtonsProps) {
                   </div>
 
                   {/* Open Access Preference */}
-                  <div className="border-t border-[#211f1c]/10 dark:border-white/10 pt-3">
+                  {/* <div className="border-t border-[#211f1c]/10 dark:border-white/10 pt-3">
                     <div className="flex items-center justify-between">
                       <label className="text-[13px] flex items-center gap-2">
                         <Unlock size={14} />
@@ -185,7 +185,7 @@ export function RetroButtons({ title }: RetroButtonsProps) {
                     <p className="text-[11px] text-black/60 dark:text-white/60 mt-1">
                       Show open access sources first
                     </p>
-                  </div>
+                  </div> */}
 
                   {/* Reset Button */}
                   <button
@@ -421,7 +421,7 @@ export function RetroButtons({ title }: RetroButtonsProps) {
                                 onCheckedChange={toggleReduceMotion}
                               />
                             </div>
-                            <div className="border-t border-[#211f1c]/10 dark:border-white/10 pt-3 mt-3">
+                            {/* <div className="border-t border-[#211f1c]/10 dark:border-white/10 pt-3 mt-3">
                               <div className="flex items-center justify-between">
                                 <label className="text-[12px] flex items-center gap-2">
                                   <Unlock size={14} />
@@ -435,7 +435,7 @@ export function RetroButtons({ title }: RetroButtonsProps) {
                               <p className="caption">
                                 Curator preference: show OA sources first
                               </p>
-                            </div>
+                            </div> */}
                           </div>
                         </div>
                       </PopoverContent>
