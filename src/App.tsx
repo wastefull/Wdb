@@ -1190,6 +1190,10 @@ function AppContent() {
               </aside>
             </div>
           </div>
+          {/* Mobile Leaderboard - separate window below main content, visible below 3xl breakpoint */}
+          <div className="3xl:hidden mt-4 mx-4 md:mx-6 rounded-[16px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#f5f4ef] dark:bg-[#1a1917] overflow-hidden">
+            <Leaderboard onUserClick={navigateToUserProfile} />
+          </div>
 
           {/* Submission Forms */}
           {showSubmitMaterialForm && (
