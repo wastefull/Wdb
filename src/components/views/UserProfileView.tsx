@@ -10,6 +10,7 @@ import {
   Microscope,
 } from "lucide-react";
 import * as api from "../../utils/api";
+import { log, error as logError } from "../../utils/logger";
 import { toast } from "sonner";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
@@ -104,9 +105,9 @@ export function UserProfileView({
     try {
       setLoading(true);
       const fetchedProfile = await api.getUserProfile(userId);
-      console.log("[UserProfile] Loaded profile:", fetchedProfile);
-      console.log("[UserProfile] Role:", fetchedProfile.role);
-      console.log("[UserProfile] isOwnProfile:", isOwnProfile);
+      log("[UserProfile] Loaded profile:", fetchedProfile);
+      log("[UserProfile] Role:", fetchedProfile.role);
+      log("[UserProfile] isOwnProfile:", isOwnProfile);
       setProfile(fetchedProfile);
       setEditedBio(fetchedProfile.bio || "");
       setEditedSocialLink(fetchedProfile.social_link || "");
@@ -114,7 +115,7 @@ export function UserProfileView({
       setEditedDisplayEmail(fetchedProfile.display_email || "");
       setEditedOrgRole(fetchedProfile.org_role || "Volunteer");
     } catch (error) {
-      console.error("Error loading profile:", error);
+      logError("Error loading profile:", error);
       toast.error("Failed to load profile");
     } finally {
       setLoading(false);
@@ -124,21 +125,21 @@ export function UserProfileView({
   const loadContributions = async () => {
     try {
       setLoadingContributions(true);
-      console.log("[UserProfile] Loading contributions for userId:", userId);
+      log("[UserProfile] Loading contributions for userId:", userId);
 
       const [statsData, activityData, recentData] = await Promise.all([
         api.getUserContributionStats(userId),
         api.getUserActivity(userId),
         api.getUserRecentContributions(userId, 5),
       ]);
-      console.log("[UserProfile] Stats data:", statsData);
-      console.log("[UserProfile] Activity data:", activityData);
-      console.log("[UserProfile] Recent data:", recentData);
+      log("[UserProfile] Stats data:", statsData);
+      log("[UserProfile] Activity data:", activityData);
+      log("[UserProfile] Recent data:", recentData);
       setStats(statsData);
       setActivity(activityData);
       setRecentContributions(recentData);
     } catch (error) {
-      console.error("Error loading contributions:", error);
+      logError("Error loading contributions:", error);
       // Non-critical error, don't show toast
     } finally {
       setLoadingContributions(false);
@@ -162,7 +163,7 @@ export function UserProfileView({
       // Reload contributions
       loadContributions();
     } catch (error) {
-      console.error("Error backfilling:", error);
+      logError("Error backfilling:", error);
       toast.error("Failed to backfill data");
     }
   };
@@ -185,7 +186,7 @@ export function UserProfileView({
       setEditing(false);
       toast.success("Profile updated successfully");
     } catch (error) {
-      console.error("Error saving profile:", error);
+      logError("Error saving profile:", error);
       toast.error("Failed to save profile");
     } finally {
       setSaving(false);
