@@ -8,6 +8,8 @@ import {
   Package,
   FileText,
   Microscope,
+  BookOpen,
+  ChevronDown,
 } from "lucide-react";
 import * as api from "../../utils/api";
 import { log, error as logError } from "../../utils/logger";
@@ -30,6 +32,13 @@ interface UserProfileViewProps {
   isOwnProfile: boolean;
   onNavigateToMySubmissions?: () => void;
   isAdminModeActive?: boolean;
+  onViewMaterial?: (materialId: string) => void;
+  onViewGuide?: (guideId: string) => void;
+  onViewArticle?: (
+    materialId: string,
+    category: string,
+    articleId: string
+  ) => void;
 }
 
 type OrgRole =
@@ -59,6 +68,9 @@ export function UserProfileView({
   isOwnProfile,
   onNavigateToMySubmissions,
   isAdminModeActive,
+  onViewMaterial,
+  onViewGuide,
+  onViewArticle,
 }: UserProfileViewProps) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -88,18 +100,33 @@ export function UserProfileView({
   >([]);
   const [recentContributions, setRecentContributions] = useState<
     Array<{
-      type: "material" | "article" | "miu";
+      type: "material" | "article" | "guide" | "miu";
       title: string;
       timestamp: string;
       id: string;
+      materialId?: string;
+      category?: string;
     }>
   >([]);
   const [loadingContributions, setLoadingContributions] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  // Filter and pagination state for contributions
+  const [contributionFilter, setContributionFilter] = useState<
+    "material" | "article" | "guide" | "miu" | null
+  >(null);
+  const [contributionLimit, setContributionLimit] = useState(5);
+  const [hasMoreContributions, setHasMoreContributions] = useState(true);
 
   useEffect(() => {
     loadProfile();
-    loadContributions();
+    loadInitialContributions();
   }, [userId]);
+
+  // Re-load only contributions list when filter changes (not limit)
+  useEffect(() => {
+    loadFilteredContributions();
+  }, [contributionFilter]);
 
   const loadProfile = async () => {
     try {
@@ -122,10 +149,13 @@ export function UserProfileView({
     }
   };
 
-  const loadContributions = async () => {
+  // Initial load: fetch stats, activity, and recent contributions
+  const loadInitialContributions = async () => {
     try {
       setLoadingContributions(true);
-      log("[UserProfile] Loading contributions for userId:", userId);
+      setContributionLimit(5);
+      setHasMoreContributions(true);
+      log("[UserProfile] Loading initial contributions for userId:", userId);
 
       const [statsData, activityData, recentData] = await Promise.all([
         api.getUserContributionStats(userId),
@@ -138,11 +168,67 @@ export function UserProfileView({
       setStats(statsData);
       setActivity(activityData);
       setRecentContributions(recentData);
+      setHasMoreContributions(recentData.length >= 5);
     } catch (error) {
       logError("Error loading contributions:", error);
-      // Non-critical error, don't show toast
     } finally {
       setLoadingContributions(false);
+    }
+  };
+
+  // Filter changes: fetch fresh contributions list
+  const loadFilteredContributions = async () => {
+    try {
+      setLoadingContributions(true);
+      setContributionLimit(5);
+      setHasMoreContributions(true);
+      log(
+        "[UserProfile] Loading filtered contributions:",
+        "filter:",
+        contributionFilter
+      );
+
+      const recentData = await api.getUserRecentContributions(
+        userId,
+        5,
+        contributionFilter ?? undefined
+      );
+      log("[UserProfile] Recent data:", recentData);
+      setRecentContributions(recentData);
+      setHasMoreContributions(recentData.length >= 5);
+    } catch (error) {
+      logError("Error loading contributions:", error);
+    } finally {
+      setLoadingContributions(false);
+    }
+  };
+
+  // Load more: append additional results without replacing existing ones
+  const loadMoreContributions = async () => {
+    try {
+      setLoadingMore(true);
+      const newLimit = contributionLimit + 10;
+      log(
+        "[UserProfile] Loading more contributions:",
+        "filter:",
+        contributionFilter,
+        "limit:",
+        newLimit
+      );
+
+      const recentData = await api.getUserRecentContributions(
+        userId,
+        newLimit,
+        contributionFilter ?? undefined
+      );
+      log("[UserProfile] More data:", recentData);
+      setRecentContributions(recentData);
+      setContributionLimit(newLimit);
+      setHasMoreContributions(recentData.length >= newLimit);
+    } catch (error) {
+      logError("Error loading more contributions:", error);
+    } finally {
+      setLoadingMore(false);
     }
   };
 
@@ -161,7 +247,7 @@ export function UserProfileView({
         `Backfill complete! Updated ${result.articlesUpdated} articles.`
       );
       // Reload contributions
-      loadContributions();
+      loadInitialContributions();
     } catch (error) {
       logError("Error backfilling:", error);
       toast.error("Failed to backfill data");
@@ -473,9 +559,21 @@ export function UserProfileView({
             </p>
           ) : stats ? (
             <div className="space-y-6">
-              {/* Stats Grid */}
+              {/* Stats Grid - clickable filters */}
               <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-                <div className="retro-card p-4 text-center">
+                <button
+                  onClick={() => {
+                    setContributionFilter(
+                      contributionFilter === "material" ? null : "material"
+                    );
+                    setContributionLimit(5);
+                  }}
+                  className={`retro-card p-4 text-center transition-all ${
+                    contributionFilter === "material"
+                      ? "ring-2 ring-waste-recycle bg-waste-recycle/10"
+                      : "hover:bg-black/5 dark:hover:bg-white/5"
+                  }`}
+                >
                   <div className="flex items-center justify-center gap-2 mb-2">
                     <Package
                       size={16}
@@ -488,9 +586,21 @@ export function UserProfileView({
                   <p className="text-[11px] text-black/60 dark:text-white/60 uppercase tracking-wide">
                     Materials
                   </p>
-                </div>
+                </button>
 
-                <div className="retro-card p-4 text-center">
+                <button
+                  onClick={() => {
+                    setContributionFilter(
+                      contributionFilter === "article" ? null : "article"
+                    );
+                    setContributionLimit(5);
+                  }}
+                  className={`retro-card p-4 text-center transition-all ${
+                    contributionFilter === "article"
+                      ? "ring-2 ring-waste-reuse bg-waste-reuse/10"
+                      : "hover:bg-black/5 dark:hover:bg-white/5"
+                  }`}
+                >
                   <div className="flex items-center justify-center gap-2 mb-2">
                     <FileText
                       size={16}
@@ -503,11 +613,23 @@ export function UserProfileView({
                   <p className="text-[11px] text-black/60 dark:text-white/60 uppercase tracking-wide">
                     Articles
                   </p>
-                </div>
+                </button>
 
-                <div className="retro-card p-4 text-center">
+                <button
+                  onClick={() => {
+                    setContributionFilter(
+                      contributionFilter === "guide" ? null : "guide"
+                    );
+                    setContributionLimit(5);
+                  }}
+                  className={`retro-card p-4 text-center transition-all ${
+                    contributionFilter === "guide"
+                      ? "ring-2 ring-waste-compost bg-waste-compost/10"
+                      : "hover:bg-black/5 dark:hover:bg-white/5"
+                  }`}
+                >
                   <div className="flex items-center justify-center gap-2 mb-2">
-                    <FileText
+                    <BookOpen
                       size={16}
                       className="text-waste-compost dark:text-waste-compost"
                     />
@@ -518,9 +640,21 @@ export function UserProfileView({
                   <p className="text-[11px] text-black/60 dark:text-white/60 uppercase tracking-wide">
                     Guides
                   </p>
-                </div>
+                </button>
 
-                <div className="retro-card p-4 text-center">
+                <button
+                  onClick={() => {
+                    setContributionFilter(
+                      contributionFilter === "miu" ? null : "miu"
+                    );
+                    setContributionLimit(5);
+                  }}
+                  className={`retro-card p-4 text-center transition-all ${
+                    contributionFilter === "miu"
+                      ? "ring-2 ring-waste-science bg-waste-science/10"
+                      : "hover:bg-black/5 dark:hover:bg-white/5"
+                  }`}
+                >
                   <div className="flex items-center justify-center gap-2 mb-2">
                     <Microscope
                       size={16}
@@ -533,7 +667,7 @@ export function UserProfileView({
                   <p className="text-[11px] text-black/60 dark:text-white/60 uppercase tracking-wide">
                     MIUs
                   </p>
-                </div>
+                </button>
 
                 <div className="retro-card p-4 text-center bg-black/5 dark:bg-white/5">
                   <div className="flex items-center justify-center gap-2 mb-2">
@@ -563,53 +697,164 @@ export function UserProfileView({
               {/* Recent Contributions */}
               {recentContributions.length > 0 && (
                 <div>
-                  <h4 className="text-sm font-semibold mb-3">
-                    Recent Contributions
-                  </h4>
-                  <div className="space-y-2">
-                    {recentContributions.map((contrib, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-start gap-3 p-3 retro-card hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                  <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                    {contributionFilter ? (
+                      <>
+                        {contributionFilter === "material" && "Materials"}
+                        {contributionFilter === "article" && "Articles"}
+                        {contributionFilter === "guide" && "Guides"}
+                        {contributionFilter === "miu" && "MIUs"}
+                      </>
+                    ) : (
+                      "Recent Contributions"
+                    )}
+                    {contributionFilter && (
+                      <button
+                        onClick={() => {
+                          setContributionFilter(null);
+                          setContributionLimit(5);
+                        }}
+                        className="text-[11px] font-normal text-waste-recycle hover:underline"
                       >
-                        <div className="mt-0.5">
-                          {contrib.type === "material" && (
-                            <Package
-                              size={16}
-                              className="text-waste-recycle dark:text-waste-recycle"
-                            />
-                          )}
-                          {contrib.type === "article" && (
-                            <FileText
-                              size={16}
-                              className="text-waste-reuse dark:text-waste-reuse"
-                            />
-                          )}
-                          {contrib.type === "miu" && (
-                            <Microscope
-                              size={16}
-                              className="text-waste-science dark:text-waste-science"
-                            />
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[13px] font-medium truncate">
-                            {contrib.title}
-                          </p>
-                          <p className="text-[11px] text-black/60 dark:text-white/60">
-                            {new Date(contrib.timestamp).toLocaleDateString(
-                              "en-US",
-                              {
-                                month: "short",
-                                day: "numeric",
-                                year: "numeric",
-                              }
+                        Clear filter
+                      </button>
+                    )}
+                  </h4>
+                  <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
+                    {recentContributions.map((contrib, idx) => {
+                      const handleClick = () => {
+                        if (contrib.type === "material" && onViewMaterial) {
+                          onViewMaterial(contrib.id);
+                        } else if (contrib.type === "guide" && onViewGuide) {
+                          onViewGuide(contrib.id);
+                        } else if (
+                          contrib.type === "article" &&
+                          onViewArticle &&
+                          contrib.materialId &&
+                          contrib.category
+                        ) {
+                          onViewArticle(
+                            contrib.materialId,
+                            contrib.category,
+                            contrib.id
+                          );
+                        } else if (
+                          contrib.type === "miu" &&
+                          onViewMaterial &&
+                          contrib.materialId
+                        ) {
+                          // MIUs navigate to their parent material
+                          onViewMaterial(contrib.materialId);
+                        }
+                      };
+
+                      const isClickable =
+                        (contrib.type === "material" && onViewMaterial) ||
+                        (contrib.type === "guide" && onViewGuide) ||
+                        (contrib.type === "article" &&
+                          onViewArticle &&
+                          contrib.materialId &&
+                          contrib.category) ||
+                        (contrib.type === "miu" &&
+                          onViewMaterial &&
+                          contrib.materialId);
+
+                      return (
+                        <button
+                          key={idx}
+                          onClick={handleClick}
+                          disabled={!isClickable}
+                          className={`w-full flex items-start gap-3 p-3 retro-card transition-colors text-left ${
+                            isClickable
+                              ? "hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer"
+                              : "cursor-default"
+                          }`}
+                        >
+                          <div className="mt-0.5">
+                            {contrib.type === "material" && (
+                              <Package
+                                size={16}
+                                className="text-waste-recycle dark:text-waste-recycle"
+                              />
                             )}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
+                            {contrib.type === "article" && (
+                              <FileText
+                                size={16}
+                                className="text-waste-reuse dark:text-waste-reuse"
+                              />
+                            )}
+                            {contrib.type === "guide" && (
+                              <BookOpen
+                                size={16}
+                                className="text-waste-compost dark:text-waste-compost"
+                              />
+                            )}
+                            {contrib.type === "miu" && (
+                              <Microscope
+                                size={16}
+                                className="text-waste-science dark:text-waste-science"
+                              />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[13px] font-medium truncate">
+                              {contrib.title}
+                            </p>
+                            <p className="text-[11px] text-black/60 dark:text-white/60">
+                              {new Date(contrib.timestamp).toLocaleDateString(
+                                "en-US",
+                                {
+                                  month: "short",
+                                  day: "numeric",
+                                  year: "numeric",
+                                }
+                              )}
+                            </p>
+                          </div>
+                        </button>
+                      );
+                    })}
                   </div>
+
+                  {/* View More button */}
+                  {hasMoreContributions && recentContributions.length >= 5 && (
+                    <button
+                      onClick={loadMoreContributions}
+                      disabled={loadingMore}
+                      className="mt-3 w-full flex items-center justify-center gap-2 p-2 text-[13px] text-waste-recycle dark:text-waste-recycle hover:underline disabled:opacity-50"
+                    >
+                      {loadingMore ? (
+                        "Loading..."
+                      ) : (
+                        <>
+                          <ChevronDown size={14} />
+                          View more
+                        </>
+                      )}
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* Empty state for filtered results */}
+              {recentContributions.length === 0 && contributionFilter && (
+                <div className="text-center py-8">
+                  <p className="text-[13px] text-black/60 dark:text-white/60 italic">
+                    No{" "}
+                    {contributionFilter === "miu"
+                      ? "MIUs"
+                      : `${contributionFilter}s`}{" "}
+                    found
+                  </p>
+                  <button
+                    onClick={() => {
+                      setContributionFilter(null);
+                      setContributionLimit(5);
+                    }}
+                    className="mt-2 text-[13px] text-waste-recycle hover:underline"
+                  >
+                    Clear filter
+                  </button>
                 </div>
               )}
 

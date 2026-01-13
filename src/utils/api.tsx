@@ -991,17 +991,24 @@ export async function getUserActivity(
 
 export async function getUserRecentContributions(
   userId: string,
-  limit: number = 10
+  limit: number = 10,
+  typeFilter?: "material" | "article" | "guide" | "miu"
 ): Promise<
   Array<{
-    type: "material" | "article" | "miu";
+    type: "material" | "article" | "guide" | "miu";
     title: string;
     timestamp: string;
     id: string;
+    materialId?: string;
+    category?: string;
   }>
 > {
+  const params = new URLSearchParams({ limit: limit.toString() });
+  if (typeFilter) {
+    params.set("type", typeFilter);
+  }
   const data = await apiCall(
-    `/profile/${userId}/contributions/recent?limit=${limit}`
+    `/profile/${userId}/contributions/recent?${params.toString()}`
   );
   return data.contributions;
 }

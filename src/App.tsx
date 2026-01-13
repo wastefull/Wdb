@@ -1023,6 +1023,17 @@ function AppContent() {
                         : undefined
                     }
                     isAdminModeActive={isAdminModeActive}
+                    onViewMaterial={navigateToMaterialDetail}
+                    onViewGuide={(guideId) =>
+                      navigateTo({ type: "guide-detail", guideId })
+                    }
+                    onViewArticle={(materialId, category, articleId) =>
+                      navigateToArticleDetail(
+                        articleId,
+                        materialId,
+                        category as CategoryType
+                      )
+                    }
                   />
                 ) : currentView.type === "my-submissions" ? (
                   <MySubmissionsView onBack={navigateToMaterials} />

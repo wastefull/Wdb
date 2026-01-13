@@ -4480,54 +4480,65 @@ app.get(
     try {
       const userId = c.req.param("userId");
       const limit = parseInt(c.req.query("limit") || "10", 10);
+      const typeFilter = c.req.query("type"); // Optional: "material", "article", "miu", "guide"
 
       const contributions: Array<{
-        type: "material" | "article" | "miu";
+        type: "material" | "article" | "miu" | "guide";
         title: string;
         timestamp: string;
         id: string;
+        materialId?: string;
+        category?: string;
       }> = [];
 
       // Get materials
       const allMaterials = (await kv.getByPrefix("material:")) || [];
-      const userMaterials = allMaterials.filter((m) => m.created_by === userId);
-      for (const material of userMaterials) {
-        contributions.push({
-          type: "material",
-          title: material.name || "Untitled Material",
-          timestamp: material.created_at || new Date().toISOString(),
-          id: material.id,
-        });
+      if (!typeFilter || typeFilter === "material") {
+        const userMaterials = allMaterials.filter(
+          (m) => m.created_by === userId
+        );
+        for (const material of userMaterials) {
+          contributions.push({
+            type: "material",
+            title: material.name || "Untitled Material",
+            timestamp: material.created_at || new Date().toISOString(),
+            id: material.id,
+          });
+        }
       }
 
       // Get articles (nested inside materials)
-      for (const material of allMaterials) {
-        if (material.articles) {
-          const categories = [
-            "compostability",
-            "recyclability",
-            "reusability",
-          ] as const;
-          for (const category of categories) {
-            const articleArray = material.articles[category];
-            if (Array.isArray(articleArray)) {
-              for (const article of articleArray) {
+      if (!typeFilter || typeFilter === "article") {
+        for (const material of allMaterials) {
+          if (material.articles) {
+            const categories = [
+              "compostability",
+              "recyclability",
+              "reusability",
+            ] as const;
+            for (const category of categories) {
+              const articleArray = material.articles[category];
+              if (Array.isArray(articleArray)) {
                 // Check both created_by and author_id for compatibility
-                if (
-                  article.created_by === userId ||
-                  article.author_id === userId
-                ) {
-                  contributions.push({
-                    type: "article",
-                    title: article.title || "Untitled Article",
-                    timestamp:
-                      article.dateAdded ||
-                      article.created_at ||
-                      new Date().toISOString(),
-                    id:
-                      article.id ||
-                      `${material.id}:${category}:${article.title}`,
-                  });
+                for (const article of articleArray) {
+                  if (
+                    article.created_by === userId ||
+                    article.author_id === userId
+                  ) {
+                    contributions.push({
+                      type: "article",
+                      title: article.title || "Untitled Article",
+                      timestamp:
+                        article.dateAdded ||
+                        article.created_at ||
+                        new Date().toISOString(),
+                      id:
+                        article.id ||
+                        `${material.id}:${category}:${article.title}`,
+                      materialId: material.id,
+                      category,
+                    });
+                  }
                 }
               }
             }
@@ -4535,22 +4546,53 @@ app.get(
         }
       }
 
+      // Get guides from Postgres
+      if (!typeFilter || typeFilter === "guide") {
+        try {
+          const supabase = createClient(
+            Deno.env.get("SUPABASE_URL") ?? "",
+            Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+          );
+          const { data: guides } = await supabase
+            .from("guides")
+            .select("id, title, created_at")
+            .eq("created_by", userId);
+          if (guides) {
+            for (const guide of guides) {
+              contributions.push({
+                type: "guide",
+                title: guide.title || "Untitled Guide",
+                timestamp: guide.created_at || new Date().toISOString(),
+                id: guide.id,
+              });
+            }
+          }
+        } catch (err) {
+          console.error("Error fetching guides for contributions:", err);
+        }
+      }
+
       // Get MIUs from evidence
-      for (const material of allMaterials) {
-        if (material.evidence) {
-          for (const param in material.evidence) {
-            const evidenceList = material.evidence[param];
-            if (Array.isArray(evidenceList)) {
-              for (const evidence of evidenceList) {
-                if (evidence.curator_id === userId) {
-                  contributions.push({
-                    type: "miu",
-                    title: `${param} evidence for ${
-                      material.name || "material"
-                    }`,
-                    timestamp: evidence.timestamp || new Date().toISOString(),
-                    id: `${material.id}:${param}:${evidence.id || Date.now()}`,
-                  });
+      if (!typeFilter || typeFilter === "miu") {
+        for (const material of allMaterials) {
+          if (material.evidence) {
+            for (const param in material.evidence) {
+              const evidenceList = material.evidence[param];
+              if (Array.isArray(evidenceList)) {
+                for (const evidence of evidenceList) {
+                  if (evidence.curator_id === userId) {
+                    contributions.push({
+                      type: "miu",
+                      title: `${param} evidence for ${
+                        material.name || "material"
+                      }`,
+                      timestamp: evidence.timestamp || new Date().toISOString(),
+                      id: `${material.id}:${param}:${
+                        evidence.id || Date.now()
+                      }`,
+                      materialId: material.id,
+                    });
+                  }
                 }
               }
             }
