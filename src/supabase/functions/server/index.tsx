@@ -4620,6 +4620,74 @@ app.get(
   }
 );
 
+// Get admin dashboard stats (public endpoint for totals)
+app.get("/make-server-17cae920/admin/stats", async (c) => {
+  try {
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
+
+    const allMaterials = (await kv.getByPrefix("material:")) || [];
+
+    // Count materials
+    const materialsCount = allMaterials.length;
+
+    // Count articles (nested in materials)
+    let articlesCount = 0;
+    let miusCount = 0;
+    for (const material of allMaterials) {
+      if (material.articles) {
+        const categories = [
+          "compostability",
+          "recyclability",
+          "reusability",
+        ] as const;
+        for (const category of categories) {
+          const articleArray = material.articles[category];
+          if (Array.isArray(articleArray)) {
+            articlesCount += articleArray.length;
+          }
+        }
+      }
+      // Count MIUs
+      if (material.evidence) {
+        for (const param in material.evidence) {
+          const evidenceList = material.evidence[param];
+          if (Array.isArray(evidenceList)) {
+            miusCount += evidenceList.length;
+          }
+        }
+      }
+    }
+
+    // Count guides from Postgres
+    const { count: guidesCount } = await supabase
+      .from("guides")
+      .select("*", { count: "exact", head: true });
+
+    // Count users from KV store
+    const allProfiles = (await kv.getByPrefix("user_profile:")) || [];
+    const usersCount = allProfiles.length;
+
+    return c.json({
+      stats: {
+        materials: materialsCount,
+        articles: articlesCount,
+        guides: guidesCount || 0,
+        mius: miusCount,
+        users: usersCount,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching admin stats:", error);
+    return c.json(
+      { error: "Failed to fetch admin stats", details: String(error) },
+      500
+    );
+  }
+});
+
 // Get leaderboard of top contributors (public endpoint)
 app.get("/make-server-17cae920/leaderboard", async (c) => {
   try {

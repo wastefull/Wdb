@@ -954,6 +954,18 @@ export async function updateUserProfile(
   return data.profile;
 }
 
+// Get admin dashboard stats
+export async function getAdminStats(): Promise<{
+  materials: number;
+  articles: number;
+  guides: number;
+  mius: number;
+  users: number;
+}> {
+  const data = await apiCall(`/admin/stats`, {}, true);
+  return data.stats;
+}
+
 export async function getUserContributionStats(userId: string): Promise<{
   materials: number;
   articles: number;
