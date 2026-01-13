@@ -126,10 +126,6 @@ export function UserProfileView({
       setLoadingContributions(true);
       console.log("[UserProfile] Loading contributions for userId:", userId);
 
-      // Debug: Check all articles in DB
-      const debugData = await api.debugArticles();
-      console.log("[UserProfile] DEBUG - All articles in DB:", debugData);
-
       const [statsData, activityData, recentData] = await Promise.all([
         api.getUserContributionStats(userId),
         api.getUserActivity(userId),

@@ -4016,7 +4016,7 @@ app.post(
 // ===== USER PROFILES =====
 
 // Get user profile
-app.get("/make-server-17cae920/profile/:userId", verifyAuth, async (c) => {
+app.get("/make-server-17cae920/profile/:userId", async (c) => {
   try {
     const userId = c.req.param("userId");
     let profile = await kv.get(`user_profile:${userId}`);
@@ -4263,7 +4263,6 @@ app.get("/make-server-17cae920/debug/articles", verifyAuth, async (c) => {
 // Get user contribution stats
 app.get(
   "/make-server-17cae920/profile/:userId/contributions/stats",
-  verifyAuth,
   async (c) => {
     try {
       const userId = c.req.param("userId");
@@ -4365,7 +4364,6 @@ app.get(
 // Get user activity (for calendar heatmap)
 app.get(
   "/make-server-17cae920/profile/:userId/contributions/activity",
-  verifyAuth,
   async (c) => {
     try {
       const userId = c.req.param("userId");
@@ -4478,7 +4476,6 @@ app.get(
 // Get recent contributions
 app.get(
   "/make-server-17cae920/profile/:userId/contributions/recent",
-  verifyAuth,
   async (c) => {
     try {
       const userId = c.req.param("userId");
