@@ -1028,11 +1028,12 @@ function AppContent() {
                       navigateTo({ type: "guide-detail", guideId })
                     }
                     onViewArticle={(materialId, category, articleId) =>
-                      navigateToArticleDetail(
+                      navigateTo({
+                        type: "article-standalone",
                         articleId,
                         materialId,
-                        category as CategoryType
-                      )
+                        category: category as CategoryType,
+                      })
                     }
                   />
                 ) : currentView.type === "my-submissions" ? (
