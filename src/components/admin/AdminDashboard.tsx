@@ -440,7 +440,7 @@ export function AdminDashboard({
                   className="retro-card p-5 text-left hover:bg-black/5 dark:hover:bg-white/5 transition-colors group"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+                    <div className="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center shrink-0">
                       <AlertTriangle
                         size={24}
                         className="text-amber-600 dark:text-amber-400"
@@ -465,7 +465,7 @@ export function AdminDashboard({
                   className="retro-card p-5 text-left hover:bg-black/5 dark:hover:bg-white/5 transition-colors group"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                    <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center shrink-0">
                       <Users
                         size={24}
                         className="text-blue-600 dark:text-blue-400"
@@ -490,7 +490,7 @@ export function AdminDashboard({
                   className="retro-card p-5 text-left hover:bg-black/5 dark:hover:bg-white/5 transition-colors group"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center flex-shrink-0">
+                    <div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center shrink-0">
                       <Database
                         size={24}
                         className="text-green-600 dark:text-green-400"
@@ -515,7 +515,7 @@ export function AdminDashboard({
                   className="retro-card p-5 text-left hover:bg-black/5 dark:hover:bg-white/5 transition-colors group"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                    <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center shrink-0">
                       <BookOpen
                         size={24}
                         className="text-purple-600 dark:text-purple-400"
@@ -540,7 +540,7 @@ export function AdminDashboard({
                   className="retro-card p-5 text-left hover:bg-black/5 dark:hover:bg-white/5 transition-colors group"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-waste-science/20 flex items-center justify-center flex-shrink-0">
+                    <div className="w-12 h-12 rounded-xl bg-waste-science/20 flex items-center justify-center shrink-0">
                       <Microscope size={24} className="text-waste-science" />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -562,7 +562,7 @@ export function AdminDashboard({
                   className="retro-card p-5 text-left hover:bg-black/5 dark:hover:bg-white/5 transition-colors group"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-cyan-500/20 flex items-center justify-center flex-shrink-0">
+                    <div className="w-12 h-12 rounded-xl bg-cyan-500/20 flex items-center justify-center shrink-0">
                       <TrendingUp
                         size={24}
                         className="text-cyan-600 dark:text-cyan-400"
@@ -591,10 +591,7 @@ export function AdminDashboard({
             <div className="retro-card p-5">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="flex items-center gap-3">
-                  <CheckCircle
-                    size={20}
-                    className="text-green-500 flex-shrink-0"
-                  />
+                  <CheckCircle size={20} className="text-green-500 shrink-0" />
                   <div>
                     <p className="text-[13px] font-medium normal">Database</p>
                     <p className="text-[11px] text-black/60 dark:text-white/60">
@@ -604,10 +601,7 @@ export function AdminDashboard({
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <CheckCircle
-                    size={20}
-                    className="text-green-500 flex-shrink-0"
-                  />
+                  <CheckCircle size={20} className="text-green-500 shrink-0" />
                   <div>
                     <p className="text-[13px] font-medium normal">
                       Edge Functions
@@ -619,10 +613,7 @@ export function AdminDashboard({
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <CheckCircle
-                    size={20}
-                    className="text-green-500 flex-shrink-0"
-                  />
+                  <CheckCircle size={20} className="text-green-500 shrink-0" />
                   <div>
                     <p className="text-[13px] font-medium normal">
                       Authentication

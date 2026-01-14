@@ -197,9 +197,14 @@ export function AboutView({ onBack }: AboutViewProps) {
         <div className="mt-8 p-4 border border-[#211f1c]/20 dark:border-white/20 rounded-lg">
           <p className="text-[12px] text-black/60 dark:text-white/60 text-center">
             Have questions or want to get involved? Check out our{" "}
-            <button className="underline hover:text-black dark:hover:text-white">
+            <a
+              href="https://github.com/wastefull/Wdb"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-black dark:hover:text-white"
+            >
               GitHub repository
-            </button>{" "}
+            </a>{" "}
             or reach out to the community.
           </p>
         </div>

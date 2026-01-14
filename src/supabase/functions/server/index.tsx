@@ -3,6 +3,7 @@ import { cors } from "npm:hono/cors";
 import { logger } from "npm:hono/logger";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import * as kv from "./kv_store.tsx";
+import { logger as log } from "../../../src/utils/logger.ts";
 import {
   normalizeDOI,
   calculateSimilarity,
@@ -265,7 +266,7 @@ function rateLimit(
           if (user) {
             const userRole = await kv.get(`user_role:${user.id}`);
             if (userRole === "admin" || user.email === "natto@wastefull.org") {
-              console.log(
+              log.log(
                 `✓ Admin user ${user.email} bypassing ${type} rate limit`
               );
               await next();
@@ -304,7 +305,7 @@ function rateLimit(
             (oldestRequest + limit.window - now) / 1000
           );
 
-          console.log(
+          log.log(
             `Rate limit exceeded for ${clientId} on ${type}: ${recentRequests.length}/${limit.maxRequests}`
           );
 
@@ -330,7 +331,7 @@ function rateLimit(
 
       await next();
     } catch (error) {
-      console.error("Rate limiting error:", error);
+      log.error("Rate limiting error:", error);
       // Fail open - don't block on rate limit errors
       await next();
     }
@@ -486,12 +487,12 @@ async function initializeStorage() {
         );
 
         if (error) {
-          console.error(
+          log.error(
             `Error creating storage bucket ${bucketConfig.name}:`,
             error
           );
         } else {
-          console.log(
+          log.log(
             `✅ Created ${
               bucketConfig.public ? "public" : "private"
             } storage bucket: ${bucketConfig.name}`
@@ -499,7 +500,7 @@ async function initializeStorage() {
         }
       } else if (existingBucket.public !== bucketConfig.public) {
         // Bucket exists but has wrong privacy setting - update it
-        console.log(
+        log.log(
           `⚠️ Bucket ${bucketConfig.name} exists as ${
             existingBucket.public ? "public" : "private"
           }, updating to ${bucketConfig.public ? "public" : "private"}...`
@@ -514,19 +515,19 @@ async function initializeStorage() {
         );
 
         if (error) {
-          console.error(
+          log.error(
             `Error updating storage bucket ${bucketConfig.name}:`,
             error
           );
         } else {
-          console.log(
+          log.log(
             `✅ Updated bucket ${bucketConfig.name} to ${
               bucketConfig.public ? "public" : "private"
             }`
           );
         }
       } else {
-        console.log(
+        log.log(
           `✅ Storage bucket already exists: ${bucketConfig.name} (${
             bucketConfig.public ? "public" : "private"
           })`
@@ -534,7 +535,7 @@ async function initializeStorage() {
       }
     }
   } catch (error) {
-    console.error("Error initializing storage:", error);
+    log.error("Error initializing storage:", error);
   }
 }
 
@@ -545,7 +546,7 @@ initializeStorage();
 async function verifyAuth(c: any, next: any) {
   // Check for custom session token in X-Session-Token header
   const sessionToken = c.req.header("X-Session-Token");
-  console.log(
+  log.log(
     "verifyAuth: X-Session-Token header:",
     sessionToken ? `${sessionToken.substring(0, 8)}...` : "missing"
   );
@@ -553,7 +554,7 @@ async function verifyAuth(c: any, next: any) {
   // If no session token, check Authorization header for backward compatibility
   if (!sessionToken) {
     const authHeader = c.req.header("Authorization");
-    console.log(
+    log.log(
       "verifyAuth: Authorization header:",
       authHeader
         ? `Bearer ${authHeader.split(" ")[1]?.substring(0, 8)}...`
@@ -561,17 +562,17 @@ async function verifyAuth(c: any, next: any) {
     );
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      console.log("verifyAuth: Missing or invalid Authorization header");
+      log.log("verifyAuth: Missing or invalid Authorization header");
       return c.json({ error: "Unauthorized - missing token" }, 401);
     }
 
     const token = authHeader.split(" ")[1];
-    console.log("verifyAuth: Token extracted:", token.substring(0, 8) + "...");
+    log.log("verifyAuth: Token extracted:", token.substring(0, 8) + "...");
 
     // Skip verification for public anon key (for backward compatibility during development)
     const publicAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
     if (token === publicAnonKey) {
-      console.log("verifyAuth: Using public anon key (skipping verification)");
+      log.log("verifyAuth: Using public anon key (skipping verification)");
       await next();
       return;
     }
@@ -582,8 +583,8 @@ async function verifyAuth(c: any, next: any) {
 
   try {
     // First, check if this is a custom session token (magic link)
-    console.log("verifyAuth: Checking for custom session token in KV...");
-    console.log(`verifyAuth: Looking up key: session:${token}`);
+    log.log("verifyAuth: Checking for custom session token in KV...");
+    log.log(`verifyAuth: Looking up key: session:${token}`);
     const sessionData = (await kv.get(`session:${token}`)) as {
       userId: string;
       email: string;
@@ -591,7 +592,7 @@ async function verifyAuth(c: any, next: any) {
       createdAt: number;
     } | null;
 
-    console.log(
+    log.log(
       "verifyAuth: Session data found:",
       sessionData
         ? `userId: ${sessionData.userId}, email: ${
@@ -600,19 +601,19 @@ async function verifyAuth(c: any, next: any) {
         : "null"
     );
     if (!sessionData) {
-      console.log("verifyAuth: No session found in KV for this token");
+      log.log("verifyAuth: No session found in KV for this token");
     }
 
     if (sessionData) {
       // Verify session hasn't expired
       if (Date.now() > sessionData.expiry) {
-        console.log("verifyAuth: Session expired");
+        log.log("verifyAuth: Session expired");
         await kv.del(`session:${token}`);
         return c.json({ error: "Session expired - please sign in again" }, 401);
       }
 
       // Session is valid - set context and continue
-      console.log("verifyAuth: Session valid, setting context");
+      log.log("verifyAuth: Session valid, setting context");
       c.set("userId", sessionData.userId);
       c.set("userEmail", sessionData.email);
       await next();
@@ -620,7 +621,7 @@ async function verifyAuth(c: any, next: any) {
     }
 
     // If not a custom session, try Supabase JWT token (for backward compatibility)
-    console.log("verifyAuth: No custom session, trying Supabase JWT...");
+    log.log("verifyAuth: No custom session, trying Supabase JWT...");
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? ""
@@ -632,17 +633,17 @@ async function verifyAuth(c: any, next: any) {
     } = await supabase.auth.getUser(token);
 
     if (error || !user) {
-      console.log("verifyAuth: Supabase JWT validation failed:", error);
+      log.log("verifyAuth: Supabase JWT validation failed:", error);
       return c.json({ error: "Unauthorized - invalid token" }, 401);
     }
 
     // Store user ID and email in context for use in route handlers
-    console.log("verifyAuth: Supabase JWT valid, user:", user.email);
+    log.log("verifyAuth: Supabase JWT valid, user:", user.email);
     c.set("userId", user.id);
     c.set("userEmail", user.email);
     await next();
   } catch (error) {
-    console.error("Auth verification error:", error);
+    log.error("Auth verification error:", error);
     return c.json({ error: "Unauthorized - verification failed" }, 401);
   }
 }
@@ -655,10 +656,10 @@ async function verifyAdmin(c: any, next: any) {
   const userId = c.get("userId");
   const userEmail = c.get("userEmail");
 
-  console.log("verifyAdmin check:", { userId, userEmail });
+  log.log("verifyAdmin check:", { userId, userEmail });
 
   if (!userId) {
-    console.log("verifyAdmin: No userId found in context");
+    log.log("verifyAdmin: No userId found in context");
     return c.json({ error: "Unauthorized - authentication required" }, 401);
   }
 
@@ -666,22 +667,20 @@ async function verifyAdmin(c: any, next: any) {
     // Get user role from KV store
     const userRole = await kv.get(`user_role:${userId}`);
 
-    console.log("verifyAdmin: User role from KV:", userRole);
+    log.log("verifyAdmin: User role from KV:", userRole);
 
     // If no role is set, check if this is an admin email
     if (!userRole) {
       // Initialize role for natto@wastefull.org as admin
       if (userEmail === "natto@wastefull.org") {
-        console.log(
-          "verifyAdmin: Initializing admin role for natto@wastefull.org"
-        );
+        log.log("verifyAdmin: Initializing admin role for natto@wastefull.org");
         await kv.set(`user_role:${userId}`, "admin");
         c.set("userRole", "admin");
         await next();
         return;
       }
       // Default role is 'user'
-      console.log("verifyAdmin: Setting default user role");
+      log.log("verifyAdmin: Setting default user role");
       await kv.set(`user_role:${userId}`, "user");
       return c.json({ error: "Forbidden - admin role required" }, 403);
     }
@@ -693,7 +692,7 @@ async function verifyAdmin(c: any, next: any) {
     c.set("userRole", userRole);
     await next();
   } catch (error) {
-    console.error("Admin verification error:", error);
+    log.error("Admin verification error:", error);
     return c.json(
       { error: "Authorization check failed", details: String(error) },
       500
@@ -717,7 +716,7 @@ app.post(
 
       // Check honeypot (anti-bot)
       if (!checkHoneypot(honeypot)) {
-        console.log("Honeypot triggered for signup attempt");
+        log.log("Honeypot triggered for signup attempt");
         // Return success to not alert bots
         return c.json({
           user: { id: "blocked", email: "blocked", name: "blocked" },
@@ -773,7 +772,7 @@ app.post(
       });
 
       if (error) {
-        console.error("Signup error:", error);
+        log.error("Signup error:", error);
 
         // Don't reveal if user already exists (security best practice)
         if (error.message?.includes("already registered")) {
@@ -816,7 +815,7 @@ app.post(
       };
       await kv.set(`user_profile:${data.user.id}`, initialProfile);
 
-      console.log(
+      log.log(
         `New user created: ${email} (role: ${initialRole}) - awaiting email confirmation`
       );
 
@@ -830,7 +829,7 @@ app.post(
           "Account created! Please check your email to confirm your account before signing in.",
       });
     } catch (error) {
-      console.error("Signup exception:", error);
+      log.error("Signup exception:", error);
       return c.json(
         { error: "Server error during signup. Please try again." },
         500
@@ -847,7 +846,7 @@ app.post("/make-server-17cae920/auth/signin", rateLimit("AUTH"), async (c) => {
 
     // Check honeypot (anti-bot)
     if (!checkHoneypot(honeypot)) {
-      console.log("Honeypot triggered for signin attempt");
+      log.log("Honeypot triggered for signin attempt");
       // Delay response to slow down bots
       await new Promise((resolve) => setTimeout(resolve, 2000));
       return c.json({ error: "Invalid credentials" }, 401);
@@ -873,7 +872,7 @@ app.post("/make-server-17cae920/auth/signin", rateLimit("AUTH"), async (c) => {
         const remainingMinutes = Math.ceil(
           (lockDuration - timeSinceLastAttempt) / 60000
         );
-        console.log(
+        log.log(
           `Account locked: ${email} (${failedAttempts.count} failed attempts)`
         );
         return c.json(
@@ -899,7 +898,7 @@ app.post("/make-server-17cae920/auth/signin", rateLimit("AUTH"), async (c) => {
     });
 
     if (error) {
-      console.error("Signin error:", error);
+      log.error("Signin error:", error);
 
       // Check if the error is due to unconfirmed email
       if (
@@ -930,7 +929,7 @@ app.post("/make-server-17cae920/auth/signin", rateLimit("AUTH"), async (c) => {
 
     // Additional check: verify user's email is confirmed
     if (data.user && !data.user.email_confirmed_at) {
-      console.log(`Sign in blocked for unconfirmed email: ${email}`);
+      log.log(`Sign in blocked for unconfirmed email: ${email}`);
       return c.json(
         {
           error:
@@ -945,7 +944,7 @@ app.post("/make-server-17cae920/auth/signin", rateLimit("AUTH"), async (c) => {
     await kv.del(failedAttemptsKey);
 
     // Log successful login
-    console.log(`Successful login: ${email}`);
+    log.log(`Successful login: ${email}`);
 
     return c.json({
       access_token: data.session.access_token,
@@ -956,7 +955,7 @@ app.post("/make-server-17cae920/auth/signin", rateLimit("AUTH"), async (c) => {
       },
     });
   } catch (error) {
-    console.error("Signin exception:", error);
+    log.error("Signin exception:", error);
     return c.json(
       { error: "Server error during signin. Please try again." },
       500
@@ -975,7 +974,7 @@ app.post(
 
       // Check honeypot (anti-bot)
       if (!checkHoneypot(honeypot)) {
-        console.log("Honeypot triggered for magic link attempt");
+        log.log("Honeypot triggered for magic link attempt");
         // Delay response to slow down bots
         await new Promise((resolve) => setTimeout(resolve, 2000));
         return c.json({ error: "Invalid request" }, 400);
@@ -1018,7 +1017,7 @@ app.post(
       const resendApiKey = Deno.env.get("RESEND_API_KEY");
 
       if (!resendApiKey) {
-        console.error("RESEND_API_KEY not configured");
+        log.error("RESEND_API_KEY not configured");
         return c.json(
           { error: "Email service not configured. Please contact support." },
           500
@@ -1089,12 +1088,12 @@ app.post(
 
         if (!emailResponse.ok) {
           const errorData = await emailResponse.text();
-          console.error("Resend API error:", errorData);
+          log.error("Resend API error:", errorData);
           throw new Error(`Failed to send email: ${emailResponse.status}`);
         }
 
         const emailData = await emailResponse.json();
-        console.log(
+        log.log(
           `Magic link email sent to ${trimmedEmail} (Resend ID: ${emailData.id})`
         );
 
@@ -1103,9 +1102,9 @@ app.post(
           email: trimmedEmail,
         });
       } catch (emailError) {
-        console.error("Error sending magic link email:", emailError);
+        log.error("Error sending magic link email:", emailError);
         // Still log to console for debugging
-        console.log(`Fallback: Magic link for ${trimmedEmail}: ${magicLink}`);
+        log.log(`Fallback: Magic link for ${trimmedEmail}: ${magicLink}`);
         return c.json(
           {
             error: "Failed to send email. Please try again or contact support.",
@@ -1114,7 +1113,7 @@ app.post(
         );
       }
     } catch (error) {
-      console.error("Magic link exception:", error);
+      log.error("Magic link exception:", error);
       return c.json(
         { error: "Server error sending magic link. Please try again." },
         500
@@ -1173,10 +1172,10 @@ app.post("/make-server-17cae920/auth/verify-magic-link", async (c) => {
     if (existingUser) {
       // User exists
       userData = { user: existingUser };
-      console.log(`Existing user found for magic link: ${trimmedEmail}`);
+      log.log(`Existing user found for magic link: ${trimmedEmail}`);
     } else {
       // User doesn't exist, create them
-      console.log(`User not found, creating new user for: ${trimmedEmail}`);
+      log.log(`User not found, creating new user for: ${trimmedEmail}`);
       const emailValidation = validateEmail(trimmedEmail);
       const { data: newUser, error: createError } =
         await supabase.auth.admin.createUser({
@@ -1192,7 +1191,7 @@ app.post("/make-server-17cae920/auth/verify-magic-link", async (c) => {
         });
 
       if (createError) {
-        console.error("Error creating user for magic link:", createError);
+        log.error("Error creating user for magic link:", createError);
 
         // If user already exists (race condition), try to get them again
         if (
@@ -1206,7 +1205,7 @@ app.post("/make-server-17cae920/auth/verify-magic-link", async (c) => {
           );
           if (retryUser) {
             userData = { user: retryUser };
-            console.log(`User found on retry: ${trimmedEmail}`);
+            log.log(`User found on retry: ${trimmedEmail}`);
           } else {
             return c.json(
               { error: "Failed to retrieve existing account." },
@@ -1225,7 +1224,7 @@ app.post("/make-server-17cae920/auth/verify-magic-link", async (c) => {
         // Initialize user role
         const initialRole = emailValidation.isOrgEmail ? "admin" : "user";
         await kv.set(`user_role:${userData.user.id}`, initialRole);
-        console.log(
+        log.log(
           `New magic link user created: ${trimmedEmail} (role: ${initialRole})`
         );
       }
@@ -1237,7 +1236,7 @@ app.post("/make-server-17cae920/auth/verify-magic-link", async (c) => {
       const emailValidation = validateEmail(trimmedEmail);
       const initialRole = emailValidation.isOrgEmail ? "admin" : "user";
       await kv.set(`user_role:${userData.user.id}`, initialRole);
-      console.log(
+      log.log(
         `Role initialized for existing user: ${trimmedEmail} (role: ${initialRole})`
       );
     }
@@ -1252,10 +1251,10 @@ app.post("/make-server-17cae920/auth/verify-magic-link", async (c) => {
     const accessToken = crypto.randomUUID();
     const sessionExpiry = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 days
 
-    console.log(
+    log.log(
       `Creating session for user ${userData.user.id} with token: ${accessToken}`
     );
-    console.log(`Session will be stored with key: session:${accessToken}`);
+    log.log(`Session will be stored with key: session:${accessToken}`);
 
     // Store the session
     await kv.set(`session:${accessToken}`, {
@@ -1267,16 +1266,16 @@ app.post("/make-server-17cae920/auth/verify-magic-link", async (c) => {
 
     // Verify the session was stored
     const verifySession = await kv.get(`session:${accessToken}`);
-    console.log(
+    log.log(
       `Session storage verification:`,
       verifySession ? "SUCCESS" : "FAILED"
     );
     if (verifySession) {
-      console.log(`Verified session data:`, JSON.stringify(verifySession));
+      log.log(`Verified session data:`, JSON.stringify(verifySession));
     }
 
-    console.log(`Successful magic link verification: ${trimmedEmail}`);
-    console.log(`Returning access_token to frontend: ${accessToken}`);
+    log.log(`Successful magic link verification: ${trimmedEmail}`);
+    log.log(`Returning access_token to frontend: ${accessToken}`);
 
     // Return user data and access token
     return c.json({
@@ -1288,7 +1287,7 @@ app.post("/make-server-17cae920/auth/verify-magic-link", async (c) => {
       },
     });
   } catch (error) {
-    console.error("Magic link verification exception:", error);
+    log.error("Magic link verification exception:", error);
     return c.json(
       { error: "Server error during verification. Please try again." },
       500
@@ -1304,7 +1303,7 @@ app.get("/make-server-17cae920/materials", rateLimit("API"), async (c) => {
     const materials = await kv.getByPrefix("material:");
     return c.json({ materials: materials || [] });
   } catch (error) {
-    console.error("Error fetching materials:", error);
+    log.error("Error fetching materials:", error);
     return c.json(
       { error: "Failed to fetch materials", details: String(error) },
       500
@@ -1349,7 +1348,7 @@ app.post(
 
       return c.json({ material });
     } catch (error) {
-      console.error("Error creating material:", error);
+      log.error("Error creating material:", error);
       return c.json(
         { error: "Failed to create material", details: String(error) },
         500
@@ -1405,7 +1404,7 @@ app.post(
           },
           req: c,
         });
-        console.log(
+        log.log(
           `AUDIT: Bulk material operation - ${existingCount} → ${materials.length} materials`
         );
       }
@@ -1416,7 +1415,7 @@ app.post(
           (m: any) => `material:${m.id}`
         );
         await kv.mdel(keysToDelete);
-        console.log(`Deleted ${keysToDelete.length} existing materials`);
+        log.log(`Deleted ${keysToDelete.length} existing materials`);
       }
 
       // Now save the new materials (if any)
@@ -1424,7 +1423,7 @@ app.post(
         const keys = materials.map((m: any) => `material:${m.id}`);
         const values = materials;
         await kv.mset(keys, values);
-        console.log(`Saved ${materials.length} materials`);
+        log.log(`Saved ${materials.length} materials`);
       }
 
       return c.json({
@@ -1433,7 +1432,7 @@ app.post(
         deleted: existingMaterials?.length || 0,
       });
     } catch (error) {
-      console.error("Error batch saving materials:", error);
+      log.error("Error batch saving materials:", error);
       return c.json(
         { error: "Failed to batch save materials", details: String(error) },
         500
@@ -1484,7 +1483,7 @@ app.put(
 
       return c.json({ material });
     } catch (error) {
-      console.error("Error updating material:", error);
+      log.error("Error updating material:", error);
       return c.json(
         { error: "Failed to update material", details: String(error) },
         500
@@ -1522,7 +1521,7 @@ app.delete(
 
       return c.json({ success: true });
     } catch (error) {
-      console.error("Error deleting material:", error);
+      log.error("Error deleting material:", error);
       return c.json(
         { error: "Failed to delete material", details: String(error) },
         500
@@ -1545,7 +1544,7 @@ app.delete(
       }
       return c.json({ success: true, deleted: materials?.length || 0 });
     } catch (error) {
-      console.error("Error deleting all materials:", error);
+      log.error("Error deleting all materials:", error);
       return c.json(
         { error: "Failed to delete all materials", details: String(error) },
         500
@@ -1556,27 +1555,27 @@ app.delete(
 
 // Get current user's role (protected)
 app.get("/make-server-17cae920/users/me/role", verifyAuth, async (c) => {
-  console.log("🔍 GET /users/me/role - Endpoint reached after verifyAuth");
-  console.log("✅ GET /users/me/role endpoint reached after verifyAuth");
+  log.log("🔍 GET /users/me/role - Endpoint reached after verifyAuth");
+  log.log("✅ GET /users/me/role endpoint reached after verifyAuth");
   try {
     const userId = c.get("userId");
     const userEmail = c.get("userEmail");
-    console.log(`Getting role for user: ${userId} (${userEmail})`);
+    log.log(`Getting role for user: ${userId} (${userEmail})`);
 
     let userRole = await kv.get(`user_role:${userId}`);
-    console.log(`Retrieved role from KV: ${userRole}`);
+    log.log(`Retrieved role from KV: ${userRole}`);
 
     // Initialize role if not set
     if (!userRole) {
       userRole = userEmail === "natto@wastefull.org" ? "admin" : "user";
       await kv.set(`user_role:${userId}`, userRole);
-      console.log(`Initialized role for user: ${userRole}`);
+      log.log(`Initialized role for user: ${userRole}`);
     }
 
-    console.log(`Returning role: ${userRole}`);
+    log.log(`Returning role: ${userRole}`);
     return c.json({ role: userRole });
   } catch (error) {
-    console.error("Error getting user role:", error);
+    log.error("Error getting user role:", error);
     return c.json(
       { error: "Failed to get user role", details: String(error) },
       500
@@ -1596,7 +1595,7 @@ app.get("/make-server-17cae920/users", verifyAuth, verifyAdmin, async (c) => {
     const { data, error } = await supabase.auth.admin.listUsers();
 
     if (error) {
-      console.error("Error listing users:", error);
+      log.error("Error listing users:", error);
       return c.json({ error: "Failed to list users" }, 500);
     }
 
@@ -1624,7 +1623,7 @@ app.get("/make-server-17cae920/users", verifyAuth, verifyAdmin, async (c) => {
 
     return c.json({ users: usersWithRoles });
   } catch (error) {
-    console.error("Error listing users:", error);
+    log.error("Error listing users:", error);
     return c.json(
       { error: "Failed to list users", details: String(error) },
       500
@@ -1668,7 +1667,7 @@ app.put(
 
       return c.json({ success: true, userId, role });
     } catch (error) {
-      console.error("Error updating user role:", error);
+      log.error("Error updating user role:", error);
       return c.json(
         { error: "Failed to update user role", details: String(error) },
         500
@@ -1705,7 +1704,7 @@ app.delete(
       const { error } = await supabase.auth.admin.deleteUser(userId);
 
       if (error) {
-        console.error("Error deleting user:", error);
+        log.error("Error deleting user:", error);
         return c.json({ error: error.message || "Failed to delete user" }, 500);
       }
 
@@ -1727,7 +1726,7 @@ app.delete(
 
       return c.json({ success: true });
     } catch (error) {
-      console.error("Error deleting user:", error);
+      log.error("Error deleting user:", error);
       return c.json(
         { error: "Failed to delete user", details: String(error) },
         500
@@ -1771,7 +1770,7 @@ app.put(
       );
 
       if (error) {
-        console.error("Error updating user:", error);
+        log.error("Error updating user:", error);
         return c.json({ error: error.message || "Failed to update user" }, 500);
       }
 
@@ -1784,7 +1783,7 @@ app.put(
         },
       });
     } catch (error) {
-      console.error("Error updating user:", error);
+      log.error("Error updating user:", error);
       return c.json(
         { error: "Failed to update user", details: String(error) },
         500
@@ -1853,7 +1852,7 @@ app.post(
         });
 
       if (error) {
-        console.error("Error uploading to storage:", error);
+        log.error("Error uploading to storage:", error);
         return c.json(
           { error: "Failed to upload file", details: error.message },
           500
@@ -1865,7 +1864,7 @@ app.post(
         data: { publicUrl },
       } = supabase.storage.from(bucketName).getPublicUrl(fileName);
 
-      console.log(`✅ Asset uploaded: ${fileName} -> ${publicUrl}`);
+      log.log(`✅ Asset uploaded: ${fileName} -> ${publicUrl}`);
 
       return c.json({
         success: true,
@@ -1875,7 +1874,7 @@ app.post(
         type: file.type,
       });
     } catch (error) {
-      console.error("Error in asset upload:", error);
+      log.error("Error in asset upload:", error);
       return c.json(
         { error: "Failed to upload asset", details: String(error) },
         500
@@ -1897,7 +1896,7 @@ app.get("/make-server-17cae920/assets", verifyAuth, verifyAdmin, async (c) => {
     const { data, error } = await supabase.storage.from(bucketName).list();
 
     if (error) {
-      console.error("Error listing assets:", error);
+      log.error("Error listing assets:", error);
       return c.json(
         { error: "Failed to list assets", details: error.message },
         500
@@ -1921,7 +1920,7 @@ app.get("/make-server-17cae920/assets", verifyAuth, verifyAdmin, async (c) => {
 
     return c.json({ assets });
   } catch (error) {
-    console.error("Error in asset listing:", error);
+    log.error("Error in asset listing:", error);
     return c.json(
       { error: "Failed to list assets", details: String(error) },
       500
@@ -1950,18 +1949,18 @@ app.delete(
         .remove([fileName]);
 
       if (error) {
-        console.error("Error deleting asset:", error);
+        log.error("Error deleting asset:", error);
         return c.json(
           { error: "Failed to delete asset", details: error.message },
           500
         );
       }
 
-      console.log(`Asset deleted: ${fileName}`);
+      log.log(`Asset deleted: ${fileName}`);
 
       return c.json({ success: true });
     } catch (error) {
-      console.error("Error in asset deletion:", error);
+      log.error("Error in asset deletion:", error);
       return c.json(
         { error: "Failed to delete asset", details: String(error) },
         500
@@ -1979,13 +1978,13 @@ app.post(
   verifyAdmin,
   async (c) => {
     try {
-      console.log("Received PDF upload request");
+      log.log("Received PDF upload request");
 
       const formData = await c.req.formData();
       const file = formData.get("file") as File;
       const sourceId = formData.get("sourceId") as string;
 
-      console.log("Form data parsed:", {
+      log.log("Form data parsed:", {
         hasFile: !!file,
         fileName: file?.name,
         fileSize: file?.size,
@@ -1994,18 +1993,18 @@ app.post(
       });
 
       if (!file) {
-        console.log("No file provided");
+        log.log("No file provided");
         return c.json({ error: "No file provided" }, 400);
       }
 
       if (!sourceId) {
-        console.log("No source ID provided");
+        log.log("No source ID provided");
         return c.json({ error: "Source ID is required" }, 400);
       }
 
       // Validate file type
       if (file.type !== "application/pdf") {
-        console.log(`Invalid file type: ${file.type}`);
+        log.log(`Invalid file type: ${file.type}`);
         return c.json(
           { error: "Invalid file type. Only PDF files are allowed." },
           400
@@ -2014,11 +2013,11 @@ app.post(
 
       // Validate file size (20MB max)
       if (file.size > 20971520) {
-        console.log(`File too large: ${file.size} bytes`);
+        log.log(`File too large: ${file.size} bytes`);
         return c.json({ error: "File too large. Maximum size is 20MB." }, 400);
       }
 
-      console.log("Validation passed, creating Supabase client");
+      log.log("Validation passed, creating Supabase client");
       const supabase = createClient(
         Deno.env.get("SUPABASE_URL") ?? "",
         Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
@@ -2028,16 +2027,16 @@ app.post(
 
       // Generate filename: sourceId-timestamp.pdf
       const fileName = `${sourceId}-${Date.now()}.pdf`;
-      console.log(`Generated filename: ${fileName}`);
+      log.log(`Generated filename: ${fileName}`);
 
       // Convert File to ArrayBuffer then to Uint8Array
-      console.log("Converting file to Uint8Array...");
+      log.log("Converting file to Uint8Array...");
       const arrayBuffer = await file.arrayBuffer();
       const uint8Array = new Uint8Array(arrayBuffer);
-      console.log(`Converted ${uint8Array.length} bytes`);
+      log.log(`Converted ${uint8Array.length} bytes`);
 
       // Upload to Supabase Storage
-      console.log(`Uploading to bucket: ${bucketName}`);
+      log.log(`Uploading to bucket: ${bucketName}`);
       const { data, error } = await supabase.storage
         .from(bucketName)
         .upload(fileName, uint8Array, {
@@ -2046,15 +2045,15 @@ app.post(
         });
 
       if (error) {
-        console.error("Error uploading PDF to storage:", error);
+        log.error("Error uploading PDF to storage:", error);
         return c.json(
           { error: "Failed to upload PDF", details: error.message },
           500
         );
       }
 
-      console.log(`Source PDF uploaded successfully: ${fileName}`);
-      console.log(" Upload data:", data);
+      log.log(`Source PDF uploaded successfully: ${fileName}`);
+      log.log(" Upload data:", data);
 
       return c.json({
         success: true,
@@ -2063,7 +2062,7 @@ app.post(
         size: file.size,
       });
     } catch (error) {
-      console.error("💥 Exception in source PDF upload:", error);
+      log.error("💥 Exception in source PDF upload:", error);
       return c.json(
         { error: "Failed to upload source PDF", details: String(error) },
         500
@@ -2079,11 +2078,11 @@ app.post(
   verifyAdmin,
   async (c) => {
     try {
-      console.log("Received PDF import-from-url request");
+      log.log("Received PDF import-from-url request");
 
       const { url, sourceId } = await c.req.json();
 
-      console.log("Request params:", { url, sourceId });
+      log.log("Request params:", { url, sourceId });
 
       if (!url) {
         return c.json({ error: "URL is required" }, 400);
@@ -2132,7 +2131,7 @@ app.post(
       );
 
       if (isBlockedDomain) {
-        console.log(`Blocked domain detected: ${hostname}`);
+        log.log(`Blocked domain detected: ${hostname}`);
         return c.json(
           {
             error: "This publisher blocks automated downloads",
@@ -2143,7 +2142,7 @@ app.post(
         );
       }
 
-      console.log("Fetching PDF from URL...");
+      log.log("Fetching PDF from URL...");
 
       // Set timeout for fetch (30 seconds)
       const controller = new AbortController();
@@ -2179,7 +2178,7 @@ app.post(
             408
           );
         }
-        console.error("Fetch error:", fetchError);
+        log.error("Fetch error:", fetchError);
         return c.json(
           {
             error: "Failed to fetch PDF from URL",
@@ -2189,7 +2188,7 @@ app.post(
         );
       }
 
-      console.log("Fetch response:", {
+      log.log("Fetch response:", {
         status: response.status,
         contentType: response.headers.get("content-type"),
         contentLength: response.headers.get("content-length"),
@@ -2251,11 +2250,11 @@ app.post(
       }
 
       // Download the file
-      console.log("Downloading PDF content...");
+      log.log("Downloading PDF content...");
       const arrayBuffer = await response.arrayBuffer();
       const uint8Array = new Uint8Array(arrayBuffer);
 
-      console.log(`Downloaded ${uint8Array.length} bytes`);
+      log.log(`Downloaded ${uint8Array.length} bytes`);
 
       // Validate actual file size
       if (uint8Array.length > 20971520) {
@@ -2277,7 +2276,7 @@ app.post(
         );
       }
 
-      console.log("PDF validation passed, uploading to Supabase Storage...");
+      log.log("PDF validation passed, uploading to Supabase Storage...");
 
       const supabase = createClient(
         Deno.env.get("SUPABASE_URL") ?? "",
@@ -2295,14 +2294,14 @@ app.post(
         });
 
       if (error) {
-        console.error("Error uploading PDF to storage:", error);
+        log.error("Error uploading PDF to storage:", error);
         return c.json(
           { error: "Failed to save PDF to storage", details: error.message },
           500
         );
       }
 
-      console.log(`PDF imported successfully from URL: ${fileName}`);
+      log.log(`PDF imported successfully from URL: ${fileName}`);
 
       return c.json({
         success: true,
@@ -2312,7 +2311,7 @@ app.post(
         originalUrl: url,
       });
     } catch (error) {
-      console.error("💥 Exception in PDF import from URL:", error);
+      log.error("💥 Exception in PDF import from URL:", error);
       return c.json(
         { error: "Failed to import PDF from URL", details: String(error) },
         500
@@ -2326,9 +2325,9 @@ app.post(
 app.get("/make-server-17cae920/source-pdfs/:fileName/view", async (c) => {
   try {
     const fileName = c.req.param("fileName");
-    console.log(`\n========== PDF VIEW REQUEST ==========`);
-    console.log(`🔗: ${fileName}`);
-    console.log(`🕐: ${new Date().toISOString()}`);
+    log.log(`\n========== PDF VIEW REQUEST ==========`);
+    log.log(`🔗: ${fileName}`);
+    log.log(`🕐: ${new Date().toISOString()}`);
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
@@ -2338,20 +2337,20 @@ app.get("/make-server-17cae920/source-pdfs/:fileName/view", async (c) => {
     const bucketName = "make-17cae920-source-pdfs";
 
     // Ensure bucket is public (check and update if needed)
-    console.log(`🔍 Checking bucket privacy settings...`);
+    log.log(`🔍 Checking bucket privacy settings...`);
     const { data: buckets, error: listError } =
       await supabase.storage.listBuckets();
 
     if (listError) {
-      console.error("Failed to list buckets:", listError);
+      log.error("Failed to list buckets:", listError);
       return c.text("Failed to access storage", 500);
     }
 
-    console.log(`Found ${buckets?.length || 0} buckets total`);
+    log.log(`Found ${buckets?.length || 0} buckets total`);
     const bucket = buckets?.find((b) => b.name === bucketName);
 
     if (bucket) {
-      console.log(`Bucket info:`, {
+      log.log(`Bucket info:`, {
         name: bucket.name,
         public: bucket.public,
         id: bucket.id,
@@ -2359,7 +2358,7 @@ app.get("/make-server-17cae920/source-pdfs/:fileName/view", async (c) => {
       });
 
       if (!bucket.public) {
-        console.log(`⚠️ Bucket is PRIVATE - updating to PUBLIC...`);
+        log.log(`⚠️ Bucket is PRIVATE - updating to PUBLIC...`);
         const { data: updateData, error: updateError } =
           await supabase.storage.updateBucket(bucketName, {
             public: true,
@@ -2368,40 +2367,34 @@ app.get("/make-server-17cae920/source-pdfs/:fileName/view", async (c) => {
           });
 
         if (updateError) {
-          console.error("❌ Failed to update bucket to public:", updateError);
-          console.error(
-            "   Error details:",
-            JSON.stringify(updateError, null, 2)
-          );
+          log.error("❌ Failed to update bucket to public:", updateError);
+          log.error("   Error details:", JSON.stringify(updateError, null, 2));
         } else {
-          console.log(`Successfully updated bucket to PUBLIC`);
-          console.log(`   Update response:`, updateData);
+          log.log(`Successfully updated bucket to PUBLIC`);
+          log.log(`   Update response:`, updateData);
         }
       } else {
-        console.log(`Bucket is already PUBLIC ✓`);
+        log.log(`Bucket is already PUBLIC ✓`);
       }
     } else {
-      console.error("Bucket not found");
-      console.log(
-        "   Available buckets:",
-        buckets?.map((b) => b.name).join(", ")
-      );
+      log.error("Bucket not found");
+      log.log("   Available buckets:", buckets?.map((b) => b.name).join(", "));
       return c.text("Storage bucket not found", 500);
     }
 
     // Check if file exists
-    console.log(`Checking if file exists: ${fileName}`);
+    log.log(`Checking if file exists: ${fileName}`);
     const { data: fileList, error: listFilesError } = await supabase.storage
       .from(bucketName)
       .list("", { search: fileName });
 
     if (listFilesError) {
-      console.error("Failed to check file existence:", listFilesError);
+      log.error("Failed to check file existence:", listFilesError);
     } else {
       const fileExists = fileList?.some((f) => f.name === fileName);
-      console.log(`File exists: ${fileExists ? "✓ YES" : "✗ NO"}`);
+      log.log(`File exists: ${fileExists ? "✓ YES" : "✗ NO"}`);
       if (!fileExists) {
-        console.log(
+        log.log(
           `   Files in bucket:`,
           fileList
             ?.map((f) => f.name)
@@ -2412,25 +2405,25 @@ app.get("/make-server-17cae920/source-pdfs/:fileName/view", async (c) => {
     }
 
     // Get public URL for the PDF
-    console.log(`🔗 Generating public URL...`);
+    log.log(`🔗 Generating public URL...`);
     const { data } = supabase.storage.from(bucketName).getPublicUrl(fileName);
 
     if (!data.publicUrl) {
-      console.error("Failed to get public URL - data.publicUrl is empty");
+      log.error("Failed to get public URL - data.publicUrl is empty");
       return c.text("Failed to load PDF", 500);
     }
 
-    console.log(`Generated public URL: ${data.publicUrl}`);
-    console.log(` Issuing 302 redirect to public URL...`);
-    console.log(`======================================\n`);
+    log.log(`Generated public URL: ${data.publicUrl}`);
+    log.log(` Issuing 302 redirect to public URL...`);
+    log.log(`======================================\n`);
 
     // Return 302 redirect to the public URL
     return c.redirect(data.publicUrl, 302);
   } catch (error) {
-    console.error("💥 EXCEPTION in PDF redirect:");
-    console.error("   Error:", error);
-    console.error("   Stack:", error instanceof Error ? error.stack : "N/A");
-    console.log(`======================================\n`);
+    log.error("💥 EXCEPTION in PDF redirect:");
+    log.error("   Error:", error);
+    log.error("   Stack:", error instanceof Error ? error.stack : "N/A");
+    log.log(`======================================\n`);
     return c.text("Failed to load PDF", 500);
   }
 });
@@ -2540,7 +2533,7 @@ app.get(
   async (c) => {
     try {
       const fileName = c.req.param("fileName");
-      console.log(`📥 Request for PDF URL: ${fileName}`);
+      log.log(`📥 Request for PDF URL: ${fileName}`);
 
       const supabase = createClient(
         Deno.env.get("SUPABASE_URL") ?? "",
@@ -2548,10 +2541,10 @@ app.get(
       );
 
       const bucketName = "make-17cae920-source-pdfs";
-      console.log(`🪣 Using bucket: ${bucketName}`);
+      log.log(`🪣 Using bucket: ${bucketName}`);
 
       // Generate signed URL valid for 1 hour
-      console.log(`🔐 Creating signed URL for ${fileName}...`);
+      log.log(`🔐 Creating signed URL for ${fileName}...`);
       const { data, error } = await supabase.storage
         .from(bucketName)
         .createSignedUrl(fileName, 3600);
@@ -2562,11 +2555,11 @@ app.get(
           error.message?.includes("Object not found") ||
           error.statusCode === "404"
         ) {
-          console.log(
+          log.log(
             ` PDF not found: ${fileName} (this is expected for test files)`
           );
         } else {
-          console.error("❌ Error creating signed URL:", error);
+          log.error("❌ Error creating signed URL:", error);
         }
         return c.json(
           { error: "Failed to get PDF URL", details: error.message },
@@ -2574,15 +2567,15 @@ app.get(
         );
       }
 
-      console.log(`✅ Signed URL created successfully`);
-      console.log(`📍 URL: ${data.signedUrl?.substring(0, 80)}...`);
+      log.log(`✅ Signed URL created successfully`);
+      log.log(`📍 URL: ${data.signedUrl?.substring(0, 80)}...`);
 
       return c.json({
         signedUrl: data.signedUrl,
         expiresIn: 3600,
       });
     } catch (error) {
-      console.error("💥 Exception in PDF URL retrieval:", error);
+      log.error("💥 Exception in PDF URL retrieval:", error);
       return c.json(
         { error: "Failed to get PDF URL", details: String(error) },
         500
@@ -2612,18 +2605,18 @@ app.delete(
         .remove([fileName]);
 
       if (error) {
-        console.error("Error deleting source PDF:", error);
+        log.error("Error deleting source PDF:", error);
         return c.json(
           { error: "Failed to delete PDF", details: error.message },
           500
         );
       }
 
-      console.log(`✅ Source PDF deleted: ${fileName}`);
+      log.log(`✅ Source PDF deleted: ${fileName}`);
 
       return c.json({ success: true });
     } catch (error) {
-      console.error("Error in source PDF deletion:", error);
+      log.error("Error in source PDF deletion:", error);
       return c.json(
         { error: "Failed to delete PDF", details: String(error) },
         500
@@ -2665,18 +2658,18 @@ async function getScreenshotSignedUrl(
         error.message?.includes("Object not found") ||
         error.statusCode === "404"
       ) {
-        console.log(
+        log.log(
           `📸 Screenshot not found: ${fileName} (this is expected for test files)`
         );
       } else {
-        console.error("Error creating screenshot signed URL:", error);
+        log.error("Error creating screenshot signed URL:", error);
       }
       return { signedUrl: null, error: error.message };
     }
 
     return { signedUrl: data.signedUrl };
   } catch (error) {
-    console.error("Exception in screenshot signed URL generation:", error);
+    log.error("Exception in screenshot signed URL generation:", error);
     return { signedUrl: null, error: String(error) };
   }
 }
@@ -2688,7 +2681,7 @@ app.get(
   async (c) => {
     try {
       const fileName = c.req.param("fileName");
-      console.log(`📸 Request for screenshot URL: ${fileName}`);
+      log.log(`📸 Request for screenshot URL: ${fileName}`);
 
       const result = await getScreenshotSignedUrl(fileName);
 
@@ -2699,14 +2692,14 @@ app.get(
         );
       }
 
-      console.log(`✅ Screenshot signed URL created (24-hour expiry)`);
+      log.log(`✅ Screenshot signed URL created (24-hour expiry)`);
 
       return c.json({
         signedUrl: result.signedUrl,
         expiresIn: 86400, // 24 hours in seconds
       });
     } catch (error) {
-      console.error("Exception in screenshot URL retrieval:", error);
+      log.error("Exception in screenshot URL retrieval:", error);
       return c.json(
         { error: "Failed to get screenshot URL", details: String(error) },
         500
@@ -2763,7 +2756,7 @@ app.post(
         });
 
       if (uploadError) {
-        console.error("Error uploading screenshot:", uploadError);
+        log.error("Error uploading screenshot:", uploadError);
         return c.json(
           {
             error: "Failed to upload screenshot",
@@ -2773,7 +2766,7 @@ app.post(
         );
       }
 
-      console.log(`✅ Screenshot uploaded: ${fileName}`);
+      log.log(`✅ Screenshot uploaded: ${fileName}`);
 
       // Return signed URL
       const result = await getScreenshotSignedUrl(fileName);
@@ -2785,7 +2778,7 @@ app.post(
         expiresIn: 86400,
       });
     } catch (error) {
-      console.error("Error in screenshot upload:", error);
+      log.error("Error in screenshot upload:", error);
       return c.json(
         { error: "Failed to upload screenshot", details: String(error) },
         500
@@ -2815,18 +2808,18 @@ app.delete(
         .remove([fileName]);
 
       if (error) {
-        console.error("Error deleting screenshot:", error);
+        log.error("Error deleting screenshot:", error);
         return c.json(
           { error: "Failed to delete screenshot", details: error.message },
           500
         );
       }
 
-      console.log(`✅ Screenshot deleted: ${fileName}`);
+      log.log(`✅ Screenshot deleted: ${fileName}`);
 
       return c.json({ success: true });
     } catch (error) {
-      console.error("Error in screenshot deletion:", error);
+      log.error("Error in screenshot deletion:", error);
       return c.json(
         { error: "Failed to delete screenshot", details: String(error) },
         500
@@ -2841,7 +2834,7 @@ app.delete(
 app.get("/make-server-17cae920/whitepapers", async (c) => {
   try {
     const whitepapers = await kv.getByPrefix("whitepaper:");
-    console.log(" Fetching all whitepapers:", {
+    log.log(" Fetching all whitepapers:", {
       count: whitepapers?.length || 0,
       whitepapers: whitepapers?.map((wp) => ({
         slug: wp?.slug,
@@ -2852,7 +2845,7 @@ app.get("/make-server-17cae920/whitepapers", async (c) => {
     });
     return c.json({ whitepapers });
   } catch (error) {
-    console.error("Error fetching whitepapers:", error);
+    log.error("Error fetching whitepapers:", error);
     return c.json(
       { error: "Failed to fetch whitepapers", details: String(error) },
       500
@@ -2866,7 +2859,7 @@ app.get("/make-server-17cae920/whitepapers/:slug", async (c) => {
     const slug = c.req.param("slug");
     const whitepaper = await kv.get(`whitepaper:${slug}`);
 
-    console.log("🔍 Retrieving whitepaper:", {
+    log.log("🔍 Retrieving whitepaper:", {
       slug,
       found: !!whitepaper,
       title: whitepaper?.title,
@@ -2885,7 +2878,7 @@ app.get("/make-server-17cae920/whitepapers/:slug", async (c) => {
 
     return c.json({ whitepaper });
   } catch (error) {
-    console.error("Error fetching whitepaper:", error);
+    log.error("Error fetching whitepaper:", error);
     return c.json(
       { error: "Failed to fetch whitepaper", details: String(error) },
       500
@@ -2902,7 +2895,7 @@ app.post(
     try {
       const { slug, title, content } = await c.req.json();
 
-      console.log("📝 Saving whitepaper:", {
+      log.log("📝 Saving whitepaper:", {
         slug,
         title,
         contentType: typeof content,
@@ -2947,7 +2940,7 @@ app.post(
 
       // Verify it was saved correctly
       const verification = await kv.get(`whitepaper:${slug}`);
-      console.log("✅ Verification after save:", {
+      log.log("✅ Verification after save:", {
         slug: verification?.slug,
         title: verification?.title,
         contentType: typeof verification?.content,
@@ -2957,7 +2950,7 @@ app.post(
 
       return c.json({ whitepaper });
     } catch (error) {
-      console.error("Error saving whitepaper:", error);
+      log.error("Error saving whitepaper:", error);
       return c.json(
         { error: "Failed to save whitepaper", details: String(error) },
         500
@@ -2995,7 +2988,7 @@ app.delete(
 
       return c.json({ success: true });
     } catch (error) {
-      console.error("Error deleting whitepaper:", error);
+      log.error("Error deleting whitepaper:", error);
       return c.json(
         { error: "Failed to delete whitepaper", details: String(error) },
         500
@@ -3057,9 +3050,9 @@ app.get(
             content: content,
           });
 
-          console.log(`✅ Read ${file.filename}: ${content.length} characters`);
+          log.log(`✅ Read ${file.filename}: ${content.length} characters`);
         } catch (error) {
-          console.error(`❌ Failed to read ${file.filename}:`, error);
+          log.error(`❌ Failed to read ${file.filename}:`, error);
           // Continue with other files even if one fails
           whitepapers.push({
             slug: file.slug,
@@ -3073,7 +3066,7 @@ app.get(
 
       return c.json({ whitepapers });
     } catch (error) {
-      console.error("Error reading whitepaper source files:", error);
+      log.error("Error reading whitepaper source files:", error);
       return c.json(
         { error: "Failed to read whitepaper files", details: String(error) },
         500
@@ -3539,7 +3532,7 @@ app.get("/make-server-17cae920/export/full-OLD", async (c) => {
 
     // Get all evidence points for MIU traceability (NEW in v2.0)
     const allEvidence = await kv.getByPrefix("evidence:");
-    console.log(` Retrieved ${allEvidence.length} evidence points for export`);
+    log.log(` Retrieved ${allEvidence.length} evidence points for export`);
 
     // Organize evidence by material ID
     const evidenceByMaterial = new Map();
@@ -3721,7 +3714,7 @@ app.get("/make-server-17cae920/export/full-OLD", async (c) => {
       },
     });
   } catch (error) {
-    console.error("Error exporting research data:", error);
+    log.error("Error exporting research data:", error);
     return c.json(
       { error: "Failed to export data", details: String(error) },
       500
@@ -3738,7 +3731,7 @@ app.get("/make-server-17cae920/sources", async (c) => {
     const sources = await kv.getByPrefix("source:");
     return c.json({ success: true, sources: sources || [] });
   } catch (error) {
-    console.error("Error fetching sources:", error);
+    log.error("Error fetching sources:", error);
     return c.json(
       {
         success: false,
@@ -3768,7 +3761,7 @@ app.post(
 
       return c.json({ success: true, count: sources.length });
     } catch (error) {
-      console.error("Error batch saving sources:", error);
+      log.error("Error batch saving sources:", error);
       return c.json(
         { error: "Failed to batch save sources", details: String(error) },
         500
@@ -3834,7 +3827,7 @@ app.post(
         calculation_timestamp: new Date().toISOString(),
       });
     } catch (error) {
-      console.error("Error calculating compostability:", error);
+      log.error("Error calculating compostability:", error);
       return c.json(
         { error: "Failed to calculate compostability", details: String(error) },
         500
@@ -3898,7 +3891,7 @@ app.post(
         calculation_timestamp: new Date().toISOString(),
       });
     } catch (error) {
-      console.error("Error calculating reusability:", error);
+      log.error("Error calculating reusability:", error);
       return c.json(
         { error: "Failed to calculate reusability", details: String(error) },
         500
@@ -4002,7 +3995,7 @@ app.post(
 
       return c.json(results);
     } catch (error) {
-      console.error("Error calculating all dimensions:", error);
+      log.error("Error calculating all dimensions:", error);
       return c.json(
         { error: "Failed to calculate dimensions", details: String(error) },
         500
@@ -4023,9 +4016,7 @@ app.get("/make-server-17cae920/profile/:userId", async (c) => {
 
     // If profile doesn't exist, create a default one (for existing users)
     if (!profile) {
-      console.log(
-        `Profile not found for user ${userId}, creating default profile`
-      );
+      log.log(`Profile not found for user ${userId}, creating default profile`);
 
       // Try to get user email from context or from Supabase
       let userEmail = c.get("userEmail");
@@ -4047,7 +4038,7 @@ app.get("/make-server-17cae920/profile/:userId", async (c) => {
               userData.user.user_metadata?.name || userEmail.split("@")[0];
           }
         } catch (err) {
-          console.error("Error fetching user data from Supabase:", err);
+          log.error("Error fetching user data from Supabase:", err);
         }
       }
 
@@ -4065,7 +4056,7 @@ app.get("/make-server-17cae920/profile/:userId", async (c) => {
       };
 
       await kv.set(`user_profile:${userId}`, profile);
-      console.log(`Created default profile for user ${userId}`);
+      log.log(`Created default profile for user ${userId}`);
     }
 
     // Fetch user role from separate KV key and attach to profile response
@@ -4076,7 +4067,7 @@ app.get("/make-server-17cae920/profile/:userId", async (c) => {
 
     return c.json({ profile });
   } catch (error) {
-    console.error("Error fetching profile:", error);
+    log.error("Error fetching profile:", error);
     return c.json(
       { error: "Failed to fetch profile", details: String(error) },
       500
@@ -4123,7 +4114,7 @@ app.put("/make-server-17cae920/profile/:userId", verifyAuth, async (c) => {
     await kv.set(`user_profile:${userId}`, updatedProfile);
     return c.json({ profile: updatedProfile });
   } catch (error) {
-    console.error("Error updating profile:", error);
+    log.error("Error updating profile:", error);
     return c.json(
       { error: "Failed to update profile", details: String(error) },
       500
@@ -4190,7 +4181,7 @@ app.post(
         userId,
       });
     } catch (error) {
-      console.error("Error backfilling created_by:", error);
+      log.error("Error backfilling created_by:", error);
       return c.json(
         { error: "Failed to backfill", details: String(error) },
         500
@@ -4203,22 +4194,22 @@ app.post(
 app.get("/make-server-17cae920/debug/articles", verifyAuth, async (c) => {
   try {
     const userId = c.get("userId");
-    console.log(`[DEBUG] Getting data for userId: ${userId}`);
+    log.log(`[DEBUG] Getting data for userId: ${userId}`);
 
     let allArticles, allMaterials;
     try {
       allArticles = (await kv.getByPrefix("article:")) || [];
-      console.log(`[DEBUG] Articles fetch result:`, allArticles);
+      log.log(`[DEBUG] Articles fetch result:`, allArticles);
     } catch (err) {
-      console.error(`[DEBUG] Error fetching articles:`, err);
+      log.error(`[DEBUG] Error fetching articles:`, err);
       allArticles = [];
     }
 
     try {
       allMaterials = (await kv.getByPrefix("material:")) || [];
-      console.log(`[DEBUG] Materials fetch result count:`, allMaterials.length);
+      log.log(`[DEBUG] Materials fetch result count:`, allMaterials.length);
     } catch (err) {
-      console.error(`[DEBUG] Error fetching materials:`, err);
+      log.error(`[DEBUG] Error fetching materials:`, err);
       allMaterials = [];
     }
 
@@ -4253,7 +4244,7 @@ app.get("/make-server-17cae920/debug/articles", verifyAuth, async (c) => {
       },
     };
 
-    console.log(`[DEBUG] Returning result:`, JSON.stringify(result, null, 2));
+    log.log(`[DEBUG] Returning result:`, JSON.stringify(result, null, 2));
     return c.json(result);
   } catch (error) {
     return c.json({ error: String(error) }, 500);
@@ -4266,15 +4257,13 @@ app.get(
   async (c) => {
     try {
       const userId = c.req.param("userId");
-      console.log(`[Contributions] Fetching stats for userId: ${userId}`);
+      log.log(`[Contributions] Fetching stats for userId: ${userId}`);
 
       // Count materials created by user
       const allMaterials = (await kv.getByPrefix("material:")) || [];
-      console.log(
-        `[Contributions] Total materials in DB: ${allMaterials.length}`
-      );
+      log.log(`[Contributions] Total materials in DB: ${allMaterials.length}`);
       const userMaterials = allMaterials.filter((m) => m.created_by === userId);
-      console.log(
+      log.log(
         `[Contributions] User materials: ${userMaterials.length}`,
         userMaterials.map((m) => ({
           id: m.id,
@@ -4306,7 +4295,7 @@ app.get(
           }
         }
       }
-      console.log(
+      log.log(
         `[Contributions] User articles (nested in materials): ${userArticleCount}`
       );
 
@@ -4322,9 +4311,9 @@ app.get(
           .select("*", { count: "exact", head: true })
           .eq("created_by", userId);
         guidesCount = count || 0;
-        console.log(`[Contributions] User guides: ${guidesCount}`);
+        log.log(`[Contributions] User guides: ${guidesCount}`);
       } catch (err) {
-        console.error(`[Contributions] Error fetching guides:`, err);
+        log.error(`[Contributions] Error fetching guides:`, err);
       }
 
       // Count MIUs (evidence points) - scan all materials for curator_id in evidence
@@ -4352,7 +4341,7 @@ app.get(
 
       return c.json({ stats });
     } catch (error) {
-      console.error("Error fetching contribution stats:", error);
+      log.error("Error fetching contribution stats:", error);
       return c.json(
         { error: "Failed to fetch contribution stats", details: String(error) },
         500
@@ -4464,7 +4453,7 @@ app.get(
 
       return c.json({ activity });
     } catch (error) {
-      console.error("Error fetching activity:", error);
+      log.error("Error fetching activity:", error);
       return c.json(
         { error: "Failed to fetch activity", details: String(error) },
         500
@@ -4568,7 +4557,7 @@ app.get(
             }
           }
         } catch (err) {
-          console.error("Error fetching guides for contributions:", err);
+          log.error("Error fetching guides for contributions:", err);
         }
       }
 
@@ -4608,7 +4597,7 @@ app.get(
 
       return c.json({ contributions: contributions.slice(0, limit) });
     } catch (error) {
-      console.error("Error fetching recent contributions:", error);
+      log.error("Error fetching recent contributions:", error);
       return c.json(
         {
           error: "Failed to fetch recent contributions",
@@ -4680,7 +4669,7 @@ app.get("/make-server-17cae920/admin/stats", async (c) => {
       },
     });
   } catch (error) {
-    console.error("Error fetching admin stats:", error);
+    log.error("Error fetching admin stats:", error);
     return c.json(
       { error: "Failed to fetch admin stats", details: String(error) },
       500
@@ -4844,7 +4833,7 @@ app.get("/make-server-17cae920/leaderboard", async (c) => {
 
     return c.json({ leaders: leaders.slice(0, limit) });
   } catch (error) {
-    console.error("Error fetching leaderboard:", error);
+    log.error("Error fetching leaderboard:", error);
     return c.json(
       { error: "Failed to fetch leaderboard", details: String(error) },
       500
@@ -4883,7 +4872,7 @@ app.get("/make-server-17cae920/articles", async (c) => {
 
     return c.json({ articles: articles || [] });
   } catch (error) {
-    console.error("Error fetching articles:", error);
+    log.error("Error fetching articles:", error);
     return c.json(
       { error: "Failed to fetch articles", details: String(error) },
       500
@@ -4903,7 +4892,7 @@ app.get("/make-server-17cae920/articles/:id", async (c) => {
 
     return c.json({ article });
   } catch (error) {
-    console.error("Error fetching article:", error);
+    log.error("Error fetching article:", error);
     return c.json(
       { error: "Failed to fetch article", details: String(error) },
       500
@@ -4929,7 +4918,7 @@ app.post("/make-server-17cae920/articles", verifyAuth, async (c) => {
     await kv.set(`article:${article.id}`, article);
     return c.json({ article });
   } catch (error) {
-    console.error("Error creating article:", error);
+    log.error("Error creating article:", error);
     return c.json(
       { error: "Failed to create article", details: String(error) },
       500
@@ -4964,7 +4953,7 @@ app.put("/make-server-17cae920/articles/:id", verifyAuth, async (c) => {
     await kv.set(`article:${id}`, updatedArticle);
     return c.json({ article: updatedArticle });
   } catch (error) {
-    console.error("Error updating article:", error);
+    log.error("Error updating article:", error);
     return c.json(
       { error: "Failed to update article", details: String(error) },
       500
@@ -4992,7 +4981,7 @@ app.delete("/make-server-17cae920/articles/:id", verifyAuth, async (c) => {
     await kv.del(`article:${id}`);
     return c.json({ success: true });
   } catch (error) {
-    console.error("Error deleting article:", error);
+    log.error("Error deleting article:", error);
     return c.json(
       { error: "Failed to delete article", details: String(error) },
       500
@@ -5018,7 +5007,7 @@ app.get(
 
       return c.json({ submissions: submissions || [] });
     } catch (error) {
-      console.error("Error fetching submissions:", error);
+      log.error("Error fetching submissions:", error);
       return c.json(
         { error: "Failed to fetch submissions", details: String(error) },
         500
@@ -5037,7 +5026,7 @@ app.get("/make-server-17cae920/submissions/my", verifyAuth, async (c) => {
 
     return c.json({ submissions: userSubmissions });
   } catch (error) {
-    console.error("Error fetching user submissions:", error);
+    log.error("Error fetching user submissions:", error);
     return c.json(
       { error: "Failed to fetch submissions", details: String(error) },
       500
@@ -5078,7 +5067,7 @@ app.post("/make-server-17cae920/submissions", verifyAuth, async (c) => {
 
     return c.json({ submission });
   } catch (error) {
-    console.error("Error creating submission:", error);
+    log.error("Error creating submission:", error);
     return c.json(
       { error: "Failed to create submission", details: String(error) },
       500
@@ -5148,7 +5137,7 @@ app.put(
 
       return c.json({ submission: updatedSubmission });
     } catch (error) {
-      console.error("Error updating submission:", error);
+      log.error("Error updating submission:", error);
       return c.json(
         { error: "Failed to update submission", details: String(error) },
         500
@@ -5168,7 +5157,7 @@ app.delete(
       await kv.del(`submission:${id}`);
       return c.json({ success: true });
     } catch (error) {
-      console.error("Error deleting submission:", error);
+      log.error("Error deleting submission:", error);
       return c.json(
         { error: "Failed to delete submission", details: String(error) },
         500
@@ -5211,11 +5200,11 @@ app.post(
       };
 
       await kv.set(`notification:${notificationId}`, notification);
-      console.log("Notification created:", notificationId);
+      log.log("Notification created:", notificationId);
 
       return c.json({ success: true, notification });
     } catch (error) {
-      console.error("Error creating notification:", error);
+      log.error("Error creating notification:", error);
       return c.json(
         { error: "Failed to create notification", details: String(error) },
         500
@@ -5248,7 +5237,7 @@ app.get(
 
       return c.json({ notifications: userNotifications });
     } catch (error) {
-      console.error("Error fetching notifications:", error);
+      log.error("Error fetching notifications:", error);
       return c.json(
         { error: "Failed to fetch notifications", details: String(error) },
         500
@@ -5275,7 +5264,7 @@ app.put(
 
       return c.json({ notification });
     } catch (error) {
-      console.error("Error marking notification as read:", error);
+      log.error("Error marking notification as read:", error);
       return c.json(
         { error: "Failed to update notification", details: String(error) },
         500
@@ -5305,7 +5294,7 @@ app.post(
       const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 
       if (!RESEND_API_KEY) {
-        console.error("RESEND_API_KEY not configured");
+        log.error("RESEND_API_KEY not configured");
         return c.json({ error: "Email service not configured" }, 500);
       }
 
@@ -5327,7 +5316,7 @@ app.post(
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error("Resend API error:", errorText);
+        log.error("Resend API error:", errorText);
         return c.json(
           { error: "Failed to send email", details: errorText },
           500
@@ -5335,11 +5324,11 @@ app.post(
       }
 
       const result = await response.json();
-      console.log("Email sent successfully:", result.id);
+      log.log("Email sent successfully:", result.id);
 
       return c.json({ success: true, emailId: result.id });
     } catch (error) {
-      console.error("Error sending email:", error);
+      log.error("Error sending email:", error);
       return c.json(
         { error: "Failed to send email", details: String(error) },
         500
@@ -5370,7 +5359,7 @@ app.post(
       const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 
       if (!RESEND_API_KEY) {
-        console.error("RESEND_API_KEY not configured");
+        log.error("RESEND_API_KEY not configured");
         return c.json({ error: "Email service not configured" }, 500);
       }
 
@@ -5504,7 +5493,7 @@ Building open scientific infrastructure for material circularity
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error("Resend API error:", errorText);
+        log.error("Resend API error:", errorText);
         return c.json(
           { error: "Failed to send email", details: errorText },
           500
@@ -5512,11 +5501,11 @@ Building open scientific infrastructure for material circularity
       }
 
       const result = await response.json();
-      console.log("Revision request email sent successfully:", result.id);
+      log.log("Revision request email sent successfully:", result.id);
 
       return c.json({ success: true, emailId: result.id });
     } catch (error) {
-      console.error("Error sending revision request email:", error);
+      log.error("Error sending revision request email:", error);
       return c.json(
         { error: "Failed to send email", details: String(error) },
         500
@@ -5542,7 +5531,7 @@ app.post(
       const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 
       if (!RESEND_API_KEY) {
-        console.error("RESEND_API_KEY not configured");
+        log.error("RESEND_API_KEY not configured");
         return c.json({ error: "Email service not configured" }, 500);
       }
 
@@ -5678,7 +5667,7 @@ Building open scientific infrastructure for material circularity
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error("Resend API error:", errorText);
+        log.error("Resend API error:", errorText);
         return c.json(
           { error: "Failed to send email", details: errorText },
           500
@@ -5686,11 +5675,11 @@ Building open scientific infrastructure for material circularity
       }
 
       const result = await response.json();
-      console.log("Approval email sent successfully:", result.id);
+      log.log("Approval email sent successfully:", result.id);
 
       return c.json({ success: true, emailId: result.id });
     } catch (error) {
-      console.error("Error sending approval email:", error);
+      log.error("Error sending approval email:", error);
       return c.json(
         { error: "Failed to send email", details: String(error) },
         500
@@ -5716,7 +5705,7 @@ app.post(
       const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 
       if (!RESEND_API_KEY) {
-        console.error("RESEND_API_KEY not configured");
+        log.error("RESEND_API_KEY not configured");
         return c.json({ error: "Email service not configured" }, 500);
       }
 
@@ -5851,7 +5840,7 @@ Building open scientific infrastructure for material circularity
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error("Resend API error:", errorText);
+        log.error("Resend API error:", errorText);
         return c.json(
           { error: "Failed to send email", details: errorText },
           500
@@ -5859,11 +5848,11 @@ Building open scientific infrastructure for material circularity
       }
 
       const result = await response.json();
-      console.log("Rejection email sent successfully:", result.id);
+      log.log("Rejection email sent successfully:", result.id);
 
       return c.json({ success: true, emailId: result.id });
     } catch (error) {
-      console.error("Error sending rejection email:", error);
+      log.error("Error sending rejection email:", error);
       return c.json(
         { error: "Failed to send email", details: String(error) },
         500
@@ -5887,11 +5876,11 @@ app.delete(
       }
 
       await kv.del(`submission:${id}`);
-      console.log(`Submission deleted: ${id}`);
+      log.log(`Submission deleted: ${id}`);
 
       return c.json({ success: true });
     } catch (error) {
-      console.error("Error deleting submission:", error);
+      log.error("Error deleting submission:", error);
       return c.json(
         { error: "Failed to delete submission", details: String(error) },
         500
@@ -5961,7 +5950,7 @@ app.get("/make-server-17cae920/sources/search", async (c) => {
       results,
     });
   } catch (error) {
-    console.error("Error searching CrossRef:", error);
+    log.error("Error searching CrossRef:", error);
     return c.json(
       {
         error: "Failed to search for sources",
@@ -6035,7 +6024,7 @@ app.get("/make-server-17cae920/sources/lookup-doi", async (c) => {
       },
     });
   } catch (error) {
-    console.error("Error looking up DOI:", error);
+    log.error("Error looking up DOI:", error);
     return c.json(
       {
         error: "Failed to lookup DOI",
@@ -6103,7 +6092,7 @@ app.get("/make-server-17cae920/sources/check-oa", async (c) => {
       journal: data.journal_name || null,
     });
   } catch (error) {
-    console.error("Error checking Open Access status:", error);
+    log.error("Error checking Open Access status:", error);
     return c.json(
       {
         error: "Failed to check Open Access status",
@@ -6127,7 +6116,7 @@ app.get("/make-server-17cae920/sources/:id", async (c) => {
 
     return c.json({ source });
   } catch (error) {
-    console.error("Error fetching source:", error);
+    log.error("Error fetching source:", error);
     return c.json(
       { error: "Failed to fetch source", details: String(error) },
       500
@@ -6201,7 +6190,7 @@ app.post(
       };
 
       await kv.set(`source:${source.id}`, source);
-      console.log(`Source created: ${source.id} by user ${userId}`);
+      log.log(`Source created: ${source.id} by user ${userId}`);
 
       // Audit log
       await createAuditLog({
@@ -6216,7 +6205,7 @@ app.post(
 
       return c.json({ source });
     } catch (error) {
-      console.error("Error creating source:", error);
+      log.error("Error creating source:", error);
       return c.json(
         { error: "Failed to create source", details: String(error) },
         500
@@ -6332,7 +6321,7 @@ app.put(
       };
 
       await kv.set(`source:${id}`, updatedSource);
-      console.log(`Source updated: ${id} by user ${userId}`);
+      log.log(`Source updated: ${id} by user ${userId}`);
 
       // Audit log
       await createAuditLog({
@@ -6348,7 +6337,7 @@ app.put(
 
       return c.json({ source: updatedSource });
     } catch (error) {
-      console.error("Error updating source:", error);
+      log.error("Error updating source:", error);
       return c.json(
         { error: "Failed to update source", details: String(error) },
         500
@@ -6417,7 +6406,7 @@ app.delete(
         deletedIds.push(source.id);
       }
 
-      console.log(`✓ Batch deleted ${deletedCount} sources by user ${userId}`);
+      log.log(`✓ Batch deleted ${deletedCount} sources by user ${userId}`);
 
       // Create ONE audit log entry for the batch delete
       const auditId = `audit:${Date.now()}:${crypto.randomUUID()}`;
@@ -6448,7 +6437,7 @@ app.delete(
       };
 
       await kv.set(auditId, entry);
-      console.log(`📝 Audit log created for batch delete: ${auditId}`);
+      log.log(`📝 Audit log created for batch delete: ${auditId}`);
 
       // Send ONE summary email notification
       const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
@@ -6521,9 +6510,9 @@ app.delete(
               html,
             }),
           });
-          console.log("📧 Batch delete audit email sent");
+          log.log("📧 Batch delete audit email sent");
         } catch (emailError) {
-          console.error("Failed to send batch delete audit email:", emailError);
+          log.error("Failed to send batch delete audit email:", emailError);
         }
       }
 
@@ -6539,7 +6528,7 @@ app.delete(
             : `Successfully deleted all ${deletedCount} sources.`,
       });
     } catch (error) {
-      console.error("Error in batch delete sources:", error);
+      log.error("Error in batch delete sources:", error);
       return c.json(
         { error: "Failed to batch delete sources", details: String(error) },
         500
@@ -6653,9 +6642,7 @@ app.delete(
         deletedTitles.push(source.title);
       }
 
-      console.log(
-        `✓ Removed ${deletedCount} duplicate sources by user ${userId}`
-      );
+      log.log(`✓ Removed ${deletedCount} duplicate sources by user ${userId}`);
 
       // Create ONE audit log entry for the duplicate removal
       const auditId = `audit:${Date.now()}:${crypto.randomUUID()}`;
@@ -6687,7 +6674,7 @@ app.delete(
       };
 
       await kv.set(auditId, entry);
-      console.log(`📝 Audit log created for duplicate removal: ${auditId}`);
+      log.log(`📝 Audit log created for duplicate removal: ${auditId}`);
 
       // Send ONE summary email notification
       const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
@@ -6765,9 +6752,9 @@ app.delete(
               html,
             }),
           });
-          console.log("📧 Duplicate removal audit email sent");
+          log.log("📧 Duplicate removal audit email sent");
         } catch (emailError) {
-          console.error(
+          log.error(
             "Failed to send duplicate removal audit email:",
             emailError
           );
@@ -6789,7 +6776,7 @@ app.delete(
             : `Successfully removed ${deletedCount} duplicate sources.`,
       });
     } catch (error) {
-      console.error("Error in remove duplicate sources:", error);
+      log.error("Error in remove duplicate sources:", error);
       return c.json(
         { error: "Failed to remove duplicate sources", details: String(error) },
         500
@@ -6872,7 +6859,7 @@ app.delete(
       }
 
       await kv.del(`source:${id}`);
-      console.log(`✓ Source deleted: ${id} by user ${userId}`);
+      log.log(`✓ Source deleted: ${id} by user ${userId}`);
 
       // Audit log
       await createAuditLog({
@@ -6887,7 +6874,7 @@ app.delete(
 
       return c.json({ success: true });
     } catch (error) {
-      console.error("Error deleting source:", error);
+      log.error("Error deleting source:", error);
       return c.json(
         { error: "Failed to delete source", details: String(error) },
         500
@@ -6931,16 +6918,14 @@ app.post(
         savedSources.push(source);
       }
 
-      console.log(
-        `Batch saved ${savedSources.length} sources by user ${userId}`
-      );
+      log.log(`Batch saved ${savedSources.length} sources by user ${userId}`);
       return c.json({
         success: true,
         count: savedSources.length,
         sources: savedSources,
       });
     } catch (error) {
-      console.error("Error batch saving sources:", error);
+      log.error("Error batch saving sources:", error);
       return c.json(
         { error: "Failed to batch save sources", details: String(error) },
         500
@@ -7056,7 +7041,7 @@ app.get("/make-server-17cae920/api/v1/materials", async (c) => {
       },
     });
   } catch (error) {
-    console.error("API error fetching materials:", error);
+    log.error("API error fetching materials:", error);
     return c.json(
       { error: "Failed to fetch materials", details: String(error) },
       500
@@ -7076,7 +7061,7 @@ app.get("/make-server-17cae920/api/v1/materials/:id", async (c) => {
 
     return c.json({ data: material });
   } catch (error) {
-    console.error("API error fetching material:", error);
+    log.error("API error fetching material:", error);
     return c.json(
       { error: "Failed to fetch material", details: String(error) },
       500
@@ -7159,7 +7144,7 @@ app.get("/make-server-17cae920/api/v1/stats", async (c) => {
 
     return c.json({ data: stats });
   } catch (error) {
-    console.error("API error calculating stats:", error);
+    log.error("API error calculating stats:", error);
     return c.json(
       { error: "Failed to calculate statistics", details: String(error) },
       500
@@ -7183,7 +7168,7 @@ app.get("/make-server-17cae920/api/v1/categories", async (c) => {
 
     return c.json({ data: categories });
   } catch (error) {
-    console.error("API error fetching categories:", error);
+    log.error("API error fetching categories:", error);
     return c.json(
       { error: "Failed to fetch categories", details: String(error) },
       500
@@ -7250,7 +7235,7 @@ app.get("/make-server-17cae920/api/v1/methodology", async (c) => {
 
     return c.json({ data: methodologyInfo });
   } catch (error) {
-    console.error("API error fetching methodology:", error);
+    log.error("API error fetching methodology:", error);
     return c.json(
       {
         error: "Failed to fetch methodology information",
@@ -7275,7 +7260,7 @@ app.get("/make-server-17cae920/api/v1/whitepapers", async (c) => {
 
     return c.json({ data: whitepapersData });
   } catch (error) {
-    console.error("API error fetching whitepapers:", error);
+    log.error("API error fetching whitepapers:", error);
     return c.json(
       { error: "Failed to fetch whitepapers", details: String(error) },
       500
@@ -7295,7 +7280,7 @@ app.get("/make-server-17cae920/api/v1/whitepapers/:slug", async (c) => {
 
     return c.json({ data: whitepaper });
   } catch (error) {
-    console.error("API error fetching whitepaper:", error);
+    log.error("API error fetching whitepaper:", error);
     return c.json(
       { error: "Failed to fetch whitepaper", details: String(error) },
       500
@@ -7328,7 +7313,7 @@ app.get("/make-server-17cae920/api/v1/articles", async (c) => {
 
     return c.json({ data: articles });
   } catch (error) {
-    console.error("API error fetching articles:", error);
+    log.error("API error fetching articles:", error);
     return c.json(
       { error: "Failed to fetch articles", details: String(error) },
       500
@@ -7347,14 +7332,14 @@ app.post(
       const requestData = await c.req.json();
 
       // DEBUG: Log the received data to see what fields are present
-      console.log(
+      log.log(
         "🔍 Takedown request received. Fields present:",
         Object.keys(requestData)
       );
-      console.log("📧 Email:", requestData.email);
-      console.log("👤 Full Name:", requestData.fullName);
-      console.log(" Work Title:", requestData.workTitle);
-      console.log(
+      log.log("📧 Email:", requestData.email);
+      log.log("👤 Full Name:", requestData.fullName);
+      log.log(" Work Title:", requestData.workTitle);
+      log.log(
         " Content Description length:",
         requestData.contentDescription?.length || 0
       );
@@ -7376,14 +7361,14 @@ app.post(
             const userRole = await kv.get(`user_role:${user.id}`);
             if (userRole === "admin" || user.email === "natto@wastefull.org") {
               isAdmin = true;
-              console.log(
+              log.log(
                 `✓ Admin user ${user.email} submitting takedown request - anti-abuse checks bypassed`
               );
             }
           }
         } catch (error) {
           // Ignore auth errors - treat as non-admin
-          console.log("Admin check error in takedown handler:", error);
+          log.log("Admin check error in takedown handler:", error);
         }
       }
 
@@ -7391,7 +7376,7 @@ app.post(
 
       // 1. Honeypot check (anti-bot)
       if (!checkHoneypot(requestData.honeypot)) {
-        console.log("⚠️ Takedown honeypot triggered - likely bot attempt");
+        log.log("⚠️ Takedown honeypot triggered - likely bot attempt");
         // Delay response to slow down bots
         await new Promise((resolve) => setTimeout(resolve, 3000));
         return c.json({ error: "Invalid request" }, 400);
@@ -7434,9 +7419,7 @@ app.post(
             const hoursRemaining = Math.ceil(
               (sevenDays - timeSinceLastRequest) / (60 * 60 * 1000)
             );
-            console.log(
-              `⚠️ Takedown rate limit by email: ${requestData.email}`
-            );
+            log.log(`⚠️ Takedown rate limit by email: ${requestData.email}`);
             return c.json(
               {
                 error: `You have already submitted a takedown request recently. Please wait ${hoursRemaining} hours before submitting another request, or contact legal@wastefull.org for urgent matters.`,
@@ -7486,7 +7469,7 @@ app.post(
         }
 
         if (isDuplicate) {
-          console.log(`⚠️ Duplicate takedown detected: ${duplicateRequestID}`);
+          log.log(`⚠️ Duplicate takedown detected: ${duplicateRequestID}`);
           return c.json(
             {
               error: `You have already submitted a takedown request for this URL (Request ID: ${duplicateRequestID}). Please check the status of your existing request or contact legal@wastefull.org.`,
@@ -7560,7 +7543,7 @@ app.post(
 
       // Log suspicious activity
       if (suspiciousFlags.length > 0) {
-        console.log(
+        log.log(
           `⚠️ Suspicious takedown request detected. Flags: ${suspiciousFlags.join(
             ", "
           )}`
@@ -7590,12 +7573,12 @@ app.post(
       };
 
       // DEBUG: Log what's being saved
-      console.log(
+      log.log(
         "💾 Saving takedown record. Fields:",
         Object.keys(takedownRecord)
       );
-      console.log("💾 Record fullName:", takedownRecord.fullName);
-      console.log("💾 Record workTitle:", takedownRecord.workTitle);
+      log.log("💾 Record fullName:", takedownRecord.fullName);
+      log.log("💾 Record workTitle:", takedownRecord.workTitle);
 
       await kv.set(`takedown:${requestID}`, takedownRecord);
 
@@ -7606,7 +7589,7 @@ app.post(
         submittedAt: new Date().toISOString(),
       });
 
-      console.log(
+      log.log(
         `Takedown request submitted: ${requestID} by ${requestData.email}${
           suspiciousFlags.length > 0
             ? " [FLAGGED: " + suspiciousFlags.join(", ") + "]"
@@ -7626,7 +7609,7 @@ app.post(
       const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 
       if (RESEND_API_KEY) {
-        console.log(
+        log.log(
           `📧 RESEND_API_KEY found, attempting to send emails for ${requestID}...`
         );
         try {
@@ -7923,11 +7906,11 @@ Request ID: ${requestID}
 
           if (!emailResponse.ok) {
             const errorText = await emailResponse.text();
-            console.error(
+            log.error(
               "❌ Failed to send compliance notification email:",
               errorText
             );
-            console.error(
+            log.error(
               "Response status:",
               emailResponse.status,
               emailResponse.statusText
@@ -7936,17 +7919,17 @@ Request ID: ${requestID}
             // Don't fail the request if email fails - just log it
           } else {
             const emailResult = await emailResponse.json();
-            console.log(
+            log.log(
               `✅ Compliance notification email sent for ${requestID} (Resend ID: ${emailResult.id})`
             );
             emailStatus.complianceEmailSent = true;
           }
         } catch (emailError) {
-          console.error(
+          log.error(
             "❌ Error sending compliance notification email:",
             emailError
           );
-          console.error("Full error:", JSON.stringify(emailError, null, 2));
+          log.error("Full error:", JSON.stringify(emailError, null, 2));
           emailStatus.complianceEmailError = String(emailError);
           // Don't fail the request if email fails - just log it
         }
@@ -8046,28 +8029,28 @@ Building open scientific infrastructure for material circularity
 
           if (!requesterEmailResponse.ok) {
             const errorText = await requesterEmailResponse.text();
-            console.error(
+            log.error(
               "❌ Failed to send requester confirmation email:",
               errorText
             );
-            console.error(
+            log.error(
               "Response status:",
               requesterEmailResponse.status,
               requesterEmailResponse.statusText
             );
             emailStatus.requesterEmailError = `${requesterEmailResponse.status}: ${errorText}`;
           } else {
-            console.log(
+            log.log(
               `✅ Confirmation email sent to requester ${requestData.email} for ${requestID}`
             );
             emailStatus.requesterEmailSent = true;
           }
         } catch (requesterEmailError) {
-          console.error(
+          log.error(
             "❌ Error sending requester confirmation email:",
             requesterEmailError
           );
-          console.error(
+          log.error(
             "Full error:",
             JSON.stringify(requesterEmailError, null, 2)
           );
@@ -8081,7 +8064,7 @@ Building open scientific infrastructure for material circularity
         emailStatus.requesterEmailError = "RESEND_API_KEY not configured";
       }
 
-      console.log(` Email Status for ${requestID}:`, emailStatus);
+      log.log(` Email Status for ${requestID}:`, emailStatus);
 
       return c.json({
         success: true,
@@ -8090,7 +8073,7 @@ Building open scientific infrastructure for material circularity
         emailStatus: emailStatus,
       });
     } catch (error) {
-      console.error("Error submitting takedown request:", error);
+      log.error("Error submitting takedown request:", error);
       return c.json(
         { error: "Failed to submit takedown request", details: String(error) },
         500
@@ -8123,7 +8106,7 @@ app.get(
         hasContentDescription: !!request.contentDescription,
       });
     } catch (error) {
-      console.error("Error fetching raw takedown data:", error);
+      log.error("Error fetching raw takedown data:", error);
       return c.json(
         { error: "Failed to fetch raw data", details: String(error) },
         500
@@ -8152,7 +8135,7 @@ app.get("/make-server-17cae920/legal/takedown/status/:requestId", async (c) => {
       // Don't expose: reviewNotes, internal admin comments
     });
   } catch (error) {
-    console.error("Error fetching takedown status:", error);
+    log.error("Error fetching takedown status:", error);
     return c.json(
       { error: "Failed to fetch status", details: String(error) },
       500
@@ -8183,7 +8166,7 @@ app.get(
 
       return c.json({ requests: sorted });
     } catch (error) {
-      console.error("Error listing takedown requests:", error);
+      log.error("Error listing takedown requests:", error);
       return c.json(
         { error: "Failed to list requests", details: String(error) },
         500
@@ -8219,7 +8202,7 @@ app.patch(
 
       await kv.set(`takedown:${requestId}`, updated);
 
-      console.log(
+      log.log(
         `Takedown request ${requestId} updated by admin ${userId}: status=${updates.status}`
       );
 
@@ -8321,22 +8304,22 @@ Building open scientific infrastructure for material circularity
 
           if (!emailResponse.ok) {
             const errorText = await emailResponse.text();
-            console.error("Failed to send update email:", errorText);
+            log.error("Failed to send update email:", errorText);
             // Don't fail the request if email fails
           } else {
-            console.log(
+            log.log(
               `Update email sent to ${updated.requesterEmail} for request ${requestId}`
             );
           }
         }
       } catch (emailError) {
-        console.error("Error sending update email:", emailError);
+        log.error("Error sending update email:", emailError);
         // Don't fail the request if email fails
       }
 
       return c.json({ success: true, request: updated });
     } catch (error) {
-      console.error("Error updating takedown request:", error);
+      log.error("Error updating takedown request:", error);
       return c.json(
         { error: "Failed to update request", details: String(error) },
         500
@@ -8352,7 +8335,7 @@ app.get("/make-server-17cae920/transforms", async (c) => {
   try {
     return c.json(TRANSFORMS_DATA);
   } catch (error) {
-    console.error("Error loading transforms:", error);
+    log.error("Error loading transforms:", error);
     return c.json(
       { error: "Failed to load transforms", details: String(error) },
       500
@@ -8378,7 +8361,7 @@ app.get(
 
       return c.json({ jobs: sorted });
     } catch (error) {
-      console.error("Error listing recompute jobs:", error);
+      log.error("Error listing recompute jobs:", error);
       return c.json(
         { error: "Failed to list jobs", details: String(error) },
         500
@@ -8402,7 +8385,7 @@ app.get(
 
       return c.json(job);
     } catch (error) {
-      console.error("Error fetching recompute job:", error);
+      log.error("Error fetching recompute job:", error);
       return c.json(
         { error: "Failed to fetch job status", details: String(error) },
         500
@@ -8428,7 +8411,7 @@ app.get("/make-server-17cae920/transforms/:parameter", async (c) => {
 
     return c.json(transform);
   } catch (error) {
-    console.error("Error loading transform:", error);
+    log.error("Error loading transform:", error);
     return c.json(
       { error: "Failed to load transform", details: String(error) },
       500
@@ -8485,14 +8468,14 @@ app.post(
       // Store job in KV
       await kv.set(`recompute_job:${jobId}`, job);
 
-      console.log(`Recompute job created: ${jobId} for parameter ${parameter}`);
-      console.log(
+      log.log(`Recompute job created: ${jobId} for parameter ${parameter}`);
+      log.log(
         `Transform version change: ${oldTransform.version} → ${newTransformVersion}`
       );
 
       // TODO: In Phase 9.2, this will trigger actual MIU reprocessing
       // For now, just log the intent
-      console.log(
+      log.log(
         `⚠️ Recompute job ${jobId} created but not executed (no MIUs exist yet)`
       );
 
@@ -8504,7 +8487,7 @@ app.post(
         estimatedDuration: "N/A (no MIUs yet)",
       });
     } catch (error) {
-      console.error("Error creating recompute job:", error);
+      log.error("Error creating recompute job:", error);
       return c.json(
         { error: "Failed to create recompute job", details: String(error) },
         500
@@ -9125,7 +9108,7 @@ app.post(
         initialized.push("context");
       }
 
-      console.log(`Ontologies initialized: ${initialized.join(", ")}`);
+      log.log(`Ontologies initialized: ${initialized.join(", ")}`);
 
       return c.json({
         success: true,
@@ -9135,7 +9118,7 @@ app.post(
         )} ontolog${initialized.length > 1 ? "ies" : "y"}`,
       });
     } catch (error) {
-      console.error("Error initializing ontologies:", error);
+      log.error("Error initializing ontologies:", error);
       return c.json(
         { error: "Failed to initialize ontologies", details: String(error) },
         500
@@ -9172,7 +9155,7 @@ app.get("/make-server-17cae920/ontologies/units", async (c) => {
 
     return c.json(unitsOntology);
   } catch (error) {
-    console.error("Error fetching units ontology:", error);
+    log.error("Error fetching units ontology:", error);
     return c.json(
       { error: "Failed to fetch units ontology", details: String(error) },
       500
@@ -9208,7 +9191,7 @@ app.get("/make-server-17cae920/ontologies/context", async (c) => {
 
     return c.json(contextOntology);
   } catch (error) {
-    console.error("Error fetching context ontology:", error);
+    log.error("Error fetching context ontology:", error);
     return c.json(
       { error: "Failed to fetch context ontology", details: String(error) },
       500
@@ -9270,13 +9253,11 @@ app.post("/make-server-17cae920/notifications", verifyAuth, async (c) => {
     // Store notification in KV with user-specific key for efficient retrieval
     await kv.set(`notification:${user_id}:${notificationId}`, notification);
 
-    console.log(
-      `✓ Notification created: ${notificationId} for user ${user_id}`
-    );
+    log.log(`✓ Notification created: ${notificationId} for user ${user_id}`);
 
     return c.json({ notification }, 201);
   } catch (error) {
-    console.error("Error creating notification:", error);
+    log.error("Error creating notification:", error);
     return c.json(
       { error: "Failed to create notification", details: String(error) },
       500
@@ -9315,13 +9296,11 @@ app.get(
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       );
 
-      console.log(
-        `✓ Retrieved ${sorted.length} notifications for user ${userId}`
-      );
+      log.log(`✓ Retrieved ${sorted.length} notifications for user ${userId}`);
 
       return c.json({ notifications: sorted });
     } catch (error) {
-      console.error("Error fetching notifications:", error);
+      log.error("Error fetching notifications:", error);
       return c.json(
         { error: "Failed to fetch notifications", details: String(error) },
         500
@@ -9395,13 +9374,13 @@ app.put(
 
       await kv.set(notificationKey, updated);
 
-      console.log(
+      log.log(
         `✓ Notification ${notificationId} marked as read by user ${requestingUserId}`
       );
 
       return c.json({ notification: updated });
     } catch (error) {
-      console.error("Error marking notification as read:", error);
+      log.error("Error marking notification as read:", error);
       return c.json(
         {
           error: "Failed to mark notification as read",
@@ -9422,31 +9401,31 @@ app.put(
       const userId = c.req.param("userId");
       const requestingUserId = c.get("userId");
 
-      console.log(
+      log.log(
         `📧 Mark all as read - userId: "${userId}", requestingUserId: "${requestingUserId}"`
       );
 
       // Check authorization
       // Case 1: Users can mark their own notifications as read
       if (userId === requestingUserId) {
-        console.log(`✅ User marking their own notifications as read`);
+        log.log(`✅ User marking their own notifications as read`);
         // Continue to mark notifications as read
       } else {
         // Case 2: Admins can mark admin notifications as read
         const userRole = await kv.get(`user_role:${requestingUserId}`);
-        console.log(
+        log.log(
           `📧 Authorization check - userRole: "${userRole}" (type: ${typeof userRole}), userId: "${userId}"`
         );
 
         const isAdmin = userRole === "admin";
         const isAccessingAdminNotifications = userId === "admin";
 
-        console.log(
+        log.log(
           `📧 isAdmin: ${isAdmin}, isAccessingAdminNotifications: ${isAccessingAdminNotifications}`
         );
 
         if (!isAdmin || !isAccessingAdminNotifications) {
-          console.log(
+          log.log(
             `❌ Authorization failed - User must be admin to access admin notifications`
           );
           return c.json(
@@ -9458,7 +9437,7 @@ app.put(
           );
         }
 
-        console.log(`✅ Admin marking admin notifications as read`);
+        log.log(`✅ Admin marking admin notifications as read`);
       }
 
       // Get all notifications for this user
@@ -9478,7 +9457,7 @@ app.put(
 
       await Promise.all(updatePromises);
 
-      console.log(
+      log.log(
         `✓ Marked ${notifications.length} notifications as read for user ${userId}`
       );
 
@@ -9488,7 +9467,7 @@ app.put(
         message: `Marked ${notifications.length} notifications as read`,
       });
     } catch (error) {
-      console.error("Error marking all notifications as read:", error);
+      log.error("Error marking all notifications as read:", error);
       return c.json(
         {
           error: "Failed to mark all notifications as read",
@@ -9504,7 +9483,7 @@ app.put(
 // Phase 9.1 ADDS new endpoints to Phase 9.0 base
 // Phase 9.0 evidence CRUD (POST/GET/PUT/DELETE) remains below as the BASE
 
-console.log("📦 Registering Phase 9.1 endpoints...");
+log.log("📦 Registering Phase 9.1 endpoints...");
 
 // TEST ROUTE - Delete after confirming it works
 app.get("/make-server-17cae920/test-phase91", (c) => {
@@ -9518,7 +9497,7 @@ app.patch(
   verifyAuth,
   verifyAdmin,
   async (c) => {
-    console.log("🔍 PATCH /evidence/:id/validation handler called");
+    log.log("🔍 PATCH /evidence/:id/validation handler called");
     try {
       const id = c.req.param("id");
       const userId = c.get("userId");
@@ -9560,7 +9539,7 @@ app.patch(
 
       return c.json({ success: true, evidence: updatedEvidence });
     } catch (error) {
-      console.error("Error updating evidence validation:", error);
+      log.error("Error updating evidence validation:", error);
       return c.json(
         { error: "Failed to update validation status", details: String(error) },
         500
@@ -9575,7 +9554,7 @@ app.post(
   verifyAuth,
   verifyAdmin,
   async (c) => {
-    console.log("🔍 POST /aggregations handler called");
+    log.log("🔍 POST /aggregations handler called");
     try {
       const userId = c.get("userId");
       const body = await c.req.json();
@@ -9604,7 +9583,7 @@ app.post(
 
       // If calculated_value not provided but miu_ids are, compute weighted mean
       if (calculated_value === undefined && miu_ids && miu_ids.length > 0) {
-        console.log(`Computing aggregation from ${miu_ids.length} MIUs`);
+        log.log(`Computing aggregation from ${miu_ids.length} MIUs`);
 
         // Get all evidence points
         const evidencePoints = await Promise.all(
@@ -9635,7 +9614,7 @@ app.post(
         finalValue = sum / validEvidence.length;
         finalMiuCount = validEvidence.length;
 
-        console.log(`Computed value: ${finalValue} from ${finalMiuCount} MIUs`);
+        log.log(`Computed value: ${finalValue} from ${finalMiuCount} MIUs`);
       } else if (calculated_value === undefined) {
         return c.json(
           { error: "Must provide either calculated_value or miu_ids" },
@@ -9679,7 +9658,7 @@ app.post(
 
       return c.json({ success: true, aggregation }, 201);
     } catch (error) {
-      console.error("Error creating aggregation:", error);
+      log.error("Error creating aggregation:", error);
       return c.json(
         { error: "Failed to create aggregation", details: String(error) },
         400
@@ -9694,9 +9673,7 @@ app.get(
   "/make-server-17cae920/aggregations/material/:materialId/stats",
   rateLimit("API"),
   async (c) => {
-    console.log(
-      "🔍 GET /aggregations/material/:materialId/stats handler called"
-    );
+    log.log("🔍 GET /aggregations/material/:materialId/stats handler called");
     try {
       const materialId = c.req.param("materialId");
 
@@ -9732,7 +9709,7 @@ app.get(
 
       return c.json({ stats });
     } catch (error) {
-      console.error("Error fetching aggregation stats:", error);
+      log.error("Error fetching aggregation stats:", error);
       return c.json(
         { error: "Failed to fetch aggregation stats", details: String(error) },
         500
@@ -9773,7 +9750,7 @@ app.get(
 
       return c.json({ history, count: history.length });
     } catch (error) {
-      console.error("Error fetching aggregation history:", error);
+      log.error("Error fetching aggregation history:", error);
       return c.json(
         {
           error: "Failed to fetch aggregation history",
@@ -9789,7 +9766,7 @@ app.get(
   "/make-server-17cae920/aggregations/material/:materialId",
   rateLimit("API"),
   async (c) => {
-    console.log("🔍 GET /aggregations/material/:materialId handler called");
+    log.log("🔍 GET /aggregations/material/:materialId handler called");
     try {
       const materialId = c.req.param("materialId");
       const parameter = c.req.query("parameter");
@@ -9819,7 +9796,7 @@ app.get(
 
       return c.json({ aggregations, count: aggregations.length });
     } catch (error) {
-      console.error("Error fetching aggregations:", error);
+      log.error("Error fetching aggregations:", error);
       return c.json(
         { error: "Failed to fetch aggregations", details: String(error) },
         500
@@ -9832,7 +9809,7 @@ app.get(
   "/make-server-17cae920/aggregations/:id",
   rateLimit("API"),
   async (c) => {
-    console.log("🔍 GET /aggregations/:id handler called");
+    log.log("🔍 GET /aggregations/:id handler called");
     try {
       const id = c.req.param("id");
       const aggregation = await kv.get(`aggregation:${id}`);
@@ -9841,7 +9818,7 @@ app.get(
       }
       return c.json({ aggregation });
     } catch (error) {
-      console.error("Error fetching aggregation:", error);
+      log.error("Error fetching aggregation:", error);
       return c.json(
         { error: "Failed to fetch aggregation", details: String(error) },
         500
@@ -9856,7 +9833,7 @@ app.get(
   verifyAuth,
   verifyAdmin,
   async (c) => {
-    console.log("🔍 GET /sources/:sourceRef/can-delete handler called");
+    log.log("🔍 GET /sources/:sourceRef/can-delete handler called");
     try {
       const sourceRef = c.req.param("sourceRef");
 
@@ -9875,7 +9852,7 @@ app.get(
         evidenceIds,
       });
     } catch (error) {
-      console.error("Error checking source deletion:", error);
+      log.error("Error checking source deletion:", error);
       return c.json(
         { error: "Failed to check source deletion", details: String(error) },
         500
@@ -9884,7 +9861,7 @@ app.get(
   }
 );
 
-console.log(
+log.log(
   "✅ Phase 9.1 routes registered: PATCH /evidence/:id/validation, POST/GET /aggregations/*, GET /sources/:sourceRef/can-delete"
 );
 
@@ -9945,7 +9922,7 @@ async function validateUnit(
 
     return { valid: true };
   } catch (error) {
-    console.error("Error validating unit:", error);
+    log.error("Error validating unit:", error);
     return { valid: false, error: `Unit validation failed: ${String(error)}` };
   }
 }
@@ -10113,7 +10090,7 @@ app.post(
         await kv.set(sourceEvidenceKey, evidenceId);
       }
 
-      console.log(
+      log.log(
         `✓ Created evidence point ${evidenceId} for material ${material_id}, parameter ${parameter_code}`
       );
 
@@ -10135,7 +10112,7 @@ app.post(
         message: "Evidence point created successfully",
       });
     } catch (error) {
-      console.error("Error creating evidence point:", error);
+      log.error("Error creating evidence point:", error);
       return c.json(
         {
           success: false,
@@ -10171,7 +10148,7 @@ app.get("/make-server-17cae920/evidence", verifyAuth, async (c) => {
       count: evidence.length,
     });
   } catch (error) {
-    console.error("Error fetching all evidence points:", error);
+    log.error("Error fetching all evidence points:", error);
     return c.json(
       {
         success: false,
@@ -10211,7 +10188,7 @@ app.get("/make-server-17cae920/evidence/material/:materialId", async (c) => {
     const evidence = await Promise.all(evidencePromises);
     const validEvidence = evidence.filter((e) => e !== null);
 
-    console.log(
+    log.log(
       `✓ Retrieved ${validEvidence.length} evidence points for material ${materialId}`
     );
 
@@ -10221,7 +10198,7 @@ app.get("/make-server-17cae920/evidence/material/:materialId", async (c) => {
       count: validEvidence.length,
     });
   } catch (error) {
-    console.error("Error retrieving evidence by material:", error);
+    log.error("Error retrieving evidence by material:", error);
     return c.json(
       {
         success: false,
@@ -10250,14 +10227,14 @@ app.get("/make-server-17cae920/evidence/:evidenceId", verifyAuth, async (c) => {
       );
     }
 
-    console.log(`✓ Retrieved evidence point ${evidenceId}`);
+    log.log(`✓ Retrieved evidence point ${evidenceId}`);
 
     return c.json({
       success: true,
       evidence,
     });
   } catch (error) {
-    console.error("Error retrieving evidence:", error);
+    log.error("Error retrieving evidence:", error);
     return c.json(
       {
         success: false,
@@ -10387,7 +10364,7 @@ app.put(
 
       await kv.set(`evidence:${evidenceId}`, updated);
 
-      console.log(`✓ Updated evidence point ${evidenceId}`);
+      log.log(`✓ Updated evidence point ${evidenceId}`);
 
       // Audit log
       await createAuditLog({
@@ -10407,7 +10384,7 @@ app.put(
         message: "Evidence point updated successfully",
       });
     } catch (error) {
-      console.error("Error updating evidence:", error);
+      log.error("Error updating evidence:", error);
       return c.json(
         {
           success: false,
@@ -10449,7 +10426,7 @@ app.delete(
       const materialEvidenceKey = `evidence_by_material:${existing.material_id}:${existing.parameter_code}:${evidenceId}`;
       await kv.del(materialEvidenceKey);
 
-      console.log(`✓ Deleted evidence point ${evidenceId}`);
+      log.log(`✓ Deleted evidence point ${evidenceId}`);
 
       // Audit log
       await createAuditLog({
@@ -10467,7 +10444,7 @@ app.delete(
         message: "Evidence point deleted successfully",
       });
     } catch (error) {
-      console.error("Error deleting evidence:", error);
+      log.error("Error deleting evidence:", error);
       return c.json(
         {
           success: false,
@@ -10524,12 +10501,12 @@ app.post(
             parameter_code: existing.parameter_code,
           });
         } catch (err) {
-          console.error(`Failed to delete evidence ${evidenceId}:`, err);
+          log.error(`Failed to delete evidence ${evidenceId}:`, err);
           failedIds.push(evidenceId);
         }
       }
 
-      console.log(
+      log.log(
         `✓ Bulk deleted ${deletedIds.length} evidence points, ${failedIds.length} failed`
       );
 
@@ -10560,7 +10537,7 @@ app.post(
         userAgent: c.req.header("user-agent") || "unknown",
       };
       await kv.set(auditId, entry);
-      console.log(`📝 Bulk audit log created: ${auditId}`);
+      log.log(`📝 Bulk audit log created: ${auditId}`);
 
       return c.json({
         success: true,
@@ -10571,7 +10548,7 @@ app.post(
         failedIds: failedIds.length > 0 ? failedIds : undefined,
       });
     } catch (error) {
-      console.error("Error in bulk delete:", error);
+      log.error("Error in bulk delete:", error);
       return c.json(
         {
           success: false,
@@ -10641,13 +10618,13 @@ app.post(
       }
 
       // Fetch full evidence objects
-      console.log(
+      log.log(
         `Found ${evidenceRefs.length} evidence refs for material ${material_id}, parameter ${parameter_code}`
       );
       const evidencePromises = evidenceRefs.map(async (evidenceId: string) => {
-        console.log(`Fetching evidence: ${evidenceId}`);
+        log.log(`Fetching evidence: ${evidenceId}`);
         const evidence = await kv.get(`evidence:${evidenceId}`);
-        console.log(
+        log.log(
           `Evidence ${evidenceId}:`,
           evidence ? "found" : "NOT FOUND",
           evidence ? JSON.stringify(evidence).substring(0, 200) : ""
@@ -10658,7 +10635,7 @@ app.post(
       const evidencePoints = (await Promise.all(evidencePromises)).filter(
         (e) => e !== null
       );
-      console.log(`Fetched ${evidencePoints.length} valid evidence points`);
+      log.log(`Fetched ${evidencePoints.length} valid evidence points`);
 
       if (evidencePoints.length === 0) {
         return c.json(
@@ -10694,10 +10671,10 @@ app.post(
           continue;
         }
 
-        console.log(
+        log.log(
           `Processing evidence - id: ${evidence.id}, raw_value: ${evidence.raw_value}, confidence_level: ${evidence.confidence_level}`
         );
-        console.log(`Evidence keys:`, Object.keys(evidence));
+        log.log(`Evidence keys:`, Object.keys(evidence));
 
         if (
           !evidence.id ||
@@ -10788,7 +10765,7 @@ app.post(
         aggregationId
       );
 
-      console.log(
+      log.log(
         `✓ Computed aggregation for material ${material_id}, parameter ${parameter_code}: ${aggregated_value.toFixed(
           2
         )} (${evidencePoints.length} MIUs)`
@@ -10811,7 +10788,7 @@ app.post(
         message: `Aggregation computed successfully (${evidencePoints.length} MIUs)`,
       });
     } catch (error) {
-      console.error("Error computing aggregation:", error);
+      log.error("Error computing aggregation:", error);
       return c.json(
         {
           success: false,
@@ -10865,7 +10842,7 @@ app.get(
         aggregation,
       });
     } catch (error) {
-      console.error("Error retrieving aggregation:", error);
+      log.error("Error retrieving aggregation:", error);
       return c.json(
         {
           success: false,
@@ -10909,7 +10886,7 @@ app.post("/make-server-17cae920/sources/normalize-doi", async (c) => {
       original: dois,
     });
   } catch (error) {
-    console.error("Error normalizing DOIs:", error);
+    log.error("Error normalizing DOIs:", error);
     return c.json(
       {
         success: false,
@@ -10952,7 +10929,7 @@ app.post("/make-server-17cae920/sources/check-duplicate", async (c) => {
           if (source.doi) {
             const existingNormalizedDOI = normalizeDOI(source.doi);
             if (existingNormalizedDOI === normalizedDOI) {
-              console.log(`⚠️ DOI duplicate detected: ${normalizedDOI}`);
+              log.log(`⚠️ DOI duplicate detected: ${normalizedDOI}`);
               return c.json({
                 success: true,
                 isDuplicate: true,
@@ -10984,7 +10961,7 @@ app.post("/make-server-17cae920/sources/check-duplicate", async (c) => {
           const similarity = calculateSimilarity(title, source.title);
 
           if (similarity >= SIMILARITY_THRESHOLD) {
-            console.log(
+            log.log(
               `⚠️ Title similarity detected: "${title}" vs "${source.title}" (${similarity}%)`
             );
             return c.json({
@@ -11014,7 +10991,7 @@ app.post("/make-server-17cae920/sources/check-duplicate", async (c) => {
       message: "No duplicates found. Safe to add this source.",
     });
   } catch (error) {
-    console.error("Error checking for duplicates:", error);
+    log.error("Error checking for duplicates:", error);
     return c.json(
       {
         success: false,
@@ -11103,7 +11080,7 @@ app.post(
           await kv.set(`evidence:${evidence.id}`, updated);
           miusMigrated++;
 
-          console.log(
+          log.log(
             `✓ Migrated evidence ${evidence.id} from source ${duplicateSourceId} to ${primarySourceId}`
           );
         }
@@ -11112,7 +11089,7 @@ app.post(
       // Delete the duplicate source
       await kv.del(`source:${duplicateSourceId}`);
 
-      console.log(
+      log.log(
         `✓ Merged sources: kept ${primarySourceId}, deleted ${duplicateSourceId}, migrated ${miusMigrated} MIUs`
       );
 
@@ -11123,7 +11100,7 @@ app.post(
         message: `Successfully merged sources. ${miusMigrated} evidence point(s) migrated to the primary source.`,
       });
     } catch (error) {
-      console.error("Error merging sources:", error);
+      log.error("Error merging sources:", error);
       return c.json(
         {
           success: false,
@@ -11177,7 +11154,7 @@ async function sendAuditEmailNotification(entry: AuditLogEntry) {
 
   const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
   if (!RESEND_API_KEY) {
-    console.log(
+    log.log(
       "⚠️ RESEND_API_KEY not configured, skipping audit email notification"
     );
     return;
@@ -11308,13 +11285,13 @@ View full audit logs at: https://wastedb.app/admin/audit-logs
 
     if (response.ok) {
       const result = await response.json();
-      console.log(`📧 Audit email notification sent: ${result.id}`);
+      log.log(`📧 Audit email notification sent: ${result.id}`);
     } else {
       const errorText = await response.text();
-      console.error("❌ Failed to send audit email notification:", errorText);
+      log.error("❌ Failed to send audit email notification:", errorText);
     }
   } catch (error) {
-    console.error("❌ Error sending audit email notification:", error);
+    log.error("❌ Error sending audit email notification:", error);
     // Don't throw - audit logging should continue even if email fails
   }
 }
@@ -11376,7 +11353,7 @@ async function createAuditLog(params: {
   };
 
   await kv.set(auditId, entry);
-  console.log(
+  log.log(
     `📝 Audit log created: ${auditId} - ${params.action} ${params.entityType}:${params.entityId} by ${params.userEmail}`
   );
 
@@ -11419,7 +11396,7 @@ app.post("/make-server-17cae920/audit/log", verifyAuth, async (c) => {
 
     return c.json({ success: true, auditId });
   } catch (error) {
-    console.error("Error creating audit log:", error);
+    log.error("Error creating audit log:", error);
     return c.json(
       { error: "Failed to create audit log", details: String(error) },
       500
@@ -11476,7 +11453,7 @@ app.get(
         limit,
       });
     } catch (error) {
-      console.error("Error fetching audit logs:", error);
+      log.error("Error fetching audit logs:", error);
       return c.json(
         { error: "Failed to fetch audit logs", details: String(error) },
         500
@@ -11501,7 +11478,7 @@ app.get(
 
       return c.json({ log });
     } catch (error) {
-      console.error("Error fetching audit log:", error);
+      log.error("Error fetching audit log:", error);
       return c.json(
         { error: "Failed to fetch audit log", details: String(error) },
         500
@@ -11550,7 +11527,7 @@ app.get(
 
       return c.json({ stats });
     } catch (error) {
-      console.error("Error fetching audit stats:", error);
+      log.error("Error fetching audit stats:", error);
       return c.json(
         { error: "Failed to fetch audit stats", details: String(error) },
         500
@@ -11632,7 +11609,7 @@ app.get(
 
       return c.json({ stats });
     } catch (error) {
-      console.error("Error fetching retention stats:", error);
+      log.error("Error fetching retention stats:", error);
       return c.json(
         { error: "Failed to fetch retention stats", details: String(error) },
         500
@@ -11698,7 +11675,7 @@ app.post(
           req: c,
         });
 
-        console.log(
+        log.log(
           `✓ Expired screenshot removed from source ${source.id} (created ${source.created_at})`
         );
       }
@@ -11709,7 +11686,7 @@ app.post(
         cleanedSources,
       });
     } catch (error) {
-      console.error("Error cleaning up screenshots:", error);
+      log.error("Error cleaning up screenshots:", error);
       return c.json(
         { error: "Failed to clean up screenshots", details: String(error) },
         500
@@ -11748,7 +11725,7 @@ app.post(
           action: log.action,
         });
 
-        console.log(
+        log.log(
           `✓ Expired audit log deleted: ${log.id} (timestamp ${log.timestamp})`
         );
       }
@@ -11759,7 +11736,7 @@ app.post(
         deletedLogs,
       });
     } catch (error) {
-      console.error("Error cleaning up audit logs:", error);
+      log.error("Error cleaning up audit logs:", error);
       return c.json(
         { error: "Failed to clean up audit logs", details: String(error) },
         500
@@ -11801,13 +11778,11 @@ app.post(
 
       // Store evidence in KV
       await kv.set(`evidence:${evidenceId}`, testEvidence);
-      console.log(
-        `✓ Test evidence created: ${evidenceId} for source ${sourceId}`
-      );
+      log.log(`✓ Test evidence created: ${evidenceId} for source ${sourceId}`);
 
       return c.json({ success: true, evidence: testEvidence });
     } catch (error) {
-      console.error("Error creating test evidence:", error);
+      log.error("Error creating test evidence:", error);
       return c.json(
         { error: "Failed to create test evidence", details: String(error) },
         500
@@ -11849,7 +11824,7 @@ app.get(
         })),
       });
     } catch (error) {
-      console.error("Error checking source referential integrity:", error);
+      log.error("Error checking source referential integrity:", error);
       return c.json(
         {
           error: "Failed to check referential integrity",
@@ -11871,7 +11846,7 @@ app.post(
   async (c) => {
     try {
       const startTime = Date.now();
-      console.log("📦 Starting backup export...");
+      log.log("📦 Starting backup export...");
 
       // Export all data categories from KV store
       const materials = await kv.getByPrefix("material:");
@@ -11929,10 +11904,10 @@ app.post(
       const endTime = Date.now();
       backup.metadata.export_duration_ms = endTime - startTime;
 
-      console.log(
+      log.log(
         `✓ Backup export completed in ${backup.metadata.export_duration_ms}ms`
       );
-      console.log(`✓ Total records exported: ${backup.metadata.total_records}`);
+      log.log(`✓ Total records exported: ${backup.metadata.total_records}`);
 
       // Create audit log for backup export
       await createAuditLog({
@@ -11953,7 +11928,7 @@ app.post(
 
       return c.json(backup);
     } catch (error) {
-      console.error("Error exporting backup:", error);
+      log.error("Error exporting backup:", error);
       return c.json(
         { error: "Failed to export backup", details: String(error) },
         500
@@ -11973,14 +11948,14 @@ app.post(
       const body = await c.req.json();
       const { backup, mode = "merge" } = body; // mode: 'merge' or 'replace'
 
-      console.log(`📥 Starting backup import in ${mode} mode...`);
+      log.log(`📥 Starting backup import in ${mode} mode...`);
 
       // Validate backup structure
       if (!backup || !backup.metadata || !backup.data) {
         return c.json({ error: "Invalid backup format" }, 400);
       }
 
-      console.log(`📋 Backup metadata:`, {
+      log.log(`📋 Backup metadata:`, {
         version: backup.metadata.version,
         timestamp: backup.metadata.timestamp,
         total_records: backup.metadata.total_records,
@@ -12050,7 +12025,7 @@ app.post(
       ];
 
       for (const category of categories) {
-        console.log(
+        log.log(
           `📂 Importing ${category.name}: ${category.data.length} records...`
         );
 
@@ -12067,10 +12042,7 @@ app.post(
               skippedCount++;
             }
           } catch (err) {
-            console.error(
-              `❌ Error importing record in ${category.name}:`,
-              err
-            );
+            log.error(`❌ Error importing record in ${category.name}:`, err);
             errorCount++;
           }
         }
@@ -12079,8 +12051,8 @@ app.post(
       const endTime = Date.now();
       const duration = endTime - startTime;
 
-      console.log(`✓ Backup import completed in ${duration}ms`);
-      console.log(
+      log.log(`✓ Backup import completed in ${duration}ms`);
+      log.log(
         `✓ Imported: ${importedCount}, Skipped: ${skippedCount}, Errors: ${errorCount}`
       );
 
@@ -12118,7 +12090,7 @@ app.post(
         },
       });
     } catch (error) {
-      console.error("Error importing backup:", error);
+      log.error("Error importing backup:", error);
       return c.json(
         { error: "Failed to import backup", details: String(error) },
         500
@@ -12226,7 +12198,7 @@ app.post(
         },
       });
     } catch (error) {
-      console.error("Error validating backup:", error);
+      log.error("Error validating backup:", error);
       return c.json(
         {
           valid: false,
@@ -12283,7 +12255,7 @@ app.get("/make-server-17cae920/guides", rateLimit("API"), async (c) => {
     const { data, error } = await query;
 
     if (error) {
-      console.error("Error fetching guides:", error);
+      log.error("Error fetching guides:", error);
       return c.json(
         {
           error: "Failed to fetch guides",
@@ -12297,7 +12269,7 @@ app.get("/make-server-17cae920/guides", rateLimit("API"), async (c) => {
 
     return c.json(data || []);
   } catch (error) {
-    console.error("Error fetching guides:", error);
+    log.error("Error fetching guides:", error);
     return c.json(
       { error: "Failed to fetch guides", details: String(error) },
       500
@@ -12322,13 +12294,13 @@ app.get("/make-server-17cae920/guides/:slug", rateLimit("API"), async (c) => {
       .single();
 
     if (error) {
-      console.error("Error fetching guide by slug:", error);
+      log.error("Error fetching guide by slug:", error);
       return c.json({ error: "Guide not found" }, 404);
     }
 
     return c.json(data);
   } catch (error) {
-    console.error("Error fetching guide by slug:", error);
+    log.error("Error fetching guide by slug:", error);
     return c.json(
       { error: "Failed to fetch guide", details: String(error) },
       500
@@ -12355,13 +12327,13 @@ app.get(
         .single();
 
       if (error) {
-        console.error("Error fetching guide by ID:", error);
+        log.error("Error fetching guide by ID:", error);
         return c.json({ error: "Guide not found" }, 404);
       }
 
       return c.json(data);
     } catch (error) {
-      console.error("Error fetching guide by ID:", error);
+      log.error("Error fetching guide by ID:", error);
       return c.json(
         { error: "Failed to fetch guide", details: String(error) },
         500
@@ -12386,13 +12358,13 @@ app.get("/make-server-17cae920/guides/my-guides", verifyAuth, async (c) => {
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("Error fetching my guides:", error);
+      log.error("Error fetching my guides:", error);
       return c.json({ error: "Failed to fetch guides" }, 500);
     }
 
     return c.json(data || []);
   } catch (error) {
-    console.error("Error fetching my guides:", error);
+    log.error("Error fetching my guides:", error);
     return c.json(
       { error: "Failed to fetch guides", details: String(error) },
       500
@@ -12441,7 +12413,7 @@ app.post("/make-server-17cae920/guides", verifyAuth, async (c) => {
       .single();
 
     if (error) {
-      console.error("Error creating guide:", error);
+      log.error("Error creating guide:", error);
       return c.json({ error: "Failed to create guide" }, 500);
     }
 
@@ -12458,7 +12430,7 @@ app.post("/make-server-17cae920/guides", verifyAuth, async (c) => {
 
     return c.json(data);
   } catch (error) {
-    console.error("Error creating guide:", error);
+    log.error("Error creating guide:", error);
     return c.json(
       { error: "Failed to create guide", details: String(error) },
       500
@@ -12506,7 +12478,7 @@ app.patch("/make-server-17cae920/guides/:id", verifyAuth, async (c) => {
       .single();
 
     if (error) {
-      console.error("Error updating guide:", error);
+      log.error("Error updating guide:", error);
       return c.json({ error: "Failed to update guide" }, 500);
     }
 
@@ -12524,7 +12496,7 @@ app.patch("/make-server-17cae920/guides/:id", verifyAuth, async (c) => {
 
     return c.json(data);
   } catch (error) {
-    console.error("Error updating guide:", error);
+    log.error("Error updating guide:", error);
     return c.json(
       { error: "Failed to update guide", details: String(error) },
       500
@@ -12553,7 +12525,7 @@ app.delete("/make-server-17cae920/guides/:id", verifyAuth, async (c) => {
     const { error } = await supabase.from("guides").delete().eq("id", id);
 
     if (error) {
-      console.error("Error deleting guide:", error);
+      log.error("Error deleting guide:", error);
       return c.json({ error: "Failed to delete guide" }, 500);
     }
 
@@ -12570,7 +12542,7 @@ app.delete("/make-server-17cae920/guides/:id", verifyAuth, async (c) => {
 
     return c.json({ success: true });
   } catch (error) {
-    console.error("Error deleting guide:", error);
+    log.error("Error deleting guide:", error);
     return c.json(
       { error: "Failed to delete guide", details: String(error) },
       500
@@ -12606,7 +12578,7 @@ app.post(
 
       return c.json({ success: true });
     } catch (error) {
-      console.error("Error incrementing guide views:", error);
+      log.error("Error incrementing guide views:", error);
       return c.json(
         { error: "Failed to increment views", details: String(error) },
         500
@@ -12632,13 +12604,13 @@ app.get("/make-server-17cae920/guides/search", rateLimit("API"), async (c) => {
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("Error searching guides:", error);
+      log.error("Error searching guides:", error);
       return c.json({ error: "Failed to search guides" }, 500);
     }
 
     return c.json(data || []);
   } catch (error) {
-    console.error("Error searching guides:", error);
+    log.error("Error searching guides:", error);
     return c.json(
       { error: "Failed to search guides", details: String(error) },
       500
@@ -12674,7 +12646,7 @@ app.get("/make-server-17cae920/blog", rateLimit("API"), async (c) => {
     const { data, error } = await query;
 
     if (error) {
-      console.error("Error fetching blog posts:", error);
+      log.error("Error fetching blog posts:", error);
       return c.json(
         {
           error: "Failed to fetch blog posts",
@@ -12688,7 +12660,7 @@ app.get("/make-server-17cae920/blog", rateLimit("API"), async (c) => {
 
     return c.json(data || []);
   } catch (error) {
-    console.error("Error fetching blog posts:", error);
+    log.error("Error fetching blog posts:", error);
     return c.json(
       { error: "Failed to fetch blog posts", details: String(error) },
       500
@@ -12713,13 +12685,13 @@ app.get("/make-server-17cae920/blog/:slug", rateLimit("API"), async (c) => {
       .single();
 
     if (error) {
-      console.error("Error fetching blog post by slug:", error);
+      log.error("Error fetching blog post by slug:", error);
       return c.json({ error: "Blog post not found" }, 404);
     }
 
     return c.json(data);
   } catch (error) {
-    console.error("Error fetching blog post by slug:", error);
+    log.error("Error fetching blog post by slug:", error);
     return c.json(
       { error: "Failed to fetch blog post", details: String(error) },
       500
@@ -12743,13 +12715,13 @@ app.get("/make-server-17cae920/blog/by-id/:id", rateLimit("API"), async (c) => {
       .single();
 
     if (error) {
-      console.error("Error fetching blog post by ID:", error);
+      log.error("Error fetching blog post by ID:", error);
       return c.json({ error: "Blog post not found" }, 404);
     }
 
     return c.json(data);
   } catch (error) {
-    console.error("Error fetching blog post by ID:", error);
+    log.error("Error fetching blog post by ID:", error);
     return c.json(
       { error: "Failed to fetch blog post", details: String(error) },
       500
@@ -12773,13 +12745,13 @@ app.get("/make-server-17cae920/blog/my-posts", verifyAuth, async (c) => {
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("Error fetching my blog posts:", error);
+      log.error("Error fetching my blog posts:", error);
       return c.json({ error: "Failed to fetch blog posts" }, 500);
     }
 
     return c.json(data || []);
   } catch (error) {
-    console.error("Error fetching my blog posts:", error);
+    log.error("Error fetching my blog posts:", error);
     return c.json(
       { error: "Failed to fetch blog posts", details: String(error) },
       500
@@ -12817,7 +12789,7 @@ app.post("/make-server-17cae920/blog", verifyAuth, async (c) => {
       .single();
 
     if (error) {
-      console.error("Error creating blog post:", error);
+      log.error("Error creating blog post:", error);
       return c.json({ error: "Failed to create blog post" }, 500);
     }
 
@@ -12834,7 +12806,7 @@ app.post("/make-server-17cae920/blog", verifyAuth, async (c) => {
 
     return c.json(data);
   } catch (error) {
-    console.error("Error creating blog post:", error);
+    log.error("Error creating blog post:", error);
     return c.json(
       { error: "Failed to create blog post", details: String(error) },
       500
@@ -12869,7 +12841,7 @@ app.patch("/make-server-17cae920/blog/:id", verifyAuth, async (c) => {
       .single();
 
     if (error) {
-      console.error("Error updating blog post:", error);
+      log.error("Error updating blog post:", error);
       return c.json({ error: "Failed to update blog post" }, 500);
     }
 
@@ -12887,7 +12859,7 @@ app.patch("/make-server-17cae920/blog/:id", verifyAuth, async (c) => {
 
     return c.json(data);
   } catch (error) {
-    console.error("Error updating blog post:", error);
+    log.error("Error updating blog post:", error);
     return c.json(
       { error: "Failed to update blog post", details: String(error) },
       500
@@ -12916,7 +12888,7 @@ app.delete("/make-server-17cae920/blog/:id", verifyAuth, async (c) => {
     const { error } = await supabase.from("blog_posts").delete().eq("id", id);
 
     if (error) {
-      console.error("Error deleting blog post:", error);
+      log.error("Error deleting blog post:", error);
       return c.json({ error: "Failed to delete blog post" }, 500);
     }
 
@@ -12933,7 +12905,7 @@ app.delete("/make-server-17cae920/blog/:id", verifyAuth, async (c) => {
 
     return c.json({ success: true });
   } catch (error) {
-    console.error("Error deleting blog post:", error);
+    log.error("Error deleting blog post:", error);
     return c.json(
       { error: "Failed to delete blog post", details: String(error) },
       500
@@ -12969,7 +12941,7 @@ app.post(
 
       return c.json({ success: true });
     } catch (error) {
-      console.error("Error incrementing blog post views:", error);
+      log.error("Error incrementing blog post views:", error);
       return c.json(
         { error: "Failed to increment views", details: String(error) },
         500
@@ -12995,13 +12967,13 @@ app.get("/make-server-17cae920/blog/search", rateLimit("API"), async (c) => {
       .order("published_at", { ascending: false });
 
     if (error) {
-      console.error("Error searching blog posts:", error);
+      log.error("Error searching blog posts:", error);
       return c.json({ error: "Failed to search blog posts" }, 500);
     }
 
     return c.json(data || []);
   } catch (error) {
-    console.error("Error searching blog posts:", error);
+    log.error("Error searching blog posts:", error);
     return c.json(
       { error: "Failed to search blog posts", details: String(error) },
       500
@@ -13013,13 +12985,13 @@ app.get("/make-server-17cae920/blog/search", rateLimit("API"), async (c) => {
 
 // Catch-all 404 handler for debugging - MUST be last route
 app.all("*", (c) => {
-  console.log(`❌ 404 - Unmatched route: ${c.req.method} ${c.req.url}`);
-  console.log(`❌ Path: ${c.req.path}`);
-  console.log(`❌ Headers:`, JSON.stringify(c.req.header()));
+  log.log(`❌ 404 - Unmatched route: ${c.req.method} ${c.req.url}`);
+  log.log(`❌ Path: ${c.req.path}`);
+  log.log(`❌ Headers:`, JSON.stringify(c.req.header()));
   return c.json({ error: "Not found", path: c.req.path }, 404);
 });
 
-console.log(
+log.log(
   "✅ Phase 9.1 routes implemented inline (no external module imports needed)"
 );
 

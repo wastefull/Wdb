@@ -449,6 +449,7 @@ export interface Source {
   is_open_access?: boolean; // Open Access status (from Unpaywall API)
   oa_status?: string | null; // OA status: 'gold', 'green', 'hybrid', 'bronze', 'closed'
   best_oa_url?: string | null; // Best OA location URL (if available)
+  manual_oa_override?: boolean; // Manual override for OA status
 }
 
 // Get all sources (public, no auth required)

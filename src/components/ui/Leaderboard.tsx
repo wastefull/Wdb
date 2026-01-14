@@ -8,7 +8,7 @@ interface LeaderboardEntry {
   avatar_url?: string;
   materials: number;
   articles: number;
-  guides: number;
+  guides?: number;
   mius: number;
   total: number;
 }
