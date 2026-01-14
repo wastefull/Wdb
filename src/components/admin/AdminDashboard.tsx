@@ -25,7 +25,7 @@ import {
 } from "../ui/accordion";
 import { PHASE_TABS } from "../roadmap/SimplifiedRoadmap";
 import * as api from "../../utils/api";
-
+import { logger as log } from "../../utils/logger";
 interface AdminDashboardProps {
   onBack: () => void;
   onNavigateToReviewCenter?: () => void;
@@ -89,7 +89,7 @@ export function AdminDashboard({
       const data = await api.getAdminStats();
       setStats(data);
     } catch (error) {
-      console.error("Error loading admin stats:", error);
+      log.error("Error loading admin stats:", error);
     } finally {
       setLoadingStats(false);
     }

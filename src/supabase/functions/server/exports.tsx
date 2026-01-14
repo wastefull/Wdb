@@ -5,6 +5,7 @@
 
 import type { Context } from "npm:hono";
 import * as kv from "./kv_store.tsx";
+import { logger as log } from "../../../src/utils/logger.ts";
 
 // Helper function to convert arrays to CSV format
 function arrayToCSV(headers: string[], rows: any[][]): string {
@@ -111,7 +112,7 @@ export async function handlePublicExport(c: Context) {
       materials: publicData,
     });
   } catch (error) {
-    console.error("Error exporting public data:", error);
+    log.error("Error exporting public data:", error);
     return c.json(
       { error: "Failed to export data", details: String(error) },
       500
@@ -139,7 +140,7 @@ export async function handleResearchExport(c: Context) {
 
     // Get all evidence points for MIU traceability (NEW in v2.0)
     const allEvidence = await kv.getByPrefix("evidence:");
-    console.log(` Retrieved ${allEvidence.length} evidence points for export`);
+    log.log(` Retrieved ${allEvidence.length} evidence points for export`);
 
     // Organize evidence by material ID
     const evidenceByMaterial = new Map();
@@ -261,7 +262,7 @@ export async function handleResearchExport(c: Context) {
       const csv = arrayToCSV(headers, rows);
 
       if (compress) {
-        console.log(
+        log.log(
           "💡 Gzip compression requested for CSV. Export size:",
           csv.length,
           "bytes"
@@ -418,12 +419,12 @@ export async function handleResearchExport(c: Context) {
     const jsonString = JSON.stringify(exportData, null, 2);
 
     if (compress) {
-      console.log(
+      log.log(
         "💡 Gzip compression requested. Export size:",
         jsonString.length,
         "bytes"
       );
-      console.log(
+      log.log(
         "⚠️ Compression available but requires additional library - documented for future implementation"
       );
     }
@@ -434,7 +435,7 @@ export async function handleResearchExport(c: Context) {
       }.json"`,
     });
   } catch (error) {
-    console.error("Error exporting research data:", error);
+    log.error("Error exporting research data:", error);
     return c.json(
       { error: "Failed to export data", details: String(error) },
       500

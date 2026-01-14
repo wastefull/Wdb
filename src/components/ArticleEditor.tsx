@@ -14,7 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Textarea } from "./ui/textarea";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
-
+import { logger as log } from "../utils/logger";
 interface Article {
   id?: string;
   title: string;
@@ -95,7 +95,7 @@ export function ArticleEditor({
         status: article?.status,
       });
     } catch (error) {
-      console.error("Error saving article:", error);
+      log.error("Error saving article:", error);
       toast.error("Failed to save article");
     } finally {
       setSaving(false);

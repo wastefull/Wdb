@@ -20,8 +20,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { projectId, publicAnonKey } from "../../utils/supabase/info";
-import { useAuthContext } from "../../contexts/AuthContext";
-
+import { logger as log } from "../../utils/logger";
 interface RetentionStats {
   screenshots: {
     total: number;
@@ -64,7 +63,6 @@ interface DataRetentionManagerProps {
 export function DataRetentionManager({
   className,
 }: DataRetentionManagerProps = {}) {
-  const { accessToken } = useAuthContext();
   const [stats, setStats] = useState<RetentionStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [cleanupLoading, setCleanupLoading] = useState<string | null>(null);
@@ -80,25 +78,27 @@ export function DataRetentionManager({
   const fetchStats = async () => {
     try {
       setLoading(true);
+      const accessToken = sessionStorage.getItem("wastedb_access_token");
       const response = await fetch(
         `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/admin/retention/stats`,
         {
           headers: {
-            Authorization: `Bearer ${accessToken || publicAnonKey}`,
+            Authorization: `Bearer ${publicAnonKey}`,
+            ...(accessToken && { "X-Session-Token": accessToken }),
           },
         }
       );
 
       if (!response.ok) {
         const error = await response.json();
-        console.error("Failed to fetch retention stats:", error);
+        log.error("Failed to fetch retention stats:", error);
         return;
       }
 
       const data = await response.json();
       setStats(data.stats);
     } catch (error) {
-      console.error("Error fetching retention stats:", error);
+      log.error("Error fetching retention stats:", error);
     } finally {
       setLoading(false);
     }
@@ -115,19 +115,21 @@ export function DataRetentionManager({
 
     try {
       setCleanupLoading("screenshots");
+      const accessToken = sessionStorage.getItem("wastedb_access_token");
       const response = await fetch(
         `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/admin/retention/cleanup-screenshots`,
         {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${accessToken || publicAnonKey}`,
+            Authorization: `Bearer ${publicAnonKey}`,
+            ...(accessToken && { "X-Session-Token": accessToken }),
           },
         }
       );
 
       if (!response.ok) {
         const error = await response.json();
-        console.error("Failed to cleanup screenshots:", error);
+        log.error("Failed to cleanup screenshots:", error);
         alert("Failed to cleanup screenshots. See console for details.");
         return;
       }
@@ -136,7 +138,7 @@ export function DataRetentionManager({
       alert(`Successfully removed ${data.cleanedCount} expired screenshot(s)`);
       fetchStats(); // Refresh stats
     } catch (error) {
-      console.error("Error cleaning up screenshots:", error);
+      log.error("Error cleaning up screenshots:", error);
       alert("Error cleaning up screenshots. See console for details.");
     } finally {
       setCleanupLoading(null);
@@ -154,19 +156,21 @@ export function DataRetentionManager({
 
     try {
       setCleanupLoading("audit-logs");
+      const accessToken = sessionStorage.getItem("wastedb_access_token");
       const response = await fetch(
         `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/admin/retention/cleanup-audit-logs`,
         {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${accessToken || publicAnonKey}`,
+            Authorization: `Bearer ${publicAnonKey}`,
+            ...(accessToken && { "X-Session-Token": accessToken }),
           },
         }
       );
 
       if (!response.ok) {
         const error = await response.json();
-        console.error("Failed to cleanup audit logs:", error);
+        log.error("Failed to cleanup audit logs:", error);
         alert("Failed to cleanup audit logs. See console for details.");
         return;
       }
@@ -175,7 +179,7 @@ export function DataRetentionManager({
       alert(`Successfully deleted ${data.deletedCount} expired audit log(s)`);
       fetchStats(); // Refresh stats
     } catch (error) {
-      console.error("Error cleaning up audit logs:", error);
+      log.error("Error cleaning up audit logs:", error);
       alert("Error cleaning up audit logs. See console for details.");
     } finally {
       setCleanupLoading(null);
@@ -190,18 +194,20 @@ export function DataRetentionManager({
 
     try {
       setCheckingIntegrity(true);
+      const accessToken = sessionStorage.getItem("wastedb_access_token");
       const response = await fetch(
         `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/admin/retention/check-source/${sourceId}`,
         {
           headers: {
-            Authorization: `Bearer ${accessToken || publicAnonKey}`,
+            Authorization: `Bearer ${publicAnonKey}`,
+            ...(accessToken && { "X-Session-Token": accessToken }),
           },
         }
       );
 
       if (!response.ok) {
         const error = await response.json();
-        console.error("Failed to check source integrity:", error);
+        log.error("Failed to check source integrity:", error);
         alert("Failed to check source. See console for details.");
         return;
       }
@@ -209,7 +215,7 @@ export function DataRetentionManager({
       const data = await response.json();
       setIntegrityCheck(data);
     } catch (error) {
-      console.error("Error checking source integrity:", error);
+      log.error("Error checking source integrity:", error);
       alert("Error checking source. See console for details.");
     } finally {
       setCheckingIntegrity(false);

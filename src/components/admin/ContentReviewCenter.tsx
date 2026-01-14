@@ -14,7 +14,7 @@ import * as api from "../../utils/api";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { ReviewModal } from "../shared/ReviewModal";
-
+import { logger as log } from "../../utils/logger";
 interface Submission {
   id: string;
   type:
@@ -68,7 +68,7 @@ export function ContentReviewCenter({
       const data = await api.getSubmissions();
       setSubmissions(data);
     } catch (error) {
-      console.error("Error loading submissions:", error);
+      log.error("Error loading submissions:", error);
       toast.error("Failed to load submissions");
     } finally {
       setLoading(false);
@@ -93,7 +93,7 @@ export function ContentReviewCenter({
       toast.success("Submission flagged for moderation");
       loadSubmissions();
     } catch (error) {
-      console.error("Error flagging submission:", error);
+      log.error("Error flagging submission:", error);
       toast.error("Failed to flag submission");
     }
   };
@@ -116,7 +116,7 @@ export function ContentReviewCenter({
           writerProfile.email?.split("@")[0] ||
           "Anonymous";
       } catch (error) {
-        console.error("Error fetching writer profile:", error);
+        log.error("Error fetching writer profile:", error);
       }
 
       // Get editor's name if edited by admin
@@ -126,7 +126,7 @@ export function ContentReviewCenter({
           const editorProfile = await api.getUserProfile(currentUserId);
           editorName = editorProfile.name || editorProfile.email?.split("@")[0];
         } catch (error) {
-          console.error("Error fetching editor profile:", error);
+          log.error("Error fetching editor profile:", error);
         }
       }
 
@@ -160,10 +160,14 @@ export function ContentReviewCenter({
       ) {
         // Update existing material
         const materialData = editedContent || submission.content_data;
-        await api.updateMaterial(submission.original_content_id, {
+        await api.updateMaterial({
+          id: submission.original_content_id,
           name: materialData.name,
           category: materialData.category,
           description: materialData.description,
+          compostability: materialData.compostability || 0,
+          recyclability: materialData.recyclability || 0,
+          reusability: materialData.reusability || 0,
           ...(wasEditedByAdmin && editorName
             ? {
                 edited_by: currentUserId,
@@ -175,7 +179,7 @@ export function ContentReviewCenter({
         // Create new article
         const articleData = editedContent || submission.content_data;
         // Note: This requires article creation API which will be implemented in Phase 6.4
-        console.log("Article approval:", articleData);
+        log.log("Article approval:", articleData);
       }
 
       // Content creation succeeded - NOW update submission status to approved
@@ -209,7 +213,7 @@ export function ContentReviewCenter({
           )} submission has been approved and is now live!`,
         });
       } catch (emailError) {
-        console.error("Error sending approval email/notification:", emailError);
+        log.error("Error sending approval email/notification:", emailError);
         // Don't fail the approval if email/notification fails
       }
 
@@ -223,7 +227,7 @@ export function ContentReviewCenter({
       setShowReviewModal(false);
       setSelectedSubmission(null);
     } catch (error) {
-      console.error("Error approving submission:", error);
+      log.error("Error approving submission:", error);
       toast.error("Failed to approve submission");
     }
   };
@@ -261,10 +265,7 @@ export function ContentReviewCenter({
             )} submission was not approved. Feedback has been provided.`,
           });
         } catch (emailError) {
-          console.error(
-            "Error sending rejection email/notification:",
-            emailError
-          );
+          log.error("Error sending rejection email/notification:", emailError);
           // Don't fail the rejection if email/notification fails
         }
       }
@@ -274,7 +275,7 @@ export function ContentReviewCenter({
       setShowReviewModal(false);
       setSelectedSubmission(null);
     } catch (error) {
-      console.error("Error rejecting submission:", error);
+      log.error("Error rejecting submission:", error);
       toast.error("Failed to reject submission");
     }
   };
@@ -321,10 +322,7 @@ export function ContentReviewCenter({
 
           toast.success("Revision requested and email sent");
         } catch (emailError) {
-          console.error(
-            "Error sending revision email/notification:",
-            emailError
-          );
+          log.error("Error sending revision email/notification:", emailError);
           // Still show success since the submission was updated
           toast.success("Revision requested (email notification failed)");
         }
@@ -336,7 +334,7 @@ export function ContentReviewCenter({
       setShowReviewModal(false);
       setSelectedSubmission(null);
     } catch (error) {
-      console.error("Error requesting revision:", error);
+      log.error("Error requesting revision:", error);
       toast.error("Failed to request revision");
     }
   };
@@ -350,7 +348,7 @@ export function ContentReviewCenter({
       toast.success("Submission remitted to review queue");
       loadSubmissions();
     } catch (error) {
-      console.error("Error remitting submission:", error);
+      log.error("Error remitting submission:", error);
       toast.error("Failed to remit submission");
     }
   };
@@ -369,7 +367,7 @@ export function ContentReviewCenter({
       toast.success("Submission deleted");
       loadSubmissions();
     } catch (error) {
-      console.error("Error deleting submission:", error);
+      log.error("Error deleting submission:", error);
       toast.error("Failed to delete submission");
     }
   };

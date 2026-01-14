@@ -12,7 +12,7 @@ import { Label } from "../ui/label";
 import { toast } from "sonner";
 import { Upload, Trash2, Copy, ExternalLink } from "lucide-react";
 import { projectId, publicAnonKey } from "../../utils/supabase/info";
-
+import { logger as log } from "../../utils/logger";
 interface Asset {
   name: string;
   publicUrl: string;
@@ -54,7 +54,7 @@ export function AssetUploadManager({ accessToken }: AssetUploadManagerProps) {
       const data = await response.json();
       setAssets(data.assets || []);
     } catch (error) {
-      console.error("Error fetching assets:", error);
+      log.error("Error fetching assets:", error);
       toast.error("Failed to load assets");
     } finally {
       setLoading(false);
@@ -115,7 +115,7 @@ export function AssetUploadManager({ accessToken }: AssetUploadManagerProps) {
       // Reset input
       e.target.value = "";
     } catch (error) {
-      console.error("Upload error:", error);
+      log.error("Upload error:", error);
       toast.error(
         error instanceof Error ? error.message : "Failed to upload file"
       );
@@ -147,7 +147,7 @@ export function AssetUploadManager({ accessToken }: AssetUploadManagerProps) {
       toast.success("Asset deleted");
       await fetchAssets();
     } catch (error) {
-      console.error("Delete error:", error);
+      log.error("Delete error:", error);
       toast.error("Failed to delete asset");
     }
   };
@@ -182,7 +182,7 @@ export function AssetUploadManager({ accessToken }: AssetUploadManagerProps) {
         }
       } catch (fallbackError) {
         // If all else fails, show the URL for manual copying
-        console.error("Copy failed:", error, fallbackError);
+        log.error("Copy failed:", error, fallbackError);
         toast.error("Copy failed. URL: " + url, { duration: 10000 });
       }
     }

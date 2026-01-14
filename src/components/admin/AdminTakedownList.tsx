@@ -47,7 +47,7 @@ import { Textarea } from "../ui/textarea";
 import { Label } from "../ui/label";
 import { TakedownDebugPanel } from "./TakedownDebugPanel";
 import { PageTemplate } from "../shared/PageTemplate";
-
+import { logger as log } from "../../utils/logger";
 interface TakedownRequest {
   requestID: string;
   fullName: string;
@@ -118,9 +118,9 @@ export function AdminTakedownList() {
       if (response.ok) {
         const data = await response.json();
 
-        console.log("🔍 API Response received:", data);
-        console.log("🔍 Number of requests:", data.requests?.length);
-        console.log("🔍 First request sample:", data.requests?.[0]);
+        log.info("🔍 API Response received:", data);
+        log.info("🔍 Number of requests:", data.requests?.length);
+        log.info("🔍 First request sample:", data.requests?.[0]);
 
         // Deduplicate requests by requestID, preferring records with more fields (complete data)
         const uniqueRequests =
@@ -138,7 +138,7 @@ export function AdminTakedownList() {
                 const existingFieldCount = Object.keys(existing).length;
                 const newFieldCount = Object.keys(request).length;
                 if (newFieldCount > existingFieldCount) {
-                  console.log(
+                  log.info(
                     `🔄 Replacing duplicate ${request.requestID}: ${existingFieldCount} fields → ${newFieldCount} fields`
                   );
                   acc[existingIndex] = request;
@@ -149,8 +149,8 @@ export function AdminTakedownList() {
             []
           ) || [];
 
-        console.log("🔍 Unique requests after dedup:", uniqueRequests.length);
-        console.log("🔍 Unique requests data:", uniqueRequests);
+        log.info("🔍 Unique requests after dedup:", uniqueRequests.length);
+        log.info("🔍 Unique requests data:", uniqueRequests);
 
         setRequests(uniqueRequests);
       } else {
@@ -158,7 +158,7 @@ export function AdminTakedownList() {
         setError(errorData.error || "Failed to fetch requests");
       }
     } catch (err) {
-      console.error("Error fetching takedown requests:", err);
+      log.error("Error fetching takedown requests:", err);
       setError("Network error. Please try again.");
     } finally {
       setLoading(false);
@@ -209,7 +209,7 @@ export function AdminTakedownList() {
         alert(`Failed to update: ${errorData.error}`);
       }
     } catch (err) {
-      console.error("Error updating request:", err);
+      log.error("Error updating request:", err);
       alert("Network error. Please try again.");
     } finally {
       setUpdating(false);

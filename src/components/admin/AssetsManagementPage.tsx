@@ -14,7 +14,7 @@ import { Upload, Trash2, Copy, ExternalLink, Image } from "lucide-react";
 import { projectId, publicAnonKey } from "../../utils/supabase/info";
 import { PageTemplate } from "../shared/PageTemplate";
 import { useNavigationContext } from "../../contexts/NavigationContext";
-
+import { logger as log } from "../../utils/logger";
 interface Asset {
   name: string;
   publicUrl: string;
@@ -54,7 +54,7 @@ export function AssetsManagementPage() {
       const data = await response.json();
       setAssets(data.assets || []);
     } catch (error) {
-      console.error("Error fetching assets:", error);
+      log.error("Error fetching assets:", error);
       toast.error("Failed to load assets");
     } finally {
       setLoading(false);
@@ -115,7 +115,7 @@ export function AssetsManagementPage() {
       // Reset file input
       e.target.value = "";
     } catch (error: any) {
-      console.error("Upload error:", error);
+      log.error("Upload error:", error);
       toast.error(error.message || "Failed to upload asset");
     } finally {
       setUploading(false);
@@ -147,7 +147,7 @@ export function AssetsManagementPage() {
       toast.success("Asset deleted successfully");
       await fetchAssets();
     } catch (error) {
-      console.error("Delete error:", error);
+      log.error("Delete error:", error);
       toast.error("Failed to delete asset");
     }
   };
@@ -172,7 +172,7 @@ export function AssetsManagementPage() {
         throw new Error("Copy command failed");
       }
     } catch (error) {
-      console.error("Copy error:", error);
+      log.error("Copy error:", error);
       toast.error("Failed to copy URL. Please copy manually.");
     }
   };

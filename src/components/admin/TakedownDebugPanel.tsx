@@ -1,21 +1,27 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import React, { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Alert, AlertDescription } from "../ui/alert";
-import { Loader2, AlertCircle, Search } from 'lucide-react';
-import { projectId } from '../../utils/supabase/info';
+import { Loader2, AlertCircle, Search } from "lucide-react";
+import { projectId } from "../../utils/supabase/info";
 
 export function TakedownDebugPanel() {
-  const [requestId, setRequestId] = useState('');
+  const [requestId, setRequestId] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [debugData, setDebugData] = useState<any>(null);
 
   const fetchRawData = async () => {
     if (!requestId.trim()) {
-      setError('Please enter a request ID');
+      setError("Please enter a request ID");
       return;
     }
 
@@ -24,9 +30,9 @@ export function TakedownDebugPanel() {
       setError(null);
       setDebugData(null);
 
-      const accessToken = sessionStorage.getItem('wastedb_access_token');
+      const accessToken = sessionStorage.getItem("wastedb_access_token");
       if (!accessToken) {
-        setError('Not authenticated. Please sign in as admin.');
+        setError("Not authenticated. Please sign in as admin.");
         setLoading(false);
         return;
       }
@@ -35,7 +41,7 @@ export function TakedownDebugPanel() {
         `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/admin/takedown-raw/${requestId}`,
         {
           headers: {
-            'Authorization': `Bearer ${accessToken}`,
+            Authorization: `Bearer ${accessToken}`,
           },
         }
       );
@@ -45,11 +51,11 @@ export function TakedownDebugPanel() {
         setDebugData(data);
       } else {
         const errorData = await response.json();
-        setError(errorData.error || 'Failed to fetch data');
+        setError(errorData.error || "Failed to fetch data");
       }
     } catch (err) {
-      console.error('Error fetching raw data:', err);
-      setError('Network error. Please try again.');
+      console.error("Error fetching raw data:", err);
+      setError("Network error. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -104,10 +110,21 @@ export function TakedownDebugPanel() {
             <Alert>
               <AlertDescription>
                 <div className="space-y-2 text-sm">
-                  <div><strong>Field Count:</strong> {debugData.fieldCount}</div>
-                  <div><strong>Has fullName:</strong> {debugData.hasFullName ? '✅ Yes' : '❌ No'}</div>
-                  <div><strong>Has workTitle:</strong> {debugData.hasWorkTitle ? '✅ Yes' : '❌ No'}</div>
-                  <div><strong>Has contentDescription:</strong> {debugData.hasContentDescription ? '✅ Yes' : '❌ No'}</div>
+                  <div>
+                    <strong>Field Count:</strong> {debugData.fieldCount}
+                  </div>
+                  <div>
+                    <strong>Has fullName:</strong>{" "}
+                    {debugData.hasFullName ? "✅ Yes" : "❌ No"}
+                  </div>
+                  <div>
+                    <strong>Has workTitle:</strong>{" "}
+                    {debugData.hasWorkTitle ? "✅ Yes" : "❌ No"}
+                  </div>
+                  <div>
+                    <strong>Has contentDescription:</strong>{" "}
+                    {debugData.hasContentDescription ? "✅ Yes" : "❌ No"}
+                  </div>
                 </div>
               </AlertDescription>
             </Alert>
@@ -115,7 +132,7 @@ export function TakedownDebugPanel() {
             <div>
               <Label>All Fields Present:</Label>
               <div className="mt-2 p-3 bg-muted rounded text-xs font-mono">
-                {debugData.fields.join(', ')}
+                {debugData.fields.join(", ")}
               </div>
             </div>
 

@@ -9,7 +9,7 @@ import {
   Activity,
 } from "lucide-react";
 import { projectId, publicAnonKey } from "../../utils/supabase/info";
-
+import { logger as log } from "../../utils/logger";
 interface AuditLogEntry {
   id: string;
   timestamp: string;
@@ -94,7 +94,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
       setLogs(data.logs);
       setTotal(data.total);
     } catch (error) {
-      console.error("Error fetching audit logs:", error);
+      log.error("Error fetching audit logs:", error);
     } finally {
       setLoading(false);
     }
@@ -120,7 +120,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
       const data = await response.json();
       setStats(data.stats);
     } catch (error) {
-      console.error("Error fetching audit stats:", error);
+      log.error("Error fetching audit stats:", error);
     }
   }
 
@@ -162,7 +162,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#e8f4f8] to-[#b8c8cb] dark:from-[#0a0908] dark:to-[#1a1917] p-6">
+    <div className="min-h-screen bg-linear-to-b from-[#e8f4f8] to-[#b8c8cb] dark:from-[#0a0908] dark:to-[#1a1917] p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6">
@@ -393,7 +393,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
                         <td className="px-4 py-3 font-['Sniglet'] text-[11px]">
                           {log.entityType}
                         </td>
-                        <td className="px-4 py-3 font-['Sniglet'] text-[11px] font-mono">
+                        <td className="px-4 py-3 font-['Sniglet'] text-[11px]">
                           {log.entityId.slice(0, 20)}...
                         </td>
                         <td className="px-4 py-3 font-['Sniglet'] text-[11px]">
@@ -470,7 +470,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
                   <p className="font-['Sniglet'] text-[14px]">
                     {selectedLog.userEmail}
                   </p>
-                  <p className="font-['Sniglet'] text-[11px] text-black/40 dark:text-white/40 font-mono">
+                  <p className="font-['Sniglet'] text-[11px] text-black/40 dark:text-white/40">
                     {selectedLog.userId}
                   </p>
                 </div>
@@ -525,7 +525,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
                 {selectedLog.ipAddress && (
                   <div>
                     <h3 className="label-muted mb-1">IP Address</h3>
-                    <p className="font-['Sniglet'] text-[12px] font-mono">
+                    <p className="font-['Sniglet'] text-[12px]">
                       {selectedLog.ipAddress}
                     </p>
                   </div>
