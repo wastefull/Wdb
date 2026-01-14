@@ -149,7 +149,7 @@ export function SourceLibraryManager({
         setCloudSynced(false);
       }
     } catch (error) {
-      console.error("Failed to load sources from cloud:", error);
+      logger.error("Failed to load sources from cloud:", error);
       toast.error("Failed to load sources from cloud");
       setSources([...SOURCE_LIBRARY]);
       setCloudSynced(false);
@@ -253,7 +253,7 @@ export function SourceLibraryManager({
         return;
       }
     } catch (error) {
-      console.error("Duplicate check failed:", error);
+      logger.error("Duplicate check failed:", error);
       toast.error("Failed to check for duplicates. Please try again.");
       return;
     }
@@ -273,7 +273,7 @@ export function SourceLibraryManager({
         toast.success("Source added and synced to cloud");
         setCloudSynced(true);
       } catch (error) {
-        console.error("Failed to sync source to cloud:", error);
+        logger.error("Failed to sync source to cloud:", error);
         toast.error("Source added locally but failed to sync to cloud");
       }
     } else {
@@ -324,7 +324,7 @@ export function SourceLibraryManager({
         toast.success("Source updated and synced to cloud");
         setCloudSynced(true);
       } catch (error) {
-        console.error("Failed to sync source update to cloud:", error);
+        logger.error("Failed to sync source update to cloud:", error);
         toast.error("Source updated locally but failed to sync to cloud");
       }
     } else {
@@ -352,7 +352,7 @@ export function SourceLibraryManager({
         toast.success("Source deleted");
         setCloudSynced(true);
       } catch (error: any) {
-        console.error("Failed to delete source:", error);
+        logger.error("Failed to delete source:", error);
         // Show the actual error message from the server
         const errorMessage = error?.message || "Failed to delete source";
         if (errorMessage.includes("dependent evidence")) {
@@ -397,7 +397,7 @@ export function SourceLibraryManager({
 
       setCloudSynced(true);
     } catch (error: any) {
-      console.error("Failed to delete all sources:", error);
+      logger.error("Failed to delete all sources:", error);
       toast.error(error.message || "Failed to delete all sources");
     } finally {
       setDeletingAll(false);
@@ -437,7 +437,7 @@ export function SourceLibraryManager({
 
       setCloudSynced(true);
     } catch (error: any) {
-      console.error("Failed to remove duplicates:", error);
+      logger.error("Failed to remove duplicates:", error);
       toast.error(error.message || "Failed to remove duplicates");
     } finally {
       setRemovingDuplicates(false);
@@ -548,12 +548,12 @@ export function SourceLibraryManager({
             `Citation count (${formatted.citationCount.toLocaleString()}) saved automatically`
           );
         } catch (error) {
-          console.error("Failed to auto-update citation count:", error);
+          logger.error("Failed to auto-update citation count:", error);
           // Silent fail - user can still manually save
         }
       }
     } catch (error) {
-      console.error("CrossRef fetch error:", error);
+      logger.error("CrossRef fetch error:", error);
       setCrossRefError(
         error instanceof Error ? error.message : "Failed to fetch from CrossRef"
       );
@@ -589,7 +589,7 @@ export function SourceLibraryManager({
   };
 
   const handlePdfUpload = async (sourceId: string, file: File) => {
-    console.log("📤 handlePdfUpload called:", {
+    logger.log("📤 handlePdfUpload called:", {
       sourceId,
       fileName: file.name,
       isAuthenticated,
@@ -603,10 +603,10 @@ export function SourceLibraryManager({
 
     try {
       setUploadingPdf(sourceId);
-      console.log("⏳ Uploading PDF...");
+      logger.log("⏳ Uploading PDF...");
 
       const result = await api.uploadSourcePdf(file, sourceId);
-      console.log("✅ Upload result:", result);
+      logger.log("✅ Upload result:", result);
 
       // Update the source with the PDF filename
       const updatedSources = sources.map((s) =>
@@ -617,18 +617,18 @@ export function SourceLibraryManager({
       // Sync the updated source to cloud
       const updatedSource = updatedSources.find((s) => s.id === sourceId);
       if (updatedSource) {
-        console.log("☁️ Syncing updated source to cloud...", {
+        logger.log("☁️ Syncing updated source to cloud...", {
           sourceId,
           pdfFileName: updatedSource.pdfFileName,
           fullSource: updatedSource,
         });
         const syncResult = await api.updateSource(sourceId, updatedSource);
-        console.log("☁️ Sync result:", syncResult);
+        logger.log("☁️ Sync result:", syncResult);
       }
 
       toast.success("PDF uploaded successfully");
     } catch (error) {
-      console.error("❌ Failed to upload PDF:", error);
+      logger.error("❌ Failed to upload PDF:", error);
       toast.error(
         `Failed to upload PDF: ${
           error instanceof Error ? error.message : "Unknown error"
@@ -641,7 +641,7 @@ export function SourceLibraryManager({
 
   // Import PDF from external URL (Open Access sources)
   const handlePdfImportFromUrl = async (sourceId: string, url: string) => {
-    console.log("🔗 handlePdfImportFromUrl called:", { sourceId, url });
+    logger.log("🔗 handlePdfImportFromUrl called:", { sourceId, url });
 
     if (!isAuthenticated || !isAdmin) {
       toast.error("Admin access required to import PDFs");
@@ -663,10 +663,10 @@ export function SourceLibraryManager({
 
     try {
       setImportingPdfUrl(true);
-      console.log("⏳ Importing PDF from URL...");
+      logger.log("⏳ Importing PDF from URL...");
 
       const result = await api.importPdfFromUrl(url.trim(), sourceId);
-      console.log("✅ Import result:", result);
+      logger.log("✅ Import result:", result);
 
       // Update the source with the PDF filename
       const updatedSources = sources.map((s) =>
@@ -677,7 +677,7 @@ export function SourceLibraryManager({
       // Sync the updated source to cloud
       const updatedSource = updatedSources.find((s) => s.id === sourceId);
       if (updatedSource) {
-        console.log("☁️ Syncing updated source to cloud...");
+        logger.log("☁️ Syncing updated source to cloud...");
         await api.updateSource(sourceId, updatedSource);
       }
 
@@ -687,7 +687,7 @@ export function SourceLibraryManager({
       setShowUrlImportDialog(null);
       setPdfUrlInput("");
     } catch (error: any) {
-      console.error("❌ Failed to import PDF:", error);
+      logger.error("❌ Failed to import PDF:", error);
 
       // Check if the error suggests manual download
       const errorMessage = error?.message || "Unknown error";
@@ -733,7 +733,7 @@ export function SourceLibraryManager({
 
       toast.success("PDF deleted successfully");
     } catch (error) {
-      console.error("Failed to delete PDF:", error);
+      logger.error("Failed to delete PDF:", error);
       toast.error("Failed to delete PDF");
     }
   };
@@ -791,7 +791,7 @@ export function SourceLibraryManager({
         setCloudSynced(true);
       }
     } catch (error) {
-      console.error("Failed to update OA status:", error);
+      logger.error("Failed to update OA status:", error);
       toast.error("Failed to save OA status");
     }
   };
@@ -810,7 +810,7 @@ export function SourceLibraryManager({
       toast.success(`${sources.length} sources synced to cloud`);
       setCloudSynced(true);
     } catch (error) {
-      console.error("Failed to sync sources to cloud:", error);
+      logger.error("Failed to sync sources to cloud:", error);
       toast.error("Failed to sync sources to cloud");
     }
   };
@@ -831,7 +831,7 @@ export function SourceLibraryManager({
       URL.revokeObjectURL(url);
       toast.success("Sources exported successfully");
     } catch (error) {
-      console.error("Export failed:", error);
+      logger.error("Export failed:", error);
       toast.error("Failed to export sources");
     }
   };
@@ -877,7 +877,7 @@ export function SourceLibraryManager({
 
         toast.success(`Imported ${newSources.length} new sources`);
       } catch (error) {
-        console.error("Import failed:", error);
+        logger.error("Import failed:", error);
         toast.error("Failed to import sources: Invalid JSON format");
       } finally {
         event.target.value = ""; // Reset file input
@@ -949,7 +949,7 @@ export function SourceLibraryManager({
             await api.updateSource(sourceId, updatedSource);
             setCloudSynced(true);
           } catch (err) {
-            console.error("Failed to sync OA status to cloud:", err);
+            logger.error("Failed to sync OA status to cloud:", err);
           }
         }
       }
@@ -961,7 +961,7 @@ export function SourceLibraryManager({
         toast.info("⊘ Closed Access - Not openly available");
       }
     } catch (error) {
-      console.error("Failed to check OA status:", error);
+      logger.error("Failed to check OA status:", error);
       toast.error("Failed to check Open Access status");
     } finally {
       // Remove from checking set
@@ -1575,7 +1575,7 @@ export function SourceLibraryManager({
                                         ` Diagnostics results:`,
                                         diagnostics
                                       );
-                                      console.table(diagnostics.checks);
+                                      logger.table(diagnostics.checks);
 
                                       // Show a summary toast
                                       const bucketPublic =

@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { logger } from "../../utils/logger";
 
 const CATEGORIES = [
   "Packaging",
@@ -74,7 +75,7 @@ export function SubmitMaterialForm({
       onSubmitSuccess();
       onClose();
     } catch (error) {
-      console.error("Error submitting material:", error);
+      logger.error("Error submitting material:", error);
       toast.error("Failed to submit material");
     } finally {
       setSubmitting(false);

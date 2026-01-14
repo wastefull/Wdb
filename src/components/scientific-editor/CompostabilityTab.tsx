@@ -14,6 +14,7 @@ import {
   type CompostabilityParams,
 } from "../../utils/api";
 import type { DimensionTabProps } from "./types";
+import { logger } from "../../utils/logger";
 
 export function CompostabilityTab({
   formData,
@@ -55,7 +56,7 @@ export function CompostabilityTab({
         toast.success(`CC Theoretical calculated: ${result.public}/100`);
       }
     } catch (error) {
-      console.error("Error calculating compostability:", error);
+      logger.error("Error calculating compostability:", error);
       toast.error(
         "Failed to calculate compostability: " + (error as Error).message
       );

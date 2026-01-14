@@ -7,6 +7,8 @@
  * Stack: Cloudflare Pages + Supabase + GitHub Actions
  */
 
+import { logger } from "./logger";
+
 /**
  * Checks if the app is running in development environment
  *
@@ -54,7 +56,7 @@ export function getEnvironment(): "development" | "production" {
 export function logEnvironmentInfo(): void {
   if (typeof window === "undefined") return;
 
-  console.log("🌍 Environment Detection:", {
+  logger.log("🌍 Environment Detection:", {
     environment: getEnvironment(),
     isDevelopment: isDevelopment(),
     isProduction: isProduction(),

@@ -5,7 +5,7 @@ import { Material } from "../../types/material";
 import GuideEditor from "../editor/GuideEditor";
 import type { TiptapContent } from "../../types/guide";
 import { toast } from "sonner";
-
+import { logger } from "../../utils/logger";
 interface SubmitGuideFormProps {
   onClose: () => void;
   onSubmit: (guide: GuideSubmission) => Promise<void>;
@@ -79,7 +79,7 @@ export function SubmitGuideForm({
       toast.success("Guide data imported successfully!");
     } catch (error) {
       toast.error("Invalid JSON. Please check the format and try again.");
-      console.error("Import error:", error);
+      logger.error("Import error:", error);
     }
   };
 
@@ -108,7 +108,7 @@ export function SubmitGuideForm({
       await onSubmit(guide);
       onClose();
     } catch (error) {
-      console.error("Error submitting guide:", error);
+      logger.error("Error submitting guide:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -148,7 +148,7 @@ export function SubmitGuideForm({
 
         {/* Import Modal */}
         {showImportModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[60]">
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-60">
             <div className="retro-card w-full max-w-2xl max-h-[80vh] overflow-y-auto">
               <div className="p-6 border-b border-[#211f1c]/20 dark:border-white/20 flex items-center justify-between">
                 <h3 className="text-[16px] font-display text-black dark:text-white">

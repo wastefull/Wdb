@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import * as api from "../../utils/api";
 import { toast } from "sonner";
+import { logger } from "../../utils/logger";
 
 interface Submission {
   id: string;
@@ -48,7 +49,7 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
       const data = await api.getMySubmissions();
       setSubmissions(data);
     } catch (error) {
-      console.error("Error loading submissions:", error);
+      logger.error("Error loading submissions:", error);
       toast.error("Failed to load submissions");
     } finally {
       setLoading(false);

@@ -15,6 +15,7 @@ import {
   getCachedChart,
   setCachedChart,
 } from "./chartCache";
+import { logger } from "./logger";
 
 interface UseRasterizedChartOptions {
   materialId: string;
@@ -80,13 +81,6 @@ export function useRasterizedChart({
             await document.fonts.ready;
 
             // Explicitly load Sniglet font at various sizes and weights
-            const fontLoads = await Promise.all([
-              document.fonts.load("400 7px Sniglet"),
-              document.fonts.load("400 8px Sniglet"),
-              document.fonts.load("400 10px Sniglet"),
-              document.fonts.load("400 11px Sniglet"),
-              document.fonts.load("800 11px Sniglet"),
-            ]);
 
             // Verify Sniglet is loaded
             const snigletLoaded = Array.from(document.fonts).some(
@@ -94,7 +88,7 @@ export function useRasterizedChart({
             );
 
             if (!snigletLoaded) {
-              console.warn(
+              logger.warn(
                 "Sniglet font not found in document.fonts after loading attempt"
               );
             }
@@ -103,7 +97,7 @@ export function useRasterizedChart({
             // Wait for animations to finish (600ms SimpleBar + 300ms staggered dots + buffer)
             await new Promise((r) => setTimeout(r, 1000));
           } catch (fontErr) {
-            console.warn(
+            logger.warn(
               "Font loading check failed, continuing anyway:",
               fontErr
             );
@@ -224,7 +218,7 @@ export function useRasterizedChart({
             }
           };
 
-          img.onerror = (err) => {
+          img.onerror = () => {
             URL.revokeObjectURL(url);
             reject(new Error("Failed to load SVG image"));
           };
@@ -260,7 +254,7 @@ export function useRasterizedChart({
       // Update state
       setDataUrl(url);
     } catch (err) {
-      console.error("Error rasterizing chart:", err);
+      logger.error("Error rasterizing chart:", err);
       setError(err instanceof Error ? err : new Error("Unknown error"));
     } finally {
       setIsLoading(false);
@@ -305,7 +299,7 @@ export function useRasterizedChart({
         }
       } catch (err) {
         if (mounted) {
-          console.error("Error loading chart:", err);
+          logger.error("Error loading chart:", err);
           setError(err instanceof Error ? err : new Error("Unknown error"));
           setIsLoading(false);
         }

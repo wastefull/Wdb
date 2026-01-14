@@ -7,6 +7,7 @@ import remarkBreaks from "remark-breaks";
 import rehypeKatex from "rehype-katex";
 import * as api from "../../utils/api";
 import { PageTemplate } from "../shared/PageTemplate";
+import { logger } from "../../utils/logger";
 
 interface Whitepaper {
   slug: string;
@@ -32,7 +33,7 @@ export function MethodologyListView({
         const fetchedWhitepapers = await api.getAllWhitepapers();
         setWhitepapers(fetchedWhitepapers);
       } catch (err) {
-        console.error("Error loading whitepapers:", err);
+        logger.error("Error loading whitepapers:", err);
         setError("Failed to load whitepapers");
       } finally {
         setLoading(false);
@@ -107,9 +108,9 @@ export function WhitepaperView({
   useEffect(() => {
     const loadWhitepaper = async () => {
       try {
-        console.log("🔍 Loading whitepaper with slug:", whitepaperSlug);
+        logger.log("🔍 Loading whitepaper with slug:", whitepaperSlug);
         const fetchedWhitepaper = await api.getWhitepaper(whitepaperSlug);
-        console.log(" Fetched whitepaper:", {
+        logger.log(" Fetched whitepaper:", {
           slug: fetchedWhitepaper?.slug,
           title: fetchedWhitepaper?.title,
           contentType: typeof fetchedWhitepaper?.content,
@@ -134,7 +135,7 @@ export function WhitepaperView({
           setError("Whitepaper not found");
         }
       } catch (err) {
-        console.error("❌ Error loading whitepaper:", err);
+        logger.error("❌ Error loading whitepaper:", err);
         setError("Failed to load whitepaper");
       } finally {
         setLoading(false);

@@ -11,6 +11,7 @@ import { Button } from "../ui/button";
 import { toast } from "sonner";
 import { calculateReusability, type ReusabilityParams } from "../../utils/api";
 import type { DimensionTabProps } from "./types";
+import { logger } from "../../utils/logger";
 
 export function ReusabilityTab({
   formData,
@@ -52,7 +53,7 @@ export function ReusabilityTab({
         toast.success(`RU Theoretical calculated: ${result.public}/100`);
       }
     } catch (error) {
-      console.error("Error calculating reusability:", error);
+      logger.error("Error calculating reusability:", error);
       toast.error(
         "Failed to calculate reusability: " + (error as Error).message
       );

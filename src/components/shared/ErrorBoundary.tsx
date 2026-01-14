@@ -1,5 +1,6 @@
 import React, { Component, ErrorInfo, ReactNode } from "react";
 import { AlertCircle, RefreshCw } from "lucide-react";
+import { logger } from "../../utils/logger";
 
 interface Props {
   children: ReactNode;
@@ -31,7 +32,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("ErrorBoundary caught an error:", error, errorInfo);
+    logger.error("ErrorBoundary caught an error:", error, errorInfo);
 
     this.setState({
       error,
@@ -50,7 +51,7 @@ export class ErrorBoundary extends Component<Props, State> {
       error.message?.toLowerCase().includes("unauthorized")
     ) {
       // Session errors are already handled by the API layer
-      console.log("Session error detected - API layer will handle redirect");
+      logger.log("Session error detected - API layer will handle redirect");
     }
   }
 
@@ -90,7 +91,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 <summary className="text-[11px] cursor-pointer mb-2">
                   Error Details (Development Only)
                 </summary>
-                <pre className="text-[10px] overflow-auto whitespace-pre-wrap break-words">
+                <pre className="text-[10px] overflow-auto whitespace-pre-wrap wrap-break-word">
                   {this.state.error.toString()}
                   {this.state.errorInfo?.componentStack}
                 </pre>

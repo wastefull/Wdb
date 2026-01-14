@@ -47,6 +47,7 @@ import { useMaterialsContext } from "../../contexts/MaterialsContext";
 import * as api from "../../utils/api";
 import type { CrossRefSearchResult, DOILookupResult } from "../../utils/api";
 import { EvidenceListViewer } from "../evidence/EvidenceListViewer";
+import { logger } from "../../utils/logger";
 
 type ViewMode = "evidence" | "source-search" | "browse-all";
 
@@ -173,7 +174,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
       );
       setLibraryDOIs(dois);
     } catch (error) {
-      console.error("Error loading library DOIs:", error);
+      logger.error("Error loading library DOIs:", error);
     }
   };
 
@@ -206,7 +207,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
         }
       }
     } catch (error) {
-      console.error("Error loading evidence counts:", error);
+      logger.error("Error loading evidence counts:", error);
     }
   };
 
@@ -250,7 +251,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
         }
       }
     } catch (error) {
-      console.error("Error loading evidence:", error);
+      logger.error("Error loading evidence:", error);
       toast.error("Failed to load evidence points");
     } finally {
       setLoading(false);
@@ -303,7 +304,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
         toast.error(data.error || "Failed to create evidence point");
       }
     } catch (error) {
-      console.error("Error creating evidence:", error);
+      logger.error("Error creating evidence:", error);
       toast.error("Failed to create evidence point");
     }
   };
@@ -355,7 +356,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
         toast.error(data.error || "Failed to update evidence point");
       }
     } catch (error) {
-      console.error("Error updating evidence:", error);
+      logger.error("Error updating evidence:", error);
       toast.error("Failed to update evidence point");
     }
   };
@@ -394,7 +395,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
         toast.error(data.error || "Failed to delete evidence point");
       }
     } catch (error) {
-      console.error("Error deleting evidence:", error);
+      logger.error("Error deleting evidence:", error);
       toast.error("Failed to delete evidence point");
     }
   };
@@ -472,7 +473,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
         }
       }
     } catch (error) {
-      console.error("Error searching sources:", error);
+      logger.error("Error searching sources:", error);
       toast.error("Failed to search for sources");
     } finally {
       setSearchingCrossRef(false);
@@ -492,7 +493,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
         new Map(prev).set(result.doi.toLowerCase(), oa.is_open_access)
       );
     } catch (error) {
-      console.error("Error checking OA status:", error);
+      logger.error("Error checking OA status:", error);
       setOaStatus({ is_open_access: false });
       setOaStatusCache((prev) =>
         new Map(prev).set(result.doi.toLowerCase(), false)
@@ -581,7 +582,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
       setSourceToAdd(null);
       setSelectedSearchResult(null);
     } catch (error) {
-      console.error("Error adding source:", error);
+      logger.error("Error adding source:", error);
       toast.error("Failed to add source to library");
     } finally {
       setAddingSource(false);

@@ -17,6 +17,7 @@ import { EditGuideForm } from "../forms/EditGuideForm";
 import { useMaterialsContext } from "../../contexts/MaterialsContext";
 import { useAuthContext } from "../../contexts/AuthContext";
 import { toast } from "sonner";
+import { logger } from "../../utils/logger";
 
 interface GuideDetailViewProps {
   guideId: string;
@@ -39,11 +40,11 @@ export function GuideDetailView({ guideId, onBack }: GuideDetailViewProps) {
     setIsLoading(true);
     try {
       const fetchedGuide = await getGuideById(guideId);
-      console.log("Fetched guide:", fetchedGuide);
-      console.log("Guide content:", fetchedGuide?.content);
+      logger.log("Fetched guide:", fetchedGuide);
+      logger.log("Guide content:", fetchedGuide?.content);
       setGuide(fetchedGuide);
     } catch (error) {
-      console.error("Error loading guide:", error);
+      logger.error("Error loading guide:", error);
     } finally {
       setIsLoading(false);
     }
@@ -77,7 +78,7 @@ export function GuideDetailView({ guideId, onBack }: GuideDetailViewProps) {
       }
     } catch (error) {
       toast.error("Failed to delete guide. Please try again.");
-      console.error("Error deleting guide:", error);
+      logger.error("Error deleting guide:", error);
     } finally {
       setShowDeleteConfirm(false);
     }
@@ -87,7 +88,7 @@ export function GuideDetailView({ guideId, onBack }: GuideDetailViewProps) {
   const canEdit = user && guide && guide.created_by === user.id;
 
   // Debug logging
-  console.log("Edit permission check:", {
+  logger.log("Edit permission check:", {
     hasUser: !!user,
     userId: user?.id,
     hasGuide: !!guide,
@@ -144,14 +145,14 @@ export function GuideDetailView({ guideId, onBack }: GuideDetailViewProps) {
             alt={guide.title}
             className="w-full h-full object-cover"
             onLoad={() =>
-              console.log("Image loaded successfully:", guide.cover_image_url)
+              logger.log("Image loaded successfully:", guide.cover_image_url)
             }
             onError={(e) =>
-              console.error("Image failed to load:", guide.cover_image_url, e)
+              logger.error("Image failed to load:", guide.cover_image_url, e)
             }
           />
           {/* Gradient overlay for readability */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-[#f5f3ed] dark:to-[#1a1817]" />
+          <div className="absolute inset-0 bg-linear-to-b from-black/30 via-transparent to-[#f5f3ed] dark:to-[#1a1817]" />
 
           {/* Back button and title overlay */}
           <div className="absolute top-0 left-0 right-0 p-4 md:p-6">

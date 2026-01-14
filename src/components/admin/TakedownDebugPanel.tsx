@@ -12,7 +12,7 @@ import { Label } from "../ui/label";
 import { Alert, AlertDescription } from "../ui/alert";
 import { Loader2, AlertCircle, Search } from "lucide-react";
 import { projectId } from "../../utils/supabase/info";
-
+import { logger as log } from "../../utils/logger";
 export function TakedownDebugPanel() {
   const [requestId, setRequestId] = useState("");
   const [loading, setLoading] = useState(false);
@@ -54,7 +54,7 @@ export function TakedownDebugPanel() {
         setError(errorData.error || "Failed to fetch data");
       }
     } catch (err) {
-      console.error("Error fetching raw data:", err);
+      log.error("Error fetching raw data:", err);
       setError("Network error. Please try again.");
     } finally {
       setLoading(false);

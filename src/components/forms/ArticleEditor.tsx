@@ -16,7 +16,7 @@ import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
 import { Material } from "../../types/material";
 import { Article } from "../../types/article";
-
+import { logger } from "../../utils/logger";
 interface ArticleEditorProps {
   article?: Article;
   materials: Material[];
@@ -95,7 +95,7 @@ export function ArticleEditor({
         step1: article?.step1 || { content: "" },
       });
     } catch (error) {
-      console.error("Error saving article:", error);
+      logger.error("Error saving article:", error);
       toast.error("Failed to save article");
     } finally {
       setSaving(false);

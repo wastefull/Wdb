@@ -5,6 +5,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { ScrollArea } from "../ui/scroll-area";
 import { Badge } from "../ui/badge";
 import { toast } from "sonner";
+import { logger } from "../../utils/logger";
 
 interface Notification {
   id: string;
@@ -72,7 +73,7 @@ export function NotificationBell({ userId, isAdmin }: NotificationBellProps) {
     } catch (error) {
       // Silently fail - notifications are non-critical
       // Don't log or propagate errors to prevent session expiry triggers
-      console.error("Error loading notifications:", error);
+      logger.error("Error loading notifications:", error);
     } finally {
       setLoading(false);
     }
@@ -85,7 +86,7 @@ export function NotificationBell({ userId, isAdmin }: NotificationBellProps) {
         prev.map((n) => (n.id === notificationId ? { ...n, read: true } : n))
       );
     } catch (error) {
-      console.error("Error marking notification as read:", error);
+      logger.error("Error marking notification as read:", error);
       toast.error("Failed to mark notification as read");
     }
   };
@@ -99,7 +100,7 @@ export function NotificationBell({ userId, isAdmin }: NotificationBellProps) {
       setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
       toast.success("All notifications marked as read");
     } catch (error) {
-      console.error("Error marking all as read:", error);
+      logger.error("Error marking all as read:", error);
       toast.error("Failed to mark all notifications as read");
     }
   };

@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-
+import { logger } from "../../utils/logger";
 const ARTICLE_CATEGORIES = ["Compostability", "Recyclability", "Reusability"];
 
 interface SubmitArticleFormProps {
@@ -47,7 +47,7 @@ export function SubmitArticleForm({
       const allMaterials = await api.getAllMaterials();
       setMaterials(allMaterials);
     } catch (error) {
-      console.error("Error loading materials:", error);
+      logger.error("Error loading materials:", error);
       toast.error("Failed to load materials");
     } finally {
       setLoadingMaterials(false);
@@ -97,7 +97,7 @@ export function SubmitArticleForm({
       onSubmitSuccess();
       onClose();
     } catch (error) {
-      console.error("Error submitting article:", error);
+      logger.error("Error submitting article:", error);
       toast.error("Failed to submit article");
     } finally {
       setSubmitting(false);

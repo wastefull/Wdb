@@ -21,6 +21,7 @@ import { projectId, publicAnonKey } from "../../utils/supabase/info";
 import { useNavigationContext } from "../../contexts/NavigationContext";
 import { text } from "stream/consumers";
 import { styles, classes, classBank } from "../ui/classBank";
+import { logger } from "../../utils/logger";
 interface TakedownStatusViewProps {
   requestId: string;
   className?: string;
@@ -76,7 +77,7 @@ export function TakedownStatusView({
         setError(errorData.error || "Failed to fetch request status");
       }
     } catch (err) {
-      console.error("Error fetching takedown status:", err);
+      logger.error("Error fetching takedown status:", err);
       setError("Network error. Please try again.");
     } finally {
       setLoading(false);

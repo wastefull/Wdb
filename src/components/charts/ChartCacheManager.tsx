@@ -17,7 +17,7 @@ import {
   clearExpiredCaches,
 } from "../../utils/chartCache";
 import { toast } from "sonner";
-
+import { logger as log } from "../../utils/logger";
 interface CacheStats {
   totalCount: number;
   totalSize: number;
@@ -36,7 +36,7 @@ export function ChartCacheManager() {
       const cacheStats = await getCacheStats();
       setStats(cacheStats);
     } catch (error) {
-      console.error("Error loading cache stats:", error);
+      log.error("Error loading cache stats:", error);
       toast.error("Failed to load cache statistics");
     } finally {
       setIsLoading(false);
@@ -62,7 +62,7 @@ export function ChartCacheManager() {
       toast.success("All cached charts cleared");
       await loadStats();
     } catch (error) {
-      console.error("Error clearing cache:", error);
+      log.error("Error clearing cache:", error);
       toast.error("Failed to clear cache");
     } finally {
       setIsClearing(false);
@@ -78,7 +78,7 @@ export function ChartCacheManager() {
       );
       await loadStats();
     } catch (error) {
-      console.error("Error clearing expired caches:", error);
+      log.error("Error clearing expired caches:", error);
       toast.error("Failed to clear expired caches");
     } finally {
       setIsClearing(false);
@@ -118,9 +118,7 @@ export function ChartCacheManager() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg">
-          Chart Cache Management
-        </h3>
+        <h3 className="text-lg">Chart Cache Management</h3>
         <Button
           onClick={loadStats}
           variant="outline"
@@ -201,9 +199,7 @@ export function ChartCacheManager() {
 
       {/* Actions */}
       <Card className="p-6">
-        <h4 className="mb-4">
-          Cache Maintenance
-        </h4>
+        <h4 className="mb-4">Cache Maintenance</h4>
         <div className="space-y-3">
           <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
             <div>
@@ -243,9 +239,7 @@ export function ChartCacheManager() {
 
       {/* Information */}
       <Card className="p-6 bg-blue-50 dark:bg-blue-900/20">
-        <h4 className="mb-2">
-          About Chart Caching
-        </h4>
+        <h4 className="mb-2">About Chart Caching</h4>
         <div className="text-sm space-y-2 text-black/70 dark:text-white/70">
           <p>
             Chart rasterization converts SVG visualizations to cached images,

@@ -15,6 +15,7 @@ import { Badge } from "../ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { toast } from "sonner";
 import { projectId, publicAnonKey } from "../../utils/supabase/info";
+import { logger } from "../../utils/logger";
 
 interface PublicExportViewProps {
   onBack: () => void;
@@ -80,7 +81,7 @@ export function PublicExportView({
 
       toast.success(`Downloaded ${filename}`);
     } catch (error) {
-      console.error("Download error:", error);
+      logger.error("Download error:", error);
       toast.error("Failed to download export");
     } finally {
       setDownloading(false);

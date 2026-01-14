@@ -17,7 +17,7 @@ import { useState, useEffect } from "react";
 import { QuantileVisualization, ScoreType } from "./QuantileVisualization";
 import { useRasterizedChart } from "../../utils/useRasterizedChart";
 import { useAccessibility } from "../shared/AccessibilityContext";
-
+import { logger as log } from "../../utils/logger";
 interface RasterizedQuantileVisualizationProps {
   materialId: string;
   scoreType: ScoreType;
@@ -74,10 +74,7 @@ export function RasterizedQuantileVisualization({
   // Disable rasterization on error
   useEffect(() => {
     if (error) {
-      console.warn(
-        "Chart rasterization failed, falling back to live SVG:",
-        error
-      );
+      log.warn("Chart rasterization failed, falling back to live SVG:", error);
       setShouldRasterize(false);
     }
   }, [error]);

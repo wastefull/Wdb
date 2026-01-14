@@ -5,7 +5,7 @@ import { TiptapContent } from "../../types/guide";
 import { ImageUploadArea } from "./ImageUploadArea";
 import GuideEditor from "../editor/GuideEditor";
 import { toast } from "sonner";
-
+import { logger } from "../../utils/logger";
 export function ArticleForm({ article, onSave, onCancel }: ArticleFormProps) {
   const [showImportModal, setShowImportModal] = useState(false);
   const [importJson, setImportJson] = useState("");
@@ -130,7 +130,7 @@ export function ArticleForm({ article, onSave, onCancel }: ArticleFormProps) {
       toast.success("Article data imported successfully!");
     } catch (error) {
       toast.error("Invalid JSON. Please check the format and try again.");
-      console.error("Import error:", error);
+      logger.error("Import error:", error);
     }
   };
 

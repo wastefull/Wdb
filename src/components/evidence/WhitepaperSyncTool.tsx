@@ -12,7 +12,7 @@ import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import { toast } from "sonner";
 import * as api from "../../utils/api";
-
+import { logger } from "../../utils/logger";
 interface WhitepaperSyncToolProps {
   onBack: () => void;
   className?: string;
@@ -105,11 +105,9 @@ export function WhitepaperSyncTool({
           size: file.size,
         });
 
-        console.log(
-          `Loaded ${file.name} (${(file.size / 1024).toFixed(1)} KB)`
-        );
+        logger.log(`Loaded ${file.name} (${(file.size / 1024).toFixed(1)} KB)`);
       } catch (error) {
-        console.error(`Error reading ${file.name}:`, error);
+        logger.error(`Error reading ${file.name}:`, error);
         errors.push(
           `Failed to read ${file.name}: ${
             error instanceof Error ? error.message : "Unknown error"
@@ -173,11 +171,11 @@ export function WhitepaperSyncTool({
     // Sync each whitepaper
     for (const whitepaper of whitepapers) {
       try {
-        console.log(`Syncing whitepaper: ${whitepaper.slug}...`);
-        console.log("  - Title:", whitepaper.title);
-        console.log("  - Filename:", whitepaper.filename);
-        console.log("  - Content length:", whitepaper.content.length);
-        console.log(
+        logger.log(`Syncing whitepaper: ${whitepaper.slug}...`);
+        logger.log("  - Title:", whitepaper.title);
+        logger.log("  - Filename:", whitepaper.filename);
+        logger.log("  - Content length:", whitepaper.content.length);
+        logger.log(
           "  - Content preview:",
           whitepaper.content.substring(
             0,
@@ -193,9 +191,9 @@ export function WhitepaperSyncTool({
 
         results[whitepaper.slug] = "success";
         setSyncResults({ ...results });
-        console.log(`Successfully synced: ${whitepaper.slug}`);
+        logger.log(`Successfully synced: ${whitepaper.slug}`);
       } catch (error) {
-        console.error(`Error syncing ${whitepaper.slug}:`, error);
+        logger.error(`Error syncing ${whitepaper.slug}:`, error);
         results[whitepaper.slug] = "error";
         setSyncResults({ ...results });
       }

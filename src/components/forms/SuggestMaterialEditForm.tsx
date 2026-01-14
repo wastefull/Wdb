@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { logger } from "../../utils/logger";
 
 const CATEGORIES = [
   "Packaging",
@@ -90,7 +91,7 @@ export function SuggestMaterialEditForm({
       onSubmitSuccess();
       onClose();
     } catch (error) {
-      console.error("Error submitting edit:", error);
+      logger.error("Error submitting edit:", error);
       toast.error("Failed to submit edit suggestion");
     } finally {
       setSubmitting(false);

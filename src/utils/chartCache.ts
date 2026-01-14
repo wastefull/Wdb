@@ -8,6 +8,7 @@
  */
 
 import { ScoreType } from "../components/charts/QuantileVisualization";
+import { logger } from "./logger";
 
 export interface CacheKey {
   materialId: string;
@@ -128,14 +129,14 @@ export async function getCachedChart(key: CacheKey): Promise<string | null> {
         const age = Date.now() - cached.timestamp;
         if (age > MAX_CACHE_AGE_MS) {
           // Delete expired cache
-          deleteCache(key).catch(console.error);
+          deleteCache(key).catch(logger.error);
           resolve(null);
           return;
         }
 
         // Check version
         if (cached.version !== CACHE_VERSION) {
-          deleteCache(key).catch(console.error);
+          deleteCache(key).catch(logger.error);
           resolve(null);
           return;
         }
@@ -144,7 +145,7 @@ export async function getCachedChart(key: CacheKey): Promise<string | null> {
       };
     });
   } catch (error) {
-    console.error("Error getting cached chart:", error);
+    logger.error("Error getting cached chart:", error);
     return null;
   }
 }
@@ -178,7 +179,7 @@ export async function setCachedChart(
       request.onsuccess = () => resolve();
     });
   } catch (error) {
-    console.error("Error setting cached chart:", error);
+    logger.error("Error setting cached chart:", error);
   }
 }
 
@@ -199,7 +200,7 @@ export async function deleteCache(key: CacheKey): Promise<void> {
       request.onsuccess = () => resolve();
     });
   } catch (error) {
-    console.error("Error deleting cache:", error);
+    logger.error("Error deleting cache:", error);
   }
 }
 
@@ -230,7 +231,7 @@ export async function invalidateMaterialCache(
       };
     });
   } catch (error) {
-    console.error("Error invalidating material cache:", error);
+    logger.error("Error invalidating material cache:", error);
   }
 }
 
@@ -262,7 +263,7 @@ export async function clearExpiredCaches(): Promise<number> {
       };
     });
   } catch (error) {
-    console.error("Error clearing expired caches:", error);
+    logger.error("Error clearing expired caches:", error);
     return 0;
   }
 }
@@ -283,7 +284,7 @@ export async function clearAllCaches(): Promise<void> {
       request.onsuccess = () => resolve();
     });
   } catch (error) {
-    console.error("Error clearing all caches:", error);
+    logger.error("Error clearing all caches:", error);
   }
 }
 
@@ -333,7 +334,7 @@ export async function getCacheStats(): Promise<{
       };
     });
   } catch (error) {
-    console.error("Error getting cache stats:", error);
+    logger.error("Error getting cache stats:", error);
     return {
       totalCount: 0,
       totalSize: 0,

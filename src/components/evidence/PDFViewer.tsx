@@ -32,7 +32,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Badge } from "../ui/badge";
 import { toast } from "sonner";
-
+import { logger } from "../../utils/logger";
 // Configure PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs`;
 
@@ -40,7 +40,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs
 // Reduce debug logging now that basic functionality works
 const DEBUG = false;
 const log = (...args: unknown[]) => {
-  if (DEBUG) console.log("[PDFViewer]", ...args);
+  if (DEBUG) logger.log("[PDFViewer]", ...args);
 };
 
 export interface PageTextContent {
@@ -144,7 +144,7 @@ export function PDFViewer({
       } catch (err: any) {
         if (isCancelled) return;
 
-        console.error("Error loading PDF:", err);
+        logger.error("Error loading PDF:", err);
         setError(err.message || "Failed to load PDF");
         setLoading(false);
       }
@@ -350,7 +350,7 @@ export function PDFViewer({
         if (err?.name === "RenderingCancelledException") {
           return;
         }
-        console.error("Error rendering page:", err);
+        logger.error("Error rendering page:", err);
       }
     };
 

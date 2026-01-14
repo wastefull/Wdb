@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Trophy, Medal, Award, User } from "lucide-react";
 import * as api from "../../utils/api";
+import { logger } from "../../utils/logger";
 
 interface LeaderboardEntry {
   userId: string;
@@ -31,7 +32,7 @@ export function Leaderboard({ onUserClick }: LeaderboardProps) {
       const data = await api.getLeaderboard();
       setLeaders(data);
     } catch (error) {
-      console.error("Error loading leaderboard:", error);
+      logger.error("Error loading leaderboard:", error);
     } finally {
       setLoading(false);
     }

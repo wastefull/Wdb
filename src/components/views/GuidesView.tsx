@@ -19,6 +19,7 @@ import { useMaterialsContext } from "../../contexts/MaterialsContext";
 import { useAuthContext } from "../../contexts/AuthContext";
 import { useNavigationContext } from "../../contexts/NavigationContext";
 import { toast } from "sonner";
+import { logger } from "../../utils/logger";
 
 type GuideCategory = "all" | "composting" | "recycling" | "art" | "repair";
 
@@ -54,7 +55,7 @@ export function GuidesView({ onBack }: GuidesViewProps) {
       await loadGuides();
     } catch (error) {
       toast.error("Failed to submit guide");
-      console.error(error);
+      logger.error(error);
     }
   };
 

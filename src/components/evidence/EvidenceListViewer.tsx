@@ -37,7 +37,7 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "../ui/dialog";
-
+import { logger } from "../../utils/logger.ts";
 interface MIU {
   id: string;
   material_id: string;
@@ -152,7 +152,7 @@ export function EvidenceListViewer({
         }
       }
     } catch (error) {
-      console.error("Error loading sources:", error);
+      logger.error("Error loading sources:", error);
     }
   };
 
@@ -186,7 +186,7 @@ export function EvidenceListViewer({
         toast.error("Failed to load evidence points");
       }
     } catch (error) {
-      console.error("Error loading MIUs:", error);
+      logger.error("Error loading MIUs:", error);
       toast.error("Failed to load evidence points");
     } finally {
       setLoading(false);
@@ -235,7 +235,7 @@ export function EvidenceListViewer({
         toast.error(error.message || "Failed to update evidence point");
       }
     } catch (error) {
-      console.error("Error updating MIU:", error);
+      logger.error("Error updating MIU:", error);
       toast.error("Failed to update evidence point");
     } finally {
       setSaving(false);
@@ -268,7 +268,7 @@ export function EvidenceListViewer({
         toast.error(error.message || "Failed to delete evidence point");
       }
     } catch (error) {
-      console.error("Error deleting MIU:", error);
+      logger.error("Error deleting MIU:", error);
       toast.error("Failed to delete evidence point");
     } finally {
       setDeleting(false);
@@ -310,7 +310,7 @@ export function EvidenceListViewer({
         toast.error(error.message || "Failed to bulk delete evidence points");
       }
     } catch (error) {
-      console.error("Error in bulk delete:", error);
+      logger.error("Error in bulk delete:", error);
       toast.error("Failed to bulk delete evidence points");
     } finally {
       setBulkDeleting(false);

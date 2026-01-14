@@ -66,7 +66,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
       toast.success(`Welcome back, ${data.user.name || data.user.email}!`);
       onAuthSuccess(data.user);
     } catch (error: any) {
-      console.error("Sign in error:", error);
+      logger.error("Sign in error:", error);
 
       // Display user-friendly error messages
       const errorMsg = error.message || "Failed to sign in";
@@ -120,7 +120,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
 
       // Note: Do NOT auto sign-in - user must confirm email first
     } catch (error: any) {
-      console.error("Sign up error:", error);
+      logger.error("Sign up error:", error);
 
       // Display user-friendly error messages
       const errorMsg = error.message || "Failed to sign up";
@@ -150,7 +150,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
       toast.success("Magic link sent! Check your email.");
       setAuthMode("magic-link-sent");
     } catch (error: any) {
-      console.error("Magic link error:", error);
+      logger.error("Magic link error:", error);
 
       const errorMsg = error.message || "Failed to send magic link";
       if (errorMsg.includes("Rate limit")) {
@@ -170,7 +170,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
       toast.success(`Welcome, ${data.user.name || data.user.email}!`);
       onAuthSuccess(data.user);
     } catch (error: any) {
-      console.error("Magic link verification error:", error);
+      logger.error("Magic link verification error:", error);
       toast.error(error.message || "Failed to verify magic link");
       setAuthMode("magic-link");
     } finally {

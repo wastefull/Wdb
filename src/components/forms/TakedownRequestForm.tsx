@@ -146,7 +146,7 @@ export function TakedownRequestForm({
         throw new Error(errorData.error || "Failed to submit takedown request");
       }
     } catch (error) {
-      console.error("Takedown request submission error:", error);
+      logger.error("Takedown request submission error:", error);
       setErrors({
         submit:
           error instanceof Error

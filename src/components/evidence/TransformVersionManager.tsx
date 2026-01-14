@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { apiCall } from "../../utils/api";
-
+import { logger } from "../../utils/logger";
 interface Transform {
   id: string;
   parameter: string;
@@ -90,7 +90,7 @@ export function TransformVersionManager({
       const data = await apiCall("/transforms", { method: "GET" });
       setTransforms(data);
     } catch (error) {
-      console.error("Failed to load transforms:", error);
+      logger.error("Failed to load transforms:", error);
       toast.error("Failed to load transform definitions");
     } finally {
       setLoading(false);
@@ -109,7 +109,7 @@ export function TransformVersionManager({
         );
       }
     } catch (error) {
-      console.error("Failed to load recompute jobs:", error);
+      logger.error("Failed to load recompute jobs:", error);
       if (refreshingJobs) {
         toast.error("Failed to refresh job list");
       }
@@ -143,7 +143,7 @@ export function TransformVersionManager({
       setReason("");
       loadJobs();
     } catch (error) {
-      console.error("Failed to create recompute job:", error);
+      logger.error("Failed to create recompute job:", error);
       toast.error("Failed to create recompute job");
     } finally {
       setRecomputeLoading(false);

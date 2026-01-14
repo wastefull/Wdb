@@ -37,7 +37,7 @@ import {
 } from "../ui/alert-dialog";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-
+import { logger as log } from "../../utils/logger";
 interface User {
   id: string;
   email: string;
@@ -72,7 +72,7 @@ export function UserManagementView({
       const fetchedUsers = await api.getAllUsers();
       setUsers(fetchedUsers);
     } catch (error) {
-      console.error("Error loading users:", error);
+      log.error("Error loading users:", error);
       toast.error("Failed to load users");
     } finally {
       setLoading(false);
@@ -88,7 +88,7 @@ export function UserManagementView({
       toast.success(`Role updated to ${newRole}`);
       loadUsers();
     } catch (error) {
-      console.error("Error updating role:", error);
+      log.error("Error updating role:", error);
       toast.error("Failed to update role");
     }
   };
@@ -99,7 +99,7 @@ export function UserManagementView({
       toast.success("User inactivated successfully");
       loadUsers();
     } catch (error) {
-      console.error("Error inactivating user:", error);
+      log.error("Error inactivating user:", error);
       toast.error("Failed to inactivate user");
     }
   };
@@ -110,7 +110,7 @@ export function UserManagementView({
       toast.success("User reactivated successfully");
       loadUsers();
     } catch (error) {
-      console.error("Error reactivating user:", error);
+      log.error("Error reactivating user:", error);
       toast.error("Failed to reactivate user");
     }
   };
@@ -121,7 +121,7 @@ export function UserManagementView({
       toast.success("User deleted successfully");
       loadUsers();
     } catch (error) {
-      console.error("Error deleting user:", error);
+      log.error("Error deleting user:", error);
       toast.error("Failed to delete user");
     }
   };
@@ -153,7 +153,7 @@ export function UserManagementView({
       setEditEmail("");
       setEditPassword("");
     } catch (error) {
-      console.error("Error updating user:", error);
+      log.error("Error updating user:", error);
       toast.error("Failed to update user");
     }
   };

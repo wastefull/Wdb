@@ -47,6 +47,7 @@ import {
 import { SourceLibraryManager } from "../evidence/SourceLibraryManager";
 import { SourceDataComparison } from "../evidence/SourceDataComparison";
 import { ChartRasterizationDemo } from "../charts/ChartRasterizationDemo";
+import { logger } from "../../utils/logger";
 
 interface DataManagementViewProps {
   materials: Material[];
@@ -171,7 +172,7 @@ export function DataManagementView({
         ];
         const category = row.category as Material["category"];
         if (!validCategories.includes(category)) {
-          console.warn(
+          logger.warn(
             `Skipping material "${row.name}" with invalid category: ${row.category}`
           );
           continue;

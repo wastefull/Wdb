@@ -1,6 +1,6 @@
 import React from "react";
 import { Lightbulb, AlertCircle, ExternalLink } from "lucide-react";
-
+import { logger as log } from "../../utils/logger";
 interface GuideRendererProps {
   content: any; // Tiptap JSON content
 }
@@ -12,7 +12,7 @@ export default function GuideRenderer({ content }: GuideRendererProps) {
     try {
       parsedContent = JSON.parse(content);
     } catch (error) {
-      console.error("Error parsing guide content:", error);
+      log.error("Error parsing guide content:", error);
       return (
         <p className="text-black/60 dark:text-white/60 text-[13px]">
           Error displaying content.
@@ -47,12 +47,12 @@ export default function GuideRenderer({ content }: GuideRendererProps) {
         return (
           <div
             key={index}
-            className="retro-card p-4 my-4 bg-[var(--waste-compost)]/10 border-l-4 border-[var(--waste-compost)]"
+            className="retro-card p-4 my-4 bg-waste-compost/10 border-l-4 border-waste-compost"
           >
             <div className="flex items-start gap-3">
               <Lightbulb
                 size={18}
-                className="text-[var(--waste-compost)] mt-1 shrink-0"
+                className="text-waste-compost mt-1 shrink-0"
               />
               <div className="flex-1 text-[13px]">
                 {node.content?.map(renderNode)}
@@ -65,12 +65,12 @@ export default function GuideRenderer({ content }: GuideRendererProps) {
         return (
           <div
             key={index}
-            className="retro-card p-4 my-4 bg-[var(--waste-reuse)]/10 border-l-4 border-[var(--waste-reuse)]"
+            className="retro-card p-4 my-4 bg-waste-reuse/10 border-l-4 border-waste-reuse"
           >
             <div className="flex items-start gap-3">
               <AlertCircle
                 size={18}
-                className="text-[var(--waste-reuse)] mt-1 shrink-0"
+                className="text-waste-reuse mt-1 shrink-0"
               />
               <div className="flex-1 text-[13px]">
                 {node.content?.map(renderNode)}

@@ -55,7 +55,7 @@ import {
   ParameterCode,
   groupMatchesByPage,
 } from "./keywordMatcher";
-
+import { logger } from "../../utils/logger";
 interface CurationWorkbenchProps {
   onBack: () => void;
 }
@@ -203,7 +203,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
         setSources([...SOURCE_LIBRARY]);
       }
     } catch (error) {
-      console.error("Error loading sources:", error);
+      logger.error("Error loading sources:", error);
       // Fallback to local SOURCE_LIBRARY
       setSources([...SOURCE_LIBRARY]);
       toast.error("Using local source library (API unavailable)");
@@ -230,7 +230,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
         }
       }
     } catch (error) {
-      console.error("Error loading units ontology:", error);
+      logger.error("Error loading units ontology:", error);
       // Don't show error toast - validation will just be disabled
     }
   };
@@ -330,7 +330,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
         toast.error(data.error || "Failed to create MIU");
       }
     } catch (error) {
-      console.error("Error creating MIU:", error);
+      logger.error("Error creating MIU:", error);
       toast.error("Failed to create MIU");
     }
   };
