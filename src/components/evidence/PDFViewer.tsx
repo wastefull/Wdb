@@ -33,8 +33,9 @@ import { Input } from "../ui/input";
 import { Badge } from "../ui/badge";
 import { toast } from "sonner";
 import { logger } from "../../utils/logger";
-// Configure PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs`;
+// Configure PDF.js worker - use installed package version to avoid API/worker mismatch
+const PDFJS_VERSION = pdfjsLib.version;
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_VERSION}/pdf.worker.min.mjs`;
 
 // Debug logging
 // Reduce debug logging now that basic functionality works
@@ -113,8 +114,7 @@ export function PDFViewer({
         const loadingTask = pdfjsLib.getDocument({
           url: pdfUrl,
           // Enable text layer
-          cMapUrl:
-            "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/cmaps/",
+          cMapUrl: `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_VERSION}/cmaps/`,
           cMapPacked: true,
         });
 
@@ -288,7 +288,7 @@ export function PDFViewer({
             if (highlightKeywords && highlightKeywords.length > 0) {
               const textLower = textItem.str.toLowerCase();
               const hasMatch = highlightKeywords.some((kw) =>
-                textLower.includes(kw.toLowerCase())
+                textLower.includes(kw.toLowerCase()),
               );
               if (hasMatch) {
                 span.classList.add("pdf-highlight");
@@ -305,7 +305,7 @@ export function PDFViewer({
           // Scroll to first highlight if any
           if (highlightKeywords && highlightKeywords.length > 0) {
             const firstHighlight = textLayer.querySelector(
-              ".pdf-highlight"
+              ".pdf-highlight",
             ) as HTMLElement;
             if (firstHighlight) {
               // Small delay to ensure layout is complete
@@ -395,7 +395,7 @@ export function PDFViewer({
             selection.focusNode &&
             textLayerRef.current.contains(selection.focusNode);
           const commonInTextLayer = textLayerRef.current.contains(
-            range.commonAncestorContainer
+            range.commonAncestorContainer,
           );
 
           const isInTextLayer =
@@ -405,7 +405,7 @@ export function PDFViewer({
           log(
             "  - Text:",
             text?.substring(0, 50),
-            text.length > 50 ? "..." : ""
+            text.length > 50 ? "..." : "",
           );
           log("  - Length:", text.length);
           log("  - Type:", selection?.type);
