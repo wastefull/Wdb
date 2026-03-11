@@ -3,7 +3,7 @@ import { cors } from "npm:hono/cors";
 import { logger } from "npm:hono/logger";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import * as kv from "./kv_store.tsx";
-import { logger as log } from "../../../src/utils/logger.ts";
+import { logger as log } from "./logger.tsx";
 import {
   normalizeDOI,
   calculateSimilarity,

@@ -5,7 +5,7 @@
 
 import type { Context } from "npm:hono";
 import * as kv from "./kv_store.tsx";
-import { logger as log } from "../../../src/utils/logger.ts";
+import { logger as log } from "./logger.tsx";
 
 // Helper function to convert arrays to CSV format
 function arrayToCSV(headers: string[], rows: any[][]): string {
