@@ -1,16 +1,23 @@
 import { useState } from "react";
 import { Material } from "../../types/material";
+import { UserSelector } from "./UserSelector";
 
 export interface MaterialFormProps {
   material?: Material;
-  onSave: (material: Omit<Material, "id">) => void;
+  onSave: (
+    material: Omit<Material, "id">,
+    options?: { onBehalfOf?: string },
+  ) => void;
   onCancel: () => void;
+  /** Whether admin mode is active (shows UserSelector) */
+  isAdminMode?: boolean;
 }
 
 export function MaterialForm({
   material,
   onSave,
   onCancel,
+  isAdminMode = false,
 }: MaterialFormProps) {
   const [formData, setFormData] = useState({
     name: material?.name || "",
@@ -31,8 +38,11 @@ export function MaterialForm({
     description: material?.description || "",
   });
 
+  // Admin-only: user to attribute the material to
+  const [onBehalfOfUserId, setOnBehalfOfUserId] = useState<string | null>(null);
+
   const handleKeyDown = (
-    e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     // Prevent browser from intercepting text editing shortcuts
     if (e.metaKey || e.ctrlKey) {
@@ -42,14 +52,17 @@ export function MaterialForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave({
-      ...formData,
-      articles: material?.articles || {
-        compostability: [],
-        recyclability: [],
-        reusability: [],
+    onSave(
+      {
+        ...formData,
+        articles: material?.articles || {
+          compostability: [],
+          recyclability: [],
+          reusability: [],
+        },
       },
-    });
+      onBehalfOfUserId ? { onBehalfOf: onBehalfOfUserId } : undefined,
+    );
   };
 
   return (
@@ -117,6 +130,16 @@ export function MaterialForm({
             area based on scientific parameters.
           </p>
         </div>
+
+        {/* Admin-only: Post on behalf of another user */}
+        {isAdminMode && !material && (
+          <UserSelector
+            selectedUserId={onBehalfOfUserId}
+            onSelectUser={setOnBehalfOfUserId}
+            label="Post on behalf of"
+            isVisible={true}
+          />
+        )}
 
         <div className="flex gap-3 mt-2 justify-center">
           <button

@@ -27,7 +27,10 @@ interface MaterialsContextType {
   supabaseAvailable: boolean;
 
   // CRUD Operations
-  addMaterial: (materialData: Omit<Material, "id">) => void;
+  addMaterial: (
+    materialData: Omit<Material, "id"> | Material,
+    options?: { onBehalfOf?: string },
+  ) => void;
   updateMaterial: (materialData: Omit<Material, "id"> | Material) => void;
   deleteMaterial: (id: string) => void;
 
@@ -44,14 +47,14 @@ interface MaterialsContextType {
 }
 
 const MaterialsContext = createContext<MaterialsContextType | undefined>(
-  undefined
+  undefined,
 );
 
 export const useMaterialsContext = () => {
   const context = useContext(MaterialsContext);
   if (!context) {
     throw new Error(
-      "useMaterialsContext must be used within MaterialsProvider"
+      "useMaterialsContext must be used within MaterialsProvider",
     );
   }
   return context;
@@ -88,7 +91,7 @@ export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({
     const dataVersion = localStorage.getItem("materialsDataVersion");
     if (dataVersion !== "2.0-clean") {
       materialsLogger.info(
-        "Clearing old sample data (data version upgrade to 2.0-clean)..."
+        "Clearing old sample data (data version upgrade to 2.0-clean)...",
       );
       localStorage.removeItem("materials");
       localStorage.setItem("materialsDataVersion", "2.0-clean");
@@ -111,7 +114,7 @@ export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({
         }));
         setMaterials(materialsWithArticles);
         syncLogger.info(
-          `Loaded ${materialsWithArticles.length} materials from localStorage`
+          `Loaded ${materialsWithArticles.length} materials from localStorage`,
         );
       } catch (e) {
         materialsLogger.error("Error parsing stored materials:", e);
@@ -146,19 +149,19 @@ export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({
           // Sync to localStorage as cache
           localStorage.setItem(
             "materials",
-            JSON.stringify(materialsWithArticles)
+            JSON.stringify(materialsWithArticles),
           );
           // Track the count for safeguard
           localStorage.setItem(
             "materials_last_known_count",
-            String(materialsWithArticles.length)
+            String(materialsWithArticles.length),
           );
           if (user) {
             setSyncStatus("synced");
           }
           setSupabaseAvailable(true);
           syncLogger.info(
-            `Loaded ${materialsWithArticles.length} materials from Supabase`
+            `Loaded ${materialsWithArticles.length} materials from Supabase`,
           );
         } else {
           // If Supabase is empty, load from localStorage or initialize sample data
@@ -218,7 +221,7 @@ export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({
           `Data saved to localStorage only.`;
         syncLogger.warn(warningMessage);
         toast.warning(
-          "Sync skipped: Detected potential data loss. Your changes are saved locally."
+          "Sync skipped: Detected potential data loss. Your changes are saved locally.",
         );
         setSyncStatus("offline");
 
@@ -245,7 +248,7 @@ export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({
         } catch (auditError) {
           syncLogger.error(
             "Failed to create audit log for blocked sync:",
-            auditError
+            auditError,
           );
         }
 
@@ -255,7 +258,7 @@ export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({
       // Update the last known count
       localStorage.setItem(
         "materials_last_known_count",
-        String(newMaterials.length)
+        String(newMaterials.length),
       );
 
       setSyncStatus("syncing");
@@ -304,11 +307,12 @@ export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({
   // Sync a single material
   const syncSingleMaterial = async (
     material: Material,
-    operation: "create" | "update" | "delete"
+    operation: "create" | "update" | "delete",
+    options?: { onBehalfOf?: string },
   ): Promise<boolean> => {
     if (!user || userRole !== "admin" || !supabaseAvailable) {
       syncLogger.info(
-        `Skipping sync (user: ${!!user}, role: ${userRole}, supabase: ${supabaseAvailable})`
+        `Skipping sync (user: ${!!user}, role: ${userRole}, supabase: ${supabaseAvailable})`,
       );
       return false; // Can't sync, but local save succeeded
     }
@@ -328,7 +332,7 @@ export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({
 
       if (operation === "create") {
         syncLogger.info("Calling api.saveMaterial...");
-        await api.saveMaterial(materialWithArticles);
+        await api.saveMaterial(materialWithArticles, options);
       } else if (operation === "update") {
         syncLogger.info("Calling api.updateMaterial...");
         await api.updateMaterial(materialWithArticles);
@@ -339,7 +343,7 @@ export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({
 
       setSyncStatus("synced");
       syncLogger.info(
-        `Successfully ${operation}d material "${material.name}" in Supabase`
+        `Successfully ${operation}d material "${material.name}" in Supabase`,
       );
       return true;
     } catch (error) {
@@ -351,11 +355,18 @@ export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({
   };
 
   // CRUD Operations
-  const addMaterial = async (materialData: Omit<Material, "id">) => {
-    const newMaterial: Material = {
-      ...materialData,
-      id: Date.now().toString(),
-    };
+  const addMaterial = async (
+    materialData: Omit<Material, "id"> | Material,
+    options?: { onBehalfOf?: string },
+  ) => {
+    // Support both new materials (without id) and full materials (with id)
+    const newMaterial: Material =
+      "id" in materialData
+        ? materialData
+        : {
+            ...materialData,
+            id: Date.now().toString(),
+          };
     materialsLogger.info("Adding material:", newMaterial.name);
 
     // Update local state and localStorage
@@ -364,18 +375,18 @@ export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({
     localStorage.setItem("materials", JSON.stringify(updated));
     localStorage.setItem("materials_last_known_count", String(updated.length));
 
-    // Sync single material to Supabase
-    await syncSingleMaterial(newMaterial, "create");
-    toast.success(`Added ${materialData.name} successfully`);
+    // Sync single material to Supabase (with optional onBehalfOf)
+    await syncSingleMaterial(newMaterial, "create", options);
+    toast.success(`Added ${newMaterial.name} successfully`);
   };
 
   const updateMaterial = async (
-    materialData: Omit<Material, "id"> | Material
+    materialData: Omit<Material, "id"> | Material,
   ) => {
     if ("id" in materialData) {
       // Direct update with full material
       const existingIndex = materials.findIndex(
-        (m) => m.id === materialData.id
+        (m) => m.id === materialData.id,
       );
       if (existingIndex >= 0) {
         // Update existing material
@@ -383,7 +394,7 @@ export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({
 
         // Update local state and localStorage
         const updated = materials.map((m) =>
-          m.id === materialData.id ? materialData : m
+          m.id === materialData.id ? materialData : m,
         );
         setMaterials(updated);
         localStorage.setItem("materials", JSON.stringify(updated));
@@ -401,7 +412,7 @@ export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({
         localStorage.setItem("materials", JSON.stringify(updated));
         localStorage.setItem(
           "materials_last_known_count",
-          String(updated.length)
+          String(updated.length),
         );
 
         // Sync single material to Supabase
@@ -424,7 +435,7 @@ export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({
       localStorage.setItem("materials", JSON.stringify(updated));
       localStorage.setItem(
         "materials_last_known_count",
-        String(updated.length)
+        String(updated.length),
       );
 
       // Sync deletion to Supabase

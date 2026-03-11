@@ -247,7 +247,7 @@ function getClientId(c: any): string {
 // Rate limiting middleware factory
 function rateLimit(
   type: keyof typeof RATE_LIMITS,
-  options?: { allowAdminBypass?: boolean }
+  options?: { allowAdminBypass?: boolean },
 ) {
   return async (c: any, next: any) => {
     // Check for admin bypass if enabled
@@ -258,7 +258,7 @@ function rateLimit(
         try {
           const supabase = createClient(
             Deno.env.get("SUPABASE_URL") ?? "",
-            Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+            Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
           );
           const {
             data: { user },
@@ -267,7 +267,7 @@ function rateLimit(
             const userRole = await kv.get(`user_role:${user.id}`);
             if (userRole === "admin" || user.email === "natto@wastefull.org") {
               log.log(
-                `✓ Admin user ${user.email} bypassing ${type} rate limit`
+                `✓ Admin user ${user.email} bypassing ${type} rate limit`,
               );
               await next();
               return;
@@ -296,17 +296,17 @@ function rateLimit(
       if (data) {
         // Filter out old requests outside the time window
         const recentRequests = data.requests.filter(
-          (timestamp) => timestamp > windowStart
+          (timestamp) => timestamp > windowStart,
         );
 
         if (recentRequests.length >= limit.maxRequests) {
           const oldestRequest = Math.min(...recentRequests);
           const resetIn = Math.ceil(
-            (oldestRequest + limit.window - now) / 1000
+            (oldestRequest + limit.window - now) / 1000,
           );
 
           log.log(
-            `Rate limit exceeded for ${clientId} on ${type}: ${recentRequests.length}/${limit.maxRequests}`
+            `Rate limit exceeded for ${clientId} on ${type}: ${recentRequests.length}/${limit.maxRequests}`,
           );
 
           return c.json(
@@ -314,7 +314,7 @@ function rateLimit(
               error: "Rate limit exceeded. Please try again later.",
               retryAfter: resetIn,
             },
-            429
+            429,
           );
         }
 
@@ -434,7 +434,7 @@ app.use(
     allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     exposeHeaders: ["Content-Length"],
     maxAge: 600,
-  })
+  }),
 );
 
 // ==================== STORAGE INITIALIZATION ====================
@@ -444,7 +444,7 @@ async function initializeStorage() {
   try {
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     );
 
     const buckets = [
@@ -472,7 +472,7 @@ async function initializeStorage() {
 
     for (const bucketConfig of buckets) {
       const existingBucket = existingBuckets?.find(
-        (bucket) => bucket.name === bucketConfig.name
+        (bucket) => bucket.name === bucketConfig.name,
       );
 
       if (!existingBucket) {
@@ -483,19 +483,19 @@ async function initializeStorage() {
             public: bucketConfig.public,
             fileSizeLimit: bucketConfig.fileSizeLimit,
             allowedMimeTypes: bucketConfig.allowedMimeTypes,
-          }
+          },
         );
 
         if (error) {
           log.error(
             `Error creating storage bucket ${bucketConfig.name}:`,
-            error
+            error,
           );
         } else {
           log.log(
             `✅ Created ${
               bucketConfig.public ? "public" : "private"
-            } storage bucket: ${bucketConfig.name}`
+            } storage bucket: ${bucketConfig.name}`,
           );
         }
       } else if (existingBucket.public !== bucketConfig.public) {
@@ -503,7 +503,7 @@ async function initializeStorage() {
         log.log(
           `⚠️ Bucket ${bucketConfig.name} exists as ${
             existingBucket.public ? "public" : "private"
-          }, updating to ${bucketConfig.public ? "public" : "private"}...`
+          }, updating to ${bucketConfig.public ? "public" : "private"}...`,
         );
         const { error } = await supabase.storage.updateBucket(
           bucketConfig.name,
@@ -511,26 +511,26 @@ async function initializeStorage() {
             public: bucketConfig.public,
             fileSizeLimit: bucketConfig.fileSizeLimit,
             allowedMimeTypes: bucketConfig.allowedMimeTypes,
-          }
+          },
         );
 
         if (error) {
           log.error(
             `Error updating storage bucket ${bucketConfig.name}:`,
-            error
+            error,
           );
         } else {
           log.log(
             `✅ Updated bucket ${bucketConfig.name} to ${
               bucketConfig.public ? "public" : "private"
-            }`
+            }`,
           );
         }
       } else {
         log.log(
           `✅ Storage bucket already exists: ${bucketConfig.name} (${
             bucketConfig.public ? "public" : "private"
-          })`
+          })`,
         );
       }
     }
@@ -548,7 +548,7 @@ async function verifyAuth(c: any, next: any) {
   const sessionToken = c.req.header("X-Session-Token");
   log.log(
     "verifyAuth: X-Session-Token header:",
-    sessionToken ? `${sessionToken.substring(0, 8)}...` : "missing"
+    sessionToken ? `${sessionToken.substring(0, 8)}...` : "missing",
   );
 
   // If no session token, check Authorization header for backward compatibility
@@ -558,7 +558,7 @@ async function verifyAuth(c: any, next: any) {
       "verifyAuth: Authorization header:",
       authHeader
         ? `Bearer ${authHeader.split(" ")[1]?.substring(0, 8)}...`
-        : "missing"
+        : "missing",
     );
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -598,7 +598,7 @@ async function verifyAuth(c: any, next: any) {
         ? `userId: ${sessionData.userId}, email: ${
             sessionData.email
           }, expiry: ${new Date(sessionData.expiry).toISOString()}`
-        : "null"
+        : "null",
     );
     if (!sessionData) {
       log.log("verifyAuth: No session found in KV for this token");
@@ -624,7 +624,7 @@ async function verifyAuth(c: any, next: any) {
     log.log("verifyAuth: No custom session, trying Supabase JWT...");
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
     );
 
     const {
@@ -695,7 +695,7 @@ async function verifyAdmin(c: any, next: any) {
     log.error("Admin verification error:", error);
     return c.json(
       { error: "Authorization check failed", details: String(error) },
-      500
+      500,
     );
   }
 }
@@ -734,7 +734,7 @@ app.post(
       if (!passwordValidation.valid) {
         return c.json(
           { error: passwordValidation.error || "Invalid password" },
-          400
+          400,
         );
       }
 
@@ -746,13 +746,13 @@ app.post(
       if (recentSignups && recentSignups.includes(email.toLowerCase())) {
         return c.json(
           { error: "Account already created from this location" },
-          400
+          400,
         );
       }
 
       const supabase = createClient(
         Deno.env.get("SUPABASE_URL") ?? "",
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       );
 
       // Create user with admin API
@@ -780,13 +780,13 @@ app.post(
             {
               error: "Unable to create account. Please try signing in instead.",
             },
-            400
+            400,
           );
         }
 
         return c.json(
           { error: "Failed to create account. Please try again." },
-          400
+          400,
         );
       }
 
@@ -816,7 +816,7 @@ app.post(
       await kv.set(`user_profile:${data.user.id}`, initialProfile);
 
       log.log(
-        `New user created: ${email} (role: ${initialRole}) - awaiting email confirmation`
+        `New user created: ${email} (role: ${initialRole}) - awaiting email confirmation`,
       );
 
       return c.json({
@@ -832,10 +832,10 @@ app.post(
       log.error("Signup exception:", error);
       return c.json(
         { error: "Server error during signup. Please try again." },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Sign in endpoint (public, rate-limited)
@@ -870,16 +870,16 @@ app.post("/make-server-17cae920/auth/signin", rateLimit("AUTH"), async (c) => {
 
       if (timeSinceLastAttempt < lockDuration) {
         const remainingMinutes = Math.ceil(
-          (lockDuration - timeSinceLastAttempt) / 60000
+          (lockDuration - timeSinceLastAttempt) / 60000,
         );
         log.log(
-          `Account locked: ${email} (${failedAttempts.count} failed attempts)`
+          `Account locked: ${email} (${failedAttempts.count} failed attempts)`,
         );
         return c.json(
           {
             error: `Too many failed login attempts. Please try again in ${remainingMinutes} minute(s).`,
           },
-          429
+          429,
         );
       } else {
         // Reset after lock duration
@@ -889,7 +889,7 @@ app.post("/make-server-17cae920/auth/signin", rateLimit("AUTH"), async (c) => {
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
     );
 
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -912,7 +912,7 @@ app.post("/make-server-17cae920/auth/signin", rateLimit("AUTH"), async (c) => {
               "Please confirm your email address before signing in. Check your inbox for the confirmation link.",
             code: "EMAIL_NOT_CONFIRMED",
           },
-          403
+          403,
         );
       }
 
@@ -936,7 +936,7 @@ app.post("/make-server-17cae920/auth/signin", rateLimit("AUTH"), async (c) => {
             "Please confirm your email address before signing in. Check your inbox for the confirmation link.",
           code: "EMAIL_NOT_CONFIRMED",
         },
-        403
+        403,
       );
     }
 
@@ -958,7 +958,7 @@ app.post("/make-server-17cae920/auth/signin", rateLimit("AUTH"), async (c) => {
     log.error("Signin exception:", error);
     return c.json(
       { error: "Server error during signin. Please try again." },
-      500
+      500,
     );
   }
 });
@@ -992,7 +992,7 @@ app.post(
 
       const supabase = createClient(
         Deno.env.get("SUPABASE_URL") ?? "",
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       );
 
       const trimmedEmail = email.toLowerCase().trim();
@@ -1020,7 +1020,7 @@ app.post(
         log.error("RESEND_API_KEY not configured");
         return c.json(
           { error: "Email service not configured. Please contact support." },
-          500
+          500,
         );
       }
 
@@ -1094,7 +1094,7 @@ app.post(
 
         const emailData = await emailResponse.json();
         log.log(
-          `Magic link email sent to ${trimmedEmail} (Resend ID: ${emailData.id})`
+          `Magic link email sent to ${trimmedEmail} (Resend ID: ${emailData.id})`,
         );
 
         return c.json({
@@ -1109,17 +1109,17 @@ app.post(
           {
             error: "Failed to send email. Please try again or contact support.",
           },
-          500
+          500,
         );
       }
     } catch (error) {
       log.error("Magic link exception:", error);
       return c.json(
         { error: "Server error sending magic link. Please try again." },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Verify magic link token (public)
@@ -1156,7 +1156,7 @@ app.post("/make-server-17cae920/auth/verify-magic-link", async (c) => {
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     );
 
     const trimmedEmail = tokenData.email;
@@ -1166,7 +1166,7 @@ app.post("/make-server-17cae920/auth/verify-magic-link", async (c) => {
     const { data: listResult, error: getUserError } =
       await supabase.auth.admin.listUsers();
     const existingUser = listResult?.users?.find(
-      (u) => u.email === trimmedEmail
+      (u) => u.email === trimmedEmail,
     );
 
     if (existingUser) {
@@ -1201,7 +1201,7 @@ app.post("/make-server-17cae920/auth/verify-magic-link", async (c) => {
           const { data: retryListResult } =
             await supabase.auth.admin.listUsers();
           const retryUser = retryListResult?.users?.find(
-            (u) => u.email === trimmedEmail
+            (u) => u.email === trimmedEmail,
           );
           if (retryUser) {
             userData = { user: retryUser };
@@ -1209,13 +1209,13 @@ app.post("/make-server-17cae920/auth/verify-magic-link", async (c) => {
           } else {
             return c.json(
               { error: "Failed to retrieve existing account." },
-              400
+              400,
             );
           }
         } else {
           return c.json(
             { error: "Failed to create account. Please try again." },
-            400
+            400,
           );
         }
       } else {
@@ -1225,7 +1225,7 @@ app.post("/make-server-17cae920/auth/verify-magic-link", async (c) => {
         const initialRole = emailValidation.isOrgEmail ? "admin" : "user";
         await kv.set(`user_role:${userData.user.id}`, initialRole);
         log.log(
-          `New magic link user created: ${trimmedEmail} (role: ${initialRole})`
+          `New magic link user created: ${trimmedEmail} (role: ${initialRole})`,
         );
       }
     }
@@ -1237,7 +1237,7 @@ app.post("/make-server-17cae920/auth/verify-magic-link", async (c) => {
       const initialRole = emailValidation.isOrgEmail ? "admin" : "user";
       await kv.set(`user_role:${userData.user.id}`, initialRole);
       log.log(
-        `Role initialized for existing user: ${trimmedEmail} (role: ${initialRole})`
+        `Role initialized for existing user: ${trimmedEmail} (role: ${initialRole})`,
       );
     }
 
@@ -1252,7 +1252,7 @@ app.post("/make-server-17cae920/auth/verify-magic-link", async (c) => {
     const sessionExpiry = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 days
 
     log.log(
-      `Creating session for user ${userData.user.id} with token: ${accessToken}`
+      `Creating session for user ${userData.user.id} with token: ${accessToken}`,
     );
     log.log(`Session will be stored with key: session:${accessToken}`);
 
@@ -1268,7 +1268,7 @@ app.post("/make-server-17cae920/auth/verify-magic-link", async (c) => {
     const verifySession = await kv.get(`session:${accessToken}`);
     log.log(
       `Session storage verification:`,
-      verifySession ? "SUCCESS" : "FAILED"
+      verifySession ? "SUCCESS" : "FAILED",
     );
     if (verifySession) {
       log.log(`Verified session data:`, JSON.stringify(verifySession));
@@ -1290,7 +1290,7 @@ app.post("/make-server-17cae920/auth/verify-magic-link", async (c) => {
     log.error("Magic link verification exception:", error);
     return c.json(
       { error: "Server error during verification. Please try again." },
-      500
+      500,
     );
   }
 });
@@ -1306,7 +1306,7 @@ app.get("/make-server-17cae920/materials", rateLimit("API"), async (c) => {
     log.error("Error fetching materials:", error);
     return c.json(
       { error: "Failed to fetch materials", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -1318,15 +1318,43 @@ app.post(
   verifyAdmin,
   async (c) => {
     try {
-      const userId = c.get("userId");
+      const adminUserId = c.get("userId");
+      const adminEmail = c.get("userEmail");
       const material = await c.req.json();
       if (!material.id) {
         return c.json({ error: "Material ID is required" }, 400);
       }
 
-      // Set created_by if not already set
+      // Support "on_behalf_of" for admin posting as another user
+      // The on_behalf_of field should contain the target user's ID
+      const onBehalfOf = material.on_behalf_of;
+      let effectiveCreator = adminUserId;
+
+      if (onBehalfOf) {
+        // Verify the target user exists by checking their role or profile
+        // User roles are stored at `user_role:${userId}`, profiles at `user_profile:${userId}`
+        const targetUserRole = await kv.get(`user_role:${onBehalfOf}`);
+        const targetUserProfile = await kv.get(`user_profile:${onBehalfOf}`);
+        if (targetUserRole === null && !targetUserProfile) {
+          log.warn(
+            `Admin ${adminEmail} attempted to post on behalf of non-existent user ${onBehalfOf}`,
+          );
+          return c.json(
+            { error: "Target user for on_behalf_of does not exist" },
+            400,
+          );
+        }
+        effectiveCreator = onBehalfOf;
+        log.log(
+          `Admin ${adminEmail} creating material on behalf of user ${onBehalfOf}`,
+        );
+        // Remove on_behalf_of from the stored material data
+        delete material.on_behalf_of;
+      }
+
+      // Set created_by to effective creator (admin or on_behalf_of user)
       if (!material.created_by) {
-        material.created_by = userId;
+        material.created_by = effectiveCreator;
       }
       if (!material.created_at) {
         material.created_at = new Date().toISOString();
@@ -1335,14 +1363,20 @@ app.post(
 
       await kv.set(`material:${material.id}`, material);
 
-      // Audit log
+      // Audit log - always records the admin who performed the action
+      // but includes on_behalf_of info if present
       await createAuditLog({
-        userId: c.get("userId"),
-        userEmail: c.get("userEmail"),
+        userId: adminUserId,
+        userEmail: adminEmail,
         entityType: "material",
         entityId: material.id,
         action: "create",
-        after: material,
+        after: {
+          ...material,
+          _admin_action: onBehalfOf
+            ? { on_behalf_of: onBehalfOf, admin_id: adminUserId }
+            : undefined,
+        },
         req: c,
       });
 
@@ -1351,10 +1385,10 @@ app.post(
       log.error("Error creating material:", error);
       return c.json(
         { error: "Failed to create material", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Batch save materials (protected - admin only)
@@ -1405,14 +1439,14 @@ app.post(
           req: c,
         });
         log.log(
-          `AUDIT: Bulk material operation - ${existingCount} → ${materials.length} materials`
+          `AUDIT: Bulk material operation - ${existingCount} → ${materials.length} materials`,
         );
       }
 
       // Delete all existing materials
       if (existingMaterials && existingMaterials.length > 0) {
         const keysToDelete = existingMaterials.map(
-          (m: any) => `material:${m.id}`
+          (m: any) => `material:${m.id}`,
         );
         await kv.mdel(keysToDelete);
         log.log(`Deleted ${keysToDelete.length} existing materials`);
@@ -1435,10 +1469,10 @@ app.post(
       log.error("Error batch saving materials:", error);
       return c.json(
         { error: "Failed to batch save materials", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Update a material (protected - admin only)
@@ -1486,10 +1520,10 @@ app.put(
       log.error("Error updating material:", error);
       return c.json(
         { error: "Failed to update material", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Delete a material (protected - admin only)
@@ -1524,10 +1558,10 @@ app.delete(
       log.error("Error deleting material:", error);
       return c.json(
         { error: "Failed to delete material", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Delete all materials (protected - admin only)
@@ -1547,10 +1581,10 @@ app.delete(
       log.error("Error deleting all materials:", error);
       return c.json(
         { error: "Failed to delete all materials", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Get current user's role (protected)
@@ -1578,7 +1612,7 @@ app.get("/make-server-17cae920/users/me/role", verifyAuth, async (c) => {
     log.error("Error getting user role:", error);
     return c.json(
       { error: "Failed to get user role", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -1588,7 +1622,7 @@ app.get("/make-server-17cae920/users", verifyAuth, verifyAdmin, async (c) => {
   try {
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     );
 
     // Get all users from Supabase Auth
@@ -1618,7 +1652,7 @@ app.get("/make-server-17cae920/users", verifyAuth, verifyAdmin, async (c) => {
           created_at: user.created_at,
           last_sign_in_at: user.last_sign_in_at,
         };
-      })
+      }),
     );
 
     return c.json({ users: usersWithRoles });
@@ -1626,7 +1660,7 @@ app.get("/make-server-17cae920/users", verifyAuth, verifyAdmin, async (c) => {
     log.error("Error listing users:", error);
     return c.json(
       { error: "Failed to list users", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -1644,7 +1678,7 @@ app.put(
       if (!role || !["user", "admin"].includes(role)) {
         return c.json(
           { error: "Invalid role. Must be 'user' or 'admin'" },
-          400
+          400,
         );
       }
 
@@ -1670,10 +1704,10 @@ app.put(
       log.error("Error updating user role:", error);
       return c.json(
         { error: "Failed to update user role", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Delete user (admin only)
@@ -1693,7 +1727,7 @@ app.delete(
 
       const supabase = createClient(
         Deno.env.get("SUPABASE_URL") ?? "",
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       );
 
       // Get user info for audit log
@@ -1729,10 +1763,10 @@ app.delete(
       log.error("Error deleting user:", error);
       return c.json(
         { error: "Failed to delete user", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Update user details (admin only)
@@ -1747,7 +1781,7 @@ app.put(
 
       const supabase = createClient(
         Deno.env.get("SUPABASE_URL") ?? "",
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       );
 
       const updateData: any = {};
@@ -1766,7 +1800,7 @@ app.put(
 
       const { data, error } = await supabase.auth.admin.updateUserById(
         userId,
-        updateData
+        updateData,
       );
 
       if (error) {
@@ -1786,10 +1820,10 @@ app.put(
       log.error("Error updating user:", error);
       return c.json(
         { error: "Failed to update user", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // ==================== ASSET STORAGE ROUTES ====================
@@ -1819,7 +1853,7 @@ app.post(
       if (!allowedTypes.includes(file.type)) {
         return c.json(
           { error: "Invalid file type. Only images are allowed." },
-          400
+          400,
         );
       }
 
@@ -1830,7 +1864,7 @@ app.post(
 
       const supabase = createClient(
         Deno.env.get("SUPABASE_URL") ?? "",
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       );
 
       const bucketName = "make-17cae920-assets";
@@ -1855,7 +1889,7 @@ app.post(
         log.error("Error uploading to storage:", error);
         return c.json(
           { error: "Failed to upload file", details: error.message },
-          500
+          500,
         );
       }
 
@@ -1877,10 +1911,10 @@ app.post(
       log.error("Error in asset upload:", error);
       return c.json(
         { error: "Failed to upload asset", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // List all assets (admin only)
@@ -1888,7 +1922,7 @@ app.get("/make-server-17cae920/assets", verifyAuth, verifyAdmin, async (c) => {
   try {
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     );
 
     const bucketName = "make-17cae920-assets";
@@ -1899,7 +1933,7 @@ app.get("/make-server-17cae920/assets", verifyAuth, verifyAdmin, async (c) => {
       log.error("Error listing assets:", error);
       return c.json(
         { error: "Failed to list assets", details: error.message },
-        500
+        500,
       );
     }
 
@@ -1923,7 +1957,7 @@ app.get("/make-server-17cae920/assets", verifyAuth, verifyAdmin, async (c) => {
     log.error("Error in asset listing:", error);
     return c.json(
       { error: "Failed to list assets", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -1939,7 +1973,7 @@ app.delete(
 
       const supabase = createClient(
         Deno.env.get("SUPABASE_URL") ?? "",
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       );
 
       const bucketName = "make-17cae920-assets";
@@ -1952,7 +1986,7 @@ app.delete(
         log.error("Error deleting asset:", error);
         return c.json(
           { error: "Failed to delete asset", details: error.message },
-          500
+          500,
         );
       }
 
@@ -1963,10 +1997,10 @@ app.delete(
       log.error("Error in asset deletion:", error);
       return c.json(
         { error: "Failed to delete asset", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // ==================== SOURCE PDF ROUTES ====================
@@ -2007,7 +2041,7 @@ app.post(
         log.log(`Invalid file type: ${file.type}`);
         return c.json(
           { error: "Invalid file type. Only PDF files are allowed." },
-          400
+          400,
         );
       }
 
@@ -2020,7 +2054,7 @@ app.post(
       log.log("Validation passed, creating Supabase client");
       const supabase = createClient(
         Deno.env.get("SUPABASE_URL") ?? "",
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       );
 
       const bucketName = "make-17cae920-source-pdfs";
@@ -2048,7 +2082,7 @@ app.post(
         log.error("Error uploading PDF to storage:", error);
         return c.json(
           { error: "Failed to upload PDF", details: error.message },
-          500
+          500,
         );
       }
 
@@ -2065,10 +2099,10 @@ app.post(
       log.error("💥 Exception in source PDF upload:", error);
       return c.json(
         { error: "Failed to upload source PDF", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Import PDF from URL (admin only) - downloads from external URL and stores in Supabase
@@ -2102,7 +2136,7 @@ app.post(
       } catch {
         return c.json(
           { error: "Invalid URL format. Must be http or https." },
-          400
+          400,
         );
       }
 
@@ -2127,7 +2161,7 @@ app.post(
       ];
 
       const isBlockedDomain = blockedDomains.some(
-        (domain) => hostname === domain || hostname.endsWith("." + domain)
+        (domain) => hostname === domain || hostname.endsWith("." + domain),
       );
 
       if (isBlockedDomain) {
@@ -2138,7 +2172,7 @@ app.post(
             details: `${hostname} requires browser authentication. Please download the PDF manually in your browser and use the file upload button instead.`,
             suggestion: "manual_download",
           },
-          403
+          403,
         );
       }
 
@@ -2175,7 +2209,7 @@ app.post(
               error:
                 "Request timed out. The PDF server took too long to respond.",
             },
-            408
+            408,
           );
         }
         log.error("Fetch error:", fetchError);
@@ -2184,7 +2218,7 @@ app.post(
             error: "Failed to fetch PDF from URL",
             details: fetchError.message,
           },
-          502
+          502,
         );
       }
 
@@ -2199,8 +2233,8 @@ app.post(
           response.status === 403 || response.status === 401
             ? "This PDF requires authentication. Please download it manually in your browser and use the file upload button."
             : response.status === 404
-            ? "PDF not found. Check that the URL points directly to a PDF file."
-            : "The server returned an error. Try downloading manually.";
+              ? "PDF not found. Check that the URL points directly to a PDF file."
+              : "The server returned an error. Try downloading manually.";
 
         return c.json(
           {
@@ -2211,7 +2245,7 @@ app.post(
                 ? "manual_download"
                 : undefined,
           },
-          502
+          502,
         );
       }
 
@@ -2229,23 +2263,23 @@ app.post(
               details:
                 "This usually means the PDF requires authentication or the URL is incorrect.",
             },
-            400
+            400,
           );
         }
         console.warn(
-          `Unexpected content-type: ${contentType}, proceeding anyway...`
+          `Unexpected content-type: ${contentType}, proceeding anyway...`,
         );
       }
 
       // Check file size from headers (optional, some servers don't provide it)
       const contentLength = parseInt(
         response.headers.get("content-length") || "0",
-        10
+        10,
       );
       if (contentLength > 20971520) {
         return c.json(
           { error: "PDF is too large. Maximum size is 20MB." },
-          400
+          400,
         );
       }
 
@@ -2260,7 +2294,7 @@ app.post(
       if (uint8Array.length > 20971520) {
         return c.json(
           { error: "PDF is too large. Maximum size is 20MB." },
-          400
+          400,
         );
       }
 
@@ -2272,7 +2306,7 @@ app.post(
             error: "The downloaded file is not a valid PDF.",
             details: "The file does not have the expected PDF header.",
           },
-          400
+          400,
         );
       }
 
@@ -2280,7 +2314,7 @@ app.post(
 
       const supabase = createClient(
         Deno.env.get("SUPABASE_URL") ?? "",
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       );
 
       const bucketName = "make-17cae920-source-pdfs";
@@ -2297,7 +2331,7 @@ app.post(
         log.error("Error uploading PDF to storage:", error);
         return c.json(
           { error: "Failed to save PDF to storage", details: error.message },
-          500
+          500,
         );
       }
 
@@ -2314,10 +2348,10 @@ app.post(
       log.error("💥 Exception in PDF import from URL:", error);
       return c.json(
         { error: "Failed to import PDF from URL", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Direct PDF view endpoint - redirects to public URL (for <a> tag links)
@@ -2331,7 +2365,7 @@ app.get("/make-server-17cae920/source-pdfs/:fileName/view", async (c) => {
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     );
 
     const bucketName = "make-17cae920-source-pdfs";
@@ -2399,7 +2433,7 @@ app.get("/make-server-17cae920/source-pdfs/:fileName/view", async (c) => {
           fileList
             ?.map((f) => f.name)
             .slice(0, 5)
-            .join(", ")
+            .join(", "),
         );
       }
     }
@@ -2440,7 +2474,7 @@ app.get("/make-server-17cae920/source-pdfs/:fileName/debug", async (c) => {
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     );
 
     const bucketName = "make-17cae920-source-pdfs";
@@ -2520,7 +2554,7 @@ app.get("/make-server-17cae920/source-pdfs/:fileName/debug", async (c) => {
         details: String(error),
         stack: error instanceof Error ? error.stack : undefined,
       },
-      500
+      500,
     );
   }
 });
@@ -2537,7 +2571,7 @@ app.get(
 
       const supabase = createClient(
         Deno.env.get("SUPABASE_URL") ?? "",
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       );
 
       const bucketName = "make-17cae920-source-pdfs";
@@ -2556,14 +2590,14 @@ app.get(
           error.statusCode === "404"
         ) {
           log.log(
-            ` PDF not found: ${fileName} (this is expected for test files)`
+            ` PDF not found: ${fileName} (this is expected for test files)`,
           );
         } else {
           log.error("❌ Error creating signed URL:", error);
         }
         return c.json(
           { error: "Failed to get PDF URL", details: error.message },
-          500
+          500,
         );
       }
 
@@ -2578,10 +2612,10 @@ app.get(
       log.error("💥 Exception in PDF URL retrieval:", error);
       return c.json(
         { error: "Failed to get PDF URL", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Delete a source PDF (admin only)
@@ -2595,7 +2629,7 @@ app.delete(
 
       const supabase = createClient(
         Deno.env.get("SUPABASE_URL") ?? "",
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       );
 
       const bucketName = "make-17cae920-source-pdfs";
@@ -2608,7 +2642,7 @@ app.delete(
         log.error("Error deleting source PDF:", error);
         return c.json(
           { error: "Failed to delete PDF", details: error.message },
-          500
+          500,
         );
       }
 
@@ -2619,22 +2653,22 @@ app.delete(
       log.error("Error in source PDF deletion:", error);
       return c.json(
         { error: "Failed to delete PDF", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // ==================== SCREENSHOT STORAGE ROUTES ====================
 
 // Helper function to generate signed URL for screenshots (24-hour expiry)
 async function getScreenshotSignedUrl(
-  fileName: string
+  fileName: string,
 ): Promise<{ signedUrl: string | null; error?: string }> {
   try {
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     );
 
     const bucketName = "make-17cae920-screenshots";
@@ -2659,7 +2693,7 @@ async function getScreenshotSignedUrl(
         error.statusCode === "404"
       ) {
         log.log(
-          `📸 Screenshot not found: ${fileName} (this is expected for test files)`
+          `📸 Screenshot not found: ${fileName} (this is expected for test files)`,
         );
       } else {
         log.error("Error creating screenshot signed URL:", error);
@@ -2688,7 +2722,7 @@ app.get(
       if (result.error || !result.signedUrl) {
         return c.json(
           { error: "Failed to get screenshot URL", details: result.error },
-          500
+          500,
         );
       }
 
@@ -2702,10 +2736,10 @@ app.get(
       log.error("Exception in screenshot URL retrieval:", error);
       return c.json(
         { error: "Failed to get screenshot URL", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Upload screenshot (admin only)
@@ -2724,7 +2758,7 @@ app.post(
 
       const supabase = createClient(
         Deno.env.get("SUPABASE_URL") ?? "",
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       );
 
       const bucketName = "make-17cae920-screenshots";
@@ -2732,7 +2766,7 @@ app.post(
       // Ensure bucket exists
       const { data: buckets } = await supabase.storage.listBuckets();
       const bucketExists = buckets?.some(
-        (bucket) => bucket.name === bucketName
+        (bucket) => bucket.name === bucketName,
       );
 
       if (!bucketExists) {
@@ -2762,7 +2796,7 @@ app.post(
             error: "Failed to upload screenshot",
             details: uploadError.message,
           },
-          500
+          500,
         );
       }
 
@@ -2781,10 +2815,10 @@ app.post(
       log.error("Error in screenshot upload:", error);
       return c.json(
         { error: "Failed to upload screenshot", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Delete screenshot (admin only)
@@ -2798,7 +2832,7 @@ app.delete(
 
       const supabase = createClient(
         Deno.env.get("SUPABASE_URL") ?? "",
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       );
 
       const bucketName = "make-17cae920-screenshots";
@@ -2811,7 +2845,7 @@ app.delete(
         log.error("Error deleting screenshot:", error);
         return c.json(
           { error: "Failed to delete screenshot", details: error.message },
-          500
+          500,
         );
       }
 
@@ -2822,10 +2856,10 @@ app.delete(
       log.error("Error in screenshot deletion:", error);
       return c.json(
         { error: "Failed to delete screenshot", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // ==================== WHITEPAPER ROUTES ====================
@@ -2848,7 +2882,7 @@ app.get("/make-server-17cae920/whitepapers", async (c) => {
     log.error("Error fetching whitepapers:", error);
     return c.json(
       { error: "Failed to fetch whitepapers", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -2881,7 +2915,7 @@ app.get("/make-server-17cae920/whitepapers/:slug", async (c) => {
     log.error("Error fetching whitepaper:", error);
     return c.json(
       { error: "Failed to fetch whitepaper", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -2909,7 +2943,7 @@ app.post(
       if (!slug || !title || !content) {
         return c.json(
           { error: "Missing required fields: slug, title, content" },
-          400
+          400,
         );
       }
 
@@ -2953,10 +2987,10 @@ app.post(
       log.error("Error saving whitepaper:", error);
       return c.json(
         { error: "Failed to save whitepaper", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Delete a whitepaper (admin only)
@@ -2991,10 +3025,10 @@ app.delete(
       log.error("Error deleting whitepaper:", error);
       return c.json(
         { error: "Failed to delete whitepaper", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Get whitepaper source files from filesystem (admin only)
@@ -3040,7 +3074,7 @@ app.get(
           // Read the markdown file from the whitepapers directory
           // In Deno, we need to construct the path relative to the current working directory
           const content = await Deno.readTextFile(
-            `./whitepapers/${file.filename}`
+            `./whitepapers/${file.filename}`,
           );
 
           whitepapers.push({
@@ -3069,10 +3103,10 @@ app.get(
       log.error("Error reading whitepaper source files:", error);
       return c.json(
         { error: "Failed to read whitepaper files", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Initialize admin user on startup
@@ -3080,13 +3114,13 @@ async function initializeAdminUser() {
   try {
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     );
 
     // Check if admin user exists
     const { data: users } = await supabase.auth.admin.listUsers();
     const adminExists = users?.users?.some(
-      (u) => u.email === "natto@wastefull.org"
+      (u) => u.email === "natto@wastefull.org",
     );
 
     if (!adminExists) {
@@ -3498,7 +3532,7 @@ function arrayToCSV(headers: string[], rows: any[][]): string {
           }
           return cellStr;
         })
-        .join(",")
+        .join(","),
     ),
   ];
   return csvRows.join("\n");
@@ -3717,7 +3751,7 @@ app.get("/make-server-17cae920/export/full-OLD", async (c) => {
     log.error("Error exporting research data:", error);
     return c.json(
       { error: "Failed to export data", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -3738,7 +3772,7 @@ app.get("/make-server-17cae920/sources", async (c) => {
         error: "Failed to fetch sources",
         details: String(error),
       },
-      500
+      500,
     );
   }
 });
@@ -3764,10 +3798,10 @@ app.post(
       log.error("Error batch saving sources:", error);
       return c.json(
         { error: "Failed to batch save sources", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // ==================== CALCULATION ENDPOINTS ====================
@@ -3794,7 +3828,7 @@ app.post(
         ) {
           return c.json(
             { error: `Invalid ${key} value. Must be between 0 and 1.` },
-            400
+            400,
           );
         }
       }
@@ -3830,10 +3864,10 @@ app.post(
       log.error("Error calculating compostability:", error);
       return c.json(
         { error: "Failed to calculate compostability", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 /**
@@ -3858,7 +3892,7 @@ app.post(
         ) {
           return c.json(
             { error: `Invalid ${key} value. Must be between 0 and 1.` },
-            400
+            400,
           );
         }
       }
@@ -3894,10 +3928,10 @@ app.post(
       log.error("Error calculating reusability:", error);
       return c.json(
         { error: "Failed to calculate reusability", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 /**
@@ -3998,10 +4032,10 @@ app.post(
       log.error("Error calculating all dimensions:", error);
       return c.json(
         { error: "Failed to calculate dimensions", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // ==================== PHASE 6: CONTENT MANAGEMENT ROUTES ====================
@@ -4027,11 +4061,10 @@ app.get("/make-server-17cae920/profile/:userId", async (c) => {
         try {
           const supabase = createClient(
             Deno.env.get("SUPABASE_URL") ?? "",
-            Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+            Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
           );
-          const { data: userData } = await supabase.auth.admin.getUserById(
-            userId
-          );
+          const { data: userData } =
+            await supabase.auth.admin.getUserById(userId);
           if (userData?.user) {
             userEmail = userData.user.email || "";
             userName =
@@ -4070,7 +4103,7 @@ app.get("/make-server-17cae920/profile/:userId", async (c) => {
     log.error("Error fetching profile:", error);
     return c.json(
       { error: "Failed to fetch profile", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -4085,7 +4118,7 @@ app.put("/make-server-17cae920/profile/:userId", verifyAuth, async (c) => {
     if (userId !== requestingUserId) {
       return c.json(
         { error: "Unauthorized - can only update own profile" },
-        403
+        403,
       );
     }
 
@@ -4117,7 +4150,7 @@ app.put("/make-server-17cae920/profile/:userId", verifyAuth, async (c) => {
     log.error("Error updating profile:", error);
     return c.json(
       { error: "Failed to update profile", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -4184,10 +4217,10 @@ app.post(
       log.error("Error backfilling created_by:", error);
       return c.json(
         { error: "Failed to backfill", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Debug endpoint - get all articles with author info
@@ -4269,7 +4302,7 @@ app.get(
           id: m.id,
           name: m.name,
           created_by: m.created_by,
-        }))
+        })),
       );
 
       // Count articles written by user (nested inside materials)
@@ -4280,23 +4313,23 @@ app.get(
         if (material.articles) {
           if (material.articles.compostability) {
             userArticleCount += material.articles.compostability.filter(
-              (a) => a.created_by === userId || a.author_id === userId
+              (a) => a.created_by === userId || a.author_id === userId,
             ).length;
           }
           if (material.articles.recyclability) {
             userArticleCount += material.articles.recyclability.filter(
-              (a) => a.created_by === userId || a.author_id === userId
+              (a) => a.created_by === userId || a.author_id === userId,
             ).length;
           }
           if (material.articles.reusability) {
             userArticleCount += material.articles.reusability.filter(
-              (a) => a.created_by === userId || a.author_id === userId
+              (a) => a.created_by === userId || a.author_id === userId,
             ).length;
           }
         }
       }
       log.log(
-        `[Contributions] User articles (nested in materials): ${userArticleCount}`
+        `[Contributions] User articles (nested in materials): ${userArticleCount}`,
       );
 
       // Count guides created by user (from Postgres)
@@ -4304,7 +4337,7 @@ app.get(
       try {
         const supabase = createClient(
           Deno.env.get("SUPABASE_URL") ?? "",
-          Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+          Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
         );
         const { count } = await supabase
           .from("guides")
@@ -4324,7 +4357,7 @@ app.get(
             const evidenceList = material.evidence[param];
             if (Array.isArray(evidenceList)) {
               miuCount += evidenceList.filter(
-                (e) => e.curator_id === userId
+                (e) => e.curator_id === userId,
               ).length;
             }
           }
@@ -4344,10 +4377,10 @@ app.get(
       log.error("Error fetching contribution stats:", error);
       return c.json(
         { error: "Failed to fetch contribution stats", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Get user activity (for calendar heatmap)
@@ -4456,10 +4489,10 @@ app.get(
       log.error("Error fetching activity:", error);
       return c.json(
         { error: "Failed to fetch activity", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Get recent contributions
@@ -4484,7 +4517,7 @@ app.get(
       const allMaterials = (await kv.getByPrefix("material:")) || [];
       if (!typeFilter || typeFilter === "material") {
         const userMaterials = allMaterials.filter(
-          (m) => m.created_by === userId
+          (m) => m.created_by === userId,
         );
         for (const material of userMaterials) {
           contributions.push({
@@ -4540,7 +4573,7 @@ app.get(
         try {
           const supabase = createClient(
             Deno.env.get("SUPABASE_URL") ?? "",
-            Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+            Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
           );
           const { data: guides } = await supabase
             .from("guides")
@@ -4592,7 +4625,7 @@ app.get(
       // Sort by timestamp and limit
       contributions.sort(
         (a, b) =>
-          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
       );
 
       return c.json({ contributions: contributions.slice(0, limit) });
@@ -4603,10 +4636,10 @@ app.get(
           error: "Failed to fetch recent contributions",
           details: String(error),
         },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Get admin dashboard stats (public endpoint for totals)
@@ -4614,7 +4647,7 @@ app.get("/make-server-17cae920/admin/stats", async (c) => {
   try {
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     );
 
     const allMaterials = (await kv.getByPrefix("material:")) || [];
@@ -4672,7 +4705,7 @@ app.get("/make-server-17cae920/admin/stats", async (c) => {
     log.error("Error fetching admin stats:", error);
     return c.json(
       { error: "Failed to fetch admin stats", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -4685,7 +4718,7 @@ app.get("/make-server-17cae920/leaderboard", async (c) => {
     // Create supabase client for Postgres queries
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     );
 
     // Aggregate contributions by user
@@ -4802,9 +4835,8 @@ app.get("/make-server-17cae920/leaderboard", async (c) => {
 
         // Get the authoritative name from Supabase auth user_metadata
         // This matches what StatusBar displays via user.name
-        const { data: authUser } = await supabase.auth.admin.getUserById(
-          userId
-        );
+        const { data: authUser } =
+          await supabase.auth.admin.getUserById(userId);
         if (authUser?.user) {
           name =
             authUser.user.user_metadata?.name ||
@@ -4836,7 +4868,7 @@ app.get("/make-server-17cae920/leaderboard", async (c) => {
     log.error("Error fetching leaderboard:", error);
     return c.json(
       { error: "Failed to fetch leaderboard", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -4875,7 +4907,7 @@ app.get("/make-server-17cae920/articles", async (c) => {
     log.error("Error fetching articles:", error);
     return c.json(
       { error: "Failed to fetch articles", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -4895,7 +4927,7 @@ app.get("/make-server-17cae920/articles/:id", async (c) => {
     log.error("Error fetching article:", error);
     return c.json(
       { error: "Failed to fetch article", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -4921,7 +4953,7 @@ app.post("/make-server-17cae920/articles", verifyAuth, async (c) => {
     log.error("Error creating article:", error);
     return c.json(
       { error: "Failed to create article", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -4956,7 +4988,7 @@ app.put("/make-server-17cae920/articles/:id", verifyAuth, async (c) => {
     log.error("Error updating article:", error);
     return c.json(
       { error: "Failed to update article", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -4984,7 +5016,7 @@ app.delete("/make-server-17cae920/articles/:id", verifyAuth, async (c) => {
     log.error("Error deleting article:", error);
     return c.json(
       { error: "Failed to delete article", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -5010,10 +5042,10 @@ app.get(
       log.error("Error fetching submissions:", error);
       return c.json(
         { error: "Failed to fetch submissions", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Get user's own submissions
@@ -5029,7 +5061,7 @@ app.get("/make-server-17cae920/submissions/my", verifyAuth, async (c) => {
     log.error("Error fetching user submissions:", error);
     return c.json(
       { error: "Failed to fetch submissions", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -5070,7 +5102,7 @@ app.post("/make-server-17cae920/submissions", verifyAuth, async (c) => {
     log.error("Error creating submission:", error);
     return c.json(
       { error: "Failed to create submission", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -5140,10 +5172,10 @@ app.put(
       log.error("Error updating submission:", error);
       return c.json(
         { error: "Failed to update submission", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Delete submission (admin only)
@@ -5160,10 +5192,10 @@ app.delete(
       log.error("Error deleting submission:", error);
       return c.json(
         { error: "Failed to delete submission", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // ===== NOTIFICATIONS =====
@@ -5181,7 +5213,7 @@ app.post(
       if (!user_id || !type || !message) {
         return c.json(
           { error: "Missing required fields: user_id, type, message" },
-          400
+          400,
         );
       }
 
@@ -5207,10 +5239,10 @@ app.post(
       log.error("Error creating notification:", error);
       return c.json(
         { error: "Failed to create notification", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Get user notifications
@@ -5240,10 +5272,10 @@ app.get(
       log.error("Error fetching notifications:", error);
       return c.json(
         { error: "Failed to fetch notifications", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Mark notification as read
@@ -5267,10 +5299,10 @@ app.put(
       log.error("Error marking notification as read:", error);
       return c.json(
         { error: "Failed to update notification", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // ===== EMAIL NOTIFICATIONS (RESEND) =====
@@ -5287,7 +5319,7 @@ app.post(
       if (!to || !subject || (!html && !text)) {
         return c.json(
           { error: "Missing required fields: to, subject, and html or text" },
-          400
+          400,
         );
       }
 
@@ -5319,7 +5351,7 @@ app.post(
         log.error("Resend API error:", errorText);
         return c.json(
           { error: "Failed to send email", details: errorText },
-          500
+          500,
         );
       }
 
@@ -5331,10 +5363,10 @@ app.post(
       log.error("Error sending email:", error);
       return c.json(
         { error: "Failed to send email", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Send revision request email (admin only)
@@ -5496,7 +5528,7 @@ Building open scientific infrastructure for material circularity
         log.error("Resend API error:", errorText);
         return c.json(
           { error: "Failed to send email", details: errorText },
-          500
+          500,
         );
       }
 
@@ -5508,10 +5540,10 @@ Building open scientific infrastructure for material circularity
       log.error("Error sending revision request email:", error);
       return c.json(
         { error: "Failed to send email", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Send approval email (admin only)
@@ -5580,8 +5612,8 @@ app.post(
               
               <p style="margin: 0 0 24px 0; font-size: 14px; line-height: 1.6; color: #211f1c;">
                 Great news! Your <strong>${typeDisplay}</strong> submission${
-        contentName ? ` <em>"${contentName}"</em>` : ""
-      } has been reviewed and approved. It's now live on WasteDB!
+                  contentName ? ` <em>"${contentName}"</em>` : ""
+                } has been reviewed and approved. It's now live on WasteDB!
               </p>
               
               <!-- Success Box -->
@@ -5670,7 +5702,7 @@ Building open scientific infrastructure for material circularity
         log.error("Resend API error:", errorText);
         return c.json(
           { error: "Failed to send email", details: errorText },
-          500
+          500,
         );
       }
 
@@ -5682,10 +5714,10 @@ Building open scientific infrastructure for material circularity
       log.error("Error sending approval email:", error);
       return c.json(
         { error: "Failed to send email", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Send rejection email (admin only)
@@ -5843,7 +5875,7 @@ Building open scientific infrastructure for material circularity
         log.error("Resend API error:", errorText);
         return c.json(
           { error: "Failed to send email", details: errorText },
-          500
+          500,
         );
       }
 
@@ -5855,10 +5887,10 @@ Building open scientific infrastructure for material circularity
       log.error("Error sending rejection email:", error);
       return c.json(
         { error: "Failed to send email", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Delete submission (admin only)
@@ -5883,10 +5915,10 @@ app.delete(
       log.error("Error deleting submission:", error);
       return c.json(
         { error: "Failed to delete submission", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // ===== SOURCE LIBRARY MANAGEMENT =====
@@ -5909,7 +5941,7 @@ app.get("/make-server-17cae920/sources/search", async (c) => {
     const searchTerms = `${query} (recycling OR recyclability OR biodegradation OR composting OR waste OR sustainability OR environmental)`;
 
     const crossrefUrl = `https://api.crossref.org/works?query=${encodeURIComponent(
-      searchTerms
+      searchTerms,
     )}&rows=${rows}&select=DOI,title,author,published-print,published-online,container-title,abstract,type&filter=type:journal-article`;
 
     const response = await fetch(crossrefUrl, {
@@ -5932,7 +5964,7 @@ app.get("/make-server-17cae920/sources/search", async (c) => {
       authors: (item.author || []).map((a: any) =>
         a.given && a.family
           ? `${a.given} ${a.family}`
-          : a.family || a.name || "Unknown"
+          : a.family || a.name || "Unknown",
       ),
       year:
         item["published-print"]?.["date-parts"]?.[0]?.[0] ||
@@ -5956,7 +5988,7 @@ app.get("/make-server-17cae920/sources/search", async (c) => {
         error: "Failed to search for sources",
         details: String(error),
       },
-      500
+      500,
     );
   }
 });
@@ -5982,7 +6014,7 @@ app.get("/make-server-17cae920/sources/lookup-doi", async (c) => {
     }
 
     const crossrefUrl = `https://api.crossref.org/works/${encodeURIComponent(
-      normalizedDoi
+      normalizedDoi,
     )}`;
 
     const response = await fetch(crossrefUrl, {
@@ -6009,7 +6041,7 @@ app.get("/make-server-17cae920/sources/lookup-doi", async (c) => {
         authors: (item.author || []).map((a: any) =>
           a.given && a.family
             ? `${a.given} ${a.family}`
-            : a.family || a.name || "Unknown"
+            : a.family || a.name || "Unknown",
         ),
         year:
           item["published-print"]?.["date-parts"]?.[0]?.[0] ||
@@ -6030,7 +6062,7 @@ app.get("/make-server-17cae920/sources/lookup-doi", async (c) => {
         error: "Failed to lookup DOI",
         details: String(error),
       },
-      500
+      500,
     );
   }
 });
@@ -6058,7 +6090,7 @@ app.get("/make-server-17cae920/sources/check-oa", async (c) => {
     // Call Unpaywall API
     // Free API, no key required, just need to provide email
     const unpaywallUrl = `https://api.unpaywall.org/v2/${encodeURIComponent(
-      normalizedDoi
+      normalizedDoi,
     )}?email=natto@wastefull.org`;
 
     const response = await fetch(unpaywallUrl);
@@ -6099,7 +6131,7 @@ app.get("/make-server-17cae920/sources/check-oa", async (c) => {
         details: String(error),
         is_open_access: null, // Unknown status
       },
-      500
+      500,
     );
   }
 });
@@ -6119,7 +6151,7 @@ app.get("/make-server-17cae920/sources/:id", async (c) => {
     log.error("Error fetching source:", error);
     return c.json(
       { error: "Failed to fetch source", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -6138,7 +6170,7 @@ app.post(
       if (!sourceData.title || !sourceData.type) {
         return c.json(
           { error: "Missing required fields: title and type" },
-          400
+          400,
         );
       }
 
@@ -6153,7 +6185,7 @@ app.post(
       if (!validTypes.includes(sourceData.type)) {
         return c.json(
           { error: `Invalid type. Must be one of: ${validTypes.join(", ")}` },
-          400
+          400,
         );
       }
 
@@ -6163,7 +6195,7 @@ app.post(
         if (isNaN(weight) || weight < 0 || weight > 1) {
           return c.json(
             { error: "Weight must be a number between 0 and 1" },
-            400
+            400,
           );
         }
       }
@@ -6208,10 +6240,10 @@ app.post(
       log.error("Error creating source:", error);
       return c.json(
         { error: "Failed to create source", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Update source (admin only)
@@ -6242,7 +6274,7 @@ app.put(
         if (!validTypes.includes(updates.type)) {
           return c.json(
             { error: `Invalid type. Must be one of: ${validTypes.join(", ")}` },
-            400
+            400,
           );
         }
       }
@@ -6253,7 +6285,7 @@ app.put(
         if (isNaN(weight) || weight < 0 || weight > 1) {
           return c.json(
             { error: "Weight must be a number between 0 and 1" },
-            400
+            400,
           );
         }
       }
@@ -6340,10 +6372,10 @@ app.put(
       log.error("Error updating source:", error);
       return c.json(
         { error: "Failed to update source", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Batch delete ALL sources (admin only) - for cleanup
@@ -6392,7 +6424,7 @@ app.delete(
             message: `All ${sourcesWithDependents.length} sources have dependent evidence points (MIUs). Delete evidence points first.`,
             skippedSources: sourcesWithDependents,
           },
-          400
+          400,
         );
       }
 
@@ -6531,10 +6563,10 @@ app.delete(
       log.error("Error in batch delete sources:", error);
       return c.json(
         { error: "Failed to batch delete sources", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Remove duplicate sources (admin only) - keeps first occurrence, removes exact title duplicates with no dependencies
@@ -6756,7 +6788,7 @@ app.delete(
         } catch (emailError) {
           log.error(
             "Failed to send duplicate removal audit email:",
-            emailError
+            emailError,
           );
         }
       }
@@ -6772,17 +6804,17 @@ app.delete(
           deletedCount === 0
             ? `Found ${duplicatesToDelete.length} duplicates but all have dependencies and were skipped.`
             : skippedDuplicates.length > 0
-            ? `Removed ${deletedCount} duplicate sources. ${skippedDuplicates.length} skipped (have dependencies).`
-            : `Successfully removed ${deletedCount} duplicate sources.`,
+              ? `Removed ${deletedCount} duplicate sources. ${skippedDuplicates.length} skipped (have dependencies).`
+              : `Successfully removed ${deletedCount} duplicate sources.`,
       });
     } catch (error) {
       log.error("Error in remove duplicate sources:", error);
       return c.json(
         { error: "Failed to remove duplicate sources", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Delete source (admin only)
@@ -6807,7 +6839,7 @@ app.delete(
 
       if (evidenceIds.length > 0) {
         console.warn(
-          `⛔ Cannot delete source ${id}: ${evidenceIds.length} evidence points (MIUs) reference this source`
+          `⛔ Cannot delete source ${id}: ${evidenceIds.length} evidence points (MIUs) reference this source`,
         );
 
         // Get sample evidence points for context (max 5)
@@ -6834,19 +6866,19 @@ app.delete(
             sampleEvidence,
             hint: "Use the Evidence Lab to review and manage evidence points for this source.",
           },
-          400
+          400,
         );
       }
 
       // Legacy check for old evidence format (backward compatibility)
       const allEvidence = await kv.getByPrefix("evidence:");
       const legacyDependentEvidence = allEvidence.filter(
-        (evidence: any) => evidence && evidence.source_id === id
+        (evidence: any) => evidence && evidence.source_id === id,
       );
 
       if (legacyDependentEvidence.length > 0) {
         console.warn(
-          `⛔ Cannot delete source ${id}: ${legacyDependentEvidence.length} legacy evidence points reference this source`
+          `⛔ Cannot delete source ${id}: ${legacyDependentEvidence.length} legacy evidence points reference this source`,
         );
         return c.json(
           {
@@ -6854,7 +6886,7 @@ app.delete(
             message: `This source is referenced by ${legacyDependentEvidence.length} legacy evidence point(s). Please migrate or delete them first.`,
             dependentCount: legacyDependentEvidence.length,
           },
-          400
+          400,
         );
       }
 
@@ -6877,10 +6909,10 @@ app.delete(
       log.error("Error deleting source:", error);
       return c.json(
         { error: "Failed to delete source", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Batch save sources (admin only) - for syncing entire library
@@ -6928,10 +6960,10 @@ app.post(
       log.error("Error batch saving sources:", error);
       return c.json(
         { error: "Failed to batch save sources", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // ==================== PUBLIC RESEARCH API ====================
@@ -6959,7 +6991,7 @@ app.get("/make-server-17cae920/api/v1/materials", async (c) => {
     // Filter by category if specified
     if (category) {
       materials = materials.filter(
-        (m: any) => m.category?.toLowerCase() === category.toLowerCase()
+        (m: any) => m.category?.toLowerCase() === category.toLowerCase(),
       );
     }
 
@@ -6969,7 +7001,7 @@ app.get("/make-server-17cae920/api/v1/materials", async (c) => {
       materials = materials.filter(
         (m: any) =>
           m.name?.toLowerCase().includes(searchLower) ||
-          m.description?.toLowerCase().includes(searchLower)
+          m.description?.toLowerCase().includes(searchLower),
       );
     }
 
@@ -7035,7 +7067,7 @@ app.get("/make-server-17cae920/api/v1/materials", async (c) => {
           offset > 0
             ? `/api/v1/materials?limit=${limit}&offset=${Math.max(
                 0,
-                offset - limit
+                offset - limit,
               )}`
             : null,
       },
@@ -7044,7 +7076,7 @@ app.get("/make-server-17cae920/api/v1/materials", async (c) => {
     log.error("API error fetching materials:", error);
     return c.json(
       { error: "Failed to fetch materials", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -7064,7 +7096,7 @@ app.get("/make-server-17cae920/api/v1/materials/:id", async (c) => {
     log.error("API error fetching material:", error);
     return c.json(
       { error: "Failed to fetch material", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -7111,19 +7143,19 @@ app.get("/make-server-17cae920/api/v1/stats", async (c) => {
       // Track ranges
       stats.ranges.recyclability.min = Math.min(
         stats.ranges.recyclability.min,
-        r
+        r,
       );
       stats.ranges.recyclability.max = Math.max(
         stats.ranges.recyclability.max,
-        r
+        r,
       );
       stats.ranges.compostability.min = Math.min(
         stats.ranges.compostability.min,
-        c
+        c,
       );
       stats.ranges.compostability.max = Math.max(
         stats.ranges.compostability.max,
-        c
+        c,
       );
       stats.ranges.reusability.min = Math.min(stats.ranges.reusability.min, u);
       stats.ranges.reusability.max = Math.max(stats.ranges.reusability.max, u);
@@ -7132,13 +7164,13 @@ app.get("/make-server-17cae920/api/v1/stats", async (c) => {
     // Calculate averages
     if (materials.length > 0) {
       stats.averages.recyclability = Math.round(
-        totalRecyclability / materials.length
+        totalRecyclability / materials.length,
       );
       stats.averages.compostability = Math.round(
-        totalCompostability / materials.length
+        totalCompostability / materials.length,
       );
       stats.averages.reusability = Math.round(
-        totalReusability / materials.length
+        totalReusability / materials.length,
       );
     }
 
@@ -7147,7 +7179,7 @@ app.get("/make-server-17cae920/api/v1/stats", async (c) => {
     log.error("API error calculating stats:", error);
     return c.json(
       { error: "Failed to calculate statistics", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -7171,7 +7203,7 @@ app.get("/make-server-17cae920/api/v1/categories", async (c) => {
     log.error("API error fetching categories:", error);
     return c.json(
       { error: "Failed to fetch categories", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -7241,7 +7273,7 @@ app.get("/make-server-17cae920/api/v1/methodology", async (c) => {
         error: "Failed to fetch methodology information",
         details: String(error),
       },
-      500
+      500,
     );
   }
 });
@@ -7263,7 +7295,7 @@ app.get("/make-server-17cae920/api/v1/whitepapers", async (c) => {
     log.error("API error fetching whitepapers:", error);
     return c.json(
       { error: "Failed to fetch whitepapers", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -7283,7 +7315,7 @@ app.get("/make-server-17cae920/api/v1/whitepapers/:slug", async (c) => {
     log.error("API error fetching whitepaper:", error);
     return c.json(
       { error: "Failed to fetch whitepaper", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -7307,7 +7339,7 @@ app.get("/make-server-17cae920/api/v1/articles", async (c) => {
     // Filter by category if specified
     if (category) {
       articles = articles.filter(
-        (a: any) => a.category?.toLowerCase() === category.toLowerCase()
+        (a: any) => a.category?.toLowerCase() === category.toLowerCase(),
       );
     }
 
@@ -7316,7 +7348,7 @@ app.get("/make-server-17cae920/api/v1/articles", async (c) => {
     log.error("API error fetching articles:", error);
     return c.json(
       { error: "Failed to fetch articles", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -7334,14 +7366,14 @@ app.post(
       // DEBUG: Log the received data to see what fields are present
       log.log(
         "🔍 Takedown request received. Fields present:",
-        Object.keys(requestData)
+        Object.keys(requestData),
       );
       log.log("📧 Email:", requestData.email);
       log.log("👤 Full Name:", requestData.fullName);
       log.log(" Work Title:", requestData.workTitle);
       log.log(
         " Content Description length:",
-        requestData.contentDescription?.length || 0
+        requestData.contentDescription?.length || 0,
       );
 
       // Check if the submitter is an admin (to bypass rate limits for testing)
@@ -7352,7 +7384,7 @@ app.post(
         try {
           const supabase = createClient(
             Deno.env.get("SUPABASE_URL") ?? "",
-            Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+            Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
           );
           const {
             data: { user },
@@ -7362,7 +7394,7 @@ app.post(
             if (userRole === "admin" || user.email === "natto@wastefull.org") {
               isAdmin = true;
               log.log(
-                `✓ Admin user ${user.email} submitting takedown request - anti-abuse checks bypassed`
+                `✓ Admin user ${user.email} submitting takedown request - anti-abuse checks bypassed`,
               );
             }
           }
@@ -7417,14 +7449,14 @@ app.post(
           const sevenDays = 7 * 24 * 60 * 60 * 1000;
           if (timeSinceLastRequest < sevenDays) {
             const hoursRemaining = Math.ceil(
-              (sevenDays - timeSinceLastRequest) / (60 * 60 * 1000)
+              (sevenDays - timeSinceLastRequest) / (60 * 60 * 1000),
             );
             log.log(`⚠️ Takedown rate limit by email: ${requestData.email}`);
             return c.json(
               {
                 error: `You have already submitted a takedown request recently. Please wait ${hoursRemaining} hours before submitting another request, or contact legal@wastefull.org for urgent matters.`,
               },
-              429
+              429,
             );
           }
         }
@@ -7437,7 +7469,7 @@ app.post(
             error:
               "Content description must be at least 50 characters. Please provide detailed information about the alleged infringement.",
           },
-          400
+          400,
         );
       }
 
@@ -7474,7 +7506,7 @@ app.post(
             {
               error: `You have already submitted a takedown request for this URL (Request ID: ${duplicateRequestID}). Please check the status of your existing request or contact legal@wastefull.org.`,
             },
-            409
+            409,
           );
         }
       }
@@ -7487,7 +7519,7 @@ app.post(
       ) {
         return c.json(
           { error: "All legal statements must be acknowledged" },
-          400
+          400,
         );
       }
 
@@ -7517,7 +7549,7 @@ app.post(
       ];
       if (
         suspiciousDomains.some((domain) =>
-          requestData.email.toLowerCase().includes(domain)
+          requestData.email.toLowerCase().includes(domain),
         )
       ) {
         suspiciousFlags.push("suspicious_email_domain");
@@ -7535,7 +7567,7 @@ app.post(
       const genericTitles = ["test", "sample", "example", "asdf", "qwerty"];
       if (
         genericTitles.some((word) =>
-          requestData.workTitle.toLowerCase().includes(word)
+          requestData.workTitle.toLowerCase().includes(word),
         )
       ) {
         suspiciousFlags.push("generic_work_title");
@@ -7545,8 +7577,8 @@ app.post(
       if (suspiciousFlags.length > 0) {
         log.log(
           `⚠️ Suspicious takedown request detected. Flags: ${suspiciousFlags.join(
-            ", "
-          )}`
+            ", ",
+          )}`,
         );
       }
 
@@ -7575,7 +7607,7 @@ app.post(
       // DEBUG: Log what's being saved
       log.log(
         "💾 Saving takedown record. Fields:",
-        Object.keys(takedownRecord)
+        Object.keys(takedownRecord),
       );
       log.log("💾 Record fullName:", takedownRecord.fullName);
       log.log("💾 Record workTitle:", takedownRecord.workTitle);
@@ -7594,7 +7626,7 @@ app.post(
           suspiciousFlags.length > 0
             ? " [FLAGGED: " + suspiciousFlags.join(", ") + "]"
             : ""
-        }`
+        }`,
       );
 
       // Track email sending status for debugging
@@ -7610,7 +7642,7 @@ app.post(
 
       if (RESEND_API_KEY) {
         log.log(
-          `📧 RESEND_API_KEY found, attempting to send emails for ${requestID}...`
+          `📧 RESEND_API_KEY found, attempting to send emails for ${requestID}...`,
         );
         try {
           const emailHtml = `
@@ -7669,7 +7701,7 @@ app.post(
         <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">
           Submitted: ${new Date(requestData.signatureDate).toLocaleString(
             "en-US",
-            { dateStyle: "full", timeStyle: "short" }
+            { dateStyle: "full", timeStyle: "short" },
           )}
         </div>
       </div>
@@ -7798,7 +7830,7 @@ app.post(
           <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">
             Signed on: ${new Date(requestData.signatureDate).toLocaleDateString(
               "en-US",
-              { dateStyle: "long" }
+              { dateStyle: "long" },
             )}
           </div>
         </div>
@@ -7908,26 +7940,26 @@ Request ID: ${requestID}
             const errorText = await emailResponse.text();
             log.error(
               "❌ Failed to send compliance notification email:",
-              errorText
+              errorText,
             );
             log.error(
               "Response status:",
               emailResponse.status,
-              emailResponse.statusText
+              emailResponse.statusText,
             );
             emailStatus.complianceEmailError = `${emailResponse.status}: ${errorText}`;
             // Don't fail the request if email fails - just log it
           } else {
             const emailResult = await emailResponse.json();
             log.log(
-              `✅ Compliance notification email sent for ${requestID} (Resend ID: ${emailResult.id})`
+              `✅ Compliance notification email sent for ${requestID} (Resend ID: ${emailResult.id})`,
             );
             emailStatus.complianceEmailSent = true;
           }
         } catch (emailError) {
           log.error(
             "❌ Error sending compliance notification email:",
-            emailError
+            emailError,
           );
           log.error("Full error:", JSON.stringify(emailError, null, 2));
           emailStatus.complianceEmailError = String(emailError);
@@ -8024,41 +8056,41 @@ Building open scientific infrastructure for material circularity
                 html: requesterEmailHtml,
                 text: requesterEmailText,
               }),
-            }
+            },
           );
 
           if (!requesterEmailResponse.ok) {
             const errorText = await requesterEmailResponse.text();
             log.error(
               "❌ Failed to send requester confirmation email:",
-              errorText
+              errorText,
             );
             log.error(
               "Response status:",
               requesterEmailResponse.status,
-              requesterEmailResponse.statusText
+              requesterEmailResponse.statusText,
             );
             emailStatus.requesterEmailError = `${requesterEmailResponse.status}: ${errorText}`;
           } else {
             log.log(
-              `✅ Confirmation email sent to requester ${requestData.email} for ${requestID}`
+              `✅ Confirmation email sent to requester ${requestData.email} for ${requestID}`,
             );
             emailStatus.requesterEmailSent = true;
           }
         } catch (requesterEmailError) {
           log.error(
             "❌ Error sending requester confirmation email:",
-            requesterEmailError
+            requesterEmailError,
           );
           log.error(
             "Full error:",
-            JSON.stringify(requesterEmailError, null, 2)
+            JSON.stringify(requesterEmailError, null, 2),
           );
           emailStatus.requesterEmailError = String(requesterEmailError);
         }
       } else {
         console.warn(
-          "⚠️ RESEND_API_KEY not configured - no emails will be sent"
+          "⚠️ RESEND_API_KEY not configured - no emails will be sent",
         );
         emailStatus.complianceEmailError = "RESEND_API_KEY not configured";
         emailStatus.requesterEmailError = "RESEND_API_KEY not configured";
@@ -8076,10 +8108,10 @@ Building open scientific infrastructure for material circularity
       log.error("Error submitting takedown request:", error);
       return c.json(
         { error: "Failed to submit takedown request", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // DEBUG: Get raw takedown request data (admin only)
@@ -8109,10 +8141,10 @@ app.get(
       log.error("Error fetching raw takedown data:", error);
       return c.json(
         { error: "Failed to fetch raw data", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Get takedown request status (public - no auth required, but needs request ID)
@@ -8138,7 +8170,7 @@ app.get("/make-server-17cae920/legal/takedown/status/:requestId", async (c) => {
     log.error("Error fetching takedown status:", error);
     return c.json(
       { error: "Failed to fetch status", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -8155,13 +8187,13 @@ app.get(
       // Filter to only include actual takedown requests (not email tracking records)
       const actualRequests =
         requests?.filter(
-          (item: any) => item.requestID && item.requestID.startsWith("TR-")
+          (item: any) => item.requestID && item.requestID.startsWith("TR-"),
         ) || [];
 
       // Sort by submission date (newest first)
       const sorted = actualRequests.sort(
         (a, b) =>
-          new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
+          new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime(),
       );
 
       return c.json({ requests: sorted });
@@ -8169,10 +8201,10 @@ app.get(
       log.error("Error listing takedown requests:", error);
       return c.json(
         { error: "Failed to list requests", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Admin: Update takedown request status
@@ -8203,7 +8235,7 @@ app.patch(
       await kv.set(`takedown:${requestId}`, updated);
 
       log.log(
-        `Takedown request ${requestId} updated by admin ${userId}: status=${updates.status}`
+        `Takedown request ${requestId} updated by admin ${userId}: status=${updates.status}`,
       );
 
       // Send email notification to requester
@@ -8308,7 +8340,7 @@ Building open scientific infrastructure for material circularity
             // Don't fail the request if email fails
           } else {
             log.log(
-              `Update email sent to ${updated.requesterEmail} for request ${requestId}`
+              `Update email sent to ${updated.requesterEmail} for request ${requestId}`,
             );
           }
         }
@@ -8322,10 +8354,10 @@ Building open scientific infrastructure for material circularity
       log.error("Error updating takedown request:", error);
       return c.json(
         { error: "Failed to update request", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // ==================== TRANSFORM GOVERNANCE ROUTES ====================
@@ -8338,7 +8370,7 @@ app.get("/make-server-17cae920/transforms", async (c) => {
     log.error("Error loading transforms:", error);
     return c.json(
       { error: "Failed to load transforms", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -8356,7 +8388,7 @@ app.get(
       const sorted =
         jobs?.sort(
           (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
         ) || [];
 
       return c.json({ jobs: sorted });
@@ -8364,10 +8396,10 @@ app.get(
       log.error("Error listing recompute jobs:", error);
       return c.json(
         { error: "Failed to list jobs", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Get recompute job status - MUST come before /transforms/:parameter
@@ -8388,10 +8420,10 @@ app.get(
       log.error("Error fetching recompute job:", error);
       return c.json(
         { error: "Failed to fetch job status", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Get transform definition for specific parameter
@@ -8399,13 +8431,13 @@ app.get("/make-server-17cae920/transforms/:parameter", async (c) => {
   try {
     const parameter = c.req.param("parameter");
     const transform = TRANSFORMS_DATA.transforms.find(
-      (t: any) => t.parameter === parameter
+      (t: any) => t.parameter === parameter,
     );
 
     if (!transform) {
       return c.json(
         { error: `Transform not found for parameter: ${parameter}` },
-        404
+        404,
       );
     }
 
@@ -8414,7 +8446,7 @@ app.get("/make-server-17cae920/transforms/:parameter", async (c) => {
     log.error("Error loading transform:", error);
     return c.json(
       { error: "Failed to load transform", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -8431,18 +8463,18 @@ app.post(
       if (!parameter || !newTransformVersion) {
         return c.json(
           { error: "Missing required fields: parameter, newTransformVersion" },
-          400
+          400,
         );
       }
 
       // Load current transform definition
       const oldTransform = TRANSFORMS_DATA.transforms.find(
-        (t: any) => t.parameter === parameter
+        (t: any) => t.parameter === parameter,
       );
       if (!oldTransform) {
         return c.json(
           { error: `Transform not found for parameter: ${parameter}` },
-          404
+          404,
         );
       }
 
@@ -8470,13 +8502,13 @@ app.post(
 
       log.log(`Recompute job created: ${jobId} for parameter ${parameter}`);
       log.log(
-        `Transform version change: ${oldTransform.version} → ${newTransformVersion}`
+        `Transform version change: ${oldTransform.version} → ${newTransformVersion}`,
       );
 
       // TODO: In Phase 9.2, this will trigger actual MIU reprocessing
       // For now, just log the intent
       log.log(
-        `⚠️ Recompute job ${jobId} created but not executed (no MIUs exist yet)`
+        `⚠️ Recompute job ${jobId} created but not executed (no MIUs exist yet)`,
       );
 
       return c.json({
@@ -8490,10 +8522,10 @@ app.post(
       log.error("Error creating recompute job:", error);
       return c.json(
         { error: "Failed to create recompute job", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // ==================== ONTOLOGY ENDPOINTS ====================
@@ -8510,7 +8542,7 @@ app.post(
       if (!type || !["units", "context", "all"].includes(type)) {
         return c.json(
           { error: "Invalid type. Must be: units, context, or all" },
-          400
+          400,
         );
       }
 
@@ -9114,17 +9146,17 @@ app.post(
         success: true,
         initialized,
         message: `Successfully initialized ${initialized.join(
-          " and "
+          " and ",
         )} ontolog${initialized.length > 1 ? "ies" : "y"}`,
       });
     } catch (error) {
       log.error("Error initializing ontologies:", error);
       return c.json(
         { error: "Failed to initialize ontologies", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Get units ontology
@@ -9138,7 +9170,7 @@ app.get("/make-server-17cae920/ontologies/units", async (c) => {
           error:
             "Units ontology not initialized. Admin must call POST /ontologies/initialize first.",
         },
-        404
+        404,
       );
     }
 
@@ -9149,7 +9181,7 @@ app.get("/make-server-17cae920/ontologies/units", async (c) => {
         {
           error: `Units ontology version ${currentVersion} not found`,
         },
-        404
+        404,
       );
     }
 
@@ -9158,7 +9190,7 @@ app.get("/make-server-17cae920/ontologies/units", async (c) => {
     log.error("Error fetching units ontology:", error);
     return c.json(
       { error: "Failed to fetch units ontology", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -9174,7 +9206,7 @@ app.get("/make-server-17cae920/ontologies/context", async (c) => {
           error:
             "Context ontology not initialized. Admin must call POST /ontologies/initialize first.",
         },
-        404
+        404,
       );
     }
 
@@ -9185,7 +9217,7 @@ app.get("/make-server-17cae920/ontologies/context", async (c) => {
         {
           error: `Context ontology version ${currentVersion} not found`,
         },
-        404
+        404,
       );
     }
 
@@ -9194,7 +9226,7 @@ app.get("/make-server-17cae920/ontologies/context", async (c) => {
     log.error("Error fetching context ontology:", error);
     return c.json(
       { error: "Failed to fetch context ontology", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -9211,7 +9243,7 @@ app.post("/make-server-17cae920/notifications", verifyAuth, async (c) => {
     if (!user_id || !type || !message) {
       return c.json(
         { error: "Missing required fields: user_id, type, message" },
-        400
+        400,
       );
     }
 
@@ -9227,10 +9259,10 @@ app.post("/make-server-17cae920/notifications", verifyAuth, async (c) => {
       return c.json(
         {
           error: `Invalid notification type. Must be one of: ${validTypes.join(
-            ", "
+            ", ",
           )}`,
         },
-        400
+        400,
       );
     }
 
@@ -9260,7 +9292,7 @@ app.post("/make-server-17cae920/notifications", verifyAuth, async (c) => {
     log.error("Error creating notification:", error);
     return c.json(
       { error: "Failed to create notification", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -9281,7 +9313,7 @@ app.get(
         if (userRole !== "admin") {
           return c.json(
             { error: "Unauthorized: You can only view your own notifications" },
-            403
+            403,
           );
         }
       }
@@ -9293,7 +9325,7 @@ app.get(
       // Sort by creation date (newest first)
       const sorted = notifications.sort(
         (a, b) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
       );
 
       log.log(`✓ Retrieved ${sorted.length} notifications for user ${userId}`);
@@ -9303,10 +9335,10 @@ app.get(
       log.error("Error fetching notifications:", error);
       return c.json(
         { error: "Failed to fetch notifications", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Mark a notification as read (protected)
@@ -9361,7 +9393,7 @@ app.put(
               error:
                 "Unauthorized: You can only mark your own notifications as read",
             },
-            403
+            403,
           );
         }
       }
@@ -9375,7 +9407,7 @@ app.put(
       await kv.set(notificationKey, updated);
 
       log.log(
-        `✓ Notification ${notificationId} marked as read by user ${requestingUserId}`
+        `✓ Notification ${notificationId} marked as read by user ${requestingUserId}`,
       );
 
       return c.json({ notification: updated });
@@ -9386,10 +9418,10 @@ app.put(
           error: "Failed to mark notification as read",
           details: String(error),
         },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Mark all notifications as read for a user (protected)
@@ -9402,7 +9434,7 @@ app.put(
       const requestingUserId = c.get("userId");
 
       log.log(
-        `📧 Mark all as read - userId: "${userId}", requestingUserId: "${requestingUserId}"`
+        `📧 Mark all as read - userId: "${userId}", requestingUserId: "${requestingUserId}"`,
       );
 
       // Check authorization
@@ -9414,26 +9446,26 @@ app.put(
         // Case 2: Admins can mark admin notifications as read
         const userRole = await kv.get(`user_role:${requestingUserId}`);
         log.log(
-          `📧 Authorization check - userRole: "${userRole}" (type: ${typeof userRole}), userId: "${userId}"`
+          `📧 Authorization check - userRole: "${userRole}" (type: ${typeof userRole}), userId: "${userId}"`,
         );
 
         const isAdmin = userRole === "admin";
         const isAccessingAdminNotifications = userId === "admin";
 
         log.log(
-          `📧 isAdmin: ${isAdmin}, isAccessingAdminNotifications: ${isAccessingAdminNotifications}`
+          `📧 isAdmin: ${isAdmin}, isAccessingAdminNotifications: ${isAccessingAdminNotifications}`,
         );
 
         if (!isAdmin || !isAccessingAdminNotifications) {
           log.log(
-            `❌ Authorization failed - User must be admin to access admin notifications`
+            `❌ Authorization failed - User must be admin to access admin notifications`,
           );
           return c.json(
             {
               error:
                 "Unauthorized: You can only mark your own notifications as read",
             },
-            403
+            403,
           );
         }
 
@@ -9458,7 +9490,7 @@ app.put(
       await Promise.all(updatePromises);
 
       log.log(
-        `✓ Marked ${notifications.length} notifications as read for user ${userId}`
+        `✓ Marked ${notifications.length} notifications as read for user ${userId}`,
       );
 
       return c.json({
@@ -9473,10 +9505,10 @@ app.put(
           error: "Failed to mark all notifications as read",
           details: String(error),
         },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // ==================== EVIDENCE & AGGREGATION ENDPOINTS (Phase 9.1 EXTENSIONS) ====================
@@ -9542,10 +9574,10 @@ app.patch(
       log.error("Error updating evidence validation:", error);
       return c.json(
         { error: "Failed to update validation status", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Parameter Aggregations (NEW in 9.1)
@@ -9573,7 +9605,7 @@ app.post(
       if (!material_id || !parameter) {
         return c.json(
           { error: "Missing required fields: material_id, parameter" },
-          400
+          400,
         );
       }
 
@@ -9587,7 +9619,7 @@ app.post(
 
         // Get all evidence points
         const evidencePoints = await Promise.all(
-          miu_ids.map((id: string) => kv.get(`evidence:${id}`))
+          miu_ids.map((id: string) => kv.get(`evidence:${id}`)),
         );
 
         // Filter valid evidence with values (use transformed_value if available, else raw_value)
@@ -9601,7 +9633,7 @@ app.post(
         if (validEvidence.length === 0) {
           return c.json(
             { error: "No valid evidence points found for aggregation" },
-            400
+            400,
           );
         }
 
@@ -9618,7 +9650,7 @@ app.post(
       } else if (calculated_value === undefined) {
         return c.json(
           { error: "Must provide either calculated_value or miu_ids" },
-          400
+          400,
         );
       }
 
@@ -9642,7 +9674,7 @@ app.post(
       await kv.set(`aggregation:${aggregationId}`, aggregation);
       await kv.set(
         `aggregation_current:${material_id}:${parameter}`,
-        aggregationId
+        aggregationId,
       );
 
       // Audit log
@@ -9661,10 +9693,10 @@ app.post(
       log.error("Error creating aggregation:", error);
       return c.json(
         { error: "Failed to create aggregation", details: String(error) },
-        400
+        400,
       );
     }
-  }
+  },
 );
 // IMPORTANT: Specific routes must come BEFORE generic :id routes
 // Otherwise /aggregations/material/X gets caught by /aggregations/:id
@@ -9679,7 +9711,7 @@ app.get(
 
       // Get all current aggregations for this material
       const currentRefs = await kv.getByPrefix(
-        `aggregation_current:${materialId}:`
+        `aggregation_current:${materialId}:`,
       );
 
       if (!currentRefs || currentRefs.length === 0) {
@@ -9694,10 +9726,10 @@ app.get(
 
       // currentRefs contains aggregation IDs, fetch the actual aggregations
       const aggregationPromises = currentRefs.map((aggregationId: string) =>
-        kv.get(`aggregation:${aggregationId}`)
+        kv.get(`aggregation:${aggregationId}`),
       );
       const aggregations = (await Promise.all(aggregationPromises)).filter(
-        (a) => a !== null
+        (a) => a !== null,
       );
 
       // Calculate stats from the aggregation objects themselves
@@ -9712,10 +9744,10 @@ app.get(
       log.error("Error fetching aggregation stats:", error);
       return c.json(
         { error: "Failed to fetch aggregation stats", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 app.get(
@@ -9729,7 +9761,7 @@ app.get(
       if (!parameter) {
         return c.json(
           { error: "Missing required query parameter: parameter" },
-          400
+          400,
         );
       }
 
@@ -9739,12 +9771,12 @@ app.get(
         ? allAggregations
             .filter(
               (agg: any) =>
-                agg.material_id === materialId && agg.parameter === parameter
+                agg.material_id === materialId && agg.parameter === parameter,
             )
             .sort(
               (a: any, b: any) =>
                 new Date(b.calculated_at).getTime() -
-                new Date(a.calculated_at).getTime()
+                new Date(a.calculated_at).getTime(),
             )
         : [];
 
@@ -9756,10 +9788,10 @@ app.get(
           error: "Failed to fetch aggregation history",
           details: String(error),
         },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 app.get(
@@ -9787,11 +9819,11 @@ app.get(
       const aggregationPromises = currentRefs.map(
         async (aggregationId: string) => {
           return await kv.get(`aggregation:${aggregationId}`);
-        }
+        },
       );
 
       const aggregations = (await Promise.all(aggregationPromises)).filter(
-        (a) => a !== null
+        (a) => a !== null,
       );
 
       return c.json({ aggregations, count: aggregations.length });
@@ -9799,10 +9831,10 @@ app.get(
       log.error("Error fetching aggregations:", error);
       return c.json(
         { error: "Failed to fetch aggregations", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 app.get(
@@ -9821,10 +9853,10 @@ app.get(
       log.error("Error fetching aggregation:", error);
       return c.json(
         { error: "Failed to fetch aggregation", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Data Guards (NEW in 9.1)
@@ -9839,7 +9871,7 @@ app.get(
 
       // Check if any evidence points reference this source
       const evidenceRefs = await kv.getByPrefix(
-        `evidence_by_source:${sourceRef}:`
+        `evidence_by_source:${sourceRef}:`,
       );
       const evidenceCount = evidenceRefs ? evidenceRefs.length : 0;
       const evidenceIds = evidenceRefs
@@ -9855,14 +9887,14 @@ app.get(
       log.error("Error checking source deletion:", error);
       return c.json(
         { error: "Failed to check source deletion", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 log.log(
-  "✅ Phase 9.1 routes registered: PATCH /evidence/:id/validation, POST/GET /aggregations/*, GET /sources/:sourceRef/can-delete"
+  "✅ Phase 9.1 routes registered: PATCH /evidence/:id/validation, POST/GET /aggregations/*, GET /sources/:sourceRef/can-delete",
 );
 
 // REMOVED: Phase 9.0 legacy route GET /aggregations/:materialId/:parameterCode
@@ -9877,7 +9909,7 @@ log.log(
 // Unit validation helper - validates units against ontology
 async function validateUnit(
   parameterCode: string,
-  unit: string
+  unit: string,
 ): Promise<{ valid: boolean; error?: string }> {
   try {
     // Fetch units ontology
@@ -9891,7 +9923,7 @@ async function validateUnit(
     }
 
     const unitsOntology = (await kv.get(
-      `ontology:units:${currentVersion}`
+      `ontology:units:${currentVersion}`,
     )) as any;
 
     if (!unitsOntology) {
@@ -9915,7 +9947,7 @@ async function validateUnit(
       return {
         valid: false,
         error: `Invalid unit "${unit}" for parameter ${parameterCode}. Allowed units: ${parameterDef.allowed_units.join(
-          ", "
+          ", ",
         )}`,
       };
     }
@@ -9974,13 +10006,13 @@ app.post(
             error:
               "Missing required fields: material_id, parameter_code, raw_value, raw_unit, snippet, source_type, citation, confidence_level",
           },
-          400
+          400,
         );
       }
 
       // Validate parameter_code exists in transforms
       const transform = TRANSFORMS_DATA.transforms.find(
-        (t) => t.parameter === parameter_code
+        (t) => t.parameter === parameter_code,
       );
       if (!transform) {
         return c.json(
@@ -9990,7 +10022,7 @@ app.post(
               .map((t) => t.parameter)
               .join(", ")}`,
           },
-          400
+          400,
         );
       }
 
@@ -10001,7 +10033,7 @@ app.post(
             success: false,
             error: "raw_value must be a number",
           },
-          400
+          400,
         );
       }
 
@@ -10012,7 +10044,7 @@ app.post(
             success: false,
             error: "confidence_level must be one of: high, medium, low",
           },
-          400
+          400,
         );
       }
 
@@ -10026,7 +10058,7 @@ app.post(
             error:
               "source_type must be one of: whitepaper, article, external, manual",
           },
-          400
+          400,
         );
       }
 
@@ -10038,7 +10070,7 @@ app.post(
             success: false,
             error: unitValidation.error,
           },
-          400
+          400,
         );
       }
 
@@ -10091,7 +10123,7 @@ app.post(
       }
 
       log.log(
-        `✓ Created evidence point ${evidenceId} for material ${material_id}, parameter ${parameter_code}`
+        `✓ Created evidence point ${evidenceId} for material ${material_id}, parameter ${parameter_code}`,
       );
 
       // Audit log
@@ -10119,10 +10151,10 @@ app.post(
           error: "Failed to create evidence point",
           details: String(error),
         },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Get all evidence points (authenticated users only)
@@ -10155,7 +10187,7 @@ app.get("/make-server-17cae920/evidence", verifyAuth, async (c) => {
         error: "Failed to fetch evidence points",
         details: String(error),
       },
-      500
+      500,
     );
   }
 });
@@ -10167,7 +10199,7 @@ app.get("/make-server-17cae920/evidence/material/:materialId", async (c) => {
 
     // Get all evidence IDs for this material
     const evidenceRefs = await kv.getByPrefix(
-      `evidence_by_material:${materialId}:`
+      `evidence_by_material:${materialId}:`,
     );
 
     if (!evidenceRefs || evidenceRefs.length === 0) {
@@ -10189,7 +10221,7 @@ app.get("/make-server-17cae920/evidence/material/:materialId", async (c) => {
     const validEvidence = evidence.filter((e) => e !== null);
 
     log.log(
-      `✓ Retrieved ${validEvidence.length} evidence points for material ${materialId}`
+      `✓ Retrieved ${validEvidence.length} evidence points for material ${materialId}`,
     );
 
     return c.json({
@@ -10205,7 +10237,7 @@ app.get("/make-server-17cae920/evidence/material/:materialId", async (c) => {
         error: "Failed to retrieve evidence",
         details: String(error),
       },
-      500
+      500,
     );
   }
 });
@@ -10223,7 +10255,7 @@ app.get("/make-server-17cae920/evidence/:evidenceId", verifyAuth, async (c) => {
           success: false,
           error: "Evidence point not found",
         },
-        404
+        404,
       );
     }
 
@@ -10241,7 +10273,7 @@ app.get("/make-server-17cae920/evidence/:evidenceId", verifyAuth, async (c) => {
         error: "Failed to retrieve evidence",
         details: String(error),
       },
-      500
+      500,
     );
   }
 });
@@ -10265,7 +10297,7 @@ app.put(
             success: false,
             error: "Evidence point not found",
           },
-          404
+          404,
         );
       }
 
@@ -10275,7 +10307,7 @@ app.put(
         updates.parameter_code !== existing.parameter_code
       ) {
         const transform = TRANSFORMS_DATA.transforms.find(
-          (t) => t.parameter === updates.parameter_code
+          (t) => t.parameter === updates.parameter_code,
         );
         if (!transform) {
           return c.json(
@@ -10283,7 +10315,7 @@ app.put(
               success: false,
               error: `Invalid parameter_code: ${updates.parameter_code}`,
             },
-            400
+            400,
           );
         }
         updates.transform_version = transform.version;
@@ -10299,7 +10331,7 @@ app.put(
             success: false,
             error: "raw_value must be a number",
           },
-          400
+          400,
         );
       }
 
@@ -10313,7 +10345,7 @@ app.put(
             success: false,
             error: "confidence_level must be one of: high, medium, low",
           },
-          400
+          400,
         );
       }
 
@@ -10321,7 +10353,7 @@ app.put(
       if (
         updates.source_type &&
         !["whitepaper", "article", "external", "manual"].includes(
-          updates.source_type
+          updates.source_type,
         )
       ) {
         return c.json(
@@ -10330,7 +10362,7 @@ app.put(
             error:
               "source_type must be one of: whitepaper, article, external, manual",
           },
-          400
+          400,
         );
       }
 
@@ -10339,7 +10371,7 @@ app.put(
         const parameterCode = updates.parameter_code || existing.parameter_code;
         const unitValidation = await validateUnit(
           parameterCode,
-          updates.raw_unit
+          updates.raw_unit,
         );
         if (!unitValidation.valid) {
           return c.json(
@@ -10347,7 +10379,7 @@ app.put(
               success: false,
               error: unitValidation.error,
             },
-            400
+            400,
           );
         }
       }
@@ -10391,10 +10423,10 @@ app.put(
           error: "Failed to update evidence",
           details: String(error),
         },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Delete evidence point (admin only)
@@ -10415,7 +10447,7 @@ app.delete(
             success: false,
             error: "Evidence point not found",
           },
-          404
+          404,
         );
       }
 
@@ -10451,10 +10483,10 @@ app.delete(
           error: "Failed to delete evidence",
           details: String(error),
         },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Bulk delete evidence points (admin only) - single audit log entry, no email spam
@@ -10469,7 +10501,7 @@ app.post(
       if (!Array.isArray(evidenceIds) || evidenceIds.length === 0) {
         return c.json(
           { success: false, error: "evidenceIds must be a non-empty array" },
-          400
+          400,
         );
       }
 
@@ -10507,7 +10539,7 @@ app.post(
       }
 
       log.log(
-        `✓ Bulk deleted ${deletedIds.length} evidence points, ${failedIds.length} failed`
+        `✓ Bulk deleted ${deletedIds.length} evidence points, ${failedIds.length} failed`,
       );
 
       // Single consolidated audit log entry (no email notification for bulk operations)
@@ -10527,7 +10559,7 @@ app.post(
           ...deletedDetails
             .slice(0, 10)
             .map(
-              (d) => `Deleted ${d.id} (${d.material_id}/${d.parameter_code})`
+              (d) => `Deleted ${d.id} (${d.material_id}/${d.parameter_code})`,
             ),
           ...(deletedDetails.length > 10
             ? [`... and ${deletedDetails.length - 10} more`]
@@ -10555,10 +10587,10 @@ app.post(
           error: "Failed to bulk delete evidence",
           details: String(error),
         },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // ==================== AGGREGATION ENDPOINTS ====================
@@ -10582,13 +10614,13 @@ app.post(
             success: false,
             error: "Missing required fields: material_id, parameter_code",
           },
-          400
+          400,
         );
       }
 
       // Validate parameter_code
       const transform = TRANSFORMS_DATA.transforms.find(
-        (t) => t.parameter === parameter_code
+        (t) => t.parameter === parameter_code,
       );
       if (!transform) {
         return c.json(
@@ -10598,13 +10630,13 @@ app.post(
               .map((t) => t.parameter)
               .join(", ")}`,
           },
-          400
+          400,
         );
       }
 
       // Get all evidence for this material+parameter
       const evidenceRefs = await kv.getByPrefix(
-        `evidence_by_material:${material_id}:${parameter_code}:`
+        `evidence_by_material:${material_id}:${parameter_code}:`,
       );
 
       if (!evidenceRefs || evidenceRefs.length === 0) {
@@ -10613,13 +10645,13 @@ app.post(
             success: false,
             error: `No evidence found for material ${material_id}, parameter ${parameter_code}`,
           },
-          404
+          404,
         );
       }
 
       // Fetch full evidence objects
       log.log(
-        `Found ${evidenceRefs.length} evidence refs for material ${material_id}, parameter ${parameter_code}`
+        `Found ${evidenceRefs.length} evidence refs for material ${material_id}, parameter ${parameter_code}`,
       );
       const evidencePromises = evidenceRefs.map(async (evidenceId: string) => {
         log.log(`Fetching evidence: ${evidenceId}`);
@@ -10627,13 +10659,13 @@ app.post(
         log.log(
           `Evidence ${evidenceId}:`,
           evidence ? "found" : "NOT FOUND",
-          evidence ? JSON.stringify(evidence).substring(0, 200) : ""
+          evidence ? JSON.stringify(evidence).substring(0, 200) : "",
         );
         return evidence;
       });
 
       const evidencePoints = (await Promise.all(evidencePromises)).filter(
-        (e) => e !== null
+        (e) => e !== null,
       );
       log.log(`Fetched ${evidencePoints.length} valid evidence points`);
 
@@ -10643,7 +10675,7 @@ app.post(
             success: false,
             error: `No valid evidence found for material ${material_id}, parameter ${parameter_code}`,
           },
-          404
+          404,
         );
       }
 
@@ -10672,7 +10704,7 @@ app.post(
         }
 
         log.log(
-          `Processing evidence - id: ${evidence.id}, raw_value: ${evidence.raw_value}, confidence_level: ${evidence.confidence_level}`
+          `Processing evidence - id: ${evidence.id}, raw_value: ${evidence.raw_value}, confidence_level: ${evidence.confidence_level}`,
         );
         log.log(`Evidence keys:`, Object.keys(evidence));
 
@@ -10682,7 +10714,7 @@ app.post(
           !evidence.confidence_level
         ) {
           console.warn(
-            `Skipping evidence with missing fields - id: ${evidence.id}, raw_value: ${evidence.raw_value}, confidence_level: ${evidence.confidence_level}`
+            `Skipping evidence with missing fields - id: ${evidence.id}, raw_value: ${evidence.raw_value}, confidence_level: ${evidence.confidence_level}`,
           );
           console.warn(`Full evidence object:`, JSON.stringify(evidence));
           continue;
@@ -10718,7 +10750,7 @@ app.post(
               diagnostics,
             },
           },
-          404
+          404,
         );
       }
 
@@ -10762,13 +10794,13 @@ app.post(
       // Store latest aggregation reference for this material+parameter
       await kv.set(
         `aggregation_latest:${material_id}:${parameter_code}`,
-        aggregationId
+        aggregationId,
       );
 
       log.log(
         `✓ Computed aggregation for material ${material_id}, parameter ${parameter_code}: ${aggregated_value.toFixed(
-          2
-        )} (${evidencePoints.length} MIUs)`
+          2,
+        )} (${evidencePoints.length} MIUs)`,
       );
 
       // Audit log
@@ -10795,10 +10827,10 @@ app.post(
           error: "Failed to compute aggregation",
           details: String(error),
         },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Get specific aggregation by material and parameter (public read access)
@@ -10811,7 +10843,7 @@ app.get(
 
       // Get the latest aggregation ID for this material+parameter
       const latestAggregationId = await kv.get(
-        `aggregation_latest:${materialId}:${parameterCode}`
+        `aggregation_latest:${materialId}:${parameterCode}`,
       );
 
       if (!latestAggregationId) {
@@ -10820,7 +10852,7 @@ app.get(
             success: false,
             error: `No aggregation found for material ${materialId}, parameter ${parameterCode}`,
           },
-          404
+          404,
         );
       }
 
@@ -10833,7 +10865,7 @@ app.get(
             success: false,
             error: `Aggregation data not found for ID ${latestAggregationId}`,
           },
-          404
+          404,
         );
       }
 
@@ -10849,10 +10881,10 @@ app.get(
           error: "Failed to retrieve aggregation",
           details: String(error),
         },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // REMOVED: Duplicate route - moved up with other aggregation routes around line ~5890
@@ -10874,7 +10906,7 @@ app.post("/make-server-17cae920/sources/normalize-doi", async (c) => {
           success: false,
           error: "dois must be an array",
         },
-        400
+        400,
       );
     }
 
@@ -10893,7 +10925,7 @@ app.post("/make-server-17cae920/sources/normalize-doi", async (c) => {
         error: "Failed to normalize DOIs",
         details: String(error),
       },
-      500
+      500,
     );
   }
 });
@@ -10912,7 +10944,7 @@ app.post("/make-server-17cae920/sources/check-duplicate", async (c) => {
           success: false,
           error: "Either doi or title must be provided",
         },
-        400
+        400,
       );
     }
 
@@ -10962,7 +10994,7 @@ app.post("/make-server-17cae920/sources/check-duplicate", async (c) => {
 
           if (similarity >= SIMILARITY_THRESHOLD) {
             log.log(
-              `⚠️ Title similarity detected: "${title}" vs "${source.title}" (${similarity}%)`
+              `⚠️ Title similarity detected: "${title}" vs "${source.title}" (${similarity}%)`,
             );
             return c.json({
               success: true,
@@ -10998,7 +11030,7 @@ app.post("/make-server-17cae920/sources/check-duplicate", async (c) => {
         error: "Failed to check duplicates",
         details: String(error),
       },
-      500
+      500,
     );
   }
 });
@@ -11021,7 +11053,7 @@ app.post(
             success: false,
             error: "Both primarySourceId and duplicateSourceId are required",
           },
-          400
+          400,
         );
       }
 
@@ -11031,14 +11063,14 @@ app.post(
             success: false,
             error: "Cannot merge a source with itself",
           },
-          400
+          400,
         );
       }
 
       // Get both sources
       const primarySource = (await kv.get(`source:${primarySourceId}`)) as any;
       const duplicateSource = (await kv.get(
-        `source:${duplicateSourceId}`
+        `source:${duplicateSourceId}`,
       )) as any;
 
       if (!primarySource) {
@@ -11047,7 +11079,7 @@ app.post(
             success: false,
             error: "Primary source not found",
           },
-          404
+          404,
         );
       }
 
@@ -11057,7 +11089,7 @@ app.post(
             success: false,
             error: "Duplicate source not found",
           },
-          404
+          404,
         );
       }
 
@@ -11081,7 +11113,7 @@ app.post(
           miusMigrated++;
 
           log.log(
-            `✓ Migrated evidence ${evidence.id} from source ${duplicateSourceId} to ${primarySourceId}`
+            `✓ Migrated evidence ${evidence.id} from source ${duplicateSourceId} to ${primarySourceId}`,
           );
         }
       }
@@ -11090,7 +11122,7 @@ app.post(
       await kv.del(`source:${duplicateSourceId}`);
 
       log.log(
-        `✓ Merged sources: kept ${primarySourceId}, deleted ${duplicateSourceId}, migrated ${miusMigrated} MIUs`
+        `✓ Merged sources: kept ${primarySourceId}, deleted ${duplicateSourceId}, migrated ${miusMigrated} MIUs`,
       );
 
       return c.json({
@@ -11107,10 +11139,10 @@ app.post(
           error: "Failed to merge sources",
           details: String(error),
         },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // ==================== AUDIT LOGGING ====================
@@ -11145,7 +11177,7 @@ async function sendAuditEmailNotification(entry: AuditLogEntry) {
 
   const isCritical = criticalEvents.some(
     (event) =>
-      event.entityType === entry.entityType && event.action === entry.action
+      event.entityType === entry.entityType && event.action === entry.action,
   );
 
   if (!isCritical) {
@@ -11155,7 +11187,7 @@ async function sendAuditEmailNotification(entry: AuditLogEntry) {
   const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
   if (!RESEND_API_KEY) {
     log.log(
-      "⚠️ RESEND_API_KEY not configured, skipping audit email notification"
+      "⚠️ RESEND_API_KEY not configured, skipping audit email notification",
     );
     return;
   }
@@ -11213,7 +11245,7 @@ async function sendAuditEmailNotification(entry: AuditLogEntry) {
                 </div>
                 <div class="metadata-item">
                   <span class="label">Timestamp:</span> ${new Date(
-                    entry.timestamp
+                    entry.timestamp,
                   ).toLocaleString()}
                 </div>
                 ${
@@ -11328,8 +11360,8 @@ async function createAuditLog(params: {
       if (JSON.stringify(beforeVal) !== JSON.stringify(afterVal)) {
         changes.push(
           `Changed ${key}: ${JSON.stringify(beforeVal)} → ${JSON.stringify(
-            afterVal
-          )}`
+            afterVal,
+          )}`,
         );
       }
     }
@@ -11354,7 +11386,7 @@ async function createAuditLog(params: {
 
   await kv.set(auditId, entry);
   log.log(
-    `📝 Audit log created: ${auditId} - ${params.action} ${params.entityType}:${params.entityId} by ${params.userEmail}`
+    `📝 Audit log created: ${auditId} - ${params.action} ${params.entityType}:${params.entityId} by ${params.userEmail}`,
   );
 
   // Send email notification for critical events
@@ -11372,14 +11404,14 @@ app.post("/make-server-17cae920/audit/log", verifyAuth, async (c) => {
     if (!entityType || !entityId || !action) {
       return c.json(
         { error: "Missing required fields: entityType, entityId, action" },
-        400
+        400,
       );
     }
 
     if (!["create", "update", "delete"].includes(action)) {
       return c.json(
         { error: "Invalid action. Must be create, update, or delete" },
-        400
+        400,
       );
     }
 
@@ -11399,7 +11431,7 @@ app.post("/make-server-17cae920/audit/log", verifyAuth, async (c) => {
     log.error("Error creating audit log:", error);
     return c.json(
       { error: "Failed to create audit log", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -11439,7 +11471,7 @@ app.get(
       // Sort by timestamp (newest first)
       filteredLogs.sort(
         (a: AuditLogEntry, b: AuditLogEntry) =>
-          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
       );
 
       // Paginate
@@ -11456,10 +11488,10 @@ app.get(
       log.error("Error fetching audit logs:", error);
       return c.json(
         { error: "Failed to fetch audit logs", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // GET /make-server-17cae920/audit/logs/:id - Get specific audit log
@@ -11481,10 +11513,10 @@ app.get(
       log.error("Error fetching audit log:", error);
       return c.json(
         { error: "Failed to fetch audit log", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // GET /make-server-17cae920/audit/stats - Get audit statistics
@@ -11505,7 +11537,7 @@ app.get(
         recentActivity: allLogs
           .sort(
             (a: AuditLogEntry, b: AuditLogEntry) =>
-              new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+              new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
           )
           .slice(0, 10),
       };
@@ -11530,10 +11562,10 @@ app.get(
       log.error("Error fetching audit stats:", error);
       return c.json(
         { error: "Failed to fetch audit stats", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // ==================== DATA RETENTION & DELETION ENDPOINTS ====================
@@ -11552,7 +11584,7 @@ app.get(
       // Get all sources with screenshots
       const allSources = await kv.getByPrefix("source:");
       const sourcesWithScreenshots = allSources.filter(
-        (source: any) => source && source.screenshot_url
+        (source: any) => source && source.screenshot_url,
       );
 
       // Identify expired screenshots (older than 7 years)
@@ -11561,7 +11593,7 @@ app.get(
           if (!source.created_at) return false;
           const createdDate = new Date(source.created_at);
           return createdDate < sevenYearsAgo;
-        }
+        },
       );
 
       // Get all evidence points
@@ -11612,10 +11644,10 @@ app.get(
       log.error("Error fetching retention stats:", error);
       return c.json(
         { error: "Failed to fetch retention stats", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Clean up expired screenshots (admin only)
@@ -11632,7 +11664,7 @@ app.post(
       // Get all sources with screenshots
       const allSources = await kv.getByPrefix("source:");
       const sourcesWithScreenshots = allSources.filter(
-        (source: any) => source && source.screenshot_url
+        (source: any) => source && source.screenshot_url,
       );
 
       // Identify expired screenshots
@@ -11641,7 +11673,7 @@ app.post(
           if (!source.created_at) return false;
           const createdDate = new Date(source.created_at);
           return createdDate < sevenYearsAgo;
-        }
+        },
       );
 
       // Clean up expired screenshots
@@ -11676,7 +11708,7 @@ app.post(
         });
 
         log.log(
-          `✓ Expired screenshot removed from source ${source.id} (created ${source.created_at})`
+          `✓ Expired screenshot removed from source ${source.id} (created ${source.created_at})`,
         );
       }
 
@@ -11689,10 +11721,10 @@ app.post(
       log.error("Error cleaning up screenshots:", error);
       return c.json(
         { error: "Failed to clean up screenshots", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Clean up expired audit logs (admin only)
@@ -11726,7 +11758,7 @@ app.post(
         });
 
         log.log(
-          `✓ Expired audit log deleted: ${log.id} (timestamp ${log.timestamp})`
+          `✓ Expired audit log deleted: ${log.id} (timestamp ${log.timestamp})`,
         );
       }
 
@@ -11739,10 +11771,10 @@ app.post(
       log.error("Error cleaning up audit logs:", error);
       return c.json(
         { error: "Failed to clean up audit logs", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Create test evidence with source_id for testing (admin only)
@@ -11759,7 +11791,7 @@ app.post(
           {
             error: "Missing required fields: evidenceId, sourceId, materialId",
           },
-          400
+          400,
         );
       }
 
@@ -11785,10 +11817,10 @@ app.post(
       log.error("Error creating test evidence:", error);
       return c.json(
         { error: "Failed to create test evidence", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Check referential integrity for a source (admin only)
@@ -11808,7 +11840,7 @@ app.get(
       // Check for dependent evidence
       const allEvidence = await kv.getByPrefix("evidence:");
       const dependentEvidence = allEvidence.filter(
-        (evidence: any) => evidence && evidence.source_id === id
+        (evidence: any) => evidence && evidence.source_id === id,
       );
 
       return c.json({
@@ -11830,10 +11862,10 @@ app.get(
           error: "Failed to check referential integrity",
           details: String(error),
         },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // ==================== BACKUP & RECOVERY ENDPOINTS ====================
@@ -11905,7 +11937,7 @@ app.post(
       backup.metadata.export_duration_ms = endTime - startTime;
 
       log.log(
-        `✓ Backup export completed in ${backup.metadata.export_duration_ms}ms`
+        `✓ Backup export completed in ${backup.metadata.export_duration_ms}ms`,
       );
       log.log(`✓ Total records exported: ${backup.metadata.total_records}`);
 
@@ -11931,10 +11963,10 @@ app.post(
       log.error("Error exporting backup:", error);
       return c.json(
         { error: "Failed to export backup", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Import/restore data from JSON backup (admin only)
@@ -11974,7 +12006,7 @@ app.post(
               "Replace mode not supported for safety reasons. Use merge mode instead.",
             hint: "Merge mode will update existing records and add new ones without deleting.",
           },
-          400
+          400,
         );
       }
 
@@ -12026,7 +12058,7 @@ app.post(
 
       for (const category of categories) {
         log.log(
-          `📂 Importing ${category.name}: ${category.data.length} records...`
+          `📂 Importing ${category.name}: ${category.data.length} records...`,
         );
 
         for (const record of category.data) {
@@ -12037,7 +12069,7 @@ app.post(
             } else {
               console.warn(
                 `⚠️ Skipping invalid record in ${category.name}:`,
-                record
+                record,
               );
               skippedCount++;
             }
@@ -12053,7 +12085,7 @@ app.post(
 
       log.log(`✓ Backup import completed in ${duration}ms`);
       log.log(
-        `✓ Imported: ${importedCount}, Skipped: ${skippedCount}, Errors: ${errorCount}`
+        `✓ Imported: ${importedCount}, Skipped: ${skippedCount}, Errors: ${errorCount}`,
       );
 
       // Create audit log for backup import
@@ -12093,10 +12125,10 @@ app.post(
       log.error("Error importing backup:", error);
       return c.json(
         { error: "Failed to import backup", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Validate backup file integrity (admin only)
@@ -12164,11 +12196,11 @@ app.post(
 
           // Validate that each record has an ID
           const invalidRecords = backup.data[category].filter(
-            (r: any) => !r || !r.id
+            (r: any) => !r || !r.id,
           );
           if (invalidRecords.length > 0) {
             warnings.push(
-              `Category '${category}' has ${invalidRecords.length} records without IDs`
+              `Category '${category}' has ${invalidRecords.length} records without IDs`,
             );
           }
         }
@@ -12181,7 +12213,7 @@ app.post(
       ) {
         warnings.push(
           `Total record count mismatch: metadata says ${backup.metadata.total_records}, ` +
-            `but found ${totalRecords}`
+            `but found ${totalRecords}`,
         );
       }
 
@@ -12205,10 +12237,10 @@ app.post(
           issues: ["Failed to parse backup file: " + String(error)],
           warnings: [],
         },
-        400
+        400,
       );
     }
-  }
+  },
 );
 
 // Debug endpoint to list all Phase 9.1 routes
@@ -12236,7 +12268,7 @@ app.get("/make-server-17cae920/guides", rateLimit("API"), async (c) => {
   try {
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
     );
 
     const status = c.req.query("status") || "published";
@@ -12263,7 +12295,7 @@ app.get("/make-server-17cae920/guides", rateLimit("API"), async (c) => {
           code: error.code,
           hint: error.hint,
         },
-        500
+        500,
       );
     }
 
@@ -12272,7 +12304,7 @@ app.get("/make-server-17cae920/guides", rateLimit("API"), async (c) => {
     log.error("Error fetching guides:", error);
     return c.json(
       { error: "Failed to fetch guides", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -12283,7 +12315,7 @@ app.get("/make-server-17cae920/guides/:slug", rateLimit("API"), async (c) => {
     const slug = c.req.param("slug");
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
     );
 
     const { data, error } = await supabase
@@ -12303,7 +12335,7 @@ app.get("/make-server-17cae920/guides/:slug", rateLimit("API"), async (c) => {
     log.error("Error fetching guide by slug:", error);
     return c.json(
       { error: "Failed to fetch guide", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -12317,7 +12349,7 @@ app.get(
       const id = c.req.param("id");
       const supabase = createClient(
         Deno.env.get("SUPABASE_URL") ?? "",
-        Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+        Deno.env.get("SUPABASE_ANON_KEY") ?? "",
       );
 
       const { data, error } = await supabase
@@ -12336,10 +12368,10 @@ app.get(
       log.error("Error fetching guide by ID:", error);
       return c.json(
         { error: "Failed to fetch guide", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Get current user's guides
@@ -12348,7 +12380,7 @@ app.get("/make-server-17cae920/guides/my-guides", verifyAuth, async (c) => {
     const userId = c.get("userId");
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     );
 
     const { data, error } = await supabase
@@ -12367,7 +12399,7 @@ app.get("/make-server-17cae920/guides/my-guides", verifyAuth, async (c) => {
     log.error("Error fetching my guides:", error);
     return c.json(
       { error: "Failed to fetch guides", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -12381,7 +12413,7 @@ app.post("/make-server-17cae920/guides", verifyAuth, async (c) => {
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     );
 
     // Get author name from user
@@ -12394,7 +12426,7 @@ app.post("/make-server-17cae920/guides", verifyAuth, async (c) => {
     if (guideData.material_id) {
       const materials = await kv.getByPrefix("material:");
       const material = materials?.find(
-        (m: any) => m.id === guideData.material_id
+        (m: any) => m.id === guideData.material_id,
       );
       materialName = material?.name;
     }
@@ -12433,7 +12465,7 @@ app.post("/make-server-17cae920/guides", verifyAuth, async (c) => {
     log.error("Error creating guide:", error);
     return c.json(
       { error: "Failed to create guide", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -12448,7 +12480,7 @@ app.patch("/make-server-17cae920/guides/:id", verifyAuth, async (c) => {
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     );
 
     // Get material name if material_id changed
@@ -12456,7 +12488,7 @@ app.patch("/make-server-17cae920/guides/:id", verifyAuth, async (c) => {
     if (updates.material_id) {
       const materials = await kv.getByPrefix("material:");
       const material = materials?.find(
-        (m: any) => m.id === updates.material_id
+        (m: any) => m.id === updates.material_id,
       );
       materialName = material?.name;
     }
@@ -12499,7 +12531,7 @@ app.patch("/make-server-17cae920/guides/:id", verifyAuth, async (c) => {
     log.error("Error updating guide:", error);
     return c.json(
       { error: "Failed to update guide", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -12513,7 +12545,7 @@ app.delete("/make-server-17cae920/guides/:id", verifyAuth, async (c) => {
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     );
 
     const { data: before } = await supabase
@@ -12545,7 +12577,7 @@ app.delete("/make-server-17cae920/guides/:id", verifyAuth, async (c) => {
     log.error("Error deleting guide:", error);
     return c.json(
       { error: "Failed to delete guide", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -12559,7 +12591,7 @@ app.post(
       const id = c.req.param("id");
       const supabase = createClient(
         Deno.env.get("SUPABASE_URL") ?? "",
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       );
 
       // Get current view count
@@ -12581,10 +12613,10 @@ app.post(
       log.error("Error incrementing guide views:", error);
       return c.json(
         { error: "Failed to increment views", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Search guides
@@ -12593,7 +12625,7 @@ app.get("/make-server-17cae920/guides/search", rateLimit("API"), async (c) => {
     const query = c.req.query("q") || "";
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
     );
 
     const { data, error } = await supabase
@@ -12613,7 +12645,7 @@ app.get("/make-server-17cae920/guides/search", rateLimit("API"), async (c) => {
     log.error("Error searching guides:", error);
     return c.json(
       { error: "Failed to search guides", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -12627,7 +12659,7 @@ app.get("/make-server-17cae920/blog", rateLimit("API"), async (c) => {
   try {
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
     );
 
     const status = c.req.query("status") || "published";
@@ -12654,7 +12686,7 @@ app.get("/make-server-17cae920/blog", rateLimit("API"), async (c) => {
           code: error.code,
           hint: error.hint,
         },
-        500
+        500,
       );
     }
 
@@ -12663,7 +12695,7 @@ app.get("/make-server-17cae920/blog", rateLimit("API"), async (c) => {
     log.error("Error fetching blog posts:", error);
     return c.json(
       { error: "Failed to fetch blog posts", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -12674,7 +12706,7 @@ app.get("/make-server-17cae920/blog/:slug", rateLimit("API"), async (c) => {
     const slug = c.req.param("slug");
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
     );
 
     const { data, error } = await supabase
@@ -12694,7 +12726,7 @@ app.get("/make-server-17cae920/blog/:slug", rateLimit("API"), async (c) => {
     log.error("Error fetching blog post by slug:", error);
     return c.json(
       { error: "Failed to fetch blog post", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -12705,7 +12737,7 @@ app.get("/make-server-17cae920/blog/by-id/:id", rateLimit("API"), async (c) => {
     const id = c.req.param("id");
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
     );
 
     const { data, error } = await supabase
@@ -12724,7 +12756,7 @@ app.get("/make-server-17cae920/blog/by-id/:id", rateLimit("API"), async (c) => {
     log.error("Error fetching blog post by ID:", error);
     return c.json(
       { error: "Failed to fetch blog post", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -12735,7 +12767,7 @@ app.get("/make-server-17cae920/blog/my-posts", verifyAuth, async (c) => {
     const userId = c.get("userId");
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     );
 
     const { data, error } = await supabase
@@ -12754,7 +12786,7 @@ app.get("/make-server-17cae920/blog/my-posts", verifyAuth, async (c) => {
     log.error("Error fetching my blog posts:", error);
     return c.json(
       { error: "Failed to fetch blog posts", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -12768,7 +12800,7 @@ app.post("/make-server-17cae920/blog", verifyAuth, async (c) => {
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     );
 
     // Get author name from user
@@ -12809,7 +12841,7 @@ app.post("/make-server-17cae920/blog", verifyAuth, async (c) => {
     log.error("Error creating blog post:", error);
     return c.json(
       { error: "Failed to create blog post", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -12824,7 +12856,7 @@ app.patch("/make-server-17cae920/blog/:id", verifyAuth, async (c) => {
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     );
 
     const { data: before } = await supabase
@@ -12862,7 +12894,7 @@ app.patch("/make-server-17cae920/blog/:id", verifyAuth, async (c) => {
     log.error("Error updating blog post:", error);
     return c.json(
       { error: "Failed to update blog post", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -12876,7 +12908,7 @@ app.delete("/make-server-17cae920/blog/:id", verifyAuth, async (c) => {
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     );
 
     const { data: before } = await supabase
@@ -12908,7 +12940,7 @@ app.delete("/make-server-17cae920/blog/:id", verifyAuth, async (c) => {
     log.error("Error deleting blog post:", error);
     return c.json(
       { error: "Failed to delete blog post", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -12922,7 +12954,7 @@ app.post(
       const id = c.req.param("id");
       const supabase = createClient(
         Deno.env.get("SUPABASE_URL") ?? "",
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       );
 
       // Get current view count
@@ -12944,10 +12976,10 @@ app.post(
       log.error("Error incrementing blog post views:", error);
       return c.json(
         { error: "Failed to increment views", details: String(error) },
-        500
+        500,
       );
     }
-  }
+  },
 );
 
 // Search blog posts
@@ -12956,7 +12988,7 @@ app.get("/make-server-17cae920/blog/search", rateLimit("API"), async (c) => {
     const query = c.req.query("q") || "";
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
     );
 
     const { data, error } = await supabase
@@ -12976,7 +13008,7 @@ app.get("/make-server-17cae920/blog/search", rateLimit("API"), async (c) => {
     log.error("Error searching blog posts:", error);
     return c.json(
       { error: "Failed to search blog posts", details: String(error) },
-      500
+      500,
     );
   }
 });
@@ -12992,7 +13024,7 @@ app.all("*", (c) => {
 });
 
 log.log(
-  "✅ Phase 9.1 routes implemented inline (no external module imports needed)"
+  "✅ Phase 9.1 routes implemented inline (no external module imports needed)",
 );
 
 // Run initialization

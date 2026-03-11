@@ -50,20 +50,26 @@ export function ArticlesView({
 
   const articles = getArticlesByCategory(material, category);
 
-  const handleAddArticle = (articleData: Omit<Article, "id" | "dateAdded">) => {
+  const handleAddArticle = (
+    articleData: Omit<Article, "id" | "dateAdded">,
+    options?: { onBehalfOf?: string },
+  ) => {
+    // If admin is posting on behalf of another user, use that user's ID
+    const creatorId = options?.onBehalfOf || user?.id;
+
     const newArticle: Article = {
       ...articleData,
       id: Date.now().toString(),
       dateAdded: new Date().toISOString(),
-      // Set created_by and author_id to current user
-      created_by: user?.id || articleData.created_by,
-      author_id: user?.id || articleData.author_id,
+      // Set created_by and author_id to the target user (or current user)
+      created_by: creatorId || articleData.created_by,
+      author_id: creatorId || articleData.author_id,
     };
 
     const updatedMaterial = addArticleToMaterial(
       material,
       category,
-      newArticle
+      newArticle,
     );
 
     onUpdateMaterial(updatedMaterial);
@@ -71,7 +77,7 @@ export function ArticlesView({
   };
 
   const handleUpdateArticle = (
-    articleData: Omit<Article, "id" | "dateAdded">
+    articleData: Omit<Article, "id" | "dateAdded">,
   ) => {
     if (!editingArticle) return;
 
@@ -79,7 +85,7 @@ export function ArticlesView({
       material,
       category,
       editingArticle.id,
-      (a) => ({ ...articleData, id: a.id, dateAdded: a.dateAdded })
+      (a) => ({ ...articleData, id: a.id, dateAdded: a.dateAdded }),
     );
 
     onUpdateMaterial(updatedMaterial);
@@ -132,6 +138,7 @@ export function ArticlesView({
             setShowForm(false);
             setEditingArticle(null);
           }}
+          isAdminMode={isAdminModeActive}
         />
       )}
 

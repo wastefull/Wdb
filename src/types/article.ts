@@ -68,6 +68,11 @@ export type ArticleType = "DIY" | "Industrial" | "Experimental";
 // Form-specific types
 export interface ArticleFormProps {
   article?: Article;
-  onSave: (article: Omit<Article, "id" | "dateAdded">) => void;
+  onSave: (
+    article: Omit<Article, "id" | "dateAdded">,
+    options?: { onBehalfOf?: string },
+  ) => void;
   onCancel: () => void;
+  /** Whether admin mode is active (shows UserSelector) */
+  isAdminMode?: boolean;
 }

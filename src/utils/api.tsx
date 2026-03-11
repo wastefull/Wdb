@@ -30,7 +30,7 @@ function getAccessToken(): string {
   const token = sessionStorage.getItem("wastedb_access_token") || publicAnonKey;
   logger.log(
     "getAccessToken called, returning:",
-    token === publicAnonKey ? "(anon key)" : "(authenticated token)"
+    token === publicAnonKey ? "(anon key)" : "(authenticated token)",
   );
   return token;
 }
@@ -57,7 +57,7 @@ export function isAuthenticated(): boolean {
 export async function apiCall(
   endpoint: string,
   options: RequestInit = {},
-  suppressAuthToast = false
+  suppressAuthToast = false,
 ) {
   const token = getAccessToken();
   const fullUrl = `${API_BASE_URL}${endpoint}`;
@@ -154,7 +154,7 @@ export async function apiCall(
 
       // Throw a user-friendly error (don't expose endpoint)
       throw new Error(
-        errorMessage || "Authentication required. Please sign in to continue."
+        errorMessage || "Authentication required. Please sign in to continue.",
       );
     }
 
@@ -175,7 +175,7 @@ export async function signUp(
   email: string,
   password: string,
   name?: string,
-  honeypot?: string
+  honeypot?: string,
 ): Promise<AuthResponse> {
   const data = await apiCall("/auth/signup", {
     method: "POST",
@@ -187,7 +187,7 @@ export async function signUp(
 export async function signIn(
   email: string,
   password: string,
-  honeypot?: string
+  honeypot?: string,
 ): Promise<AuthResponse> {
   const data = await apiCall("/auth/signin", {
     method: "POST",
@@ -204,7 +204,7 @@ export async function signIn(
 
 export async function sendMagicLink(
   email: string,
-  honeypot?: string
+  honeypot?: string,
 ): Promise<{ message: string; token?: string }> {
   const data = await apiCall("/auth/magic-link", {
     method: "POST",
@@ -252,10 +252,18 @@ export async function getAllMaterials(): Promise<Material[]> {
 }
 
 // Save a single material to Supabase
-export async function saveMaterial(material: Material): Promise<Material> {
+// onBehalfOf: Admin-only parameter to attribute the material to another user
+export async function saveMaterial(
+  material: Material,
+  options?: { onBehalfOf?: string },
+): Promise<Material> {
+  const payload = options?.onBehalfOf
+    ? { ...material, on_behalf_of: options.onBehalfOf }
+    : material;
+
   const data = await apiCall("/materials", {
     method: "POST",
-    body: JSON.stringify(material),
+    body: JSON.stringify(payload),
   });
   return data.material;
 }
@@ -321,7 +329,7 @@ export async function getAllUsers(): Promise<any[]> {
 // Update user role (admin only)
 export async function updateUserRole(
   userId: string,
-  role: "user" | "admin"
+  role: "user" | "admin",
 ): Promise<void> {
   await apiCall(`/users/${userId}/role`, {
     method: "PUT",
@@ -344,7 +352,7 @@ export async function updateUser(
     email?: string;
     password?: string;
     active?: boolean;
-  }
+  },
 ): Promise<void> {
   await apiCall(`/users/${userId}`, {
     method: "PUT",
@@ -386,7 +394,7 @@ export async function getAllWhitepapers(): Promise<Whitepaper[]> {
   logger.log(
     "Whitepapers fetched successfully:",
     data.whitepapers?.length || 0,
-    "whitepapers"
+    "whitepapers",
   );
   return data.whitepapers || [];
 }
@@ -481,7 +489,7 @@ export async function createSource(source: Source): Promise<Source> {
 // Update a source (admin only)
 export async function updateSource(
   id: string,
-  source: Source
+  source: Source,
 ): Promise<Source> {
   logger.log("📤 updateSource called:", {
     id,
@@ -537,7 +545,7 @@ export async function removeDuplicateSources(): Promise<{
 
 // Batch save sources (admin only)
 export async function batchSaveSources(
-  sources: Source[]
+  sources: Source[],
 ): Promise<{ success: boolean; count: number }> {
   const data = await apiCall("/sources/batch", {
     method: "POST",
@@ -559,7 +567,7 @@ export interface CrossRefSearchResult {
 
 export async function searchSources(
   query: string,
-  rows: number = 10
+  rows: number = 10,
 ): Promise<{
   success: boolean;
   query: string;
@@ -568,14 +576,14 @@ export async function searchSources(
 }> {
   const response = await fetch(
     `${API_BASE_URL}/sources/search?q=${encodeURIComponent(
-      query
+      query,
     )}&rows=${rows}`,
     {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${publicAnonKey}`,
       },
-    }
+    },
   );
 
   if (!response.ok) {
@@ -610,7 +618,7 @@ export async function lookupDOI(doi: string): Promise<{
         "Content-Type": "application/json",
         Authorization: `Bearer ${publicAnonKey}`,
       },
-    }
+    },
   );
 
   if (!response.ok) {
@@ -645,7 +653,7 @@ export async function checkOAStatus(doi: string): Promise<{
         "Content-Type": "application/json",
         Authorization: `Bearer ${publicAnonKey}`,
       },
-    }
+    },
   );
 
   if (!response.ok) {
@@ -694,7 +702,7 @@ export async function checkSourceDuplicate(params: {
 // Merge duplicate sources (admin only)
 export async function mergeSources(
   primarySourceId: string,
-  duplicateSourceId: string
+  duplicateSourceId: string,
 ): Promise<{
   success: boolean;
   primarySource: Source;
@@ -714,7 +722,7 @@ export async function mergeSources(
 // Upload PDF for a source (admin only)
 export async function uploadSourcePdf(
   file: File,
-  sourceId: string
+  sourceId: string,
 ): Promise<{ success: boolean; fileName: string }> {
   logger.log(" Starting PDF upload:", {
     fileName: file.name,
@@ -772,7 +780,7 @@ export async function uploadSourcePdf(
       }
 
       throw new Error(
-        errorData.error || `Upload failed: ${response.statusText}`
+        errorData.error || `Upload failed: ${response.statusText}`,
       );
     }
 
@@ -802,7 +810,7 @@ export async function getSourcePdfUrl(fileName: string): Promise<string> {
 // Returns the public Supabase Storage URL (no server endpoint needed since bucket is public)
 export function getSourcePdfViewUrl(fileName: string): string {
   const url = `https://${projectId}.supabase.co/storage/v1/object/public/make-17cae920-source-pdfs/${encodeURIComponent(
-    fileName
+    fileName,
   )}`;
   logger.log(`🔗 Generated PDF view URL for "${fileName}":`, url);
   return url;
@@ -818,7 +826,7 @@ export async function deleteSourcePdf(fileName: string): Promise<void> {
 // Import PDF from URL (admin only) - downloads from external URL and stores in Supabase
 export async function importPdfFromUrl(
   url: string,
-  sourceId: string
+  sourceId: string,
 ): Promise<{
   success: boolean;
   fileName: string;
@@ -844,7 +852,7 @@ export async function getSourcePdfDiagnostics(fileName: string): Promise<any> {
       `/source-pdfs/${encodeURIComponent(fileName)}/debug`,
       {
         method: "GET",
-      }
+      },
     );
     logger.log(`Diagnostics received:`, data);
     return data;
@@ -886,7 +894,7 @@ export interface CalculationResult {
 
 // Calculate Compostability Index (CC)
 export async function calculateCompostability(
-  params: CompostabilityParams
+  params: CompostabilityParams,
 ): Promise<CalculationResult> {
   const data = await apiCall("/calculate/compostability", {
     method: "POST",
@@ -905,7 +913,7 @@ export async function calculateCompostability(
 
 // Calculate Reusability Index (RU)
 export async function calculateReusability(
-  params: ReusabilityParams
+  params: ReusabilityParams,
 ): Promise<CalculationResult> {
   const data = await apiCall("/calculate/reusability", {
     method: "POST",
@@ -946,7 +954,7 @@ export async function updateUserProfile(
     bio?: string;
     social_link?: string;
     avatar_url?: string;
-  }
+  },
 ): Promise<any> {
   const data = await apiCall(`/profile/${userId}`, {
     method: "PUT",
@@ -981,7 +989,7 @@ export async function getUserContributionStats(userId: string): Promise<{
 export async function getUserActivity(
   userId: string,
   startDate?: string,
-  endDate?: string
+  endDate?: string,
 ): Promise<
   Array<{
     date: string;
@@ -1005,7 +1013,7 @@ export async function getUserActivity(
 export async function getUserRecentContributions(
   userId: string,
   limit: number = 10,
-  typeFilter?: "material" | "article" | "guide" | "miu"
+  typeFilter?: "material" | "article" | "guide" | "miu",
 ): Promise<
   Array<{
     type: "material" | "article" | "guide" | "miu";
@@ -1021,7 +1029,7 @@ export async function getUserRecentContributions(
     params.set("type", typeFilter);
   }
   const data = await apiCall(
-    `/profile/${userId}/contributions/recent?${params.toString()}`
+    `/profile/${userId}/contributions/recent?${params.toString()}`,
   );
   return data.contributions;
 }
@@ -1149,7 +1157,7 @@ export async function updateSubmission(
     status?: string;
     feedback?: string;
     reviewed_by?: string;
-  }
+  },
 ): Promise<any> {
   const data = await apiCall(`/submissions/${id}`, {
     method: "PUT",
@@ -1209,7 +1217,7 @@ export async function markNotificationAsRead(id: string): Promise<any> {
 }
 
 export async function markAllNotificationsAsRead(
-  userId: string
+  userId: string,
 ): Promise<void> {
   await apiCall(`/notifications/${userId}/read-all`, {
     method: "PUT",

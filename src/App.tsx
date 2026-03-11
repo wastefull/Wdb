@@ -206,7 +206,7 @@ function AppContent() {
           }
         });
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     if (leaderboardRef.current) {
@@ -265,7 +265,7 @@ function AppContent() {
             // Store access token (already done in verifyMagicLink, but do it again to be sure)
             logger.log(
               "App.tsx: Storing access token again:",
-              response.access_token.substring(0, 8) + "..."
+              response.access_token.substring(0, 8) + "...",
             );
             api.setAccessToken(response.access_token);
 
@@ -276,7 +276,7 @@ function AppContent() {
             const storedToken = sessionStorage.getItem("wastedb_access_token");
             logger.log(
               "App.tsx: Verified token in storage before getUserRole:",
-              storedToken?.substring(0, 8) + "..."
+              storedToken?.substring(0, 8) + "...",
             );
 
             // Sign in user via context (this will also fetch role)
@@ -286,7 +286,7 @@ function AppContent() {
             window.history.replaceState(
               {},
               document.title,
-              window.location.pathname
+              window.location.pathname,
             );
 
             logger.log("Magic link authentication successful");
@@ -304,7 +304,7 @@ function AppContent() {
           window.history.replaceState(
             {},
             document.title,
-            window.location.pathname
+            window.location.pathname,
           );
         }
       }
@@ -342,7 +342,7 @@ function AppContent() {
           "reusability",
         ] as CategoryType[]) {
           const article = material.articles[category].find(
-            (a) => a.id === articleToOpen
+            (a) => a.id === articleToOpen,
           );
           if (article) {
             navigateTo({
@@ -361,23 +361,26 @@ function AppContent() {
     }
   }, [articleToOpen, materials, navigateTo]);
 
-  const handleAddMaterial = async (materialData: Omit<Material, "id">) => {
+  const handleAddMaterial = async (
+    materialData: Omit<Material, "id">,
+    options?: { onBehalfOf?: string },
+  ) => {
     const newMaterial: Material = {
       ...materialData,
       id: Date.now().toString(),
     };
-    await addMaterial(newMaterial);
+    await addMaterial(newMaterial, options);
     setShowForm(false);
     toast.success(`Added ${materialData.name} successfully`);
   };
 
   const handleUpdateMaterial = async (
-    materialData: Omit<Material, "id"> | Material
+    materialData: Omit<Material, "id"> | Material,
   ) => {
     if ("id" in materialData) {
       // Direct update with full material (from ArticlesView or CSV import)
       const existingIndex = materials.findIndex(
-        (m) => m.id === materialData.id
+        (m) => m.id === materialData.id,
       );
       if (existingIndex >= 0) {
         // Update existing material
@@ -428,7 +431,7 @@ function AppContent() {
   const handleViewArticleStandalone = (
     materialId: string,
     articleId: string,
-    category: CategoryType
+    category: CategoryType,
   ) => {
     navigateTo({ type: "article-standalone", articleId, materialId, category });
   };
@@ -455,7 +458,7 @@ function AppContent() {
   const filteredMaterials = materials.filter(
     (m) =>
       m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      m.description?.toLowerCase().includes(searchQuery.toLowerCase())
+      m.description?.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const currentMaterial =
@@ -703,13 +706,13 @@ function AppContent() {
                                 value: Math.round(
                                   materials.reduce(
                                     (sum, m) => sum + m.compostability,
-                                    0
-                                  ) / materials.length
+                                    0,
+                                  ) / materials.length,
                                 ),
                                 articleCount: materials.reduce(
                                   (sum, m) =>
                                     sum + getArticleCount(m, "compostability"),
-                                  0
+                                  0,
                                 ),
                                 fill: "#e8a593",
                               },
@@ -720,13 +723,13 @@ function AppContent() {
                                 value: Math.round(
                                   materials.reduce(
                                     (sum, m) => sum + m.recyclability,
-                                    0
-                                  ) / materials.length
+                                    0,
+                                  ) / materials.length,
                                 ),
                                 articleCount: materials.reduce(
                                   (sum, m) =>
                                     sum + getArticleCount(m, "recyclability"),
-                                  0
+                                  0,
                                 ),
                                 fill: "#f0e68c",
                               },
@@ -737,13 +740,13 @@ function AppContent() {
                                 value: Math.round(
                                   materials.reduce(
                                     (sum, m) => sum + m.reusability,
-                                    0
-                                  ) / materials.length
+                                    0,
+                                  ) / materials.length,
                                 ),
                                 articleCount: materials.reduce(
                                   (sum, m) =>
                                     sum + getArticleCount(m, "reusability"),
-                                  0
+                                  0,
                                 ),
                                 fill: "#a8c5d8",
                               },
@@ -779,6 +782,7 @@ function AppContent() {
                             setShowForm(false);
                             setEditingMaterial(null);
                           }}
+                          isAdminMode={isAdminModeActive}
                         />
                       </div>
                     )}
@@ -799,7 +803,7 @@ function AppContent() {
                             materials and{" "}
                             {materials.reduce(
                               (sum, m) => sum + getTotalArticleCount(m),
-                              0
+                              0,
                             )}{" "}
                             articles.
                           </p>
@@ -877,7 +881,7 @@ function AppContent() {
                       handleViewArticleStandalone(
                         currentMaterial.id,
                         articleId,
-                        currentView.category
+                        currentView.category,
                       )
                     }
                     isAdminModeActive={isAdminModeActive}
@@ -893,7 +897,7 @@ function AppContent() {
                       handleViewArticleStandalone(
                         materialId,
                         articleId,
-                        currentView.category
+                        currentView.category,
                       )
                     }
                   />
@@ -910,7 +914,7 @@ function AppContent() {
                       handleViewArticleStandalone(
                         currentMaterial.id,
                         articleId,
-                        category
+                        category,
                       )
                     }
                     isAdminModeActive={isAdminModeActive}
@@ -921,7 +925,7 @@ function AppContent() {
                     article={
                       getArticlesByCategory(
                         currentMaterial,
-                        currentView.category
+                        currentView.category,
                       ).find((a) => a.id === currentView.articleId)!
                     }
                     sustainabilityCategory={{
@@ -929,14 +933,14 @@ function AppContent() {
                         currentView.category === "compostability"
                           ? "Compostability"
                           : currentView.category === "recyclability"
-                          ? "Recyclability"
-                          : "Reusability",
+                            ? "Recyclability"
+                            : "Reusability",
                       color:
                         currentView.category === "compostability"
                           ? "#e6beb5"
                           : currentView.category === "recyclability"
-                          ? "#e4e3ac"
-                          : "#b8c8cb",
+                            ? "#e4e3ac"
+                            : "#b8c8cb",
                     }}
                     materialName={currentMaterial.name}
                     onBack={() => navigateToMaterialDetail(currentMaterial.id)}
@@ -951,7 +955,7 @@ function AppContent() {
                         const updatedMaterial = removeArticleFromMaterial(
                           currentMaterial,
                           currentView.category,
-                          currentView.articleId
+                          currentView.articleId,
                         );
                         handleUpdateMaterial(updatedMaterial);
                         navigateToMaterialDetail(currentMaterial.id);
@@ -1010,7 +1014,7 @@ function AppContent() {
                       toast.success(
                         supabaseAvailable
                           ? "All data deleted from cloud and locally"
-                          : "All data deleted locally"
+                          : "All data deleted locally",
                       );
                       navigateToMaterials();
                     }}
@@ -1263,7 +1267,7 @@ function AppContent() {
               onSubmitSuccess={() => {
                 // Optionally refresh submissions or show a notification
                 toast.success(
-                  'Material submitted! Check "My Submissions" for updates.'
+                  'Material submitted! Check "My Submissions" for updates.',
                 );
               }}
             />
@@ -1275,7 +1279,7 @@ function AppContent() {
               onClose={() => setMaterialToEdit(null)}
               onSubmitSuccess={() => {
                 toast.success(
-                  'Edit suggestion submitted! Check "My Submissions" for updates.'
+                  'Edit suggestion submitted! Check "My Submissions" for updates.',
                 );
               }}
             />
@@ -1286,7 +1290,7 @@ function AppContent() {
               onClose={() => setShowSubmitArticleForm(false)}
               onSubmitSuccess={() => {
                 toast.success(
-                  'Article submitted! Check "My Submissions" for updates.'
+                  'Article submitted! Check "My Submissions" for updates.',
                 );
               }}
             />

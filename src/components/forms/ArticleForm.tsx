@@ -3,12 +3,21 @@ import { Upload, X } from "lucide-react";
 import { ArticleFormProps } from "../../types/article";
 import { TiptapContent } from "../../types/guide";
 import { ImageUploadArea } from "./ImageUploadArea";
+import { UserSelector } from "./UserSelector";
 import GuideEditor from "../editor/GuideEditor";
 import { toast } from "sonner";
 import { logger } from "../../utils/logger";
-export function ArticleForm({ article, onSave, onCancel }: ArticleFormProps) {
+export function ArticleForm({
+  article,
+  onSave,
+  onCancel,
+  isAdminMode = false,
+}: ArticleFormProps) {
   const [showImportModal, setShowImportModal] = useState(false);
   const [importJson, setImportJson] = useState("");
+
+  // Admin-only: user to attribute the article to
+  const [onBehalfOfUserId, setOnBehalfOfUserId] = useState<string | null>(null);
 
   // Initialize content from either new TiptapContent or migrate from legacy sections
   const getInitialContent = (): TiptapContent => {
@@ -93,7 +102,7 @@ export function ArticleForm({ article, onSave, onCancel }: ArticleFormProps) {
   });
 
   const handleKeyDown = (
-    e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     // Prevent browser from intercepting text editing shortcuts
     if (e.metaKey || e.ctrlKey) {
@@ -109,7 +118,7 @@ export function ArticleForm({ article, onSave, onCancel }: ArticleFormProps) {
       // Validate required fields
       if (!parsed.content || parsed.content.type !== "doc") {
         toast.error(
-          "Invalid content format. Must have a 'content' field with type 'doc'."
+          "Invalid content format. Must have a 'content' field with type 'doc'.",
         );
         return;
       }
@@ -136,7 +145,10 @@ export function ArticleForm({ article, onSave, onCancel }: ArticleFormProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData);
+    onSave(
+      formData,
+      onBehalfOfUserId ? { onBehalfOf: onBehalfOfUserId } : undefined,
+    );
   };
 
   return (
@@ -303,6 +315,18 @@ export function ArticleForm({ article, onSave, onCancel }: ArticleFormProps) {
             placeholder="Start writing your article content... Use sections, tips, warnings, and lists to organize your content."
           />
         </div>
+
+        {/* Admin-only: Post on behalf of another user */}
+        {isAdminMode && !article && (
+          <div className="bg-white dark:bg-[#1a1817] rounded-xl border-[1.5px] border-[#211f1c] dark:border-white/20 p-4">
+            <UserSelector
+              selectedUserId={onBehalfOfUserId}
+              onSelectUser={setOnBehalfOfUserId}
+              label="Post on behalf of"
+              isVisible={true}
+            />
+          </div>
+        )}
 
         <div className="flex gap-3 justify-center">
           <button

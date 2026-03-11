@@ -3,6 +3,7 @@ export { ImageUploadArea } from "./ImageUploadArea";
 export type { ImageUploadAreaProps } from "./ImageUploadArea";
 export { MaterialForm } from "./MaterialForm";
 export type { MaterialFormProps } from "./MaterialForm";
+export { UserSelector } from "./UserSelector";
 
 // Submission forms
 export { SubmitArticleForm } from "./SubmitArticleForm";
