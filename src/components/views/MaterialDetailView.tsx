@@ -45,7 +45,7 @@ export function MaterialDetailView({
   const allArticles = getAllArticles(material).sort(
     (a, b) =>
       new Date(b.article.dateAdded).getTime() -
-      new Date(a.article.dateAdded).getTime()
+      new Date(a.article.dateAdded).getTime(),
   );
 
   const totalArticles = allArticles.length;
@@ -55,7 +55,7 @@ export function MaterialDetailView({
       const updatedMaterial = removeArticleFromMaterial(
         material,
         category,
-        articleId
+        articleId,
       );
       onUpdateMaterial(updatedMaterial);
     }
@@ -68,7 +68,7 @@ export function MaterialDetailView({
   const [showForm, setShowForm] = useState(false);
 
   const handleUpdateArticle = (
-    articleData: Omit<Article, "id" | "dateAdded">
+    articleData: Omit<Article, "id" | "dateAdded">,
   ) => {
     if (!editingArticle) return;
 
@@ -76,7 +76,7 @@ export function MaterialDetailView({
       material,
       editingArticle.category,
       editingArticle.article.id,
-      (a) => ({ ...articleData, id: a.id, dateAdded: a.dateAdded })
+      (a) => ({ ...articleData, id: a.id, dateAdded: a.dateAdded }),
     );
 
     onUpdateMaterial(updatedMaterial);
@@ -231,7 +231,7 @@ export function MaterialDetailView({
       ) : (
         <div className="text-center py-12">
           <p className="text-[16px] text-black/50 dark:text-white/50">
-            No articles yet. Click on a category score above to add one!
+            No articles yet. Click on a category above to add one!
           </p>
         </div>
       )}
