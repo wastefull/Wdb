@@ -101,7 +101,7 @@ export function ContentReviewCenter({
   const handleApprove = async (
     submissionId: string,
     editedContent?: any,
-    wasEditedByAdmin: boolean = false
+    wasEditedByAdmin: boolean = false,
   ) => {
     try {
       const submission = submissions.find((s) => s.id === submissionId);
@@ -209,7 +209,7 @@ export function ContentReviewCenter({
           content_type: "submission",
           message: `Your ${submission.type.replace(
             /_/g,
-            " "
+            " ",
           )} submission has been approved and is now live!`,
         });
       } catch (emailError) {
@@ -261,7 +261,7 @@ export function ContentReviewCenter({
             content_type: "submission",
             message: `Your ${submission.type.replace(
               /_/g,
-              " "
+              " ",
             )} submission was not approved. Feedback has been provided.`,
           });
         } catch (emailError) {
@@ -282,7 +282,7 @@ export function ContentReviewCenter({
 
   const handleRequestRevision = async (
     submissionId: string,
-    feedback: string
+    feedback: string,
   ) => {
     try {
       // Update submission status
@@ -316,7 +316,7 @@ export function ContentReviewCenter({
             content_type: "submission",
             message: `Revision requested for your ${submission.type.replace(
               /_/g,
-              " "
+              " ",
             )} submission. Please review the feedback.`,
           });
 
@@ -356,7 +356,7 @@ export function ContentReviewCenter({
   const handleDelete = async (submissionId: string) => {
     if (
       !confirm(
-        "Are you sure you want to delete this submission? This action cannot be undone."
+        "Are you sure you want to delete this submission? This action cannot be undone.",
       )
     ) {
       return;
@@ -377,12 +377,10 @@ export function ContentReviewCenter({
       case "review":
         return submissions.filter((s) => s.status === "pending_review");
       case "pending":
-        return submissions.filter(
-          (s) => s.status === "needs_revision" || s.status === "approved"
-        );
+        return submissions.filter((s) => s.status === "needs_revision");
       case "moderation":
         return submissions.filter(
-          (s) => s.status === "flagged" || s.status === "rejected"
+          (s) => s.status === "flagged" || s.status === "rejected",
         );
       default:
         return [];
@@ -428,13 +426,7 @@ export function ContentReviewCenter({
             <AlertTriangle size={12} className="mr-1 shrink-0" />
             <span className="truncate">
               Pending (
-              {
-                submissions.filter(
-                  (s) =>
-                    s.status === "needs_revision" || s.status === "approved"
-                ).length
-              }
-              )
+              {submissions.filter((s) => s.status === "needs_revision").length})
             </span>
           </TabsTrigger>
           <TabsTrigger
@@ -446,7 +438,7 @@ export function ContentReviewCenter({
               Moderation (
               {
                 submissions.filter(
-                  (s) => s.status === "flagged" || s.status === "rejected"
+                  (s) => s.status === "flagged" || s.status === "rejected",
                 ).length
               }
               )
