@@ -128,8 +128,10 @@ export function MaterialDetailView({
         </div>
       )}
 
-      <div className="retro-card-flat p-4 mb-6">
-        <h3 className="text-[15px] normal mb-4">Articles by Category</h3>
+      <div className="retro-card-flat p-4 mb-6 max-w-sm mx-auto">
+        <h3 className="text-[16px] normal mb-4 text-center">
+          Articles by Category
+        </h3>
         <div className="flex flex-col gap-3">
           <RasterizedQuantileVisualization
             materialId={material.id}
