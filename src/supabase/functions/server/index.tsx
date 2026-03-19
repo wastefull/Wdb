@@ -1550,10 +1550,25 @@ app.post(
         log.log(`Deleted ${keysToDelete.length} existing materials`);
       }
 
-      // Now save the new materials (if any)
+      // Build lookup of existing materials to preserve server-side fields
+      const existingById = new Map<string, any>();
+      if (existingMaterials) {
+        for (const m of existingMaterials) {
+          existingById.set(m.id, m);
+        }
+      }
+
+      // Now save the new materials (if any), preserving created_at/created_by
       if (materials.length > 0) {
         const keys = materials.map((m: any) => `material:${m.id}`);
-        const values = materials;
+        const values = materials.map((m: any) => {
+          const existing = existingById.get(m.id);
+          if (existing) {
+            if (!m.created_at) m.created_at = existing.created_at;
+            if (!m.created_by) m.created_by = existing.created_by;
+          }
+          return m;
+        });
         await kv.mset(keys, values);
         log.log(`Saved ${materials.length} materials`);
       }
