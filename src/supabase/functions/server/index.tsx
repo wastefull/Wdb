@@ -1597,6 +1597,14 @@ app.put(
         material.created_by = userId;
       }
 
+      // Preserve created_at from existing record, or backfill if missing
+      if (!material.created_at) {
+        material.created_at =
+          existing.created_at ||
+          existing.updated_at ||
+          new Date().toISOString();
+      }
+
       material.updated_at = new Date().toISOString();
 
       await kv.set(`material:${id}`, material);
@@ -4604,8 +4612,9 @@ app.get(
       const allMaterials = (await kv.getByPrefix("material:")) || [];
       const userMaterials = allMaterials.filter((m) => m.created_by === userId);
       for (const material of userMaterials) {
-        if (material.created_at) {
-          const date = new Date(material.created_at);
+        const timestamp = material.created_at || material.updated_at;
+        if (timestamp) {
+          const date = new Date(timestamp);
           if (date >= start && date <= end) {
             contributions.push({
               date: date.toISOString().split("T")[0],
@@ -4615,19 +4624,61 @@ app.get(
         }
       }
 
-      // Get articles
-      const allArticles = (await kv.getByPrefix("article:")) || [];
-      const userArticles = allArticles.filter((a) => a.author_id === userId);
-      for (const article of userArticles) {
-        if (article.created_at) {
-          const date = new Date(article.created_at);
-          if (date >= start && date <= end) {
-            contributions.push({
-              date: date.toISOString().split("T")[0],
-              type: "article",
-            });
+      // Get articles (nested inside materials)
+      for (const material of allMaterials) {
+        if (material.articles) {
+          for (const category of [
+            "compostability",
+            "recyclability",
+            "reusability",
+          ]) {
+            const articleList = material.articles[category];
+            if (Array.isArray(articleList)) {
+              for (const article of articleList) {
+                if (
+                  (article.created_by === userId ||
+                    article.author_id === userId) &&
+                  article.created_at
+                ) {
+                  const date = new Date(article.created_at);
+                  if (date >= start && date <= end) {
+                    contributions.push({
+                      date: date.toISOString().split("T")[0],
+                      type: "article",
+                    });
+                  }
+                }
+              }
+            }
           }
         }
+      }
+
+      // Get guides (from Postgres)
+      try {
+        const supabase = createClient(
+          Deno.env.get("SUPABASE_URL") ?? "",
+          Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+        );
+        const { data: guides } = await supabase
+          .from("guides")
+          .select("created_at")
+          .eq("created_by", userId);
+        if (guides) {
+          for (const guide of guides) {
+            if (guide.created_at) {
+              const date = new Date(guide.created_at);
+              if (date >= start && date <= end) {
+                contributions.push({
+                  date: date.toISOString().split("T")[0],
+                  type: "guide",
+                });
+              }
+            }
+          }
+        }
+      } catch (err) {
+        log.error("[Activity] Error fetching guides:", err);
       }
 
       // Get MIUs from evidence
@@ -4716,12 +4767,15 @@ app.get(
           (m) => m.created_by === userId,
         );
         for (const material of userMaterials) {
-          contributions.push({
-            type: "material",
-            title: material.name || "Untitled Material",
-            timestamp: material.created_at || new Date().toISOString(),
-            id: material.id,
-          });
+          const ts = material.created_at || material.updated_at;
+          if (ts) {
+            contributions.push({
+              type: "material",
+              title: material.name || "Untitled Material",
+              timestamp: ts,
+              id: material.id,
+            });
+          }
         }
       }
 
@@ -4743,19 +4797,19 @@ app.get(
                     article.created_by === userId ||
                     article.author_id === userId
                   ) {
-                    contributions.push({
-                      type: "article",
-                      title: article.title || "Untitled Article",
-                      timestamp:
-                        article.dateAdded ||
-                        article.created_at ||
-                        new Date().toISOString(),
-                      id:
-                        article.id ||
-                        `${material.id}:${category}:${article.title}`,
-                      materialId: material.id,
-                      category,
-                    });
+                    const articleTs = article.dateAdded || article.created_at;
+                    if (articleTs) {
+                      contributions.push({
+                        type: "article",
+                        title: article.title || "Untitled Article",
+                        timestamp: articleTs,
+                        id:
+                          article.id ||
+                          `${material.id}:${category}:${article.title}`,
+                        materialId: material.id,
+                        category,
+                      });
+                    }
                   }
                 }
               }
@@ -4777,12 +4831,14 @@ app.get(
             .eq("created_by", userId);
           if (guides) {
             for (const guide of guides) {
-              contributions.push({
-                type: "guide",
-                title: guide.title || "Untitled Guide",
-                timestamp: guide.created_at || new Date().toISOString(),
-                id: guide.id,
-              });
+              if (guide.created_at) {
+                contributions.push({
+                  type: "guide",
+                  title: guide.title || "Untitled Guide",
+                  timestamp: guide.created_at,
+                  id: guide.id,
+                });
+              }
             }
           }
         } catch (err) {
@@ -4798,13 +4854,13 @@ app.get(
               const evidenceList = material.evidence[param];
               if (Array.isArray(evidenceList)) {
                 for (const evidence of evidenceList) {
-                  if (evidence.curator_id === userId) {
+                  if (evidence.curator_id === userId && evidence.timestamp) {
                     contributions.push({
                       type: "miu",
                       title: `${param} evidence for ${
                         material.name || "material"
                       }`,
-                      timestamp: evidence.timestamp || new Date().toISOString(),
+                      timestamp: evidence.timestamp,
                       id: `${material.id}:${param}:${
                         evidence.id || Date.now()
                       }`,
