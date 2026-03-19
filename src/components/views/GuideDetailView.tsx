@@ -51,7 +51,7 @@ export function GuideDetailView({ guideId, onBack }: GuideDetailViewProps) {
   };
   const handleUpdateGuide = async (
     id: string,
-    updates: Partial<GuideSubmission>
+    updates: Partial<GuideSubmission>,
   ) => {
     try {
       const updatedGuide = await updateGuide(id, updates);
@@ -84,8 +84,9 @@ export function GuideDetailView({ guideId, onBack }: GuideDetailViewProps) {
     }
   };
 
-  // Check if current user can edit this guide
-  const canEdit = user && guide && guide.created_by === user.id;
+  // Check if current user can edit this guide (author or admin)
+  const canEdit =
+    user && guide && (guide.created_by === user.id || userRole === "admin");
 
   // Debug logging
   logger.log("Edit permission check:", {
