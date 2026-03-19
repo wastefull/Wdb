@@ -70,6 +70,7 @@ import {
   DataRetentionManager,
   AdminDashboard,
   AssetsManagementPage,
+  RolePermissionsView,
 } from "./components/admin";
 
 // Forms
@@ -147,6 +148,7 @@ function AppContent() {
     navigateToTransformManager,
     navigateToWhitepapersManagement,
     navigateToAssetsManagement,
+    navigateToRolePermissions,
     navigateToMathTools,
     navigateToChartsPerformance,
     navigateToRoadmap,
@@ -988,6 +990,7 @@ function AppContent() {
                     onNavigateToDataRetention={navigateToDataRetention}
                     onNavigateToWhitepapers={navigateToWhitepapersManagement}
                     onNavigateToAssets={navigateToAssetsManagement}
+                    onNavigateToRolePermissions={navigateToRolePermissions}
                     onNavigateToMath={navigateToMathTools}
                     onNavigateToCharts={navigateToChartsPerformance}
                     onNavigateToRoadmap={navigateToRoadmap}
@@ -1132,6 +1135,8 @@ function AppContent() {
                     onBack={navigateToAdminDashboard}
                     className="p-6"
                   />
+                ) : currentView.type === "role-permissions" ? (
+                  <RolePermissionsView onBack={navigateToAdminDashboard} />
                 ) : currentView.type === "assets-management" ? (
                   <AssetsManagementPage />
                 ) : currentView.type === "math-tools" ? (

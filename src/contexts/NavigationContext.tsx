@@ -58,6 +58,7 @@ export type ViewType =
   | { type: "transform-manager" }
   | { type: "whitepapers-management" }
   | { type: "assets-management" }
+  | { type: "role-permissions" }
   | { type: "math-tools"; defaultTab?: "overview" | "transform-manager" }
   | { type: "charts-performance" }
   | { type: "roadmap" }
@@ -97,7 +98,7 @@ interface NavigationContextType {
   navigateToArticleDetail: (
     articleId: string,
     materialId: string,
-    category: CategoryType
+    category: CategoryType,
   ) => void;
   navigateToMethodologyList: () => void;
   navigateToWhitepaper: (whitepaperSlug: string) => void;
@@ -129,6 +130,7 @@ interface NavigationContextType {
   navigateToTransformManager: () => void;
   navigateToWhitepapersManagement: () => void;
   navigateToAssetsManagement: () => void;
+  navigateToRolePermissions: () => void;
   navigateToMathTools: (defaultTab?: "overview" | "transform-manager") => void;
   navigateToChartsPerformance: () => void;
   navigateToRoadmap: () => void;
@@ -142,7 +144,7 @@ interface NavigationContextType {
       | "9.5"
       | "10"
       | "tests"
-      | "backlog"
+      | "backlog",
   ) => void;
   navigateToGuides: () => void;
   navigateToBlog: () => void;
@@ -152,14 +154,14 @@ interface NavigationContextType {
 }
 
 const NavigationContext = createContext<NavigationContextType | undefined>(
-  undefined
+  undefined,
 );
 
 export const useNavigationContext = () => {
   const context = useContext(NavigationContext);
   if (!context) {
     throw new Error(
-      "useNavigationContext must be used within NavigationProvider"
+      "useNavigationContext must be used within NavigationProvider",
     );
   }
   return context;
@@ -213,7 +215,7 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
   const navigateToArticleDetail = (
     articleId: string,
     materialId: string,
-    category: CategoryType
+    category: CategoryType,
   ) => {
     navigateTo({ type: "article-detail", articleId, materialId, category });
   };
@@ -338,8 +340,12 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
     navigateTo({ type: "assets-management" });
   };
 
+  const navigateToRolePermissions = () => {
+    navigateTo({ type: "role-permissions" });
+  };
+
   const navigateToMathTools = (
-    defaultTab?: "overview" | "transform-manager"
+    defaultTab?: "overview" | "transform-manager",
   ) => {
     navigateTo({ type: "math-tools", defaultTab });
   };
@@ -362,7 +368,7 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
       | "9.5"
       | "10"
       | "tests"
-      | "backlog"
+      | "backlog",
   ) => {
     navigateTo({ type: "roadmap-overview", defaultTab });
   };
@@ -437,6 +443,7 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
     navigateToTransformManager,
     navigateToWhitepapersManagement,
     navigateToAssetsManagement,
+    navigateToRolePermissions,
     navigateToMathTools,
     navigateToChartsPerformance,
     navigateToRoadmap,

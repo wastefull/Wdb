@@ -63,7 +63,7 @@ export const useMaterialsContext = () => {
 interface MaterialsProviderProps {
   children: ReactNode;
   user: { id: string; email: string; name?: string } | null;
-  userRole: "user" | "admin";
+  userRole: "user" | "staff" | "admin";
 }
 
 export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({

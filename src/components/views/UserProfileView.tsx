@@ -37,7 +37,7 @@ interface UserProfileViewProps {
   onViewArticle?: (
     materialId: string,
     category: string,
-    articleId: string
+    articleId: string,
   ) => void;
 }
 
@@ -52,7 +52,7 @@ interface Profile {
   user_id: string;
   email: string;
   name: string;
-  role: "user" | "admin";
+  role: "user" | "staff" | "admin";
   bio?: string;
   social_link?: string;
   avatar_url?: string;
@@ -185,13 +185,13 @@ export function UserProfileView({
       log(
         "[UserProfile] Loading filtered contributions:",
         "filter:",
-        contributionFilter
+        contributionFilter,
       );
 
       const recentData = await api.getUserRecentContributions(
         userId,
         5,
-        contributionFilter ?? undefined
+        contributionFilter ?? undefined,
       );
       log("[UserProfile] Recent data:", recentData);
       setRecentContributions(recentData);
@@ -213,13 +213,13 @@ export function UserProfileView({
         "filter:",
         contributionFilter,
         "limit:",
-        newLimit
+        newLimit,
       );
 
       const recentData = await api.getUserRecentContributions(
         userId,
         newLimit,
-        contributionFilter ?? undefined
+        contributionFilter ?? undefined,
       );
       log("[UserProfile] More data:", recentData);
       setRecentContributions(recentData);
@@ -235,7 +235,7 @@ export function UserProfileView({
   const handleBackfill = async () => {
     if (
       !confirm(
-        "This will set you as the author of all articles (nested in materials) that don't have an author assigned. Continue?"
+        "This will set you as the author of all articles (nested in materials) that don't have an author assigned. Continue?",
       )
     ) {
       return;
@@ -244,7 +244,7 @@ export function UserProfileView({
     try {
       const result = await api.backfillCreatedBy();
       toast.success(
-        `Backfill complete! Updated ${result.articlesUpdated} articles.`
+        `Backfill complete! Updated ${result.articlesUpdated} articles.`,
       );
       // Reload contributions
       loadInitialContributions();
@@ -564,7 +564,7 @@ export function UserProfileView({
                 <button
                   onClick={() => {
                     setContributionFilter(
-                      contributionFilter === "material" ? null : "material"
+                      contributionFilter === "material" ? null : "material",
                     );
                     setContributionLimit(5);
                   }}
@@ -591,7 +591,7 @@ export function UserProfileView({
                 <button
                   onClick={() => {
                     setContributionFilter(
-                      contributionFilter === "article" ? null : "article"
+                      contributionFilter === "article" ? null : "article",
                     );
                     setContributionLimit(5);
                   }}
@@ -618,7 +618,7 @@ export function UserProfileView({
                 <button
                   onClick={() => {
                     setContributionFilter(
-                      contributionFilter === "guide" ? null : "guide"
+                      contributionFilter === "guide" ? null : "guide",
                     );
                     setContributionLimit(5);
                   }}
@@ -645,7 +645,7 @@ export function UserProfileView({
                 <button
                   onClick={() => {
                     setContributionFilter(
-                      contributionFilter === "miu" ? null : "miu"
+                      contributionFilter === "miu" ? null : "miu",
                     );
                     setContributionLimit(5);
                   }}
@@ -736,7 +736,7 @@ export function UserProfileView({
                           onViewArticle(
                             contrib.materialId,
                             contrib.category,
-                            contrib.id
+                            contrib.id,
                           );
                         } else if (
                           contrib.type === "miu" &&
@@ -807,7 +807,7 @@ export function UserProfileView({
                                   month: "short",
                                   day: "numeric",
                                   year: "numeric",
-                                }
+                                },
                               )}
                             </p>
                           </div>

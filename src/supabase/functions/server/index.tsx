@@ -384,6 +384,13 @@ function validateEmail(email: string): {
   return { valid: true, isOrgEmail };
 }
 
+// Determine initial role for a user based on email
+function getInitialRole(email: string): "user" | "staff" | "admin" {
+  if (email === "natto@wastefull.org") return "admin";
+  if (/@wastefull\.org$/i.test(email)) return "staff";
+  return "user";
+}
+
 // Password strength validation
 function validatePassword(password: string): {
   valid: boolean;
@@ -700,6 +707,98 @@ async function verifyAdmin(c: any, next: any) {
   }
 }
 
+// All available permissions in the system
+const ALL_PERMISSIONS = [
+  "materials.create",
+  "materials.edit",
+  "materials.delete",
+  "materials.batch",
+  "articles.create",
+  "articles.edit.own",
+  "articles.edit.any",
+  "articles.delete.own",
+  "articles.delete.any",
+  "guides.create",
+  "guides.edit.own",
+  "guides.edit.any",
+  "guides.delete.own",
+  "guides.delete.any",
+  "blog.create",
+  "blog.edit.own",
+  "blog.edit.any",
+  "blog.delete.own",
+  "blog.delete.any",
+  "users.view",
+  "users.manage",
+  "users.roles",
+  "assets.upload",
+  "assets.delete",
+  "sources.manage",
+  "sources.upload",
+  "calculations.run",
+];
+
+// Default permissions per role (admin always has all, not stored)
+const DEFAULT_ROLE_PERMISSIONS: Record<string, string[]> = {
+  user: [
+    "articles.create",
+    "articles.edit.own",
+    "articles.delete.own",
+    "guides.create",
+    "guides.edit.own",
+    "guides.delete.own",
+    "blog.create",
+    "blog.edit.own",
+    "blog.delete.own",
+  ],
+  staff: [
+    "articles.create",
+    "articles.edit.own",
+    "articles.delete.own",
+    "guides.create",
+    "guides.edit.own",
+    "guides.delete.own",
+    "blog.create",
+    "blog.edit.own",
+    "blog.delete.own",
+    "sources.upload",
+  ],
+};
+
+// Check if a user has a specific permission
+async function hasPermission(
+  userId: string,
+  permission: string,
+): Promise<boolean> {
+  const userRole = await kv.get(`user_role:${userId}`);
+  // Admin always has all permissions
+  if (userRole === "admin") return true;
+
+  const role = userRole || "user";
+  // Check for stored custom permissions, fall back to defaults
+  const stored = await kv.get(`role_permissions:${role}`);
+  const perms: string[] = stored || DEFAULT_ROLE_PERMISSIONS[role] || [];
+  return perms.includes(permission);
+}
+
+// Middleware factory: require a specific permission
+function requirePermission(permission: string) {
+  return async (c: any, next: any) => {
+    const userId = c.get("userId");
+    if (!userId) {
+      return c.json({ error: "Unauthorized - authentication required" }, 401);
+    }
+    const allowed = await hasPermission(userId, permission);
+    if (!allowed) {
+      return c.json(
+        { error: `Forbidden - missing permission: ${permission}` },
+        403,
+      );
+    }
+    await next();
+  };
+}
+
 // Health check endpoint (public)
 app.get("/make-server-17cae920/health", (c) => {
   return c.json({ status: "ok" });
@@ -796,8 +895,8 @@ app.post(
         : [email.toLowerCase()];
       await kv.set(recentSignupsKey, updatedSignups.slice(-10)); // Keep last 10
 
-      // Initialize user role (users default to 'user', @wastefull.org gets 'admin')
-      const initialRole = emailValidation.isOrgEmail ? "admin" : "user";
+      // Initialize user role
+      const initialRole = getInitialRole(email);
       await kv.set(`user_role:${data.user.id}`, initialRole);
 
       // Initialize user profile
@@ -1222,7 +1321,7 @@ app.post("/make-server-17cae920/auth/verify-magic-link", async (c) => {
         userData = newUser;
 
         // Initialize user role
-        const initialRole = emailValidation.isOrgEmail ? "admin" : "user";
+        const initialRole = getInitialRole(trimmedEmail);
         await kv.set(`user_role:${userData.user.id}`, initialRole);
         log.log(
           `New magic link user created: ${trimmedEmail} (role: ${initialRole})`,
@@ -1233,8 +1332,7 @@ app.post("/make-server-17cae920/auth/verify-magic-link", async (c) => {
     // Ensure user role is set (in case it's an existing user without a role)
     const existingRole = await kv.get(`user_role:${userData.user.id}`);
     if (!existingRole) {
-      const emailValidation = validateEmail(trimmedEmail);
-      const initialRole = emailValidation.isOrgEmail ? "admin" : "user";
+      const initialRole = getInitialRole(trimmedEmail);
       await kv.set(`user_role:${userData.user.id}`, initialRole);
       log.log(
         `Role initialized for existing user: ${trimmedEmail} (role: ${initialRole})`,
@@ -1311,11 +1409,11 @@ app.get("/make-server-17cae920/materials", rateLimit("API"), async (c) => {
   }
 });
 
-// Create a new material (protected - admin only)
+// Create a new material
 app.post(
   "/make-server-17cae920/materials",
   verifyAuth,
-  verifyAdmin,
+  requirePermission("materials.create"),
   async (c) => {
     try {
       const adminUserId = c.get("userId");
@@ -1391,12 +1489,12 @@ app.post(
   },
 );
 
-// Batch save materials (protected - admin only)
+// Batch save materials
 // This endpoint REPLACES all materials with the provided array
 app.post(
   "/make-server-17cae920/materials/batch",
   verifyAuth,
-  verifyAdmin,
+  requirePermission("materials.batch"),
   async (c) => {
     try {
       const { materials } = await c.req.json();
@@ -1475,11 +1573,11 @@ app.post(
   },
 );
 
-// Update a material (protected - admin only)
+// Update a material
 app.put(
   "/make-server-17cae920/materials/:id",
   verifyAuth,
-  verifyAdmin,
+  requirePermission("materials.edit"),
   async (c) => {
     try {
       const id = c.req.param("id");
@@ -1526,11 +1624,11 @@ app.put(
   },
 );
 
-// Delete a material (protected - admin only)
+// Delete a material
 app.delete(
   "/make-server-17cae920/materials/:id",
   verifyAuth,
-  verifyAdmin,
+  requirePermission("materials.delete"),
   async (c) => {
     try {
       const id = c.req.param("id");
@@ -1564,11 +1662,11 @@ app.delete(
   },
 );
 
-// Delete all materials (protected - admin only)
+// Delete all materials
 app.delete(
   "/make-server-17cae920/materials",
   verifyAuth,
-  verifyAdmin,
+  requirePermission("materials.delete"),
   async (c) => {
     try {
       const materials = await kv.getByPrefix("material:");
@@ -1601,7 +1699,7 @@ app.get("/make-server-17cae920/users/me/role", verifyAuth, async (c) => {
 
     // Initialize role if not set
     if (!userRole) {
-      userRole = userEmail === "natto@wastefull.org" ? "admin" : "user";
+      userRole = getInitialRole(userEmail);
       await kv.set(`user_role:${userId}`, userRole);
       log.log(`Initialized role for user: ${userRole}`);
     }
@@ -1640,7 +1738,7 @@ app.get("/make-server-17cae920/users", verifyAuth, verifyAdmin, async (c) => {
 
         // Initialize role if not set
         if (!role) {
-          role = user.email === "natto@wastefull.org" ? "admin" : "user";
+          role = getInitialRole(user.email || "");
           await kv.set(`user_role:${user.id}`, role);
         }
 
@@ -1675,9 +1773,9 @@ app.put(
       const userId = c.req.param("id");
       const { role } = await c.req.json();
 
-      if (!role || !["user", "admin"].includes(role)) {
+      if (!role || !["user", "staff", "admin"].includes(role)) {
         return c.json(
-          { error: "Invalid role. Must be 'user' or 'admin'" },
+          { error: "Invalid role. Must be 'user', 'staff', or 'admin'" },
           400,
         );
       }
@@ -1826,13 +1924,106 @@ app.put(
   },
 );
 
+// ==================== ROLE PERMISSIONS ROUTES ====================
+
+// Get permissions for all roles (admin only)
+app.get(
+  "/make-server-17cae920/roles/permissions",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const roles = ["user", "staff"];
+      const result: Record<string, string[]> = {};
+
+      for (const role of roles) {
+        const stored = await kv.get(`role_permissions:${role}`);
+        result[role] = stored || DEFAULT_ROLE_PERMISSIONS[role] || [];
+      }
+
+      // Admin always has all permissions
+      result.admin = [...ALL_PERMISSIONS];
+
+      return c.json({ permissions: result, allPermissions: ALL_PERMISSIONS });
+    } catch (error) {
+      log.error("Error getting role permissions:", error);
+      return c.json(
+        { error: "Failed to get role permissions", details: String(error) },
+        500,
+      );
+    }
+  },
+);
+
+// Update permissions for a role (admin only)
+app.put(
+  "/make-server-17cae920/roles/:role/permissions",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const role = c.req.param("role");
+
+      if (role === "admin") {
+        return c.json({ error: "Cannot modify admin permissions" }, 400);
+      }
+
+      if (!["user", "staff"].includes(role)) {
+        return c.json({ error: "Invalid role" }, 400);
+      }
+
+      const { permissions } = await c.req.json();
+
+      if (!Array.isArray(permissions)) {
+        return c.json({ error: "permissions must be an array" }, 400);
+      }
+
+      // Validate all permissions are known
+      const invalid = permissions.filter(
+        (p: string) => !ALL_PERMISSIONS.includes(p),
+      );
+      if (invalid.length > 0) {
+        return c.json(
+          { error: `Unknown permissions: ${invalid.join(", ")}` },
+          400,
+        );
+      }
+
+      await kv.set(`role_permissions:${role}`, permissions);
+
+      // Audit log
+      const oldPerms = await kv.get(`role_permissions:${role}`);
+      await createAuditLog({
+        userId: c.get("userId"),
+        userEmail: c.get("userEmail"),
+        entityType: "role_permissions",
+        entityId: role,
+        action: "update",
+        before: {
+          permissions: oldPerms || DEFAULT_ROLE_PERMISSIONS[role] || [],
+        },
+        after: { permissions },
+        req: c,
+      });
+
+      return c.json({ success: true, role, permissions });
+    } catch (error) {
+      log.error("Error updating role permissions:", error);
+      return c.json(
+        { error: "Failed to update role permissions", details: String(error) },
+        500,
+      );
+    }
+  },
+);
+
 // ==================== ASSET STORAGE ROUTES ====================
 
-// Upload asset to Supabase Storage (admin only)
+// Upload asset to Supabase Storage
 app.post(
   "/make-server-17cae920/assets/upload",
   verifyAuth,
-  verifyAdmin,
+  requirePermission("assets.upload"),
   async (c) => {
     try {
       const formData = await c.req.formData();
@@ -1918,55 +2109,60 @@ app.post(
 );
 
 // List all assets (admin only)
-app.get("/make-server-17cae920/assets", verifyAuth, verifyAdmin, async (c) => {
-  try {
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-    );
+app.get(
+  "/make-server-17cae920/assets",
+  verifyAuth,
+  requirePermission("assets.upload"),
+  async (c) => {
+    try {
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      );
 
-    const bucketName = "make-17cae920-assets";
+      const bucketName = "make-17cae920-assets";
 
-    const { data, error } = await supabase.storage.from(bucketName).list();
+      const { data, error } = await supabase.storage.from(bucketName).list();
 
-    if (error) {
-      log.error("Error listing assets:", error);
+      if (error) {
+        log.error("Error listing assets:", error);
+        return c.json(
+          { error: "Failed to list assets", details: error.message },
+          500,
+        );
+      }
+
+      // Get public URLs for all files
+      const assets = data.map((file) => {
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from(bucketName).getPublicUrl(file.name);
+
+        return {
+          name: file.name,
+          publicUrl,
+          size: file.metadata?.size,
+          createdAt: file.created_at,
+          updatedAt: file.updated_at,
+        };
+      });
+
+      return c.json({ assets });
+    } catch (error) {
+      log.error("Error in asset listing:", error);
       return c.json(
-        { error: "Failed to list assets", details: error.message },
+        { error: "Failed to list assets", details: String(error) },
         500,
       );
     }
+  },
+);
 
-    // Get public URLs for all files
-    const assets = data.map((file) => {
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from(bucketName).getPublicUrl(file.name);
-
-      return {
-        name: file.name,
-        publicUrl,
-        size: file.metadata?.size,
-        createdAt: file.created_at,
-        updatedAt: file.updated_at,
-      };
-    });
-
-    return c.json({ assets });
-  } catch (error) {
-    log.error("Error in asset listing:", error);
-    return c.json(
-      { error: "Failed to list assets", details: String(error) },
-      500,
-    );
-  }
-});
-
-// Delete an asset (admin only)
+// Delete an asset
 app.delete(
   "/make-server-17cae920/assets/:fileName",
   verifyAuth,
-  verifyAdmin,
+  requirePermission("assets.delete"),
   async (c) => {
     try {
       const fileName = c.req.param("fileName");
@@ -2005,11 +2201,11 @@ app.delete(
 
 // ==================== SOURCE PDF ROUTES ====================
 
-// Upload source PDF (admin only)
+// Upload source PDF
 app.post(
   "/make-server-17cae920/source-pdfs/upload",
   verifyAuth,
-  verifyAdmin,
+  requirePermission("sources.upload"),
   async (c) => {
     try {
       log.log("Received PDF upload request");
@@ -2105,11 +2301,11 @@ app.post(
   },
 );
 
-// Import PDF from URL (admin only) - downloads from external URL and stores in Supabase
+// Import PDF from URL - downloads from external URL and stores in Supabase
 app.post(
   "/make-server-17cae920/source-pdfs/import-from-url",
   verifyAuth,
-  verifyAdmin,
+  requirePermission("sources.upload"),
   async (c) => {
     try {
       log.log("Received PDF import-from-url request");
@@ -2618,11 +2814,11 @@ app.get(
   },
 );
 
-// Delete a source PDF (admin only)
+// Delete a source PDF
 app.delete(
   "/make-server-17cae920/source-pdfs/:fileName",
   verifyAuth,
-  verifyAdmin,
+  requirePermission("sources.manage"),
   async (c) => {
     try {
       const fileName = c.req.param("fileName");
@@ -2742,11 +2938,11 @@ app.get(
   },
 );
 
-// Upload screenshot (admin only)
+// Upload screenshot
 app.post(
   "/make-server-17cae920/screenshots/upload",
   verifyAuth,
-  verifyAdmin,
+  requirePermission("sources.upload"),
   async (c) => {
     try {
       const formData = await c.req.formData();
@@ -2821,11 +3017,11 @@ app.post(
   },
 );
 
-// Delete screenshot (admin only)
+// Delete screenshot
 app.delete(
   "/make-server-17cae920/screenshots/:fileName",
   verifyAuth,
-  verifyAdmin,
+  requirePermission("sources.manage"),
   async (c) => {
     try {
       const fileName = c.req.param("fileName");
@@ -3777,11 +3973,11 @@ app.get("/make-server-17cae920/sources", async (c) => {
   }
 });
 
-// Batch save sources (admin only)
+// Batch save sources
 app.post(
   "/make-server-17cae920/sources/batch",
   verifyAuth,
-  verifyAdmin,
+  requirePermission("sources.manage"),
   async (c) => {
     try {
       const { sources } = await c.req.json();
@@ -3814,7 +4010,7 @@ app.post(
 app.post(
   "/make-server-17cae920/calculate/compostability",
   verifyAuth,
-  verifyAdmin,
+  requirePermission("calculations.run"),
   async (c) => {
     try {
       const { B, N, T, H, M, mode } = await c.req.json();
@@ -3878,7 +4074,7 @@ app.post(
 app.post(
   "/make-server-17cae920/calculate/reusability",
   verifyAuth,
-  verifyAdmin,
+  requirePermission("calculations.run"),
   async (c) => {
     try {
       const { L, R, U, C, M, mode } = await c.req.json();
@@ -3941,7 +4137,7 @@ app.post(
 app.post(
   "/make-server-17cae920/calculate/all-dimensions",
   verifyAuth,
-  verifyAdmin,
+  requirePermission("calculations.run"),
   async (c) => {
     try {
       const params = await c.req.json();
@@ -4932,31 +5128,36 @@ app.get("/make-server-17cae920/articles/:id", async (c) => {
   }
 });
 
-// Create article (authenticated users)
-app.post("/make-server-17cae920/articles", verifyAuth, async (c) => {
-  try {
-    const userId = c.get("userId");
-    const articleData = await c.req.json();
+// Create article
+app.post(
+  "/make-server-17cae920/articles",
+  verifyAuth,
+  requirePermission("articles.create"),
+  async (c) => {
+    try {
+      const userId = c.get("userId");
+      const articleData = await c.req.json();
 
-    const article = {
-      id: crypto.randomUUID(),
-      ...articleData,
-      author_id: userId,
-      status: "draft",
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
+      const article = {
+        id: crypto.randomUUID(),
+        ...articleData,
+        author_id: userId,
+        status: "draft",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
 
-    await kv.set(`article:${article.id}`, article);
-    return c.json({ article });
-  } catch (error) {
-    log.error("Error creating article:", error);
-    return c.json(
-      { error: "Failed to create article", details: String(error) },
-      500,
-    );
-  }
-});
+      await kv.set(`article:${article.id}`, article);
+      return c.json({ article });
+    } catch (error) {
+      log.error("Error creating article:", error);
+      return c.json(
+        { error: "Failed to create article", details: String(error) },
+        500,
+      );
+    }
+  },
+);
 
 // Update article
 app.put("/make-server-17cae920/articles/:id", verifyAuth, async (c) => {
@@ -4970,9 +5171,12 @@ app.put("/make-server-17cae920/articles/:id", verifyAuth, async (c) => {
       return c.json({ error: "Article not found" }, 404);
     }
 
-    // Check permission (author or admin)
-    const userRole = await kv.get(`user_role:${userId}`);
-    if (existing.author_id !== userId && userRole !== "admin") {
+    // Check permission (author with edit.own, or edit.any)
+    const isOwner = existing.author_id === userId;
+    const canEditOwn =
+      isOwner && (await hasPermission(userId, "articles.edit.own"));
+    const canEditAny = await hasPermission(userId, "articles.edit.any");
+    if (!canEditOwn && !canEditAny) {
       return c.json({ error: "Unauthorized" }, 403);
     }
 
@@ -5004,9 +5208,12 @@ app.delete("/make-server-17cae920/articles/:id", verifyAuth, async (c) => {
       return c.json({ error: "Article not found" }, 404);
     }
 
-    // Check permission
-    const userRole = await kv.get(`user_role:${userId}`);
-    if (existing.author_id !== userId && userRole !== "admin") {
+    // Check permission (author with delete.own, or delete.any)
+    const isOwner = existing.author_id === userId;
+    const canDeleteOwn =
+      isOwner && (await hasPermission(userId, "articles.delete.own"));
+    const canDeleteAny = await hasPermission(userId, "articles.delete.any");
+    if (!canDeleteOwn && !canDeleteAny) {
       return c.json({ error: "Unauthorized" }, 403);
     }
 
@@ -12429,70 +12636,75 @@ app.get("/make-server-17cae920/guides/my-guides", verifyAuth, async (c) => {
 });
 
 // Create a new guide
-app.post("/make-server-17cae920/guides", verifyAuth, async (c) => {
-  try {
-    const userId = c.get("userId");
-    const userEmail = c.get("userEmail");
-    const guideData = await c.req.json();
+app.post(
+  "/make-server-17cae920/guides",
+  verifyAuth,
+  requirePermission("guides.create"),
+  async (c) => {
+    try {
+      const userId = c.get("userId");
+      const userEmail = c.get("userEmail");
+      const guideData = await c.req.json();
 
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-    );
-
-    // Get author name from user
-    const { data: userData } = await supabase.auth.admin.getUserById(userId);
-    const authorName =
-      userData?.user?.user_metadata?.name || userEmail || "Anonymous";
-
-    // Get material name if material_id is provided
-    let materialName: string | undefined;
-    if (guideData.material_id) {
-      const materials = await kv.getByPrefix("material:");
-      const material = materials?.find(
-        (m: any) => m.id === guideData.material_id,
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       );
-      materialName = material?.name;
-    }
 
-    const { data, error } = await supabase
-      .from("guides")
-      .insert({
-        ...guideData,
-        created_by: userId,
-        author_name: authorName,
-        material_name: materialName,
-        status: "published", // Auto-publish for now
-        published_at: new Date().toISOString(),
-      })
-      .select()
-      .single();
+      // Get author name from user
+      const { data: userData } = await supabase.auth.admin.getUserById(userId);
+      const authorName =
+        userData?.user?.user_metadata?.name || userEmail || "Anonymous";
 
-    if (error) {
+      // Get material name if material_id is provided
+      let materialName: string | undefined;
+      if (guideData.material_id) {
+        const materials = await kv.getByPrefix("material:");
+        const material = materials?.find(
+          (m: any) => m.id === guideData.material_id,
+        );
+        materialName = material?.name;
+      }
+
+      const { data, error } = await supabase
+        .from("guides")
+        .insert({
+          ...guideData,
+          created_by: userId,
+          author_name: authorName,
+          material_name: materialName,
+          status: "published", // Auto-publish for now
+          published_at: new Date().toISOString(),
+        })
+        .select()
+        .single();
+
+      if (error) {
+        log.error("Error creating guide:", error);
+        return c.json({ error: "Failed to create guide" }, 500);
+      }
+
+      // Audit log
+      await createAuditLog({
+        userId,
+        userEmail,
+        entityType: "guide",
+        entityId: data.id,
+        action: "create",
+        after: data,
+        req: c,
+      });
+
+      return c.json(data);
+    } catch (error) {
       log.error("Error creating guide:", error);
-      return c.json({ error: "Failed to create guide" }, 500);
+      return c.json(
+        { error: "Failed to create guide", details: String(error) },
+        500,
+      );
     }
-
-    // Audit log
-    await createAuditLog({
-      userId,
-      userEmail,
-      entityType: "guide",
-      entityId: data.id,
-      action: "create",
-      after: data,
-      req: c,
-    });
-
-    return c.json(data);
-  } catch (error) {
-    log.error("Error creating guide:", error);
-    return c.json(
-      { error: "Failed to create guide", details: String(error) },
-      500,
-    );
-  }
-});
+  },
+);
 
 // Update a guide
 app.patch("/make-server-17cae920/guides/:id", verifyAuth, async (c) => {
@@ -12527,9 +12739,12 @@ app.patch("/make-server-17cae920/guides/:id", verifyAuth, async (c) => {
       return c.json({ error: "Guide not found" }, 404);
     }
 
-    // Check permission (author or admin)
-    const userRole = await kv.get(`user_role:${userId}`);
-    if (before.created_by !== userId && userRole !== "admin") {
+    // Check permission (author with edit.own, or edit.any)
+    const isOwner = before.created_by === userId;
+    const canEditOwn =
+      isOwner && (await hasPermission(userId, "guides.edit.own"));
+    const canEditAny = await hasPermission(userId, "guides.edit.any");
+    if (!canEditOwn && !canEditAny) {
       return c.json(
         { error: "Unauthorized - you can only edit your own guides" },
         403,
@@ -12595,9 +12810,12 @@ app.delete("/make-server-17cae920/guides/:id", verifyAuth, async (c) => {
       return c.json({ error: "Guide not found" }, 404);
     }
 
-    // Check permission (author or admin)
-    const userRole = await kv.get(`user_role:${userId}`);
-    if (before.created_by !== userId && userRole !== "admin") {
+    // Check permission (author with delete.own, or delete.any)
+    const isOwner = before.created_by === userId;
+    const canDeleteOwn =
+      isOwner && (await hasPermission(userId, "guides.delete.own"));
+    const canDeleteAny = await hasPermission(userId, "guides.delete.any");
+    if (!canDeleteOwn && !canDeleteAny) {
       return c.json(
         { error: "Unauthorized - you can only delete your own guides" },
         403,
@@ -12842,59 +13060,64 @@ app.get("/make-server-17cae920/blog/my-posts", verifyAuth, async (c) => {
 });
 
 // Create a new blog post
-app.post("/make-server-17cae920/blog", verifyAuth, async (c) => {
-  try {
-    const userId = c.get("userId");
-    const userEmail = c.get("userEmail");
-    const postData = await c.req.json();
+app.post(
+  "/make-server-17cae920/blog",
+  verifyAuth,
+  requirePermission("blog.create"),
+  async (c) => {
+    try {
+      const userId = c.get("userId");
+      const userEmail = c.get("userEmail");
+      const postData = await c.req.json();
 
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-    );
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      );
 
-    // Get author name from user
-    const { data: userData } = await supabase.auth.admin.getUserById(userId);
-    const authorName =
-      userData?.user?.user_metadata?.name || userEmail || "Anonymous";
+      // Get author name from user
+      const { data: userData } = await supabase.auth.admin.getUserById(userId);
+      const authorName =
+        userData?.user?.user_metadata?.name || userEmail || "Anonymous";
 
-    const { data, error } = await supabase
-      .from("blog_posts")
-      .insert({
-        ...postData,
-        created_by: userId,
-        author_name: authorName,
-        status: "published", // Auto-publish for now
-        published_at: new Date().toISOString(),
-      })
-      .select()
-      .single();
+      const { data, error } = await supabase
+        .from("blog_posts")
+        .insert({
+          ...postData,
+          created_by: userId,
+          author_name: authorName,
+          status: "published", // Auto-publish for now
+          published_at: new Date().toISOString(),
+        })
+        .select()
+        .single();
 
-    if (error) {
+      if (error) {
+        log.error("Error creating blog post:", error);
+        return c.json({ error: "Failed to create blog post" }, 500);
+      }
+
+      // Audit log
+      await createAuditLog({
+        userId,
+        userEmail,
+        entityType: "blog_post",
+        entityId: data.id,
+        action: "create",
+        after: data,
+        req: c,
+      });
+
+      return c.json(data);
+    } catch (error) {
       log.error("Error creating blog post:", error);
-      return c.json({ error: "Failed to create blog post" }, 500);
+      return c.json(
+        { error: "Failed to create blog post", details: String(error) },
+        500,
+      );
     }
-
-    // Audit log
-    await createAuditLog({
-      userId,
-      userEmail,
-      entityType: "blog_post",
-      entityId: data.id,
-      action: "create",
-      after: data,
-      req: c,
-    });
-
-    return c.json(data);
-  } catch (error) {
-    log.error("Error creating blog post:", error);
-    return c.json(
-      { error: "Failed to create blog post", details: String(error) },
-      500,
-    );
-  }
-});
+  },
+);
 
 // Update a blog post
 app.patch("/make-server-17cae920/blog/:id", verifyAuth, async (c) => {
@@ -12919,9 +13142,12 @@ app.patch("/make-server-17cae920/blog/:id", verifyAuth, async (c) => {
       return c.json({ error: "Blog post not found" }, 404);
     }
 
-    // Check permission (author or admin)
-    const userRole = await kv.get(`user_role:${userId}`);
-    if (before.created_by !== userId && userRole !== "admin") {
+    // Check permission (author with edit.own, or edit.any)
+    const isOwner = before.created_by === userId;
+    const canEditOwn =
+      isOwner && (await hasPermission(userId, "blog.edit.own"));
+    const canEditAny = await hasPermission(userId, "blog.edit.any");
+    if (!canEditOwn && !canEditAny) {
       return c.json(
         { error: "Unauthorized - you can only edit your own posts" },
         403,
@@ -12984,9 +13210,12 @@ app.delete("/make-server-17cae920/blog/:id", verifyAuth, async (c) => {
       return c.json({ error: "Blog post not found" }, 404);
     }
 
-    // Check permission (author or admin)
-    const userRole = await kv.get(`user_role:${userId}`);
-    if (before.created_by !== userId && userRole !== "admin") {
+    // Check permission (author with delete.own, or delete.any)
+    const isOwner = before.created_by === userId;
+    const canDeleteOwn =
+      isOwner && (await hasPermission(userId, "blog.delete.own"));
+    const canDeleteAny = await hasPermission(userId, "blog.delete.any");
+    if (!canDeleteOwn && !canDeleteAny) {
       return c.json(
         { error: "Unauthorized - you can only delete your own posts" },
         403,

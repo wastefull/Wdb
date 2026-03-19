@@ -38,6 +38,7 @@ interface AdminDashboardProps {
   onNavigateToDataRetention?: () => void;
   onNavigateToWhitepapers?: () => void;
   onNavigateToAssets?: () => void;
+  onNavigateToRolePermissions?: () => void;
   onNavigateToMath?: () => void;
   onNavigateToCharts?: () => void;
   onNavigateToRoadmap?: () => void;
@@ -60,6 +61,7 @@ export function AdminDashboard({
   onNavigateToDataRetention,
   onNavigateToWhitepapers,
   onNavigateToAssets,
+  onNavigateToRolePermissions,
   onNavigateToMath,
   onNavigateToCharts,
   onNavigateToRoadmap,
@@ -183,6 +185,14 @@ export function AdminDashboard({
                   {onNavigateToAssets && (
                     <button onClick={onNavigateToAssets} className="menu-item">
                       Assets
+                    </button>
+                  )}
+                  {onNavigateToRolePermissions && (
+                    <button
+                      onClick={onNavigateToRolePermissions}
+                      className="menu-item"
+                    >
+                      Role Permissions
                     </button>
                   )}
                   <button className="menu-item-disabled" disabled>
@@ -371,7 +381,7 @@ export function AdminDashboard({
                     Materials
                   </p>
                   <p className="text-xl font-bold arcade-numbers">
-                    {loadingStats ? "..." : stats?.materials ?? "—"}
+                    {loadingStats ? "..." : (stats?.materials ?? "—")}
                   </p>
                 </div>
               </div>
@@ -387,7 +397,7 @@ export function AdminDashboard({
                     Articles
                   </p>
                   <p className="text-xl font-bold arcade-numbers">
-                    {loadingStats ? "..." : stats?.articles ?? "—"}
+                    {loadingStats ? "..." : (stats?.articles ?? "—")}
                   </p>
                 </div>
               </div>
@@ -403,7 +413,7 @@ export function AdminDashboard({
                     Guides
                   </p>
                   <p className="text-xl font-bold arcade-numbers">
-                    {loadingStats ? "..." : stats?.guides ?? "—"}
+                    {loadingStats ? "..." : (stats?.guides ?? "—")}
                   </p>
                 </div>
               </div>
@@ -419,7 +429,7 @@ export function AdminDashboard({
                     Users
                   </p>
                   <p className="text-xl font-bold arcade-numbers">
-                    {loadingStats ? "..." : stats?.users ?? "—"}
+                    {loadingStats ? "..." : (stats?.users ?? "—")}
                   </p>
                 </div>
               </div>

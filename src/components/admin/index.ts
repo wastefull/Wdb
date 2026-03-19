@@ -12,3 +12,6 @@ export { UserManagementView } from "./UserManagementView";
 // Assets
 export { AssetsManagementPage } from "./AssetsManagementPage";
 export { AssetUploadManager } from "./AssetUploadManager";
+
+// Permissions
+export { RolePermissionsView } from "./RolePermissionsView";

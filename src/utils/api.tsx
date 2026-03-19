@@ -315,7 +315,7 @@ export async function createAuditLog(params: {
 }
 
 // Get current user's role
-export async function getUserRole(): Promise<"user" | "admin"> {
+export async function getUserRole(): Promise<"user" | "staff" | "admin"> {
   const data = await apiCall("/users/me/role");
   return data.role;
 }
@@ -329,7 +329,7 @@ export async function getAllUsers(): Promise<any[]> {
 // Update user role (admin only)
 export async function updateUserRole(
   userId: string,
-  role: "user" | "admin",
+  role: "user" | "staff" | "admin",
 ): Promise<void> {
   await apiCall(`/users/${userId}/role`, {
     method: "PUT",
@@ -357,6 +357,27 @@ export async function updateUser(
   await apiCall(`/users/${userId}`, {
     method: "PUT",
     body: JSON.stringify(updates),
+  });
+}
+
+// ==================== ROLE PERMISSIONS API ====================
+
+// Get permissions for all roles (admin only)
+export async function getRolePermissions(): Promise<{
+  permissions: Record<string, string[]>;
+  allPermissions: string[];
+}> {
+  return await apiCall("/roles/permissions");
+}
+
+// Update permissions for a role (admin only)
+export async function updateRolePermissions(
+  role: string,
+  permissions: string[],
+): Promise<void> {
+  await apiCall(`/roles/${role}/permissions`, {
+    method: "PUT",
+    body: JSON.stringify({ permissions }),
   });
 }
 

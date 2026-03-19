@@ -59,7 +59,7 @@ interface DataManagementViewProps {
   onDeleteMaterial: (materialId: string) => void;
   onViewMaterial: (materialId: string) => void;
   user: any;
-  userRole: "user" | "admin";
+  userRole: "user" | "staff" | "admin";
 }
 
 export function DataManagementView({
@@ -144,7 +144,7 @@ export function DataManagementView({
 
       if (!hasRequired) {
         toast.error(
-          "CSV must include: name, category, compostability, recyclability, reusability"
+          "CSV must include: name, category, compostability, recyclability, reusability",
         );
         return;
       }
@@ -173,7 +173,7 @@ export function DataManagementView({
         const category = row.category as Material["category"];
         if (!validCategories.includes(category)) {
           logger.warn(
-            `Skipping material "${row.name}" with invalid category: ${row.category}`
+            `Skipping material "${row.name}" with invalid category: ${row.category}`,
           );
           continue;
         }
@@ -185,15 +185,15 @@ export function DataManagementView({
           description: row.description || "",
           compostability: Math.min(
             100,
-            Math.max(0, parseInt(row.compostability) || 0)
+            Math.max(0, parseInt(row.compostability) || 0),
           ),
           recyclability: Math.min(
             100,
-            Math.max(0, parseInt(row.recyclability) || 0)
+            Math.max(0, parseInt(row.recyclability) || 0),
           ),
           reusability: Math.min(
             100,
-            Math.max(0, parseInt(row.reusability) || 0)
+            Math.max(0, parseInt(row.reusability) || 0),
           ),
           articles: {
             compostability: [],
@@ -211,7 +211,7 @@ export function DataManagementView({
         toast.success(
           `Imported ${newMaterials.length} material${
             newMaterials.length !== 1 ? "s" : ""
-          }`
+          }`,
         );
       } else {
         toast.error("No valid materials found in CSV");
@@ -264,7 +264,7 @@ export function DataManagementView({
           m.compostability,
           m.recyclability,
           m.reusability,
-        ].join(",")
+        ].join(","),
       ),
     ].join("\n");
 
@@ -300,7 +300,7 @@ export function DataManagementView({
     a.click();
     URL.revokeObjectURL(url);
     toast.success(
-      `Backup created: ${materials.length} materials with full scientific data`
+      `Backup created: ${materials.length} materials with full scientific data`,
     );
   };
 
@@ -326,7 +326,7 @@ export function DataManagementView({
             m.category &&
             typeof m.compostability === "number" &&
             typeof m.recyclability === "number" &&
-            typeof m.reusability === "number"
+            typeof m.reusability === "number",
         );
 
         if (validMaterials.length === 0) {
@@ -338,7 +338,7 @@ export function DataManagementView({
         toast.success(
           `Restored ${validMaterials.length} materials from backup (dated ${
             backup.exported_at || "unknown"
-          })`
+          })`,
         );
       } catch (error) {
         toast.error("Failed to parse backup file");
@@ -676,7 +676,7 @@ export function DataManagementView({
                                   ...editData,
                                   compostability: Math.min(
                                     100,
-                                    Math.max(0, parseInt(e.target.value) || 0)
+                                    Math.max(0, parseInt(e.target.value) || 0),
                                   ),
                                 })
                               }
@@ -712,7 +712,7 @@ export function DataManagementView({
                                   ...editData,
                                   recyclability: Math.min(
                                     100,
-                                    Math.max(0, parseInt(e.target.value) || 0)
+                                    Math.max(0, parseInt(e.target.value) || 0),
                                   ),
                                 })
                               }
@@ -748,7 +748,7 @@ export function DataManagementView({
                                   ...editData,
                                   reusability: Math.min(
                                     100,
-                                    Math.max(0, parseInt(e.target.value) || 0)
+                                    Math.max(0, parseInt(e.target.value) || 0),
                                   ),
                                 })
                               }

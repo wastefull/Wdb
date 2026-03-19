@@ -7,7 +7,7 @@ interface User {
   id: string;
   email: string;
   name: string;
-  role: "user" | "admin";
+  role: "user" | "staff" | "admin";
 }
 
 interface UserSelectorProps {
@@ -87,7 +87,7 @@ export function UserSelector({
             {loading
               ? "Loading users..."
               : selectedUser
-                ? `${selectedUser.name || selectedUser.email} ${selectedUser.role === "admin" ? "(Admin)" : ""}`
+                ? `${selectedUser.name || selectedUser.email} ${selectedUser.role === "admin" ? "(Admin)" : selectedUser.role === "staff" ? "(Staff)" : ""}`
                 : "Select a user (optional)"}
           </span>
           <ChevronDown
@@ -168,6 +168,11 @@ export function UserSelector({
                 {user.role === "admin" && (
                   <span className="text-[10px] px-1.5 py-0.5 bg-waste-science/20 text-waste-science rounded">
                     Admin
+                  </span>
+                )}
+                {user.role === "staff" && (
+                  <span className="text-[10px] px-1.5 py-0.5 bg-waste-recycle/20 text-waste-recycle rounded">
+                    Staff
                   </span>
                 )}
               </button>

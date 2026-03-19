@@ -67,7 +67,7 @@ export interface UserProfile {
   user_id: string;
   email: string;
   name: string;
-  role: "user" | "admin";
+  role: "user" | "staff" | "admin";
   bio?: string;
   social_link?: string;
   avatar_url?: string;

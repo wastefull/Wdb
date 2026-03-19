@@ -42,7 +42,7 @@ interface User {
   id: string;
   email: string;
   name: string;
-  role: "user" | "admin";
+  role: "user" | "staff" | "admin";
   active?: boolean;
   created_at: string;
   last_sign_in_at?: string;
@@ -81,7 +81,7 @@ export function UserManagementView({
 
   const handleRoleChange = async (
     userId: string,
-    newRole: "user" | "admin"
+    newRole: "user" | "staff" | "admin",
   ) => {
     try {
       await api.updateUserRole(userId, newRole);
@@ -217,7 +217,7 @@ export function UserManagementView({
                   <TableCell>
                     <Select
                       value={user.role}
-                      onValueChange={(value: "user" | "admin") =>
+                      onValueChange={(value: "user" | "staff" | "admin") =>
                         handleRoleChange(user.id, value)
                       }
                       disabled={user.id === currentUserId}
@@ -230,6 +230,12 @@ export function UserManagementView({
                           <div className="flex items-center gap-2">
                             <UserIcon size={12} />
                             User
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="staff">
+                          <div className="flex items-center gap-2">
+                            <UserIcon size={12} />
+                            Staff
                           </div>
                         </SelectItem>
                         <SelectItem value="admin">

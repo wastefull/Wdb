@@ -39,7 +39,7 @@ export interface StatusBarProps {
   /** Current user */
   user?: { id: string; email: string; name?: string } | null;
   /** User role for admin features */
-  userRole?: "user" | "admin";
+  userRole?: "user" | "staff" | "admin";
   /** Logout handler */
   onLogout?: () => void;
   /** Sign in handler (shows Sign In button when no user) */
