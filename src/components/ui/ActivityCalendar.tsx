@@ -84,28 +84,33 @@ export function ActivityCalendar({
   }, [data, startDate, endDate]);
 
   return (
-    <div className="activity-calendar">
+    <div className="activity-calendar overflow-x-auto pb-2">
       {/* Month labels */}
-      <div className="flex mb-2 text-[10px] text-black/60 dark:text-white/60">
-        {months.map((month, i) => (
-          <div
-            key={i}
-            className="shrink-0"
-            style={{
-              width: `${(month.offset * 100) / weeks.length}%`,
-              marginLeft: i === 0 ? "0" : undefined,
-            }}
-          >
-            {month.name}
-          </div>
-        ))}
+      <div className="flex gap-0.5 mb-2 text-[10px] text-black/60 dark:text-white/60">
+        {months.map((month, i) => {
+          const nextOffset =
+            i < months.length - 1 ? months[i + 1].offset : weeks.length;
+          const span = nextOffset - month.offset;
+          return (
+            <div
+              key={i}
+              className="shrink-0"
+              style={{
+                // Match grid: each column is w-2.5 (0.625rem) + gap-0.5 (0.125rem)
+                width: `calc(${span} * 0.625rem + ${span - 1} * 0.125rem)`,
+              }}
+            >
+              {month.name}
+            </div>
+          );
+        })}
       </div>
 
       {/* Calendar grid */}
-      <div className="flex gap-0.5 overflow-x-auto pb-2">
+      <div className="flex gap-0.5">
         {weeks.map((week, weekIndex) => (
           <div key={weekIndex} className="flex flex-col gap-0.5">
-            {week.map((day, dayIndex) => (
+            {week.map((day) => (
               <div
                 key={day.date}
                 className={`
@@ -134,7 +139,7 @@ export function ActivityCalendar({
             <div
               key={level}
               className={`w-2.5 h-2.5 rounded-[1px] ${getLevelColor(
-                level as 0 | 1 | 2 | 3 | 4
+                level as 0 | 1 | 2 | 3 | 4,
               )}`}
             />
           ))}
