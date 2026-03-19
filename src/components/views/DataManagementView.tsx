@@ -465,43 +465,44 @@ export function DataManagementView({
           </div>
 
           {/* Backup Section */}
-          <div className="retro-card-flat mb-4 p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div>
-                <h3 className="text-[14px] normal">Full Database Backup</h3>
-                <p className="text-[11px] text-black/60 dark:text-white/60">
-                  Export/import all materials with complete scientific data
-                </p>
+          {isAdmin && (
+            <div className="retro-card-flat mb-4 p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <h3 className="text-[14px] normal">Full Database Backup</h3>
+                  <p className="text-[11px] text-black/60 dark:text-white/60">
+                    Export/import all materials with complete scientific data
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleExportBackup}
+                    className="bg-waste-science h-9 px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] text-[11px] md:text-[12px] text-black hover:translate-y-px hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-1 md:gap-2"
+                  >
+                    <Database size={14} className="text-black" />
+                    <span className="whitespace-nowrap">Download Backup</span>
+                  </button>
+                  {isAdmin && (
+                    <label className="bg-waste-recycle h-9 px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] text-[11px] md:text-[12px] text-black hover:translate-y-px hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-1 md:gap-2 cursor-pointer">
+                      <UploadCloud size={14} className="text-black" />
+                      <span className="whitespace-nowrap">Restore Backup</span>
+                      <input
+                        type="file"
+                        accept=".json"
+                        onChange={handleImportBackup}
+                        className="hidden"
+                      />
+                    </label>
+                  )}
+                </div>
               </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={handleExportBackup}
-                  className="bg-waste-science h-9 px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] text-[11px] md:text-[12px] text-black hover:translate-y-px hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-1 md:gap-2"
-                >
-                  <Database size={14} className="text-black" />
-                  <span className="whitespace-nowrap">Download Backup</span>
-                </button>
-                {isAdmin && (
-                  <label className="bg-waste-recycle h-9 px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] text-[11px] md:text-[12px] text-black hover:translate-y-px hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-1 md:gap-2 cursor-pointer">
-                    <UploadCloud size={14} className="text-black" />
-                    <span className="whitespace-nowrap">Restore Backup</span>
-                    <input
-                      type="file"
-                      accept=".json"
-                      onChange={handleImportBackup}
-                      className="hidden"
-                    />
-                  </label>
-                )}
-              </div>
+              <p className="text-[10px] text-black/50 dark:text-white/50">
+                Backups include all scientific parameters (CR, CC, RU values),
+                sources, and articles. Use this for weekly backups or before
+                making major changes.
+              </p>
             </div>
-            <p className="text-[10px] text-black/50 dark:text-white/50">
-              Backups include all scientific parameters (CR, CC, RU values),
-              sources, and articles. Use this for weekly backups or before
-              making major changes.
-            </p>
-          </div>
-
+          )}
           {/* Import Options */}
           {isAdmin && showImportOptions && (
             <div className="retro-card-flat mb-4 p-4">
@@ -580,9 +581,11 @@ export function DataManagementView({
                     <TableHead className="text-[12px] text-black text-center">
                       Articles
                     </TableHead>
-                    <TableHead className="text-[12px] text-black text-center">
-                      Actions
-                    </TableHead>
+                    {isAdmin && (
+                      <TableHead className="text-[12px] text-black text-center">
+                        Actions
+                      </TableHead>
+                    )}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -782,84 +785,86 @@ export function DataManagementView({
                             {getArticleCount(material, "reusability")}
                           </span>
                         </TableCell>
-                        <TableCell className="text-center">
-                          {isAdmin ? (
-                            isEditing ? (
-                              <div className="flex gap-1 justify-center">
-                                <button
-                                  onClick={handleSave}
-                                  className="p-1.5 bg-waste-reuse rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all"
-                                >
-                                  <Save size={12} className="text-black" />
-                                </button>
-                                <button
-                                  onClick={handleCancel}
-                                  className="p-1.5 bg-waste-compost rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all"
-                                >
-                                  <X size={12} className="text-black" />
-                                </button>
-                              </div>
-                            ) : (
-                              <div className="flex gap-1 justify-center">
-                                <button
-                                  onClick={() => handleEdit(material)}
-                                  className="p-1.5 bg-waste-recycle rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all"
-                                  title="Edit material"
-                                >
-                                  <Edit2 size={12} className="text-black" />
-                                </button>
-                                <AlertDialog>
-                                  <AlertDialogTrigger asChild>
-                                    <button
-                                      className="p-1.5 bg-waste-compost rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all"
-                                      title="Delete material"
-                                    >
-                                      <Trash2
-                                        size={12}
-                                        className="text-black"
-                                      />
-                                    </button>
-                                  </AlertDialogTrigger>
-                                  <AlertDialogContent className="bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20">
-                                    <AlertDialogHeader>
-                                      <AlertDialogTitle className="normal">
-                                        Delete Material?
-                                      </AlertDialogTitle>
-                                      <AlertDialogDescription className="text-black/70 dark:text-white/70">
-                                        Are you sure you want to delete "
-                                        {material.name}"? This will permanently
-                                        remove the material and all its
-                                        associated articles. This action cannot
-                                        be undone.
-                                      </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                      <AlertDialogCancel className="bg-waste-reuse border-[#211f1c] dark:border-white/20">
-                                        Cancel
-                                      </AlertDialogCancel>
-                                      <AlertDialogAction
-                                        onClick={() =>
-                                          onDeleteMaterial(material.id)
-                                        }
-                                        className="bg-waste-compost text-black border-[1.5px] border-[#211f1c] dark:border-white/20 hover:bg-waste-compost/80"
+                        {isAdmin && (
+                          <TableCell className="text-center">
+                            {isAdmin ? (
+                              isEditing ? (
+                                <div className="flex gap-1 justify-center">
+                                  <button
+                                    onClick={handleSave}
+                                    className="p-1.5 bg-waste-reuse rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                                  >
+                                    <Save size={12} className="text-black" />
+                                  </button>
+                                  <button
+                                    onClick={handleCancel}
+                                    className="p-1.5 bg-waste-compost rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                                  >
+                                    <X size={12} className="text-black" />
+                                  </button>
+                                </div>
+                              ) : (
+                                <div className="flex gap-1 justify-center">
+                                  <button
+                                    onClick={() => handleEdit(material)}
+                                    className="p-1.5 bg-waste-recycle rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                                    title="Edit material"
+                                  >
+                                    <Edit2 size={12} className="text-black" />
+                                  </button>
+                                  <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                      <button
+                                        className="p-1.5 bg-waste-compost rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                                        title="Delete material"
                                       >
-                                        Delete
-                                      </AlertDialogAction>
-                                    </AlertDialogFooter>
-                                  </AlertDialogContent>
-                                </AlertDialog>
-                              </div>
-                            )
-                          ) : (
-                            <button
-                              onClick={() => onViewMaterial(material.id)}
-                              className="p-1.5 bg-waste-recycle rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all"
-                              title="View material"
-                            >
-                              <Eye size={12} className="text-black" />
-                            </button>
-                          )}
-                        </TableCell>
+                                        <Trash2
+                                          size={12}
+                                          className="text-black"
+                                        />
+                                      </button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent className="bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20">
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle className="normal">
+                                          Delete Material?
+                                        </AlertDialogTitle>
+                                        <AlertDialogDescription className="text-black/70 dark:text-white/70">
+                                          Are you sure you want to delete "
+                                          {material.name}"? This will
+                                          permanently remove the material and
+                                          all its associated articles. This
+                                          action cannot be undone.
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel className="bg-waste-reuse border-[#211f1c] dark:border-white/20">
+                                          Cancel
+                                        </AlertDialogCancel>
+                                        <AlertDialogAction
+                                          onClick={() =>
+                                            onDeleteMaterial(material.id)
+                                          }
+                                          className="bg-waste-compost text-black border-[1.5px] border-[#211f1c] dark:border-white/20 hover:bg-waste-compost/80"
+                                        >
+                                          Delete
+                                        </AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
+                                </div>
+                              )
+                            ) : (
+                              <button
+                                onClick={() => onViewMaterial(material.id)}
+                                className="p-1.5 bg-waste-recycle rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                                title="View material"
+                              >
+                                <Eye size={12} className="text-black" />
+                              </button>
+                            )}
+                          </TableCell>
+                        )}
                       </TableRow>
                     );
                   })}
