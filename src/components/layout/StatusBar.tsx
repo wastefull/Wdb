@@ -292,6 +292,7 @@ export function StatusBar({
                 <NotificationBell
                   userId={user.id}
                   isAdmin={userRole === "admin"}
+                  onNavigate={onViewChange}
                 />
                 {userRole === "admin" && currentView && (
                   <AdminModeButton
@@ -333,10 +334,10 @@ export function StatusBar({
                       syncStatus === "synced"
                         ? "Synced to cloud"
                         : syncStatus === "syncing"
-                        ? "Syncing"
-                        : syncStatus === "offline"
-                        ? "Working offline"
-                        : "Sync error"
+                          ? "Syncing"
+                          : syncStatus === "offline"
+                            ? "Working offline"
+                            : "Sync error"
                     }`}
                   >
                     {syncStatus === "synced" && (

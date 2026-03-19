@@ -5083,6 +5083,30 @@ app.post("/make-server-17cae920/submissions", verifyAuth, async (c) => {
 
     await kv.set(`submission:${submission.id}`, submission);
 
+    // Look up submitter's name for the notification
+    let submitterName = "a user";
+    try {
+      const profile = await kv.get(`user_profile:${userId}`);
+      if (profile?.name) {
+        submitterName = profile.name;
+      } else if (profile?.email) {
+        submitterName = profile.email.split("@")[0];
+      }
+    } catch (_) {
+      // Fall back to generic name
+    }
+
+    const typeLabels: Record<string, string> = {
+      new_material: "material",
+      edit_material: "material edit",
+      new_article: "article",
+      update_article: "article update",
+      delete_material: "material deletion",
+      delete_article: "article deletion",
+    };
+    const typeLabel =
+      typeLabels[submission.type] || submission.type.replace(/_/g, " ");
+
     // Create notification for admins
     const adminNotification = {
       id: crypto.randomUUID(),
@@ -5090,7 +5114,7 @@ app.post("/make-server-17cae920/submissions", verifyAuth, async (c) => {
       type: "new_review_item",
       content_id: submission.id,
       content_type: "submission",
-      message: `New ${submission.type} submission from user`,
+      message: `New ${typeLabel} submission from ${submitterName}`,
       read: false,
       created_at: new Date().toISOString(),
     };

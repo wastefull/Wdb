@@ -26,9 +26,14 @@ interface Notification {
 interface NotificationBellProps {
   userId: string;
   isAdmin: boolean;
+  onNavigate?: (view: any) => void;
 }
 
-export function NotificationBell({ userId, isAdmin }: NotificationBellProps) {
+export function NotificationBell({
+  userId,
+  isAdmin,
+  onNavigate,
+}: NotificationBellProps) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -59,14 +64,14 @@ export function NotificationBell({ userId, isAdmin }: NotificationBellProps) {
         allNotifications = [...userNotifications, ...adminNotifications];
         // Remove duplicates
         allNotifications = allNotifications.filter(
-          (n, i, arr) => arr.findIndex((t) => t.id === n.id) === i
+          (n, i, arr) => arr.findIndex((t) => t.id === n.id) === i,
         );
       }
 
       // Sort by date (newest first)
       allNotifications.sort(
         (a, b) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
       );
 
       setNotifications(allNotifications);
@@ -83,7 +88,7 @@ export function NotificationBell({ userId, isAdmin }: NotificationBellProps) {
     try {
       await api.markNotificationAsRead(notificationId);
       setNotifications((prev) =>
-        prev.map((n) => (n.id === notificationId ? { ...n, read: true } : n))
+        prev.map((n) => (n.id === notificationId ? { ...n, read: true } : n)),
       );
     } catch (error) {
       logger.error("Error marking notification as read:", error);
@@ -200,6 +205,11 @@ export function NotificationBell({ userId, isAdmin }: NotificationBellProps) {
                   onClick={() => {
                     if (!notification.read) {
                       handleMarkAsRead(notification.id);
+                    }
+                    // Navigate to review center for review item notifications
+                    if (notification.type === "new_review_item" && onNavigate) {
+                      onNavigate({ type: "review-center" });
+                      setOpen(false);
                     }
                   }}
                 >
