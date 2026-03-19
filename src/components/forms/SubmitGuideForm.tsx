@@ -1,6 +1,11 @@
 import React, { useState } from "react";
 import { BookOpen, X, Loader2, Upload } from "lucide-react";
-import { Guide, GuideMethod, GuideSubmission } from "../../types/guide";
+import {
+  Guide,
+  GuideMethod,
+  GuideCategory,
+  GuideSubmission,
+} from "../../types/guide";
 import { Material } from "../../types/material";
 import GuideEditor from "../editor/GuideEditor";
 import type { TiptapContent } from "../../types/guide";
@@ -25,6 +30,7 @@ export function SubmitGuideForm({
     description: "",
     content: { type: "doc", content: [] } as TiptapContent,
     method: "DIY",
+    category: undefined,
     material_id: undefined,
     difficulty_level: "beginner",
     estimated_time: "",
@@ -45,7 +51,7 @@ export function SubmitGuideForm({
       // Validate required fields
       if (!parsed.content || parsed.content.type !== "doc") {
         toast.error(
-          "Invalid content format. Must have a 'content' field with type 'doc'."
+          "Invalid content format. Must have a 'content' field with type 'doc'.",
         );
         return;
       }
@@ -57,6 +63,7 @@ export function SubmitGuideForm({
         description: parsed.description || prev.description,
         content: parsed.content,
         method: parsed.method || prev.method,
+        category: parsed.category || prev.category,
         difficulty_level: parsed.difficulty_level || prev.difficulty_level,
         estimated_time: parsed.estimated_time || prev.estimated_time,
         required_materials:
@@ -274,29 +281,52 @@ export function SubmitGuideForm({
             </div>
 
             <div>
-              <label className="block text-[12px] normal mb-2">
-                Related Material (Optional)
-              </label>
+              <label className="block text-[12px] normal mb-2">Category</label>
               <select
-                value={formData.material_id || ""}
+                value={formData.category || ""}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    material_id: e.target.value || undefined,
+                    category: (e.target.value || undefined) as
+                      | GuideCategory
+                      | undefined,
                   })
                 }
                 className="input-field"
               >
-                <option key="none" value="">
-                  None
-                </option>
-                {materials.map((material) => (
-                  <option key={material.id} value={material.id}>
-                    {material.name}
-                  </option>
-                ))}
+                <option value="">None</option>
+                <option value="composting">Composting</option>
+                <option value="recycling">Recycling</option>
+                <option value="art">Creative Reuse & Art</option>
+                <option value="repair">Repair & Maintenance</option>
               </select>
             </div>
+          </div>
+
+          {/* Material */}
+          <div>
+            <label className="block text-[12px] normal mb-2">
+              Related Material (Optional)
+            </label>
+            <select
+              value={formData.material_id || ""}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  material_id: e.target.value || undefined,
+                })
+              }
+              className="input-field"
+            >
+              <option key="none" value="">
+                None
+              </option>
+              {materials.map((material) => (
+                <option key={material.id} value={material.id}>
+                  {material.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Difficulty and Time */}

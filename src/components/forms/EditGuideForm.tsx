@@ -1,6 +1,11 @@
 import React, { useState } from "react";
 import { BookOpen, X, Loader2, Upload } from "lucide-react";
-import { Guide, GuideMethod, GuideSubmission } from "../../types/guide";
+import {
+  Guide,
+  GuideMethod,
+  GuideCategory,
+  GuideSubmission,
+} from "../../types/guide";
 import { Material } from "../../types/material";
 import GuideEditor from "../editor/GuideEditor";
 import type { TiptapContent } from "../../types/guide";
@@ -11,7 +16,7 @@ interface EditGuideFormProps {
   onClose: () => void;
   onSubmit: (
     guideId: string,
-    updates: Partial<GuideSubmission>
+    updates: Partial<GuideSubmission>,
   ) => Promise<void>;
   materials: Material[];
   isAdmin?: boolean;
@@ -50,6 +55,7 @@ export function EditGuideForm({
     description: guide.description,
     content: parseContent(guide.content),
     method: guide.method,
+    category: guide.category,
     material_id: guide.material_id,
     difficulty_level: guide.difficulty_level,
     estimated_time: guide.estimated_time || "",
@@ -60,7 +66,7 @@ export function EditGuideForm({
   });
 
   const [materialsInput, setMaterialsInput] = useState(
-    guide.required_materials?.join(", ") || ""
+    guide.required_materials?.join(", ") || "",
   );
   const [tagsInput, setTagsInput] = useState(guide.tags?.join(", ") || "");
 
@@ -72,7 +78,7 @@ export function EditGuideForm({
       // Validate required fields
       if (!parsed.content || parsed.content.type !== "doc") {
         toast.error(
-          "Invalid content format. Must have a 'content' field with type 'doc'."
+          "Invalid content format. Must have a 'content' field with type 'doc'.",
         );
         return;
       }
@@ -84,6 +90,7 @@ export function EditGuideForm({
         description: parsed.description || prev.description,
         content: parsed.content,
         method: parsed.method || prev.method,
+        category: parsed.category || prev.category,
         difficulty_level: parsed.difficulty_level || prev.difficulty_level,
         estimated_time: parsed.estimated_time || prev.estimated_time,
         required_materials:
@@ -302,58 +309,80 @@ export function EditGuideForm({
             </div>
 
             <div>
-              <label className="block text-[12px] normal mb-2">
-                Related Material (Optional)
-              </label>
-              {isOrphanedMaterial && (
-                <div className="mb-2 p-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700 rounded text-[11px] text-amber-800 dark:text-amber-200">
-                  ⚠️ This guide was linked to a material that no longer exists
-                  {guide.material_name && (
-                    <span className="font-medium">
-                      {" "}
-                      ("{guide.material_name}")
-                    </span>
-                  )}
-                  . Please select a new material or choose "None".
-                </div>
-              )}
+              <label className="block text-[12px] normal mb-2">Category</label>
               <select
-                value={formData.material_id || ""}
+                value={formData.category || ""}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    material_id: e.target.value || undefined,
+                    category: (e.target.value || undefined) as
+                      | GuideCategory
+                      | undefined,
                   })
                 }
-                className={`input-field ${
-                  isOrphanedMaterial &&
-                  formData.material_id === guide.material_id
-                    ? "border-amber-500 dark:border-amber-500"
-                    : ""
-                }`}
+                className="input-field"
               >
-                <option key="none" value="">
-                  None
-                </option>
-                {/* Show orphaned material option so the current value is visible */}
-                {isOrphanedMaterial &&
-                  formData.material_id === guide.material_id && (
-                    <option
-                      key="orphaned"
-                      value={guide.material_id}
-                      disabled
-                      className="text-amber-600"
-                    >
-                      ⚠️ {guide.material_name || guide.material_id} (deleted)
-                    </option>
-                  )}
-                {materials.map((material) => (
-                  <option key={material.id} value={material.id}>
-                    {material.name}
-                  </option>
-                ))}
+                <option value="">None</option>
+                <option value="composting">Composting</option>
+                <option value="recycling">Recycling</option>
+                <option value="art">Creative Reuse & Art</option>
+                <option value="repair">Repair & Maintenance</option>
               </select>
             </div>
+          </div>
+
+          {/* Material */}
+          <div>
+            <label className="block text-[12px] normal mb-2">
+              Related Material (Optional)
+            </label>
+            {isOrphanedMaterial && (
+              <div className="mb-2 p-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700 rounded text-[11px] text-amber-800 dark:text-amber-200">
+                ⚠️ This guide was linked to a material that no longer exists
+                {guide.material_name && (
+                  <span className="font-medium">
+                    {" "}
+                    ("{guide.material_name}")
+                  </span>
+                )}
+                . Please select a new material or choose "None".
+              </div>
+            )}
+            <select
+              value={formData.material_id || ""}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  material_id: e.target.value || undefined,
+                })
+              }
+              className={`input-field ${
+                isOrphanedMaterial && formData.material_id === guide.material_id
+                  ? "border-amber-500 dark:border-amber-500"
+                  : ""
+              }`}
+            >
+              <option key="none" value="">
+                None
+              </option>
+              {/* Show orphaned material option so the current value is visible */}
+              {isOrphanedMaterial &&
+                formData.material_id === guide.material_id && (
+                  <option
+                    key="orphaned"
+                    value={guide.material_id}
+                    disabled
+                    className="text-amber-600"
+                  >
+                    ⚠️ {guide.material_name || guide.material_id} (deleted)
+                  </option>
+                )}
+              {materials.map((material) => (
+                <option key={material.id} value={material.id}>
+                  {material.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Difficulty and Time */}

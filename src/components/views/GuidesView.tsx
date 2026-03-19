@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { PageTemplate } from "../shared/PageTemplate";
 import { SubmitGuideForm } from "../forms";
-import { Guide, GuideMethod } from "../../types/guide";
+import { Guide, GuideMethod, GuideCategory } from "../../types/guide";
 import { getPublishedGuides, createGuide } from "../../utils/guides";
 import { useMaterialsContext } from "../../contexts/MaterialsContext";
 import { useAuthContext } from "../../contexts/AuthContext";
@@ -21,7 +21,7 @@ import { useNavigationContext } from "../../contexts/NavigationContext";
 import { toast } from "sonner";
 import { logger } from "../../utils/logger";
 
-type GuideCategory = "all" | "composting" | "recycling" | "art" | "repair";
+type GuideCategoryFilter = "all" | GuideCategory;
 
 interface GuidesViewProps {
   onBack: () => void;
@@ -32,7 +32,7 @@ export function GuidesView({ onBack }: GuidesViewProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [showSubmitForm, setShowSubmitForm] = useState(false);
   const [selectedCategory, setSelectedCategory] =
-    useState<GuideCategory>("all");
+    useState<GuideCategoryFilter>("all");
   const { materials } = useMaterialsContext();
   const { isAuthenticated } = useAuthContext();
   const { navigateTo } = useNavigationContext();
@@ -128,16 +128,18 @@ export function GuidesView({ onBack }: GuidesViewProps) {
     }
   };
 
-  // Map guides to categories based on tags
-  const getGuideCategory = (guide: Guide): GuideCategory => {
-    if (!guide.tags) return "all";
+  // Get guide category — uses the category field, falling back to tag inference for legacy guides
+  const getGuideCategory = (guide: Guide): GuideCategory | null => {
+    if (guide.category) return guide.category;
+    // Fallback: infer from tags for guides created before the category field existed
+    if (!guide.tags) return null;
     const tags = guide.tags.map((t) => t.toLowerCase());
     if (tags.includes("composting")) return "composting";
     if (tags.includes("recycling")) return "recycling";
     if (tags.includes("art") || tags.includes("creative")) return "art";
     if (tags.includes("repair") || tags.includes("maintenance"))
       return "repair";
-    return "all";
+    return null;
   };
 
   // Filter guides by category
@@ -264,7 +266,7 @@ export function GuidesView({ onBack }: GuidesViewProps) {
                     {guide.difficulty_level && (
                       <span
                         className={`tag-sm ${getDifficultyColor(
-                          guide.difficulty_level
+                          guide.difficulty_level,
                         )}`}
                       >
                         {guide.difficulty_level}

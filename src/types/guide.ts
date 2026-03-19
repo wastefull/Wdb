@@ -5,6 +5,7 @@
 
 export type GuideMethod = "DIY" | "Industrial" | "Experimental";
 export type GuideStatus = "draft" | "published" | "pending_review" | "archived";
+export type GuideCategory = "composting" | "recycling" | "art" | "repair";
 
 // Tiptap JSON content structure
 export interface TiptapContent {
@@ -27,6 +28,7 @@ export interface Guide {
   description: string;
   content: TiptapContent; // Rich text content in Tiptap JSON format
   method: GuideMethod;
+  category?: GuideCategory;
   material_id?: string; // Optional link to a material
   material_name?: string; // Denormalized for display
 
@@ -67,6 +69,7 @@ export interface GuideSubmission {
   description: string;
   content: TiptapContent;
   method: GuideMethod;
+  category?: GuideCategory;
   material_id?: string;
   difficulty_level?: "beginner" | "intermediate" | "advanced";
   estimated_time?: string;
