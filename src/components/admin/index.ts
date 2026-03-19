@@ -1,6 +1,7 @@
 // Admin dashboard
 export { AdminDashboard } from "./AdminDashboard";
 export { AdminTakedownList } from "./AdminTakedownList";
+export { StaffDashboard } from "./StaffDashboard";
 export { TakedownDebugPanel } from "./TakedownDebugPanel";
 
 // User & content management

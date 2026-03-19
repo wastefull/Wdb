@@ -33,6 +33,8 @@ interface SimplifiedRoadmapProps {
     | "10"
     | "tests"
     | "backlog";
+  /** When true, locks to overview tab only (no tests, no phase tabs) */
+  staffMode?: boolean;
 }
 
 // Define available phase tabs in order - the first one is automatically the active phase
@@ -47,6 +49,7 @@ export const PHASE_TABS = [
 export function SimplifiedRoadmap({
   onBack,
   defaultTab,
+  staffMode,
 }: SimplifiedRoadmapProps) {
   const phaseTabs = PHASE_TABS;
 
@@ -64,7 +67,11 @@ export function SimplifiedRoadmap({
     | "10"
     | "tests"
     | "backlog"
-  >(defaultTab || (activePhase.id as any) || "overview");
+  >(
+    staffMode
+      ? "overview"
+      : defaultTab || (activePhase.id as any) || "overview",
+  );
 
   // Backlog (Future Enhancements)
   const backlogItems = [
@@ -627,103 +634,107 @@ export function SimplifiedRoadmap({
       maxWidth="5xl"
     >
       {/* Active Phase Badge - first phase tab is always the active one */}
-      <div className="mb-6 flex items-center gap-3">
-        <span className="text-sm font-['Sniglet'] text-muted-foreground">
-          Active Phase:
-        </span>
-        <Badge className="bg-[#bae1ff] text-black hover:bg-[#9dd1ff] font-['Sniglet'] px-3 py-1">
-          {activePhase.fullName}
-        </Badge>
-        <span className="text-xs text-muted-foreground font-['Sniglet']">
-          (When complete, remove this tab to advance to the next phase)
-        </span>
-      </div>
+      {!staffMode && (
+        <div className="mb-6 flex items-center gap-3">
+          <span className="text-sm font-['Sniglet'] text-muted-foreground">
+            Active Phase:
+          </span>
+          <Badge className="bg-[#bae1ff] text-black hover:bg-[#9dd1ff] font-['Sniglet'] px-3 py-1">
+            {activePhase.fullName}
+          </Badge>
+          <span className="text-xs text-muted-foreground font-['Sniglet']">
+            (When complete, remove this tab to advance to the next phase)
+          </span>
+        </div>
+      )}
 
       {/* Tabs */}
-      <div className="mb-6">
-        <div className="flex gap-2 border-b border-[#211f1c]/20 dark:border-white/20">
-          <button
-            onClick={() => setActiveTab("overview")}
-            className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
-              activeTab === "overview"
-                ? "normal border-b-2 border-[#211f1c] dark:border-white"
-                : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
-            }`}
-          >
-            Overview
-          </button>
-          <button
-            onClick={() => setActiveTab("9.2")}
-            className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
-              activeTab === "9.2"
-                ? "normal border-b-2 border-[#211f1c] dark:border-white"
-                : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
-            }`}
-          >
-            9.2
-          </button>
-          <button
-            onClick={() => setActiveTab("9.3")}
-            className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
-              activeTab === "9.3"
-                ? "normal border-b-2 border-[#211f1c] dark:border-white"
-                : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
-            }`}
-          >
-            9.3
-          </button>
-          <button
-            onClick={() => setActiveTab("9.4")}
-            className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
-              activeTab === "9.4"
-                ? "normal border-b-2 border-[#211f1c] dark:border-white"
-                : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
-            }`}
-          >
-            9.4
-          </button>
-          <button
-            onClick={() => setActiveTab("9.5")}
-            className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
-              activeTab === "9.5"
-                ? "normal border-b-2 border-[#211f1c] dark:border-white"
-                : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
-            }`}
-          >
-            9.5
-          </button>
-          <button
-            onClick={() => setActiveTab("10")}
-            className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
-              activeTab === "10"
-                ? "normal border-b-2 border-[#211f1c] dark:border-white"
-                : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
-            }`}
-          >
-            10
-          </button>
-          <button
-            onClick={() => setActiveTab("tests")}
-            className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
-              activeTab === "tests"
-                ? "normal border-b-2 border-[#211f1c] dark:border-white"
-                : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
-            }`}
-          >
-            Tests
-          </button>
-          <button
-            onClick={() => setActiveTab("backlog")}
-            className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
-              activeTab === "backlog"
-                ? "normal border-b-2 border-[#211f1c] dark:border-white"
-                : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
-            }`}
-          >
-            Backlog
-          </button>
+      {!staffMode && (
+        <div className="mb-6">
+          <div className="flex gap-2 border-b border-[#211f1c]/20 dark:border-white/20">
+            <button
+              onClick={() => setActiveTab("overview")}
+              className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
+                activeTab === "overview"
+                  ? "normal border-b-2 border-[#211f1c] dark:border-white"
+                  : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
+              }`}
+            >
+              Overview
+            </button>
+            <button
+              onClick={() => setActiveTab("9.2")}
+              className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
+                activeTab === "9.2"
+                  ? "normal border-b-2 border-[#211f1c] dark:border-white"
+                  : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
+              }`}
+            >
+              9.2
+            </button>
+            <button
+              onClick={() => setActiveTab("9.3")}
+              className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
+                activeTab === "9.3"
+                  ? "normal border-b-2 border-[#211f1c] dark:border-white"
+                  : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
+              }`}
+            >
+              9.3
+            </button>
+            <button
+              onClick={() => setActiveTab("9.4")}
+              className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
+                activeTab === "9.4"
+                  ? "normal border-b-2 border-[#211f1c] dark:border-white"
+                  : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
+              }`}
+            >
+              9.4
+            </button>
+            <button
+              onClick={() => setActiveTab("9.5")}
+              className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
+                activeTab === "9.5"
+                  ? "normal border-b-2 border-[#211f1c] dark:border-white"
+                  : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
+              }`}
+            >
+              9.5
+            </button>
+            <button
+              onClick={() => setActiveTab("10")}
+              className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
+                activeTab === "10"
+                  ? "normal border-b-2 border-[#211f1c] dark:border-white"
+                  : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
+              }`}
+            >
+              10
+            </button>
+            <button
+              onClick={() => setActiveTab("tests")}
+              className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
+                activeTab === "tests"
+                  ? "normal border-b-2 border-[#211f1c] dark:border-white"
+                  : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
+              }`}
+            >
+              Tests
+            </button>
+            <button
+              onClick={() => setActiveTab("backlog")}
+              className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
+                activeTab === "backlog"
+                  ? "normal border-b-2 border-[#211f1c] dark:border-white"
+                  : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
+              }`}
+            >
+              Backlog
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {activeTab === "overview" && (
         <div className="space-y-8">

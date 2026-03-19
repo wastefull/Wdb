@@ -8,10 +8,12 @@ import {
   Menu,
   Bell,
   Shield,
+  Briefcase,
 } from "lucide-react";
 import { NotificationBell } from "../shared/NotificationBell";
 import { RetroButtons } from "./RetroButtons";
 import { AdminModeButton } from "./AdminModeButton";
+import { useAccessibility } from "../shared/AccessibilityContext";
 import {
   Tooltip as UITooltip,
   TooltipContent,
@@ -63,6 +65,7 @@ export function StatusBar({
   onClose,
 }: StatusBarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { settings } = useAccessibility();
 
   // Mini variant for modals - simplified with just close button and title
   if (variant === "mini") {
@@ -239,6 +242,24 @@ export function StatusBar({
                         </button>
                       )}
 
+                      {/* Staff Dashboard (if staff, or admin with admin mode on) */}
+                      {(userRole === "staff" ||
+                        (userRole === "admin" && settings.adminMode)) &&
+                        currentView && (
+                          <button
+                            onClick={() => {
+                              onViewChange({ type: "staff-dashboard" });
+                              setMobileMenuOpen(false);
+                            }}
+                            className="flex items-center gap-3 p-3 rounded-lg border border-[#211f1c]/20 dark:border-white/20 bg-white/50 dark:bg-black/20 hover:bg-white dark:hover:bg-black/40 transition-colors"
+                          >
+                            <Briefcase className="w-5 h-5" />
+                            <span className="text-[13px] font-medium">
+                              Staff Dashboard
+                            </span>
+                          </button>
+                        )}
+
                       {/* Sign Out */}
                       {onLogout && (
                         <button
@@ -300,6 +321,33 @@ export function StatusBar({
                     onViewChange={onViewChange}
                   />
                 )}
+                {(userRole === "staff" ||
+                  (userRole === "admin" && settings.adminMode)) &&
+                  currentView && (
+                    <TooltipProvider delayDuration={300}>
+                      <UITooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            onClick={() =>
+                              onViewChange({ type: "staff-dashboard" })
+                            }
+                            className="flex items-center gap-1 px-2 py-1 rounded-md border border-[#211f1c] dark:border-white/20 arcade-bg-cyan hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                          >
+                            <Briefcase className="w-3 h-3" />
+                            <span className="text-[10px] uppercase arcade-btn-cyan">
+                              Staff
+                            </span>
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent
+                          side="bottom"
+                          className="bg-black text-white border-black"
+                        >
+                          <p className="text-[11px]">Staff Dashboard</p>
+                        </TooltipContent>
+                      </UITooltip>
+                    </TooltipProvider>
+                  )}
                 {onLogout && (
                   <TooltipProvider delayDuration={300}>
                     <UITooltip>

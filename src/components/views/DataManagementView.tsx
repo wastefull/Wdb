@@ -79,6 +79,7 @@ export function DataManagementView({
   const [editData, setEditData] = useState<Partial<Material>>({});
   const [showImportOptions, setShowImportOptions] = useState(false);
   const [pasteData, setPasteData] = useState("");
+  const isAdmin = userRole === "admin";
 
   const categoryOptions = [
     "Plastics",
@@ -407,55 +408,59 @@ export function DataManagementView({
                 <span className="whitespace-nowrap">Export CSV</span>
               </button>
 
-              <button
-                onClick={() => setShowImportOptions(!showImportOptions)}
-                className={`bg-waste-recycle h-9 px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] text-[11px] md:text-[12px] text-black hover:translate-y-px hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-1 md:gap-2 ${
-                  showImportOptions
-                    ? "translate-y-px shadow-[1px_2px_0px_-1px_#000000]"
-                    : ""
-                }`}
-              >
-                <FileUp size={14} className="text-black" />
-                <span className="whitespace-nowrap">Import CSV</span>
-                <ChevronDown
-                  size={14}
-                  className={`text-black transition-transform ${
-                    showImportOptions ? "rotate-180" : ""
+              {isAdmin && (
+                <button
+                  onClick={() => setShowImportOptions(!showImportOptions)}
+                  className={`bg-waste-recycle h-9 px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] text-[11px] md:text-[12px] text-black hover:translate-y-px hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-1 md:gap-2 ${
+                    showImportOptions
+                      ? "translate-y-px shadow-[1px_2px_0px_-1px_#000000]"
+                      : ""
                   }`}
-                />
-              </button>
+                >
+                  <FileUp size={14} className="text-black" />
+                  <span className="whitespace-nowrap">Import CSV</span>
+                  <ChevronDown
+                    size={14}
+                    className={`text-black transition-transform ${
+                      showImportOptions ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+              )}
 
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <button className="bg-waste-compost h-9 px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] text-[11px] md:text-[12px] text-black hover:translate-y-px hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-1 md:gap-2">
-                    <Trash2 size={14} className="text-black" />
-                    <span className="whitespace-nowrap">Delete All</span>
-                  </button>
-                </AlertDialogTrigger>
-                <AlertDialogContent className="bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20">
-                  <AlertDialogHeader>
-                    <AlertDialogTitle className="normal">
-                      Delete All Data?
-                    </AlertDialogTitle>
-                    <AlertDialogDescription className="text-black/70 dark:text-white/70">
-                      This will permanently delete all {materials.length}{" "}
-                      material{materials.length !== 1 ? "s" : ""} and their
-                      associated articles. This action cannot be undone.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel className="bg-waste-reuse border-[#211f1c] dark:border-white/20">
-                      Cancel
-                    </AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={onDeleteAllData}
-                      className="bg-waste-compost text-black border-[1.5px] border-[#211f1c] dark:border-white/20 hover:bg-waste-compost/80"
-                    >
-                      Delete All
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+              {isAdmin && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <button className="bg-waste-compost h-9 px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] text-[11px] md:text-[12px] text-black hover:translate-y-px hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-1 md:gap-2">
+                      <Trash2 size={14} className="text-black" />
+                      <span className="whitespace-nowrap">Delete All</span>
+                    </button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent className="bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20">
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="normal">
+                        Delete All Data?
+                      </AlertDialogTitle>
+                      <AlertDialogDescription className="text-black/70 dark:text-white/70">
+                        This will permanently delete all {materials.length}{" "}
+                        material{materials.length !== 1 ? "s" : ""} and their
+                        associated articles. This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel className="bg-waste-reuse border-[#211f1c] dark:border-white/20">
+                        Cancel
+                      </AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={onDeleteAllData}
+                        className="bg-waste-compost text-black border-[1.5px] border-[#211f1c] dark:border-white/20 hover:bg-waste-compost/80"
+                      >
+                        Delete All
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
             </div>
           </div>
 
@@ -476,16 +481,18 @@ export function DataManagementView({
                   <Database size={14} className="text-black" />
                   <span className="whitespace-nowrap">Download Backup</span>
                 </button>
-                <label className="bg-waste-recycle h-9 px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] text-[11px] md:text-[12px] text-black hover:translate-y-px hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-1 md:gap-2 cursor-pointer">
-                  <UploadCloud size={14} className="text-black" />
-                  <span className="whitespace-nowrap">Restore Backup</span>
-                  <input
-                    type="file"
-                    accept=".json"
-                    onChange={handleImportBackup}
-                    className="hidden"
-                  />
-                </label>
+                {isAdmin && (
+                  <label className="bg-waste-recycle h-9 px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] text-[11px] md:text-[12px] text-black hover:translate-y-px hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-1 md:gap-2 cursor-pointer">
+                    <UploadCloud size={14} className="text-black" />
+                    <span className="whitespace-nowrap">Restore Backup</span>
+                    <input
+                      type="file"
+                      accept=".json"
+                      onChange={handleImportBackup}
+                      className="hidden"
+                    />
+                  </label>
+                )}
               </div>
             </div>
             <p className="text-[10px] text-black/50 dark:text-white/50">
@@ -496,7 +503,7 @@ export function DataManagementView({
           </div>
 
           {/* Import Options */}
-          {showImportOptions && (
+          {isAdmin && showImportOptions && (
             <div className="retro-card-flat mb-4 p-4">
               <h3 className="text-[14px] normal mb-4">Import CSV Data</h3>
 
@@ -776,67 +783,81 @@ export function DataManagementView({
                           </span>
                         </TableCell>
                         <TableCell className="text-center">
-                          {isEditing ? (
-                            <div className="flex gap-1 justify-center">
-                              <button
-                                onClick={handleSave}
-                                className="p-1.5 bg-waste-reuse rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all"
-                              >
-                                <Save size={12} className="text-black" />
-                              </button>
-                              <button
-                                onClick={handleCancel}
-                                className="p-1.5 bg-waste-compost rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all"
-                              >
-                                <X size={12} className="text-black" />
-                              </button>
-                            </div>
-                          ) : (
-                            <div className="flex gap-1 justify-center">
-                              <button
-                                onClick={() => handleEdit(material)}
-                                className="p-1.5 bg-waste-recycle rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all"
-                                title="Edit material"
-                              >
-                                <Edit2 size={12} className="text-black" />
-                              </button>
-                              <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <button
-                                    className="p-1.5 bg-waste-compost rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all"
-                                    title="Delete material"
-                                  >
-                                    <Trash2 size={12} className="text-black" />
-                                  </button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent className="bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20">
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle className="normal">
-                                      Delete Material?
-                                    </AlertDialogTitle>
-                                    <AlertDialogDescription className="text-black/70 dark:text-white/70">
-                                      Are you sure you want to delete "
-                                      {material.name}"? This will permanently
-                                      remove the material and all its associated
-                                      articles. This action cannot be undone.
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel className="bg-waste-reuse border-[#211f1c] dark:border-white/20">
-                                      Cancel
-                                    </AlertDialogCancel>
-                                    <AlertDialogAction
-                                      onClick={() =>
-                                        onDeleteMaterial(material.id)
-                                      }
-                                      className="bg-waste-compost text-black border-[1.5px] border-[#211f1c] dark:border-white/20 hover:bg-waste-compost/80"
+                          {isAdmin ? (
+                            isEditing ? (
+                              <div className="flex gap-1 justify-center">
+                                <button
+                                  onClick={handleSave}
+                                  className="p-1.5 bg-waste-reuse rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                                >
+                                  <Save size={12} className="text-black" />
+                                </button>
+                                <button
+                                  onClick={handleCancel}
+                                  className="p-1.5 bg-waste-compost rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                                >
+                                  <X size={12} className="text-black" />
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="flex gap-1 justify-center">
+                                <button
+                                  onClick={() => handleEdit(material)}
+                                  className="p-1.5 bg-waste-recycle rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                                  title="Edit material"
+                                >
+                                  <Edit2 size={12} className="text-black" />
+                                </button>
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <button
+                                      className="p-1.5 bg-waste-compost rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                                      title="Delete material"
                                     >
-                                      Delete
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                            </div>
+                                      <Trash2
+                                        size={12}
+                                        className="text-black"
+                                      />
+                                    </button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent className="bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20">
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle className="normal">
+                                        Delete Material?
+                                      </AlertDialogTitle>
+                                      <AlertDialogDescription className="text-black/70 dark:text-white/70">
+                                        Are you sure you want to delete "
+                                        {material.name}"? This will permanently
+                                        remove the material and all its
+                                        associated articles. This action cannot
+                                        be undone.
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel className="bg-waste-reuse border-[#211f1c] dark:border-white/20">
+                                        Cancel
+                                      </AlertDialogCancel>
+                                      <AlertDialogAction
+                                        onClick={() =>
+                                          onDeleteMaterial(material.id)
+                                        }
+                                        className="bg-waste-compost text-black border-[1.5px] border-[#211f1c] dark:border-white/20 hover:bg-waste-compost/80"
+                                      >
+                                        Delete
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              </div>
+                            )
+                          ) : (
+                            <button
+                              onClick={() => onViewMaterial(material.id)}
+                              className="p-1.5 bg-waste-recycle rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                              title="View material"
+                            >
+                              <Eye size={12} className="text-black" />
+                            </button>
                           )}
                         </TableCell>
                       </TableRow>

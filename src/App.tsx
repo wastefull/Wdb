@@ -69,6 +69,7 @@ import {
   AuditLogViewer,
   DataRetentionManager,
   AdminDashboard,
+  StaffDashboard,
   AssetsManagementPage,
   RolePermissionsView,
 } from "./components/admin";
@@ -129,6 +130,7 @@ function AppContent() {
     navigateToMethodologyList,
     navigateToWhitepaper,
     navigateToAdminDashboard,
+    navigateToStaffDashboard,
     navigateToDataManagement,
     navigateToUserManagement,
     navigateToScientificEditor,
@@ -1004,6 +1006,19 @@ function AppContent() {
                     onNavigateToCurationWorkbench={navigateToCurationWorkbench}
                     onNavigateToTransformTesting={navigateToTransformTesting}
                   />
+                ) : currentView.type === "staff-dashboard" ? (
+                  <StaffDashboard
+                    onBack={navigateToMaterials}
+                    onNavigateToDataManagement={navigateToDataManagement}
+                    onNavigateToSourceLibrary={navigateToSourceLibrary}
+                    onNavigateToEvidenceLab={navigateToEvidenceLab}
+                    onNavigateToCurationWorkbench={navigateToCurationWorkbench}
+                    onNavigateToTransformTesting={navigateToTransformTesting}
+                    onNavigateToCharts={navigateToChartsPerformance}
+                    onNavigateToRoadmapOverview={() =>
+                      navigateToRoadmapOverview("overview")
+                    }
+                  />
                 ) : currentView.type === "data-management" ? (
                   <DataManagementView
                     materials={materials}
@@ -1093,12 +1108,28 @@ function AppContent() {
                     materials={materials}
                   />
                 ) : currentView.type === "evidence-lab" ? (
-                  <EvidenceLabView onBack={navigateToAdminDashboard} />
+                  <EvidenceLabView
+                    onBack={
+                      userRole === "staff"
+                        ? navigateToStaffDashboard
+                        : navigateToAdminDashboard
+                    }
+                  />
                 ) : currentView.type === "curation-workbench" ? (
-                  <CurationWorkbench onBack={navigateToAdminDashboard} />
+                  <CurationWorkbench
+                    onBack={
+                      userRole === "staff"
+                        ? navigateToStaffDashboard
+                        : navigateToAdminDashboard
+                    }
+                  />
                 ) : currentView.type === "transform-formula-testing" ? (
                   <TransformFormulaTesting
-                    onBack={navigateToAdminDashboard}
+                    onBack={
+                      userRole === "staff"
+                        ? navigateToStaffDashboard
+                        : navigateToAdminDashboard
+                    }
                     materials={materials}
                   />
                 ) : currentView.type === "licenses" ? (
@@ -1146,13 +1177,24 @@ function AppContent() {
                     defaultTab={currentView.defaultTab}
                   />
                 ) : currentView.type === "charts-performance" ? (
-                  <ChartsPerformanceView onBack={navigateToAdminDashboard} />
+                  <ChartsPerformanceView
+                    onBack={
+                      userRole === "staff"
+                        ? navigateToStaffDashboard
+                        : navigateToAdminDashboard
+                    }
+                  />
                 ) : currentView.type === "roadmap" ? (
                   <RoadmapView onBack={navigateToAdminDashboard} />
                 ) : currentView.type === "roadmap-overview" ? (
                   <SimplifiedRoadmap
-                    onBack={navigateToAdminDashboard}
+                    onBack={
+                      userRole === "staff"
+                        ? navigateToStaffDashboard
+                        : navigateToAdminDashboard
+                    }
                     defaultTab={currentView.defaultTab}
+                    staffMode={userRole === "staff"}
                   />
                 ) : currentView.type === "guides" ? (
                   <GuidesView onBack={navigateToMaterials} />

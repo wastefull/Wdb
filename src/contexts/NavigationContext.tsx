@@ -31,6 +31,7 @@ export type ViewType =
   | { type: "methodology-list" }
   | { type: "whitepaper"; whitepaperSlug: string }
   | { type: "admin-dashboard" }
+  | { type: "staff-dashboard" }
   | { type: "data-management" }
   | { type: "user-management" }
   | { type: "whitepaper-sync" }
@@ -103,6 +104,7 @@ interface NavigationContextType {
   navigateToMethodologyList: () => void;
   navigateToWhitepaper: (whitepaperSlug: string) => void;
   navigateToAdminDashboard: () => void;
+  navigateToStaffDashboard: () => void;
   navigateToDataManagement: () => void;
   navigateToUserManagement: () => void;
   navigateToWhitepaperSync: () => void;
@@ -230,6 +232,10 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
 
   const navigateToAdminDashboard = () => {
     navigateTo({ type: "admin-dashboard" });
+  };
+
+  const navigateToStaffDashboard = () => {
+    navigateTo({ type: "staff-dashboard" });
   };
 
   const navigateToDataManagement = () => {
@@ -416,6 +422,7 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
     navigateToMethodologyList,
     navigateToWhitepaper,
     navigateToAdminDashboard,
+    navigateToStaffDashboard,
     navigateToDataManagement,
     navigateToUserManagement,
     navigateToWhitepaperSync,
