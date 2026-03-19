@@ -887,6 +887,7 @@ function AppContent() {
                       )
                     }
                     isAdminModeActive={isAdminModeActive}
+                    userRole={userRole}
                     user={user}
                     onSignUp={() => setShowAuthModal(true)}
                   />

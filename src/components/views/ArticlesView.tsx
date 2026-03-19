@@ -19,6 +19,7 @@ interface ArticlesViewProps {
   onUpdateMaterial: (material: Material) => void;
   onViewArticleStandalone: (articleId: string) => void;
   isAdminModeActive?: boolean;
+  userRole?: "user" | "staff" | "admin";
   user: { id: string; email: string; name?: string } | null;
   onSignUp: () => void;
 }
@@ -30,6 +31,7 @@ export function ArticlesView({
   onUpdateMaterial,
   onViewArticleStandalone,
   isAdminModeActive,
+  userRole,
   user,
   onSignUp,
 }: ArticlesViewProps) {
@@ -115,7 +117,7 @@ export function ArticlesView({
             {articles.length} article{articles.length !== 1 ? "s" : ""}
           </p>
         </div>
-        {isAdminModeActive && (
+        {user && (
           <button
             onClick={() => {
               setShowForm(true);
