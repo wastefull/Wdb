@@ -12523,6 +12523,19 @@ app.patch("/make-server-17cae920/guides/:id", verifyAuth, async (c) => {
       .eq("id", id)
       .single();
 
+    if (!before) {
+      return c.json({ error: "Guide not found" }, 404);
+    }
+
+    // Check permission (author or admin)
+    const userRole = await kv.get(`user_role:${userId}`);
+    if (before.created_by !== userId && userRole !== "admin") {
+      return c.json(
+        { error: "Unauthorized - you can only edit your own guides" },
+        403,
+      );
+    }
+
     const { data, error } = await supabase
       .from("guides")
       .update({
@@ -12577,6 +12590,19 @@ app.delete("/make-server-17cae920/guides/:id", verifyAuth, async (c) => {
       .select("*")
       .eq("id", id)
       .single();
+
+    if (!before) {
+      return c.json({ error: "Guide not found" }, 404);
+    }
+
+    // Check permission (author or admin)
+    const userRole = await kv.get(`user_role:${userId}`);
+    if (before.created_by !== userId && userRole !== "admin") {
+      return c.json(
+        { error: "Unauthorized - you can only delete your own guides" },
+        403,
+      );
+    }
 
     const { error } = await supabase.from("guides").delete().eq("id", id);
 
@@ -12889,6 +12915,19 @@ app.patch("/make-server-17cae920/blog/:id", verifyAuth, async (c) => {
       .eq("id", id)
       .single();
 
+    if (!before) {
+      return c.json({ error: "Blog post not found" }, 404);
+    }
+
+    // Check permission (author or admin)
+    const userRole = await kv.get(`user_role:${userId}`);
+    if (before.created_by !== userId && userRole !== "admin") {
+      return c.json(
+        { error: "Unauthorized - you can only edit your own posts" },
+        403,
+      );
+    }
+
     const { data, error } = await supabase
       .from("blog_posts")
       .update(updates)
@@ -12940,6 +12979,19 @@ app.delete("/make-server-17cae920/blog/:id", verifyAuth, async (c) => {
       .select("*")
       .eq("id", id)
       .single();
+
+    if (!before) {
+      return c.json({ error: "Blog post not found" }, 404);
+    }
+
+    // Check permission (author or admin)
+    const userRole = await kv.get(`user_role:${userId}`);
+    if (before.created_by !== userId && userRole !== "admin") {
+      return c.json(
+        { error: "Unauthorized - you can only delete your own posts" },
+        403,
+      );
+    }
 
     const { error } = await supabase.from("blog_posts").delete().eq("id", id);
 
