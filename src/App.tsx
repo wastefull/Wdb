@@ -116,6 +116,12 @@ import { SearchBar } from "./components/search";
 import { StatusBar, NavTabs } from "./components/layout";
 import type { NavTabId } from "./components/layout";
 import { ScientificDataEditor } from "./components/scientific-editor";
+import {
+  buildMaterialPermalinkPath,
+  findMaterialByPermalink,
+  parseMaterialPermalinkPath,
+  ParsedMaterialPermalink,
+} from "./utils/permalinks";
 
 function AppContent() {
   const { settings, toggleAdminMode } = useAccessibility();
@@ -193,6 +199,9 @@ function AppContent() {
   const [materialToEdit, setMaterialToEdit] = useState<Material | null>(null);
   const [showSubmitArticleForm, setShowSubmitArticleForm] = useState(false);
   const [showChart, setShowChart] = useState(false);
+  const [pendingMaterialPermalink, setPendingMaterialPermalink] =
+    useState<ParsedMaterialPermalink | null>(null);
+  const hasResolvedMaterialPermalinkRef = useRef(false);
 
   // Mobile leaderboard scroll reveal
   const [leaderboardVisible, setLeaderboardVisible] = useState(false);
@@ -329,10 +338,62 @@ function AppContent() {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const articleId = urlParams.get("article");
+    const parsedMaterialPermalink = parseMaterialPermalinkPath(
+      window.location.pathname,
+    );
+
+    if (parsedMaterialPermalink) {
+      setPendingMaterialPermalink(parsedMaterialPermalink);
+    }
+
     if (articleId) {
       setArticleToOpen(articleId);
     }
   }, []);
+
+  // Resolve a material permalink from the path once materials are loaded.
+  useEffect(() => {
+    if (hasResolvedMaterialPermalinkRef.current || !pendingMaterialPermalink) {
+      return;
+    }
+
+    if (isLoadingMaterials) {
+      return;
+    }
+
+    const matchedMaterial = findMaterialByPermalink(
+      materials,
+      pendingMaterialPermalink,
+    );
+
+    if (matchedMaterial) {
+      navigateToMaterialDetail(matchedMaterial.id);
+      const canonicalPath = buildMaterialPermalinkPath(matchedMaterial);
+      if (window.location.pathname !== canonicalPath) {
+        window.history.replaceState(
+          {},
+          "",
+          `${canonicalPath}${window.location.search}${window.location.hash}`,
+        );
+      }
+    } else {
+      toast.error("Material permalink not found");
+      navigateToMaterials();
+      window.history.replaceState(
+        {},
+        "",
+        `/${window.location.search}${window.location.hash}`,
+      );
+    }
+
+    hasResolvedMaterialPermalinkRef.current = true;
+  }, [
+    isLoadingMaterials,
+    materials,
+    pendingMaterialPermalink,
+    navigateToMaterialDetail,
+    navigateToMaterials,
+  ]);
 
   // Navigate to article when articleToOpen is set and materials are loaded
   useEffect(() => {
@@ -472,6 +533,25 @@ function AppContent() {
     currentView.type === "scientific-editor"
       ? materials.find((m) => m.id === currentView.materialId)
       : null;
+
+  // Keep the browser URL in sync with material-focused views.
+  useEffect(() => {
+    let targetPath: string | null = null;
+
+    if (currentMaterial) {
+      targetPath = buildMaterialPermalinkPath(currentMaterial);
+    } else if (parseMaterialPermalinkPath(window.location.pathname)) {
+      targetPath = "/";
+    }
+
+    if (targetPath && window.location.pathname !== targetPath) {
+      window.history.replaceState(
+        {},
+        "",
+        `${targetPath}${window.location.search}${window.location.hash}`,
+      );
+    }
+  }, [currentMaterial]);
 
   // Admin mode is only active if user is authenticated, has admin role, AND has toggled admin mode on
   const isAdminModeActive = !!(

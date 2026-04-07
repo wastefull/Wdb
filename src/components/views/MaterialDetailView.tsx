@@ -1,7 +1,8 @@
 import { useState, useMemo } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Copy, Check } from "lucide-react";
 import { Material } from "../../types/material";
 import { Article, CategoryType } from "../../types/article";
+import { buildMaterialPermalinkPath } from "../../utils/permalinks";
 import {
   getAllArticles,
   getArticleCount,
@@ -66,6 +67,21 @@ export function MaterialDetailView({
     category: CategoryType;
   } | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const materialPermalink = `${window.location.origin}${buildMaterialPermalinkPath(
+    material,
+  )}`;
+
+  const handleCopyMaterialLink = async () => {
+    try {
+      await navigator.clipboard.writeText(materialPermalink);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopied(false);
+    }
+  };
 
   const handleUpdateArticle = (
     articleData: Omit<Article, "id" | "dateAdded">,
@@ -113,11 +129,19 @@ export function MaterialDetailView({
         </button>
         <div className="flex-1">
           <h2 className="text-[20px] normal">{material.name}</h2>
-          <div className="flex items-center gap-2 mt-1">
+          <div className="flex flex-wrap items-center gap-2 mt-1">
             <span className="tag-cyan">{material.category}</span>
             <p className="text-[12px] text-black/60 dark:text-white/60">
               {totalArticles} article{totalArticles !== 1 ? "s" : ""}
             </p>
+            <button
+              onClick={handleCopyMaterialLink}
+              className="px-2 py-1 rounded-md border border-[#211f1c] dark:border-white/20 text-[11px] text-black/80 dark:text-white/80 bg-white dark:bg-[#2a2825] hover:bg-black/5 dark:hover:bg-white/10 transition-colors inline-flex items-center gap-1"
+              title="Copy material link"
+            >
+              {copied ? <Check size={12} /> : <Copy size={12} />}
+              {copied ? "Copied" : "Copy material link"}
+            </button>
           </div>
         </div>
       </div>
