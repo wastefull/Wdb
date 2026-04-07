@@ -1,6 +1,6 @@
 # Quick Authentication Reference
 
-**Updated:** December 18, 2025
+**Updated:** April 7, 2026
 **One-page guide for WasteDB authentication**
 
 ---
@@ -9,17 +9,27 @@
 
 ### In Production (Deployed App)
 
-**→ Magic Link ONLY** ✉️
+**→ Google OAuth (@wastefull.org) OR Magic Link**
 
 ### in localhost (Testing)
 
-**→ Magic Link OR Password** 🔄
+**→ Google OAuth OR Magic Link OR Password**
 
 ---
 
 ## How to Sign In
 
 ### Production Users
+
+**Option 1: Continue with Google (recommended for org members)**
+
+```
+1. Click "Continue with Google (@wastefull.org)"
+2. Choose your Wastefull Google account
+3. Return to WasteDB signed in
+```
+
+**Option 2: Magic Link**
 
 **1. Enter your email**
 
@@ -45,9 +55,11 @@ you@example.com
 
 ### Figma Make Users (Testing)
 
-**Option 1: Magic Link** (Same as production)
+**Option 1: Google OAuth**
 
-**Option 2: Password** (Fast testing)
+**Option 2: Magic Link**
+
+**Option 3: Password** (Fast testing)
 
 ```
 1. Toggle to "Password"
@@ -59,13 +71,14 @@ you@example.com
 
 ## Quick Facts
 
-| Feature        | Production     | Local Dev       |
-| -------------- | -------------- | --------------- |
-| Magic Link     | ✅             | ✅              |
-| Password       | ❌             | ✅              |
-| Toggle visible | ❌             | ✅              |
-| Email required | ✅             | ✅ (Magic Link) |
-| Admin access   | @wastefull.org | @wastefull.org  |
+| Feature               | Production                  | Local Dev                   |
+| --------------------- | --------------------------- | --------------------------- |
+| Google OAuth          | ✅                          | ✅                          |
+| Magic Link            | ✅                          | ✅                          |
+| Password              | ❌                          | ✅                          |
+| OAuth org restriction | ✅                          | ✅                          |
+| Linked email aliases  | ✅                          | ✅                          |
+| Admin access          | @wastefull.org + role rules | @wastefull.org + role rules |
 
 ---
 
@@ -93,8 +106,18 @@ console.log(window.location.hostname);
 **You're in production!**
 
 - Password auth is disabled for security
-- Use Magic Link instead
+- Use Google OAuth or Magic Link instead
 - It's more secure and easier to use
+
+---
+
+### "Google sign-in says restricted"
+
+- Google OAuth only accepts verified `@wastefull.org` accounts
+- Use Magic Link for non-org accounts
+- If your org Google email should map to an older non-org account, an admin can link them via email alias
+
+See: `src/docs/auth/GOOGLE_OAUTH_SETUP.md`
 
 ---
 
@@ -277,12 +300,12 @@ sessionStorage.removeItem("wastedb_user");
 
 ## 🎉 Summary
 
-**Production:** Magic Link only (passwordless) ✉️  
-**Figma Make:** Magic Link + Password (testing) 🔄  
-**Admin:** @wastefull.org emails 👨‍💼  
+**Production:** Google OAuth + Magic Link  
+**Figma Make:** Google OAuth + Magic Link + Password  
+**Admin:** Role-based, with @wastefull.org org policy  
 **Security:** Best practices ✅
 
 ---
 
-**Updated:** October 23, 2025  
-**Version:** 1.0
+**Updated:** April 7, 2026  
+**Version:** 1.1

@@ -261,11 +261,13 @@ function AppContent() {
     });
   }, [materials.length, isLoadingMaterials, syncStatus, supabaseAvailable]);
 
-  // Handle magic link callback (AuthContext handles regular session restoration)
+  // Handle auth callbacks (magic link and Google OAuth)
   useEffect(() => {
-    const handleMagicLink = async () => {
+    const handleAuthCallbacks = async () => {
       const urlParams = new URLSearchParams(window.location.search);
       const magicToken = urlParams.get("magic_token");
+      const oauthProvider = urlParams.get("oauth_provider");
+      const hasOAuthCode = urlParams.has("code");
 
       if (magicToken) {
         // Verify magic link token and get access token
@@ -320,10 +322,45 @@ function AppContent() {
             window.location.pathname,
           );
         }
+        return;
+      }
+
+      // Supabase OAuth callback flow: exchange OAuth session for WasteDB session token.
+      if (oauthProvider === "google" || hasOAuthCode) {
+        logger.log("Detected Google OAuth callback, exchanging session...");
+        try {
+          const response =
+            await api.exchangeSupabaseSessionForWasteDBSession("google");
+
+          if (response.access_token && response.user) {
+            await signIn(response.user);
+
+            window.history.replaceState(
+              {},
+              document.title,
+              window.location.pathname,
+            );
+
+            logger.log("Google OAuth authentication successful");
+            toast.success(`Welcome back, ${response.user.email}!`);
+          } else {
+            throw new Error("Invalid OAuth exchange response");
+          }
+        } catch (error) {
+          logger.error("Error processing Google OAuth callback:", error);
+          const errorMessage =
+            error instanceof Error ? error.message : "Unknown error";
+          toast.error(`Google sign-in failed: ${errorMessage}`);
+          window.history.replaceState(
+            {},
+            document.title,
+            window.location.pathname,
+          );
+        }
       }
     };
 
-    handleMagicLink();
+    handleAuthCallbacks();
   }, [signIn]);
 
   // Ensure admin mode is off when not authenticated

@@ -1,6 +1,6 @@
 # Environment-Based Authentication Strategy
 
-**Updated:** Dec 18, 2025  
+**Updated:** Apr 7, 2026  
 **Status:** ✅ Implemented
 
 ---
@@ -9,8 +9,8 @@
 
 WasteDB implements **environment-aware authentication** that adapts based on where the app is running:
 
-- **local (Testing):** Both Magic Link AND Password authentication available
-- **Production (Deployed):** Magic Link authentication ONLY (passwordless)
+- **local (Testing):** Google OAuth + Magic Link + Password authentication available
+- **Production (Deployed):** Google OAuth (`@wastefull.org`) + Magic Link available
 
 ---
 
@@ -18,14 +18,15 @@ WasteDB implements **environment-aware authentication** that adapts based on whe
 
 ### Security Benefits
 
-**Production (Passwordless):**
+**Production (OAuth + Passwordless fallback):**
 
-- ✅ No passwords to remember or manage
+- ✅ No passwords to remember or manage for primary org flow
 - ✅ No password reuse vulnerabilities
 - ✅ No brute force attacks on passwords
 - ✅ Reduced attack surface
 - ✅ Better user experience
 - ✅ Industry best practice (Auth0, Supabase, etc.)
+- ✅ Maintains magic-link fallback for non-Google or recovery cases
 
 **local (Testing):**
 
@@ -45,6 +46,10 @@ WasteDB implements **environment-aware authentication** that adapts based on whe
 /components/AuthView.tsx        # Updated with conditional rendering
 /docs/ENVIRONMENT_AUTH_STRATEGY.md  # This file
 ```
+
+### OAuth Setup and Operations
+
+- `src/docs/auth/GOOGLE_OAUTH_SETUP.md` - Supabase configuration and email-alias linking
 
 ---
 

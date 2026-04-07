@@ -1,4 +1,5 @@
 import { projectId, publicAnonKey } from "./supabase/info";
+import { supabaseClient } from "./supabase/client";
 import { logger } from "./logger";
 import { toast } from "sonner";
 import { Material } from "../types/material";
@@ -237,6 +238,61 @@ export async function verifyMagicLink(token: string): Promise<AuthResponse> {
     logger.error("Magic link verification failed:", error);
     throw error;
   }
+}
+
+export async function startGoogleOAuthSignIn() {
+  const redirectTo = `${window.location.origin}${window.location.pathname}?oauth_provider=google`;
+
+  const { error } = await supabaseClient.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo,
+      queryParams: {
+        hd: "wastefull.org",
+        prompt: "select_account",
+      },
+    },
+  });
+
+  if (error) {
+    logger.error("Google OAuth start failed:", error);
+    throw new Error(error.message || "Failed to start Google sign in");
+  }
+}
+
+export async function exchangeSupabaseSessionForWasteDBSession(
+  provider: "google" = "google",
+): Promise<AuthResponse> {
+  const {
+    data: { session },
+    error,
+  } = await supabaseClient.auth.getSession();
+
+  if (error) {
+    logger.error("Failed to get Supabase OAuth session:", error);
+    throw new Error(error.message || "Unable to read OAuth session");
+  }
+
+  if (!session?.access_token) {
+    throw new Error("OAuth session token not found");
+  }
+
+  const data = await apiCall("/auth/exchange-supabase-session", {
+    method: "POST",
+    body: JSON.stringify({
+      accessToken: session.access_token,
+      provider,
+    }),
+  });
+
+  if (data.access_token) {
+    setAccessToken(data.access_token);
+  }
+
+  // Supabase session is only used for OAuth callback exchange.
+  await supabaseClient.auth.signOut();
+
+  return data;
 }
 
 export function signOut() {

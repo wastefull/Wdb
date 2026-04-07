@@ -1,5 +1,13 @@
 import { useState, useEffect } from "react";
-import { LogIn, UserPlus, Eye, EyeOff, Mail, ArrowLeft } from "lucide-react";
+import {
+  LogIn,
+  UserPlus,
+  Eye,
+  EyeOff,
+  Mail,
+  ArrowLeft,
+  Chrome,
+} from "lucide-react";
 import * as api from "../../utils/api";
 import { toast } from "sonner";
 import { isDevelopment, logEnvironmentInfo } from "../../utils/environment";
@@ -30,7 +38,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
     logger.log("Auth View - Password auth enabled:", showPasswordAuth);
     logger.log(
       "🔐 Initial auth mode:",
-      showPasswordAuth ? "traditional" : "magic-link"
+      showPasswordAuth ? "traditional" : "magic-link",
     );
   }, [showPasswordAuth]);
 
@@ -42,7 +50,6 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
       setAuthMode("traditional");
     } else if (!showPasswordAuth && authMode === "traditional") {
       // In production, default to magic link
-      logger.log("Production environment - switching to Magic Link auth");
       setAuthMode("magic-link");
     }
   }, [showPasswordAuth, authMode]);
@@ -75,7 +82,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
           "Please confirm your email address before signing in. Check your inbox for the confirmation link.",
           {
             duration: 6000,
-          }
+          },
         );
       } else if (errorMsg.includes("Rate limit")) {
         toast.error("Too many attempts. Please wait a moment and try again.");
@@ -110,7 +117,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
         "Account created! Please check your email to confirm your account.",
         {
           duration: 6000,
-        }
+        },
       );
 
       // Clear form
@@ -178,6 +185,17 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    try {
+      await api.startGoogleOAuthSignIn();
+    } catch (error: any) {
+      logger.error("Google OAuth start error:", error);
+      toast.error(error.message || "Failed to start Google sign in");
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-[400px]">
@@ -212,6 +230,21 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
               </div>
             ) : authMode === "magic-link" ? (
               <div className="space-y-3">
+                <button
+                  onClick={handleGoogleSignIn}
+                  disabled={loading}
+                  className="w-full h-10 retro-btn-primary arcade-bg-cyan arcade-btn-cyan text-[13px] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
+                >
+                  <Chrome size={16} />
+                  {loading
+                    ? "Redirecting to Google..."
+                    : "Continue with Google (@wastefull.org)"}
+                </button>
+
+                <div className="text-center text-[10px] text-black/50 dark:text-white/50">
+                  or use a one-time magic link
+                </div>
+
                 <div>
                   <label className="text-[12px] normal block mb-1">
                     Email Address

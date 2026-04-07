@@ -391,6 +391,74 @@ function getInitialRole(email: string): "user" | "staff" | "admin" {
   return "user";
 }
 
+async function findAuthUserByEmail(supabase: any, email: string) {
+  const normalizedEmail = email.trim().toLowerCase();
+  const { data, error } = await supabase.auth.admin.listUsers();
+
+  if (error) {
+    log.error("Error listing users while resolving email:", error);
+    return null;
+  }
+
+  return (
+    data?.users?.find((u: any) => u.email?.toLowerCase() === normalizedEmail) ||
+    null
+  );
+}
+
+async function findAuthUserById(supabase: any, userId: string) {
+  const { data, error } = await supabase.auth.admin.getUserById(userId);
+  if (error) {
+    log.error("Error fetching auth user by id:", error);
+    return null;
+  }
+  return data?.user || null;
+}
+
+async function resolveCanonicalUserIdFromAlias(
+  supabase: any,
+  authEmail: string,
+  fallbackUserId: string,
+) {
+  const aliasKey = `auth_email_alias:${authEmail.toLowerCase()}`;
+  const aliasRecord = (await kv.get(aliasKey)) as
+    | string
+    | { targetUserId?: string; targetEmail?: string }
+    | null;
+
+  if (!aliasRecord) {
+    return fallbackUserId;
+  }
+
+  let targetUserId: string | null = null;
+
+  if (typeof aliasRecord === "string") {
+    if (aliasRecord.includes("@")) {
+      const targetByEmail = await findAuthUserByEmail(supabase, aliasRecord);
+      targetUserId = targetByEmail?.id || null;
+    } else {
+      targetUserId = aliasRecord;
+    }
+  } else {
+    if (aliasRecord.targetUserId) {
+      targetUserId = aliasRecord.targetUserId;
+    } else if (aliasRecord.targetEmail) {
+      const targetByEmail = await findAuthUserByEmail(
+        supabase,
+        aliasRecord.targetEmail,
+      );
+      targetUserId = targetByEmail?.id || null;
+    }
+  }
+
+  if (!targetUserId) {
+    log.warn(`Alias exists but target could not be resolved for ${authEmail}`);
+    return fallbackUserId;
+  }
+
+  return targetUserId;
+}
+
 // Password strength validation
 function validatePassword(password: string): {
   valid: boolean;
@@ -1392,6 +1460,219 @@ app.post("/make-server-17cae920/auth/verify-magic-link", async (c) => {
     );
   }
 });
+
+// Exchange a Supabase OAuth session token for a WasteDB custom session token
+app.post(
+  "/make-server-17cae920/auth/exchange-supabase-session",
+  rateLimit("AUTH"),
+  async (c) => {
+    try {
+      const body = await c.req.json();
+      const { accessToken, provider } = body;
+
+      if (!accessToken || typeof accessToken !== "string") {
+        return c.json({ error: "accessToken is required" }, 400);
+      }
+
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      );
+
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser(accessToken);
+
+      if (error || !user) {
+        log.error(
+          "OAuth session exchange failed during token validation:",
+          error,
+        );
+        return c.json({ error: "Invalid OAuth session token" }, 401);
+      }
+
+      const authEmail = user.email?.toLowerCase().trim();
+      if (!authEmail) {
+        return c.json({ error: "OAuth account is missing an email" }, 400);
+      }
+
+      if (!user.email_confirmed_at) {
+        return c.json({ error: "Email must be verified before sign in" }, 403);
+      }
+
+      const emailValidation = validateEmail(authEmail);
+      if (!emailValidation.valid) {
+        return c.json(
+          { error: emailValidation.error || "Invalid email address" },
+          400,
+        );
+      }
+
+      if (provider === "google") {
+        const userProviders = Array.isArray(user.app_metadata?.providers)
+          ? user.app_metadata.providers
+          : [];
+        const isGoogleAccount =
+          user.app_metadata?.provider === "google" ||
+          userProviders.includes("google");
+
+        if (!isGoogleAccount) {
+          return c.json({ error: "OAuth provider mismatch" }, 403);
+        }
+
+        if (!/@wastefull\.org$/i.test(authEmail)) {
+          return c.json(
+            {
+              error:
+                "Google sign-in is restricted to verified @wastefull.org accounts",
+            },
+            403,
+          );
+        }
+      }
+
+      const canonicalUserId = await resolveCanonicalUserIdFromAlias(
+        supabase,
+        authEmail,
+        user.id,
+      );
+
+      const canonicalUser =
+        canonicalUserId === user.id
+          ? user
+          : await findAuthUserById(supabase, canonicalUserId);
+
+      if (!canonicalUser) {
+        return c.json(
+          { error: "Unable to resolve the linked WasteDB account" },
+          404,
+        );
+      }
+
+      const existingRole = await kv.get(`user_role:${canonicalUserId}`);
+      if (!existingRole) {
+        const initialRole = getInitialRole(canonicalUser.email || authEmail);
+        await kv.set(`user_role:${canonicalUserId}`, initialRole);
+      }
+
+      const accessTokenForSession = crypto.randomUUID();
+      const sessionExpiry = Date.now() + 7 * 24 * 60 * 60 * 1000;
+
+      await kv.set(`session:${accessTokenForSession}`, {
+        userId: canonicalUserId,
+        email: authEmail,
+        canonicalEmail: canonicalUser.email || authEmail,
+        authProvider: provider || user.app_metadata?.provider || "oauth",
+        expiry: sessionExpiry,
+        createdAt: Date.now(),
+      });
+
+      log.log(
+        `OAuth session exchanged for ${authEmail} (canonical user: ${canonicalUserId})`,
+      );
+
+      return c.json({
+        access_token: accessTokenForSession,
+        user: {
+          id: canonicalUserId,
+          email: canonicalUser.email || authEmail,
+          name:
+            canonicalUser.user_metadata?.name ||
+            user.user_metadata?.name ||
+            authEmail.split("@")[0],
+        },
+      });
+    } catch (error) {
+      log.error("OAuth session exchange exception:", error);
+      return c.json(
+        { error: "Server error during OAuth session exchange" },
+        500,
+      );
+    }
+  },
+);
+
+// Link one sign-in email alias to an existing auth user account (admin only)
+app.post(
+  "/make-server-17cae920/auth/link-email-alias",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const body = await c.req.json();
+      const {
+        aliasEmail,
+        targetUserId,
+        targetEmail,
+      }: {
+        aliasEmail?: string;
+        targetUserId?: string;
+        targetEmail?: string;
+      } = body;
+
+      if (!aliasEmail) {
+        return c.json({ error: "aliasEmail is required" }, 400);
+      }
+
+      const aliasValidation = validateEmail(aliasEmail);
+      if (!aliasValidation.valid) {
+        return c.json(
+          { error: aliasValidation.error || "Invalid aliasEmail" },
+          400,
+        );
+      }
+
+      if (!targetUserId && !targetEmail) {
+        return c.json(
+          { error: "Either targetUserId or targetEmail is required" },
+          400,
+        );
+      }
+
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      );
+
+      let resolvedTargetUserId = targetUserId || "";
+
+      if (!resolvedTargetUserId && targetEmail) {
+        const targetUser = await findAuthUserByEmail(supabase, targetEmail);
+        if (!targetUser) {
+          return c.json({ error: "No auth user found for targetEmail" }, 404);
+        }
+        resolvedTargetUserId = targetUser.id;
+      }
+
+      if (!resolvedTargetUserId) {
+        return c.json({ error: "Unable to resolve target user" }, 400);
+      }
+
+      const targetUser = await findAuthUserById(supabase, resolvedTargetUserId);
+      if (!targetUser) {
+        return c.json({ error: "Target auth user not found" }, 404);
+      }
+
+      const normalizedAlias = aliasEmail.trim().toLowerCase();
+      await kv.set(`auth_email_alias:${normalizedAlias}`, resolvedTargetUserId);
+
+      log.log(
+        `Linked auth email alias ${normalizedAlias} -> ${resolvedTargetUserId}`,
+      );
+
+      return c.json({
+        message: "Email alias linked successfully",
+        aliasEmail: normalizedAlias,
+        targetUserId: resolvedTargetUserId,
+        targetEmail: targetUser.email,
+      });
+    } catch (error) {
+      log.error("Link email alias exception:", error);
+      return c.json({ error: "Server error while linking email alias" }, 500);
+    }
+  },
+);
 
 // Get all materials (public read access, rate-limited)
 app.get("/make-server-17cae920/materials", rateLimit("API"), async (c) => {
