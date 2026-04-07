@@ -1,3 +1,5 @@
+import { projectId, publicAnonKey } from "../src/utils/supabase/info";
+
 /**
  * Seed Periodic Table Elements as Materials
  *
@@ -15,15 +17,19 @@
  *   --from=N    Start from element number N (for resuming after partial run)
  */
 
-const PROJECT_ID = "bdvfwjmaufjeqmxphmtv";
-const BASE_URL = `https://${PROJECT_ID}.supabase.co/functions/v1/make-server-17cae920`;
-const PUBLIC_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkdmZ3am1hdWZqZXFteHBobXR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQzMTE1NzgsImV4cCI6MjA0OTg4NzU3OH0.gGFqSJGcFEAkHs0WXCsqJM0BpF-NRMzFGkB7TJMnHgk";
+const BASE_URL = `https://${projectId}.supabase.co/functions/v1/make-server-17cae920`;
 
 const ACCESS_TOKEN = process.env.WASTEDB_ACCESS_TOKEN;
 const DRY_RUN = process.argv.includes("--dry-run");
 const FROM_ARG = process.argv.find((a) => a.startsWith("--from="));
 const FROM_N = FROM_ARG ? parseInt(FROM_ARG.split("=")[1], 10) : 1;
+
+function looksLikeAuthToken(token: string): boolean {
+  const jwtPattern = /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/;
+  const uuidPattern =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return jwtPattern.test(token) || uuidPattern.test(token);
+}
 
 if (!DRY_RUN && !ACCESS_TOKEN) {
   console.error(
@@ -31,6 +37,14 @@ if (!DRY_RUN && !ACCESS_TOKEN) {
   );
   console.error(
     "Get it from the app: sessionStorage.getItem('wastedb_access_token')",
+  );
+  process.exit(1);
+}
+
+if (!DRY_RUN && ACCESS_TOKEN && !looksLikeAuthToken(ACCESS_TOKEN)) {
+  console.error("Error: WASTEDB_ACCESS_TOKEN format is invalid.");
+  console.error(
+    "Expected either a JWT ('xxxxx.yyyyy.zzzzz') or a UUID session token.",
   );
   process.exit(1);
 }
@@ -771,7 +785,7 @@ async function createMaterial(material: object): Promise<void> {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${PUBLIC_ANON_KEY}`,
+      Authorization: `Bearer ${publicAnonKey}`,
       "X-Session-Token": ACCESS_TOKEN!,
     },
     body: JSON.stringify(material),
@@ -779,7 +793,11 @@ async function createMaterial(material: object): Promise<void> {
 
   if (!res.ok) {
     const body = await res.text();
-    throw new Error(`HTTP ${res.status}: ${body}`);
+    const error = new Error(`HTTP ${res.status}: ${body}`) as Error & {
+      status?: number;
+    };
+    error.status = res.status;
+    throw error;
   }
 }
 
@@ -831,10 +849,25 @@ async function main() {
       );
       success++;
     } catch (err) {
+      const status =
+        typeof err === "object" && err !== null && "status" in err
+          ? (err as { status?: number }).status
+          : undefined;
+
       console.error(
         `  ✗ [${String(atomicNumber).padStart(3)}] ${symbol.padEnd(3)} ${name}: ${err}`,
       );
       failed++;
+
+      if (status === 401 || status === 403) {
+        console.error(
+          "\nAuthentication failed. Stop here and refresh your token by signing in again.",
+        );
+        console.error(
+          "Then run the script again with the new sessionStorage wastedb_access_token value.",
+        );
+        break;
+      }
     }
 
     // Small delay to avoid rate-limiting

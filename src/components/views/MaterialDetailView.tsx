@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { ArrowLeft, Copy, Check } from "lucide-react";
+import { ArrowLeft, Copy, Check, ExternalLink } from "lucide-react";
 import { Material } from "../../types/material";
 import { Article, CategoryType } from "../../types/article";
 import { buildMaterialPermalinkPath } from "../../utils/permalinks";
@@ -31,6 +31,8 @@ export function MaterialDetailView({
   onViewArticleStandalone,
   isAdminModeActive,
 }: MaterialDetailViewProps) {
+  const isElementHub = material.category === "Elements";
+
   const categoryLabels = {
     compostability: "Compostability",
     recyclability: "Recyclability",
@@ -104,7 +106,13 @@ export function MaterialDetailView({
   const coverImage = useMemo(() => getFirstCoverImage(material), [material]);
 
   return (
-    <div className="p-6">
+    <div
+      className={`p-6 ${
+        isElementHub
+          ? "bg-[linear-gradient(180deg,rgba(228,227,172,0.22)_0%,rgba(255,255,255,0)_45%)] dark:bg-[linear-gradient(180deg,rgba(228,227,172,0.08)_0%,rgba(26,25,23,0)_45%)]"
+          : ""
+      }`}
+    >
       {/* Hero backdrop with cover image */}
       {coverImage && (
         <div className="relative -mx-6 -mt-6 mb-6 h-32 overflow-hidden">
@@ -128,7 +136,10 @@ export function MaterialDetailView({
           <ArrowLeft size={16} className="text-black" />
         </button>
         <div className="flex-1">
-          <h2 className="text-[20px] normal">{material.name}</h2>
+          <h2 className="text-[20px] normal">
+            {material.name}
+            {isElementHub ? " Element Hub" : ""}
+          </h2>
           <div className="flex flex-wrap items-center gap-2 mt-1">
             <span className="tag-cyan">{material.category}</span>
             <p className="text-[12px] text-black/60 dark:text-white/60">
@@ -145,6 +156,30 @@ export function MaterialDetailView({
           </div>
         </div>
       </div>
+
+      {isElementHub && (
+        <div className="bg-[#f6f5de] dark:bg-[#2d2a1f] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 p-4 mb-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-[13px] uppercase tracking-[0.08em] text-black/60 dark:text-white/60">
+                Element Navigation
+              </p>
+              <p className="text-[14px] text-black/80 dark:text-white/80">
+                Browse neighboring elements in the interactive periodic table.
+              </p>
+            </div>
+            <a
+              href="https://wastefull.org/pt"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="retro-btn-primary inline-flex items-center gap-2 whitespace-nowrap px-4 py-2"
+            >
+              Open periodic table
+              <ExternalLink size={14} />
+            </a>
+          </div>
+        </div>
+      )}
 
       {material.description && (
         <div className="bg-white rounded-[11.464px] border-[1.5px] border-[#211f1c] p-4 mb-6">
