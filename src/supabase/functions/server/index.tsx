@@ -1430,6 +1430,9 @@ app.post("/make-server-17cae920/auth/verify-magic-link", async (c) => {
       createdAt: Date.now(),
     });
 
+    // Track last sign-in time for user management display
+    await kv.set(`user_last_signin:${userData.user.id}`, Date.now());
+
     // Verify the session was stored
     const verifySession = await kv.get(`session:${accessToken}`);
     log.log(
@@ -1573,6 +1576,9 @@ app.post(
         expiry: sessionExpiry,
         createdAt: Date.now(),
       });
+
+      // Track last sign-in time for user management display
+      await kv.set(`user_last_signin:${canonicalUserId}`, Date.now());
 
       const canonicalProfile = await kv.get(`user_profile:${canonicalUserId}`);
       const preferredDisplayName =
@@ -2055,13 +2061,22 @@ app.get("/make-server-17cae920/users", verifyAuth, verifyAdmin, async (c) => {
           await kv.set(`user_role:${user.id}`, role);
         }
 
+        // Prefer KV-tracked last sign-in (updated by custom magic link flow)
+        // over Supabase's field, which only updates via native Supabase auth
+        const kvLastSignIn = (await kv.get(`user_last_signin:${user.id}`)) as
+          | number
+          | null;
+        const lastSignInAt = kvLastSignIn
+          ? new Date(kvLastSignIn).toISOString()
+          : user.last_sign_in_at;
+
         return {
           id: user.id,
           email: user.email,
           name: user.user_metadata?.name || user.email?.split("@")[0],
           role: role,
           created_at: user.created_at,
-          last_sign_in_at: user.last_sign_in_at,
+          last_sign_in_at: lastSignInAt,
         };
       }),
     );
