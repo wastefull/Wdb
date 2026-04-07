@@ -87,7 +87,8 @@ export interface Material {
     | "Fabrics & Textiles"
     | "Electronics & Batteries"
     | "Building Materials"
-    | "Organic/Natural Waste";
+    | "Organic/Natural Waste"
+    | "Elements";
   description?: string;
 
   // Public-facing sustainability scores (0-100 scale)

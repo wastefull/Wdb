@@ -7498,6 +7498,7 @@ app.get("/make-server-17cae920/api/v1/categories", async (c) => {
       "Electronics & Batteries",
       "Building Materials",
       "Organic/Natural Waste",
+      "Elements",
     ];
 
     return c.json({ data: categories });
