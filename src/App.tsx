@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import {
   Plus,
   ArrowLeft,
@@ -526,6 +526,72 @@ function AppContent() {
       m.description?.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
+  const materialSearchSuggestions = useMemo(() => {
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+    if (!normalizedQuery) {
+      return [];
+    }
+
+    const scored = materials
+      .map((material) => {
+        const name = material.name || "";
+        const category = material.category || "";
+        const description = material.description || "";
+        const normalizedName = name.toLowerCase();
+        const normalizedCategory = category.toLowerCase();
+        const normalizedDescription = description.toLowerCase();
+
+        let score = -1;
+
+        if (normalizedName === normalizedQuery) {
+          score = 120;
+        } else if (normalizedName.startsWith(normalizedQuery)) {
+          score = 100;
+        } else if (normalizedName.includes(` ${normalizedQuery}`)) {
+          score = 85;
+        } else if (normalizedName.includes(normalizedQuery)) {
+          score = 75;
+        } else if (normalizedCategory.includes(normalizedQuery)) {
+          score = 45;
+        } else if (normalizedDescription.includes(normalizedQuery)) {
+          score = 35;
+        }
+
+        if (score < 0) {
+          return null;
+        }
+
+        return {
+          value: name,
+          subtitle: category,
+          score,
+        };
+      })
+      .filter((entry): entry is NonNullable<typeof entry> => !!entry)
+      .sort((a, b) => {
+        if (b.score !== a.score) {
+          return b.score - a.score;
+        }
+        return a.value.localeCompare(b.value);
+      });
+
+    const deduped = new Map<string, { value: string; subtitle: string }>();
+    for (const entry of scored) {
+      const dedupeKey = entry.value.toLowerCase();
+      if (!deduped.has(dedupeKey)) {
+        deduped.set(dedupeKey, {
+          value: entry.value,
+          subtitle: entry.subtitle,
+        });
+      }
+      if (deduped.size >= 8) {
+        break;
+      }
+    }
+
+    return Array.from(deduped.values());
+  }, [materials, searchQuery]);
+
   const currentMaterial =
     currentView.type === "articles" ||
     currentView.type === "material-detail" ||
@@ -750,6 +816,7 @@ function AppContent() {
                           <SearchBar
                             value={searchQuery}
                             onChange={setSearchQuery}
+                            suggestions={materialSearchSuggestions}
                             onSearch={(query) => {
                               if (!query) {
                                 // Empty search - clear query and go to materials
