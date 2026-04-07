@@ -1474,15 +1474,21 @@ app.post(
         return c.json({ error: "accessToken is required" }, 400);
       }
 
-      const supabase = createClient(
+      // Anon-key client for validating the incoming OAuth access token only
+      const supabaseAnon = createClient(
         Deno.env.get("SUPABASE_URL") ?? "",
         Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      );
+      // Service-role client for admin operations (alias lookup, user fetch by id)
+      const supabaseAdmin = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       );
 
       const {
         data: { user },
         error,
-      } = await supabase.auth.getUser(accessToken);
+      } = await supabaseAnon.auth.getUser(accessToken);
 
       if (error || !user) {
         log.error(
@@ -1533,7 +1539,7 @@ app.post(
       }
 
       const canonicalUserId = await resolveCanonicalUserIdFromAlias(
-        supabase,
+        supabaseAdmin,
         authEmail,
         user.id,
       );
@@ -1541,7 +1547,7 @@ app.post(
       const canonicalUser =
         canonicalUserId === user.id
           ? user
-          : await findAuthUserById(supabase, canonicalUserId);
+          : await findAuthUserById(supabaseAdmin, canonicalUserId);
 
       if (!canonicalUser) {
         return c.json(
@@ -1568,6 +1574,12 @@ app.post(
         createdAt: Date.now(),
       });
 
+      const canonicalProfile = await kv.get(`user_profile:${canonicalUserId}`);
+      const preferredDisplayName =
+        canonicalProfile?.name ||
+        canonicalUser.email?.split("@")[0] ||
+        authEmail.split("@")[0];
+
       log.log(
         `OAuth session exchanged for ${authEmail} (canonical user: ${canonicalUserId})`,
       );
@@ -1577,10 +1589,7 @@ app.post(
         user: {
           id: canonicalUserId,
           email: canonicalUser.email || authEmail,
-          name:
-            canonicalUser.user_metadata?.name ||
-            user.user_metadata?.name ||
-            authEmail.split("@")[0],
+          name: preferredDisplayName,
         },
       });
     } catch (error) {
@@ -5381,18 +5390,17 @@ app.get("/make-server-17cae920/leaderboard", async (c) => {
         let name = "Anonymous";
         let avatar_url = profile?.avatar_url;
 
-        // Get the authoritative name from Supabase auth user_metadata
-        // This matches what StatusBar displays via user.name
-        const { data: authUser } =
-          await supabase.auth.admin.getUserById(userId);
-        if (authUser?.user) {
-          name =
-            authUser.user.user_metadata?.name ||
-            authUser.user.email?.split("@")[0] ||
-            "Anonymous";
-        } else if (profile) {
-          // Fallback to profile if auth lookup fails
-          name = profile.name || profile.email?.split("@")[0] || "Anonymous";
+        // Prefer the app profile name so external auth providers don't overwrite display identity.
+        if (profile?.name) {
+          name = profile.name;
+        } else {
+          const { data: authUser } =
+            await supabase.auth.admin.getUserById(userId);
+          if (authUser?.user) {
+            name = authUser.user.email?.split("@")[0] || "Anonymous";
+          } else if (profile) {
+            name = profile.email?.split("@")[0] || "Anonymous";
+          }
         }
 
         leaders.push({
