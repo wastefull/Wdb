@@ -3,7 +3,12 @@
  * Handles CRUD operations for blog posts
  */
 
-import { BlogPost, BlogPostSubmission } from "../types/blog";
+import {
+  BlogPost,
+  BlogPostSubmission,
+  ChangelogEntry,
+  ChangelogEntrySubmission,
+} from "../types/blog";
 import { logger } from "./logger";
 import { projectId, publicAnonKey } from "./supabase/info";
 
@@ -33,7 +38,7 @@ async function apiCall(endpoint: string, options: RequestInit = {}) {
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
     throw new Error(
-      JSON.stringify(error) || `API call failed: ${response.statusText}`
+      JSON.stringify(error) || `API call failed: ${response.statusText}`,
     );
   }
 
@@ -57,7 +62,7 @@ export async function getPublishedPosts(): Promise<BlogPost[]> {
  * Fetch blog posts by category
  */
 export async function getPostsByCategory(
-  category: string
+  category: string,
 ): Promise<BlogPost[]> {
   try {
     const data = await apiCall(`/blog?status=published&category=${category}`);
@@ -111,7 +116,7 @@ export async function getMyPosts(): Promise<BlogPost[]> {
  * Create a new blog post
  */
 export async function createPost(
-  postData: BlogPostSubmission
+  postData: BlogPostSubmission,
 ): Promise<BlogPost | null> {
   try {
     const data = await apiCall("/blog", {
@@ -131,7 +136,7 @@ export async function createPost(
  */
 export async function updatePost(
   id: string,
-  updates: Partial<BlogPostSubmission>
+  updates: Partial<BlogPostSubmission>,
 ): Promise<BlogPost | null> {
   try {
     const data = await apiCall(`/blog/${id}`, {
@@ -185,5 +190,71 @@ export async function searchPosts(query: string): Promise<BlogPost[]> {
   } catch (error) {
     logger.error("Error searching blog posts:", error);
     return [];
+  }
+}
+
+/**
+ * Fetch changelog entries
+ */
+export async function getChangelogEntries(
+  limit = 90,
+): Promise<ChangelogEntry[]> {
+  try {
+    const data = await apiCall(`/blog/changelog?limit=${limit}`);
+    return data || [];
+  } catch (error) {
+    logger.error("Error fetching changelog entries:", error);
+    return [];
+  }
+}
+
+/**
+ * Fetch a changelog entry for a specific date
+ */
+export async function getChangelogEntryByDate(
+  date: string,
+): Promise<ChangelogEntry | null> {
+  try {
+    const data = await apiCall(`/blog/changelog/${encodeURIComponent(date)}`);
+    return data;
+  } catch (error) {
+    logger.error(`Error fetching changelog entry for ${date}:`, error);
+    return null;
+  }
+}
+
+/**
+ * Create or update a changelog entry for a specific date
+ */
+export async function upsertChangelogEntry(
+  date: string,
+  entryData: ChangelogEntrySubmission,
+): Promise<ChangelogEntry | null> {
+  try {
+    const data = await apiCall(`/blog/changelog/${encodeURIComponent(date)}`, {
+      method: "PUT",
+      body: JSON.stringify(entryData),
+    });
+    logger.log("Changelog entry saved successfully:", date);
+    return data;
+  } catch (error) {
+    logger.error(`Error saving changelog entry for ${date}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Delete a changelog entry for a specific date
+ */
+export async function deleteChangelogEntry(date: string): Promise<boolean> {
+  try {
+    await apiCall(`/blog/changelog/${encodeURIComponent(date)}`, {
+      method: "DELETE",
+    });
+    logger.log("Changelog entry deleted successfully:", date);
+    return true;
+  } catch (error) {
+    logger.error(`Error deleting changelog entry for ${date}:`, error);
+    return false;
   }
 }

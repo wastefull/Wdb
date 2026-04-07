@@ -56,3 +56,16 @@ export interface BlogPostSubmission {
   meta_description?: string;
   meta_keywords?: string[];
 }
+
+export interface ChangelogEntry {
+  id: string;
+  entry_date: string;
+  items: string[];
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ChangelogEntrySubmission {
+  items: string[];
+}

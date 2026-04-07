@@ -13298,6 +13298,254 @@ app.get("/make-server-17cae920/guides/search", rateLimit("API"), async (c) => {
 
 // ==================== BLOG ROUTES ====================
 
+function isValidDateOnlyString(value: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return false;
+  }
+
+  const parsed = new Date(`${value}T00:00:00Z`);
+  return (
+    !Number.isNaN(parsed.getTime()) &&
+    parsed.toISOString().slice(0, 10) === value
+  );
+}
+
+function sanitizeChangelogItems(items: unknown): string[] {
+  if (!Array.isArray(items)) {
+    return [];
+  }
+
+  return items
+    .map((item) =>
+      typeof item === "string" ? item.replace(/^[-*•]\s*/, "").trim() : "",
+    )
+    .filter((item) => item.length > 0)
+    .slice(0, 50);
+}
+
+// Get changelog entries
+app.get("/make-server-17cae920/blog/changelog", rateLimit("API"), async (c) => {
+  try {
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+    );
+
+    const requestedLimit = Number(c.req.query("limit") || "90");
+    const limit = Number.isFinite(requestedLimit)
+      ? Math.min(Math.max(Math.trunc(requestedLimit), 1), 365)
+      : 90;
+
+    const { data, error } = await supabase
+      .from("changelog_entries")
+      .select("*")
+      .order("entry_date", { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      log.error("Error fetching changelog entries:", error);
+      return c.json({ error: "Failed to fetch changelog entries" }, 500);
+    }
+
+    return c.json(data || []);
+  } catch (error) {
+    log.error("Error fetching changelog entries:", error);
+    return c.json(
+      { error: "Failed to fetch changelog entries", details: String(error) },
+      500,
+    );
+  }
+});
+
+// Get changelog entry by date
+app.get(
+  "/make-server-17cae920/blog/changelog/:date",
+  rateLimit("API"),
+  async (c) => {
+    try {
+      const entryDate = c.req.param("date");
+      if (!isValidDateOnlyString(entryDate)) {
+        return c.json({ error: "Invalid changelog date" }, 400);
+      }
+
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      );
+
+      const { data, error } = await supabase
+        .from("changelog_entries")
+        .select("*")
+        .eq("entry_date", entryDate)
+        .maybeSingle();
+
+      if (error) {
+        log.error("Error fetching changelog entry:", error);
+        return c.json({ error: "Failed to fetch changelog entry" }, 500);
+      }
+
+      if (!data) {
+        return c.json({ error: "Changelog entry not found" }, 404);
+      }
+
+      return c.json(data);
+    } catch (error) {
+      log.error("Error fetching changelog entry:", error);
+      return c.json(
+        { error: "Failed to fetch changelog entry", details: String(error) },
+        500,
+      );
+    }
+  },
+);
+
+// Create or update a changelog entry (admin only)
+app.put(
+  "/make-server-17cae920/blog/changelog/:date",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const entryDate = c.req.param("date");
+      const userId = c.get("userId");
+      const userEmail = c.get("userEmail");
+
+      if (!isValidDateOnlyString(entryDate)) {
+        return c.json({ error: "Invalid changelog date" }, 400);
+      }
+
+      const body = await c.req.json();
+      const items = sanitizeChangelogItems(body.items);
+
+      if (items.length === 0) {
+        return c.json(
+          { error: "Changelog entries must include at least one bullet" },
+          400,
+        );
+      }
+
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      );
+
+      const { data: before, error: beforeError } = await supabase
+        .from("changelog_entries")
+        .select("*")
+        .eq("entry_date", entryDate)
+        .maybeSingle();
+
+      if (beforeError) {
+        log.error("Error fetching existing changelog entry:", beforeError);
+        return c.json({ error: "Failed to save changelog entry" }, 500);
+      }
+
+      const query = before
+        ? supabase
+            .from("changelog_entries")
+            .update({ items })
+            .eq("id", before.id)
+        : supabase.from("changelog_entries").insert({
+            entry_date: entryDate,
+            items,
+            created_by: userId,
+          });
+
+      const { data, error } = await query.select().single();
+
+      if (error) {
+        log.error("Error saving changelog entry:", error);
+        return c.json({ error: "Failed to save changelog entry" }, 500);
+      }
+
+      await createAuditLog({
+        userId,
+        userEmail,
+        entityType: "changelog_entry",
+        entityId: data.id,
+        action: before ? "update" : "create",
+        before: before || undefined,
+        after: data,
+        req: c,
+      });
+
+      return c.json(data);
+    } catch (error) {
+      log.error("Error saving changelog entry:", error);
+      return c.json(
+        { error: "Failed to save changelog entry", details: String(error) },
+        500,
+      );
+    }
+  },
+);
+
+// Delete a changelog entry (admin only)
+app.delete(
+  "/make-server-17cae920/blog/changelog/:date",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const entryDate = c.req.param("date");
+      const userId = c.get("userId");
+      const userEmail = c.get("userEmail");
+
+      if (!isValidDateOnlyString(entryDate)) {
+        return c.json({ error: "Invalid changelog date" }, 400);
+      }
+
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      );
+
+      const { data: before, error: beforeError } = await supabase
+        .from("changelog_entries")
+        .select("*")
+        .eq("entry_date", entryDate)
+        .maybeSingle();
+
+      if (beforeError) {
+        log.error("Error fetching changelog entry for delete:", beforeError);
+        return c.json({ error: "Failed to delete changelog entry" }, 500);
+      }
+
+      if (!before) {
+        return c.json({ error: "Changelog entry not found" }, 404);
+      }
+
+      const { error } = await supabase
+        .from("changelog_entries")
+        .delete()
+        .eq("id", before.id);
+
+      if (error) {
+        log.error("Error deleting changelog entry:", error);
+        return c.json({ error: "Failed to delete changelog entry" }, 500);
+      }
+
+      await createAuditLog({
+        userId,
+        userEmail,
+        entityType: "changelog_entry",
+        entityId: before.id,
+        action: "delete",
+        before,
+        req: c,
+      });
+
+      return c.json({ success: true });
+    } catch (error) {
+      log.error("Error deleting changelog entry:", error);
+      return c.json(
+        { error: "Failed to delete changelog entry", details: String(error) },
+        500,
+      );
+    }
+  },
+);
+
 // Get published blog posts (with optional filters)
 app.get("/make-server-17cae920/blog", rateLimit("API"), async (c) => {
   try {
