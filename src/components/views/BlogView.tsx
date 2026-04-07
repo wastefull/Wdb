@@ -39,7 +39,7 @@ export function BlogView({ onBack }: BlogViewProps) {
   const { userRole } = useAuthContext();
   const isAdmin = userRole === "admin";
 
-  const [activeTab, setActiveTab] = useState<BlogSubtab>("posts");
+  const [activeTab, setActiveTab] = useState<BlogSubtab>("changelog");
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [changelogEntries, setChangelogEntries] = useState<ChangelogEntry[]>(
     [],
@@ -394,14 +394,6 @@ export function BlogView({ onBack }: BlogViewProps) {
             ))}
           </div>
         )}
-
-        <div className="mt-6 p-4 border border-[#211f1c]/20 dark:border-white/20 rounded-lg">
-          <p className="text-[12px] text-black/60 dark:text-white/60">
-            <List size={16} className="inline-block mr-2" />
-            Changelog entries are compact day-by-day notes. Use the Posts tab
-            for longer updates and context.
-          </p>
-        </div>
       </>
     );
   };
