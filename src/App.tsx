@@ -493,6 +493,10 @@ function AppContent() {
     navigateToMaterialDetail(materialId);
   };
 
+  const handleViewCategoryMaterials = (category: Material["category"]) => {
+    navigateToSearchResults(`category:${category}`);
+  };
+
   const handleViewArticleStandalone = (
     materialId: string,
     articleId: string,
@@ -1015,6 +1019,7 @@ function AppContent() {
                     onDeleteMaterial={handleDeleteMaterial}
                     onViewArticles={handleViewArticles}
                     onViewMaterial={handleViewMaterial}
+                    onViewCategory={handleViewCategoryMaterials}
                     onEditScientific={(materialId) =>
                       navigateToScientificEditor(materialId)
                     }
@@ -1058,6 +1063,7 @@ function AppContent() {
                   <MaterialDetailView
                     material={currentMaterial}
                     onBack={navigateToMaterials}
+                    onViewCategoryMaterials={handleViewCategoryMaterials}
                     onViewArticles={(category) =>
                       handleViewArticles(currentMaterial.id, category)
                     }

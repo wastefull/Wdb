@@ -17,6 +17,7 @@ import { ArticleForm } from "../forms";
 interface MaterialDetailViewProps {
   material: Material;
   onBack: () => void;
+  onViewCategoryMaterials: (category: Material["category"]) => void;
   onViewArticles: (category: CategoryType) => void;
   onUpdateMaterial: (material: Material) => void;
   onViewArticleStandalone: (articleId: string, category: CategoryType) => void;
@@ -26,6 +27,7 @@ interface MaterialDetailViewProps {
 export function MaterialDetailView({
   material,
   onBack,
+  onViewCategoryMaterials,
   onViewArticles,
   onUpdateMaterial,
   onViewArticleStandalone,
@@ -141,7 +143,14 @@ export function MaterialDetailView({
             {isElementHub ? " Element Hub" : ""}
           </h2>
           <div className="flex flex-wrap items-center gap-2 mt-1">
-            <span className="tag-cyan">{material.category}</span>
+            <button
+              type="button"
+              onClick={() => onViewCategoryMaterials(material.category)}
+              className="tag-cyan cursor-pointer"
+              aria-label={`View all ${material.category} materials`}
+            >
+              {material.category}
+            </button>
             <p className="text-[12px] text-black/60 dark:text-white/60">
               {totalArticles} article{totalArticles !== 1 ? "s" : ""}
             </p>

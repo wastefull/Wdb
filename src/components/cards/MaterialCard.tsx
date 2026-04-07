@@ -12,6 +12,7 @@ export interface MaterialCardProps {
   onDelete: () => void;
   onViewArticles: (category: CategoryType) => void;
   onViewMaterial: () => void;
+  onViewCategory?: (category: Material["category"]) => void;
   onEditScientific?: () => void;
   onSuggestEdit?: () => void;
   isAdminModeActive?: boolean;
@@ -25,6 +26,7 @@ export function MaterialCard({
   onDelete,
   onViewArticles,
   onViewMaterial,
+  onViewCategory,
   onEditScientific,
   onSuggestEdit,
   isAdminModeActive,
@@ -77,7 +79,14 @@ export function MaterialCard({
               ) : null}
             </div>
           )}
-          <span className="tag-cyan">{material.category}</span>
+          <button
+            type="button"
+            onClick={() => onViewCategory?.(material.category)}
+            className="tag-cyan cursor-pointer"
+            aria-label={`View all ${material.category} materials`}
+          >
+            {material.category}
+          </button>
         </div>
         {isAdminModeActive ? (
           <div className="flex gap-2">

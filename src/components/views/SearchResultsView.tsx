@@ -35,6 +35,7 @@ interface SearchResultsViewProps {
   onDeleteMaterial: (id: string) => void;
   onViewArticles: (materialId: string, category: CategoryType) => void;
   onViewMaterial: (materialId: string) => void;
+  onViewCategory: (category: Material["category"]) => void;
   onEditScientific: (materialId: string) => void;
   onSuggestEdit: (material: Material) => void;
   isAdminModeActive: boolean;
@@ -51,11 +52,19 @@ export function SearchResultsView({
   onDeleteMaterial,
   onViewArticles,
   onViewMaterial,
+  onViewCategory,
   onEditScientific,
   onSuggestEdit,
   isAdminModeActive,
   isAuthenticated,
 }: SearchResultsViewProps) {
+  const queryCategoryFilter = useMemo(() => {
+    const match = query.match(/^category\s*:\s*(.+)$/i);
+    return match?.[1]?.trim() || null;
+  }, [query]);
+
+  const normalizedQueryCategoryFilter = queryCategoryFilter?.toLowerCase();
+
   // Filter state
   const [selectedCategories, setSelectedCategories] = useState<
     MaterialCategory[]
@@ -78,7 +87,7 @@ export function SearchResultsView({
     setSelectedCategories((prev) =>
       prev.includes(category)
         ? prev.filter((c) => c !== category)
-        : [...prev, category]
+        : [...prev, category],
     );
   };
 
@@ -104,18 +113,22 @@ export function SearchResultsView({
     let result = materials;
 
     // Text search filter
-    if (query) {
+    if (queryCategoryFilter) {
+      result = result.filter(
+        (m) => m.category.toLowerCase() === normalizedQueryCategoryFilter,
+      );
+    } else if (query) {
       result = result.filter(
         (m) =>
           m.name.toLowerCase().includes(query.toLowerCase()) ||
-          m.description?.toLowerCase().includes(query.toLowerCase())
+          m.description?.toLowerCase().includes(query.toLowerCase()),
       );
     }
 
     // Category filter
     if (selectedCategories.length > 0) {
       result = result.filter((m) =>
-        selectedCategories.includes(m.category as MaterialCategory)
+        selectedCategories.includes(m.category as MaterialCategory),
       );
     }
 
@@ -156,6 +169,8 @@ export function SearchResultsView({
   }, [
     materials,
     query,
+    queryCategoryFilter,
+    normalizedQueryCategoryFilter,
     selectedCategories,
     minCompostability,
     minRecyclability,
@@ -168,10 +183,11 @@ export function SearchResultsView({
   // Get category counts for filter badges
   const getCategoryCount = (category: MaterialCategory) => {
     return materials.filter((m) => {
-      const matchesQuery =
-        !query ||
-        m.name.toLowerCase().includes(query.toLowerCase()) ||
-        m.description?.toLowerCase().includes(query.toLowerCase());
+      const matchesQuery = queryCategoryFilter
+        ? m.category.toLowerCase() === normalizedQueryCategoryFilter
+        : !query ||
+          m.name.toLowerCase().includes(query.toLowerCase()) ||
+          m.description?.toLowerCase().includes(query.toLowerCase());
       return matchesQuery && m.category === category;
     }).length;
   };
@@ -188,7 +204,12 @@ export function SearchResultsView({
           <span className="text-[14px]">Back to Home</span>
         </button>
         <div className="text-[14px] normal">
-          {query ? (
+          {queryCategoryFilter ? (
+            <>
+              Category:{" "}
+              <span className="font-bold">"{queryCategoryFilter}"</span>
+            </>
+          ) : query ? (
             <>
               Search results for: <span className="font-bold">"{query}"</span>
             </>
@@ -298,8 +319,8 @@ export function SearchResultsView({
                           isSelected
                             ? "bg-waste-recycle border-[#211f1c] shadow-[2px_2px_0px_0px_#000000]"
                             : count > 0
-                            ? "bg-white dark:bg-[#2a2825] border-[#211f1c]/30 dark:border-white/20 hover:border-[#211f1c] dark:hover:border-white/40"
-                            : "bg-black/5 dark:bg-white/5 border-transparent text-black/30 dark:text-white/30 cursor-not-allowed"
+                              ? "bg-white dark:bg-[#2a2825] border-[#211f1c]/30 dark:border-white/20 hover:border-[#211f1c] dark:hover:border-white/40"
+                              : "bg-black/5 dark:bg-white/5 border-transparent text-black/30 dark:text-white/30 cursor-not-allowed"
                         }`}
                       >
                         {category}
@@ -475,6 +496,7 @@ export function SearchResultsView({
             onDelete={() => onDeleteMaterial(material.id)}
             onViewArticles={(category) => onViewArticles(material.id, category)}
             onViewMaterial={() => onViewMaterial(material.id)}
+            onViewCategory={onViewCategory}
             onEditScientific={() => onEditScientific(material.id)}
             onSuggestEdit={() => onSuggestEdit(material)}
             isAdminModeActive={isAdminModeActive}
