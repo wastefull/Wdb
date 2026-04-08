@@ -372,7 +372,9 @@ export async function createAuditLog(params: {
 
 // Get current user's role
 export async function getUserRole(): Promise<"user" | "staff" | "admin"> {
-  const data = await apiCall("/users/me/role");
+  // suppressAuthToast=true because role fetch failures during auth setup are non-critical
+  // If role fetch fails, we default to "user" role in AuthContext anyway
+  const data = await apiCall("/users/me/role", {}, true);
   return data.role;
 }
 
