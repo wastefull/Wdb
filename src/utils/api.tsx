@@ -263,24 +263,45 @@ export async function startGoogleOAuthSignIn() {
 export async function exchangeSupabaseSessionForWasteDBSession(
   provider: "google" = "google",
 ): Promise<AuthResponse> {
-  const {
-    data: { session },
-    error,
-  } = await supabaseClient.auth.getSession();
+  // Allow a brief retry window for providers that may hydrate session state asynchronously.
+  let sessionAccessToken: string | null = null;
+  let lastSessionError: Error | null = null;
 
-  if (error) {
-    logger.error("Failed to get Supabase OAuth session:", error);
-    throw new Error(error.message || "Unable to read OAuth session");
+  for (let attempt = 1; attempt <= 4; attempt++) {
+    const {
+      data: { session },
+      error,
+    } = await supabaseClient.auth.getSession();
+
+    if (error) {
+      lastSessionError = error;
+      logger.warn("Failed to get Supabase OAuth session", {
+        attempt,
+        message: error.message,
+      });
+    } else if (session?.access_token) {
+      sessionAccessToken = session.access_token;
+      break;
+    }
+
+    if (attempt < 4) {
+      await new Promise((resolve) => setTimeout(resolve, 250));
+    }
   }
 
-  if (!session?.access_token) {
+  if (!sessionAccessToken) {
+    if (lastSessionError) {
+      throw new Error(
+        lastSessionError.message || "Unable to read OAuth session",
+      );
+    }
     throw new Error("OAuth session token not found");
   }
 
   const data = await apiCall("/auth/exchange-supabase-session", {
     method: "POST",
     body: JSON.stringify({
-      accessToken: session.access_token,
+      accessToken: sessionAccessToken,
       provider,
     }),
   });

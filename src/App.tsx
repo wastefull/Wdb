@@ -202,6 +202,7 @@ function AppContent() {
   const [pendingMaterialPermalink, setPendingMaterialPermalink] =
     useState<ParsedMaterialPermalink | null>(null);
   const hasResolvedMaterialPermalinkRef = useRef(false);
+  const hasProcessedAuthCallbackRef = useRef(false);
 
   // Mobile leaderboard scroll reveal
   const [leaderboardVisible, setLeaderboardVisible] = useState(false);
@@ -268,6 +269,20 @@ function AppContent() {
       const magicToken = urlParams.get("magic_token");
       const oauthProvider = urlParams.get("oauth_provider");
       const hasOAuthCode = urlParams.has("code");
+
+      const hasAuthCallbackParams =
+        !!magicToken || oauthProvider === "google" || hasOAuthCode;
+
+      if (!hasAuthCallbackParams) {
+        return;
+      }
+
+      // Prevent duplicate processing when this effect reruns during callback handling.
+      if (hasProcessedAuthCallbackRef.current) {
+        logger.log("Auth callback already processed - skipping duplicate run");
+        return;
+      }
+      hasProcessedAuthCallbackRef.current = true;
 
       if (magicToken) {
         // Verify magic link token and get access token
