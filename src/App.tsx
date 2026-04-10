@@ -8,6 +8,7 @@ import {
   AlertCircle,
   FlaskConical,
   ChevronDown,
+  CircleOff,
 } from "lucide-react";
 import * as api from "./utils/api";
 import { logger, setTestMode, getTestMode, loggerInfo } from "./utils/logger";
@@ -1450,6 +1451,18 @@ function AppContent() {
                         >
                           <AlertCircle className="w-5 h-5 md:w-3 md:h-3" />
                           <span className="hidden md:inline">Legal</span>
+                        </button>
+                        <span className="text-black/30 dark:text-white/30">
+                          •
+                        </span>
+                        <button
+                          onClick={navigateToPrivacyPolicy}
+                          className="text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white md:hover:underline transition-colors flex items-center gap-1"
+                        >
+                          <CircleOff className="w-5 h-5 md:w-3 md:h-3" />
+                          <span className="hidden md:inline">
+                            We Do Not Sell Your Data
+                          </span>
                         </button>
                       </motion.div>
                     </div>
