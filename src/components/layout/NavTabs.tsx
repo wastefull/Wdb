@@ -56,7 +56,6 @@ export function NavTabs({ activeTab, onTabChange }: NavTabsProps) {
           >
             {tab.icon}
             <span>{tab.label}</span>
-            {tab.id === "search" && <span className="nav-tab-badge">Beta</span>}
           </button>
         ))}
       </div>

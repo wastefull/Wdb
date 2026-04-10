@@ -19,9 +19,11 @@ import {
 
 export interface RetroButtonsProps {
   title: string;
+  titlePop?: string;
+  version?: string;
 }
 
-export function RetroButtons({ title }: RetroButtonsProps) {
+export function RetroButtons({ title, titlePop, version }: RetroButtonsProps) {
   const {
     settings,
     setFontSize,
@@ -437,8 +439,12 @@ export function RetroButtons({ title }: RetroButtonsProps) {
             </div>
           </TooltipProvider>
 
-          <div className="basis-0 grow min-h-px min-w-px flex items-center justify-center">
-            <h1 className="leading-[25px] not-italic uppercase">{title}</h1>
+          <div className="pl-1 basis-0 grow min-h-px min-w-px flex items-center justify-center">
+            <h1 className="pr-2 z-1 title-pop">{title}</h1>
+            <h1 className="pb-2 uppercase color-pop">{titlePop}</h1>
+            <span className="beta-badge" style={{ marginLeft: 6 }}>
+              {version}
+            </span>
           </div>
         </div>
       </div>

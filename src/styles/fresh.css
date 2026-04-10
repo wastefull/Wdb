@@ -86,7 +86,9 @@
   --waste-recycle: #e4e3ac;
   --waste-reuse: #b8c8cb;
   --waste-science: #bdd4b7;
-
+  --stem: rgb(132, 181, 39);
+  --leaf: rgb(146, 210, 34);
+  --earth: rgb(91, 79, 91);
   --texture: url("https://www.transparenttextures.com/patterns/3px-tile.png");
   --texture-size: 3px 3px;
 }
@@ -155,6 +157,9 @@
   --waste-recycle: oklch(0.78 0.15 95); /* Amber screen glow */
   --waste-reuse: oklch(0.7 0.15 220); /* Cool blue phosphor */
   --waste-science: oklch(0.72 0.18 145); /* Green terminal */
+  --stem: rgb(71, 101, 40);
+  --leaf: rgb(109, 165, 0);
+  --earth: rgb(229, 225, 216);
 }
 
 .textured {
@@ -966,10 +971,33 @@ body {
   @apply bg-black/10 dark:bg-white/20;
 }
 
-.nav-tab-badge {
+.beta-badge {
   @apply text-[8px] px-1.5 py-0.5 rounded-full uppercase;
   @apply bg-waste-science text-black;
   @apply border border-[#211f1c] dark:border-white/20;
+}
+.title-pop {
+  color: var(--earth);
+  font-family: "Genty Demo", sans-serif;
+  scale: 1.25;
+  text-shadow:
+    var(--background) 1px 0.5px 0px,
+    var(--background) 1px 0px 0px,
+    var(--background) 1px 0px 0px;
+}
+.dark .title-pop {
+  color: var(--earth);
+  text-shadow:
+    var(--background) 1px 1px 0px,
+    var(--background) 2px 2px 0px,
+    var(--background) 3px 3px 0px;
+}
+.color-pop {
+  color: color-mix(in oklch, var(--stem) 90%, var(--background));
+  text-shadow:
+    var(--earth) 1px 1px 0px,
+    var(--black) 2px 2px 0px,
+    var(--black) 3px 3px 0px;
 }
 
 /* ==========================================================================

@@ -713,7 +713,9 @@ function AppContent() {
           {/* Simulated window with optional sidebar inside */}
           <div className="bg-[#faf7f2] dark:bg-[#1a1917] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 overflow-hidden mb-6">
             <StatusBar
-              title="Wastefull"
+              title="Waste"
+              titlePop="DB"
+              version="BETA"
               currentView={currentView}
               onViewChange={navigateTo}
               syncStatus={syncStatus === "idle" ? undefined : syncStatus}

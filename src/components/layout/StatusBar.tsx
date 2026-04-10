@@ -32,6 +32,9 @@ import {
 export interface StatusBarProps {
   /** Title displayed in the status bar (used by RetroButtons in full variant, centered in mini variant) */
   title: string;
+  /** Optional second part of title */
+  titlePop?: string;
+  version?: string;
   /** Current view state for navigation */
   currentView?: any;
   /** Navigation handler */
@@ -54,6 +57,8 @@ export interface StatusBarProps {
 
 export function StatusBar({
   title,
+  titlePop,
+  version,
   currentView,
   onViewChange,
   syncStatus,
@@ -102,6 +107,8 @@ export function StatusBar({
         )}
         {/* Centered Title */}
         <span className="normal">{title}</span>
+        <span className="normal arcade-btn-green">{titlePop}</span>
+        <span className="normal">{version}</span>
       </div>
     );
   }
@@ -118,7 +125,7 @@ export function StatusBar({
       />
       <div className="size-full">
         <div className="status-bar-layout">
-          <RetroButtons title={title} />
+          <RetroButtons title={title} titlePop={titlePop} version={version} />
 
           <div className="flex items-center gap-1 md:gap-2">
             {/* User Controls */}
