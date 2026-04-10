@@ -817,7 +817,7 @@ function AppContent() {
               {/* Main content - grows to fill space */}
               <div className="flex-1 min-w-0">
                 {currentView.type === "materials" ? (
-                  <div className="p-6">
+                  <div className="p-3">
                     {/* Sync error/offline banner - only show for authenticated users */}
                     {user &&
                       (syncStatus === "error" || syncStatus === "offline") && (

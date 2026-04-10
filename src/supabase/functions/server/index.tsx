@@ -1113,12 +1113,18 @@ app.post("/make-server-17cae920/auth/signin", rateLimit("AUTH"), async (c) => {
     // Log successful login
     log.log(`Successful login: ${email}`);
 
+    const signinProfile = await kv.get(`user_profile:${data.user.id}`);
+    const signinDisplayName =
+      signinProfile?.name ||
+      data.user.email?.split("@")[0] ||
+      email.split("@")[0];
+
     return c.json({
       access_token: data.session.access_token,
       user: {
         id: data.user.id,
         email: data.user.email,
-        name: data.user.user_metadata?.name,
+        name: signinDisplayName,
       },
     });
   } catch (error) {
@@ -1446,13 +1452,19 @@ app.post("/make-server-17cae920/auth/verify-magic-link", async (c) => {
     log.log(`Successful magic link verification: ${trimmedEmail}`);
     log.log(`Returning access_token to frontend: ${accessToken}`);
 
+    const magicLinkProfile = await kv.get(`user_profile:${userData.user.id}`);
+    const magicLinkDisplayName =
+      magicLinkProfile?.name ||
+      userData.user.email?.split("@")[0] ||
+      trimmedEmail.split("@")[0];
+
     // Return user data and access token
     return c.json({
       access_token: accessToken,
       user: {
         id: userData.user.id,
         email: userData.user.email,
-        name: userData.user.user_metadata?.name,
+        name: magicLinkDisplayName,
       },
     });
   } catch (error) {
