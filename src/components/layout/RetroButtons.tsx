@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { RotateCcw, Type, Eye, Moon, Unlock, Settings } from "lucide-react";
 import { useAccessibility } from "../shared/AccessibilityContext";
+import { useNavigationContext } from "../../contexts/NavigationContext";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import {
   Tooltip as UITooltip,
@@ -33,10 +34,18 @@ export function RetroButtons({ title, titlePop, version }: RetroButtonsProps) {
     toggleDarkMode,
     resetSettings,
   } = useAccessibility();
+  const { navigateToMaterials } = useNavigationContext();
   const [redOpen, setRedOpen] = useState(false);
   const [yellowOpen, setYellowOpen] = useState(false);
   const [blueOpen, setBlueOpen] = useState(false);
   const [mobileSettingsOpen, setMobileSettingsOpen] = useState(false);
+
+  const isLogo = title === "Waste" && titlePop === "DB";
+  const handleLogoClick = () => {
+    if (isLogo) {
+      navigateToMaterials();
+    }
+  };
 
   return (
     <div className="basis-0 grow h-full min-h-px min-w-px relative shrink-0">
@@ -440,8 +449,18 @@ export function RetroButtons({ title, titlePop, version }: RetroButtonsProps) {
           </TooltipProvider>
 
           <div className="pl-1 basis-0 grow min-h-px min-w-px flex items-center justify-center">
-            <h1 className="pr-2 z-1 title-pop">{title}</h1>
-            <h1 className="pb-2 uppercase color-pop">{titlePop}</h1>
+            <h1
+              className={`pr-2 z-1 title-pop ${isLogo ? "cursor-pointer" : ""}`}
+              onClick={handleLogoClick}
+            >
+              {title}
+            </h1>
+            <h1
+              className={`pb-2 uppercase color-pop  ${isLogo ? "cursor-pointer" : ""}`}
+              onClick={handleLogoClick}
+            >
+              {titlePop}
+            </h1>
             <span className="beta-badge" style={{ marginLeft: 6 }}>
               {version}
             </span>
