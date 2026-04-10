@@ -49,12 +49,12 @@ export function RetroButtons({ title }: RetroButtonsProps) {
             >
               <SheetTrigger asChild>
                 <button
-                  className="relative w-[15px] h-[15px] hover:scale-110 transition-transform"
+                  className="relative block w-4 h-4 shrink-0 leading-none scale-110 transition-transform"
                   aria-label="Accessibility settings"
                 >
                   {/* Retro circle button background */}
                   <div
-                    className={`absolute inset-[-8.333%] arcade-fill-cyan ${
+                    className={`absolute inset-[-6.25%] arcade-fill-cyan ${
                       settings.noPastel ? "opacity-80" : ""
                     }`}
                   >
@@ -74,7 +74,7 @@ export function RetroButtons({ title }: RetroButtonsProps) {
                     </svg>
                   </div>
                   {/* Gear icon centered */}
-                  <Settings className="absolute inset-0 m-auto w-[9px] h-[9px] text-[#211f1c]" />
+                  <Settings className="absolute left-1/2 top-1/2 w-[9px] h-[9px] -translate-x-1/2 -translate-y-1/2 text-[#211f1c]" />
                 </button>
               </SheetTrigger>
               <SheetContent
