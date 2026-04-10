@@ -29,7 +29,6 @@ export function RetroButtons({ title }: RetroButtonsProps) {
     toggleNoPastel,
     toggleReduceMotion,
     toggleDarkMode,
-    togglePrioritizeOA,
     resetSettings,
   } = useAccessibility();
   const [redOpen, setRedOpen] = useState(false);
@@ -62,7 +61,7 @@ export function RetroButtons({ title }: RetroButtonsProps) {
                       className="block size-full"
                       fill="none"
                       preserveAspectRatio="none"
-                      viewBox="0 0 14 14"
+                      viewBox="-0.5 -0.5 15 15"
                     >
                       <circle
                         cx="7"
@@ -171,6 +170,7 @@ export function RetroButtons({ title }: RetroButtonsProps) {
                   </div>
 
                   {/* Open Access Preference */}
+                  {/* TODO: move this into search filters */}
                   {/* <div className="border-t border-[#211f1c]/10 dark:border-white/10 pt-3">
                     <div className="flex items-center justify-between">
                       <label className="text-[13px] flex items-center gap-2">
@@ -209,14 +209,14 @@ export function RetroButtons({ title }: RetroButtonsProps) {
               {/* Red Button - Reset Settings */}
               <UITooltip>
                 <TooltipTrigger asChild>
-                  <div className="relative shrink-0 w-[13px] h-[13px] overflow-visible flex items-center justify-center">
+                  <div className="relative shrink-0 w-4 h-4 overflow-visible flex items-center justify-center">
                     <Popover open={redOpen} onOpenChange={setRedOpen}>
                       <PopoverTrigger
-                        className="relative size-full hover:scale-110 transition-transform cursor-pointer"
+                        className="relative block size-full leading-none hover:scale-110 transition-transform cursor-pointer"
                         aria-label="Reset accessibility settings"
                       >
                         <div
-                          className={`absolute inset-[-8.333%] arcade-fill-red ${
+                          className={`absolute inset-[-6.25%] arcade-fill-red ${
                             settings.noPastel ? "opacity-80" : ""
                           }`}
                         >
@@ -224,7 +224,7 @@ export function RetroButtons({ title }: RetroButtonsProps) {
                             className="block size-full"
                             fill="none"
                             preserveAspectRatio="none"
-                            viewBox="0 0 14 14"
+                            viewBox="-0.5 -0.5 15 15"
                           >
                             <circle
                               cx="7"
@@ -270,14 +270,14 @@ export function RetroButtons({ title }: RetroButtonsProps) {
               {/* Yellow Button - Font Size */}
               <UITooltip>
                 <TooltipTrigger asChild>
-                  <div className="relative shrink-0 w-[13px] h-[13px] overflow-visible flex items-center justify-center">
+                  <div className="relative shrink-0 w-4 h-4 overflow-visible flex items-center justify-center">
                     <Popover open={yellowOpen} onOpenChange={setYellowOpen}>
                       <PopoverTrigger
-                        className="relative size-full hover:scale-110 transition-transform cursor-pointer"
+                        className="relative block size-full leading-none hover:scale-110 transition-transform cursor-pointer"
                         aria-label="Font size settings"
                       >
                         <div
-                          className={`absolute inset-[-8.333%] arcade-fill-amber ${
+                          className={`absolute inset-[-6.25%] arcade-fill-amber ${
                             settings.noPastel ? "opacity-80" : ""
                           }`}
                         >
@@ -285,7 +285,7 @@ export function RetroButtons({ title }: RetroButtonsProps) {
                             className="block size-full"
                             fill="none"
                             preserveAspectRatio="none"
-                            viewBox="0 0 14 14"
+                            viewBox="-0.5 -0.5 15 15"
                           >
                             <circle
                               cx="7"
@@ -351,14 +351,14 @@ export function RetroButtons({ title }: RetroButtonsProps) {
               {/* Blue Button - Display Controls */}
               <UITooltip>
                 <TooltipTrigger asChild>
-                  <div className="relative shrink-0 w-[13px] h-[13px] overflow-visible flex items-center justify-center">
+                  <div className="relative shrink-0 w-4 h-4 overflow-visible flex items-center justify-center">
                     <Popover open={blueOpen} onOpenChange={setBlueOpen}>
                       <PopoverTrigger
-                        className="relative size-full hover:scale-110 transition-transform cursor-pointer"
+                        className="relative block size-full leading-none hover:scale-110 transition-transform cursor-pointer"
                         aria-label="Display settings"
                       >
                         <div
-                          className={`absolute inset-[-8.333%] arcade-fill-cyan ${
+                          className={`absolute inset-[-6.25%] arcade-fill-cyan ${
                             settings.noPastel ? "opacity-80" : ""
                           }`}
                         >
@@ -366,7 +366,7 @@ export function RetroButtons({ title }: RetroButtonsProps) {
                             className="block size-full"
                             fill="none"
                             preserveAspectRatio="none"
-                            viewBox="0 0 14 14"
+                            viewBox="-0.5 -0.5 15 15"
                           >
                             <circle
                               cx="7"
@@ -421,21 +421,6 @@ export function RetroButtons({ title }: RetroButtonsProps) {
                                 onCheckedChange={toggleReduceMotion}
                               />
                             </div>
-                            {/* <div className="border-t border-[#211f1c]/10 dark:border-white/10 pt-3 mt-3">
-                              <div className="flex items-center justify-between">
-                                <label className="text-[12px] flex items-center gap-2">
-                                  <Unlock size={14} />
-                                  Prioritize Open Access
-                                </label>
-                                <Switch
-                                  checked={settings.prioritizeOA}
-                                  onCheckedChange={togglePrioritizeOA}
-                                />
-                              </div>
-                              <p className="caption">
-                                Curator preference: show OA sources first
-                              </p>
-                            </div> */}
                           </div>
                         </div>
                       </PopoverContent>
