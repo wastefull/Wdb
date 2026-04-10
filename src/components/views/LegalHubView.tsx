@@ -1,19 +1,31 @@
 import React from "react";
-import { AlertCircle, Scale, FileText } from "lucide-react";
+import { AlertCircle, FileText, ShieldCheck } from "lucide-react";
 import { PageTemplate } from "../shared/PageTemplate";
 
 interface LegalHubViewProps {
   onBack: () => void;
   onNavigateToTakedownForm: () => void;
   onNavigateToLicenses: () => void;
+  onNavigateToPrivacyPolicy: () => void;
 }
 
 export function LegalHubView({
   onBack,
   onNavigateToTakedownForm,
   onNavigateToLicenses,
+  onNavigateToPrivacyPolicy,
 }: LegalHubViewProps) {
   const legalResources = [
+    {
+      id: "privacy",
+      title: "Privacy Policy",
+      description:
+        "How WasteDB handles your sign-in data, session cookie, and browser storage",
+      icon: ShieldCheck,
+      iconClass: "arcade-bg-green arcade-btn-green",
+      onClick: onNavigateToPrivacyPolicy,
+      label: "Read Policy",
+    },
     {
       id: "takedown",
       title: "Content Takedown Request",

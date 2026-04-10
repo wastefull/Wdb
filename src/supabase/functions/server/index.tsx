@@ -501,16 +501,49 @@ function checkHoneypot(honeypot: any): boolean {
 }
 
 // Enable CORS for all routes and methods
+const ALLOWED_ORIGINS = ["https://db.wastefull.org", "http://localhost:3000"];
 app.use(
   "/*",
   cors({
-    origin: "*",
-    allowHeaders: ["Content-Type", "Authorization", "X-Session-Token"],
+    origin: (origin) =>
+      ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0],
+    allowHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Session-Token",
+      "Cookie",
+    ],
     allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     exposeHeaders: ["Content-Length"],
     maxAge: 600,
+    credentials: true,
   }),
 );
+
+// ==================== SESSION COOKIE HELPERS ====================
+
+const SESSION_COOKIE_NAME = "wastedb_session";
+const SESSION_COOKIE_MAX_AGE = 7 * 24 * 60 * 60; // 7 days in seconds
+
+function setSessionCookie(c: any, token: string): void {
+  c.header(
+    "Set-Cookie",
+    `${SESSION_COOKIE_NAME}=${token}; HttpOnly; Secure; SameSite=None; Max-Age=${SESSION_COOKIE_MAX_AGE}; Path=/`,
+  );
+}
+
+function clearSessionCookie(c: any): void {
+  c.header(
+    "Set-Cookie",
+    `${SESSION_COOKIE_NAME}=; HttpOnly; Secure; SameSite=None; Max-Age=0; Path=/`,
+  );
+}
+
+function getSessionCookieToken(c: any): string | null {
+  const cookieHeader = c.req.header("Cookie") || "";
+  const match = cookieHeader.match(/wastedb_session=([^;]+)/);
+  return match?.[1] || null;
+}
 
 // ==================== STORAGE INITIALIZATION ====================
 
@@ -626,8 +659,11 @@ async function verifyAuth(c: any, next: any) {
     sessionToken ? `${sessionToken.substring(0, 8)}...` : "missing",
   );
 
-  // If no session token, check Authorization header for backward compatibility
-  if (!sessionToken) {
+  // Also accept persistent session cookie as a token source
+  const cookieToken = getSessionCookieToken(c);
+
+  // If no session token or cookie, check Authorization header for backward compatibility
+  if (!sessionToken && !cookieToken) {
     const authHeader = c.req.header("Authorization");
     log.log(
       "verifyAuth: Authorization header:",
@@ -654,7 +690,10 @@ async function verifyAuth(c: any, next: any) {
   }
 
   const token =
-    sessionToken || c.req.header("Authorization")?.split(" ")[1] || "";
+    sessionToken ||
+    cookieToken ||
+    c.req.header("Authorization")?.split(" ")[1] ||
+    "";
 
   try {
     // First, check if this is a custom session token (magic link)
@@ -870,6 +909,70 @@ function requirePermission(permission: string) {
 // Health check endpoint (public)
 app.get("/make-server-17cae920/health", (c) => {
   return c.json({ status: "ok" });
+});
+
+// Restore session from persistent cookie (public - handles its own auth via cookie)
+app.get("/make-server-17cae920/auth/session", async (c) => {
+  try {
+    const token = getSessionCookieToken(c);
+    if (!token) {
+      return c.json({ error: "No session cookie" }, 401);
+    }
+
+    const sessionData = (await kv.get(`session:${token}`)) as {
+      userId: string;
+      email: string;
+      canonicalEmail?: string;
+      expiry: number;
+    } | null;
+
+    if (!sessionData) {
+      clearSessionCookie(c);
+      return c.json({ error: "Session not found" }, 401);
+    }
+
+    if (Date.now() > sessionData.expiry) {
+      await kv.del(`session:${token}`);
+      clearSessionCookie(c);
+      return c.json({ error: "Session expired" }, 401);
+    }
+
+    const profile = await kv.get(`user_profile:${sessionData.userId}`);
+    const displayName =
+      profile?.name ||
+      (sessionData.canonicalEmail || sessionData.email)?.split("@")[0];
+
+    // Refresh cookie expiry on each use
+    setSessionCookie(c, token);
+
+    return c.json({
+      access_token: token,
+      user: {
+        id: sessionData.userId,
+        email: sessionData.canonicalEmail || sessionData.email,
+        name: displayName,
+      },
+    });
+  } catch (error) {
+    log.error("Session restore error:", error);
+    return c.json({ error: "Server error" }, 500);
+  }
+});
+
+// Sign out endpoint (public - clears the session cookie)
+app.post("/make-server-17cae920/auth/signout", async (c) => {
+  try {
+    const token = getSessionCookieToken(c);
+    if (token) {
+      await kv.del(`session:${token}`);
+    }
+    clearSessionCookie(c);
+    return c.json({ message: "Signed out" });
+  } catch (error) {
+    log.error("Signout error:", error);
+    clearSessionCookie(c);
+    return c.json({ message: "Signed out" });
+  }
 });
 
 // Sign up endpoint (public, rate-limited)
@@ -1119,8 +1222,21 @@ app.post("/make-server-17cae920/auth/signin", rateLimit("AUTH"), async (c) => {
       data.user.email?.split("@")[0] ||
       email.split("@")[0];
 
+    // Create a persistent KV session (consistent 7-day expiry across all auth methods)
+    const signinSessionToken = crypto.randomUUID();
+    await kv.set(`session:${signinSessionToken}`, {
+      userId: data.user.id,
+      email: data.user.email?.toLowerCase(),
+      canonicalEmail: data.user.email?.toLowerCase(),
+      authProvider: "email",
+      expiry: Date.now() + 7 * 24 * 60 * 60 * 1000,
+      createdAt: Date.now(),
+    });
+    await kv.set(`user_last_signin:${data.user.id}`, Date.now());
+    setSessionCookie(c, signinSessionToken);
+
     return c.json({
-      access_token: data.session.access_token,
+      access_token: signinSessionToken,
       user: {
         id: data.user.id,
         email: data.user.email,
@@ -1459,6 +1575,7 @@ app.post("/make-server-17cae920/auth/verify-magic-link", async (c) => {
       trimmedEmail.split("@")[0];
 
     // Return user data and access token
+    setSessionCookie(c, accessToken);
     return c.json({
       access_token: accessToken,
       user: {
@@ -1602,6 +1719,7 @@ app.post(
         `OAuth session exchanged for ${authEmail} (canonical user: ${canonicalUserId})`,
       );
 
+      setSessionCookie(c, accessTokenForSession);
       return c.json({
         access_token: accessTokenForSession,
         user: {

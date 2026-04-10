@@ -38,6 +38,7 @@ import {
   WhitepaperView,
   UserProfileView,
   LegalHubView,
+  PrivacyPolicyView,
   ScienceHubView,
   PublicExportView,
   MySubmissionsView,
@@ -148,6 +149,7 @@ function AppContent() {
     navigateToApiDocs,
     navigateToLicenses,
     navigateToLegalHub,
+    navigateToPrivacyPolicy,
     navigateToScienceHub,
     navigateToTakedownForm,
     navigateToAdminTakedownList,
@@ -1351,7 +1353,10 @@ function AppContent() {
                     onBack={navigateToMaterials}
                     onNavigateToTakedownForm={navigateToTakedownForm}
                     onNavigateToLicenses={navigateToLicenses}
+                    onNavigateToPrivacyPolicy={navigateToPrivacyPolicy}
                   />
+                ) : currentView.type === "privacy-policy" ? (
+                  <PrivacyPolicyView onBack={navigateToLegalHub} />
                 ) : currentView.type === "takedown-form" ? (
                   <TakedownRequestForm onBack={navigateToLegalHub} />
                 ) : currentView.type === "takedown-status" ? (

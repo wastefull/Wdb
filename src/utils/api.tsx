@@ -72,6 +72,9 @@ export async function apiCall(
 
   // For custom session tokens, use X-Session-Token header
   // For anon key, use Authorization header
+  // Note: credentials:"include" is NOT set here — it requires the edge function to be
+  // deployed with the updated CORS config (credentials:true + specific origin allowlist).
+  // It is set explicitly on cookie-specific endpoints (refreshSessionFromCookie, signOut).
   const response = await fetch(fullUrl, {
     ...options,
     headers: {
@@ -316,8 +319,37 @@ export async function exchangeSupabaseSessionForWasteDBSession(
   return data;
 }
 
-export function signOut() {
+export async function signOut() {
   clearAccessToken();
+  // Ask the server to clear the HttpOnly session cookie
+  try {
+    await fetch(`${API_BASE_URL}/auth/signout`, {
+      method: "POST",
+      credentials: "include",
+      headers: { Authorization: `Bearer ${publicAnonKey}` },
+    });
+  } catch {
+    // Non-critical — cookie will expire naturally after 7 days
+  }
+}
+
+// Restore a session from the persistent HttpOnly cookie.
+// Called on app startup when sessionStorage is empty.
+export async function refreshSessionFromCookie(): Promise<AuthResponse | null> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/session`, {
+      credentials: "include",
+      headers: { Authorization: `Bearer ${publicAnonKey}` },
+    });
+    if (!response.ok) return null;
+    const data: AuthResponse = await response.json();
+    if (data.access_token) {
+      setAccessToken(data.access_token);
+    }
+    return data;
+  } catch {
+    return null;
+  }
 }
 
 // Get all materials from Supabase

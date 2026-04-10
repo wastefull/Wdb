@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { Cookie } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { useNavigationContext } from "../../contexts/NavigationContext";
 
 export function CookieConsent() {
   const [showBanner, setShowBanner] = useState(false);
+  const { navigateToPrivacyPolicy } = useNavigationContext();
 
   useEffect(() => {
     // Check if user has already consented
@@ -33,8 +35,19 @@ export function CookieConsent() {
               <Cookie className="normal mt-1 shrink-0" size={20} />
               <div className="flex-1">
                 <p className="text-[13px] normal mb-3">
-                  We use cookies for authentication to keep you signed in. By
-                  continuing to use WasteDB, you consent to our use of cookies.
+                  We use a cookie to keep you signed in across browser sessions,
+                  and save your login state in your browser. No tracking or
+                  analytics cookies are used. See our{" "}
+                  <button
+                    onClick={() => {
+                      handleAccept();
+                      navigateToPrivacyPolicy();
+                    }}
+                    className="underline hover:opacity-80"
+                  >
+                    Privacy Policy
+                  </button>
+                  .
                 </p>
                 <button
                   onClick={handleAccept}

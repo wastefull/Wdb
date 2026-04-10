@@ -48,6 +48,7 @@ export type ViewType =
   | { type: "transform-formula-testing" }
   | { type: "licenses" }
   | { type: "legal-hub" }
+  | { type: "privacy-policy" }
   | { type: "science-hub" }
   | { type: "takedown-form" }
   | { type: "takedown-status"; requestId: string }
@@ -121,6 +122,7 @@ interface NavigationContextType {
   navigateToTransformTesting: () => void;
   navigateToLicenses: () => void;
   navigateToLegalHub: () => void;
+  navigateToPrivacyPolicy: () => void;
   navigateToScienceHub: () => void;
   navigateToTakedownForm: () => void;
   navigateToTakedownStatus: (requestId: string) => void;
@@ -302,6 +304,10 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
     navigateTo({ type: "legal-hub" });
   };
 
+  const navigateToPrivacyPolicy = () => {
+    navigateTo({ type: "privacy-policy" });
+  };
+
   const navigateToScienceHub = () => {
     navigateTo({ type: "science-hub" });
   };
@@ -439,6 +445,7 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
     navigateToTransformTesting,
     navigateToLicenses,
     navigateToLegalHub,
+    navigateToPrivacyPolicy,
     navigateToScienceHub,
     navigateToTakedownForm,
     navigateToTakedownStatus,

@@ -142,7 +142,32 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
             }
           }
         } else {
-          authLogger.log("No authenticated session found");
+          // No sessionStorage token — attempt to restore from persistent cookie
+          authLogger.log("No sessionStorage session — trying cookie restore");
+          try {
+            const cookieSession = await api.refreshSessionFromCookie();
+            if (cookieSession?.user) {
+              setUser(cookieSession.user);
+              sessionStorage.setItem(
+                "wastedb_user",
+                JSON.stringify(cookieSession.user),
+              );
+              authLogger.info(
+                "Session restored from cookie:",
+                cookieSession.user.email,
+              );
+              try {
+                const role = await api.getUserRole();
+                setUserRole(role);
+              } catch {
+                setUserRole("user");
+              }
+            } else {
+              authLogger.log("No valid cookie session found");
+            }
+          } catch (error) {
+            authLogger.warn("Cookie session restore failed:", error);
+          }
         }
       } catch (error) {
         authLogger.error("Error during auth initialization:", error);

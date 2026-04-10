@@ -12,6 +12,7 @@ export { UserProfileView } from "./UserProfileView";
 
 // Hub views
 export { LegalHubView } from "./LegalHubView";
+export { PrivacyPolicyView } from "./PrivacyPolicyView";
 export { ScienceHubView } from "./ScienceHubView";
 
 // Whitepaper views
