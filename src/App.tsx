@@ -1500,10 +1500,10 @@ function AppContent() {
                   </footer>
                 </div>
 
-                {/* Scroll hint arrow - mobile only */}
+                {/* Scroll hint arrow - shown when sidebar is below */}
                 {showScrollHint && (
                   <motion.div
-                    className="3xl:hidden flex justify-center pb-4"
+                    className="md:hidden flex justify-center pb-4"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 1, duration: 0.5 }}
@@ -1526,19 +1526,19 @@ function AppContent() {
                 )}
               </div>
 
-              {/* Sidebar - only visible on wide screens (1200px+) */}
-              <aside className="hidden 3xl:block w-64 shrink-0 border-l-[1.5px] border-[#211f1c] dark:border-white/20">
-                <div className="sticky top-0 h-[calc(100vh-100px)] overflow-y-auto">
+              {/* Sidebar - visible on medium screens and wider */}
+              <aside className="hidden md:block w-52 lg:w-64 shrink-0 border-l-[1.5px] border-[#211f1c] dark:border-white/20">
+                <div className="sticky top-0 max-h-[calc(100vh-100px)] overflow-y-auto">
                   <Leaderboard onUserClick={navigateToUserProfile} />
                 </div>
               </aside>
             </div>
           </div>
 
-          {/* Mobile Leaderboard - separate window below main content, visible below 3xl breakpoint */}
+          {/* Mobile Leaderboard - separate window below main content, visible below md breakpoint */}
           <motion.div
             ref={leaderboardRef}
-            className="3xl:hidden mt-4 mx-4 md:mx-6 rounded-2xl border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#f5f4ef] dark:bg-[#1a1917] overflow-hidden"
+            className="md:hidden mt-4 mx-4 md:mx-6 rounded-2xl border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#f5f4ef] dark:bg-[#1a1917] overflow-hidden"
             initial={{ opacity: 0, y: 20 }}
             animate={
               leaderboardVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }
