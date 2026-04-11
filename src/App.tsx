@@ -1008,9 +1008,17 @@ function AppContent() {
                         <div className="mb-6 px-4">
                           <p className="text-[12px] text-black/60 dark:text-white/60">
                             Hi,{" "}
-                            {user
-                              ? user.name || user.email.split("@")[0]
-                              : "human"}
+                            {user ? (
+                              <button
+                                type="button"
+                                onClick={() => navigateToUserProfile(user.id)}
+                                className="underline hover:no-underline cursor-pointer transition"
+                              >
+                                {user.name || user.email.split("@")[0]}
+                              </button>
+                            ) : (
+                              "human"
+                            )}
                             !
                           </p>
                           <p className="text-[14px] normal mb-1">
