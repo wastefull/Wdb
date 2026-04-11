@@ -1283,6 +1283,17 @@ export async function createSubmission(submission: {
   return data.submission;
 }
 
+export async function resubmitSubmission(
+  id: string,
+  contentData: Record<string, any>,
+): Promise<any> {
+  const data = await apiCall(`/submissions/${id}/resubmit`, {
+    method: "PUT",
+    body: JSON.stringify({ content_data: contentData }),
+  });
+  return data.submission;
+}
+
 export async function updateSubmission(
   id: string,
   updates: {

@@ -7,6 +7,8 @@ import {
   FileText,
   Edit3,
   Package,
+  Send,
+  X,
 } from "lucide-react";
 import * as api from "../../utils/api";
 import { toast } from "sonner";
@@ -31,6 +33,11 @@ interface Submission {
   updated_at: string;
 }
 
+interface RevisionDraft {
+  title: string;
+  content: string;
+}
+
 interface MySubmissionsViewProps {
   onBack: () => void;
 }
@@ -38,6 +45,9 @@ interface MySubmissionsViewProps {
 export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [draft, setDraft] = useState<RevisionDraft>({ title: "", content: "" });
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     loadSubmissions();
@@ -53,6 +63,52 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
       toast.error("Failed to load submissions");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const isArticleType = (type: Submission["type"]) =>
+    type === "new_article" || type === "update_article";
+
+  const handleStartEdit = (submission: Submission) => {
+    setDraft({
+      title: submission.content_data?.title || "",
+      content: submission.content_data?.content || "",
+    });
+    setEditingId(submission.id);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setDraft({ title: "", content: "" });
+  };
+
+  const handleResubmit = async (submission: Submission) => {
+    if (!draft.title.trim()) {
+      toast.error("Please enter a title");
+      return;
+    }
+    if (!draft.content.trim()) {
+      toast.error("Please enter article content");
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      const updatedContentData = {
+        ...submission.content_data,
+        title: draft.title.trim(),
+        content: draft.content.trim(),
+      };
+      await api.resubmitSubmission(submission.id, updatedContentData);
+      toast.success("Revision submitted for review!");
+      setEditingId(null);
+      setDraft({ title: "", content: "" });
+      await loadSubmissions();
+    } catch (error) {
+      logger.error("Error resubmitting:", error);
+      toast.error("Failed to submit revision");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -201,6 +257,77 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
                         </p>
                       </div>
                     )}
+
+                    {/* Inline revision form */}
+                    {submission.status === "needs_revision" &&
+                      isArticleType(submission.type) && (
+                        <div className="mt-3">
+                          {editingId === submission.id ? (
+                            <div className="border border-[#211f1c] dark:border-white/20 rounded-md p-3 space-y-3 bg-white/50 dark:bg-black/20">
+                              <div>
+                                <label className="block text-[10px] normal mb-1">
+                                  Title
+                                </label>
+                                <input
+                                  type="text"
+                                  value={draft.title}
+                                  onChange={(e) =>
+                                    setDraft((d) => ({
+                                      ...d,
+                                      title: e.target.value,
+                                    }))
+                                  }
+                                  className="w-full text-[12px] px-2 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-white dark:bg-[#2a2825] normal focus:outline-none focus:ring-1 focus:ring-[#211f1c] dark:focus:ring-white/40"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[10px] normal mb-1">
+                                  Content
+                                </label>
+                                <textarea
+                                  value={draft.content}
+                                  onChange={(e) =>
+                                    setDraft((d) => ({
+                                      ...d,
+                                      content: e.target.value,
+                                    }))
+                                  }
+                                  rows={6}
+                                  className="w-full text-[12px] px-2 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-white dark:bg-[#2a2825] normal focus:outline-none focus:ring-1 focus:ring-[#211f1c] dark:focus:ring-white/40 resize-y"
+                                />
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <button
+                                  onClick={() => handleResubmit(submission)}
+                                  disabled={submitting}
+                                  className="retro-btn-primary inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px]"
+                                >
+                                  <Send size={11} />
+                                  {submitting
+                                    ? "Submitting..."
+                                    : "Submit Revision"}
+                                </button>
+                                <button
+                                  onClick={handleCancelEdit}
+                                  disabled={submitting}
+                                  className="retro-icon-button inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px]"
+                                >
+                                  <X size={11} />
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => handleStartEdit(submission)}
+                              className="retro-btn-primary inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] mt-1"
+                            >
+                              <Edit3 size={11} />
+                              Revise &amp; Resubmit
+                            </button>
+                          )}
+                        </div>
+                      )}
                   </div>
                 </div>
                 <div>{getStatusBadge(submission.status)}</div>

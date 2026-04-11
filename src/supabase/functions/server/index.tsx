@@ -5843,6 +5843,64 @@ app.post("/make-server-17cae920/submissions", verifyAuth, async (c) => {
   }
 });
 
+// Resubmit a submission after revision (submitter only)
+app.put(
+  "/make-server-17cae920/submissions/:id/resubmit",
+  verifyAuth,
+  async (c) => {
+    try {
+      const id = c.req.param("id");
+      const userId = c.get("userId");
+      const { content_data } = await c.req.json();
+
+      const existing = await kv.get(`submission:${id}`);
+      if (!existing) {
+        return c.json({ error: "Submission not found" }, 404);
+      }
+
+      if (existing.submitted_by !== userId) {
+        return c.json({ error: "Forbidden" }, 403);
+      }
+
+      const allowedStatuses = ["needs_revision", "pending_revision"];
+      if (!allowedStatuses.includes(existing.status)) {
+        return c.json({ error: "Submission is not awaiting revision" }, 400);
+      }
+
+      const updatedSubmission = {
+        ...existing,
+        content_data,
+        status: "pending_review",
+        feedback: null,
+        updated_at: new Date().toISOString(),
+      };
+
+      await kv.set(`submission:${id}`, updatedSubmission);
+
+      // Notify admins of the resubmission
+      const adminNotification = {
+        id: crypto.randomUUID(),
+        user_id: "admin",
+        type: "new_review_item",
+        content_id: id,
+        content_type: "submission",
+        message: "A revised submission is ready for review",
+        read: false,
+        created_at: new Date().toISOString(),
+      };
+      await kv.set(`notification:${adminNotification.id}`, adminNotification);
+
+      return c.json({ submission: updatedSubmission });
+    } catch (error) {
+      log.error("Error resubmitting submission:", error);
+      return c.json(
+        { error: "Failed to resubmit submission", details: String(error) },
+        500,
+      );
+    }
+  },
+);
+
 // Update submission (admin only)
 app.put(
   "/make-server-17cae920/submissions/:id",
@@ -6192,7 +6250,7 @@ ${feedback}
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                 <tr>
                   <td align="center" style="padding: 8px 0 24px 0;">
-                    <a href="https://wastedb.app" style="display: inline-block; background-color: #e4e3ac; color: #211f1c; text-decoration: none; padding: 12px 32px; border: 1.5px solid #211f1c; border-radius: 8px; font-size: 14px; font-weight: 600; box-shadow: 3px 4px 0px -1px #000000;">
+                    <a href="https://db.wastefull.org" style="display: inline-block; background-color: #e4e3ac; color: #211f1c; text-decoration: none; padding: 12px 32px; border: 1.5px solid #211f1c; border-radius: 8px; font-size: 14px; font-weight: 600; box-shadow: 3px 4px 0px -1px #000000;">
                       View My Submissions
                     </a>
                   </td>
@@ -6234,7 +6292,7 @@ Your ${typeDisplay} submission has been reviewed, and we'd like to request some 
 Reviewer Feedback:
 ${feedback}
 
-Please review the feedback above and make any necessary changes. You can view and update your submission in your My Submissions dashboard at https://wastedb.app
+Please review the feedback above and make any necessary changes. You can view and update your submission in your My Submissions dashboard at https://db.wastefull.org
 
 Thank you for contributing to WasteDB!
 
@@ -6367,7 +6425,7 @@ app.post(
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                 <tr>
                   <td align="center" style="padding: 8px 0 24px 0;">
-                    <a href="https://wastedb.app" style="display: inline-block; background-color: #c8e5c8; color: #211f1c; text-decoration: none; padding: 12px 32px; border: 1.5px solid #211f1c; border-radius: 8px; font-size: 14px; font-weight: 600; box-shadow: 3px 4px 0px -1px #000000;">
+                    <a href="https://db.wastefull.org" style="display: inline-block; background-color: #c8e5c8; color: #211f1c; text-decoration: none; padding: 12px 32px; border: 1.5px solid #211f1c; border-radius: 8px; font-size: 14px; font-weight: 600; box-shadow: 3px 4px 0px -1px #000000;">
                       View WasteDB
                     </a>
                   </td>
@@ -6375,7 +6433,7 @@ app.post(
               </table>
               
               <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #211f1c; opacity: 0.7;">
-                We'd love to see more contributions from you. Feel free to submit additional materials or articles anytime!
+                We'd love to see more contributions from you. Feel free to submit additional materials or articles any time!
               </p>
             </td>
           </tr>
@@ -6384,7 +6442,7 @@ app.post(
           <tr>
             <td style="background-color: #faf7f2; padding: 24px 40px; border-top: 1.5px solid #211f1c; text-align: center;">
               <p style="margin: 0 0 8px 0; font-size: 12px; color: #211f1c; opacity: 0.7;">
-                <strong>Wastefull</strong> • San Jose, California
+                <strong>Wastefull, Inc.</strong> • San Jose, California
               </p>
               <p style="margin: 0; font-size: 11px; color: #211f1c; opacity: 0.5;">
                 Building open scientific infrastructure for material circularity
@@ -6410,7 +6468,7 @@ Great news! Your ${typeDisplay} submission${
 
 Thank you for contributing to WasteDB! Your effort helps make our materials database more accurate and comprehensive for everyone.
 
-View WasteDB at https://wastedb.app
+View WasteDB at https://db.wastefull.org
 
 ---
 Wastefull • San Jose, California
@@ -12006,7 +12064,7 @@ async function sendAuditEmailNotification(entry: AuditLogEntry) {
               }
               
               <p style="margin-top: 20px;">
-                <a href="https://wastedb.app/admin/audit-logs" style="background: #f59e0b; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; display: inline-block;">
+                <a href="https://db.wastefull.org/admin/audit-logs" style="background: #f59e0b; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; display: inline-block;">
                   View Audit Logs
                 </a>
               </p>
@@ -12034,7 +12092,7 @@ ${entry.ipAddress ? `IP Address: ${entry.ipAddress}` : ""}
 Changes:
 ${entry.changes.map((c) => `- ${c}`).join("\n")}
 
-View full audit logs at: https://wastedb.app/admin/audit-logs
+View full audit logs at: https://db.wastefull.org/admin/audit-logs
     `;
 
     const response = await fetch("https://api.resend.com/emails", {
