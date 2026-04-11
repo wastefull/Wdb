@@ -1006,9 +1006,16 @@ function AppContent() {
                       <div className="text-center py-12 max-w-2xl mx-auto">
                         {/* Beta contributor message */}
                         <div className="mb-6 px-4">
+                          <p className="text-[12px] text-black/60 dark:text-white/60">
+                            Hi,{" "}
+                            {user
+                              ? user.name || user.email.split("@")[0]
+                              : "human"}
+                            !
+                          </p>
                           <p className="text-[14px] normal mb-1">
-                            WasteDB is in beta and needs help from contributors
-                            like you.
+                            WasteDB is human-made and needs help from
+                            contributors like you.
                           </p>
                           <p className="text-[12px] text-black/60 dark:text-white/60">
                             The database currently has {materials.length}{" "}
