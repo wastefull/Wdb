@@ -292,11 +292,14 @@ body {
   color: white !important;
 }
 
-.dark .bg-white:not(.dark\:bg-\[#2a2825\], .dark\:bg-\[#1a1917\]) {
+.dark
+  .bg-white:not([class*="dark:bg-[#2a2825]"]):not(
+    [class*="dark:bg-[#1a1917]"]
+  ) {
   background-color: #2a2825 !important;
 }
 
-.dark .border-\[#211f1c\]:not(.dark\:border-white\/20) {
+.dark [class*="border-[#211f1c]"]:not([class*="dark:border-white/20"]) {
   border-color: rgba(255, 255, 255, 0.2) !important;
 }
 

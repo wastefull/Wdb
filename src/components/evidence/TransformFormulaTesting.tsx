@@ -43,6 +43,10 @@ interface TestResult {
   error: string | null;
 }
 
+type MaterialWithRawParams = Material & {
+  rawParams: Record<string, number>;
+};
+
 export function TransformFormulaTesting({
   onBack,
   materials,
@@ -50,7 +54,7 @@ export function TransformFormulaTesting({
   const [selectedParameter, setSelectedParameter] = useState<string>("all");
   const [showOnlyErrors, setShowOnlyErrors] = useState(false);
   const [transformsData, setTransformsData] = useState<TransformsData | null>(
-    null
+    null,
   );
 
   useEffect(() => {
@@ -58,7 +62,7 @@ export function TransformFormulaTesting({
   }, []);
 
   // Mock raw parameter values for testing (in production, these would come from MIUs)
-  const materialsWithMockRawParams: Material[] = useMemo(() => {
+  const materialsWithMockRawParams: MaterialWithRawParams[] = useMemo(() => {
     return materials.map((material) => ({
       ...material,
       rawParams: {
@@ -66,8 +70,8 @@ export function TransformFormulaTesting({
           material.compostability <= 30
             ? 500
             : material.compostability <= 60
-            ? 100
-            : 10,
+              ? 100
+              : 10,
         D: material.compostability,
         C: material.compostability,
         M: 100 - material.compostability,
@@ -87,10 +91,10 @@ export function TransformFormulaTesting({
   // Apply transform formula
   const applyTransform = (
     parameter: string,
-    rawValue: number
+    rawValue: number,
   ): number | null => {
     const transform = transformsData?.transforms.find(
-      (t) => t.parameter === parameter
+      (t) => t.parameter === parameter,
     );
     if (!transform) return null;
 
@@ -102,7 +106,7 @@ export function TransformFormulaTesting({
       // In production, this would be more robust
       if (formula.includes("log10")) {
         const match = formula.match(
-          /100\s*-\s*\(10\s*\*\s*log10\((\w+)\s*\+\s*1\)\)/
+          /100\s*-\s*\(10\s*\*\s*log10\((\w+)\s*\+\s*1\)\)/,
         );
         if (match) {
           const result = 100 - 10 * Math.log10(rawValue + 1);
@@ -203,7 +207,7 @@ export function TransformFormulaTesting({
 
     transformsData?.transforms.forEach((transform) => {
       const paramResults = testResults.filter(
-        (r) => r.parameter === transform.parameter
+        (r) => r.parameter === transform.parameter,
       );
       const errors = paramResults.filter((r) => r.error !== null).length;
       const diffs = paramResults

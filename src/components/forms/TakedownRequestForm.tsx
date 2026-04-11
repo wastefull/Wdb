@@ -18,6 +18,7 @@ import { useNavigationContext } from "../../contexts/NavigationContext";
 import { useAuthContext } from "../../contexts/AuthContext";
 import { useAccessibility } from "../shared/AccessibilityContext";
 import { PageTemplate } from "../shared/PageTemplate";
+import { logger } from "../../utils/logger";
 
 interface TakedownRequestFormProps {
   onSubmitSuccess?: () => void;
@@ -130,7 +131,7 @@ export function TakedownRequestForm({
             Authorization: `Bearer ${accessToken || publicAnonKey}`,
           },
           body: JSON.stringify(formData),
-        }
+        },
       );
 
       if (response.ok) {

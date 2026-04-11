@@ -10,6 +10,7 @@ export interface Source {
   url?: string;
   weight?: number;
   parameters?: string[];
+  pdfFileName?: string;
 }
 
 export interface ConfidenceInterval {
@@ -25,7 +26,7 @@ export interface Material {
   recyclability: number;
   reusability: number;
   description?: string;
-  
+
   // Recyclability (CR) parameters
   Y_value?: number;
   D_value?: number;
@@ -36,7 +37,7 @@ export interface Material {
   CR_theoretical_mean?: number;
   CR_practical_CI95?: ConfidenceInterval;
   CR_theoretical_CI95?: ConfidenceInterval;
-  
+
   // Compostability (CC) parameters
   B_value?: number;
   N_value?: number;
@@ -46,7 +47,7 @@ export interface Material {
   CC_theoretical_mean?: number;
   CC_practical_CI95?: ConfidenceInterval;
   CC_theoretical_CI95?: ConfidenceInterval;
-  
+
   // Reusability (RU) parameters
   L_value?: number;
   R_value?: number;
@@ -56,9 +57,9 @@ export interface Material {
   RU_theoretical_mean?: number;
   RU_practical_CI95?: ConfidenceInterval;
   RU_theoretical_CI95?: ConfidenceInterval;
-  
+
   // Metadata
-  confidence_level?: 'High' | 'Medium' | 'Low';
+  confidence_level?: "High" | "Medium" | "Low";
   sources?: Source[];
   whitepaper_version?: string;
   calculation_timestamp?: string;

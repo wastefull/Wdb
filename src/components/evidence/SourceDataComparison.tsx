@@ -146,7 +146,10 @@ export function SourceDataComparison({
   materials,
 }: SourceDataComparisonProps) {
   const [selectedMaterial, setSelectedMaterial] = useState<string>("");
-  const [selectedParameter, setSelectedParameter] = useState<string>("");
+  type ParameterKey = keyof typeof PARAMETER_INFO;
+  const [selectedParameter, setSelectedParameter] = useState<ParameterKey | "">(
+    "",
+  );
   const [selectedDimension, setSelectedDimension] = useState<string>("all");
 
   // Get selected material data
@@ -158,13 +161,17 @@ export function SourceDataComparison({
   const availableParameters = useMemo(() => {
     if (!material) return [];
 
-    const params = Object.keys(PARAMETER_INFO).filter((key) => {
-      const hasValue = material[key] !== undefined && material[key] !== null;
-      const matchesDimension =
-        selectedDimension === "all" ||
-        PARAMETER_INFO[key].dimension === selectedDimension;
-      return hasValue && matchesDimension;
-    });
+    const params = (Object.keys(PARAMETER_INFO) as ParameterKey[]).filter(
+      (key) => {
+        const hasValue =
+          material[key as keyof Material] !== undefined &&
+          material[key as keyof Material] !== null;
+        const matchesDimension =
+          selectedDimension === "all" ||
+          PARAMETER_INFO[key].dimension === selectedDimension;
+        return hasValue && matchesDimension;
+      },
+    );
 
     return params;
   }, [material, selectedDimension]);
@@ -180,9 +187,12 @@ export function SourceDataComparison({
       return null;
     }
 
-    const paramValue = material[selectedParameter];
+    const paramValue = material[selectedParameter as keyof Material];
+    if (typeof paramValue !== "number") {
+      return null;
+    }
     const sources = material.sources.filter((s) =>
-      s.parameters?.includes(selectedParameter)
+      s.parameters?.includes(selectedParameter),
     );
 
     if (sources.length === 0) {
@@ -489,19 +499,19 @@ export function SourceDataComparison({
                             sc.weight >= 1.0
                               ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
                               : sc.weight >= 0.7
-                              ? "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300"
-                              : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300"
+                                ? "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300"
+                                : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300"
                           }`}
                         >
                           {sc.weight >= 1.0
                             ? "Peer-Reviewed"
                             : sc.weight >= 0.9
-                            ? "Government"
-                            : sc.weight >= 0.7
-                            ? "Industrial"
-                            : sc.weight >= 0.6
-                            ? "NGO"
-                            : "Internal"}
+                              ? "Government"
+                              : sc.weight >= 0.7
+                                ? "Industrial"
+                                : sc.weight >= 0.6
+                                  ? "NGO"
+                                  : "Internal"}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
@@ -536,7 +546,7 @@ export function SourceDataComparison({
                           ) : sc.source.pdfFileName ? (
                             <a
                               href={api.getSourcePdfViewUrl(
-                                sc.source.pdfFileName
+                                sc.source.pdfFileName,
                               )}
                               target="_blank"
                               rel="noopener noreferrer"
@@ -549,7 +559,7 @@ export function SourceDataComparison({
                             <a
                               href={getGoogleScholarUrl(
                                 sc.source.title,
-                                sc.source.authors
+                                sc.source.authors,
                               )}
                               target="_blank"
                               rel="noopener noreferrer"

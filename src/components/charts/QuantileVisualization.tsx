@@ -62,7 +62,9 @@ export function QuantileVisualization({
   hideHeader = false,
   showScores = true,
 }: QuantileVisualizationProps) {
-  const { reduceMotion, highContrast, settings } = useAccessibility();
+  const { settings } = useAccessibility();
+  const reduceMotion = settings.reduceMotion;
+  const highContrast = settings.highContrast;
   const [isHovered, setIsHovered] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -113,8 +115,8 @@ export function QuantileVisualization({
   const mode: VisualizationMode = overlap
     ? "overlap"
     : gap >= 0.1
-    ? "gap"
-    : "near-overlap";
+      ? "gap"
+      : "near-overlap";
 
   // Responsive dot count - increased for better visibility
   const dotCount = isMobile ? 50 : width < 250 ? 80 : 150;
@@ -345,8 +347,8 @@ function OverlapMode({
     : "rgba(160, 160, 160, 0.4)";
   const barStroke = darkMode ? "rgba(255, 255, 255, 0.2)" : "#211f1c";
   const barFill = highContrast
-    ? SCORE_COLORS[scoreType].highContrast
-    : SCORE_COLORS[scoreType].pastel;
+    ? SCORE_COLORS[scoreType as ScoreType].highContrast
+    : SCORE_COLORS[scoreType as ScoreType].pastel;
 
   return (
     <g>
@@ -448,8 +450,8 @@ function NearOverlapMode({
   const dotStroke = highContrast ? "#666666" : "#1A3A5A";
   const barStroke = darkMode ? "rgba(255, 255, 255, 0.2)" : "#211f1c";
   const barFill = highContrast
-    ? SCORE_COLORS[scoreType].highContrast
-    : SCORE_COLORS[scoreType].pastel;
+    ? SCORE_COLORS[scoreType as ScoreType].highContrast
+    : SCORE_COLORS[scoreType as ScoreType].pastel;
 
   // Check if text labels would overlap (accounting for text width ~25-30px each)
   const labelDistance = Math.abs((theoMean - pracMean) * width);
@@ -571,8 +573,8 @@ function GapMode({
   const dotStroke = highContrast ? "#666666" : "#1A3A5A";
   const barStroke = darkMode ? "rgba(255, 255, 255, 0.2)" : "#211f1c";
   const barFill = highContrast
-    ? SCORE_COLORS[scoreType].highContrast
-    : SCORE_COLORS[scoreType].pastel;
+    ? SCORE_COLORS[scoreType as ScoreType].highContrast
+    : SCORE_COLORS[scoreType as ScoreType].pastel;
 
   // Gap zone coordinates
   const gapStart = pracCI.upper * width;
@@ -808,7 +810,7 @@ function getAriaLabel(
   label: string,
   data: QuantileData,
   mode: VisualizationMode,
-  gap: number
+  gap: number,
 ): string {
   const pracScore = Math.round((data.practical_mean || 0) * 100);
   const theoScore = Math.round((data.theoretical_mean || 0) * 100);
@@ -820,7 +822,7 @@ function getAriaLabel(
     return `${label}: Practical ${pracScore}%, Theoretical ${theoScore}%. Minor difference. Confidence: ${confidence}. Click for details.`;
   } else {
     return `${label}: Practical ${pracScore}%, Theoretical ${theoScore}%. Gap of ${Math.round(
-      gap * 100
+      gap * 100,
     )} percentage points - science outpaces infrastructure. Confidence: ${confidence}. Click for details.`;
   }
 }

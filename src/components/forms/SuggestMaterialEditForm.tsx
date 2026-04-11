@@ -38,10 +38,14 @@ export function SuggestMaterialEditForm({
   onSubmitSuccess,
 }: SuggestMaterialEditFormProps) {
   const [name, setName] = useState(material.name);
-  const [category, setCategory] = useState(material.category);
+  const [category, setCategory] = useState<string>(material.category);
   const [description, setDescription] = useState(material.description || "");
   const [changeReason, setChangeReason] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  const handleCategoryChange = (value: string) => {
+    setCategory(value);
+  };
 
   useEffect(() => {
     setName(material.name);
@@ -86,7 +90,7 @@ export function SuggestMaterialEditForm({
       });
 
       toast.success(
-        "Edit suggestion submitted! You'll be notified when it's reviewed."
+        "Edit suggestion submitted! You'll be notified when it's reviewed.",
       );
       onSubmitSuccess();
       onClose();
@@ -139,7 +143,7 @@ export function SuggestMaterialEditForm({
             <Label htmlFor="edit-category" className="text-[12px] normal">
               Category *
             </Label>
-            <Select value={category} onValueChange={setCategory}>
+            <Select value={category} onValueChange={handleCategoryChange}>
               <SelectTrigger id="edit-category" className="mt-1">
                 <SelectValue />
               </SelectTrigger>

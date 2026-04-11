@@ -45,7 +45,9 @@ export function RasterizedQuantileVisualization({
   enableRasterization = true,
   showScores = true,
 }: RasterizedQuantileVisualizationProps) {
-  const { settings, reduceMotion, highContrast } = useAccessibility();
+  const { settings } = useAccessibility();
+  const reduceMotion = settings.reduceMotion;
+  const highContrast = settings.highContrast;
   const [shouldRasterize, setShouldRasterize] = useState(enableRasterization);
   const [isMobile, setIsMobile] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -214,8 +216,8 @@ function RasterizedDisplay({
     scoreType === "compostability"
       ? "Compostability"
       : scoreType === "recyclability"
-      ? "Recyclability"
-      : "Reusability";
+        ? "Recyclability"
+        : "Reusability";
 
   // Generate ARIA label
   const pracScore = Math.round(pracMean * 100);
@@ -229,7 +231,7 @@ function RasterizedDisplay({
     ariaLabel = `${label}: Practical ${pracScore}%, Theoretical ${theoScore}%. Minor difference. Confidence: ${confidence}. Click for details.`;
   } else {
     ariaLabel = `${label}: Practical ${pracScore}%, Theoretical ${theoScore}%. Gap of ${Math.round(
-      gap * 100
+      gap * 100,
     )} percentage points - science outpaces infrastructure. Confidence: ${confidence}. Click for details.`;
   }
 
