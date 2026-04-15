@@ -9,6 +9,7 @@ import {
   Package,
   Send,
   X,
+  Trash2,
 } from "lucide-react";
 import * as api from "../../utils/api";
 import { toast } from "sonner";
@@ -75,6 +76,7 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
     changeReason: "",
   });
   const [submitting, setSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     loadSubmissions();
@@ -207,6 +209,27 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
       toast.error("Failed to submit revision");
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleDeleteRejected = async (submission: Submission) => {
+    const confirmed = window.confirm(
+      "Delete this rejected submission? This cannot be undone.",
+    );
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setDeletingId(submission.id);
+      await api.deleteMyRejectedSubmission(submission.id);
+      toast.success("Rejected submission deleted");
+      await loadSubmissions();
+    } catch (error) {
+      logger.error("Error deleting rejected submission:", error);
+      toast.error("Failed to delete rejected submission");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -507,6 +530,21 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
                           )}
                         </div>
                       )}
+
+                    {submission.status === "rejected" && (
+                      <div className="mt-3">
+                        <button
+                          onClick={() => handleDeleteRejected(submission)}
+                          disabled={deletingId === submission.id}
+                          className="retro-icon-button inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] bg-waste-compost"
+                        >
+                          <Trash2 size={11} />
+                          {deletingId === submission.id
+                            ? "Deleting..."
+                            : "Delete Rejected Submission"}
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div>{getStatusBadge(submission.status)}</div>

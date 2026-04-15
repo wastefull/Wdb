@@ -1312,6 +1312,12 @@ export async function updateSubmission(
   return data.submission;
 }
 
+export async function deleteMyRejectedSubmission(id: string): Promise<void> {
+  await apiCall(`/submissions/${id}/my`, {
+    method: "DELETE",
+  });
+}
+
 export async function deleteSubmission(id: string): Promise<void> {
   await apiCall(`/submissions/${id}`, {
     method: "DELETE",

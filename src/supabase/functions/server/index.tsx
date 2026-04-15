@@ -5984,6 +5984,46 @@ app.put(
   },
 );
 
+// Delete own rejected submission (submitter only)
+app.delete(
+  "/make-server-17cae920/submissions/:id/my",
+  verifyAuth,
+  async (c) => {
+    try {
+      const id = c.req.param("id");
+      const userId = c.get("userId");
+      const submission = await kv.get(`submission:${id}`);
+
+      if (!submission) {
+        return c.json({ error: "Submission not found" }, 404);
+      }
+
+      if (submission.submitted_by !== userId) {
+        return c.json({ error: "Forbidden" }, 403);
+      }
+
+      if (submission.status !== "rejected") {
+        return c.json(
+          { error: "Only rejected submissions can be deleted" },
+          400,
+        );
+      }
+
+      await kv.del(`submission:${id}`);
+      return c.json({ success: true });
+    } catch (error) {
+      log.error("Error deleting own rejected submission:", error);
+      return c.json(
+        {
+          error: "Failed to delete own rejected submission",
+          details: String(error),
+        },
+        500,
+      );
+    }
+  },
+);
+
 // Delete submission (admin only)
 app.delete(
   "/make-server-17cae920/submissions/:id",
