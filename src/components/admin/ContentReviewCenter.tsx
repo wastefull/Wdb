@@ -308,18 +308,6 @@ export function ContentReviewCenter({
             submissionType: submission.type,
           });
 
-          // Create notification for submitter
-          await api.createNotification({
-            user_id: submission.submitted_by,
-            type: "feedback_received",
-            content_id: submissionId,
-            content_type: "submission",
-            message: `Revision requested for your ${submission.type.replace(
-              /_/g,
-              " ",
-            )} submission. Please review the feedback.`,
-          });
-
           toast.success("Revision requested and email sent");
         } catch (emailError) {
           log.error("Error sending revision email/notification:", emailError);

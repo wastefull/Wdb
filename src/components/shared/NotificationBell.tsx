@@ -144,6 +144,30 @@ export function NotificationBell({
     return then.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   };
 
+  const handleNotificationClick = (notification: Notification) => {
+    if (!notification.read) {
+      handleMarkAsRead(notification.id);
+    }
+
+    if (!onNavigate) {
+      return;
+    }
+
+    if (notification.type === "new_review_item") {
+      onNavigate({ type: "review-center" });
+      setOpen(false);
+      return;
+    }
+
+    if (
+      notification.type === "feedback_received" ||
+      notification.type === "submission_approved"
+    ) {
+      onNavigate({ type: "my-submissions" });
+      setOpen(false);
+    }
+  };
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -202,16 +226,7 @@ export function NotificationBell({
                   className={`p-4 hover:bg-[#e5e4dc] dark:hover:bg-[#3a3835] transition-colors cursor-pointer ${
                     !notification.read ? "bg-blue-50 dark:bg-blue-900/10" : ""
                   }`}
-                  onClick={() => {
-                    if (!notification.read) {
-                      handleMarkAsRead(notification.id);
-                    }
-                    // Navigate to review center for review item notifications
-                    if (notification.type === "new_review_item" && onNavigate) {
-                      onNavigate({ type: "review-center" });
-                      setOpen(false);
-                    }
-                  }}
+                  onClick={() => handleNotificationClick(notification)}
                 >
                   <div className="flex items-start gap-3">
                     <span className="text-xl shrink-0">

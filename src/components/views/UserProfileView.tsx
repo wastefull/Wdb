@@ -574,7 +574,7 @@ export function UserProfileView({
             {isOwnProfile && onNavigateToMySubmissions && (
               <button
                 onClick={onNavigateToMySubmissions}
-                className="retro-card-button arcade-bg-amber arcade-btn-amber px-4 h-9 text-[13px] w-full sm:w-auto"
+                className="retro-card-button arcade-bg-amber arcade-btn-amber px-4 h-9 text-[13px] w-full sm:w-auto whitespace-nowrap shrink-0"
               >
                 Pending Submissions
               </button>

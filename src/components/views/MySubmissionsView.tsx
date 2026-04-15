@@ -25,7 +25,12 @@ interface Submission {
     | "delete_article";
   content_data: any;
   original_content_id?: string;
-  status: "pending_review" | "approved" | "rejected" | "needs_revision";
+  status:
+    | "pending_review"
+    | "approved"
+    | "rejected"
+    | "needs_revision"
+    | "pending_revision";
   feedback?: string;
   submitted_by: string;
   reviewed_by?: string;
@@ -36,7 +41,22 @@ interface Submission {
 interface RevisionDraft {
   title: string;
   content: string;
+  name: string;
+  category: string;
+  description: string;
+  changeReason: string;
 }
+
+const MATERIAL_CATEGORIES = [
+  "Packaging",
+  "Textiles",
+  "Electronics",
+  "Construction",
+  "Food & Organic",
+  "Plastics",
+  "Metals",
+  "Other",
+];
 
 interface MySubmissionsViewProps {
   onBack: () => void;
@@ -46,7 +66,14 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [draft, setDraft] = useState<RevisionDraft>({ title: "", content: "" });
+  const [draft, setDraft] = useState<RevisionDraft>({
+    title: "",
+    content: "",
+    name: "",
+    category: "",
+    description: "",
+    changeReason: "",
+  });
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -69,40 +96,111 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
   const isArticleType = (type: Submission["type"]) =>
     type === "new_article" || type === "update_article";
 
+  const isMaterialType = (type: Submission["type"]) =>
+    type === "new_material" || type === "edit_material";
+
+  const isNeedsRevision = (status: Submission["status"]) =>
+    status === "needs_revision" || status === "pending_revision";
+
+  const resetDraft = () => {
+    setDraft({
+      title: "",
+      content: "",
+      name: "",
+      category: "",
+      description: "",
+      changeReason: "",
+    });
+  };
+
   const handleStartEdit = (submission: Submission) => {
     setDraft({
       title: submission.content_data?.title || "",
       content: submission.content_data?.content || "",
+      name: submission.content_data?.name || "",
+      category: submission.content_data?.category || "",
+      description: submission.content_data?.description || "",
+      changeReason: submission.content_data?.change_reason || "",
     });
     setEditingId(submission.id);
   };
 
   const handleCancelEdit = () => {
     setEditingId(null);
-    setDraft({ title: "", content: "" });
+    resetDraft();
+  };
+
+  const buildResubmissionContentData = (submission: Submission) => {
+    if (isArticleType(submission.type)) {
+      return {
+        ...submission.content_data,
+        title: draft.title.trim(),
+        content: draft.content.trim(),
+      };
+    }
+
+    if (isMaterialType(submission.type)) {
+      const base = {
+        ...submission.content_data,
+        name: draft.name.trim(),
+        category: draft.category,
+        description: draft.description.trim() || undefined,
+      };
+
+      if (submission.type === "edit_material") {
+        return {
+          ...base,
+          change_reason: draft.changeReason.trim() || undefined,
+        };
+      }
+
+      return base;
+    }
+
+    return submission.content_data;
+  };
+
+  const validateRevisionDraft = (submission: Submission) => {
+    if (isArticleType(submission.type)) {
+      if (!draft.title.trim()) {
+        toast.error("Please enter a title");
+        return false;
+      }
+      if (!draft.content.trim()) {
+        toast.error("Please enter article content");
+        return false;
+      }
+      return true;
+    }
+
+    if (isMaterialType(submission.type)) {
+      if (!draft.name.trim()) {
+        toast.error("Please enter a material name");
+        return false;
+      }
+      if (!draft.category) {
+        toast.error("Please select a category");
+        return false;
+      }
+      return true;
+    }
+
+    toast.error("This submission type cannot be revised here");
+    return false;
   };
 
   const handleResubmit = async (submission: Submission) => {
-    if (!draft.title.trim()) {
-      toast.error("Please enter a title");
-      return;
-    }
-    if (!draft.content.trim()) {
-      toast.error("Please enter article content");
+    if (!validateRevisionDraft(submission)) {
       return;
     }
 
     try {
       setSubmitting(true);
-      const updatedContentData = {
-        ...submission.content_data,
-        title: draft.title.trim(),
-        content: draft.content.trim(),
-      };
+      const updatedContentData = buildResubmissionContentData(submission);
       await api.resubmitSubmission(submission.id, updatedContentData);
       toast.success("Revision submitted for review!");
       setEditingId(null);
-      setDraft({ title: "", content: "" });
+      resetDraft();
       await loadSubmissions();
     } catch (error) {
       logger.error("Error resubmitting:", error);
@@ -169,6 +267,7 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
           </span>
         );
       case "needs_revision":
+      case "pending_revision":
         return (
           <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-waste-recycle dark:bg-[#3a3825] border border-[#211f1c] dark:border-white/20 text-[10px] normal">
             <Edit3 size={10} />
@@ -259,43 +358,123 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
                     )}
 
                     {/* Inline revision form */}
-                    {submission.status === "needs_revision" &&
-                      isArticleType(submission.type) && (
+                    {isNeedsRevision(submission.status) &&
+                      (isArticleType(submission.type) ||
+                        isMaterialType(submission.type)) && (
                         <div className="mt-3">
                           {editingId === submission.id ? (
                             <div className="border border-[#211f1c] dark:border-white/20 rounded-md p-3 space-y-3 bg-white/50 dark:bg-black/20">
-                              <div>
-                                <label className="block text-[10px] normal mb-1">
-                                  Title
-                                </label>
-                                <input
-                                  type="text"
-                                  value={draft.title}
-                                  onChange={(e) =>
-                                    setDraft((d) => ({
-                                      ...d,
-                                      title: e.target.value,
-                                    }))
-                                  }
-                                  className="w-full text-[12px] px-2 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-white dark:bg-[#2a2825] normal focus:outline-none focus:ring-1 focus:ring-[#211f1c] dark:focus:ring-white/40"
-                                />
-                              </div>
-                              <div>
-                                <label className="block text-[10px] normal mb-1">
-                                  Content
-                                </label>
-                                <textarea
-                                  value={draft.content}
-                                  onChange={(e) =>
-                                    setDraft((d) => ({
-                                      ...d,
-                                      content: e.target.value,
-                                    }))
-                                  }
-                                  rows={6}
-                                  className="w-full text-[12px] px-2 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-white dark:bg-[#2a2825] normal focus:outline-none focus:ring-1 focus:ring-[#211f1c] dark:focus:ring-white/40 resize-y"
-                                />
-                              </div>
+                              {isArticleType(submission.type) ? (
+                                <>
+                                  <div>
+                                    <label className="block text-[10px] normal mb-1">
+                                      Title
+                                    </label>
+                                    <input
+                                      type="text"
+                                      value={draft.title}
+                                      onChange={(e) =>
+                                        setDraft((d) => ({
+                                          ...d,
+                                          title: e.target.value,
+                                        }))
+                                      }
+                                      className="w-full text-[12px] px-2 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-white dark:bg-[#2a2825] normal focus:outline-none focus:ring-1 focus:ring-[#211f1c] dark:focus:ring-white/40"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-[10px] normal mb-1">
+                                      Content
+                                    </label>
+                                    <textarea
+                                      value={draft.content}
+                                      onChange={(e) =>
+                                        setDraft((d) => ({
+                                          ...d,
+                                          content: e.target.value,
+                                        }))
+                                      }
+                                      rows={6}
+                                      className="w-full text-[12px] px-2 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-white dark:bg-[#2a2825] normal focus:outline-none focus:ring-1 focus:ring-[#211f1c] dark:focus:ring-white/40 resize-y"
+                                    />
+                                  </div>
+                                </>
+                              ) : (
+                                <>
+                                  <div>
+                                    <label className="block text-[10px] normal mb-1">
+                                      Material Name
+                                    </label>
+                                    <input
+                                      type="text"
+                                      value={draft.name}
+                                      onChange={(e) =>
+                                        setDraft((d) => ({
+                                          ...d,
+                                          name: e.target.value,
+                                        }))
+                                      }
+                                      className="w-full text-[12px] px-2 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-white dark:bg-[#2a2825] normal focus:outline-none focus:ring-1 focus:ring-[#211f1c] dark:focus:ring-white/40"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-[10px] normal mb-1">
+                                      Category
+                                    </label>
+                                    <select
+                                      value={draft.category}
+                                      onChange={(e) =>
+                                        setDraft((d) => ({
+                                          ...d,
+                                          category: e.target.value,
+                                        }))
+                                      }
+                                      className="w-full text-[12px] px-2 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-white dark:bg-[#2a2825] normal focus:outline-none focus:ring-1 focus:ring-[#211f1c] dark:focus:ring-white/40"
+                                    >
+                                      <option value="">Select category</option>
+                                      {MATERIAL_CATEGORIES.map((category) => (
+                                        <option key={category} value={category}>
+                                          {category}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                  <div>
+                                    <label className="block text-[10px] normal mb-1">
+                                      Description
+                                    </label>
+                                    <textarea
+                                      value={draft.description}
+                                      onChange={(e) =>
+                                        setDraft((d) => ({
+                                          ...d,
+                                          description: e.target.value,
+                                        }))
+                                      }
+                                      rows={4}
+                                      className="w-full text-[12px] px-2 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-white dark:bg-[#2a2825] normal focus:outline-none focus:ring-1 focus:ring-[#211f1c] dark:focus:ring-white/40 resize-y"
+                                    />
+                                  </div>
+                                  {submission.type === "edit_material" && (
+                                    <div>
+                                      <label className="block text-[10px] normal mb-1">
+                                        Reason for Change
+                                      </label>
+                                      <textarea
+                                        value={draft.changeReason}
+                                        onChange={(e) =>
+                                          setDraft((d) => ({
+                                            ...d,
+                                            changeReason: e.target.value,
+                                          }))
+                                        }
+                                        rows={3}
+                                        className="w-full text-[12px] px-2 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-white dark:bg-[#2a2825] normal focus:outline-none focus:ring-1 focus:ring-[#211f1c] dark:focus:ring-white/40 resize-y"
+                                      />
+                                    </div>
+                                  )}
+                                </>
+                              )}
                               <div className="flex items-center gap-2">
                                 <button
                                   onClick={() => handleResubmit(submission)}
