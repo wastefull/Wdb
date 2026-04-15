@@ -1317,6 +1317,7 @@ function AppContent() {
                   <ContentReviewCenter
                     onBack={navigateToMaterials}
                     currentUserId={user?.id || ""}
+                    onNavigateToProfile={navigateToUserProfile}
                   />
                 ) : currentView.type === "api-docs" ? (
                   <ApiDocumentation onBack={navigateToScienceHub} />

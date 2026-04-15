@@ -9,6 +9,7 @@ import {
   FileText,
   Clock,
   AlertTriangle,
+  User,
 } from "lucide-react";
 import * as api from "../../utils/api";
 import { toast } from "sonner";
@@ -43,11 +44,13 @@ interface Submission {
 interface ContentReviewCenterProps {
   onBack: () => void;
   currentUserId: string;
+  onNavigateToProfile: (userId: string) => void;
 }
 
 export function ContentReviewCenter({
   onBack,
   currentUserId,
+  onNavigateToProfile,
 }: ContentReviewCenterProps) {
   const [activeTab, setActiveTab] = useState<
     "review" | "pending" | "moderation"
@@ -479,6 +482,7 @@ export function ContentReviewCenter({
                   onFlag={() => handleFlag(submission)}
                   onRemitToReview={() => handleRemitToReview(submission.id)}
                   onDelete={() => handleDelete(submission.id)}
+                  onNavigateToProfile={onNavigateToProfile}
                   activeTab={activeTab}
                 />
               ))}
@@ -509,6 +513,7 @@ function SubmissionCard({
   onFlag,
   onRemitToReview,
   onDelete,
+  onNavigateToProfile,
   activeTab,
 }: {
   submission: Submission;
@@ -516,8 +521,28 @@ function SubmissionCard({
   onFlag: () => void;
   onRemitToReview: () => void;
   onDelete: () => void;
+  onNavigateToProfile: (userId: string) => void;
   activeTab: string;
 }) {
+  const [submitterName, setSubmitterName] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    api
+      .getUserProfile(submission.submitted_by)
+      .then((profile) => {
+        if (!cancelled) {
+          setSubmitterName(
+            profile?.name ||
+              (profile?.email ? profile.email.split("@")[0] : null),
+          );
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [submission.submitted_by]);
   const getSubmissionIcon = () => {
     switch (submission.type) {
       case "new_material":
@@ -601,9 +626,16 @@ function SubmissionCard({
               {formatDate(submission.created_at)}
             </span>
           </div>
-          <p className="text-[11px] text-black/60 dark:text-white/60 mb-2">
+          <p className="text-[11px] text-black/60 dark:text-white/60 mb-1">
             {getSubmissionLabel()}
           </p>
+          <button
+            onClick={() => onNavigateToProfile(submission.submitted_by)}
+            className="inline-flex items-center gap-1 text-[10px] text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white hover:underline transition-colors mb-2 cursor-pointer"
+          >
+            <User size={10} />
+            {submitterName ?? submission.submitted_by.slice(0, 8) + "…"}
+          </button>
           <p className="text-[11px] text-black/70 dark:text-white/70 line-clamp-2 mb-3">
             {getSubmissionSnippet()}
           </p>
@@ -619,14 +651,14 @@ function SubmissionCard({
               <>
                 <button
                   onClick={onReview}
-                  className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#c8e5c8] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[11px] text-black flex items-center gap-1"
+                  className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#c8e5c8] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[11px] text-black flex items-center gap-1 cursor-pointer"
                 >
                   <CheckCircle size={12} />
                   Review
                 </button>
                 <button
                   onClick={onFlag}
-                  className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-waste-compost hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[11px] text-black flex items-center gap-1"
+                  className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-waste-compost hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[11px] text-black flex items-center gap-1 cursor-pointer"
                 >
                   <Flag size={12} />
                   Flag
@@ -637,14 +669,14 @@ function SubmissionCard({
               <>
                 <button
                   onClick={onReview}
-                  className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-waste-reuse hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[11px] text-black"
+                  className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-waste-reuse hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[11px] text-black cursor-pointer"
                 >
                   View Details
                 </button>
                 {submission.status === "needs_revision" && (
                   <button
                     onClick={onRemitToReview}
-                    className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-waste-recycle hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[11px] text-black flex items-center gap-1"
+                    className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-waste-recycle hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[11px] text-black flex items-center gap-1 cursor-pointer"
                   >
                     <Clock size={12} />
                     Remit to Review
@@ -652,7 +684,7 @@ function SubmissionCard({
                 )}
                 <button
                   onClick={onDelete}
-                  className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-waste-compost hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[11px] text-black flex items-center gap-1"
+                  className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-waste-compost hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[11px] text-black flex items-center gap-1 cursor-pointer"
                 >
                   <XCircle size={12} />
                   Delete
@@ -663,13 +695,13 @@ function SubmissionCard({
               <>
                 <button
                   onClick={onReview}
-                  className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#f4d3a0] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[11px] text-black"
+                  className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#f4d3a0] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[11px] text-black cursor-pointer"
                 >
                   Review Moderation
                 </button>
                 <button
                   onClick={onDelete}
-                  className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-waste-compost hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[11px] text-black flex items-center gap-1"
+                  className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-waste-compost hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[11px] text-black flex items-center gap-1 cursor-pointer"
                 >
                   <XCircle size={12} />
                   Delete
