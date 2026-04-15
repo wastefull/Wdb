@@ -10,6 +10,7 @@ import {
   Clock,
   AlertTriangle,
   User,
+  Copy,
 } from "lucide-react";
 import * as api from "../../utils/api";
 import { toast } from "sonner";
@@ -60,10 +61,16 @@ export function ContentReviewCenter({
   const [selectedSubmission, setSelectedSubmission] =
     useState<Submission | null>(null);
   const [showReviewModal, setShowReviewModal] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     loadSubmissions();
   }, []);
+
+  // Clear selection whenever the active tab changes
+  useEffect(() => {
+    setSelectedIds(new Set());
+  }, [activeTab]);
 
   const loadSubmissions = async () => {
     try {
@@ -75,6 +82,63 @@ export function ContentReviewCenter({
       toast.error("Failed to load submissions");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleToggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const handleBulkRequestRevision = async () => {
+    if (selectedIds.size < 2) return;
+    const defaultMessage =
+      "We noticed you submitted multiple versions of this content at around the same time. " +
+      "Please review your submissions and resubmit only your preferred version, or consolidate them into one.";
+    const feedback = prompt(
+      `Send a revision request to the submitter for all ${selectedIds.size} selected submissions:`,
+      defaultMessage,
+    );
+    if (!feedback) return;
+
+    try {
+      await Promise.all(
+        Array.from(selectedIds).map(async (id) => {
+          await api.updateSubmission(id, {
+            status: "needs_revision",
+            feedback,
+            reviewed_by: currentUserId,
+          });
+          const submission = submissions.find((s) => s.id === id);
+          if (submission) {
+            try {
+              const profile = await api.getUserProfile(submission.submitted_by);
+              await api.sendRevisionRequestEmail({
+                submissionId: id,
+                feedback,
+                submitterEmail: profile.email,
+                submitterName: profile.name,
+                submissionType: submission.type,
+              });
+            } catch {
+              // Non-critical — submission status already updated
+            }
+          }
+        }),
+      );
+      toast.success(`${selectedIds.size} submissions sent back for revision`);
+      setSelectedIds(new Set());
+      loadSubmissions();
+    } catch (error) {
+      log.error("Error sending bulk revision requests:", error);
+      toast.error("Failed to send revision requests");
     }
   };
 
@@ -437,6 +501,35 @@ export function ContentReviewCenter({
           </TabsTrigger>
         </TabsList>
 
+        {/* Bulk action bar — appears when cards are checked in the Review tab */}
+        {activeTab === "review" && selectedIds.size > 0 && (
+          <div className="flex items-center gap-3 mb-4 px-3 py-2 rounded-md border border-[#211f1c] dark:border-white/20 bg-waste-recycle dark:bg-[#3a3825]">
+            <Copy
+              size={14}
+              className="shrink-0 text-black/70 dark:text-white/70"
+            />
+            <span className="text-[12px] normal flex-1">
+              {selectedIds.size} submission{selectedIds.size !== 1 ? "s" : ""}{" "}
+              selected
+            </span>
+            {selectedIds.size >= 2 && (
+              <button
+                onClick={handleBulkRequestRevision}
+                className="px-3 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#f4d3a0] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[11px] text-black flex items-center gap-1 whitespace-nowrap"
+              >
+                <Copy size={11} />
+                Send as Duplicates
+              </button>
+            )}
+            <button
+              onClick={() => setSelectedIds(new Set())}
+              className="text-[11px] text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white transition-colors whitespace-nowrap"
+            >
+              Clear
+            </button>
+          </div>
+        )}
+
         <TabsContent value={activeTab}>
           {loading ? (
             <div className="text-center py-8">
@@ -484,6 +577,9 @@ export function ContentReviewCenter({
                   onDelete={() => handleDelete(submission.id)}
                   onNavigateToProfile={onNavigateToProfile}
                   activeTab={activeTab}
+                  isSelectable={activeTab === "review"}
+                  isSelected={selectedIds.has(submission.id)}
+                  onToggleSelect={() => handleToggleSelect(submission.id)}
                 />
               ))}
             </div>
@@ -515,6 +611,9 @@ function SubmissionCard({
   onDelete,
   onNavigateToProfile,
   activeTab,
+  isSelectable,
+  isSelected,
+  onToggleSelect,
 }: {
   submission: Submission;
   onReview: () => void;
@@ -523,6 +622,9 @@ function SubmissionCard({
   onDelete: () => void;
   onNavigateToProfile: (userId: string) => void;
   activeTab: string;
+  isSelectable: boolean;
+  isSelected: boolean;
+  onToggleSelect: () => void;
 }) {
   const [submitterName, setSubmitterName] = useState<string | null>(null);
 
@@ -614,8 +716,23 @@ function SubmissionCard({
   };
 
   return (
-    <div className="bg-white dark:bg-[#1a1917] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 p-4 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all">
+    <div
+      className={`bg-white dark:bg-[#1a1917] rounded-[11.464px] border-[1.5px] p-4 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all ${
+        isSelected
+          ? "border-[#211f1c] dark:border-white/60 ring-2 ring-waste-recycle dark:ring-waste-recycle/60 shadow-[2px_2px_0px_0px_#000000]"
+          : "border-[#211f1c] dark:border-white/20"
+      }`}
+    >
       <div className="flex items-start gap-3">
+        {isSelectable && (
+          <input
+            type="checkbox"
+            checked={isSelected}
+            onChange={onToggleSelect}
+            className="mt-1 h-4 w-4 shrink-0 cursor-pointer rounded accent-[#211f1c] dark:accent-white"
+            aria-label="Select submission"
+          />
+        )}
         <div className="p-2 rounded-md bg-waste-reuse dark:bg-[#2a3235] border border-[#211f1c] dark:border-white/20 shrink-0">
           {getSubmissionIcon()}
         </div>
