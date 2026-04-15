@@ -1086,6 +1086,8 @@ export async function updateUserProfile(
     bio?: string;
     social_link?: string;
     avatar_url?: string;
+    display_email?: string;
+    show_on_leaderboard?: boolean;
   },
 ): Promise<any> {
   const data = await apiCall(`/profile/${userId}`, {
@@ -1174,6 +1176,7 @@ export async function getLeaderboard(limit: number = 10): Promise<
     avatar_url?: string;
     materials: number;
     articles: number;
+    guides: number;
     mius: number;
     total: number;
   }>

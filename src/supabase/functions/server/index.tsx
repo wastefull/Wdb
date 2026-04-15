@@ -1079,6 +1079,7 @@ app.post(
         social_link: "",
         avatar_url: "",
         display_email: "",
+        show_on_leaderboard: true,
         org_role: "Volunteer",
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -4737,6 +4738,7 @@ app.get("/make-server-17cae920/profile/:userId", async (c) => {
         social_link: "",
         avatar_url: "",
         display_email: "",
+        show_on_leaderboard: true,
         org_role: "Volunteer",
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -4786,6 +4788,10 @@ app.put("/make-server-17cae920/profile/:userId", verifyAuth, async (c) => {
       social_link: updates.social_link,
       avatar_url: updates.avatar_url,
       display_email: updates.display_email ?? existing.display_email ?? "",
+      show_on_leaderboard:
+        updates.show_on_leaderboard !== undefined
+          ? Boolean(updates.show_on_leaderboard)
+          : (existing.show_on_leaderboard ?? true),
       updated_at: new Date().toISOString(),
     };
 
@@ -5532,6 +5538,12 @@ app.get("/make-server-17cae920/leaderboard", async (c) => {
       if (total > 0) {
         // Fetch user profile for avatar
         let profile = await kv.get(`user_profile:${userId}`);
+
+        // Users can opt out from appearing in public leaderboard results.
+        if (profile?.show_on_leaderboard === false) {
+          continue;
+        }
+
         let name = "Anonymous";
         let avatar_url = profile?.avatar_url;
 

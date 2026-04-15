@@ -71,6 +71,7 @@ export interface UserProfile {
   bio?: string;
   social_link?: string;
   avatar_url?: string;
+  show_on_leaderboard?: boolean;
   active: boolean;
   created_at: string;
 }

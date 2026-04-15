@@ -57,6 +57,7 @@ interface Profile {
   social_link?: string;
   avatar_url?: string;
   display_email?: string;
+  show_on_leaderboard?: boolean;
   org_role?: OrgRole;
   active: boolean;
   created_at: string;
@@ -79,6 +80,7 @@ export function UserProfileView({
   const [editedSocialLink, setEditedSocialLink] = useState("");
   const [editedAvatarUrl, setEditedAvatarUrl] = useState("");
   const [editedDisplayEmail, setEditedDisplayEmail] = useState("");
+  const [editedShowOnLeaderboard, setEditedShowOnLeaderboard] = useState(true);
   const [editedOrgRole, setEditedOrgRole] = useState<OrgRole>("Volunteer");
   const [saving, setSaving] = useState(false);
 
@@ -140,6 +142,7 @@ export function UserProfileView({
       setEditedSocialLink(fetchedProfile.social_link || "");
       setEditedAvatarUrl(fetchedProfile.avatar_url || "");
       setEditedDisplayEmail(fetchedProfile.display_email || "");
+      setEditedShowOnLeaderboard(fetchedProfile.show_on_leaderboard !== false);
       setEditedOrgRole(fetchedProfile.org_role || "Volunteer");
     } catch (error) {
       logError("Error loading profile:", error);
@@ -262,6 +265,7 @@ export function UserProfileView({
         social_link: editedSocialLink,
         avatar_url: editedAvatarUrl,
         display_email: editedDisplayEmail,
+        show_on_leaderboard: editedShowOnLeaderboard,
       };
       // Only admins can update org_role
       if (isAdminModeActive) {
@@ -284,6 +288,7 @@ export function UserProfileView({
     setEditedSocialLink(profile?.social_link || "");
     setEditedAvatarUrl(profile?.avatar_url || "");
     setEditedDisplayEmail(profile?.display_email || "");
+    setEditedShowOnLeaderboard(profile?.show_on_leaderboard !== false);
     setEditedOrgRole(profile?.org_role || "Volunteer");
     setEditing(false);
   };
@@ -425,6 +430,30 @@ export function UserProfileView({
               <p className="text-[11px] text-black/60 dark:text-white/60">
                 Public contact email (leave blank to hide)
               </p>
+            </div>
+          )}
+
+          {/* Leaderboard visibility preference (editing only) */}
+          {editing && (
+            <div className="space-y-2">
+              <Label htmlFor="show_on_leaderboard" className="normal">
+                Leaderboard visibility
+              </Label>
+              <label
+                htmlFor="show_on_leaderboard"
+                className="flex items-start gap-3 p-3 rounded-xl border-[1.5px] border-[#211f1c]/20 dark:border-white/20 bg-black/2 dark:bg-white/2 cursor-pointer"
+              >
+                <input
+                  id="show_on_leaderboard"
+                  type="checkbox"
+                  checked={editedShowOnLeaderboard}
+                  onChange={(e) => setEditedShowOnLeaderboard(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 accent-waste-recycle"
+                />
+                <span className="text-[12px] text-black/80 dark:text-white/80">
+                  Show my profile in the Top Contributors leaderboard
+                </span>
+              </label>
             </div>
           )}
 
