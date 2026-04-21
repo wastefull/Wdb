@@ -90,6 +90,7 @@ export function DataManagementView({
     "Electronics & Batteries",
     "Building Materials",
     "Organic/Natural Waste",
+    "Elements",
   ];
 
   const handleEdit = (material: Material) => {
@@ -170,6 +171,7 @@ export function DataManagementView({
           "Electronics & Batteries",
           "Building Materials",
           "Organic/Natural Waste",
+          "Elements",
         ];
         const category = row.category as Material["category"];
         if (!validCategories.includes(category)) {
