@@ -169,6 +169,70 @@ export interface Material {
   edited_by?: string; // User ID of editor (if edited directly by admin)
   writer_name?: string; // Display name of original writer
   editor_name?: string; // Display name of editor
+
+  // Wikimedia enrichment (optional — absent on pre-wiki records)
+  wiki?: MaterialWikiMetadata;
+}
+
+/**
+ * Safe Wikimedia Commons image licenses for use in WasteDB.
+ * Only materials whose wiki.imageLicenseName matches one of these values
+ * will have their wiki block preserved on backup import.
+ */
+export const SAFE_WIKI_IMAGE_LICENSES = [
+  "CC0",
+  "CC0 1.0",
+  "CC0 1.0 Universal",
+  "CC BY 2.0",
+  "CC BY 3.0",
+  "CC BY 4.0",
+  "CC BY-SA 2.0",
+  "CC BY-SA 3.0",
+  "CC BY-SA 4.0",
+  "Public Domain",
+  "PD",
+] as const;
+
+export type SafeWikiImageLicense = (typeof SAFE_WIKI_IMAGE_LICENSES)[number];
+
+/**
+ * Optional Wikimedia enrichment metadata stored on a material.
+ * All fields are optional so that materials without wiki data remain valid.
+ * Attribution fields are required for compliance when text/images are sourced
+ * from Wikipedia or Wikimedia Commons.
+ */
+export interface MaterialWikiMetadata {
+  // Identity
+  wikidataQid: string; // e.g. "Q11254"
+  wikipediaUrl?: string;
+  wikipediaTitle?: string;
+  aliases?: string[];
+  translations?: Record<string, string[]>; // lang -> aliases
+  chemicalNames?: string[];
+  tradeNames?: string[];
+  materialClassRaw?: string[];
+
+  // Description (staff-reviewed; CC BY-SA attribution trail below)
+  shortDescription?: string;
+  compositionSummary?: string;
+
+  // Image (Wikimedia Commons — per-file license)
+  imageUrl?: string;
+  commonsFileName?: string;
+  commonsCategory?: string;
+  imageAuthor?: string;
+  imageLicenseName?: string; // Must be in SAFE_WIKI_IMAGE_LICENSES to be stored
+  imageLicenseUrl?: string;
+  imageAttributionText?: string;
+  imageCommonsPageUrl?: string;
+
+  // Text attribution trail (CC BY-SA 4.0 compliance)
+  sourceUrl?: string; // Wikipedia article URL
+  sourceRevisionId?: number; // Versioned attribution
+  textRetrievedAt?: string; // ISO date
+
+  // Sync metadata
+  lastSyncedAt?: string; // ISO date of last Wikimedia fetch
 }
 
 // Re-export CategoryType for convenience

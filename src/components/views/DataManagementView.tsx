@@ -13,7 +13,7 @@ import {
   Database,
   UploadCloud,
 } from "lucide-react";
-import { Material } from "../../types/material";
+import { Material, SAFE_WIKI_IMAGE_LICENSES } from "../../types/material";
 import { getArticleCount } from "../../utils/materialArticles";
 import { toast } from "sonner";
 import {
@@ -282,7 +282,7 @@ export function DataManagementView({
   // Full JSON backup with all scientific data
   const handleExportBackup = () => {
     const backup = {
-      version: "1.0",
+      version: "1.1",
       exported_at: new Date().toISOString(),
       exported_by: user?.email || "unknown",
       material_count: materials.length,
@@ -335,9 +335,33 @@ export function DataManagementView({
           return;
         }
 
-        onBulkImport(validMaterials);
+        // Sanitize wiki blocks: strip any wiki subobject whose image license
+        // is present but not on the safe-license whitelist. Materials without
+        // a wiki block (pre-wiki backups) are passed through untouched.
+        let wikiStrippedCount = 0;
+        const sanitizedMaterials = validMaterials.map((m: any) => {
+          if (!m.wiki) return m; // old backup or no wiki data — fine as-is
+          const licName = m.wiki.imageLicenseName;
+          if (
+            licName &&
+            !(SAFE_WIKI_IMAGE_LICENSES as readonly string[]).includes(licName)
+          ) {
+            wikiStrippedCount++;
+            const { wiki: _stripped, ...rest } = m;
+            return rest;
+          }
+          return m;
+        });
+
+        if (wikiStrippedCount > 0) {
+          toast.warning(
+            `${wikiStrippedCount} material(s) had wiki image data with an unrecognized license — wiki block removed for those records.`,
+          );
+        }
+
+        onBulkImport(sanitizedMaterials);
         toast.success(
-          `Restored ${validMaterials.length} materials from backup (dated ${
+          `Restored ${sanitizedMaterials.length} materials from backup (dated ${
             backup.exported_at || "unknown"
           })`,
         );
