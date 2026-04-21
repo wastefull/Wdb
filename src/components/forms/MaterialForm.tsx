@@ -109,7 +109,7 @@ export function MaterialForm({
 
         <div>
           <label className="text-[13px] text-black block mb-1">
-            Description (optional)
+            Description
           </label>
           <textarea
             value={formData.description}

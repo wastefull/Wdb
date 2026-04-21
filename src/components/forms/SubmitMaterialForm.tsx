@@ -51,6 +51,7 @@ const NON_MATERIAL_HINT_WORDS = [
   "city",
   "county",
   "surname",
+  "family name",
   "given name",
   "person",
   "village",
@@ -60,7 +61,83 @@ const NON_MATERIAL_HINT_WORDS = [
   "film",
   "song",
   "disambiguation",
+  "journal",
+  "archival photograph",
+  "negative number",
 ];
+
+const ARCHIVAL_MEDIA_FILTER_PATTERNS: RegExp[] = [
+  /archival photograph/i,
+  /\bphotograph\b/i,
+  /\bphoto\b/i,
+  /\bimage\b/i,
+  /\bprint\b/i,
+  /\bdrawing\b/i,
+  /\bpainting\b/i,
+  /\billustration\b/i,
+  /\bengraving\b/i,
+  /\betching\b/i,
+  /\bartwork\b/i,
+  /\bart object\b/i,
+  /\bcatalog\b/i,
+  /\baccession\b/i,
+  /\bcollection\b/i,
+  /photo\s*negative/i,
+  /negative\s*number/i,
+  /dura-?europos/i,
+  /yuag/i,
+  /archive/i,
+  /metropolitan museum of art/i,
+  /\b\(met,\s*[0-9]{2}\.[0-9]+\.[0-9]+[a-z]?\)/i,
+  /\b(accession|catalog)\s+number\b/i,
+  /\bat\s+the\s+.*museum\b/i,
+  /\b(museum|gallery)\s+of\s+art\b/i,
+  /\bat\s+the\s+metropolitan museum of art\b/i,
+  /\bbeads?,?\s+(cylinders?|pendants?|string)\b/i,
+];
+
+const NAME_ENTITY_FILTER_PATTERNS: RegExp[] = [
+  /\bfamily\s+name\b/i,
+  /\bsurname\b/i,
+  /\bgiven\s+name\b/i,
+  /\bfirst\s+name\b/i,
+  /\blast\s+name\b/i,
+  /\bpatronymic\b/i,
+];
+
+function isLikelyArchivalMediaEntry(candidate: WikidataSearchResult): boolean {
+  const text =
+    `${candidate.label} ${candidate.description ?? ""}`.toLowerCase();
+  return ARCHIVAL_MEDIA_FILTER_PATTERNS.some((pattern) => pattern.test(text));
+}
+
+function isLikelyNameEntity(candidate: WikidataSearchResult): boolean {
+  const text =
+    `${candidate.label} ${candidate.description ?? ""}`.toLowerCase();
+  return NAME_ENTITY_FILTER_PATTERNS.some((pattern) => pattern.test(text));
+}
+
+function buildWikiQueryVariants(rawQuery: string): string[] {
+  const q = rawQuery.trim().toLowerCase();
+  if (!q) return [];
+
+  // Very lightweight singular/plural normalization
+  const singular = q.endsWith("s") && q.length > 3 ? q.slice(0, -1) : q;
+  const plural = singular.endsWith("s") ? singular : `${singular}s`;
+
+  const variants = [
+    q,
+    `${q} material`,
+    singular,
+    `${singular} material`,
+    `${singular} plastic`,
+    `${singular} glass`,
+    `${singular} polymer`,
+    plural,
+  ];
+
+  return variants.filter((v, i, arr) => arr.indexOf(v) === i);
+}
 
 function rankCandidates(
   candidates: WikidataSearchResult[],
@@ -100,6 +177,50 @@ function guessCategoryFromCandidate(
   if (/(food|organic|compost|biomass|biodegradable)/.test(text))
     return "Food & Organic";
   return null;
+}
+
+function isGenericDescription(value: string): boolean {
+  const normalized = value.toLowerCase().trim();
+  const genericExact = new Set([
+    "polymer",
+    "material",
+    "chemical",
+    "compound",
+    "plastic",
+    "substance",
+    "element",
+    "metal",
+  ]);
+  if (genericExact.has(normalized)) return true;
+
+  const wordCount = normalized.split(/\s+/).filter(Boolean).length;
+  if (wordCount <= 2 && /^(type of|kind of)\b/.test(normalized)) return true;
+
+  return false;
+}
+
+function chooseBestAutofillDescription(
+  candidateDescription?: string,
+  summaryDescription?: string,
+): { text: string; source: "candidate" | "summary" } | null {
+  const candidate = candidateDescription?.trim() || "";
+  const summary = summaryDescription?.trim() || "";
+
+  if (!candidate && !summary) return null;
+  if (!candidate) return { text: summary, source: "summary" };
+  if (!summary) return { text: candidate, source: "candidate" };
+
+  // Prefer richer panel text if the summary is too generic.
+  if (isGenericDescription(summary) && !isGenericDescription(candidate)) {
+    return { text: candidate, source: "candidate" };
+  }
+
+  // Otherwise choose the longer informative description.
+  if (candidate.length > summary.length + 10) {
+    return { text: candidate, source: "candidate" };
+  }
+
+  return { text: summary, source: "summary" };
 }
 
 function normalizeMaterialName(value: string): string {
@@ -265,23 +386,33 @@ export function SubmitMaterialForm({
     setWikiSearching(true);
     setWikiCandidates([]);
     try {
-      const [base, materialHinted] = await Promise.all([
-        searchWikidataForMaterial(query, { limit: 8, offset: nextOffset }),
-        searchWikidataForMaterial(`${query} material`, {
-          limit: 8,
-          offset: nextOffset,
-        }),
-      ]);
+      const variants = buildWikiQueryVariants(query);
+      const variantResults = await Promise.all(
+        variants.map((variant) =>
+          searchWikidataForMaterial(variant, {
+            limit: 8,
+            offset: nextOffset,
+          }),
+        ),
+      );
+      const flattened = variantResults.flat();
 
-      const merged = [...base, ...materialHinted].filter(
+      const merged = flattened.filter(
         (item, idx, arr) => arr.findIndex((x) => x.qid === item.qid) === idx,
       );
-      const ranked = rankCandidates(merged);
+
+      // Hard-filter obvious archival/media records (e.g. photo negatives)
+      // that clutter short material queries like "beads".
+      const filtered = merged.filter(
+        (item) =>
+          !isLikelyArchivalMediaEntry(item) && !isLikelyNameEntity(item),
+      );
+      const ranked = rankCandidates(filtered);
 
       setWikiOffset(nextOffset);
       setWikiSearched(true);
       if (ranked.length === 0) {
-        toast.info("No Wikidata results found for this name");
+        toast.info("No material-like Wikidata results found for this name");
       } else {
         setWikiCandidates(ranked.slice(0, 3));
       }
@@ -294,6 +425,8 @@ export function SubmitMaterialForm({
 
   const handleWikiSelect = async (candidate: WikidataSearchResult) => {
     setWikiCandidates([]);
+    // QOL: selecting a candidate should seed the material title.
+    setName(candidate.label);
 
     const suggestedCategory = guessCategoryFromCandidate(candidate);
     if (suggestedCategory && !category) {
@@ -319,12 +452,18 @@ export function SubmitMaterialForm({
 
     try {
       const summary = await fetchWikipediaSummary(candidate.label);
-      if (summary?.shortDescription) {
-        setDescription(summary.shortDescription);
+      const chosen = chooseBestAutofillDescription(
+        candidate.description,
+        summary?.shortDescription,
+      );
+
+      if (chosen?.text) {
+        setDescription(chosen.text);
         setWikiSource({
           qid: candidate.qid,
           label: candidate.label,
-          sourceUrl: summary.sourceUrl,
+          sourceUrl:
+            chosen.source === "summary" ? (summary?.sourceUrl ?? "") : "",
         });
       } else {
         // No summary text — still track the QID
