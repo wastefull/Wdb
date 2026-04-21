@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { X, Loader2, CheckCircle2, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import * as api from "../../utils/api";
+import { useAuthContext } from "../../contexts/AuthContext";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
@@ -193,6 +194,8 @@ export function SubmitMaterialForm({
   onSubmitSuccess,
   initialName,
 }: SubmitMaterialFormProps) {
+  const { userRole } = useAuthContext();
+  const isAdmin = userRole === "admin";
   const [name, setName] = useState(initialName || "");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
@@ -360,24 +363,37 @@ export function SubmitMaterialForm({
     try {
       setSubmitting(true);
 
-      await api.createSubmission({
-        type: "new_material",
-        content_data: {
+      if (isAdmin) {
+        await api.saveMaterial({
+          id: crypto.randomUUID(),
           name: name.trim(),
-          category,
+          category: category as any,
           description: description.trim() || undefined,
-          // Default values for new submissions
           recyclability: 0,
           compostability: 0,
           reusability: 0,
-          // Wikidata QID pre-seed (if curator confirmed a match)
           ...(wikiSource ? { wikidataQid: wikiSource.qid } : {}),
-        },
-      });
-
-      toast.success(
-        "Material submitted for review! You'll be notified when it's reviewed.",
-      );
+        });
+        toast.success("Material published directly.");
+      } else {
+        await api.createSubmission({
+          type: "new_material",
+          content_data: {
+            name: name.trim(),
+            category,
+            description: description.trim() || undefined,
+            // Default values for new submissions
+            recyclability: 0,
+            compostability: 0,
+            reusability: 0,
+            // Wikidata QID pre-seed (if curator confirmed a match)
+            ...(wikiSource ? { wikidataQid: wikiSource.qid } : {}),
+          },
+        });
+        toast.success(
+          "Material submitted for review! You'll be notified when it's reviewed.",
+        );
+      }
       onSubmitSuccess();
       onClose();
     } catch (error) {
@@ -412,9 +428,11 @@ export function SubmitMaterialForm({
                 describe the general properties and uses of a material, without
                 judgments about the material or its sustainability — those
                 should be submitted as articles linked to the material.
-                Submissions are reviewed by our volunteer team before
-                publishing. If your material already exists, consider suggesting
-                edits to the existing page instead!
+                {isAdmin
+                  ? " As an admin, your material will be published directly."
+                  : " Submissions are reviewed by our volunteer team before publishing."}{" "}
+                If your material already exists, consider suggesting edits to
+                the existing page instead!
               </span>
             </p>
           </div>
@@ -606,7 +624,11 @@ export function SubmitMaterialForm({
               className="flex-1 h-10 px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#c8e5c8] hover:shadow-[3px_4px_0px_-1px_#000000] dark:hover:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] transition-all text-[12px] text-black disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={submitting}
             >
-              {submitting ? "Submitting..." : "Submit for Review"}
+              {submitting
+                ? "Submitting..."
+                : isAdmin
+                  ? "Publish Material"
+                  : "Submit for Review"}
             </button>
           </div>
         </form>
