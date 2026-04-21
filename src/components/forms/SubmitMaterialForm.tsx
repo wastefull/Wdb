@@ -28,13 +28,15 @@ const CATEGORIES = [
 interface SubmitMaterialFormProps {
   onClose: () => void;
   onSubmitSuccess: () => void;
+  initialName?: string;
 }
 
 export function SubmitMaterialForm({
   onClose,
   onSubmitSuccess,
+  initialName,
 }: SubmitMaterialFormProps) {
-  const [name, setName] = useState("");
+  const [name, setName] = useState(initialName || "");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -70,7 +72,7 @@ export function SubmitMaterialForm({
       });
 
       toast.success(
-        "Material submitted for review! You'll be notified when it's reviewed."
+        "Material submitted for review! You'll be notified when it's reviewed.",
       );
       onSubmitSuccess();
       onClose();
@@ -98,9 +100,12 @@ export function SubmitMaterialForm({
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div className="bg-waste-recycle dark:bg-[#3a3825] border border-[#211f1c] dark:border-white/20 rounded-md p-3 mb-4">
             <p className="text-[11px] normal">
-              💡 <strong>Note:</strong> Your submission will be reviewed by an
-              admin before it appears in the database. You only need to provide
-              basic information—admins will add sustainability scores.
+              💡 Material pages describe the general properties and uses of a
+              material, without judgments about the material or its
+              sustainability — those should be submitted as articles linked to
+              the material. Submissions are reviewed by our volunteer team
+              before publishing. If your material already exists, consider
+              suggesting edits to the existing page instead!
             </p>
           </div>
 

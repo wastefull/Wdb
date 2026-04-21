@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import {
-  Plus,
   ArrowLeft,
   Eye,
   Cloud,
@@ -115,6 +114,7 @@ import { SimplifiedRoadmap } from "./components/roadmap";
 import { Toaster } from "./components/ui/sonner";
 import { Leaderboard } from "./components/ui/Leaderboard";
 import { SearchBar } from "./components/search";
+import type { SearchSuggestion } from "./components/search/SearchBar";
 import { StatusBar, NavTabs } from "./components/layout";
 import type { NavTabId } from "./components/layout";
 import { ScientificDataEditor } from "./components/scientific-editor";
@@ -194,11 +194,14 @@ function AppContent() {
   } = useMaterialsContext();
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [editingMaterial, setEditingMaterial] = useState<Material | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [articleToOpen, setArticleToOpen] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showSubmitMaterialForm, setShowSubmitMaterialForm] = useState(false);
+  const [submitMaterialInitialName, setSubmitMaterialInitialName] =
+    useState("");
   const [materialToEdit, setMaterialToEdit] = useState<Material | null>(null);
   const [showSubmitArticleForm, setShowSubmitArticleForm] = useState(false);
   const [showChart, setShowChart] = useState(false);
@@ -579,17 +582,41 @@ function AppContent() {
     navigateToMaterials();
   };
 
+  // Wait briefly before showing the create-material CTA so it doesn't flash while typing.
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 450);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [searchQuery]);
+
   const filteredMaterials = materials.filter(
     (m) =>
       m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       m.description?.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
-  const materialSearchSuggestions = useMemo(() => {
+  const materialSearchSuggestions = useMemo<SearchSuggestion[]>(() => {
+    const rawQuery = searchQuery.trim();
     const normalizedQuery = searchQuery.trim().toLowerCase();
+    const normalizedDebouncedQuery = debouncedSearchQuery.trim().toLowerCase();
+    const adminModeInEffect = !!(
+      user &&
+      userRole === "admin" &&
+      settings.adminMode
+    );
+
     if (!normalizedQuery) {
       return [];
     }
+
+    const hasExactNameMatch = materials.some(
+      (material) =>
+        (material.name || "").trim().toLowerCase() === normalizedQuery,
+    );
 
     const scored = materials
       .map((material) => {
@@ -634,7 +661,9 @@ function AppContent() {
         return a.value.localeCompare(b.value);
       });
 
-    const deduped = new Map<string, { value: string; subtitle: string }>();
+    const deduped = new Map<string, SearchSuggestion>();
+    const maxBaseSuggestions = hasExactNameMatch ? 8 : 7;
+
     for (const entry of scored) {
       const dedupeKey = entry.value.toLowerCase();
       if (!deduped.has(dedupeKey)) {
@@ -643,13 +672,51 @@ function AppContent() {
           subtitle: entry.subtitle,
         });
       }
-      if (deduped.size >= 8) {
+      if (deduped.size >= maxBaseSuggestions) {
         break;
       }
     }
 
-    return Array.from(deduped.values());
-  }, [materials, searchQuery]);
+    const suggestions = Array.from(deduped.values());
+
+    const hasTypingPaused = normalizedDebouncedQuery === normalizedQuery;
+
+    if (!hasExactNameMatch && rawQuery && hasTypingPaused) {
+      suggestions.unshift({
+        value: `Create "${rawQuery}"`,
+        subtitle: user
+          ? adminModeInEffect
+            ? "Create material"
+            : "Suggest new material for the database"
+          : "Sign in to add new materials",
+        onSelect: () => {
+          if (!user) {
+            setShowAuthModal(true);
+            toast.message("Sign in to submit new materials.");
+            return;
+          }
+
+          if (adminModeInEffect) {
+            setEditingMaterial(null);
+            setShowForm(true);
+            return;
+          }
+
+          setSubmitMaterialInitialName(rawQuery);
+          setShowSubmitMaterialForm(true);
+        },
+      });
+    }
+
+    return suggestions;
+  }, [
+    debouncedSearchQuery,
+    materials,
+    searchQuery,
+    settings.adminMode,
+    user,
+    userRole,
+  ]);
 
   const currentMaterial =
     currentView.type === "articles" ||
@@ -711,7 +778,7 @@ function AppContent() {
         {/* Main layout container - allows window to grow past 1000px with sidebar */}
         <div className="max-w-[1400px] mx-auto">
           {/* Simulated window with optional sidebar inside */}
-          <div className="bg-[#faf7f2] dark:bg-[#1a1917] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 overflow-hidden mb-6">
+          <div className="bg-[#faf7f2] dark:bg-[#1a1917] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 overflow-visible mb-6">
             <StatusBar
               title="Waste"
               titlePop="DB"
@@ -1036,41 +1103,10 @@ function AppContent() {
                           </p>
                         </div>
 
-                        {/* Submit Material button */}
-                        {user && (
-                          <button
-                            onClick={() => {
-                              if (isAdminModeActive) {
-                                setShowForm(true);
-                                setEditingMaterial(null);
-                              } else {
-                                setShowSubmitMaterialForm(true);
-                              }
-                            }}
-                            className={`h-12 px-6 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(100,255,100,0.3)] dark:border-white/20 text-[14px] hover:translate-y-px hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(100,255,100,0.3)] transition-all inline-flex items-center justify-center gap-2 ${
-                              isAdminModeActive
-                                ? "arcade-bg-cyan arcade-btn-cyan"
-                                : "arcade-bg-green arcade-btn-green"
-                            }`}
-                            title={
-                              isAdminModeActive
-                                ? "Add a new material"
-                                : "Submit a new material"
-                            }
-                          >
-                            <Plus
-                              size={16}
-                              className={
-                                isAdminModeActive
-                                  ? "arcade-btn-cyan"
-                                  : "arcade-btn-green"
-                              }
-                            />
-                            <span>
-                              {isAdminModeActive ? "Add" : "Submit"} Material
-                            </span>
-                          </button>
-                        )}
+                        <p className="text-[11px] text-black/50 dark:text-white/50">
+                          Can&apos;t find a material? Type its name to submit it
+                          from search suggestions.
+                        </p>
                       </div>
                     )}
                   </div>
@@ -1552,7 +1588,11 @@ function AppContent() {
           {/* Submission Forms */}
           {showSubmitMaterialForm && (
             <SubmitMaterialForm
-              onClose={() => setShowSubmitMaterialForm(false)}
+              initialName={submitMaterialInitialName}
+              onClose={() => {
+                setShowSubmitMaterialForm(false);
+                setSubmitMaterialInitialName("");
+              }}
               onSubmitSuccess={() => {
                 // Optionally refresh submissions or show a notification
                 toast.success(

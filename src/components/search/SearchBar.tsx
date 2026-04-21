@@ -5,6 +5,7 @@ import { useIsMobile } from "../ui/use-mobile";
 export interface SearchSuggestion {
   value: string;
   subtitle?: string;
+  onSelect?: () => void;
 }
 
 export interface SearchBarProps {
@@ -28,7 +29,7 @@ export function SearchBar({
   const visibleSuggestions = useMemo(() => {
     const trimmed = value.trim().toLowerCase();
     if (!trimmed) return [];
-    return suggestions.slice(0, 8);
+    return suggestions;
   }, [suggestions, value]);
 
   const hasSuggestions = visibleSuggestions.length > 0;
@@ -57,6 +58,13 @@ export function SearchBar({
   }, []);
 
   const selectSuggestion = (suggestion: SearchSuggestion) => {
+    if (suggestion.onSelect) {
+      suggestion.onSelect();
+      setIsDropdownOpen(false);
+      setHighlightedIndex(-1);
+      return;
+    }
+
     onChange(suggestion.value);
     setIsDropdownOpen(false);
     setHighlightedIndex(-1);
@@ -146,7 +154,8 @@ export function SearchBar({
         <div
           id="material-search-suggestions"
           role="listbox"
-          className="absolute left-0 right-0 top-[calc(100%+8px)] z-30 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#faf7f2] dark:bg-[#1f1d1a] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.15)] overflow-hidden"
+          className="absolute left-0 right-0 top-[calc(100%+8px)] z-30 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#faf7f2] dark:bg-[#1f1d1a] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.15)] overflow-x-hidden overflow-y-auto max-h-[60vh] overscroll-contain"
+          style={{ WebkitOverflowScrolling: "touch" }}
         >
           {visibleSuggestions.map((suggestion, index) => {
             const isHighlighted = index === highlightedIndex;
@@ -165,7 +174,13 @@ export function SearchBar({
                     : "hover:bg-black/5 dark:hover:bg-white/5"
                 }`}
               >
-                <div className="text-[14px] normal truncate">
+                <div
+                  className={`text-[14px] normal truncate ${
+                    suggestion.onSelect
+                      ? "text-black dark:text-white"
+                      : "text-black dark:text-white"
+                  }`}
+                >
                   {suggestion.value}
                 </div>
                 {suggestion.subtitle && (
