@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   ArrowLeft,
   Edit2,
@@ -13,7 +13,11 @@ import {
   Database,
   UploadCloud,
 } from "lucide-react";
-import { Material, SAFE_WIKI_IMAGE_LICENSES } from "../../types/material";
+import {
+  Material,
+  MATERIAL_CATEGORIES,
+  SAFE_WIKI_IMAGE_LICENSES,
+} from "../../types/material";
 import { getArticleCount } from "../../utils/materialArticles";
 import { toast } from "sonner";
 import {
@@ -81,17 +85,13 @@ export function DataManagementView({
   const [pasteData, setPasteData] = useState("");
   const isAdmin = userRole === "admin";
 
-  const categoryOptions = [
-    "Plastics",
-    "Metals",
-    "Glass",
-    "Paper & Cardboard",
-    "Fabrics & Textiles",
-    "Electronics & Batteries",
-    "Building Materials",
-    "Organic/Natural Waste",
-    "Elements",
-  ];
+  const categoryOptions = useMemo(
+    () =>
+      Array.from(
+        new Set([...MATERIAL_CATEGORIES, ...materials.map((m) => m.category)]),
+      ),
+    [materials],
+  );
 
   const handleEdit = (material: Material) => {
     setEditingId(material.id);
@@ -161,20 +161,8 @@ export function DataManagementView({
 
         if (!row.name || !row.category) continue;
 
-        // Validate category against allowed values
-        const validCategories = [
-          "Plastics",
-          "Metals",
-          "Glass",
-          "Paper & Cardboard",
-          "Fabrics & Textiles",
-          "Electronics & Batteries",
-          "Building Materials",
-          "Organic/Natural Waste",
-          "Elements",
-        ];
         const category = row.category as Material["category"];
-        if (!validCategories.includes(category)) {
+        if (!MATERIAL_CATEGORIES.includes(category)) {
           logger.warn(
             `Skipping material "${row.name}" with invalid category: ${row.category}`,
           );

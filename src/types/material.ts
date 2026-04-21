@@ -76,20 +76,25 @@ export interface UserProfile {
   created_at: string;
 }
 
+export const MATERIAL_CATEGORIES = [
+  "Plastics",
+  "Metals",
+  "Glass",
+  "Paper & Cardboard",
+  "Fabrics & Textiles",
+  "Electronics & Batteries",
+  "Building Materials",
+  "Organic/Natural Waste",
+  "Elements",
+] as const;
+
+export type MaterialCategory = (typeof MATERIAL_CATEGORIES)[number];
+
 export interface Material {
   // Core identification
   id: string;
   name: string;
-  category:
-    | "Plastics"
-    | "Metals"
-    | "Glass"
-    | "Paper & Cardboard"
-    | "Fabrics & Textiles"
-    | "Electronics & Batteries"
-    | "Building Materials"
-    | "Organic/Natural Waste"
-    | "Elements";
+  category: MaterialCategory;
   description?: string;
 
   // Public-facing sustainability scores (0-100 scale)
