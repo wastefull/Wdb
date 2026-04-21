@@ -13,6 +13,8 @@ import * as api from "./utils/api";
 import { logger, setTestMode, getTestMode, loggerInfo } from "./utils/logger";
 import {
   NavigationProvider,
+  getAdminHomeViewByRole,
+  isAdminViewType,
   useNavigationContext,
 } from "./contexts/NavigationContext";
 import { AuthProvider, useAuthContext } from "./contexts/AuthContext";
@@ -751,6 +753,10 @@ function AppContent() {
     userRole === "admin" &&
     settings.adminMode
   );
+  const showLeaderboardPanel = !isAdminViewType(currentView.type);
+  const navigateToAdminHome = () => {
+    navigateTo(getAdminHomeViewByRole(userRole));
+  };
 
   const authModalOuterDivClasses =
     "fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4";
@@ -1283,7 +1289,7 @@ function AppContent() {
                 ) : currentView.type === "data-management" ? (
                   <DataManagementView
                     materials={materials}
-                    onBack={navigateToMaterials}
+                    onBack={navigateToAdminHome}
                     onUpdateMaterial={handleUpdateMaterial}
                     onUpdateMaterials={updateMaterials}
                     onBulkImport={handleBulkImport}
@@ -1303,11 +1309,11 @@ function AppContent() {
                   />
                 ) : currentView.type === "user-management" ? (
                   <UserManagementView
-                    onBack={navigateToMaterials}
+                    onBack={navigateToAdminHome}
                     currentUserId={user?.id || ""}
                   />
                 ) : currentView.type === "whitepaper-sync" ? (
-                  <WhitepaperSyncTool onBack={navigateToMaterials} />
+                  <WhitepaperSyncTool onBack={navigateToAdminHome} />
                 ) : currentView.type === "scientific-editor" &&
                   currentMaterial ? (
                   <ScientificDataEditor
@@ -1351,7 +1357,7 @@ function AppContent() {
                   <MySubmissionsView onBack={navigateToMaterials} />
                 ) : currentView.type === "review-center" ? (
                   <ContentReviewCenter
-                    onBack={navigateToMaterials}
+                    onBack={navigateToAdminHome}
                     currentUserId={user?.id || ""}
                     onNavigateToProfile={navigateToUserProfile}
                   />
@@ -1359,39 +1365,23 @@ function AppContent() {
                   <ApiDocumentation onBack={navigateToScienceHub} />
                 ) : currentView.type === "source-library" ? (
                   <SourceLibraryManager
-                    onBack={navigateToMaterials}
+                    onBack={navigateToAdminHome}
                     materials={materials}
                     isAuthenticated={!!user}
                     isAdmin={userRole === "admin"}
                   />
                 ) : currentView.type === "source-comparison" ? (
                   <SourceDataComparison
-                    onBack={navigateToMaterials}
+                    onBack={navigateToAdminHome}
                     materials={materials}
                   />
                 ) : currentView.type === "evidence-lab" ? (
-                  <EvidenceLabView
-                    onBack={
-                      userRole === "staff"
-                        ? navigateToStaffDashboard
-                        : navigateToAdminDashboard
-                    }
-                  />
+                  <EvidenceLabView onBack={navigateToAdminHome} />
                 ) : currentView.type === "curation-workbench" ? (
-                  <CurationWorkbench
-                    onBack={
-                      userRole === "staff"
-                        ? navigateToStaffDashboard
-                        : navigateToAdminDashboard
-                    }
-                  />
+                  <CurationWorkbench onBack={navigateToAdminHome} />
                 ) : currentView.type === "transform-formula-testing" ? (
                   <TransformFormulaTesting
-                    onBack={
-                      userRole === "staff"
-                        ? navigateToStaffDashboard
-                        : navigateToAdminDashboard
-                    }
+                    onBack={navigateToAdminHome}
                     materials={materials}
                   />
                 ) : currentView.type === "licenses" ? (
@@ -1442,22 +1432,12 @@ function AppContent() {
                     defaultTab={currentView.defaultTab}
                   />
                 ) : currentView.type === "charts-performance" ? (
-                  <ChartsPerformanceView
-                    onBack={
-                      userRole === "staff"
-                        ? navigateToStaffDashboard
-                        : navigateToAdminDashboard
-                    }
-                  />
+                  <ChartsPerformanceView onBack={navigateToAdminHome} />
                 ) : currentView.type === "roadmap" ? (
-                  <RoadmapView onBack={navigateToAdminDashboard} />
+                  <RoadmapView onBack={navigateToAdminHome} />
                 ) : currentView.type === "roadmap-overview" ? (
                   <SimplifiedRoadmap
-                    onBack={
-                      userRole === "staff"
-                        ? navigateToStaffDashboard
-                        : navigateToAdminDashboard
-                    }
+                    onBack={navigateToAdminHome}
                     defaultTab={currentView.defaultTab}
                     staffMode={userRole === "staff"}
                   />
@@ -1538,7 +1518,7 @@ function AppContent() {
                 </div>
 
                 {/* Scroll hint arrow - shown when sidebar is below */}
-                {showScrollHint && (
+                {showLeaderboardPanel && showScrollHint && (
                   <motion.div
                     className="md:hidden flex justify-center pb-4"
                     initial={{ opacity: 0 }}
@@ -1564,26 +1544,32 @@ function AppContent() {
               </div>
 
               {/* Sidebar - visible on medium screens and wider */}
-              <aside className="hidden md:block w-52 lg:w-64 shrink-0 border-l-[1.5px] border-[#211f1c] dark:border-white/20">
-                <div className="sticky top-0 max-h-[calc(100vh-100px)] overflow-y-auto">
-                  <Leaderboard onUserClick={navigateToUserProfile} />
-                </div>
-              </aside>
+              {showLeaderboardPanel && (
+                <aside className="hidden md:block w-52 lg:w-64 shrink-0 border-l-[1.5px] border-[#211f1c] dark:border-white/20">
+                  <div className="sticky top-0 max-h-[calc(100vh-100px)] overflow-y-auto">
+                    <Leaderboard onUserClick={navigateToUserProfile} />
+                  </div>
+                </aside>
+              )}
             </div>
           </div>
 
           {/* Mobile Leaderboard - separate window below main content, visible below md breakpoint */}
-          <motion.div
-            ref={leaderboardRef}
-            className="md:hidden mt-4 mx-4 md:mx-6 rounded-2xl border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#f5f4ef] dark:bg-[#1a1917] overflow-hidden"
-            initial={{ opacity: 0, y: 20 }}
-            animate={
-              leaderboardVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }
-            }
-            transition={{ duration: 0.5, ease: "easeOut" }}
-          >
-            <Leaderboard onUserClick={navigateToUserProfile} />
-          </motion.div>
+          {showLeaderboardPanel && (
+            <motion.div
+              ref={leaderboardRef}
+              className="md:hidden mt-4 mx-4 md:mx-6 rounded-2xl border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#f5f4ef] dark:bg-[#1a1917] overflow-hidden"
+              initial={{ opacity: 0, y: 20 }}
+              animate={
+                leaderboardVisible
+                  ? { opacity: 1, y: 0 }
+                  : { opacity: 0, y: 20 }
+              }
+              transition={{ duration: 0.5, ease: "easeOut" }}
+            >
+              <Leaderboard onUserClick={navigateToUserProfile} />
+            </motion.div>
+          )}
 
           {/* Submission Forms */}
           {showSubmitMaterialForm && (

@@ -84,6 +84,43 @@ export type ViewType =
   | { type: "about" }
   | { type: "donate" };
 
+export type UserRole = "user" | "staff" | "admin";
+
+export const ADMIN_VIEW_TYPES = new Set<ViewType["type"]>([
+  "admin-dashboard",
+  "staff-dashboard",
+  "data-management",
+  "user-management",
+  "whitepaper-sync",
+  "review-center",
+  "source-library",
+  "source-comparison",
+  "evidence-lab",
+  "curation-workbench",
+  "transform-formula-testing",
+  "admin-takedown-list",
+  "audit-log",
+  "data-retention",
+  "transform-manager",
+  "whitepapers-management",
+  "assets-management",
+  "role-permissions",
+  "math-tools",
+  "charts-performance",
+  "roadmap",
+  "roadmap-overview",
+]);
+
+export function isAdminViewType(viewType: ViewType["type"]): boolean {
+  return ADMIN_VIEW_TYPES.has(viewType);
+}
+
+export function getAdminHomeViewByRole(role: UserRole): ViewType {
+  return role === "staff"
+    ? { type: "staff-dashboard" }
+    : { type: "admin-dashboard" };
+}
+
 interface NavigationContextType {
   // State
   currentView: ViewType;
