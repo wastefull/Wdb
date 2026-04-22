@@ -88,12 +88,12 @@ export function GlideStaticTable({
 
   const columns: GridColumn[] = useMemo(() => {
     const base: GridColumn[] = [
-      { id: "name", title: "Name", width: 260 },
-      { id: "aliases", title: "Aliases", width: 260 },
-      { id: "category", title: "Category", width: 180 },
-      { id: "description", title: "Description", width: 420 },
-      { id: "isHub", title: "Hub", width: 90 },
-      { id: "linkedMaterials", title: "Linked Materials", width: 320 },
+      { id: "name", title: "Name", width: 180 },
+      { id: "aliases", title: "Aliases", width: 130 },
+      { id: "category", title: "Category", width: 160 },
+      { id: "description", title: "Description", width: 160 },
+      { id: "isHub", title: "Hub", width: 50 },
+      { id: "linkedMaterials", title: "Linked Materials", width: 200 },
     ];
 
     if (!isAdmin) return base;
