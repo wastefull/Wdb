@@ -1821,11 +1821,33 @@ app.post(
 );
 
 // Get all materials (public read access, rate-limited)
+const normalizeMaterialFromEntry = (entry: { key: string; value: any }) => {
+  const material = entry.value || {};
+  const idFromKey = entry.key.startsWith("material:")
+    ? entry.key.slice("material:".length)
+    : "";
+
+  // Some legacy rows have null/empty ids in value JSON.
+  // Derive id from the KV key so records remain manageable/deletable.
+  const normalizedId =
+    typeof material.id === "string" && material.id.trim().length > 0
+      ? material.id
+      : idFromKey;
+
+  return {
+    ...material,
+    id: normalizedId,
+  };
+};
+
 app.get("/make-server-17cae920/materials", rateLimit("API"), async (c) => {
   try {
     const userId = c.get("userId");
     // Get materials for this user (or all if using public key for backward compat)
-    const materials = await kv.getByPrefix("material:");
+    const materialEntries = await kv.getEntriesByPrefix("material:");
+    const materials = materialEntries
+      .map(normalizeMaterialFromEntry)
+      .filter((m) => typeof m.id === "string" && m.id.trim().length > 0);
     return c.json({ materials: materials || [] });
   } catch (error) {
     log.error("Error fetching materials:", error);
@@ -1930,7 +1952,10 @@ app.post(
       }
 
       // First, get all existing materials
-      const existingMaterials = await kv.getByPrefix("material:");
+      const existingMaterialEntries = await kv.getEntriesByPrefix("material:");
+      const existingMaterials = existingMaterialEntries.map(
+        normalizeMaterialFromEntry,
+      );
       const existingCount = existingMaterials?.length || 0;
 
       // AUDIT: Log bulk operations, especially potential data loss
@@ -1969,9 +1994,9 @@ app.post(
       }
 
       // Delete all existing materials
-      if (existingMaterials && existingMaterials.length > 0) {
-        const keysToDelete = existingMaterials.map(
-          (m: any) => `material:${m.id}`,
+      if (existingMaterialEntries && existingMaterialEntries.length > 0) {
+        const keysToDelete = existingMaterialEntries.map((entry: any) =>
+          String(entry.key),
         );
         await kv.mdel(keysToDelete);
         log.log(`Deleted ${keysToDelete.length} existing materials`);
@@ -2119,12 +2144,12 @@ app.delete(
   requirePermission("materials.delete"),
   async (c) => {
     try {
-      const materials = await kv.getByPrefix("material:");
-      if (materials && materials.length > 0) {
-        const keys = materials.map((m) => `material:${m.id}`);
+      const materialEntries = await kv.getEntriesByPrefix("material:");
+      if (materialEntries && materialEntries.length > 0) {
+        const keys = materialEntries.map((entry) => String(entry.key));
         await kv.mdel(keys);
       }
-      return c.json({ success: true, deleted: materials?.length || 0 });
+      return c.json({ success: true, deleted: materialEntries?.length || 0 });
     } catch (error) {
       log.error("Error deleting all materials:", error);
       return c.json(

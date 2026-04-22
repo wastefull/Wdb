@@ -15,7 +15,7 @@ import { createClient } from "jsr:@supabase/supabase-js@2.49.8";
 const client = () =>
   createClient(
     Deno.env.get("SUPABASE_URL"),
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY"),
   );
 
 // Set stores a key-value pair in the database.
@@ -103,4 +103,20 @@ export const getByPrefix = async (prefix: string): Promise<any[]> => {
     throw new Error(error.message);
   }
   return data?.map((d) => d.value) ?? [];
+};
+
+// Search for raw key/value entries by prefix.
+// Useful when callers need actual storage keys (for cleanup/migration tasks).
+export const getEntriesByPrefix = async (
+  prefix: string,
+): Promise<Array<{ key: string; value: any }>> => {
+  const supabase = client();
+  const { data, error } = await supabase
+    .from("kv_store_17cae920")
+    .select("key, value")
+    .like("key", prefix + "%");
+  if (error) {
+    throw new Error(error.message);
+  }
+  return data ?? [];
 };

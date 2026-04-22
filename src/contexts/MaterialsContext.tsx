@@ -76,6 +76,29 @@ export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("idle");
   const [supabaseAvailable, setSupabaseAvailable] = useState(false);
 
+  const normalizeMaterials = (rawMaterials: any[]): Material[] => {
+    const normalized = rawMaterials
+      .map((m: any) => ({
+        ...m,
+        category: m.category || "Plastics",
+        articles: m.articles || {
+          compostability: [],
+          recyclability: [],
+          reusability: [],
+        },
+      }))
+      .filter((m: any) => typeof m.id === "string" && m.id.trim().length > 0);
+
+    const droppedCount = rawMaterials.length - normalized.length;
+    if (droppedCount > 0) {
+      materialsLogger.warn(
+        `Filtered out ${droppedCount} material(s) with invalid IDs`,
+      );
+    }
+
+    return normalized;
+  };
+
   // Initialize with empty data (no sample/placeholder data)
   const initializeSampleData = () => {
     materialsLogger.info("Initializing with empty materials list...");
@@ -103,18 +126,14 @@ export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({
     if (stored) {
       try {
         const parsedMaterials = JSON.parse(stored);
-        const materialsWithArticles = parsedMaterials.map((m: any) => ({
-          ...m,
-          category: m.category || "Plastics",
-          articles: m.articles || {
-            compostability: [],
-            recyclability: [],
-            reusability: [],
-          },
-        }));
+        const materialsWithArticles = normalizeMaterials(parsedMaterials);
         setMaterials(materialsWithArticles);
         syncLogger.info(
           `Loaded ${materialsWithArticles.length} materials from localStorage`,
+        );
+        localStorage.setItem(
+          "materials",
+          JSON.stringify(materialsWithArticles),
         );
       } catch (e) {
         materialsLogger.error("Error parsing stored materials:", e);
@@ -136,15 +155,7 @@ export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({
 
         if (supabaseMaterials.length > 0) {
           // Ensure all materials have articles structure and category
-          const materialsWithArticles = supabaseMaterials.map((m: any) => ({
-            ...m,
-            category: m.category || "Plastics",
-            articles: m.articles || {
-              compostability: [],
-              recyclability: [],
-              reusability: [],
-            },
-          }));
+          const materialsWithArticles = normalizeMaterials(supabaseMaterials);
           setMaterials(materialsWithArticles);
           // Sync to localStorage as cache
           localStorage.setItem(
