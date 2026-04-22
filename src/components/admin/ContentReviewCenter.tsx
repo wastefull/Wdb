@@ -13,6 +13,7 @@ import {
   Copy,
 } from "lucide-react";
 import * as api from "../../utils/api";
+import { Material } from "../../types/material";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { ReviewModal } from "../shared/ReviewModal";
@@ -46,12 +47,14 @@ interface ContentReviewCenterProps {
   onBack: () => void;
   currentUserId: string;
   onNavigateToProfile: (userId: string) => void;
+  materials?: Material[];
 }
 
 export function ContentReviewCenter({
   onBack,
   currentUserId,
   onNavigateToProfile,
+  materials = [],
 }: ContentReviewCenterProps) {
   const [activeTab, setActiveTab] = useState<
     "review" | "pending" | "moderation"
@@ -228,19 +231,27 @@ export function ContentReviewCenter({
         submission.type === "edit_material" &&
         submission.original_content_id
       ) {
-        // Update existing material
+        // Update existing material — merge submitted changes onto the full
+        // existing record to avoid wiping scientific/wiki/articles data.
         const materialData = editedContent || submission.content_data;
+        const existing = materials.find(
+          (m) => m.id === submission.original_content_id,
+        );
         await api.updateMaterial({
+          ...(existing || {}),
           id: submission.original_content_id,
           name: materialData.name,
           aliases: materialData.aliases,
           category: materialData.category,
           description: materialData.description,
           isHub: materialData.isHub,
-          linkedMaterialIds: materialData.linkedMaterialIds,
-          compostability: materialData.compostability || 0,
-          recyclability: materialData.recyclability || 0,
-          reusability: materialData.reusability || 0,
+          linkedMaterialIds:
+            materialData.linkedMaterialIds ?? existing?.linkedMaterialIds,
+          compostability:
+            existing?.compostability ?? materialData.compostability ?? 0,
+          recyclability:
+            existing?.recyclability ?? materialData.recyclability ?? 0,
+          reusability: existing?.reusability ?? materialData.reusability ?? 0,
           ...(wasEditedByAdmin && editorName
             ? {
                 edited_by: currentUserId,

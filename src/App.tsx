@@ -1362,6 +1362,7 @@ function AppContent() {
                     onBack={navigateToAdminHome}
                     currentUserId={user?.id || ""}
                     onNavigateToProfile={navigateToUserProfile}
+                    materials={materials}
                   />
                 ) : currentView.type === "api-docs" ? (
                   <ApiDocumentation onBack={navigateToScienceHub} />
@@ -1593,11 +1594,14 @@ function AppContent() {
           {materialToEdit && (
             <SuggestMaterialEditForm
               material={materialToEdit}
+              isAdminMode={isAdminModeActive}
               onClose={() => setMaterialToEdit(null)}
               onSubmitSuccess={() => {
-                toast.success(
-                  'Edit suggestion submitted! Check "My Submissions" for updates.',
-                );
+                if (!isAdminModeActive) {
+                  toast.success(
+                    'Edit suggestion submitted! Check "My Submissions" for updates.',
+                  );
+                }
               }}
             />
           )}

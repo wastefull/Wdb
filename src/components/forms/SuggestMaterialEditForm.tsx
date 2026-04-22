@@ -20,12 +20,14 @@ interface SuggestMaterialEditFormProps {
   material: Material;
   onClose: () => void;
   onSubmitSuccess: () => void;
+  isAdminMode?: boolean;
 }
 
 export function SuggestMaterialEditForm({
   material,
   onClose,
   onSubmitSuccess,
+  isAdminMode = false,
 }: SuggestMaterialEditFormProps) {
   const [name, setName] = useState(material.name);
   const [category, setCategory] = useState<string>(material.category);
@@ -74,7 +76,7 @@ export function SuggestMaterialEditForm({
       return;
     }
 
-    if (!changeReason.trim()) {
+    if (!isAdminMode && !changeReason.trim()) {
       toast.error("Please explain why you're suggesting this change");
       return;
     }
@@ -82,28 +84,45 @@ export function SuggestMaterialEditForm({
     try {
       setSubmitting(true);
 
-      // Create submission for material edit
-      await api.createSubmission({
-        type: "edit_material",
-        content_data: {
+      if (isAdminMode) {
+        // Admin: apply changes directly without a submission
+        await api.updateMaterial({
+          ...material,
           name: name.trim(),
-          category,
+          category: category as Material["category"],
           description: description.trim() || undefined,
           aliases: parsedAliases.length > 0 ? parsedAliases : undefined,
           isHub: isHub || undefined,
-          change_reason: changeReason.trim(),
-        },
-        original_content_id: material.id,
-      });
+        });
+        toast.success(`Updated ${name.trim()} successfully`);
+      } else {
+        // Regular user: create a submission for review
+        await api.createSubmission({
+          type: "edit_material",
+          content_data: {
+            name: name.trim(),
+            category,
+            description: description.trim() || undefined,
+            aliases: parsedAliases.length > 0 ? parsedAliases : undefined,
+            isHub: isHub || undefined,
+            change_reason: changeReason.trim(),
+          },
+          original_content_id: material.id,
+        });
+        toast.success(
+          "Edit suggestion submitted! You'll be notified when it's reviewed.",
+        );
+      }
 
-      toast.success(
-        "Edit suggestion submitted! You'll be notified when it's reviewed.",
-      );
       onSubmitSuccess();
       onClose();
     } catch (error) {
       logger.error("Error submitting edit:", error);
-      toast.error("Failed to submit edit suggestion");
+      toast.error(
+        isAdminMode
+          ? "Failed to update material"
+          : "Failed to submit edit suggestion",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -113,7 +132,9 @@ export function SuggestMaterialEditForm({
     <div className="fixed inset-0 bg-black/30 dark:bg-black/60 flex items-center justify-center p-4 z-50">
       <div className="bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 w-full max-w-md shadow-[4px_4px_0px_0px_#000000] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-4 border-b border-[#211f1c] dark:border-white/20 sticky top-0 bg-white dark:bg-[#2a2825] z-10">
-          <h3 className="normal">Suggest Edit</h3>
+          <h3 className="normal">
+            {isAdminMode ? "Edit Material" : "Suggest Edit"}
+          </h3>
           <button
             onClick={onClose}
             className="p-1.5 rounded-md hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
@@ -127,10 +148,12 @@ export function SuggestMaterialEditForm({
             <p className="text-[11px] normal">
               ✏️ <strong>Editing:</strong> {material.name}
             </p>
-            <p className="text-[10px] text-black/70 dark:text-white/70 mt-1">
-              Your suggested changes will be reviewed by an admin before being
-              applied.
-            </p>
+            {!isAdminMode && (
+              <p className="text-[10px] text-black/70 dark:text-white/70 mt-1">
+                Your suggested changes will be reviewed by an admin before being
+                applied.
+              </p>
+            )}
           </div>
 
           <div>
@@ -212,23 +235,25 @@ export function SuggestMaterialEditForm({
             />
           </div>
 
-          <div className="pt-2 border-t border-[#211f1c]/20 dark:border-white/10">
-            <Label htmlFor="change-reason" className="text-[12px] normal">
-              Reason for Change *
-            </Label>
-            <Textarea
-              id="change-reason"
-              value={changeReason}
-              onChange={(e) => setChangeReason(e.target.value)}
-              placeholder="Explain why you're suggesting this change..."
-              className="mt-1 min-h-[70px]"
-              rows={3}
-              required
-            />
-            <p className="mt-1 text-[10px] text-black/50 dark:text-white/50">
-              Help reviewers understand the benefit of your changes.
-            </p>
-          </div>
+          {!isAdminMode && (
+            <div className="pt-2 border-t border-[#211f1c]/20 dark:border-white/10">
+              <Label htmlFor="change-reason" className="text-[12px] normal">
+                Reason for Change *
+              </Label>
+              <Textarea
+                id="change-reason"
+                value={changeReason}
+                onChange={(e) => setChangeReason(e.target.value)}
+                placeholder="Explain why you're suggesting this change..."
+                className="mt-1 min-h-[70px]"
+                rows={3}
+                required
+              />
+              <p className="mt-1 text-[10px] text-black/50 dark:text-white/50">
+                Help reviewers understand the benefit of your changes.
+              </p>
+            </div>
+          )}
 
           <div className="flex gap-2 pt-4">
             <button
@@ -244,7 +269,11 @@ export function SuggestMaterialEditForm({
               className="flex-1 h-10 px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-waste-reuse hover:shadow-[3px_4px_0px_-1px_#000000] dark:hover:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] transition-all text-[12px] text-black disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={submitting || !hasChanges()}
             >
-              {submitting ? "Submitting..." : "Submit Suggestion"}
+              {submitting
+                ? "Saving..."
+                : isAdminMode
+                  ? "Save Changes"
+                  : "Submit Suggestion"}
             </button>
           </div>
         </form>
