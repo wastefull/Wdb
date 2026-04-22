@@ -94,8 +94,13 @@ export interface Material {
   // Core identification
   id: string;
   name: string;
+  aliases?: string[]; // Curator-managed alternate names
   category: MaterialCategory;
   description?: string;
+
+  // Hub navigation (optional)
+  isHub?: boolean; // Marks this material as a hub page
+  linkedMaterialIds?: string[]; // Related materials this hub points to
 
   // Public-facing sustainability scores (0-100 scale)
   compostability: number; // Biological decomposition potential

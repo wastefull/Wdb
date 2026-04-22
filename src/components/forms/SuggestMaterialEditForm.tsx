@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { toast } from "sonner";
 import * as api from "../../utils/api";
-import { Material } from "../../types/material";
+import { Material, MATERIAL_CATEGORIES } from "../../types/material";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
@@ -14,17 +15,6 @@ import {
   SelectValue,
 } from "../ui/select";
 import { logger } from "../../utils/logger";
-
-const CATEGORIES = [
-  "Packaging",
-  "Textiles",
-  "Electronics",
-  "Construction",
-  "Food & Organic",
-  "Plastics",
-  "Metals",
-  "Other",
-];
 
 interface SuggestMaterialEditFormProps {
   material: Material;
@@ -40,6 +30,10 @@ export function SuggestMaterialEditForm({
   const [name, setName] = useState(material.name);
   const [category, setCategory] = useState<string>(material.category);
   const [description, setDescription] = useState(material.description || "");
+  const [aliases, setAliases] = useState(material.aliases?.join(", ") || "");
+  const [isHub, setIsHub] = useState(
+    material.isHub || material.category === "Elements" || false,
+  );
   const [changeReason, setChangeReason] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -51,13 +45,24 @@ export function SuggestMaterialEditForm({
     setName(material.name);
     setCategory(material.category);
     setDescription(material.description || "");
+    setAliases(material.aliases?.join(", ") || "");
+    setIsHub(material.isHub || material.category === "Elements" || false);
   }, [material]);
 
+  const parsedAliases = aliases
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .filter((v, i, arr) => arr.indexOf(v) === i);
+
   const hasChanges = () => {
+    const originalAliases = material.aliases?.join(", ") || "";
     return (
       name.trim() !== material.name ||
       category !== material.category ||
-      description.trim() !== (material.description || "")
+      description.trim() !== (material.description || "") ||
+      aliases.trim() !== originalAliases ||
+      isHub !== (material.isHub || material.category === "Elements" || false)
     );
   };
 
@@ -84,6 +89,8 @@ export function SuggestMaterialEditForm({
           name: name.trim(),
           category,
           description: description.trim() || undefined,
+          aliases: parsedAliases.length > 0 ? parsedAliases : undefined,
+          isHub: isHub || undefined,
           change_reason: changeReason.trim(),
         },
         original_content_id: material.id,
@@ -102,7 +109,7 @@ export function SuggestMaterialEditForm({
     }
   };
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 bg-black/30 dark:bg-black/60 flex items-center justify-center p-4 z-50">
       <div className="bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 w-full max-w-md shadow-[4px_4px_0px_0px_#000000] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-4 border-b border-[#211f1c] dark:border-white/20 sticky top-0 bg-white dark:bg-[#2a2825] z-10">
@@ -148,13 +155,48 @@ export function SuggestMaterialEditForm({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {CATEGORIES.map((cat) => (
+                {MATERIAL_CATEGORIES.map((cat) => (
                   <SelectItem key={cat} value={cat} className="">
                     {cat}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          <div>
+            <Label htmlFor="edit-aliases" className="text-[12px] normal">
+              Aliases{" "}
+              <span className="text-black/50 dark:text-white/50">
+                (comma-separated)
+              </span>
+            </Label>
+            <Input
+              id="edit-aliases"
+              value={aliases}
+              onChange={(e) => setAliases(e.target.value)}
+              placeholder="e.g. PET, Polyethylene terephthalate"
+              className="mt-1"
+            />
+          </div>
+
+          <div className="flex items-center gap-3">
+            <input
+              id="edit-isHub"
+              type="checkbox"
+              checked={isHub}
+              onChange={(e) => setIsHub(e.target.checked)}
+              className="w-4 h-4 accent-waste-recycle"
+            />
+            <Label
+              htmlFor="edit-isHub"
+              className="text-[12px] normal cursor-pointer"
+            >
+              Hub page{" "}
+              <span className="text-black/50 dark:text-white/50">
+                (links to related materials)
+              </span>
+            </Label>
           </div>
 
           <div>
@@ -207,6 +249,7 @@ export function SuggestMaterialEditForm({
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

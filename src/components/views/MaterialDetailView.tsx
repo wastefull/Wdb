@@ -16,7 +16,9 @@ import { ArticleForm } from "../forms";
 
 interface MaterialDetailViewProps {
   material: Material;
+  allMaterials: Material[];
   onBack: () => void;
+  onViewMaterial: (materialId: string) => void;
   onViewCategoryMaterials: (category: Material["category"]) => void;
   onViewArticles: (category: CategoryType) => void;
   onUpdateMaterial: (material: Material) => void;
@@ -26,7 +28,9 @@ interface MaterialDetailViewProps {
 
 export function MaterialDetailView({
   material,
+  allMaterials,
   onBack,
+  onViewMaterial,
   onViewCategoryMaterials,
   onViewArticles,
   onUpdateMaterial,
@@ -34,6 +38,7 @@ export function MaterialDetailView({
   isAdminModeActive,
 }: MaterialDetailViewProps) {
   const isElementHub = material.category === "Elements";
+  const isHub = material.isHub || isElementHub;
 
   const categoryLabels = {
     compostability: "Compostability",
@@ -72,6 +77,38 @@ export function MaterialDetailView({
   } | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  const combinedAliases = useMemo(() => {
+    const merged = [
+      ...(material.aliases || []),
+      ...(material.wiki?.aliases || []),
+    ]
+      .map((alias) => alias.trim())
+      .filter((alias) => alias.length > 0);
+
+    const deduped: string[] = [];
+    const seen = new Set<string>();
+    for (const alias of merged) {
+      const key = alias.toLowerCase();
+      if (!seen.has(key)) {
+        seen.add(key);
+        deduped.push(alias);
+      }
+    }
+    return deduped;
+  }, [material.aliases, material.wiki?.aliases]);
+
+  const linkedMaterials = useMemo(() => {
+    const linkedIds = material.linkedMaterialIds || [];
+    if (linkedIds.length === 0) return [];
+
+    const byId = new Map(
+      allMaterials.map((candidate) => [candidate.id, candidate]),
+    );
+    return linkedIds
+      .map((id) => byId.get(id))
+      .filter((candidate): candidate is Material => !!candidate);
+  }, [allMaterials, material.linkedMaterialIds]);
 
   const materialPermalink = `${window.location.origin}${buildMaterialPermalinkPath(
     material,
@@ -138,10 +175,11 @@ export function MaterialDetailView({
           <ArrowLeft size={16} className="text-black" />
         </button>
         <div className="flex-1">
-          <h2 className="text-[20px] normal">
-            {material.name}
-            {isElementHub ? " Element Hub" : ""}
-          </h2>
+          {combinedAliases.length > 0 && (
+            <p className="text-[12px] text-black/60 dark:text-white/60 mt-1">
+              also called: {combinedAliases.join(", ")}
+            </p>
+          )}
           <div className="flex flex-wrap items-center gap-2 mt-1">
             <button
               type="button"
@@ -151,6 +189,20 @@ export function MaterialDetailView({
             >
               {material.category}
             </button>
+            {isHub ? (
+              <button
+                type="button"
+                onClick={() => onViewCategoryMaterials(material.category)}
+                className="tag-green cursor-pointer"
+                aria-label="Hub material"
+              >
+                Parent material
+              </button>
+            ) : (
+              ""
+            )}
+            <h2 className="text-[32px] normal">{material.name}</h2>
+
             <p className="text-[12px] text-black/60 dark:text-white/60">
               {totalArticles} article{totalArticles !== 1 ? "s" : ""}
             </p>
@@ -186,6 +238,26 @@ export function MaterialDetailView({
               Open periodic table
               <ExternalLink size={14} />
             </a>
+          </div>
+        </div>
+      )}
+
+      {isHub && linkedMaterials.length > 0 && (
+        <div className="bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 p-4 mb-6">
+          <p className="text-[13px] uppercase tracking-[0.08em] text-black/60 dark:text-white/60 mb-2">
+            Linked Materials
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {linkedMaterials.map((linkedMaterial) => (
+              <button
+                key={linkedMaterial.id}
+                type="button"
+                onClick={() => onViewMaterial(linkedMaterial.id)}
+                className="px-2 py-1 rounded-md border border-[#211f1c] dark:border-white/20 text-[11px] text-black/80 dark:text-white/80 bg-white dark:bg-[#2a2825] hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+              >
+                {linkedMaterial.name}
+              </button>
+            ))}
           </div>
         </div>
       )}

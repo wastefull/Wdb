@@ -318,9 +318,28 @@ export function SubmitMaterialForm({
   const { userRole } = useAuthContext();
   const isAdmin = userRole === "admin";
   const [name, setName] = useState(initialName || "");
+  const [aliases, setAliases] = useState("");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
+  const [isHub, setIsHub] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  const parsedAliases = useMemo(
+    () =>
+      aliases
+        .split(",")
+        .map((entry) => entry.trim())
+        .filter(
+          (entry, idx, arr) => entry.length > 0 && arr.indexOf(entry) === idx,
+        ),
+    [aliases],
+  );
+
+  useEffect(() => {
+    if (category === "Elements") {
+      setIsHub(true);
+    }
+  }, [category]);
 
   // ── Wikidata enrichment state ──────────────────────────────────────────────
   const [wikiSearching, setWikiSearching] = useState(false);
@@ -506,8 +525,11 @@ export function SubmitMaterialForm({
         await api.saveMaterial({
           id: crypto.randomUUID(),
           name: name.trim(),
+          aliases: parsedAliases.length > 0 ? parsedAliases : undefined,
           category: category as any,
           description: description.trim() || undefined,
+          isHub,
+          linkedMaterialIds: [],
           recyclability: 0,
           compostability: 0,
           reusability: 0,
@@ -519,8 +541,11 @@ export function SubmitMaterialForm({
           type: "new_material",
           content_data: {
             name: name.trim(),
+            aliases: parsedAliases.length > 0 ? parsedAliases : undefined,
             category,
             description: description.trim() || undefined,
+            isHub,
+            linkedMaterialIds: [],
             // Default values for new submissions
             recyclability: 0,
             compostability: 0,
@@ -573,6 +598,22 @@ export function SubmitMaterialForm({
                 If your material already exists, consider suggesting edits to
                 the existing page instead!
               </span>
+            </p>
+          </div>
+
+          <div>
+            <Label htmlFor="material-aliases" className="text-[12px] normal">
+              Aliases (optional)
+            </Label>
+            <Input
+              id="material-aliases"
+              value={aliases}
+              onChange={(e) => setAliases(e.target.value)}
+              placeholder="Comma-separated, e.g., Al, Aluminium"
+              className="mt-1"
+            />
+            <p className="mt-1 text-[10px] text-black/50 dark:text-white/50">
+              Alternate names that should also match this material page.
             </p>
           </div>
 
@@ -684,6 +725,22 @@ export function SubmitMaterialForm({
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="rounded-md border border-[#211f1c]/20 dark:border-white/20 px-3 py-2">
+            <label className="flex items-center gap-2 text-[12px] normal cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isHub}
+                onChange={(e) => setIsHub(e.target.checked)}
+                className="h-4 w-4"
+              />
+              Mark as hub page
+            </label>
+            <p className="mt-1 text-[10px] text-black/50 dark:text-white/50">
+              Hub pages can link to related materials (configured in admin data
+              table).
+            </p>
           </div>
 
           <div>

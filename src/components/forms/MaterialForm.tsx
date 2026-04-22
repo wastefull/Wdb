@@ -1,5 +1,9 @@
 import { useState } from "react";
-import { Material } from "../../types/material";
+import {
+  Material,
+  MATERIAL_CATEGORIES,
+  MaterialCategory,
+} from "../../types/material";
 import { UserSelector } from "./UserSelector";
 
 export interface MaterialFormProps {
@@ -21,21 +25,13 @@ export function MaterialForm({
 }: MaterialFormProps) {
   const [formData, setFormData] = useState({
     name: material?.name || "",
-    category:
-      material?.category ||
-      ("Plastics" as
-        | "Plastics"
-        | "Metals"
-        | "Glass"
-        | "Paper & Cardboard"
-        | "Fabrics & Textiles"
-        | "Electronics & Batteries"
-        | "Building Materials"
-        | "Organic/Natural Waste"),
+    category: (material?.category || "Plastics") as MaterialCategory,
     compostability: material?.compostability || 0,
     recyclability: material?.recyclability || 0,
     reusability: material?.reusability || 0,
     description: material?.description || "",
+    aliases: material?.aliases?.join(", ") || "",
+    isHub: material?.isHub || material?.category === "Elements" || false,
   });
 
   // Admin-only: user to attribute the material to
@@ -52,9 +48,28 @@ export function MaterialForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Preserve all existing scientific/wiki fields not shown in this form.
+    const existingFields: Partial<Omit<Material, "id">> = {};
+    if (material) {
+      const { id: _id, ...rest } = material;
+      Object.assign(existingFields, rest);
+    }
+    const parsedAliases = formData.aliases
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .filter((v, i, arr) => arr.indexOf(v) === i);
     onSave(
       {
-        ...formData,
+        ...existingFields,
+        name: formData.name,
+        category: formData.category,
+        description: formData.description,
+        compostability: formData.compostability || 0,
+        recyclability: formData.recyclability || 0,
+        reusability: formData.reusability || 0,
+        aliases: parsedAliases.length > 0 ? parsedAliases : undefined,
+        isHub: formData.isHub || undefined,
         articles: material?.articles || {
           compostability: [],
           recyclability: [],
@@ -89,21 +104,17 @@ export function MaterialForm({
             onChange={(e) =>
               setFormData({
                 ...formData,
-                category: e.target.value as typeof formData.category,
+                category: e.target.value as MaterialCategory,
+                isHub: e.target.value === "Elements" ? true : formData.isHub,
               })
             }
             className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-xl text-[14px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all"
           >
-            <option value="Plastics">Plastics</option>
-            <option value="Metals">Metals</option>
-            <option value="Glass">Glass</option>
-            <option value="Paper & Cardboard">Paper & Cardboard</option>
-            <option value="Fabrics & Textiles">Fabrics & Textiles</option>
-            <option value="Electronics & Batteries">
-              Electronics & Batteries
-            </option>
-            <option value="Building Materials">Building Materials</option>
-            <option value="Organic/Natural Waste">Organic/Natural Waste</option>
+            {MATERIAL_CATEGORIES.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -120,6 +131,41 @@ export function MaterialForm({
             rows={3}
             className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-xl text-[12px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all resize-none"
           />
+        </div>
+
+        <div>
+          <label className="text-[13px] text-black block mb-1">
+            Aliases <span className="text-black/50">(comma-separated)</span>
+          </label>
+          <input
+            type="text"
+            value={formData.aliases}
+            onChange={(e) =>
+              setFormData({ ...formData, aliases: e.target.value })
+            }
+            onKeyDownCapture={handleKeyDown}
+            placeholder="e.g. PET, Polyethylene terephthalate"
+            className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-xl text-[14px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all"
+          />
+        </div>
+
+        <div className="flex items-center gap-3">
+          <input
+            id="isHub"
+            type="checkbox"
+            checked={formData.isHub}
+            onChange={(e) =>
+              setFormData({ ...formData, isHub: e.target.checked })
+            }
+            className="w-4 h-4 accent-waste-recycle"
+          />
+          <label
+            htmlFor="isHub"
+            className="text-[13px] text-black cursor-pointer"
+          >
+            Hub page{" "}
+            <span className="text-black/50">(links to related materials)</span>
+          </label>
         </div>
 
         {/* Note about sustainability scores */}

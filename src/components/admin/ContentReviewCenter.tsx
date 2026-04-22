@@ -207,8 +207,11 @@ export function ContentReviewCenter({
         await api.saveMaterial({
           id: materialId,
           name: materialData.name,
+          aliases: materialData.aliases,
           category: materialData.category,
           description: materialData.description,
+          isHub: materialData.isHub,
+          linkedMaterialIds: materialData.linkedMaterialIds,
           compostability: materialData.compostability || 0,
           recyclability: materialData.recyclability || 0,
           reusability: materialData.reusability || 0,
@@ -230,8 +233,11 @@ export function ContentReviewCenter({
         await api.updateMaterial({
           id: submission.original_content_id,
           name: materialData.name,
+          aliases: materialData.aliases,
           category: materialData.category,
           description: materialData.description,
+          isHub: materialData.isHub,
+          linkedMaterialIds: materialData.linkedMaterialIds,
           compostability: materialData.compostability || 0,
           recyclability: materialData.recyclability || 0,
           reusability: materialData.reusability || 0,

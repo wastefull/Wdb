@@ -26,6 +26,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
+import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { SourceLibraryManager } from "../evidence/SourceLibraryManager";
 import { SourceDataComparison } from "../evidence/SourceDataComparison";
@@ -61,6 +62,7 @@ export function DataManagementView({
   const [activeTab, setActiveTab] = useState("materials");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editData, setEditData] = useState<Partial<Material>>({});
+  const [nameFilter, setNameFilter] = useState("");
   const [showImportOptions, setShowImportOptions] = useState(false);
   const [pasteData, setPasteData] = useState("");
   const isAdmin = userRole === "admin";
@@ -73,12 +75,29 @@ export function DataManagementView({
     [materials],
   );
 
+  const visibleMaterials = useMemo(() => {
+    const normalizedQuery = nameFilter.trim().toLowerCase();
+
+    return [...materials]
+      .sort((a, b) =>
+        a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
+      )
+      .filter((material) =>
+        normalizedQuery.length === 0
+          ? true
+          : material.name.toLowerCase().includes(normalizedQuery),
+      );
+  }, [materials, nameFilter]);
+
   const handleEdit = (material: Material) => {
     setEditingId(material.id);
     setEditData({
       name: material.name,
+      aliases: material.aliases,
       category: material.category,
       description: material.description,
+      isHub: material.isHub,
+      linkedMaterialIds: material.linkedMaterialIds,
       compostability: material.compostability,
       recyclability: material.recyclability,
       reusability: material.reusability,
@@ -388,8 +407,11 @@ export function DataManagementView({
           <div className="flex items-center gap-4 mb-4">
             <div className="flex-1">
               <p className="text-[12px] text-black/60 dark:text-white/60">
-                {materials.length} material{materials.length !== 1 ? "s" : ""}{" "}
-                total
+                {visibleMaterials.length} material
+                {visibleMaterials.length !== 1 ? "s" : ""} shown
+                {nameFilter.trim().length > 0
+                  ? ` (${materials.length} total)`
+                  : ""}
               </p>
             </div>
 
@@ -456,6 +478,15 @@ export function DataManagementView({
                 </AlertDialog>
               )}
             </div>
+          </div>
+
+          <div className="mb-4">
+            <Input
+              value={nameFilter}
+              onChange={(e) => setNameFilter(e.target.value)}
+              placeholder="Filter by material name..."
+              className="h-9 text-[12px] border-[#211f1c] dark:border-white/20 bg-white dark:bg-[#1a1917]"
+            />
           </div>
 
           {/* Backup Section */}
@@ -550,7 +581,7 @@ export function DataManagementView({
           )}
 
           <GlideStaticTable
-            materials={materials}
+            materials={visibleMaterials}
             editingId={editingId}
             editData={editData}
             setEditData={setEditData}

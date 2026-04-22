@@ -1176,7 +1176,9 @@ function AppContent() {
                   currentView.type === "material-detail" ? (
                   <MaterialDetailView
                     material={currentMaterial}
+                    allMaterials={materials}
                     onBack={navigateToMaterials}
+                    onViewMaterial={handleViewMaterial}
                     onViewCategoryMaterials={handleViewCategoryMaterials}
                     onViewArticles={(category) =>
                       handleViewArticles(currentMaterial.id, category)

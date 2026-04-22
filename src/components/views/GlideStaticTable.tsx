@@ -62,11 +62,38 @@ export function GlideStaticTable({
 }: GlideStaticTableProps) {
   const [deleteTarget, setDeleteTarget] = useState<Material | null>(null);
 
+  const parseCommaSeparated = (value: string): string[] =>
+    value
+      .split(",")
+      .map((entry) => entry.trim())
+      .filter(
+        (entry, idx, arr) => entry.length > 0 && arr.indexOf(entry) === idx,
+      );
+
+  const materialByNameLower = useMemo(() => {
+    const lookup = new Map<string, Material>();
+    for (const material of materials) {
+      lookup.set(material.name.toLowerCase(), material);
+    }
+    return lookup;
+  }, [materials]);
+
+  const materialNameById = useMemo(() => {
+    const lookup = new Map<string, string>();
+    for (const material of materials) {
+      lookup.set(material.id, material.name);
+    }
+    return lookup;
+  }, [materials]);
+
   const columns: GridColumn[] = useMemo(() => {
     const base: GridColumn[] = [
       { id: "name", title: "Name", width: 260 },
+      { id: "aliases", title: "Aliases", width: 260 },
       { id: "category", title: "Category", width: 180 },
       { id: "description", title: "Description", width: 420 },
+      { id: "isHub", title: "Hub", width: 90 },
+      { id: "linkedMaterials", title: "Linked Materials", width: 320 },
     ];
 
     if (!isAdmin) return base;
@@ -81,44 +108,84 @@ export function GlideStaticTable({
   const getCellContent = ([col, row]: Item): GridCell => {
     const material = materials[row];
     if (!material) return buildTextCell("");
+    const columnId = String(columns[col]?.id || "");
 
     const isEditing = editingId === material.id;
 
     const nameValue = isEditing
       ? (editData.name ?? material.name)
       : material.name;
+    const aliasesValue = isEditing
+      ? Array.isArray(editData.aliases)
+        ? editData.aliases.join(", ")
+        : typeof editData.aliases === "string"
+          ? editData.aliases
+          : (material.aliases || []).join(", ")
+      : (material.aliases || []).join(", ");
     const categoryValue = isEditing
       ? (editData.category ?? material.category)
       : material.category;
     const descriptionValue = isEditing
       ? (editData.description ?? material.description ?? "-")
       : material.description || "-";
+    const isHubValue = isEditing
+      ? (editData.isHub ?? material.isHub ?? material.category === "Elements")
+      : (material.isHub ?? material.category === "Elements");
+    const linkedMaterialsValue = isEditing
+      ? Array.isArray(editData.linkedMaterialIds)
+        ? editData.linkedMaterialIds
+            .map((id) => materialNameById.get(id) || id)
+            .join(", ")
+        : (material.linkedMaterialIds || [])
+            .map((id) => materialNameById.get(id) || id)
+            .join(", ")
+      : (material.linkedMaterialIds || [])
+          .map((id) => materialNameById.get(id) || id)
+          .join(", ");
 
-    if (col === 0) {
+    if (columnId === "name") {
       return buildTextCell(nameValue, {
         readonly: !(isAdmin && isEditing),
       });
     }
 
-    if (col === 1) {
+    if (columnId === "aliases") {
+      return buildTextCell(aliasesValue, {
+        readonly: !(isAdmin && isEditing),
+      });
+    }
+
+    if (columnId === "category") {
       return buildTextCell(categoryValue, {
         readonly: !(isAdmin && isEditing),
       });
     }
 
-    if (col === 2) {
+    if (columnId === "description") {
       return buildTextCell(descriptionValue, {
         readonly: !(isAdmin && isEditing),
       });
     }
 
-    if (isAdmin && col === 3) {
+    if (columnId === "isHub") {
+      return buildTextCell(isHubValue ? "Yes" : "No", {
+        readonly: !(isAdmin && isEditing),
+      });
+    }
+
+    if (columnId === "linkedMaterials") {
+      return buildTextCell(linkedMaterialsValue, {
+        readonly: !(isAdmin && isEditing),
+      });
+    }
+
+    if (isAdmin && columnId === "editSave") {
       return buildTextCell(isEditing ? "Save" : "Edit", {
         style: "faded",
       });
     }
 
-    if (isAdmin && col === 4) {
+    if (isAdmin && columnId === "deleteCancel") {
       return buildTextCell(isEditing ? "Cancel" : "Delete", {
         style: "faded",
       });
@@ -132,15 +199,24 @@ export function GlideStaticTable({
     const material = materials[row];
     if (!material || editingId !== material.id) return;
     if (newValue.kind !== GridCellKind.Text) return;
+    const columnId = String(columns[col]?.id || "");
 
     const value = newValue.data.trim();
 
-    if (col === 0) {
+    if (columnId === "name") {
       setEditData((prev) => ({ ...prev, name: value }));
       return;
     }
 
-    if (col === 1) {
+    if (columnId === "aliases") {
+      setEditData((prev) => ({
+        ...prev,
+        aliases: parseCommaSeparated(value),
+      }));
+      return;
+    }
+
+    if (columnId === "category") {
       const normalizedCategory =
         categoryOptions.find((option) => option === value) || value;
       setEditData((prev) => ({
@@ -150,25 +226,52 @@ export function GlideStaticTable({
       return;
     }
 
-    if (col === 2) {
+    if (columnId === "description") {
       setEditData((prev) => ({ ...prev, description: value }));
+      return;
+    }
+
+    if (columnId === "isHub") {
+      const normalized = value.toLowerCase();
+      const yesValues = ["yes", "true", "1", "hub", "y"];
+      const noValues = ["no", "false", "0", "none", "n"];
+
+      if (yesValues.includes(normalized)) {
+        setEditData((prev) => ({ ...prev, isHub: true }));
+        return;
+      }
+
+      if (noValues.includes(normalized)) {
+        setEditData((prev) => ({ ...prev, isHub: false }));
+      }
+      return;
+    }
+
+    if (columnId === "linkedMaterials") {
+      const linkedIds = parseCommaSeparated(value)
+        .map((entry) => materialByNameLower.get(entry.toLowerCase())?.id || "")
+        .filter((id, idx, arr) => id.length > 0 && arr.indexOf(id) === idx)
+        .filter((id) => id !== material.id);
+
+      setEditData((prev) => ({ ...prev, linkedMaterialIds: linkedIds }));
     }
   };
 
   const handleCellClicked = ([col, row]: Item) => {
     const material = materials[row];
     if (!material) return;
+    const columnId = String(columns[col]?.id || "");
 
     const isEditing = editingId === material.id;
 
-    if (col === 0 && !isEditing) {
+    if (columnId === "name" && !isEditing) {
       onViewMaterial(material.id);
       return;
     }
 
     if (!isAdmin) return;
 
-    if (col === 3) {
+    if (columnId === "editSave") {
       if (isEditing) {
         onSave();
       } else {
@@ -177,7 +280,7 @@ export function GlideStaticTable({
       return;
     }
 
-    if (col === 4) {
+    if (columnId === "deleteCancel") {
       if (isEditing) {
         onCancel();
       } else {
