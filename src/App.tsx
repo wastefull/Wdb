@@ -14,7 +14,6 @@ import { logger, setTestMode, getTestMode, loggerInfo } from "./utils/logger";
 import {
   NavigationProvider,
   getAdminHomeViewByRole,
-  isAdminViewType,
   useNavigationContext,
 } from "./contexts/NavigationContext";
 import { AuthProvider, useAuthContext } from "./contexts/AuthContext";
@@ -786,7 +785,8 @@ function AppContent() {
     userRole === "admin" &&
     settings.adminMode
   );
-  const showLeaderboardPanel = !isAdminViewType(currentView.type);
+  const showLeaderboardPanel =
+    currentView.type === "materials" || currentView.type === "user-profile";
   const navigateToAdminHome = () => {
     navigateTo(getAdminHomeViewByRole(userRole));
   };
