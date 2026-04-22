@@ -8,6 +8,7 @@ export default defineConfig({
   resolve: {
     extensions: [".js", ".jsx", ".ts", ".tsx", ".json"],
     alias: {
+      marked: path.resolve(__dirname, "src/shims/marked.ts"),
       "vaul@1.1.2": "vaul",
       "sonner@2.0.3": "sonner",
       "recharts@2.15.2": "recharts",
