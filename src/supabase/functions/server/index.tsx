@@ -2210,6 +2210,7 @@ app.get("/make-server-17cae920/users", verifyAuth, verifyAdmin, async (c) => {
     const usersWithRoles = await Promise.all(
       data.users.map(async (user) => {
         let role = await kv.get(`user_role:${user.id}`);
+        const profile = await kv.get(`user_profile:${user.id}`);
 
         // Initialize role if not set
         if (!role) {
@@ -2226,10 +2227,15 @@ app.get("/make-server-17cae920/users", verifyAuth, verifyAdmin, async (c) => {
           ? new Date(kvLastSignIn).toISOString()
           : user.last_sign_in_at;
 
+        const displayName =
+          profile?.name ||
+          user.user_metadata?.name ||
+          user.email?.split("@")[0];
+
         return {
           id: user.id,
           email: user.email,
-          name: user.user_metadata?.name || user.email?.split("@")[0],
+          name: displayName,
           role: role,
           created_at: user.created_at,
           last_sign_in_at: lastSignInAt,
@@ -2388,6 +2394,37 @@ app.put(
       if (error) {
         log.error("Error updating user:", error);
         return c.json({ error: error.message || "Failed to update user" }, 500);
+      }
+
+      // Keep KV profile aligned with admin edits so profile/leaderboard show the same identity.
+      if (name !== undefined || email !== undefined) {
+        const existingProfile =
+          (await kv.get(`user_profile:${userId}`)) ||
+          ({} as Record<string, any>);
+        const now = new Date().toISOString();
+        const nextEmail =
+          email || data.user.email || existingProfile.email || "";
+        const nextName =
+          name ||
+          existingProfile.name ||
+          data.user.user_metadata?.name ||
+          (nextEmail ? nextEmail.split("@")[0] : "User");
+
+        const syncedProfile = {
+          user_id: userId,
+          email: nextEmail,
+          name: nextName,
+          bio: existingProfile.bio || "",
+          social_link: existingProfile.social_link || "",
+          avatar_url: existingProfile.avatar_url || "",
+          display_email: existingProfile.display_email || "",
+          show_on_leaderboard: existingProfile.show_on_leaderboard ?? true,
+          org_role: existingProfile.org_role || "Volunteer",
+          created_at: existingProfile.created_at || now,
+          updated_at: now,
+        };
+
+        await kv.set(`user_profile:${userId}`, syncedProfile);
       }
 
       return c.json({
@@ -5466,6 +5503,18 @@ app.get("/make-server-17cae920/leaderboard", async (c) => {
       }
     > = new Map();
 
+    const { data: authUsersData, error: authUsersError } =
+      await supabase.auth.admin.listUsers();
+    if (authUsersError) {
+      log.error(
+        "Error listing users for leaderboard canonicalization:",
+        authUsersError,
+      );
+    }
+    const authUserById = new Map(
+      (authUsersData?.users || []).map((user) => [user.id, user]),
+    );
+
     const allMaterials = (await kv.getByPrefix("material:")) || [];
 
     // Count guides from Postgres
@@ -5555,9 +5604,47 @@ app.get("/make-server-17cae920/leaderboard", async (c) => {
       }
     }
 
+    // Merge contributions across linked auth identities (email aliases -> canonical user).
+    const canonicalContributionsByUser: Map<
+      string,
+      {
+        userId: string;
+        materials: number;
+        articles: number;
+        guides: number;
+        mius: number;
+      }
+    > = new Map();
+
+    for (const [sourceUserId, stats] of contributionsByUser) {
+      const authUser = authUserById.get(sourceUserId);
+      const canonicalUserId = authUser?.email
+        ? await resolveCanonicalUserIdFromAlias(
+            supabase,
+            authUser.email,
+            sourceUserId,
+          )
+        : sourceUserId;
+
+      const existing = canonicalContributionsByUser.get(canonicalUserId) || {
+        userId: canonicalUserId,
+        materials: 0,
+        articles: 0,
+        guides: 0,
+        mius: 0,
+      };
+
+      existing.materials += stats.materials;
+      existing.articles += stats.articles;
+      existing.guides += stats.guides;
+      existing.mius += stats.mius;
+
+      canonicalContributionsByUser.set(canonicalUserId, existing);
+    }
+
     // Build leaderboard with user profile info
     const leaders = [];
-    for (const [userId, stats] of contributionsByUser) {
+    for (const [userId, stats] of canonicalContributionsByUser) {
       const total =
         stats.materials + stats.articles + stats.guides + stats.mius;
       if (total > 0) {
