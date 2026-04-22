@@ -12,6 +12,7 @@
 
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import * as pdfjsLib from "pdfjs-dist";
+import pdfjsWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 // Note: We build the text layer manually instead of using TextLayer class
 // because the TextLayer uses transforms that make selection difficult
 import {
@@ -33,9 +34,8 @@ import { Input } from "../ui/input";
 import { Badge } from "../ui/badge";
 import { toast } from "sonner";
 import { logger } from "../../utils/logger";
-// Configure PDF.js worker - use installed package version to avoid API/worker mismatch
-const PDFJS_VERSION = pdfjsLib.version;
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_VERSION}/pdf.worker.min.mjs`;
+// Configure PDF.js worker from the installed package (avoids CDN version mismatch)
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorkerUrl;
 
 // Debug logging
 // Reduce debug logging now that basic functionality works
@@ -113,9 +113,6 @@ export function PDFViewer({
       try {
         const loadingTask = pdfjsLib.getDocument({
           url: pdfUrl,
-          // Enable text layer
-          cMapUrl: `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_VERSION}/cmaps/`,
-          cMapPacked: true,
         });
 
         const pdf = await loadingTask.promise;
@@ -128,18 +125,27 @@ export function PDFViewer({
         setLoading(false);
 
         // Extract text from all pages for keyword scanning
+        // Isolated in its own try-catch: a getTextContent failure should not
+        // prevent the PDF from rendering (pdfjs v5 uses ReadableStream.from
+        // internally which may not be available in all environments).
         if (onTextExtracted) {
-          const pages: PageTextContent[] = [];
-          for (let i = 1; i <= pdf.numPages; i++) {
-            const page = await pdf.getPage(i);
-            const textContent = await page.getTextContent();
-            const text = textContent.items
-              .filter((item): boolean => "str" in item)
-              .map((item) => (item as { str: string }).str)
-              .join(" ");
-            pages.push({ pageNumber: i, text });
+          try {
+            const pages: PageTextContent[] = [];
+            for (let i = 1; i <= pdf.numPages; i++) {
+              if (isCancelled) break;
+              const page = await pdf.getPage(i);
+              const textContent = await page.getTextContent();
+              const text = textContent.items
+                .filter((item): boolean => "str" in item)
+                .map((item) => (item as { str: string }).str)
+                .join(" ");
+              pages.push({ pageNumber: i, text });
+            }
+            if (!isCancelled) onTextExtracted(pages);
+          } catch (extractErr) {
+            logger.error("Error extracting text content:", extractErr);
+            // PDF still loaded successfully — continue without text extraction
           }
-          onTextExtracted(pages);
         }
       } catch (err: any) {
         if (isCancelled) return;
@@ -189,8 +195,9 @@ export function PDFViewer({
 
         if (isCancelled) return;
 
-        const canvas = canvasRef.current!;
-        const context = canvas.getContext("2d")!;
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const context = canvas.getContext("2d");
 
         // Calculate viewport
         const viewport = page.getViewport({ scale });
@@ -200,11 +207,11 @@ export function PDFViewer({
         canvas.width = viewport.width;
 
         // Clear the canvas before rendering
-        context.clearRect(0, 0, canvas.width, canvas.height);
+        context?.clearRect(0, 0, canvas.width, canvas.height);
 
         // Render PDF page
         const renderContext = {
-          canvasContext: context,
+          canvas: canvas,
           viewport: viewport,
         };
 
@@ -219,10 +226,17 @@ export function PDFViewer({
         // Re-check ref after async operation since component could have unmounted
         const textLayer = textLayerRef.current;
         if (textLayer) {
-          const textContent = await page.getTextContent();
-          log("Text content items:", textContent.items.length);
+          let textContent;
+          try {
+            textContent = await page.getTextContent();
+          } catch (textErr) {
+            logger.error("Error rendering text layer:", textErr);
+            textContent = null;
+          }
 
-          if (isCancelled) return;
+          if (!textContent || isCancelled) return;
+
+          log("Text content items:", textContent.items.length);
 
           // Clear previous text layer
           textLayer.innerHTML = "";
