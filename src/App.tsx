@@ -131,6 +131,7 @@ function AppContent() {
   const { settings, toggleAdminMode } = useAccessibility();
   const {
     currentView,
+    goBack,
     navigateTo,
     navigateToMaterials,
     navigateToSearchResults,
@@ -595,11 +596,15 @@ function AppContent() {
     };
   }, [searchQuery]);
 
-  const filteredMaterials = materials.filter(
-    (m) =>
-      m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      m.description?.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
+  const filteredMaterials = materials.filter((m) => {
+    const q = searchQuery.toLowerCase();
+    return (
+      m.name.toLowerCase().includes(q) ||
+      m.description?.toLowerCase().includes(q) ||
+      m.aliases?.some((a) => a.toLowerCase().includes(q)) ||
+      m.wiki?.aliases?.some((a) => a.toLowerCase().includes(q))
+    );
+  });
 
   const materialSearchSuggestions = useMemo<SearchSuggestion[]>(() => {
     const rawQuery = searchQuery.trim();
@@ -646,6 +651,25 @@ function AppContent() {
         }
 
         if (score < 0) {
+          // No name/category/description match — check aliases
+          const allAliases = [
+            ...(material.aliases ?? []),
+            ...(material.wiki?.aliases ?? []),
+          ];
+          const matchingAlias = allAliases.find((a) =>
+            a.toLowerCase().includes(normalizedQuery),
+          );
+          if (matchingAlias) {
+            return {
+              value: `${matchingAlias} (alias for ${name})`,
+              subtitle: category,
+              score: 60,
+              onSelect: () => {
+                setSearchQuery(name);
+                navigateToSearchResults(name);
+              },
+            };
+          }
           return null;
         }
 
@@ -672,6 +696,7 @@ function AppContent() {
         deduped.set(dedupeKey, {
           value: entry.value,
           subtitle: entry.subtitle,
+          onSelect: entry.onSelect,
         });
       }
       if (deduped.size >= maxBaseSuggestions) {
@@ -681,10 +706,16 @@ function AppContent() {
 
     const suggestions = Array.from(deduped.values());
 
+    // Separate alias suggestions (have onSelect) from name suggestions so they
+    // can be inserted just above the "Create" entry at the bottom.
+    const nameSuggestions = suggestions.filter((s) => !s.onSelect);
+    const aliasSuggestions = suggestions.filter((s) => s.onSelect);
+
     const hasTypingPaused = normalizedDebouncedQuery === normalizedQuery;
 
     if (!hasExactNameMatch && rawQuery && hasTypingPaused) {
-      suggestions.unshift({
+      nameSuggestions.push(...aliasSuggestions);
+      nameSuggestions.push({
         value: `Create "${rawQuery}"`,
         subtitle: user
           ? adminModeInEffect
@@ -708,9 +739,11 @@ function AppContent() {
           setShowSubmitMaterialForm(true);
         },
       });
+    } else {
+      nameSuggestions.push(...aliasSuggestions);
     }
 
-    return suggestions;
+    return nameSuggestions;
   }, [
     debouncedSearchQuery,
     materials,
@@ -1124,7 +1157,7 @@ function AppContent() {
                     setSearchQuery={setSearchQuery}
                     onBack={() => {
                       setSearchQuery("");
-                      navigateToMaterials();
+                      goBack();
                     }}
                     onEditMaterial={(material) => {
                       setEditingMaterial(material);
@@ -1145,7 +1178,7 @@ function AppContent() {
                   <ArticlesView
                     material={currentMaterial}
                     category={currentView.category}
-                    onBack={navigateToMaterials}
+                    onBack={goBack}
                     onUpdateMaterial={handleUpdateMaterial}
                     onViewArticleStandalone={(articleId) =>
                       handleViewArticleStandalone(
@@ -1163,7 +1196,7 @@ function AppContent() {
                   <AllArticlesView
                     category={currentView.category}
                     materials={materials}
-                    onBack={navigateToMaterials}
+                    onBack={goBack}
                     onViewArticleStandalone={(articleId, materialId) =>
                       handleViewArticleStandalone(
                         materialId,
@@ -1177,7 +1210,7 @@ function AppContent() {
                   <MaterialDetailView
                     material={currentMaterial}
                     allMaterials={materials}
-                    onBack={navigateToMaterials}
+                    onBack={goBack}
                     onViewMaterial={handleViewMaterial}
                     onViewCategoryMaterials={handleViewCategoryMaterials}
                     onViewArticles={(category) =>
@@ -1217,7 +1250,7 @@ function AppContent() {
                             : "#b8c8cb",
                     }}
                     materialName={currentMaterial.name}
-                    onBack={() => navigateToMaterialDetail(currentMaterial.id)}
+                    onBack={goBack}
                     onEdit={() => {
                       // Navigate back to material detail with edit form open
                       navigateToMaterialDetail(currentMaterial.id);
@@ -1239,13 +1272,13 @@ function AppContent() {
                   />
                 ) : currentView.type === "methodology-list" ? (
                   <MethodologyListView
-                    onBack={navigateToScienceHub}
+                    onBack={goBack}
                     onSelectWhitepaper={navigateToWhitepaper}
                   />
                 ) : currentView.type === "whitepaper" ? (
                   <WhitepaperView
                     whitepaperSlug={currentView.whitepaperSlug}
-                    onBack={navigateToMethodologyList}
+                    onBack={goBack}
                   />
                 ) : currentView.type === "admin-dashboard" ? (
                   <AdminDashboard
@@ -1328,13 +1361,13 @@ function AppContent() {
                   />
                 ) : currentView.type === "export" ? (
                   <PublicExportView
-                    onBack={navigateToScienceHub}
+                    onBack={goBack}
                     materialsCount={materials.length}
                   />
                 ) : currentView.type === "user-profile" ? (
                   <UserProfileView
                     userId={currentView.userId}
-                    onBack={navigateToMaterials}
+                    onBack={goBack}
                     isOwnProfile={currentView.userId === user?.id}
                     onNavigateToMySubmissions={
                       currentView.userId === user?.id
@@ -1356,7 +1389,7 @@ function AppContent() {
                     }
                   />
                 ) : currentView.type === "my-submissions" ? (
-                  <MySubmissionsView onBack={navigateToMaterials} />
+                  <MySubmissionsView onBack={goBack} />
                 ) : currentView.type === "review-center" ? (
                   <ContentReviewCenter
                     onBack={navigateToAdminHome}
@@ -1388,17 +1421,17 @@ function AppContent() {
                     materials={materials}
                   />
                 ) : currentView.type === "licenses" ? (
-                  <LicensesView onBack={navigateToLegalHub} />
+                  <LicensesView onBack={goBack} />
                 ) : currentView.type === "science-hub" ? (
                   <ScienceHubView
-                    onBack={navigateToMaterials}
+                    onBack={goBack}
                     onNavigateToWhitePapers={navigateToMethodologyList}
                     onNavigateToOpenAccess={navigateToExport}
                     onNavigateToAPI={navigateToApiDocs}
                   />
                 ) : currentView.type === "legal-hub" ? (
                   <LegalHubView
-                    onBack={navigateToMaterials}
+                    onBack={goBack}
                     onNavigateToTakedownForm={navigateToTakedownForm}
                     onNavigateToLicenses={navigateToLicenses}
                     onNavigateToPrivacyPolicy={navigateToPrivacyPolicy}
@@ -1445,20 +1478,20 @@ function AppContent() {
                     staffMode={userRole === "staff"}
                   />
                 ) : currentView.type === "guides" ? (
-                  <GuidesView onBack={navigateToMaterials} />
+                  <GuidesView onBack={goBack} />
                 ) : currentView.type === "guide-detail" ? (
                   <GuideDetailView
                     guideId={currentView.guideId}
-                    onBack={() => navigateTo({ type: "guides" })}
+                    onBack={goBack}
                   />
                 ) : currentView.type === "blog" ? (
-                  <BlogView onBack={navigateToMaterials} />
+                  <BlogView onBack={goBack} />
                 ) : currentView.type === "editor-test" ? (
                   <EditorTestView />
                 ) : currentView.type === "about" ? (
-                  <AboutView onBack={navigateToMaterials} />
+                  <AboutView onBack={goBack} />
                 ) : currentView.type === "donate" ? (
-                  <DonateView onBack={navigateToMaterials} />
+                  <DonateView onBack={goBack} />
                 ) : null}
 
                 {/* Footer - inside rounded container */}

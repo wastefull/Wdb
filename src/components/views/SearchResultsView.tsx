@@ -7,21 +7,32 @@ import {
   ChevronUp,
   ChevronRight,
 } from "lucide-react";
-import { Material } from "../../types/material";
+import { Material, MATERIAL_CATEGORIES } from "../../types/material";
 import { CategoryType } from "../../types/article";
 import { MaterialCard } from "../cards";
 
-// Material categories
-const MATERIAL_CATEGORIES = [
-  "Plastics",
-  "Metals",
-  "Glass",
-  "Paper & Cardboard",
-  "Fabrics & Textiles",
-  "Electronics & Batteries",
-  "Building Materials",
-  "Organic/Natural Waste",
-] as const;
+// ── helpers ────────────────────────────────────────────────────────────────
+
+/** Return all curator + wiki aliases for a material, lower-cased. */
+function getAllAliases(m: Material): string[] {
+  const curator = m.aliases ?? [];
+  const wiki = m.wiki?.aliases ?? [];
+  return [...curator, ...wiki].map((a) => a.toLowerCase());
+}
+
+/**
+ * If `q` matches one of the material's aliases (but NOT the name itself),
+ * return the first matching alias in its original casing; otherwise null.
+ */
+function matchedAlias(m: Material, q: string): string | null {
+  if (!q) return null;
+  const lower = q.toLowerCase();
+  if (m.name.toLowerCase().includes(lower)) return null; // name already matches
+  const curatorAliases = m.aliases ?? [];
+  const wikiAliases = m.wiki?.aliases ?? [];
+  const all = [...curatorAliases, ...wikiAliases];
+  return all.find((a) => a.toLowerCase().includes(lower)) ?? null;
+}
 
 type MaterialCategory = (typeof MATERIAL_CATEGORIES)[number];
 
@@ -121,7 +132,8 @@ export function SearchResultsView({
       result = result.filter(
         (m) =>
           m.name.toLowerCase().includes(query.toLowerCase()) ||
-          m.description?.toLowerCase().includes(query.toLowerCase()),
+          m.description?.toLowerCase().includes(query.toLowerCase()) ||
+          getAllAliases(m).some((a) => a.includes(query.toLowerCase())),
       );
     }
 
