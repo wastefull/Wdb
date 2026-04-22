@@ -36,8 +36,8 @@ export function AnimatedWasteChart({
     settings.fontSize === "large"
       ? 1.15
       : settings.fontSize === "xlarge"
-      ? 1.3
-      : 1;
+        ? 1.3
+        : 1;
 
   useEffect(() => {
     // Only animate once when component first mounts
@@ -330,8 +330,10 @@ export function AnimatedWasteChart({
                   animationDuration={2000}
                   animationEasing="ease-in-out"
                   onClick={(data) => {
-                    if (!isMobile && data && data.categoryKey) {
-                      onCategoryClick(data.categoryKey);
+                    const item =
+                      data as unknown as (typeof adjustedChartData)[0];
+                    if (!isMobile && item && item.categoryKey) {
+                      onCategoryClick(item.categoryKey);
                     }
                   }}
                   style={{
@@ -348,9 +350,11 @@ export function AnimatedWasteChart({
                     filter: settings.darkMode
                       ? "url(#textStrokeDark)"
                       : "url(#textStrokeLight)",
-                    formatter: (value: number) => {
+                    formatter: (
+                      value: string | number | boolean | null | undefined,
+                    ) => {
                       const dataEntry = adjustedChartData.find(
-                        (d) => d.value === value
+                        (d) => d.value === value,
                       );
                       return dataEntry
                         ? `${value}% is ${dataEntry.shortName}`

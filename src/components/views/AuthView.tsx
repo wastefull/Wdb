@@ -6,7 +6,7 @@ import {
   EyeOff,
   Mail,
   ArrowLeft,
-  Chrome,
+  Link,
 } from "lucide-react";
 import * as api from "../../utils/api";
 import { toast } from "sonner";
@@ -235,7 +235,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
                   disabled={loading}
                   className="w-full h-10 retro-btn-primary arcade-bg-cyan arcade-btn-cyan text-[13px] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
                 >
-                  <Chrome size={16} />
+                  <Link size={16} />
                   {loading
                     ? "Redirecting to Google..."
                     : "Continue with Google (@wastefull.org)"}
