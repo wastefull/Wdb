@@ -55,7 +55,7 @@
             "react-hook-form": "^7.73.1",
             "react-is": "^19.2.5",
             "react-markdown": "*",
-            "react-resizable-panels": "^2.1.7",
+            "react-resizable-panels": "^4.10.0",
             "react-responsive-carousel": "^3.2.23",
             "recharts": "^3.8.1",
             "rehype-katex": "*",

@@ -46,5 +46,8 @@
     "esbenp.prettier-vscode",
     "bradlc.vscode-tailwindcss",
     "denoland.vscode-deno"
-  ]
+  ],
+  "chat.tools.terminal.autoApprove": {
+    "npx tsc": true
+  }
 }
