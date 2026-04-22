@@ -4,7 +4,13 @@
  * Manages all view states and navigation logic for the application.
  */
 
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useCallback,
+} from "react";
 import { navigationLogger } from "../utils/loggerFactories";
 import { CategoryType } from "../types/material";
 
@@ -121,6 +127,43 @@ export function getAdminHomeViewByRole(role: UserRole): ViewType {
     : { type: "admin-dashboard" };
 }
 
+const STATIC_VIEW_HASH_TO_TYPE: Partial<Record<string, ViewType["type"]>> = {
+  "admin-dashboard": "admin-dashboard",
+  "staff-dashboard": "staff-dashboard",
+  "data-management": "data-management",
+  "user-management": "user-management",
+  "whitepaper-sync": "whitepaper-sync",
+  "review-center": "review-center",
+  "source-library": "source-library",
+  "source-comparison": "source-comparison",
+};
+
+const STATIC_VIEW_TYPE_TO_HASH: Partial<Record<ViewType["type"], string>> =
+  Object.entries(STATIC_VIEW_HASH_TO_TYPE).reduce(
+    (acc, [hash, viewType]) => {
+      if (viewType) {
+        acc[viewType] = hash;
+      }
+      return acc;
+    },
+    {} as Partial<Record<ViewType["type"], string>>,
+  );
+
+function getInitialViewFromUrlHash(): ViewType {
+  if (typeof window === "undefined") {
+    return { type: "materials" };
+  }
+
+  const rawHash = window.location.hash.replace(/^#\/?/, "").trim();
+  const maybeViewType = STATIC_VIEW_HASH_TO_TYPE[rawHash];
+
+  if (maybeViewType) {
+    return { type: maybeViewType } as ViewType;
+  }
+
+  return { type: "materials" };
+}
+
 interface NavigationContextType {
   // State
   currentView: ViewType;
@@ -215,17 +258,27 @@ interface NavigationProviderProps {
 export const NavigationProvider: React.FC<NavigationProviderProps> = ({
   children,
 }) => {
-  const [currentView, setCurrentView] = useState<ViewType>({
-    type: "materials",
-  });
-  const [viewHistory, setViewHistory] = useState<ViewType[]>([
-    { type: "materials" },
-  ]);
+  const initialView = getInitialViewFromUrlHash();
+  const [currentView, setCurrentView] = useState<ViewType>(initialView);
+  const [viewHistory, setViewHistory] = useState<ViewType[]>([initialView]);
+
+  const syncHashWithView = useCallback((view: ViewType) => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const routeHash = STATIC_VIEW_TYPE_TO_HASH[view.type] || "";
+    const nextHash = routeHash ? `#${routeHash}` : "";
+    const nextUrl = `${window.location.pathname}${window.location.search}${nextHash}`;
+
+    window.history.replaceState({}, "", nextUrl);
+  }, []);
 
   const navigateTo = (view: ViewType) => {
     navigationLogger.info("Navigating to:", view.type);
     setCurrentView(view);
     setViewHistory((prev) => [...prev, view]);
+    syncHashWithView(view);
   };
 
   const navigateToAuth = () => {
@@ -445,6 +498,7 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
       navigationLogger.info("Going back to:", previousView.type);
       setCurrentView(previousView);
       setViewHistory(newHistory);
+      syncHashWithView(previousView);
     } else {
       navigationLogger.info("Already at root view, navigating to materials");
       navigateToMaterials();
