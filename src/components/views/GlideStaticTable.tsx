@@ -88,6 +88,7 @@ export function GlideStaticTable({
 
   const columns: GridColumn[] = useMemo(() => {
     const base: GridColumn[] = [
+      { id: "viewAction", title: "View", width: 92 },
       { id: "name", title: "Name", width: 180 },
       { id: "aliases", title: "Aliases", width: 130 },
       { id: "category", title: "Category", width: 160 },
@@ -143,6 +144,12 @@ export function GlideStaticTable({
           .map((id) => materialNameById.get(id) || id)
           .join(", ");
 
+    if (columnId === "viewAction") {
+      return buildTextCell("👁 View", {
+        style: "faded",
+      });
+    }
+
     if (columnId === "name") {
       return buildTextCell(nameValue, {
         readonly: !(isAdmin && isEditing),
@@ -180,13 +187,13 @@ export function GlideStaticTable({
     }
 
     if (isAdmin && columnId === "editSave") {
-      return buildTextCell(isEditing ? "Save" : "Edit", {
+      return buildTextCell(isEditing ? "💾 Save" : "✏ Edit", {
         style: "faded",
       });
     }
 
     if (isAdmin && columnId === "deleteCancel") {
-      return buildTextCell(isEditing ? "Cancel" : "Delete", {
+      return buildTextCell(isEditing ? "✖ Cancel" : "🗑 Delete", {
         style: "faded",
       });
     }
@@ -264,7 +271,7 @@ export function GlideStaticTable({
 
     const isEditing = editingId === material.id;
 
-    if (columnId === "name" && !isEditing) {
+    if (columnId === "viewAction") {
       onViewMaterial(material.id);
       return;
     }
