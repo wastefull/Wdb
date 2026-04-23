@@ -14,23 +14,45 @@
 import { logger } from "./logger";
 
 /**
+ * Set of scope names whose log output is currently suppressed.
+ * Edit this set in code to configure logging suppression for your dev session.
+ * @example suppressedScopes.add('Navigation')
+ */
+const suppressedScopes = new Set<string>(["Navigation", "Auth", "Sync", "API"]);
+
+/** Returns the list of currently suppressed scope names. */
+export function getSuppressedScopes(): string[] {
+  return Array.from(suppressedScopes);
+}
+
+/**
  * Creates a scoped logger with a prefix for all log messages
  * @param scope - The scope/domain name (e.g., 'Materials', 'Auth')
  * @returns Logger object with scoped methods
  */
 export const createScopedLogger = (scope: string) => ({
-  log: (...args: any[]) => logger.log(`[${scope}]`, ...args),
-  error: (...args: any[]) => logger.error(`[${scope}]`, ...args),
-  warn: (...args: any[]) => logger.warn(`[${scope}]`, ...args),
-  info: (...args: any[]) => logger.info(`[${scope}]`, ...args),
-  debug: (...args: any[]) => logger.debug(`[${scope}]`, ...args),
-  group: (label: string) => logger.group(`[${scope}] ${label}`),
+  log: (...args: any[]) =>
+    !suppressedScopes.has(scope) && logger.log(`[${scope}]`, ...args),
+  error: (...args: any[]) =>
+    !suppressedScopes.has(scope) && logger.error(`[${scope}]`, ...args),
+  warn: (...args: any[]) =>
+    !suppressedScopes.has(scope) && logger.warn(`[${scope}]`, ...args),
+  info: (...args: any[]) =>
+    !suppressedScopes.has(scope) && logger.info(`[${scope}]`, ...args),
+  debug: (...args: any[]) =>
+    !suppressedScopes.has(scope) && logger.debug(`[${scope}]`, ...args),
+  group: (label: string) =>
+    !suppressedScopes.has(scope) && logger.group(`[${scope}] ${label}`),
   groupCollapsed: (label: string) =>
+    !suppressedScopes.has(scope) &&
     logger.groupCollapsed(`[${scope}] ${label}`),
-  groupEnd: () => logger.groupEnd(),
-  time: (label: string) => logger.time(`[${scope}] ${label}`),
-  timeEnd: (label: string) => logger.timeEnd(`[${scope}] ${label}`),
-  table: (data: any, columns?: string[]) => logger.table(data, columns),
+  groupEnd: () => !suppressedScopes.has(scope) && logger.groupEnd(),
+  time: (label: string) =>
+    !suppressedScopes.has(scope) && logger.time(`[${scope}] ${label}`),
+  timeEnd: (label: string) =>
+    !suppressedScopes.has(scope) && logger.timeEnd(`[${scope}] ${label}`),
+  table: (data: any, columns?: string[]) =>
+    !suppressedScopes.has(scope) && logger.table(data, columns),
 });
 
 /**

@@ -1,6 +1,12 @@
 import { projectId, publicAnonKey } from "./supabase/info";
 import { supabaseClient } from "./supabase/client";
 import { logger } from "./logger";
+import {
+  apiLogger,
+  authLogger,
+  whitepaperLogger,
+  sourcesLogger,
+} from "./loggerFactories";
 import { toast } from "sonner";
 import { Material } from "../types/material";
 
@@ -8,7 +14,7 @@ import { Material } from "../types/material";
 export { projectId, publicAnonKey };
 
 const API_BASE_URL = `https://${projectId}.supabase.co/functions/v1/make-server-17cae920`;
-logger.log("🔧 API_BASE_URL initialized:", API_BASE_URL);
+apiLogger.log("🔧 API_BASE_URL initialized:", API_BASE_URL);
 
 // Session expiry callback - will be set by AuthContext
 let onSessionExpired: (() => void) | null = null;
@@ -29,7 +35,7 @@ interface AuthResponse {
 // Get current access token from session storage
 function getAccessToken(): string {
   const token = sessionStorage.getItem("wastedb_access_token") || publicAnonKey;
-  logger.log(
+  authLogger.log(
     "getAccessToken called, returning:",
     token === publicAnonKey ? "(anon key)" : "(authenticated token)",
   );
@@ -38,9 +44,9 @@ function getAccessToken(): string {
 
 // Store access token in session storage
 export function setAccessToken(token: string) {
-  logger.log("setAccessToken called - storing authenticated token");
+  authLogger.log("setAccessToken called - storing authenticated token");
   sessionStorage.setItem("wastedb_access_token", token);
-  logger.log("Token stored in sessionStorage successfully");
+  authLogger.log("Token stored in sessionStorage successfully");
 }
 
 // Clear access token from session storage
@@ -64,7 +70,7 @@ export async function apiCall(
   const fullUrl = `${API_BASE_URL}${endpoint}`;
   const isCustomToken = token !== publicAnonKey;
 
-  logger.log("🌐 API Call:", {
+  apiLogger.log("🌐 API Call:", {
     endpoint,
     method: options.method || "GET",
     authType: isCustomToken ? "authenticated" : "anonymous",
@@ -98,7 +104,7 @@ export async function apiCall(
     const isExpectedAuthFailure = isAuthError && suppressAuthToast;
     if (!isExpectedAuthFailure) {
       // Log error WITHOUT exposing full endpoint in production
-      logger.error("API call failed:", {
+      apiLogger.error("API call failed:", {
         method: options.method || "GET",
         status: response.status,
         statusText: response.statusText,
@@ -117,7 +123,7 @@ export async function apiCall(
       !isNotificationEndpoint &&
       !suppressAuthToast
     ) {
-      logger.warn("🔐 Authentication error detected - clearing session");
+      authLogger.warn("🔐 Authentication error detected - clearing session");
       clearAccessToken();
       sessionStorage.removeItem("wastedb_user");
 
@@ -147,7 +153,7 @@ export async function apiCall(
 
       // Trigger the session expired callback (redirects to front page/login)
       if (onSessionExpired) {
-        logger.log("🔄 Triggering session expired callback");
+        authLogger.log("🔄 Triggering session expired callback");
         // Delay slightly to ensure toast is visible
         setTimeout(() => {
           if (onSessionExpired) {
@@ -218,27 +224,27 @@ export async function sendMagicLink(
 }
 
 export async function verifyMagicLink(token: string): Promise<AuthResponse> {
-  logger.log("Verifying magic link token");
+  authLogger.log("Verifying magic link token");
   try {
     const data = await apiCall("/auth/verify-magic-link", {
       method: "POST",
       body: JSON.stringify({ token }),
     });
-    logger.log("Magic link verification successful");
+    authLogger.log("Magic link verification successful");
 
     // Store the access token
     if (data.access_token) {
-      logger.log("Storing access token from magic link verification");
+      authLogger.log("Storing access token from magic link verification");
       setAccessToken(data.access_token);
 
       // Verify it was stored
       const stored = sessionStorage.getItem("wastedb_access_token");
-      logger.log("Token stored successfully:", !!stored);
+      authLogger.log("Token stored successfully:", !!stored);
     }
 
     return data;
   } catch (error) {
-    logger.error("Magic link verification failed:", error);
+    authLogger.error("Magic link verification failed:", error);
     throw error;
   }
 }
@@ -258,7 +264,7 @@ export async function startGoogleOAuthSignIn() {
   });
 
   if (error) {
-    logger.error("Google OAuth start failed:", error);
+    authLogger.error("Google OAuth start failed:", error);
     throw new Error(error.message || "Failed to start Google sign in");
   }
 }
@@ -278,7 +284,7 @@ export async function exchangeSupabaseSessionForWasteDBSession(
 
     if (error) {
       lastSessionError = error;
-      logger.warn("Failed to get Supabase OAuth session", {
+      authLogger.warn("Failed to get Supabase OAuth session", {
         attempt,
         message: error.message,
       });
@@ -504,7 +510,7 @@ interface Whitepaper {
 
 // Get all whitepapers (public, no auth required)
 export async function getAllWhitepapers(): Promise<Whitepaper[]> {
-  logger.log("Fetching whitepapers from API");
+  whitepaperLogger.log("Fetching whitepapers from API");
   const response = await fetch(`${API_BASE_URL}/whitepapers`, {
     headers: {
       "Content-Type": "application/json",
@@ -512,11 +518,11 @@ export async function getAllWhitepapers(): Promise<Whitepaper[]> {
     },
   });
 
-  logger.log("Whitepaper response status:", response.status);
+  whitepaperLogger.log("Whitepaper response status:", response.status);
 
   if (!response.ok) {
     const errorText = await response.text();
-    logger.error("Whitepaper fetch failed:", {
+    whitepaperLogger.error("Whitepaper fetch failed:", {
       status: response.status,
       error: errorText,
     });
@@ -524,7 +530,7 @@ export async function getAllWhitepapers(): Promise<Whitepaper[]> {
   }
 
   const data = await response.json();
-  logger.log(
+  whitepaperLogger.log(
     "Whitepapers fetched successfully:",
     data.whitepapers?.length || 0,
     "whitepapers",
@@ -624,7 +630,7 @@ export async function updateSource(
   id: string,
   source: Source,
 ): Promise<Source> {
-  logger.log("📤 updateSource called:", {
+  sourcesLogger.log("📤 updateSource called:", {
     id,
     pdfFileName: source.pdfFileName,
     is_open_access: source.is_open_access,
@@ -634,7 +640,7 @@ export async function updateSource(
     method: "PUT",
     body: JSON.stringify(source),
   });
-  logger.log("📥 updateSource response:", data);
+  sourcesLogger.log("📥 updateSource response:", data);
   return data.source;
 }
 
