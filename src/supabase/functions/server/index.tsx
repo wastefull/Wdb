@@ -916,7 +916,7 @@ app.get("/make-server-17cae920/auth/session", async (c) => {
   try {
     const token = getSessionCookieToken(c);
     if (!token) {
-      return c.json({ error: "No session cookie" }, 401);
+      return c.json({ user: null }, 200);
     }
 
     const sessionData = (await kv.get(`session:${token}`)) as {
@@ -928,13 +928,13 @@ app.get("/make-server-17cae920/auth/session", async (c) => {
 
     if (!sessionData) {
       clearSessionCookie(c);
-      return c.json({ error: "Session not found" }, 401);
+      return c.json({ user: null }, 200);
     }
 
     if (Date.now() > sessionData.expiry) {
       await kv.del(`session:${token}`);
       clearSessionCookie(c);
-      return c.json({ error: "Session expired" }, 401);
+      return c.json({ user: null }, 200);
     }
 
     const profile = await kv.get(`user_profile:${sessionData.userId}`);

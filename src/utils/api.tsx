@@ -342,11 +342,12 @@ export async function refreshSessionFromCookie(): Promise<AuthResponse | null> {
       headers: { Authorization: `Bearer ${publicAnonKey}` },
     });
     if (!response.ok) return null;
-    const data: AuthResponse = await response.json();
+    const data = await response.json();
+    if (!data.user) return null;
     if (data.access_token) {
       setAccessToken(data.access_token);
     }
-    return data;
+    return data as AuthResponse;
   } catch {
     return null;
   }
