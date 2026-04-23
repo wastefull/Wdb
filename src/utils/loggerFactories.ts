@@ -39,6 +39,18 @@ export function getSuppressedScopes(): string[] {
   return Array.from(suppressedScopes);
 }
 
+/** Remove a scope from suppressedScopes so its logs come through. */
+export function enableScope(scope: string): void {
+  suppressedScopes.delete(scope);
+  console.log(`LOGGER: [${scope}] enabled`);
+}
+
+/** Re-suppress a scope that was previously enabled. */
+export function disableScope(scope: string): void {
+  suppressedScopes.add(scope);
+  console.log(`LOGGER: [${scope}] disabled`);
+}
+
 /**
  * Creates a scoped logger with a prefix for all log messages
  * @param scope - The scope/domain name (e.g., 'Materials', 'Auth')

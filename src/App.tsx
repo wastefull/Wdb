@@ -11,7 +11,12 @@ import {
 } from "lucide-react";
 import * as api from "./utils/api";
 import { logger, setTestMode, getTestMode, loggerInfo } from "./utils/logger";
-import { getSuppressedScopes, materialsLogger } from "./utils/loggerFactories";
+import {
+  getSuppressedScopes,
+  materialsLogger,
+  enableScope,
+  disableScope,
+} from "./utils/loggerFactories";
 import {
   NavigationProvider,
   getAdminHomeViewByRole,
@@ -251,6 +256,8 @@ function AppContent() {
         warn: logger.warn,
         debug: logger.debug,
         getSuppressedScopes,
+        enableScope,
+        disableScope,
       };
 
       // Log initialization only if in test mode
