@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import * as api from "./utils/api";
 import { logger, setTestMode, getTestMode, loggerInfo } from "./utils/logger";
-import { getSuppressedScopes } from "./utils/loggerFactories";
+import { getSuppressedScopes, materialsLogger } from "./utils/loggerFactories";
 import {
   NavigationProvider,
   getAdminHomeViewByRole,
@@ -180,7 +180,7 @@ function AppContent() {
   const { user, userRole, isAuthenticated, signIn, signOut, updateUserRole } =
     useAuthContext();
 
-  // Phase 3B Complete: MaterialsContext is the single source of truth for all material data
+  // MaterialsContext is the single source of truth for all material data
   const {
     materials,
     isLoadingMaterials,
@@ -264,7 +264,7 @@ function AppContent() {
 
   // Phase 3A: Log context state for verification
   useEffect(() => {
-    logger.log("[Phase 3A] MaterialsContext Status:", {
+    materialsLogger.log("MaterialsContext Status:", {
       materials_count_ctx: materials.length,
       isLoadingMaterials_ctx: isLoadingMaterials,
       syncStatus_ctx: syncStatus,

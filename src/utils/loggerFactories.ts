@@ -18,7 +18,21 @@ import { logger } from "./logger";
  * Edit this set in code to configure logging suppression for your dev session.
  * @example suppressedScopes.add('Navigation')
  */
-const suppressedScopes = new Set<string>(["Navigation", "Auth", "Sync", "API"]);
+const suppressedScopes = new Set<string>([
+  "Navigation",
+  "Auth",
+  "Sync",
+  "API",
+  "Articles",
+  "Sources",
+  "Submissions",
+  "User",
+  "Scientific",
+  "Whitepaper",
+  "A11y",
+  "Email",
+  "Materials",
+]);
 
 /** Returns the list of currently suppressed scope names. */
 export function getSuppressedScopes(): string[] {

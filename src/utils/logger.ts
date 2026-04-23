@@ -48,7 +48,7 @@ export function setTestMode(mode: boolean | null): void {
     console.log(`LOGGER: TEST_MODE explicitly set to ${mode}`);
   } else {
     console.log(
-      `LOGGER: TEST_MODE reset to environment default (${isDevelopment()})`
+      `LOGGER: TEST_MODE reset to environment default (${isDevelopment()})`,
     );
   }
 }
@@ -204,20 +204,7 @@ export const logger = {
 
 // Auto-log configuration on first import (only in TEST_MODE)
 if (isTestMode() && typeof window !== "undefined") {
-  console.log(
-    `LOGGER INITIALIZED`,
-    "background: #e6beb5; color: #211f1c; padding: 4px 8px; border-radius: 4px; font-weight: bold;"
+  console.info(
+    `LOGGER initialized IN ${isTestMode() ? "TEST mode" : "PRODUCTION mode"} (${TEST_MODE === null ? "auto" : "explicit"}), env: ${isDevelopment() ? "DEV" : "PROD"}`,
   );
-  console.log(
-    `   TEST_MODE: ${isTestMode()} (${
-      TEST_MODE === null ? "auto" : "explicit"
-    })`
-  );
-  console.log(
-    `   Environment: ${isDevelopment() ? "development" : "production"}`
-  );
-  console.log(
-    `   To change: import { setTestMode } from './utils/logger'; setTestMode(true/false);`
-  );
-  console.log("");
 }
