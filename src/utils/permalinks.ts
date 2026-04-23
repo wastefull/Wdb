@@ -49,9 +49,56 @@ export function findMaterialByPermalink(
   materials: Material[],
   permalink: ParsedMaterialPermalink,
 ): Material | null {
-  return (
-    materials.find(
-      (material) => slugifyMaterialName(material.name) === permalink.slug,
-    ) || null
+  // Prefer exact current-name slug match.
+  const directMatches = materials.filter(
+    (material) => slugifyMaterialName(material.name) === permalink.slug,
   );
+
+  if (directMatches.length === 1) {
+    return directMatches[0];
+  }
+
+  // If multiple materials share the same canonical slug, do not guess.
+  if (directMatches.length > 1) {
+    return null;
+  }
+
+  // Backward-compat: fall back to curator/wiki aliases so renamed materials
+  // can still be resolved and then redirected to their canonical permalink.
+  const aliasMatches = materials.filter((material) => {
+    const aliases = [
+      ...(material.aliases || []),
+      ...(material.wiki?.aliases || []),
+    ];
+    return aliases.some(
+      (alias) => slugifyMaterialName(alias) === permalink.slug,
+    );
+  });
+
+  // Collision-safe behavior: only resolve aliases when the match is unique.
+  if (aliasMatches.length === 1) {
+    return aliasMatches[0];
+  }
+
+  return null;
+}
+
+/**
+ * Returns every material whose current name slug OR alias slug matches.
+ * Used to present a disambiguation picker when the slug is ambiguous.
+ */
+export function findMaterialCandidatesByPermalink(
+  materials: Material[],
+  permalink: ParsedMaterialPermalink,
+): Material[] {
+  return materials.filter((material) => {
+    if (slugifyMaterialName(material.name) === permalink.slug) return true;
+    const aliases = [
+      ...(material.aliases || []),
+      ...(material.wiki?.aliases || []),
+    ];
+    return aliases.some(
+      (alias) => slugifyMaterialName(alias) === permalink.slug,
+    );
+  });
 }

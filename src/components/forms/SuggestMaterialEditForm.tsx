@@ -4,6 +4,10 @@ import { X } from "lucide-react";
 import { toast } from "sonner";
 import * as api from "../../utils/api";
 import { Material, MATERIAL_CATEGORIES } from "../../types/material";
+import {
+  buildMaterialPermalinkPath,
+  parseMaterialPermalinkPath,
+} from "../../utils/permalinks";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
@@ -132,8 +136,7 @@ export function SuggestMaterialEditForm({
 
       if (isAdminMode) {
         const normalizedLinks = normalizeIds(linkedMaterialIds);
-        // Admin: apply changes directly without a submission
-        await api.updateMaterial({
+        const updatedMaterial: Material = {
           ...material,
           name: name.trim(),
           category: category as Material["category"],
@@ -142,7 +145,24 @@ export function SuggestMaterialEditForm({
           isHub: isHub || undefined,
           linkedMaterialIds:
             isHub && normalizedLinks.length > 0 ? normalizedLinks : undefined,
-        });
+        };
+
+        // Admin: apply changes directly without a submission
+        const savedMaterial = await api.updateMaterial(updatedMaterial);
+
+        // If this edit is being made from a material permalink route,
+        // keep the URL in sync immediately after a rename.
+        if (parseMaterialPermalinkPath(window.location.pathname)) {
+          const canonicalPath = buildMaterialPermalinkPath(savedMaterial);
+          if (window.location.pathname !== canonicalPath) {
+            window.history.replaceState(
+              {},
+              "",
+              `${canonicalPath}${window.location.search}${window.location.hash}`,
+            );
+          }
+        }
+
         toast.success(`Updated ${name.trim()} successfully`);
       } else {
         const normalizedLinks = normalizeIds(linkedMaterialIds);
