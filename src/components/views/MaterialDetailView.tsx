@@ -25,6 +25,7 @@ interface MaterialDetailViewProps {
   onUpdateMaterial: (material: Material) => void;
   onViewArticleStandalone: (articleId: string, category: CategoryType) => void;
   isAdminModeActive?: boolean;
+  onViewArticles?: (category: CategoryType) => void;
 }
 
 export function MaterialDetailView({
@@ -35,6 +36,7 @@ export function MaterialDetailView({
   onUpdateMaterial,
   onViewArticleStandalone,
   isAdminModeActive,
+  onViewArticles,
 }: MaterialDetailViewProps) {
   const isElementHub = material.category === "Elements";
   const isHub = material.isHub || isElementHub;
@@ -185,6 +187,7 @@ export function MaterialDetailView({
         onDeleteArticle={handleDeleteArticle}
         onReadMore={onViewArticleStandalone}
         isAdminModeActive={isAdminModeActive}
+        onViewArticles={onViewArticles}
       />
     </div>
   );

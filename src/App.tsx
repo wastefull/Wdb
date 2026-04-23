@@ -1230,6 +1230,9 @@ function AppContent() {
                       )
                     }
                     isAdminModeActive={isAdminModeActive}
+                    onViewArticles={(category) =>
+                      handleViewArticles(currentMaterial.id, category)
+                    }
                   />
                 ) : currentMaterial &&
                   currentView.type === "article-standalone" ? (
