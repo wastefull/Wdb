@@ -1168,10 +1168,7 @@ function AppContent() {
                       setSearchQuery("");
                       goBack();
                     }}
-                    onEditMaterial={(material) => {
-                      setEditingMaterial(material);
-                      setShowForm(true);
-                    }}
+                    onEditMaterial={setMaterialToEdit}
                     onDeleteMaterial={handleDeleteMaterial}
                     onViewArticles={handleViewArticles}
                     onViewMaterial={handleViewMaterial}
@@ -1230,6 +1227,9 @@ function AppContent() {
                       )
                     }
                     isAdminModeActive={isAdminModeActive}
+                    isAuthenticated={!!user}
+                    onEditMaterial={setMaterialToEdit}
+                    onSuggestEdit={setMaterialToEdit}
                     onViewArticles={(category) =>
                       handleViewArticles(currentMaterial.id, category)
                     }
@@ -1635,10 +1635,11 @@ function AppContent() {
           {materialToEdit && (
             <SuggestMaterialEditForm
               material={materialToEdit}
-              isAdminMode={isAdminModeActive}
+              allMaterials={materials}
+              isAdminMode={userRole === "admin"}
               onClose={() => setMaterialToEdit(null)}
               onSubmitSuccess={() => {
-                if (!isAdminModeActive) {
+                if (userRole !== "admin") {
                   toast.success(
                     'Edit suggestion submitted! Check "My Submissions" for updates.',
                   );

@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { Edit2 } from "lucide-react";
 import { Material } from "../../types/material";
 import { Article, CategoryType } from "../../types/article";
 import { buildMaterialPermalinkPath } from "../../utils/permalinks";
@@ -25,6 +26,9 @@ interface MaterialDetailViewProps {
   onUpdateMaterial: (material: Material) => void;
   onViewArticleStandalone: (articleId: string, category: CategoryType) => void;
   isAdminModeActive?: boolean;
+  isAuthenticated?: boolean;
+  onEditMaterial?: (material: Material) => void;
+  onSuggestEdit?: (material: Material) => void;
   onViewArticles?: (category: CategoryType) => void;
 }
 
@@ -36,6 +40,9 @@ export function MaterialDetailView({
   onUpdateMaterial,
   onViewArticleStandalone,
   isAdminModeActive,
+  isAuthenticated,
+  onEditMaterial,
+  onSuggestEdit,
   onViewArticles,
 }: MaterialDetailViewProps) {
   const isElementHub = material.category === "Elements";
@@ -132,6 +139,10 @@ export function MaterialDetailView({
 
   // Memoize cover image lookup
   const coverImage = useMemo(() => getFirstCoverImage(material), [material]);
+  const canShowEditAction = !!(
+    (isAdminModeActive && onEditMaterial) ||
+    (isAuthenticated && onSuggestEdit)
+  );
 
   return (
     <div
@@ -150,6 +161,32 @@ export function MaterialDetailView({
         isHub={isHub}
         totalArticles={totalArticles}
       />
+      {canShowEditAction && (
+        <div className="mb-4 flex justify-end">
+          <button
+            type="button"
+            onClick={() => {
+              if (isAdminModeActive && onEditMaterial) {
+                onEditMaterial(material);
+                return;
+              }
+
+              if (isAuthenticated && onSuggestEdit) {
+                onSuggestEdit(material);
+              }
+            }}
+            className="retro-btn-primary inline-flex items-center gap-2 p-1 px-2 cursor-pointer  bg-white dark:bg-[#2a2825] hover:bg-black/5 dark:hover:bg-white/10"
+            aria-label={
+              isAdminModeActive
+                ? `Edit ${material.name}`
+                : `Suggest edit for ${material.name}`
+            }
+          >
+            <Edit2 size={14} aria-hidden="true" />
+            {isAdminModeActive ? "Edit Material" : "Suggest Edit"}
+          </button>
+        </div>
+      )}
       <div className="grid grid-cols-10">
         <MaterialDetailSidebar
           isElementHub={isElementHub}
