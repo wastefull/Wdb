@@ -83,9 +83,12 @@ export function MaterialArticlesGrid({
                   className="w-8 h-8 rounded-full flex items-center justify-center border border-[#211f1c]/30 dark:border-white/20 group-hover:border-[#211f1c] dark:group-hover:border-white/50 transition-colors"
                   style={{ backgroundColor: categoryColors[category] }}
                 >
-                  <Plus size={14} className="text-black" />
+                  <Plus
+                    size={14}
+                    className={`text-black dark:text-black dark:rounded-full dark:shadow-2xl`}
+                  />
                 </div>
-                <span className="text-[12px] text-black/60 dark:text-white/60 group-hover:text-black dark:group-hover:text-white transition-colors text-center">
+                <span className="text-[12px] text-black/60 dark:text-white/60 dark:shadow-2xl group-hover:text-black dark:group-hover:text-white transition-colors text-center">
                   Submit a {categoryLabels[category]} article
                 </span>
               </button>

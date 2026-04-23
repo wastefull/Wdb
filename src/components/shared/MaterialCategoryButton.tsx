@@ -14,7 +14,7 @@ export function MaterialCategoryButton({
     <button
       type="button"
       onClick={() => navigateToSearchResults(`category:${category}`)}
-      className="tag-cyan cursor-pointer"
+      className="tag-cyan cursor-pointer w-fit whitespace-nowrap"
       aria-label={`View all ${category} materials`}
     >
       {category}

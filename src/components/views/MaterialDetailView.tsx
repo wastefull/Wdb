@@ -150,7 +150,7 @@ export function MaterialDetailView({
         isHub={isHub}
         totalArticles={totalArticles}
       />
-      <div className="grid grid-cols-2">
+      <div className="grid grid-cols-10">
         <MaterialDetailSidebar
           isElementHub={isElementHub}
           hasCoverImage={Boolean(coverImage)}

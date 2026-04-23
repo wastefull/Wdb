@@ -12,10 +12,10 @@ export function MaterialHubButton({ category }: MaterialHubButtonProps) {
     <button
       type="button"
       onClick={() => navigateToSearchResults(`category:${category}`)}
-      className="tag-green cursor-pointer"
+      className="tag-green cursor-pointer w-fit whitespace-nowrap"
       aria-label="Hub material"
     >
-      Material Hub
+      Linked
     </button>
   );
 }

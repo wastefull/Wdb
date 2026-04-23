@@ -22,7 +22,7 @@ export function MaterialDetailSidebar({
 }: MaterialDetailSidebarProps) {
   return (
     <div
-      className={`${isHub ? "bg-black/5 dark:bg-white/10 transition-colors rounded-md" : ""} pl-4 pt-4 mr-50 min-w-xs xs:mr-0 md:mr-75 lg:mr-100 xl:mr-150`}
+      className={`${isHub ? "bg-black/5 dark:bg-white/10 transition-colors rounded-md" : ""} pl-4 pt-4 col-start-1 col-end-3 min-w-67`}
     >
       <PeriodicTableCard
         isElementHub={isElementHub}
