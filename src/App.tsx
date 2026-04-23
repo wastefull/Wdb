@@ -1220,11 +1220,7 @@ function AppContent() {
                     material={currentMaterial}
                     allMaterials={materials}
                     onBack={goBack}
-                    onViewMaterial={handleViewMaterial}
                     onViewCategoryMaterials={handleViewCategoryMaterials}
-                    onViewArticles={(category) =>
-                      handleViewArticles(currentMaterial.id, category)
-                    }
                     onUpdateMaterial={handleUpdateMaterial}
                     onViewArticleStandalone={(articleId, category) =>
                       handleViewArticleStandalone(
