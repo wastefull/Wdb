@@ -11,6 +11,7 @@ import { LogoLink } from "./LogoLink";
 import { MaterialsDonutChart } from "./MaterialsDonutChart";
 import { OfflineNoticeBox } from "./OfflineNoticeBox";
 import { Welcome } from "./Welcome";
+import { getTotalArticleCount } from "../../utils/materialArticles";
 
 interface FrontPageProps {
   searchQuery: string;
@@ -56,18 +57,24 @@ export function FrontPage({
       )}
 
       {/* Centered content */}
-      <div className="flex flex-col items-center justify-center mb-6 max-w-2xl mx-auto px-4">
+      <div className="flex flex-col items-center justify-center mb-6 max-w-2xl mx-auto ">
         <div className="w-full flex flex-col justify-center items-center gap-4">
-          {/* Logo */}
-          <LogoLink
-            onNavigateHome={() => {
-              setSearchQuery("");
-              navigateTo({ type: "materials" });
-            }}
-          />
+          {/* Welcome hint */}
+          <main>
+            <h1 className="text-center p-5 size-3xl text-earth">
+              What do you want to keep out of the landfill?
+            </h1>
+            <h2 className="text-center pb-4">
+              {" "}
+              <p className="text-[12px] text-black/50 dark:text-white/60 ">
+                Search {materials.length} materials for compost, recycle, and
+                upcycle pathways — backed by current research.
+              </p>
+            </h2>
+          </main>
 
           {/* Search bar */}
-          <div className="w-full max-w-xl">
+          <div className="flex items-center gap-3 w-full">
             <SearchBar
               value={searchQuery}
               onChange={setSearchQuery}

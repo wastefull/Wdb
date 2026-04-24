@@ -15,6 +15,10 @@ export interface SearchBarProps {
   suggestions?: SearchSuggestion[];
 }
 
+const isMac =
+  typeof navigator !== "undefined" &&
+  /Mac|iPhone|iPad/.test(navigator.platform);
+
 export function SearchBar({
   value,
   onChange,
@@ -25,6 +29,7 @@ export function SearchBar({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const visibleSuggestions = useMemo(() => {
     const trimmed = value.trim().toLowerCase();
@@ -41,6 +46,18 @@ export function SearchBar({
       setHighlightedIndex(visibleSuggestions.length - 1);
     }
   }, [hasSuggestions, highlightedIndex, visibleSuggestions.length]);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        inputRef.current?.focus();
+        inputRef.current?.select();
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -100,6 +117,7 @@ export function SearchBar({
     if (e.key === "Escape") {
       setIsDropdownOpen(false);
       setHighlightedIndex(-1);
+      inputRef.current?.blur();
       return;
     }
 
@@ -118,14 +136,14 @@ export function SearchBar({
   return (
     <div
       ref={containerRef}
-      className="relative rounded-[11.46px] shrink-0 w-full bg-white dark:bg-[#2a2825]"
+      className="relative shrink-0 w-full px-5 py-4 bg-white dark:bg-[#2a2825] "
     >
       <div
         aria-hidden="true"
-        className="absolute border-[#211f1c] dark:border-white/20 border-[1.5px] border-solid inset-[-0.75px] pointer-events-none rounded-[12.21px]"
+        className="absolute border-[#211f1c] dark:border-white/20 border-[1.5px] border-solid inset-[-0.75px] pointer-events-none rounded-full"
       />
       <div className="flex flex-row items-center justify-center size-full">
-        <div className="box-border content-stretch flex gap-[15px] items-center justify-start px-3 py-2 relative w-full">
+        <div className="box-border flex gap-4 items-center justify-start relative w-full">
           <SearchIcon />
           <input
             type="text"
@@ -139,14 +157,24 @@ export function SearchBar({
                 setIsDropdownOpen(true);
               }
             }}
+            ref={inputRef}
             onKeyDownCapture={handleKeyDown}
+            onBlur={() => {
+              setIsDropdownOpen(false);
+              setHighlightedIndex(-1);
+            }}
             placeholder={isMobile ? "Search…" : "What do I do with…?"}
-            className="bg-transparent border-none outline-none text-[15px] normal placeholder:text-black/50 dark:placeholder:text-white/50 flex-1 min-w-0"
+            className="bg-transparent border-none outline-none text-[15px] normal placeholder:text-black/50 dark:placeholder:text-white/50 flex-1 min-w-0 "
             aria-label="Search materials"
             aria-autocomplete="list"
             aria-expanded={isDropdownOpen && hasSuggestions}
             aria-controls="material-search-suggestions"
           />
+          {!isMobile && (
+            <kbd className="text-[10px] px-1.5 py-0.5 rounded border border-[#e5e1d8] text-[#6b6b6b]">
+              {isMac ? "⌘K" : "Ctrl K"}
+            </kbd>
+          )}
         </div>
       </div>
 

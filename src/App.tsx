@@ -119,6 +119,7 @@ import { SimplifiedRoadmap } from "./components/roadmap";
 // Other component groups
 import { Toaster } from "./components/ui/sonner";
 import { Leaderboard } from "./components/ui/Leaderboard";
+import { LeftPanel } from "./components/shared";
 import { SearchBar } from "./components/search";
 import type { SearchSuggestion } from "./components/search/SearchBar";
 import { StatusBar } from "./components/layout";
@@ -812,6 +813,8 @@ function AppContent() {
   );
   const showLeaderboardPanel =
     currentView.type === "materials" || currentView.type === "user-profile";
+  // const showLeftPanel = currentView.type === "materials";
+  const showLeftPanel = false; // TODO
   const navigateToAdminHome = () => {
     navigateTo(getAdminHomeViewByRole(userRole));
   };
@@ -1209,6 +1212,15 @@ function AppContent() {
 
             {/* Content area with optional sidebar */}
             <div className="flex">
+              {/* Left panel - visible on medium screens and wider, front page only */}
+              {showLeftPanel && (
+                <aside className="hidden md:block w-52 lg:w-64 shrink-0 border-r-[1.5px] border-[#211f1c] dark:border-white/20">
+                  <div className="sticky top-0 max-h-[calc(100vh-100px)] overflow-y-auto">
+                    <LeftPanel />
+                  </div>
+                </aside>
+              )}
+
               {/* Main content - grows to fill space */}
               <div className="flex-1 min-w-0">
                 <ViewConfiguration
