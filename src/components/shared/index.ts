@@ -27,6 +27,7 @@ export { NotificationBell } from "./NotificationBell";
 export { OfflineNoticeBox } from "./OfflineNoticeBox";
 export { PageTemplate } from "./PageTemplate";
 export { PeriodicTableCard } from "./PeriodicTableCard";
+export { PermalinkSelectionPrompt } from "./PermalinkSelectionPrompt.tsx";
 export { RasterizedQuantileArticleCategories } from "./RasterizedQuantileArticleCategories";
 export { ReviewModal } from "./ReviewModal";
 export { VirtualizedMaterialList } from "./VirtualizedMaterialList";
