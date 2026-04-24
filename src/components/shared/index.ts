@@ -30,6 +30,7 @@ export { PeriodicTableCard } from "./PeriodicTableCard";
 export { RasterizedQuantileArticleCategories } from "./RasterizedQuantileArticleCategories";
 export { ReviewModal } from "./ReviewModal";
 export { VirtualizedMaterialList } from "./VirtualizedMaterialList";
+export { Welcome } from "./Welcome";
 
 // Documentation
 export { ApiDocumentation } from "./ApiDocumentation";
