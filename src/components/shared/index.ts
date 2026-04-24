@@ -13,6 +13,7 @@ export { AliasDisplay } from "./AliasDisplay";
 export { CookieConsent } from "./CookieConsent";
 export { CopyPermalinkButton } from "./CopyPermalinkButton";
 export { LinkedMaterialsCard } from "./LinkedMaterialsCard";
+export { LogoLink } from "./LogoLink";
 export { MaterialArticleCount } from "./MaterialArticleCount";
 export { MaterialArticlesGrid } from "./MaterialArticlesGrid";
 export { MaterialCategoryButton } from "./MaterialCategoryButton";
