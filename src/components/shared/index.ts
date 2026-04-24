@@ -25,6 +25,7 @@ export { MaterialName } from "./MaterialName";
 export { NavTabBar } from "./NavTabBar";
 export { NotificationBell } from "./NotificationBell";
 export { OfflineNoticeBox } from "./OfflineNoticeBox";
+export { PageFooter } from "./PageFooter.tsx";
 export { PageTemplate } from "./PageTemplate";
 export { PeriodicTableCard } from "./PeriodicTableCard";
 export { PermalinkSelectionPrompt } from "./PermalinkSelectionPrompt.tsx";
