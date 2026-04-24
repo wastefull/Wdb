@@ -112,6 +112,7 @@ import {
   CookieConsent,
   ApiDocumentation,
   ErrorBoundary,
+  NavTabBar,
 } from "./components/shared";
 
 // Roadmap
@@ -122,8 +123,7 @@ import { Toaster } from "./components/ui/sonner";
 import { Leaderboard } from "./components/ui/Leaderboard";
 import { SearchBar } from "./components/search";
 import type { SearchSuggestion } from "./components/search/SearchBar";
-import { StatusBar, NavTabs } from "./components/layout";
-import type { NavTabId } from "./components/layout";
+import { StatusBar } from "./components/layout";
 import { ScientificDataEditor } from "./components/scientific-editor";
 import {
   buildMaterialPermalinkPath,
@@ -843,7 +843,7 @@ function AppContent() {
 
       <div className={authModalBackgroundClasses}>
         {/* Main layout container - allows window to grow past 1000px with sidebar */}
-        <div className="max-w-[1400px] mx-auto">
+        <div className="max-w-350 mx-auto">
           {/* Simulated window with optional sidebar inside */}
           <div className="bg-[#faf7f2] dark:bg-[#1a1917] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 overflow-visible mb-6">
             <StatusBar
@@ -860,96 +860,7 @@ function AppContent() {
             />
 
             {/* Navigation tabs - full width above flex container */}
-            {currentView.type === "materials" && (
-              <NavTabs
-                activeTab="search"
-                onTabChange={(tab: NavTabId) => {
-                  if (tab === "search") {
-                    navigateToMaterials();
-                  } else if (tab === "guides") {
-                    navigateToGuides();
-                  } else if (tab === "blog") {
-                    navigateToBlog();
-                  } else if (tab === "about") {
-                    navigateToAbout();
-                  } else if (tab === "donate") {
-                    navigateToDonate();
-                  }
-                }}
-              />
-            )}
-            {currentView.type === "guides" && (
-              <NavTabs
-                activeTab="guides"
-                onTabChange={(tab: NavTabId) => {
-                  if (tab === "search") {
-                    navigateToMaterials();
-                  } else if (tab === "guides") {
-                    navigateToGuides();
-                  } else if (tab === "blog") {
-                    navigateToBlog();
-                  } else if (tab === "about") {
-                    navigateToAbout();
-                  } else if (tab === "donate") {
-                    navigateToDonate();
-                  }
-                }}
-              />
-            )}
-            {currentView.type === "blog" && (
-              <NavTabs
-                activeTab="blog"
-                onTabChange={(tab: NavTabId) => {
-                  if (tab === "search") {
-                    navigateToMaterials();
-                  } else if (tab === "guides") {
-                    navigateToGuides();
-                  } else if (tab === "blog") {
-                    navigateToBlog();
-                  } else if (tab === "about") {
-                    navigateToAbout();
-                  } else if (tab === "donate") {
-                    navigateToDonate();
-                  }
-                }}
-              />
-            )}
-            {currentView.type === "about" && (
-              <NavTabs
-                activeTab="about"
-                onTabChange={(tab: NavTabId) => {
-                  if (tab === "search") {
-                    navigateToMaterials();
-                  } else if (tab === "guides") {
-                    navigateToGuides();
-                  } else if (tab === "blog") {
-                    navigateToBlog();
-                  } else if (tab === "about") {
-                    navigateToAbout();
-                  } else if (tab === "donate") {
-                    navigateToDonate();
-                  }
-                }}
-              />
-            )}
-            {currentView.type === "donate" && (
-              <NavTabs
-                activeTab="donate"
-                onTabChange={(tab: NavTabId) => {
-                  if (tab === "search") {
-                    navigateToMaterials();
-                  } else if (tab === "guides") {
-                    navigateToGuides();
-                  } else if (tab === "blog") {
-                    navigateToBlog();
-                  } else if (tab === "about") {
-                    navigateToAbout();
-                  } else if (tab === "donate") {
-                    navigateToDonate();
-                  }
-                }}
-              />
-            )}
+            <NavTabBar />
 
             {/* Content area with optional sidebar */}
             <div className="flex">
