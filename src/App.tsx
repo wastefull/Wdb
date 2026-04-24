@@ -1,9 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from "react";
-import {
-  ArrowLeft,
-  Eye,
-  ChevronDown,
-} from "lucide-react";
+import { ArrowLeft, Eye } from "lucide-react";
 import * as api from "./utils/api";
 import { logger, setTestMode, getTestMode, loggerInfo } from "./utils/logger";
 import {
@@ -112,6 +108,7 @@ import {
   LogoLink,
   PageFooter,
   PermalinkSelectionPrompt,
+  ScrollHintArrow,
   Welcome,
 } from "./components/shared";
 
@@ -1375,27 +1372,7 @@ function AppContent() {
 
                 {/* Scroll hint arrow - shown when sidebar is below */}
                 {showLeaderboardPanel && showScrollHint && (
-                  <motion.div
-                    className="md:hidden flex justify-center pb-4"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 1, duration: 0.5 }}
-                  >
-                    <motion.div
-                      animate={{ y: [0, 6, 0] }}
-                      transition={{
-                        duration: 1.5,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                      }}
-                      className="flex flex-col items-center gap-1 text-black/30 dark:text-white/30"
-                    >
-                      <span className="text-[10px] uppercase tracking-wider">
-                        See top contributors
-                      </span>
-                      <ChevronDown size={16} />
-                    </motion.div>
-                  </motion.div>
+                  <ScrollHintArrow cta="See top contributors" />
                 )}
               </div>
 

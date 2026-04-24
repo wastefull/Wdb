@@ -31,6 +31,7 @@ export { PeriodicTableCard } from "./PeriodicTableCard";
 export { PermalinkSelectionPrompt } from "./PermalinkSelectionPrompt.tsx";
 export { RasterizedQuantileArticleCategories } from "./RasterizedQuantileArticleCategories";
 export { ReviewModal } from "./ReviewModal";
+export { ScrollHintArrow } from "./ScrollHintArrow.tsx";
 export { VirtualizedMaterialList } from "./VirtualizedMaterialList";
 export { Welcome } from "./Welcome";
 
