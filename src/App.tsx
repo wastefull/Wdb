@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef, useMemo } from "react";
-import { ArrowLeft, Eye } from "lucide-react";
+import { useState, useEffect, useRef, useMemo, type ReactNode } from "react";
+
 import * as api from "./utils/api";
 import { logger, setTestMode, getTestMode, loggerInfo } from "./utils/logger";
 import {
@@ -22,7 +22,6 @@ import { Material } from "./types/material";
 import { CategoryType } from "./types/article";
 import {
   getArticlesByCategory,
-  getArticleCount,
   removeArticleFromMaterial,
   getTotalArticleCount,
 } from "./utils/materialArticles";
@@ -79,7 +78,6 @@ import {
   SuggestMaterialEditForm,
   SubmitArticleForm,
   TakedownRequestForm,
-  MaterialForm,
 } from "./components/forms";
 
 // Evidence
@@ -93,7 +91,6 @@ import {
 } from "./components/evidence";
 
 // Charts
-import { AnimatedWasteChart } from "./components/charts";
 
 // Shared
 import {
@@ -103,13 +100,17 @@ import {
   CookieConsent,
   ApiDocumentation,
   ErrorBoundary,
+  FrontPage,
   NavTabBar,
   OfflineNoticeBox,
   LogoLink,
+  MaterialsDonutChart,
   PageFooter,
   PermalinkSelectionPrompt,
   ScrollHintArrow,
+  ViewConfiguration,
   Welcome,
+  type ViewRendererMap,
 } from "./components/shared";
 
 // Roadmap
@@ -210,7 +211,6 @@ function AppContent() {
     useState("");
   const [materialToEdit, setMaterialToEdit] = useState<Material | null>(null);
   const [showSubmitArticleForm, setShowSubmitArticleForm] = useState(false);
-  const [showChart, setShowChart] = useState(false);
   const [permalinkDisambiguateCandidates, setPermalinkDisambiguateCandidates] =
     useState<Material[] | null>(null);
   const [pendingMaterialPermalink, setPendingMaterialPermalink] =
@@ -821,6 +821,354 @@ function AppContent() {
   const authModalInnerDivClasses = "relative max-w-md w-full";
   const authModalBackgroundClasses =
     "min-h-screen p-3 md:p-8 bg-[#faf7f2] dark:bg-[#2a2825] textured";
+
+  const viewConfigurations: ViewRendererMap = {
+    materials: () => (
+      <FrontPage
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        suggestions={materialSearchSuggestions}
+        showForm={showForm}
+        setShowForm={setShowForm}
+        editingMaterial={editingMaterial}
+        setEditingMaterial={setEditingMaterial}
+        onAddMaterial={handleAddMaterial}
+        onUpdateMaterial={handleUpdateMaterial}
+      />
+    ),
+    "search-results": (view) => (
+      <SearchResultsView
+        query={view.query}
+        materials={materials}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        onBack={() => {
+          setSearchQuery("");
+          goBack();
+        }}
+        onEditMaterial={setMaterialToEdit}
+        onDeleteMaterial={handleDeleteMaterial}
+        onViewArticles={handleViewArticles}
+        onViewMaterial={handleViewMaterial}
+        onViewCategory={handleViewCategoryMaterials}
+        onEditScientific={(materialId) =>
+          navigateToScientificEditor(materialId)
+        }
+        onSuggestEdit={setMaterialToEdit}
+        isAdminModeActive={isAdminModeActive}
+        isAuthenticated={!!user}
+      />
+    ),
+    articles: (view) => {
+      const material = materials.find((m) => m.id === view.materialId);
+      if (!material) return null;
+      return (
+        <ArticlesView
+          material={material}
+          category={view.category}
+          onBack={goBack}
+          onUpdateMaterial={handleUpdateMaterial}
+          onViewArticleStandalone={(articleId) =>
+            handleViewArticleStandalone(material.id, articleId, view.category)
+          }
+          isAdminModeActive={isAdminModeActive}
+          userRole={userRole}
+          user={user}
+          onSignUp={() => setShowAuthModal(true)}
+        />
+      );
+    },
+    "all-articles": (view) => (
+      <AllArticlesView
+        category={view.category}
+        materials={materials}
+        onBack={goBack}
+        onViewArticleStandalone={(articleId, materialId) =>
+          handleViewArticleStandalone(materialId, articleId, view.category)
+        }
+      />
+    ),
+    "material-detail": (view) => {
+      const material = materials.find((m) => m.id === view.materialId);
+      if (!material) return null;
+      return (
+        <MaterialDetailView
+          material={material}
+          allMaterials={materials}
+          onBack={goBack}
+          onViewCategoryMaterials={handleViewCategoryMaterials}
+          onUpdateMaterial={handleUpdateMaterial}
+          onViewArticleStandalone={(articleId, category) =>
+            handleViewArticleStandalone(material.id, articleId, category)
+          }
+          isAdminModeActive={isAdminModeActive}
+          isAuthenticated={!!user}
+          onEditMaterial={setMaterialToEdit}
+          onSuggestEdit={setMaterialToEdit}
+          onViewArticles={(category) =>
+            handleViewArticles(material.id, category)
+          }
+        />
+      );
+    },
+    "article-standalone": (view) => {
+      const material = materials.find((m) => m.id === view.materialId);
+      if (!material) return null;
+      return (
+        <StandaloneArticleView
+          article={
+            getArticlesByCategory(material, view.category).find(
+              (a) => a.id === view.articleId,
+            )!
+          }
+          sustainabilityCategory={{
+            label:
+              view.category === "compostability"
+                ? "Compostability"
+                : view.category === "recyclability"
+                  ? "Recyclability"
+                  : "Reusability",
+            color:
+              view.category === "compostability"
+                ? "#e6beb5"
+                : view.category === "recyclability"
+                  ? "#e4e3ac"
+                  : "#b8c8cb",
+          }}
+          materialName={material.name}
+          onBack={goBack}
+          onEdit={() => {
+            navigateToMaterialDetail(material.id);
+          }}
+          onDelete={() => {
+            if (confirm("Are you sure you want to delete this article?")) {
+              const updatedMaterial = removeArticleFromMaterial(
+                material,
+                view.category,
+                view.articleId,
+              );
+              handleUpdateMaterial(updatedMaterial);
+              navigateToMaterialDetail(material.id);
+            }
+          }}
+          isAdminModeActive={isAdminModeActive}
+        />
+      );
+    },
+    "methodology-list": () => (
+      <MethodologyListView
+        onBack={goBack}
+        onSelectWhitepaper={navigateToWhitepaper}
+      />
+    ),
+    whitepaper: (view) => (
+      <WhitepaperView whitepaperSlug={view.whitepaperSlug} onBack={goBack} />
+    ),
+    "admin-dashboard": () => (
+      <AdminDashboard
+        onBack={navigateToMaterials}
+        onNavigateToReviewCenter={navigateToReviewCenter}
+        onNavigateToDataManagement={navigateToDataManagement}
+        onNavigateToUserManagement={navigateToUserManagement}
+        onNavigateToWhitepaperSync={navigateToWhitepaperSync}
+        onNavigateToTransformManager={() =>
+          navigateToMathTools("transform-manager")
+        }
+        onNavigateToAdminTakedownList={navigateToAdminTakedownList}
+        onNavigateToAuditLog={navigateToAuditLog}
+        onNavigateToDataRetention={navigateToDataRetention}
+        onNavigateToWhitepapers={navigateToWhitepapersManagement}
+        onNavigateToAssets={navigateToAssetsManagement}
+        onNavigateToRolePermissions={navigateToRolePermissions}
+        onNavigateToMath={navigateToMathTools}
+        onNavigateToCharts={navigateToChartsPerformance}
+        onNavigateToRoadmap={navigateToRoadmap}
+        onNavigateToRoadmapOverview={
+          navigateToRoadmapOverview as (section?: string) => void
+        }
+        onNavigateToSourceLibrary={navigateToSourceLibrary}
+        onNavigateToSourceComparison={navigateToSourceComparison}
+        onNavigateToEvidenceLab={navigateToEvidenceLab}
+        onNavigateToCurationWorkbench={navigateToCurationWorkbench}
+        onNavigateToTransformTesting={navigateToTransformTesting}
+      />
+    ),
+    "staff-dashboard": () => (
+      <StaffDashboard
+        onBack={navigateToMaterials}
+        onNavigateToDataManagement={navigateToDataManagement}
+        onNavigateToSourceLibrary={navigateToSourceLibrary}
+        onNavigateToEvidenceLab={navigateToEvidenceLab}
+        onNavigateToCurationWorkbench={navigateToCurationWorkbench}
+        onNavigateToTransformTesting={navigateToTransformTesting}
+        onNavigateToCharts={navigateToChartsPerformance}
+        onNavigateToRoadmapOverview={() =>
+          navigateToRoadmapOverview("overview")
+        }
+      />
+    ),
+    "data-management": () => (
+      <DataManagementView
+        materials={materials}
+        onBack={navigateToAdminHome}
+        onUpdateMaterial={handleUpdateMaterial}
+        onUpdateMaterials={updateMaterials}
+        onBulkImport={handleBulkImport}
+        onDeleteMaterial={handleDeleteMaterial}
+        onViewMaterial={navigateToMaterialDetail}
+        onDeleteAllData={async () => {
+          await deleteAllMaterials();
+          toast.success(
+            supabaseAvailable
+              ? "All data deleted from cloud and locally"
+              : "All data deleted locally",
+          );
+          navigateToMaterials();
+        }}
+        user={user}
+        userRole={userRole}
+      />
+    ),
+    "user-management": () => (
+      <UserManagementView
+        onBack={navigateToAdminHome}
+        currentUserId={user?.id || ""}
+      />
+    ),
+    "whitepaper-sync": () => (
+      <WhitepaperSyncTool onBack={navigateToAdminHome} />
+    ),
+    "scientific-editor": (view) => {
+      const material = materials.find((m) => m.id === view.materialId);
+      if (!material) return null;
+      return (
+        <ScientificDataEditor
+          material={material as any}
+          onSave={(updatedMaterial) => {
+            handleUpdateMaterial(updatedMaterial as Material);
+            navigateToMaterials();
+          }}
+          onCancel={navigateToMaterials}
+        />
+      );
+    },
+    export: () => (
+      <PublicExportView onBack={goBack} materialsCount={materials.length} />
+    ),
+    "user-profile": (view) => (
+      <UserProfileView
+        userId={view.userId}
+        onBack={goBack}
+        isOwnProfile={view.userId === user?.id}
+        onNavigateToMySubmissions={
+          view.userId === user?.id ? navigateToMySubmissions : undefined
+        }
+        isAdminModeActive={isAdminModeActive}
+        onViewMaterial={navigateToMaterialDetail}
+        onViewGuide={(guideId) => navigateTo({ type: "guide-detail", guideId })}
+        onViewArticle={(materialId, category, articleId) =>
+          navigateTo({
+            type: "article-standalone",
+            articleId,
+            materialId,
+            category: category as CategoryType,
+          })
+        }
+      />
+    ),
+    "my-submissions": () => <MySubmissionsView onBack={goBack} />,
+    "review-center": () => (
+      <ContentReviewCenter
+        onBack={navigateToAdminHome}
+        currentUserId={user?.id || ""}
+        onNavigateToProfile={navigateToUserProfile}
+        materials={materials}
+      />
+    ),
+    "api-docs": () => <ApiDocumentation onBack={navigateToScienceHub} />,
+    "source-library": () => (
+      <SourceLibraryManager
+        onBack={navigateToAdminHome}
+        materials={materials}
+        isAuthenticated={!!user}
+        isAdmin={userRole === "admin"}
+      />
+    ),
+    "source-comparison": () => (
+      <SourceDataComparison
+        onBack={navigateToAdminHome}
+        materials={materials}
+      />
+    ),
+    "evidence-lab": () => <EvidenceLabView onBack={navigateToAdminHome} />,
+    "curation-workbench": () => (
+      <CurationWorkbench onBack={navigateToAdminHome} />
+    ),
+    "transform-formula-testing": () => (
+      <TransformFormulaTesting
+        onBack={navigateToAdminHome}
+        materials={materials}
+      />
+    ),
+    licenses: () => <LicensesView onBack={goBack} />,
+    "science-hub": () => (
+      <ScienceHubView
+        onBack={goBack}
+        onNavigateToWhitePapers={navigateToMethodologyList}
+        onNavigateToOpenAccess={navigateToExport}
+        onNavigateToAPI={navigateToApiDocs}
+      />
+    ),
+    "legal-hub": () => (
+      <LegalHubView
+        onBack={goBack}
+        onNavigateToTakedownForm={navigateToTakedownForm}
+        onNavigateToLicenses={navigateToLicenses}
+        onNavigateToPrivacyPolicy={navigateToPrivacyPolicy}
+      />
+    ),
+    "privacy-policy": () => <PrivacyPolicyView onBack={navigateToLegalHub} />,
+    "takedown-form": () => <TakedownRequestForm onBack={navigateToLegalHub} />,
+    "takedown-status": (view) => (
+      <TakedownStatusView requestId={view.requestId} className="p-6" />
+    ),
+    "admin-takedown-list": () => <AdminTakedownList />,
+    "audit-log": () => <AuditLogViewer onBack={navigateToAdminDashboard} />,
+    "data-retention": () => <DataRetentionManager className="p-6" />,
+    "transform-manager": () => <TransformVersionManager className="p-6" />,
+    "whitepapers-management": () => (
+      <WhitepaperSyncTool onBack={navigateToAdminDashboard} className="p-6" />
+    ),
+    "role-permissions": () => (
+      <RolePermissionsView onBack={navigateToAdminDashboard} />
+    ),
+    "assets-management": () => <AssetsManagementPage />,
+    "math-tools": (view) => (
+      <MathView
+        onBack={navigateToAdminDashboard}
+        defaultTab={view.defaultTab}
+      />
+    ),
+    "charts-performance": () => (
+      <ChartsPerformanceView onBack={navigateToAdminHome} />
+    ),
+    roadmap: () => <RoadmapView onBack={navigateToAdminHome} />,
+    "roadmap-overview": (view) => (
+      <SimplifiedRoadmap
+        onBack={navigateToAdminHome}
+        defaultTab={view.defaultTab}
+        staffMode={userRole === "staff"}
+      />
+    ),
+    guides: () => <GuidesView onBack={goBack} />,
+    "guide-detail": (view) => (
+      <GuideDetailView guideId={view.guideId} onBack={goBack} />
+    ),
+    blog: () => <BlogView onBack={goBack} />,
+    "editor-test": () => <EditorTestView />,
+    about: () => <AboutView onBack={goBack} />,
+    donate: () => <DonateView onBack={goBack} />,
+  };
   return (
     <>
       {/* Auth Modal */}
@@ -863,509 +1211,10 @@ function AppContent() {
             <div className="flex">
               {/* Main content - grows to fill space */}
               <div className="flex-1 min-w-0">
-                {currentView.type === "materials" ? (
-                  <div className="p-3">
-                    {/* Sync error/offline banner - only show for authenticated users */}
-                    {user &&
-                      (syncStatus === "error" || syncStatus === "offline") && (
-                        <OfflineNoticeBox
-                          syncStatus={syncStatus}
-                          onRetry={retrySync}
-                        />
-                      )}
-                    {/* Centered content */}
-                    <div className="flex flex-col items-center justify-center mb-6 max-w-2xl mx-auto px-4">
-                      {/* All elements centered in a single column */}
-                      <div className="w-full flex flex-col justify-center items-center gap-4">
-                        {/* Logo */}
-                        <LogoLink
-                          onNavigateHome={() => {
-                            setSearchQuery("");
-                            navigateTo({ type: "materials" });
-                          }}
-                        />
-
-                        {/* Search bar - centered */}
-                        <div className="w-full max-w-xl">
-                          <SearchBar
-                            value={searchQuery}
-                            onChange={setSearchQuery}
-                            suggestions={materialSearchSuggestions}
-                            onSearch={(query) => {
-                              if (!query) {
-                                // Empty search - clear query and go to materials
-                                setSearchQuery("");
-                              }
-                              navigateToSearchResults(query);
-                            }}
-                          />
-                        </div>
-
-                        {/* Chart centered below search */}
-                        {materials.length > 0 &&
-                          currentView.type === "materials" &&
-                          (() => {
-                            // Show eye icon in admin mode, show chart when clicked
-                            if (isAdminModeActive && !showChart) {
-                              return (
-                                <div className="mt-4 flex items-center justify-center">
-                                  <button
-                                    onClick={() => setShowChart(true)}
-                                    className="p-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-waste-recycle hover:bg-waste-recycle/80 transition-all hover:shadow-[3px_4px_0px_-1px_#000000] dark:hover:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)]"
-                                    aria-label="Show chart (work in progress)"
-                                  >
-                                    <Eye size={32} className="text-black" />
-                                  </button>
-                                </div>
-                              );
-                            }
-
-                            if (!showChart) return null;
-
-                            // Compute chart data once so we can reference it in the label
-                            const chartData = [
-                              {
-                                name: "Compostable",
-                                shortName: "compostable",
-                                categoryKey: "compostability",
-                                value: Math.round(
-                                  materials.reduce(
-                                    (sum, m) => sum + m.compostability,
-                                    0,
-                                  ) / materials.length,
-                                ),
-                                articleCount: materials.reduce(
-                                  (sum, m) =>
-                                    sum + getArticleCount(m, "compostability"),
-                                  0,
-                                ),
-                                fill: "#e8a593",
-                              },
-                              {
-                                name: "Recyclable",
-                                shortName: "recyclable",
-                                categoryKey: "recyclability",
-                                value: Math.round(
-                                  materials.reduce(
-                                    (sum, m) => sum + m.recyclability,
-                                    0,
-                                  ) / materials.length,
-                                ),
-                                articleCount: materials.reduce(
-                                  (sum, m) =>
-                                    sum + getArticleCount(m, "recyclability"),
-                                  0,
-                                ),
-                                fill: "#f0e68c",
-                              },
-                              {
-                                name: "Reusable",
-                                shortName: "reusable",
-                                categoryKey: "reusability",
-                                value: Math.round(
-                                  materials.reduce(
-                                    (sum, m) => sum + m.reusability,
-                                    0,
-                                  ) / materials.length,
-                                ),
-                                articleCount: materials.reduce(
-                                  (sum, m) =>
-                                    sum + getArticleCount(m, "reusability"),
-                                  0,
-                                ),
-                                fill: "#a8c5d8",
-                              },
-                            ];
-
-                            return (
-                              <div className="mt-6 w-full max-w-md">
-                                <AnimatedWasteChart
-                                  chartData={chartData}
-                                  onCategoryClick={(categoryKey) =>
-                                    navigateTo({
-                                      type: "all-articles",
-                                      category: categoryKey as CategoryType,
-                                    })
-                                  }
-                                />
-                              </div>
-                            );
-                          })()}
-                      </div>
-                    </div>
-
-                    {showForm && (
-                      <div className="mb-6">
-                        <MaterialForm
-                          material={editingMaterial || undefined}
-                          onSave={
-                            editingMaterial
-                              ? handleUpdateMaterial
-                              : handleAddMaterial
-                          }
-                          onCancel={() => {
-                            setShowForm(false);
-                            setEditingMaterial(null);
-                          }}
-                          isAdminMode={isAdminModeActive}
-                        />
-                      </div>
-                    )}
-
-                    {/* Welcome message when no search */}
-                    {isLoadingMaterials ? (
-                      <LoadingPlaceholder />
-                    ) : (
-                      <Welcome
-                        user={user}
-                        materials={materials}
-                        onViewProfile={navigateToUserProfile}
-                      />
-                    )}
-                  </div>
-                ) : currentView.type === "search-results" ? (
-                  <SearchResultsView
-                    query={currentView.query}
-                    materials={materials}
-                    searchQuery={searchQuery}
-                    setSearchQuery={setSearchQuery}
-                    onBack={() => {
-                      setSearchQuery("");
-                      goBack();
-                    }}
-                    onEditMaterial={setMaterialToEdit}
-                    onDeleteMaterial={handleDeleteMaterial}
-                    onViewArticles={handleViewArticles}
-                    onViewMaterial={handleViewMaterial}
-                    onViewCategory={handleViewCategoryMaterials}
-                    onEditScientific={(materialId) =>
-                      navigateToScientificEditor(materialId)
-                    }
-                    onSuggestEdit={setMaterialToEdit}
-                    isAdminModeActive={isAdminModeActive}
-                    isAuthenticated={!!user}
-                  />
-                ) : currentMaterial && currentView.type === "articles" ? (
-                  <ArticlesView
-                    material={currentMaterial}
-                    category={currentView.category}
-                    onBack={goBack}
-                    onUpdateMaterial={handleUpdateMaterial}
-                    onViewArticleStandalone={(articleId) =>
-                      handleViewArticleStandalone(
-                        currentMaterial.id,
-                        articleId,
-                        currentView.category,
-                      )
-                    }
-                    isAdminModeActive={isAdminModeActive}
-                    userRole={userRole}
-                    user={user}
-                    onSignUp={() => setShowAuthModal(true)}
-                  />
-                ) : currentView.type === "all-articles" ? (
-                  <AllArticlesView
-                    category={currentView.category}
-                    materials={materials}
-                    onBack={goBack}
-                    onViewArticleStandalone={(articleId, materialId) =>
-                      handleViewArticleStandalone(
-                        materialId,
-                        articleId,
-                        currentView.category,
-                      )
-                    }
-                  />
-                ) : currentMaterial &&
-                  currentView.type === "material-detail" ? (
-                  <MaterialDetailView
-                    material={currentMaterial}
-                    allMaterials={materials}
-                    onBack={goBack}
-                    onViewCategoryMaterials={handleViewCategoryMaterials}
-                    onUpdateMaterial={handleUpdateMaterial}
-                    onViewArticleStandalone={(articleId, category) =>
-                      handleViewArticleStandalone(
-                        currentMaterial.id,
-                        articleId,
-                        category,
-                      )
-                    }
-                    isAdminModeActive={isAdminModeActive}
-                    isAuthenticated={!!user}
-                    onEditMaterial={setMaterialToEdit}
-                    onSuggestEdit={setMaterialToEdit}
-                    onViewArticles={(category) =>
-                      handleViewArticles(currentMaterial.id, category)
-                    }
-                  />
-                ) : currentMaterial &&
-                  currentView.type === "article-standalone" ? (
-                  <StandaloneArticleView
-                    article={
-                      getArticlesByCategory(
-                        currentMaterial,
-                        currentView.category,
-                      ).find((a) => a.id === currentView.articleId)!
-                    }
-                    sustainabilityCategory={{
-                      label:
-                        currentView.category === "compostability"
-                          ? "Compostability"
-                          : currentView.category === "recyclability"
-                            ? "Recyclability"
-                            : "Reusability",
-                      color:
-                        currentView.category === "compostability"
-                          ? "#e6beb5"
-                          : currentView.category === "recyclability"
-                            ? "#e4e3ac"
-                            : "#b8c8cb",
-                    }}
-                    materialName={currentMaterial.name}
-                    onBack={goBack}
-                    onEdit={() => {
-                      // Navigate back to material detail with edit form open
-                      navigateToMaterialDetail(currentMaterial.id);
-                    }}
-                    onDelete={() => {
-                      if (
-                        confirm("Are you sure you want to delete this article?")
-                      ) {
-                        const updatedMaterial = removeArticleFromMaterial(
-                          currentMaterial,
-                          currentView.category,
-                          currentView.articleId,
-                        );
-                        handleUpdateMaterial(updatedMaterial);
-                        navigateToMaterialDetail(currentMaterial.id);
-                      }
-                    }}
-                    isAdminModeActive={isAdminModeActive}
-                  />
-                ) : currentView.type === "methodology-list" ? (
-                  <MethodologyListView
-                    onBack={goBack}
-                    onSelectWhitepaper={navigateToWhitepaper}
-                  />
-                ) : currentView.type === "whitepaper" ? (
-                  <WhitepaperView
-                    whitepaperSlug={currentView.whitepaperSlug}
-                    onBack={goBack}
-                  />
-                ) : currentView.type === "admin-dashboard" ? (
-                  <AdminDashboard
-                    onBack={navigateToMaterials}
-                    onNavigateToReviewCenter={navigateToReviewCenter}
-                    onNavigateToDataManagement={navigateToDataManagement}
-                    onNavigateToUserManagement={navigateToUserManagement}
-                    onNavigateToWhitepaperSync={navigateToWhitepaperSync}
-                    onNavigateToTransformManager={() =>
-                      navigateToMathTools("transform-manager")
-                    }
-                    onNavigateToAdminTakedownList={navigateToAdminTakedownList}
-                    onNavigateToAuditLog={navigateToAuditLog}
-                    onNavigateToDataRetention={navigateToDataRetention}
-                    onNavigateToWhitepapers={navigateToWhitepapersManagement}
-                    onNavigateToAssets={navigateToAssetsManagement}
-                    onNavigateToRolePermissions={navigateToRolePermissions}
-                    onNavigateToMath={navigateToMathTools}
-                    onNavigateToCharts={navigateToChartsPerformance}
-                    onNavigateToRoadmap={navigateToRoadmap}
-                    onNavigateToRoadmapOverview={
-                      navigateToRoadmapOverview as (section?: string) => void
-                    }
-                    onNavigateToSourceLibrary={navigateToSourceLibrary}
-                    onNavigateToSourceComparison={navigateToSourceComparison}
-                    onNavigateToEvidenceLab={navigateToEvidenceLab}
-                    onNavigateToCurationWorkbench={navigateToCurationWorkbench}
-                    onNavigateToTransformTesting={navigateToTransformTesting}
-                  />
-                ) : currentView.type === "staff-dashboard" ? (
-                  <StaffDashboard
-                    onBack={navigateToMaterials}
-                    onNavigateToDataManagement={navigateToDataManagement}
-                    onNavigateToSourceLibrary={navigateToSourceLibrary}
-                    onNavigateToEvidenceLab={navigateToEvidenceLab}
-                    onNavigateToCurationWorkbench={navigateToCurationWorkbench}
-                    onNavigateToTransformTesting={navigateToTransformTesting}
-                    onNavigateToCharts={navigateToChartsPerformance}
-                    onNavigateToRoadmapOverview={() =>
-                      navigateToRoadmapOverview("overview")
-                    }
-                  />
-                ) : currentView.type === "data-management" ? (
-                  <DataManagementView
-                    materials={materials}
-                    onBack={navigateToAdminHome}
-                    onUpdateMaterial={handleUpdateMaterial}
-                    onUpdateMaterials={updateMaterials}
-                    onBulkImport={handleBulkImport}
-                    onDeleteMaterial={handleDeleteMaterial}
-                    onViewMaterial={navigateToMaterialDetail}
-                    onDeleteAllData={async () => {
-                      await deleteAllMaterials();
-                      toast.success(
-                        supabaseAvailable
-                          ? "All data deleted from cloud and locally"
-                          : "All data deleted locally",
-                      );
-                      navigateToMaterials();
-                    }}
-                    user={user}
-                    userRole={userRole}
-                  />
-                ) : currentView.type === "user-management" ? (
-                  <UserManagementView
-                    onBack={navigateToAdminHome}
-                    currentUserId={user?.id || ""}
-                  />
-                ) : currentView.type === "whitepaper-sync" ? (
-                  <WhitepaperSyncTool onBack={navigateToAdminHome} />
-                ) : currentView.type === "scientific-editor" &&
-                  currentMaterial ? (
-                  <ScientificDataEditor
-                    material={currentMaterial as any}
-                    onSave={(updatedMaterial) => {
-                      handleUpdateMaterial(updatedMaterial as Material);
-                      navigateToMaterials();
-                    }}
-                    onCancel={navigateToMaterials}
-                  />
-                ) : currentView.type === "export" ? (
-                  <PublicExportView
-                    onBack={goBack}
-                    materialsCount={materials.length}
-                  />
-                ) : currentView.type === "user-profile" ? (
-                  <UserProfileView
-                    userId={currentView.userId}
-                    onBack={goBack}
-                    isOwnProfile={currentView.userId === user?.id}
-                    onNavigateToMySubmissions={
-                      currentView.userId === user?.id
-                        ? navigateToMySubmissions
-                        : undefined
-                    }
-                    isAdminModeActive={isAdminModeActive}
-                    onViewMaterial={navigateToMaterialDetail}
-                    onViewGuide={(guideId) =>
-                      navigateTo({ type: "guide-detail", guideId })
-                    }
-                    onViewArticle={(materialId, category, articleId) =>
-                      navigateTo({
-                        type: "article-standalone",
-                        articleId,
-                        materialId,
-                        category: category as CategoryType,
-                      })
-                    }
-                  />
-                ) : currentView.type === "my-submissions" ? (
-                  <MySubmissionsView onBack={goBack} />
-                ) : currentView.type === "review-center" ? (
-                  <ContentReviewCenter
-                    onBack={navigateToAdminHome}
-                    currentUserId={user?.id || ""}
-                    onNavigateToProfile={navigateToUserProfile}
-                    materials={materials}
-                  />
-                ) : currentView.type === "api-docs" ? (
-                  <ApiDocumentation onBack={navigateToScienceHub} />
-                ) : currentView.type === "source-library" ? (
-                  <SourceLibraryManager
-                    onBack={navigateToAdminHome}
-                    materials={materials}
-                    isAuthenticated={!!user}
-                    isAdmin={userRole === "admin"}
-                  />
-                ) : currentView.type === "source-comparison" ? (
-                  <SourceDataComparison
-                    onBack={navigateToAdminHome}
-                    materials={materials}
-                  />
-                ) : currentView.type === "evidence-lab" ? (
-                  <EvidenceLabView onBack={navigateToAdminHome} />
-                ) : currentView.type === "curation-workbench" ? (
-                  <CurationWorkbench onBack={navigateToAdminHome} />
-                ) : currentView.type === "transform-formula-testing" ? (
-                  <TransformFormulaTesting
-                    onBack={navigateToAdminHome}
-                    materials={materials}
-                  />
-                ) : currentView.type === "licenses" ? (
-                  <LicensesView onBack={goBack} />
-                ) : currentView.type === "science-hub" ? (
-                  <ScienceHubView
-                    onBack={goBack}
-                    onNavigateToWhitePapers={navigateToMethodologyList}
-                    onNavigateToOpenAccess={navigateToExport}
-                    onNavigateToAPI={navigateToApiDocs}
-                  />
-                ) : currentView.type === "legal-hub" ? (
-                  <LegalHubView
-                    onBack={goBack}
-                    onNavigateToTakedownForm={navigateToTakedownForm}
-                    onNavigateToLicenses={navigateToLicenses}
-                    onNavigateToPrivacyPolicy={navigateToPrivacyPolicy}
-                  />
-                ) : currentView.type === "privacy-policy" ? (
-                  <PrivacyPolicyView onBack={navigateToLegalHub} />
-                ) : currentView.type === "takedown-form" ? (
-                  <TakedownRequestForm onBack={navigateToLegalHub} />
-                ) : currentView.type === "takedown-status" ? (
-                  <TakedownStatusView
-                    requestId={currentView.requestId}
-                    className="p-6"
-                  />
-                ) : currentView.type === "admin-takedown-list" ? (
-                  <AdminTakedownList />
-                ) : currentView.type === "audit-log" ? (
-                  <AuditLogViewer onBack={navigateToAdminDashboard} />
-                ) : currentView.type === "data-retention" ? (
-                  <DataRetentionManager className="p-6" />
-                ) : currentView.type === "transform-manager" ? (
-                  <TransformVersionManager className="p-6" />
-                ) : currentView.type === "whitepapers-management" ? (
-                  <WhitepaperSyncTool
-                    onBack={navigateToAdminDashboard}
-                    className="p-6"
-                  />
-                ) : currentView.type === "role-permissions" ? (
-                  <RolePermissionsView onBack={navigateToAdminDashboard} />
-                ) : currentView.type === "assets-management" ? (
-                  <AssetsManagementPage />
-                ) : currentView.type === "math-tools" ? (
-                  <MathView
-                    onBack={navigateToAdminDashboard}
-                    defaultTab={currentView.defaultTab}
-                  />
-                ) : currentView.type === "charts-performance" ? (
-                  <ChartsPerformanceView onBack={navigateToAdminHome} />
-                ) : currentView.type === "roadmap" ? (
-                  <RoadmapView onBack={navigateToAdminHome} />
-                ) : currentView.type === "roadmap-overview" ? (
-                  <SimplifiedRoadmap
-                    onBack={navigateToAdminHome}
-                    defaultTab={currentView.defaultTab}
-                    staffMode={userRole === "staff"}
-                  />
-                ) : currentView.type === "guides" ? (
-                  <GuidesView onBack={goBack} />
-                ) : currentView.type === "guide-detail" ? (
-                  <GuideDetailView
-                    guideId={currentView.guideId}
-                    onBack={goBack}
-                  />
-                ) : currentView.type === "blog" ? (
-                  <BlogView onBack={goBack} />
-                ) : currentView.type === "editor-test" ? (
-                  <EditorTestView />
-                ) : currentView.type === "about" ? (
-                  <AboutView onBack={goBack} />
-                ) : currentView.type === "donate" ? (
-                  <DonateView onBack={goBack} />
-                ) : null}
+                <ViewConfiguration
+                  currentView={currentView}
+                  views={viewConfigurations}
+                />
 
                 {/* Footer - inside rounded container */}
                 <PageFooter />
