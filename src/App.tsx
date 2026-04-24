@@ -1130,8 +1130,8 @@ function AppContent() {
         onNavigateToPrivacyPolicy={navigateToPrivacyPolicy}
       />
     ),
-    "privacy-policy": () => <PrivacyPolicyView onBack={navigateToLegalHub} />,
-    "takedown-form": () => <TakedownRequestForm onBack={navigateToLegalHub} />,
+    "privacy-policy": () => <PrivacyPolicyView onBack={goBack} />,
+    "takedown-form": () => <TakedownRequestForm onBack={goBack} />,
     "takedown-status": (view) => (
       <TakedownStatusView requestId={view.requestId} className="p-6" />
     ),
