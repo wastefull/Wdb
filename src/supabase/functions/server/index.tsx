@@ -4945,6 +4945,62 @@ app.post(
   },
 );
 
+// Backfill: mark all existing draft articles as published (admin only)
+app.post(
+  "/make-server-17cae920/admin/backfill-article-status",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const allMaterialEntries =
+        (await kv.getEntriesByPrefix("material:")) || [];
+      let articlesUpdated = 0;
+
+      for (const entry of allMaterialEntries) {
+        const material = entry.value || {};
+        const idFromKey = entry.key.startsWith("material:")
+          ? entry.key.slice("material:".length)
+          : "";
+        const resolvedId =
+          typeof material.id === "string" && material.id.trim().length > 0
+            ? material.id
+            : idFromKey;
+
+        if (!material.articles) continue;
+        let changed = false;
+        for (const category of [
+          "compostability",
+          "recyclability",
+          "reusability",
+        ]) {
+          const articleList = material.articles[category];
+          if (!Array.isArray(articleList)) continue;
+          for (const article of articleList) {
+            if (!article.status || article.status === "draft") {
+              article.status = "published";
+              article.updated_at =
+                article.updated_at || new Date().toISOString();
+              articlesUpdated++;
+              changed = true;
+            }
+          }
+        }
+        if (changed) {
+          await kv.set(`material:${resolvedId}`, material);
+        }
+      }
+
+      return c.json({ success: true, articlesUpdated });
+    } catch (error) {
+      log.error("Error backfilling article status:", error);
+      return c.json(
+        { error: "Failed to backfill article status", details: String(error) },
+        500,
+      );
+    }
+  },
+);
+
 // Debug endpoint - get all articles with author info
 app.get("/make-server-17cae920/debug/articles", verifyAuth, async (c) => {
   try {
@@ -5712,22 +5768,45 @@ function getContributionLevel(count: number): 0 | 1 | 2 | 3 | 4 {
 // Get all articles (public)
 app.get("/make-server-17cae920/articles", async (c) => {
   try {
-    const status = c.req.query("status") || "published";
+    const status = c.req.query("status");
     const materialId = c.req.query("material_id");
 
-    let articles = await kv.getByPrefix("article:");
+    const allMaterialEntries = (await kv.getEntriesByPrefix("material:")) || [];
+    const articles: any[] = [];
 
-    // Filter by status
-    if (status) {
-      articles = articles?.filter((a) => a.status === status) || [];
+    for (const entry of allMaterialEntries) {
+      const material = entry.value || {};
+      // Normalize ID same way as normalizeMaterialFromEntry: prefer value's id, fall back to key suffix
+      const idFromKey = entry.key.startsWith("material:")
+        ? entry.key.slice("material:".length)
+        : "";
+      const resolvedId =
+        typeof material.id === "string" && material.id.trim().length > 0
+          ? material.id
+          : idFromKey;
+
+      if (!material.articles) continue;
+      for (const category of [
+        "compostability",
+        "recyclability",
+        "reusability",
+      ]) {
+        const articleList = material.articles[category];
+        if (!Array.isArray(articleList)) continue;
+        for (const article of articleList) {
+          if (materialId && resolvedId !== materialId) continue;
+          if (status && article.status !== status) continue;
+          articles.push({
+            ...article,
+            material_id: article.material_id || resolvedId,
+            sustainability_category:
+              article.sustainability_category || category,
+          });
+        }
+      }
     }
 
-    // Filter by material_id
-    if (materialId) {
-      articles = articles?.filter((a) => a.material_id === materialId) || [];
-    }
-
-    return c.json({ articles: articles || [] });
+    return c.json({ articles });
   } catch (error) {
     log.error("Error fetching articles:", error);
     return c.json(
@@ -6049,6 +6128,70 @@ app.put(
       };
 
       await kv.set(`submission:${id}`, updatedSubmission);
+
+      // If approved, apply the content to the material
+      if (updates.status === "approved" && existing.content_data) {
+        try {
+          const type = existing.type as string;
+          const data = existing.content_data;
+
+          if (
+            type === "new_article" &&
+            data.material_id &&
+            data.sustainability_category
+          ) {
+            const material = await kv.get(`material:${data.material_id}`);
+            if (material) {
+              const category = data.sustainability_category as string;
+              const articles = material.articles?.[category] ?? [];
+              const newArticle = {
+                ...data,
+                id: data.id || String(Date.now()),
+                status: "published",
+                author_id: data.author_id || existing.submitted_by,
+                created_by: data.created_by || existing.submitted_by,
+                updated_at: new Date().toISOString(),
+              };
+              material.articles = {
+                ...material.articles,
+                [category]: [...articles, newArticle],
+              };
+              await kv.set(`material:${data.material_id}`, material);
+            }
+          } else if (
+            type === "update_article" &&
+            data.material_id &&
+            data.sustainability_category &&
+            data.id
+          ) {
+            const material = await kv.get(`material:${data.material_id}`);
+            if (material) {
+              const category = data.sustainability_category as string;
+              const articles: any[] = material.articles?.[category] ?? [];
+              const idx = articles.findIndex((a: any) => a.id === data.id);
+              if (idx !== -1) {
+                articles[idx] = {
+                  ...articles[idx],
+                  ...data,
+                  status: "published",
+                  updated_at: new Date().toISOString(),
+                };
+              }
+              material.articles = {
+                ...material.articles,
+                [category]: articles,
+              };
+              await kv.set(`material:${data.material_id}`, material);
+            }
+          }
+        } catch (applyErr) {
+          log.error(
+            "Error applying approved submission to material:",
+            applyErr,
+          );
+          // Non-fatal — submission is still marked approved
+        }
+      }
 
       // If approved/rejected, notify the submitter
       if (updates.status === "approved" || updates.status === "rejected") {

@@ -11,6 +11,7 @@ import { LogoLink } from "./LogoLink";
 import { MaterialsDonutChart } from "./MaterialsDonutChart";
 import { OfflineNoticeBox } from "./OfflineNoticeBox";
 import { Welcome } from "./Welcome";
+import { PopularArticles } from "./PopularArticles";
 import { getTotalArticleCount } from "../../utils/materialArticles";
 
 interface FrontPageProps {
@@ -36,7 +37,7 @@ export function FrontPage({
   onAddMaterial,
   onUpdateMaterial,
 }: FrontPageProps) {
-  const { navigateTo, navigateToSearchResults, navigateToUserProfile } =
+  const { navigateToSearchResults, navigateToUserProfile } =
     useNavigationContext();
   const { user, userRole } = useAuthContext();
   const { materials, isLoadingMaterials, syncStatus, retrySync } =
@@ -90,6 +91,9 @@ export function FrontPage({
           <MaterialsDonutChart />
         </div>
       </div>
+
+      {/* Popular this week */}
+      <PopularArticles />
 
       {showForm && (
         <div className="mb-6">

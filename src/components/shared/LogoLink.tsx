@@ -20,7 +20,7 @@ export function LogoLink({ onNavigateHome }: LogoLinkProps) {
   return (
     <button
       onClick={handleClick}
-      className="transition-transform hover:scale-105"
+      className="transition-transform hover:scale-105 cursor-pointer"
       aria-label="Go to home page"
     >
       <img

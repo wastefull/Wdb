@@ -1,6 +1,7 @@
 import { AlertCircle, CircleOff, FlaskConical } from "lucide-react";
 import { motion } from "motion/react";
 import { useNavigationContext } from "../../contexts/NavigationContext";
+import { LogoLink } from "./LogoLink";
 
 export function PageFooter() {
   const { navigateToScienceHub, navigateToLegalHub, navigateToPrivacyPolicy } =
@@ -8,7 +9,10 @@ export function PageFooter() {
 
   return (
     <div className="p-6">
-      <footer className="mt-8 text-center border-t border-[#211f1c]/10 dark:border-white/10 pt-6">
+      <footer className="relative mt-8 text-center border-t border-[#211f1c]/10 dark:border-white/10 pt-6">
+        <div className="pb-6 left-0 top-6">
+          <LogoLink />
+        </div>
         {/* Science and Legal links */}
         <div className="flex justify-center items-center gap-2 mb-6">
           <motion.div

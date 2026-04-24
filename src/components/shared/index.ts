@@ -32,6 +32,7 @@ export { PageFooter } from "./PageFooter.tsx";
 export { PageTemplate } from "./PageTemplate";
 export { PeriodicTableCard } from "./PeriodicTableCard";
 export { PermalinkSelectionPrompt } from "./PermalinkSelectionPrompt.tsx";
+export { PopularArticles } from "./PopularArticles";
 export { RasterizedQuantileArticleCategories } from "./RasterizedQuantileArticleCategories";
 export { ReviewModal } from "./ReviewModal";
 export { ScrollHintArrow } from "./ScrollHintArrow.tsx";

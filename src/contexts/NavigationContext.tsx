@@ -21,7 +21,7 @@ export type ViewType =
   | { type: "search-results"; query: string }
   | { type: "material-detail"; materialId: string }
   | { type: "articles"; category: CategoryType; materialId: string }
-  | { type: "all-articles"; category: CategoryType }
+  | { type: "all-articles"; category?: CategoryType }
   | {
       type: "article-detail";
       articleId: string;

@@ -20,9 +20,9 @@ import { logger } from "./logger";
  */
 const suppressedScopes = new Set<string>([
   // "Navigation",
-  "Auth",
+  // "Auth",
   // "Sync",
-  "API",
+  // "API",
   // "Articles",
   // "Sources",
   // "Submissions",
@@ -31,7 +31,7 @@ const suppressedScopes = new Set<string>([
   // "Whitepaper",
   // "A11y",
   // "Email",
-  "Materials",
+  // "Materials",
 ]);
 
 /** Returns the list of currently suppressed scope names. */

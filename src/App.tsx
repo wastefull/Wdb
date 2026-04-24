@@ -886,8 +886,8 @@ function AppContent() {
         category={view.category}
         materials={materials}
         onBack={goBack}
-        onViewArticleStandalone={(articleId, materialId) =>
-          handleViewArticleStandalone(materialId, articleId, view.category)
+        onViewArticleStandalone={(articleId, materialId, category) =>
+          handleViewArticleStandalone(materialId, articleId, category)
         }
       />
     ),
