@@ -23,6 +23,7 @@ export { MaterialHubButton } from "./MaterialHubButton";
 export { MaterialName } from "./MaterialName";
 export { NavTabBar } from "./NavTabBar";
 export { NotificationBell } from "./NotificationBell";
+export { OfflineNoticeBox } from "./OfflineNoticeBox";
 export { PageTemplate } from "./PageTemplate";
 export { PeriodicTableCard } from "./PeriodicTableCard";
 export { RasterizedQuantileArticleCategories } from "./RasterizedQuantileArticleCategories";

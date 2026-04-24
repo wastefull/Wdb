@@ -19,18 +19,18 @@ import { logger } from "./logger";
  * @example suppressedScopes.add('Navigation')
  */
 const suppressedScopes = new Set<string>([
-  "Navigation",
+  // "Navigation",
   "Auth",
-  "Sync",
+  // "Sync",
   "API",
-  "Articles",
-  "Sources",
-  "Submissions",
-  "User",
-  "Scientific",
-  "Whitepaper",
-  "A11y",
-  "Email",
+  // "Articles",
+  // "Sources",
+  // "Submissions",
+  // "User",
+  // "Scientific",
+  // "Whitepaper",
+  // "A11y",
+  // "Email",
   "Materials",
 ]);
 
