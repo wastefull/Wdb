@@ -23,6 +23,7 @@ import { CategoryType } from "./types/article";
 import {
   getArticlesByCategory,
   removeArticleFromMaterial,
+  updateArticleInMaterial,
   getTotalArticleCount,
 } from "./utils/materialArticles";
 import { motion } from "motion/react";
@@ -884,6 +885,7 @@ function AppContent() {
     "all-articles": (view) => (
       <AllArticlesView
         category={view.category}
+        articleType={view.articleType}
         materials={materials}
         onBack={goBack}
         onViewArticleStandalone={(articleId, materialId, category) =>
@@ -906,6 +908,7 @@ function AppContent() {
           }
           isAdminModeActive={isAdminModeActive}
           isAuthenticated={!!user}
+          currentUserId={user?.id}
           onEditMaterial={setMaterialToEdit}
           onSuggestEdit={setMaterialToEdit}
           onViewArticles={(category) =>
@@ -917,13 +920,20 @@ function AppContent() {
     "article-standalone": (view) => {
       const material = materials.find((m) => m.id === view.materialId);
       if (!material) return null;
+      const article = getArticlesByCategory(material, view.category).find(
+        (a) => a.id === view.articleId,
+      );
+      if (!article) return null;
+
+      const isArticleAuthor = !!(
+        user?.id &&
+        (article.created_by === user.id || article.author_id === user.id)
+      );
+      const canManageArticle = isAdminModeActive || isArticleAuthor;
+
       return (
         <StandaloneArticleView
-          article={
-            getArticlesByCategory(material, view.category).find(
-              (a) => a.id === view.articleId,
-            )!
-          }
+          article={article}
           sustainabilityCategory={{
             label:
               view.category === "compostability"
@@ -939,22 +949,74 @@ function AppContent() {
                   : "#b8c8cb",
           }}
           materialName={material.name}
+          materialId={material.id}
           onBack={goBack}
-          onEdit={() => {
-            navigateToMaterialDetail(material.id);
-          }}
-          onDelete={() => {
-            if (confirm("Are you sure you want to delete this article?")) {
-              const updatedMaterial = removeArticleFromMaterial(
-                material,
-                view.category,
-                view.articleId,
-              );
-              handleUpdateMaterial(updatedMaterial);
-              navigateToMaterialDetail(material.id);
-            }
-          }}
+          onSaveEdit={
+            canManageArticle
+              ? async (updated) => {
+                  if (isAdminModeActive) {
+                    const updatedMaterial = updateArticleInMaterial(
+                      material,
+                      view.category,
+                      view.articleId,
+                      (a) => ({
+                        ...updated,
+                        id: a.id,
+                        dateAdded: a.dateAdded,
+                        updated_at: new Date().toISOString(),
+                      }),
+                    );
+                    handleUpdateMaterial(updatedMaterial);
+                    return;
+                  }
+
+                  const changeReason = prompt(
+                    "Briefly explain your suggested article changes (required):",
+                  );
+                  if (!changeReason?.trim()) {
+                    toast.error(
+                      "A reason is required to submit an edit request",
+                    );
+                    return;
+                  }
+
+                  try {
+                    await api.createSubmission({
+                      type: "update_article",
+                      original_content_id: view.articleId,
+                      content_data: {
+                        ...updated,
+                        article_id: view.articleId,
+                        material_id: material.id,
+                        category: view.category,
+                        change_reason: changeReason.trim(),
+                      },
+                    });
+                    toast.success(
+                      "Edit suggestion submitted for admin review.",
+                    );
+                  } catch {
+                    toast.error("Failed to submit edit suggestion");
+                  }
+                }
+              : undefined
+          }
+          onDelete={
+            canManageArticle
+              ? async () => {
+                  const updatedMaterial = removeArticleFromMaterial(
+                    material,
+                    view.category,
+                    view.articleId,
+                  );
+                  handleUpdateMaterial(updatedMaterial);
+                  navigateToMaterialDetail(material.id);
+                  toast.success("Article deleted");
+                }
+              : undefined
+          }
           isAdminModeActive={isAdminModeActive}
+          canManageArticle={canManageArticle}
         />
       );
     },

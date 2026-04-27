@@ -1,6 +1,6 @@
 import { ArrowLeft } from "lucide-react";
 import { Material } from "../../types/material";
-import { CategoryType } from "../../types/article";
+import { CategoryType, ArticleType } from "../../types/article";
 import { ArticleCard } from "../cards";
 
 const ALL_CATEGORIES: CategoryType[] = [
@@ -17,6 +17,7 @@ const categoryLabels: Record<CategoryType, string> = {
 
 interface AllArticlesViewProps {
   category?: CategoryType;
+  articleType?: ArticleType;
   materials: Material[];
   onBack: () => void;
   onViewArticleStandalone: (
@@ -28,6 +29,7 @@ interface AllArticlesViewProps {
 
 export function AllArticlesView({
   category,
+  articleType,
   materials,
   onBack,
   onViewArticleStandalone,
@@ -38,13 +40,19 @@ export function AllArticlesView({
     categoriesToShow.flatMap((cat) => {
       const list = material.articles?.[cat];
       if (!list || !Array.isArray(list)) return [];
-      return list.map((article) => ({ article, material, cat }));
+      return list
+        .filter(
+          (article) => !articleType || article.article_type === articleType,
+        )
+        .map((article) => ({ article, material, cat }));
     }),
   );
 
-  const title = category
-    ? `All ${categoryLabels[category]} Articles`
-    : "All Articles";
+  const title = articleType
+    ? `All ${articleType} Articles`
+    : category
+      ? `All ${categoryLabels[category]} Articles`
+      : "All Articles";
 
   return (
     <div className="p-6">

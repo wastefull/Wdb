@@ -15,6 +15,10 @@ import {
 import * as api from "../../utils/api";
 import { Material } from "../../types/material";
 import { toast } from "sonner";
+import {
+  removeArticleFromMaterial,
+  updateArticleInMaterial,
+} from "../../utils/materialArticles";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { ReviewModal } from "../shared/ReviewModal";
 import { logger as log } from "../../utils/logger";
@@ -264,6 +268,73 @@ export function ContentReviewCenter({
         const articleData = editedContent || submission.content_data;
         // Note: This requires article creation API which will be implemented in Phase 6.4
         log.log("Article approval:", articleData);
+      } else if (submission.type === "update_article") {
+        const articleData = editedContent || submission.content_data;
+        const articleId =
+          submission.original_content_id || articleData.article_id;
+        const materialId = articleData.material_id;
+        const category = articleData.category;
+
+        if (!articleId || !materialId || !category) {
+          throw new Error("Missing required update_article submission data");
+        }
+
+        const existing = materials.find((m) => m.id === materialId);
+        if (!existing) {
+          throw new Error("Material not found for article update");
+        }
+
+        const {
+          article_id: _articleId,
+          material_id: _materialId,
+          category: _category,
+          change_reason: _changeReason,
+          ...articleUpdates
+        } = articleData;
+
+        const updatedMaterial = updateArticleInMaterial(
+          existing,
+          category,
+          articleId,
+          (a) => ({
+            ...a,
+            ...articleUpdates,
+            id: a.id,
+            dateAdded: a.dateAdded,
+            updated_at: new Date().toISOString(),
+            ...(wasEditedByAdmin && editorName
+              ? {
+                  edited_by: currentUserId,
+                  editor_name: editorName,
+                }
+              : {}),
+          }),
+        );
+
+        await api.updateMaterial(updatedMaterial);
+      } else if (submission.type === "delete_article") {
+        const articleData = editedContent || submission.content_data;
+        const articleId =
+          submission.original_content_id || articleData.article_id;
+        const materialId = articleData.material_id;
+        const category = articleData.category;
+
+        if (!articleId || !materialId || !category) {
+          throw new Error("Missing required delete_article submission data");
+        }
+
+        const existing = materials.find((m) => m.id === materialId);
+        if (!existing) {
+          throw new Error("Material not found for article deletion");
+        }
+
+        const updatedMaterial = removeArticleFromMaterial(
+          existing,
+          category,
+          articleId,
+        );
+
+        await api.updateMaterial(updatedMaterial);
       }
 
       // Content creation succeeded - NOW update submission status to approved

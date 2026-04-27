@@ -5,9 +5,10 @@ import { Article, CategoryType } from "../../types/article";
 interface MaterialArticlesGridProps {
   articles: Array<{ article: Article; category: CategoryType }>;
   onEditArticle: (article: Article, category: CategoryType) => void;
-  onDeleteArticle: (articleId: string, category: CategoryType) => void;
+  onDeleteArticle: (article: Article, category: CategoryType) => void;
   onReadMore: (articleId: string, category: CategoryType) => void;
   isAdminModeActive?: boolean;
+  currentUserId?: string;
   onViewArticles?: (category: CategoryType) => void;
 }
 
@@ -31,6 +32,7 @@ export function MaterialArticlesGrid({
   onDeleteArticle,
   onReadMore,
   isAdminModeActive,
+  currentUserId,
   onViewArticles,
 }: MaterialArticlesGridProps) {
   const categoriesWithArticles = new Set(articles.map((a) => a.category));
@@ -51,13 +53,20 @@ export function MaterialArticlesGrid({
                 key={`${category}-${article.id}`}
                 article={article}
                 onEdit={() => onEditArticle(article, category)}
-                onDelete={() => onDeleteArticle(article.id, category)}
+                onDelete={() => onDeleteArticle(article, category)}
                 sustainabilityCategory={{
                   label: categoryLabels[category],
                   color: categoryColors[category],
                 }}
                 onReadMore={() => onReadMore(article.id, category)}
                 isAdminModeActive={isAdminModeActive}
+                canManageArticle={
+                  !!(
+                    currentUserId &&
+                    (article.created_by === currentUserId ||
+                      article.author_id === currentUserId)
+                  )
+                }
               />
             ))}
           </div>

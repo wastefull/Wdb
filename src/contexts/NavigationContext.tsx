@@ -12,7 +12,7 @@ import React, {
   useCallback,
 } from "react";
 import { navigationLogger } from "../utils/loggerFactories";
-import { CategoryType } from "../types/material";
+import { CategoryType, ArticleType } from "../types/article";
 
 // View types that the app can navigate to
 export type ViewType =
@@ -21,7 +21,7 @@ export type ViewType =
   | { type: "search-results"; query: string }
   | { type: "material-detail"; materialId: string }
   | { type: "articles"; category: CategoryType; materialId: string }
-  | { type: "all-articles"; category?: CategoryType }
+  | { type: "all-articles"; category?: CategoryType; articleType?: ArticleType }
   | {
       type: "article-detail";
       articleId: string;

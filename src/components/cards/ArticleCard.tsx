@@ -9,6 +9,7 @@ export interface ArticleCardProps {
   sustainabilityCategory?: { label: string; color: string };
   onReadMore?: () => void;
   isAdminModeActive?: boolean;
+  canManageArticle?: boolean;
 }
 
 // Helper to extract plain text preview from TiptapContent
@@ -56,6 +57,7 @@ export function ArticleCard({
   sustainabilityCategory,
   onReadMore,
   isAdminModeActive,
+  canManageArticle,
 }: ArticleCardProps) {
   const coverImage = article.cover_image_url || article.overview?.image;
   const preview = getContentPreview(article);
@@ -90,7 +92,7 @@ export function ArticleCard({
             )}
           </div>
         </div>
-        {!hideActions && isAdminModeActive && (
+        {!hideActions && (isAdminModeActive || canManageArticle) && (
           <div className="flex gap-2">
             <button
               onClick={onEdit}

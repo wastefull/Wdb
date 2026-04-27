@@ -4,6 +4,9 @@ export {
   useAccessibility,
 } from "./AccessibilityContext";
 
+export { BackArrow } from "./BackArrow";
+export { LastUpdated } from "./LastUpdated";
+
 // Error handling & loading
 export { ErrorBoundary } from "./ErrorBoundary";
 export { LoadingPlaceholder } from "./LoadingPlaceholder";

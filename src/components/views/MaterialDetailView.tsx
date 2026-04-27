@@ -1,7 +1,19 @@
 import { useState, useMemo } from "react";
 import { Edit2 } from "lucide-react";
+import { toast } from "sonner";
 import { Material } from "../../types/material";
 import { Article, CategoryType } from "../../types/article";
+import * as api from "../../utils/api";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../ui/alert-dialog";
 import { buildMaterialPermalinkPath } from "../../utils/permalinks";
 import {
   getAllArticles,
@@ -27,6 +39,7 @@ interface MaterialDetailViewProps {
   onViewArticleStandalone: (articleId: string, category: CategoryType) => void;
   isAdminModeActive?: boolean;
   isAuthenticated?: boolean;
+  currentUserId?: string;
   onEditMaterial?: (material: Material) => void;
   onSuggestEdit?: (material: Material) => void;
   onViewArticles?: (category: CategoryType) => void;
@@ -41,6 +54,7 @@ export function MaterialDetailView({
   onViewArticleStandalone,
   isAdminModeActive,
   isAuthenticated,
+  currentUserId,
   onEditMaterial,
   onSuggestEdit,
   onViewArticles,
@@ -56,23 +70,48 @@ export function MaterialDetailView({
 
   const totalArticles = allArticles.length;
 
-  const handleDeleteArticle = (articleId: string, category: CategoryType) => {
-    if (confirm("Are you sure you want to delete this article?")) {
-      const updatedMaterial = removeArticleFromMaterial(
-        material,
-        category,
-        articleId,
-      );
-      onUpdateMaterial(updatedMaterial);
-    }
+  const isArticleAuthor = (article: Article) =>
+    !!(
+      currentUserId &&
+      (article.created_by === currentUserId ||
+        article.author_id === currentUserId)
+    );
+
+  const canManageArticle = (article: Article) =>
+    !!(isAdminModeActive || isArticleAuthor(article));
+
+  const handleDeleteArticle = async (
+    article: Article,
+    category: CategoryType,
+  ) => {
+    if (!canManageArticle(article)) return;
+
+    setArticleToDelete({ article, category });
   };
 
   const [editingArticle, setEditingArticle] = useState<{
     article: Article;
     category: CategoryType;
   } | null>(null);
+  const [articleToDelete, setArticleToDelete] = useState<{
+    article: Article;
+    category: CategoryType;
+  } | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  const confirmDeleteArticle = () => {
+    if (!articleToDelete) return;
+
+    const updatedMaterial = removeArticleFromMaterial(
+      material,
+      articleToDelete.category,
+      articleToDelete.article.id,
+    );
+    onUpdateMaterial(updatedMaterial);
+    setArticleToDelete(null);
+    toast.success("Article deleted");
+  };
 
   const combinedAliases = useMemo(() => {
     const merged = [
@@ -120,16 +159,54 @@ export function MaterialDetailView({
     }
   };
 
-  const handleUpdateArticle = (
+  const handleUpdateArticle = async (
     articleData: Omit<Article, "id" | "dateAdded">,
   ) => {
     if (!editingArticle) return;
+
+    if (!canManageArticle(editingArticle.article)) return;
+
+    if (!isAdminModeActive) {
+      const changeReason = prompt(
+        "Briefly explain your suggested article changes (required):",
+      );
+      if (!changeReason?.trim()) {
+        toast.error("A reason is required to submit an edit request");
+        return;
+      }
+
+      try {
+        await api.createSubmission({
+          type: "update_article",
+          original_content_id: editingArticle.article.id,
+          content_data: {
+            ...articleData,
+            article_id: editingArticle.article.id,
+            material_id: material.id,
+            category: editingArticle.category,
+            change_reason: changeReason.trim(),
+          },
+        });
+
+        toast.success("Edit suggestion submitted for admin review.");
+        setEditingArticle(null);
+        setShowForm(false);
+      } catch {
+        toast.error("Failed to submit edit suggestion");
+      }
+      return;
+    }
 
     const updatedMaterial = updateArticleInMaterial(
       material,
       editingArticle.category,
       editingArticle.article.id,
-      (a) => ({ ...articleData, id: a.id, dateAdded: a.dateAdded }),
+      (a) => ({
+        ...articleData,
+        id: a.id,
+        dateAdded: a.dateAdded,
+        updated_at: new Date().toISOString(),
+      }),
     );
 
     onUpdateMaterial(updatedMaterial);
@@ -224,8 +301,40 @@ export function MaterialDetailView({
         onDeleteArticle={handleDeleteArticle}
         onReadMore={onViewArticleStandalone}
         isAdminModeActive={isAdminModeActive}
+        currentUserId={currentUserId}
         onViewArticles={onViewArticles}
       />
+
+      <AlertDialog
+        open={!!articleToDelete}
+        onOpenChange={(open) => {
+          if (!open) setArticleToDelete(null);
+        }}
+      >
+        <AlertDialogContent className="bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-black dark:text-white">
+              Delete article?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-black/70 dark:text-white/70">
+              This will permanently remove
+              {articleToDelete
+                ? ` \"${articleToDelete.article.title}\"`
+                : " this article"}
+              .
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteArticle}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

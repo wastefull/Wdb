@@ -87,7 +87,12 @@ export function ArticlesView({
       material,
       category,
       editingArticle.id,
-      (a) => ({ ...articleData, id: a.id, dateAdded: a.dateAdded }),
+      (a) => ({
+        ...articleData,
+        id: a.id,
+        dateAdded: a.dateAdded,
+        updated_at: new Date().toISOString(),
+      }),
     );
 
     onUpdateMaterial(updatedMaterial);
