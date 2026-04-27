@@ -4,6 +4,7 @@ const MATERIAL_PERMALINK_PREFIX = "/m/";
 
 export interface ParsedMaterialPermalink {
   slug: string;
+  articleId?: string;
 }
 
 export function slugifyMaterialName(name: string): string {
@@ -24,6 +25,14 @@ export function buildMaterialPermalinkPath(
   return `${MATERIAL_PERMALINK_PREFIX}${slug}`;
 }
 
+export function buildMaterialArticlePermalinkPath(
+  material: Pick<Material, "id" | "name">,
+  articleId: string,
+): string {
+  const base = buildMaterialPermalinkPath(material);
+  return `${base}/${encodeURIComponent(articleId)}`;
+}
+
 export function parseMaterialPermalinkPath(
   pathname: string,
 ): ParsedMaterialPermalink | null {
@@ -31,17 +40,33 @@ export function parseMaterialPermalinkPath(
     return null;
   }
 
-  const slug = pathname
+  const segments = pathname
     .slice(MATERIAL_PERMALINK_PREFIX.length)
     .replace(/^\/+|\/+$/g, "")
-    .trim();
+    .split("/")
+    .filter(Boolean)
+    .map((s) => decodeURIComponent(s).trim());
+
+  const slug = segments[0];
 
   if (!slug) {
     return null;
   }
 
+  const articleSegment = segments[1];
+
+  let articleId: string | undefined;
+  if (articleSegment) {
+    // Support either plain IDs ("123") or human-readable forms
+    // like "some-article-title--123".
+    const compact = articleSegment.trim();
+    const readableMatch = compact.match(/--([^/]+)$/);
+    articleId = readableMatch?.[1] || compact;
+  }
+
   return {
-    slug: decodeURIComponent(slug),
+    slug,
+    articleId,
   };
 }
 

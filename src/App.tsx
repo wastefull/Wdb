@@ -126,6 +126,7 @@ import type { SearchSuggestion } from "./components/search/SearchBar";
 import { StatusBar } from "./components/layout";
 import { ScientificDataEditor } from "./components/scientific-editor";
 import {
+  buildMaterialArticlePermalinkPath,
   buildMaterialPermalinkPath,
   findMaterialByPermalink,
   findMaterialCandidatesByPermalink,
@@ -438,8 +439,38 @@ function AppContent() {
     );
 
     if (matchedMaterial) {
-      navigateToMaterialDetail(matchedMaterial.id);
-      const canonicalPath = buildMaterialPermalinkPath(matchedMaterial);
+      let canonicalPath = buildMaterialPermalinkPath(matchedMaterial);
+
+      if (pendingMaterialPermalink.articleId) {
+        const articleEntry = (
+          ["compostability", "recyclability", "reusability"] as CategoryType[]
+        )
+          .map((category) => ({
+            category,
+            article: matchedMaterial.articles?.[category]?.find(
+              (a) => a.id === pendingMaterialPermalink.articleId,
+            ),
+          }))
+          .find((entry) => entry.article);
+
+        if (articleEntry?.article) {
+          navigateTo({
+            type: "article-standalone",
+            articleId: articleEntry.article.id,
+            materialId: matchedMaterial.id,
+            category: articleEntry.category,
+          });
+          canonicalPath = buildMaterialArticlePermalinkPath(
+            matchedMaterial,
+            articleEntry.article.id,
+          );
+        } else {
+          navigateToMaterialDetail(matchedMaterial.id);
+        }
+      } else {
+        navigateToMaterialDetail(matchedMaterial.id);
+      }
+
       if (window.location.pathname !== canonicalPath) {
         window.history.replaceState(
           {},
@@ -787,12 +818,26 @@ function AppContent() {
       ? materials.find((m) => m.id === currentView.materialId)
       : null;
 
+  const currentArticle =
+    currentView.type === "article-standalone" && currentMaterial
+      ? getArticlesByCategory(currentMaterial, currentView.category).find(
+          (a) => a.id === currentView.articleId,
+        )
+      : null;
+
   // Keep the browser URL in sync with material-focused views.
   useEffect(() => {
     let targetPath: string | null = null;
 
     if (currentMaterial) {
-      targetPath = buildMaterialPermalinkPath(currentMaterial);
+      if (currentView.type === "article-standalone" && currentArticle) {
+        targetPath = buildMaterialArticlePermalinkPath(
+          currentMaterial,
+          currentArticle.id,
+        );
+      } else {
+        targetPath = buildMaterialPermalinkPath(currentMaterial);
+      }
     } else if (parseMaterialPermalinkPath(window.location.pathname)) {
       targetPath = "/";
     }
@@ -804,7 +849,7 @@ function AppContent() {
         `${targetPath}${window.location.search}${window.location.hash}`,
       );
     }
-  }, [currentMaterial]);
+  }, [currentMaterial, currentArticle, currentView.type]);
 
   // Admin mode is only active if user is authenticated, has admin role, AND has toggled admin mode on
   const isAdminModeActive = !!(

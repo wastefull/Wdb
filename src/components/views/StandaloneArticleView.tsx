@@ -76,7 +76,7 @@ export function StandaloneArticleView({
   const writerName = enriched.writer_name ?? article.writer_name;
   const editorName = enriched.editor_name ?? article.editor_name;
 
-  const permalink = `${window.location.origin}${window.location.pathname}?article=${article.id}`;
+  const permalink = `${window.location.origin}${window.location.pathname}`;
 
   const copyPermalink = () => {
     navigator.clipboard.writeText(permalink);
