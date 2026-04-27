@@ -18,6 +18,7 @@ import { CategoryType, ArticleType } from "../types/article";
 export type ViewType =
   | { type: "auth" }
   | { type: "materials" }
+  | { type: "permalink-loading" }
   | { type: "search-results"; query: string }
   | { type: "material-detail"; materialId: string }
   | { type: "articles"; category: CategoryType; materialId: string }
@@ -154,6 +155,13 @@ function getInitialViewFromUrlHash(): ViewType {
     return { type: "materials" };
   }
 
+  // If the URL is a material article permalink (/m/<slug>/<articleId>),
+  // start in a loading state instead of the front page to avoid the flash
+  // while the async permalink resolution fetches materials from Supabase.
+  if (/^\/m\/[^/]+\/[^/]+/.test(window.location.pathname)) {
+    return { type: "permalink-loading" };
+  }
+
   const rawHash = window.location.hash.replace(/^#\/?/, "").trim();
   const maybeViewType = STATIC_VIEW_HASH_TO_TYPE[rawHash];
 
@@ -277,7 +285,13 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
   const navigateTo = (view: ViewType) => {
     navigationLogger.info("Navigating to:", view.type);
     setCurrentView(view);
-    setViewHistory((prev) => [...prev, view]);
+    // Replace the history entry when leaving the transient loading state so
+    // the user can't "go back" to a blank loading screen.
+    setViewHistory((prev) =>
+      prev[prev.length - 1]?.type === "permalink-loading"
+        ? [...prev.slice(0, -1), view]
+        : [...prev, view],
+    );
     syncHashWithView(view);
   };
 

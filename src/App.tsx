@@ -872,6 +872,16 @@ function AppContent() {
     "min-h-screen p-3 md:p-8 bg-[#faf7f2] dark:bg-[#2a2825] textured";
 
   const viewConfigurations: ViewRendererMap = {
+    "permalink-loading": () => (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-[#211f1c] dark:border-white/60 border-t-transparent mx-auto mb-4" />
+          <p className="text-sm text-[#211f1c]/60 dark:text-white/50">
+            Loading article…
+          </p>
+        </div>
+      </div>
+    ),
     materials: () => (
       <FrontPage
         searchQuery={searchQuery}
