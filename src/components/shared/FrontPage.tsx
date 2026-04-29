@@ -3,7 +3,7 @@ import { useNavigationContext } from "../../contexts/NavigationContext";
 import { useAuthContext } from "../../contexts/AuthContext";
 import { useMaterialsContext } from "../../contexts/MaterialsContext";
 import { useAccessibility } from "./AccessibilityContext";
-import { SearchBar } from "../search";
+import { SearchBar, SearchSuggestionChips } from "../search";
 import type { SearchSuggestion } from "../search/SearchBar";
 import { MaterialForm } from "../forms";
 import { LoadingPlaceholder } from "./LoadingPlaceholder";
@@ -75,7 +75,7 @@ export function FrontPage({
           </main>
 
           {/* Search bar */}
-          <div className="flex items-center gap-3 w-full">
+          <div className="flex flex-col items-center gap-1 w-full">
             <SearchBar
               value={searchQuery}
               onChange={setSearchQuery}
@@ -85,6 +85,7 @@ export function FrontPage({
                 navigateToSearchResults(query);
               }}
             />
+            <SearchSuggestionChips searchValue={searchQuery} />
           </div>
 
           {/* Chart */}
