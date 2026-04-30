@@ -2445,6 +2445,441 @@ app.put(
   },
 );
 
+// ==================== CATEGORY COLOR SETTINGS ROUTES ====================
+
+// Colors are keyed by category ID (slug), e.g. "paper-cardboard": "#d4c9a8".
+// CSS custom properties are --cat-{slug}, applied by the frontend.
+const DEFAULT_CATEGORY_COLORS: Record<string, string> = {
+  plastics: "#b8c8cb",
+  metals: "#e4e3ac",
+  glass: "#bae1c3",
+  "paper-cardboard": "#d4c9a8",
+  "fabrics-textiles": "#b8c8cb",
+  "electronics-batteries": "#b8c8cb",
+  "building-materials": "#bae1c3",
+  "organic-natural-waste": "#e6beb5",
+  elements: "#e4e3ac",
+};
+
+function slugifyForCategory(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+// Get material category colors (public)
+app.get("/make-server-17cae920/settings/category-colors", async (c) => {
+  try {
+    const stored = (await kv.get(
+      "site_settings:material_category_colors",
+    )) as Record<string, string> | null;
+
+    // One-time migration: if stored colors use display-name keys (e.g. "Paper & Cardboard")
+    // rather than slug keys (e.g. "paper-cardboard"), migrate them transparently.
+    let resolved = stored;
+    if (stored && Object.keys(stored).some((k) => /[ &/]/.test(k))) {
+      const migrated: Record<string, string> = {};
+      for (const [key, value] of Object.entries(stored)) {
+        migrated[slugifyForCategory(key)] = value;
+      }
+      resolved = migrated;
+      await kv.set("site_settings:material_category_colors", migrated);
+    }
+
+    const colors = { ...DEFAULT_CATEGORY_COLORS, ...(resolved || {}) };
+    return c.json({ colors });
+  } catch (error) {
+    log.error("Error getting category colors:", error);
+    return c.json({ colors: DEFAULT_CATEGORY_COLORS });
+  }
+});
+
+const SLUG_RE = /^[a-z0-9-]+$/;
+
+// Update material category colors (admin only)
+app.patch(
+  "/make-server-17cae920/settings/category-colors",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const body = await c.req.json();
+      const { colors } = body;
+
+      if (!colors || typeof colors !== "object") {
+        return c.json({ error: "colors object required" }, 400);
+      }
+
+      const HEX_RE = /^#[0-9a-fA-F]{6}$/;
+
+      for (const key of Object.keys(colors)) {
+        // Accept slug-format keys (e.g. "paper-cardboard") or display names
+        // (which will be slugified). Reject anything structurally invalid.
+        const slug = slugifyForCategory(key);
+        if (!SLUG_RE.test(slug) || slug.length === 0) {
+          return c.json({ error: `Invalid category key: ${key}` }, 400);
+        }
+        if (!HEX_RE.test(colors[key])) {
+          return c.json(
+            { error: `Invalid hex color for ${key}: ${colors[key]}` },
+            400,
+          );
+        }
+      }
+
+      const current =
+        ((await kv.get("site_settings:material_category_colors")) as Record<
+          string,
+          string
+        > | null) || DEFAULT_CATEGORY_COLORS;
+      const updated = { ...DEFAULT_CATEGORY_COLORS, ...current, ...colors };
+
+      await kv.set("site_settings:material_category_colors", updated);
+
+      await createAuditLog({
+        userId: c.get("userId"),
+        userEmail: c.get("userEmail"),
+        entityType: "site_settings",
+        entityId: "material_category_colors",
+        action: "update",
+        before: { colors: current },
+        after: { colors: updated },
+        req: c,
+      });
+
+      return c.json({ success: true, colors: updated });
+    } catch (error) {
+      log.error("Error updating category colors:", error);
+      return c.json(
+        { error: "Failed to update category colors", details: String(error) },
+        500,
+      );
+    }
+  },
+);
+
+// ==================== MATERIAL CATEGORIES CRUD ====================
+
+interface MaterialCategoryDef {
+  id: string; // immutable slug, e.g. "paper-cardboard"
+  name: string; // current display name, e.g. "Paper & Cardboard"
+  aliases?: string[]; // previous display names for legacy material matching
+  deleted?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+const DEFAULT_CATEGORIES: MaterialCategoryDef[] = [
+  { id: "plastics", name: "Plastics" },
+  { id: "metals", name: "Metals" },
+  { id: "glass", name: "Glass" },
+  { id: "paper-cardboard", name: "Paper & Cardboard" },
+  { id: "fabrics-textiles", name: "Fabrics & Textiles" },
+  { id: "electronics-batteries", name: "Electronics & Batteries" },
+  { id: "building-materials", name: "Building Materials" },
+  { id: "organic-natural-waste", name: "Organic/Natural Waste" },
+  { id: "elements", name: "Elements" },
+];
+
+async function getCategoriesFromKV(): Promise<MaterialCategoryDef[]> {
+  const stored = (await kv.get("site_settings:material_categories")) as
+    | MaterialCategoryDef[]
+    | null;
+  return stored ?? DEFAULT_CATEGORIES;
+}
+
+async function broadcastCategoriesUpdate(): Promise<void> {
+  try {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+    await fetch(`${supabaseUrl}/realtime/v1/api/broadcast`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${serviceKey}`,
+        apikey: serviceKey,
+      },
+      body: JSON.stringify({
+        messages: [
+          {
+            topic: "realtime:site-categories",
+            event: "categories:updated",
+            payload: { updatedAt: new Date().toISOString() },
+          },
+        ],
+      }),
+    });
+  } catch (err) {
+    log.warn("Failed to broadcast categories update:", err);
+  }
+}
+
+// GET /settings/categories — public, active categories only
+app.get("/make-server-17cae920/settings/categories", async (c) => {
+  try {
+    const all = await getCategoriesFromKV();
+    return c.json({ categories: all.filter((cat) => !cat.deleted) });
+  } catch (error) {
+    log.error("Error getting categories:", error);
+    return c.json({ categories: DEFAULT_CATEGORIES });
+  }
+});
+
+// GET /settings/categories/all — admin, includes soft-deleted
+app.get(
+  "/make-server-17cae920/settings/categories/all",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const all = await getCategoriesFromKV();
+      return c.json({ categories: all });
+    } catch (error) {
+      log.error("Error getting all categories:", error);
+      return c.json({ categories: DEFAULT_CATEGORIES });
+    }
+  },
+);
+
+// POST /settings/categories — create a new category (admin)
+app.post(
+  "/make-server-17cae920/settings/categories",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const { name } = await c.req.json();
+      if (!name || typeof name !== "string" || !name.trim()) {
+        return c.json({ error: "name is required" }, 400);
+      }
+      const trimmedName = name.trim();
+      const id = slugifyForCategory(trimmedName);
+      if (!id) return c.json({ error: "Invalid category name" }, 400);
+
+      const all = await getCategoriesFromKV();
+      if (all.some((cat) => cat.id === id)) {
+        return c.json(
+          { error: `Category with id "${id}" already exists` },
+          409,
+        );
+      }
+
+      const newCat: MaterialCategoryDef = {
+        id,
+        name: trimmedName,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      const updated = [...all, newCat];
+      await kv.set("site_settings:material_categories", updated);
+
+      // Seed a default neutral color for the new category
+      const colors = ((await kv.get(
+        "site_settings:material_category_colors",
+      )) as Record<string, string> | null) ?? { ...DEFAULT_CATEGORY_COLORS };
+      if (!colors[id]) {
+        colors[id] = "#d1d5db";
+        await kv.set("site_settings:material_category_colors", colors);
+      }
+
+      await createAuditLog({
+        userId: c.get("userId"),
+        userEmail: c.get("userEmail"),
+        entityType: "site_settings",
+        entityId: "material_categories",
+        action: "create",
+        before: null,
+        after: { category: newCat },
+        req: c,
+      });
+
+      await broadcastCategoriesUpdate();
+      return c.json({ category: newCat, categories: updated }, 201);
+    } catch (error) {
+      log.error("Error creating category:", error);
+      return c.json({ error: "Failed to create category" }, 500);
+    }
+  },
+);
+
+// PATCH /settings/categories/:id — rename a category (admin)
+// The id (slug) is immutable; only the display name changes.
+app.patch(
+  "/make-server-17cae920/settings/categories/:id",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const id = c.req.param("id");
+      const { name } = await c.req.json();
+      const newName = name?.trim();
+      if (!newName) return c.json({ error: "name is required" }, 400);
+
+      const all = await getCategoriesFromKV();
+      const idx = all.findIndex((cat) => cat.id === id);
+      if (idx === -1) return c.json({ error: "Category not found" }, 404);
+
+      const before = all[idx];
+      const updated = [...all];
+      // Keep previous name in aliases for legacy material matching
+      const aliases = Array.from(
+        new Set([...(before.aliases ?? []), before.name]),
+      ).filter((a) => a !== newName);
+      updated[idx] = {
+        ...before,
+        name: newName,
+        aliases,
+        updatedAt: new Date().toISOString(),
+      };
+      await kv.set("site_settings:material_categories", updated);
+
+      await createAuditLog({
+        userId: c.get("userId"),
+        userEmail: c.get("userEmail"),
+        entityType: "site_settings",
+        entityId: "material_categories",
+        action: "update",
+        before: { category: before },
+        after: { category: updated[idx] },
+        req: c,
+      });
+
+      await broadcastCategoriesUpdate();
+      return c.json({ category: updated[idx], categories: updated });
+    } catch (error) {
+      log.error("Error updating category:", error);
+      return c.json({ error: "Failed to update category" }, 500);
+    }
+  },
+);
+
+// DELETE /settings/categories/:id — soft-delete a category (admin)
+app.delete(
+  "/make-server-17cae920/settings/categories/:id",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const id = c.req.param("id");
+      const all = await getCategoriesFromKV();
+      const idx = all.findIndex((cat) => cat.id === id);
+      if (idx === -1) return c.json({ error: "Category not found" }, 404);
+
+      // Count materials currently using this category
+      const allMaterials =
+        ((await kv.getByPrefix("material:")) as any[] | null) ?? [];
+      const cat = all[idx];
+      const affectedCount = allMaterials.filter((m: any) => {
+        if (m.categoryId) return m.categoryId === id;
+        // Legacy fallback: match by display name or aliases
+        return (
+          m.category === cat.name || (cat.aliases ?? []).includes(m.category)
+        );
+      }).length;
+
+      const updated = [...all];
+      updated[idx] = {
+        ...updated[idx],
+        deleted: true,
+        updatedAt: new Date().toISOString(),
+      };
+      await kv.set("site_settings:material_categories", updated);
+
+      await createAuditLog({
+        userId: c.get("userId"),
+        userEmail: c.get("userEmail"),
+        entityType: "site_settings",
+        entityId: "material_categories",
+        action: "delete",
+        before: { category: all[idx] },
+        after: { category: updated[idx] },
+        req: c,
+      });
+
+      await broadcastCategoriesUpdate();
+      return c.json({ categories: updated, affectedMaterials: affectedCount });
+    } catch (error) {
+      log.error("Error deleting category:", error);
+      return c.json({ error: "Failed to delete category" }, 500);
+    }
+  },
+);
+
+// POST /settings/categories/:id/restore — restore a soft-deleted category (admin)
+app.post(
+  "/make-server-17cae920/settings/categories/:id/restore",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const id = c.req.param("id");
+      const all = await getCategoriesFromKV();
+      const idx = all.findIndex((cat) => cat.id === id);
+      if (idx === -1) return c.json({ error: "Category not found" }, 404);
+
+      const updated = [...all];
+      updated[idx] = {
+        ...updated[idx],
+        deleted: false,
+        updatedAt: new Date().toISOString(),
+      };
+      await kv.set("site_settings:material_categories", updated);
+
+      await broadcastCategoriesUpdate();
+      return c.json({ category: updated[idx], categories: updated });
+    } catch (error) {
+      log.error("Error restoring category:", error);
+      return c.json({ error: "Failed to restore category" }, 500);
+    }
+  },
+);
+
+// POST /settings/categories/migrate-materials — one-time admin operation to
+// populate categoryId on all existing material records.
+app.post(
+  "/make-server-17cae920/settings/categories/migrate-materials",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const allCats = await getCategoriesFromKV();
+      const allMaterials =
+        ((await kv.getByPrefix("material:")) as any[] | null) ?? [];
+
+      let updated = 0;
+      let skipped = 0;
+
+      for (const material of allMaterials) {
+        if (material.categoryId) {
+          skipped++;
+          continue;
+        }
+        // Resolve category name → ID
+        const cat = allCats.find(
+          (c) =>
+            c.name === material.category ||
+            (c.aliases ?? []).includes(material.category),
+        );
+        if (cat) {
+          await kv.set(`material:${material.id}`, {
+            ...material,
+            categoryId: cat.id,
+          });
+          updated++;
+        } else {
+          skipped++;
+        }
+      }
+
+      return c.json({ updated, skipped, total: allMaterials.length });
+    } catch (error) {
+      log.error("Error migrating materials:", error);
+      return c.json({ error: "Migration failed" }, 500);
+    }
+  },
+);
+
 // ==================== ROLE PERMISSIONS ROUTES ====================
 
 // Get permissions for all roles (admin only)

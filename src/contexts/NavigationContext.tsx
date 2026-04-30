@@ -68,6 +68,8 @@ export type ViewType =
   | { type: "whitepapers-management" }
   | { type: "assets-management" }
   | { type: "role-permissions" }
+  | { type: "category-colors" }
+  | { type: "categories-management" }
   | { type: "math-tools"; defaultTab?: "overview" | "transform-manager" }
   | { type: "charts-performance" }
   | { type: "roadmap" }
@@ -112,6 +114,8 @@ export const ADMIN_VIEW_TYPES = new Set<ViewType["type"]>([
   "whitepapers-management",
   "assets-management",
   "role-permissions",
+  "category-colors",
+  "categories-management",
   "math-tools",
   "charts-performance",
   "roadmap",
@@ -223,6 +227,8 @@ interface NavigationContextType {
   navigateToWhitepapersManagement: () => void;
   navigateToAssetsManagement: () => void;
   navigateToRolePermissions: () => void;
+  navigateToCategoryColors: () => void;
+  navigateToCategoriesManagement: () => void;
   navigateToMathTools: (defaultTab?: "overview" | "transform-manager") => void;
   navigateToChartsPerformance: () => void;
   navigateToRoadmap: () => void;
@@ -460,6 +466,14 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
     navigateTo({ type: "role-permissions" });
   };
 
+  const navigateToCategoryColors = () => {
+    navigateTo({ type: "category-colors" });
+  };
+
+  const navigateToCategoriesManagement = () => {
+    navigateTo({ type: "categories-management" });
+  };
+
   const navigateToMathTools = (
     defaultTab?: "overview" | "transform-manager",
   ) => {
@@ -563,6 +577,8 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
     navigateToWhitepapersManagement,
     navigateToAssetsManagement,
     navigateToRolePermissions,
+    navigateToCategoryColors,
+    navigateToCategoriesManagement,
     navigateToMathTools,
     navigateToChartsPerformance,
     navigateToRoadmap,

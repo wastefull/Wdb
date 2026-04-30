@@ -90,12 +90,23 @@ export const MATERIAL_CATEGORIES = [
 
 export type MaterialCategory = (typeof MATERIAL_CATEGORIES)[number];
 
+/** A dynamically managed material category. */
+export interface MaterialCategoryDef {
+  id: string; // immutable slug, e.g. "paper-cardboard"
+  name: string; // current display name, e.g. "Paper & Cardboard"
+  aliases?: string[]; // previous display names kept for legacy material matching
+  deleted?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface Material {
   // Core identification
   id: string;
   name: string;
   aliases?: string[]; // Curator-managed alternate names
   category: MaterialCategory;
+  categoryId?: string; // stable slug reference to MaterialCategoryDef.id
   description?: string;
 
   // Hub navigation (optional)

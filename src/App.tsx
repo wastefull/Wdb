@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useMemo, type ReactNode } from "react";
 
 import * as api from "./utils/api";
 import { logger, setTestMode, getTestMode, loggerInfo } from "./utils/logger";
+import { loadAndApplyCategoryColors } from "./utils/categoryColors";
 import {
   getSuppressedScopes,
   materialsLogger,
@@ -14,6 +15,7 @@ import {
   useNavigationContext,
 } from "./contexts/NavigationContext";
 import { AuthProvider, useAuthContext } from "./contexts/AuthContext";
+import { CategoryProvider } from "./contexts/CategoryContext";
 import {
   MaterialsProvider,
   useMaterialsContext,
@@ -71,6 +73,8 @@ import {
   StaffDashboard,
   AssetsManagementPage,
   RolePermissionsView,
+  CategoryColorsView,
+  CategoriesView,
 } from "./components/admin";
 
 // Forms
@@ -170,6 +174,8 @@ function AppContent() {
     navigateToWhitepapersManagement,
     navigateToAssetsManagement,
     navigateToRolePermissions,
+    navigateToCategoryColors,
+    navigateToCategoriesManagement,
     navigateToMathTools,
     navigateToChartsPerformance,
     navigateToRoadmap,
@@ -270,6 +276,11 @@ function AppContent() {
         logger.log("   Info: wastedbLogger.info()");
       }
     }
+  }, []);
+
+  // Load site-wide category colors from Supabase on startup
+  useEffect(() => {
+    loadAndApplyCategoryColors();
   }, []);
 
   // Phase 3A: Log context state for verification
@@ -1100,6 +1111,8 @@ function AppContent() {
         onNavigateToWhitepapers={navigateToWhitepapersManagement}
         onNavigateToAssets={navigateToAssetsManagement}
         onNavigateToRolePermissions={navigateToRolePermissions}
+        onNavigateToCategoryColors={navigateToCategoryColors}
+        onNavigateToCategoriesManagement={navigateToCategoriesManagement}
         onNavigateToMath={navigateToMathTools}
         onNavigateToCharts={navigateToChartsPerformance}
         onNavigateToRoadmap={navigateToRoadmap}
@@ -1261,6 +1274,12 @@ function AppContent() {
     ),
     "role-permissions": () => (
       <RolePermissionsView onBack={navigateToAdminDashboard} />
+    ),
+    "category-colors": () => (
+      <CategoryColorsView onBack={navigateToAdminDashboard} />
+    ),
+    "categories-management": () => (
+      <CategoriesView onBack={navigateToAdminDashboard} />
     ),
     "assets-management": () => <AssetsManagementPage />,
     "math-tools": (view) => (
@@ -1458,7 +1477,9 @@ export default function App() {
     <ErrorBoundary>
       <AccessibilityProvider>
         <NavigationProvider>
-          <AppWithAuth />
+          <CategoryProvider>
+            <AppWithAuth />
+          </CategoryProvider>
         </NavigationProvider>
       </AccessibilityProvider>
     </ErrorBoundary>

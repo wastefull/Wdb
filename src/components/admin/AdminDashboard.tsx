@@ -39,6 +39,8 @@ interface AdminDashboardProps {
   onNavigateToWhitepapers?: () => void;
   onNavigateToAssets?: () => void;
   onNavigateToRolePermissions?: () => void;
+  onNavigateToCategoryColors?: () => void;
+  onNavigateToCategoriesManagement?: () => void;
   onNavigateToMath?: () => void;
   onNavigateToCharts?: () => void;
   onNavigateToRoadmap?: () => void;
@@ -62,6 +64,8 @@ export function AdminDashboard({
   onNavigateToWhitepapers,
   onNavigateToAssets,
   onNavigateToRolePermissions,
+  onNavigateToCategoryColors,
+  onNavigateToCategoriesManagement,
   onNavigateToMath,
   onNavigateToCharts,
   onNavigateToRoadmap,
@@ -193,6 +197,22 @@ export function AdminDashboard({
                       className="menu-item"
                     >
                       Role Permissions
+                    </button>
+                  )}
+                  {onNavigateToCategoryColors && (
+                    <button
+                      onClick={onNavigateToCategoryColors}
+                      className="menu-item"
+                    >
+                      Category Colors
+                    </button>
+                  )}
+                  {onNavigateToCategoriesManagement && (
+                    <button
+                      onClick={onNavigateToCategoriesManagement}
+                      className="menu-item"
+                    >
+                      Categories
                     </button>
                   )}
                   <button className="menu-item-disabled" disabled>

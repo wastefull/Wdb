@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useMaterialsContext } from "../../contexts/MaterialsContext";
 import { useNavigationContext } from "../../contexts/NavigationContext";
 import type { Material, MaterialCategory } from "../../types/material";
+import { categoryToCssVar } from "../../utils/categoryColors";
 
 const CHIPS_TO_SHOW = 5;
 
@@ -17,31 +18,6 @@ const ALLOWED_ELEMENTS = new Set([
   "silver",
   "tin",
 ]);
-
-// Colors mirror the .tag-* CSS classes in fresh.css, sized slightly larger for interactivity
-const categoryColorClass: Record<MaterialCategory, string> = {
-  "Organic/Natural Waste":
-    "bg-waste-compost dark:bg-[oklch(0.22_0.06_15)] dark:text-[oklch(0.75_0.12_15)]",
-  Plastics:
-    "bg-waste-reuse dark:bg-[oklch(0.2_0.05_195)] dark:text-[oklch(0.65_0.15_195)]",
-  Metals:
-    "bg-waste-recycle dark:bg-[oklch(0.25_0.08_85)] dark:text-[oklch(0.85_0.15_85)]",
-  Glass:
-    "bg-[#bae1c3] dark:bg-[oklch(0.2_0.06_145)] dark:text-[oklch(0.75_0.18_145)]",
-  "Paper & Cardboard":
-    "bg-dirt dark:bg-[oklch(0.25_0.08_85)] dark:text-[oklch(0.85_0.15_85)]",
-  "Fabrics & Textiles":
-    "bg-waste-reuse dark:bg-[oklch(0.2_0.05_195)] dark:text-[oklch(0.65_0.15_195)]",
-  "Electronics & Batteries":
-    "bg-waste-reuse dark:bg-[oklch(0.2_0.05_195)] dark:text-[oklch(0.65_0.15_195)]",
-  "Building Materials":
-    "bg-[#bae1c3] dark:bg-[oklch(0.2_0.06_145)] dark:text-[oklch(0.75_0.18_145)]",
-  Elements:
-    "bg-waste-recycle dark:bg-[oklch(0.25_0.08_85)] dark:text-[oklch(0.85_0.15_85)]",
-};
-
-const fallbackColorClass =
-  "bg-waste-reuse dark:bg-[oklch(0.2_0.05_195)] dark:text-[oklch(0.65_0.15_195)]";
 
 function pickRandom<T>(arr: T[], count: number): T[] {
   const shuffled = [...arr].sort(() => Math.random() - 0.5);
@@ -99,26 +75,21 @@ export function SearchSuggestionChips({
         Try:
       </span>
       {chips.map((chip) => {
-        const colorClass =
-          categoryColorClass[chip.category as MaterialCategory] ??
-          fallbackColorClass;
+        const cssVar = categoryToCssVar(chip.category as MaterialCategory);
         return (
           <button
             key={chip.id}
             type="button"
             onClick={() => navigateToMaterialDetail(chip.id)}
-            className={`text-xs px-2.5 py-1 rounded-full
-            bg-white dark:bg-[#1f1d1a]
-            border border-[#d6d0c6] dark:border-white/15
-            text-[#3d3a35] dark:text-white/60
+            style={{ backgroundColor: `var(${cssVar})` }}
+            className="text-xs px-2.5 py-1 rounded-full
+            border border-[#211f1c]/20 dark:border-white/15
+            text-black dark:text-black/80
             shadow-[1.5px_1.5px_0px_0px_#211f1c] dark:shadow-[1.5px_1.5px_0px_0px_rgba(255,255,255,0.12)]
-            hover:border-waste-recycle dark:hover:border-waste-recycle
-            hover:text-waste-recycle dark:hover:text-waste-recycle
             hover:shadow-[0.5px_0.5px_0px_0px_#211f1c] dark:hover:shadow-[0.5px_0.5px_0px_0px_rgba(255,255,255,0.12)]
-            hover:translate-y-px
+            hover:translate-y-px hover:opacity-80
             active:translate-y-0.5 active:shadow-none
-            cursor-pointer inline-block 
-            hover:opacity-75 transition-opacity ${colorClass}`}
+            transition-all duration-100 cursor-pointer"
           >
             {chip.name}
           </button>

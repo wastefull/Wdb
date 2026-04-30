@@ -7,13 +7,12 @@ import {
   ChevronUp,
   ChevronRight,
 } from "lucide-react";
-import { Material, MATERIAL_CATEGORIES } from "../../types/material";
+import { Material } from "../../types/material";
 import { CategoryType } from "../../types/article";
 import { MaterialCard } from "../cards";
+import { useCategoryContext } from "../../contexts/CategoryContext";
 
 // ── helpers ────────────────────────────────────────────────────────────────
-
-/** Return all curator + wiki aliases for a material, lower-cased. */
 function getAllAliases(m: Material): string[] {
   const curator = m.aliases ?? [];
   const wiki = m.wiki?.aliases ?? [];
@@ -33,8 +32,6 @@ function matchedAlias(m: Material, q: string): string | null {
   const all = [...curatorAliases, ...wikiAliases];
   return all.find((a) => a.toLowerCase().includes(lower)) ?? null;
 }
-
-type MaterialCategory = (typeof MATERIAL_CATEGORIES)[number];
 
 interface SearchResultsViewProps {
   query: string;
@@ -76,10 +73,10 @@ export function SearchResultsView({
 
   const normalizedQueryCategoryFilter = queryCategoryFilter?.toLowerCase();
 
-  // Filter state
-  const [selectedCategories, setSelectedCategories] = useState<
-    MaterialCategory[]
-  >([]);
+  const { categories, getCategoryByName } = useCategoryContext();
+
+  // Filter state — holds category IDs (stable slugs)
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [minCompostability, setMinCompostability] = useState(0);
   const [minRecyclability, setMinRecyclability] = useState(0);
   const [minReusability, setMinReusability] = useState(0);
@@ -93,12 +90,12 @@ export function SearchResultsView({
   const [betaFeaturesEnabled, setBetaFeaturesEnabled] = useState(false);
   const [hasArticlesOnly, setHasArticlesOnly] = useState(false);
 
-  // Toggle category filter
-  const toggleCategory = (category: MaterialCategory) => {
+  // Toggle category filter (by category ID/slug)
+  const toggleCategory = (categoryId: string) => {
     setSelectedCategories((prev) =>
-      prev.includes(category)
-        ? prev.filter((c) => c !== category)
-        : [...prev, category],
+      prev.includes(categoryId)
+        ? prev.filter((c) => c !== categoryId)
+        : [...prev, categoryId],
     );
   };
 
@@ -139,9 +136,11 @@ export function SearchResultsView({
 
     // Category filter
     if (selectedCategories.length > 0) {
-      result = result.filter((m) =>
-        selectedCategories.includes(m.category as MaterialCategory),
-      );
+      result = result.filter((m) => {
+        // Prefer stable categoryId; fall back to resolving legacy display name
+        const matCatId = m.categoryId ?? getCategoryByName(m.category)?.id;
+        return matCatId !== undefined && selectedCategories.includes(matCatId);
+      });
     }
 
     // Score filters
@@ -192,15 +191,16 @@ export function SearchResultsView({
     sortOrder,
   ]);
 
-  // Get category counts for filter badges
-  const getCategoryCount = (category: MaterialCategory) => {
+  // Get category counts for filter badges (by category ID)
+  const getCategoryCount = (categoryId: string) => {
     return materials.filter((m) => {
       const matchesQuery = queryCategoryFilter
         ? m.category.toLowerCase() === normalizedQueryCategoryFilter
         : !query ||
           m.name.toLowerCase().includes(query.toLowerCase()) ||
           m.description?.toLowerCase().includes(query.toLowerCase());
-      return matchesQuery && m.category === category;
+      const matCatId = m.categoryId ?? getCategoryByName(m.category)?.id;
+      return matchesQuery && matCatId === categoryId;
     }).length;
   };
 
@@ -319,13 +319,13 @@ export function SearchResultsView({
               </button>
               {showCategories && (
                 <div className="flex flex-wrap gap-2">
-                  {MATERIAL_CATEGORIES.map((category) => {
-                    const count = getCategoryCount(category);
-                    const isSelected = selectedCategories.includes(category);
+                  {categories.map((cat) => {
+                    const count = getCategoryCount(cat.id);
+                    const isSelected = selectedCategories.includes(cat.id);
                     return (
                       <button
-                        key={category}
-                        onClick={() => toggleCategory(category)}
+                        key={cat.id}
+                        onClick={() => toggleCategory(cat.id)}
                         disabled={count === 0 && !isSelected}
                         className={`text-[11px] px-3 py-1.5 rounded-full border transition-all ${
                           isSelected
@@ -335,7 +335,7 @@ export function SearchResultsView({
                               : "bg-black/5 dark:bg-white/5 border-transparent text-black/30 dark:text-white/30 cursor-not-allowed"
                         }`}
                       >
-                        {category}
+                        {cat.name}
                         <span className="ml-1 text-black/50 dark:text-white/50">
                           ({count})
                         </span>
