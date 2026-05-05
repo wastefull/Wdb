@@ -91,9 +91,7 @@ export default function GuideEditor({
         },
         bold: {
           HTMLAttributes: {
-            // Inline style so it shows in the editor regardless of CSS cascade
-            style:
-              "background-color: rgba(251,191,36,0.35); border-radius: 2px; padding: 0 1px; font-weight: 700;",
+            style: "font-weight: 700;",
           },
         },
       }),

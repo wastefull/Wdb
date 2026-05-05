@@ -1260,14 +1260,10 @@ body {
   @apply outline-none;
 }
 
-/* Bold — underlined + amber tint so it's visible even without a bold font weight */
+/* Bold — show heavier weight in the editor since the app font has no bold variant */
 .guide-editor .ProseMirror strong,
 .guide-editor .ProseMirror b {
-  background-color: rgba(251, 191, 36, 0.25) !important;
-  border-radius: 2px !important;
-  padding: 0 1px !important;
   font-weight: 700 !important;
-  text-decoration: none !important;
 }
 
 /* Headings — show size hierarchy in the editor */
