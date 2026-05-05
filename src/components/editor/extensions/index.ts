@@ -1,4 +1,5 @@
 export { CheckItem } from "./CheckItem";
+export { Footnote } from "./Footnote";
 export { Resource } from "./Resource";
 export { Section } from "./Section";
 export { StepItem, StepList } from "./StepList";

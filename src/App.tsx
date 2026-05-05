@@ -975,6 +975,7 @@ function AppContent() {
           isAdminModeActive={isAdminModeActive}
           isAuthenticated={!!user}
           currentUserId={user?.id}
+          userRole={userRole}
           onEditMaterial={setMaterialToEdit}
           onSuggestEdit={setMaterialToEdit}
           onViewArticles={(category) =>
@@ -1020,7 +1021,7 @@ function AppContent() {
           onSaveEdit={
             canManageArticle
               ? async (updated) => {
-                  if (isAdminModeActive) {
+                  if (isAdminModeActive || userRole === "admin") {
                     const updatedMaterial = updateArticleInMaterial(
                       material,
                       view.category,

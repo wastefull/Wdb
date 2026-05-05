@@ -309,7 +309,6 @@ b:not(h1 b, h2 b, h3 b, h4 b, h5 b, h6 b),
       font-weight: var(--font-weight-normal);
       line-height: 1.5;
     }
-    font-family: "Tilt Warp", cursive;
   }
 }
 
@@ -1261,7 +1260,87 @@ body {
   @apply outline-none;
 }
 
+/* Bold — underlined + amber tint so it's visible even without a bold font weight */
+.guide-editor .ProseMirror strong,
+.guide-editor .ProseMirror b {
+  background-color: rgba(251, 191, 36, 0.25) !important;
+  border-radius: 2px !important;
+  padding: 0 1px !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+}
+
+/* Headings — show size hierarchy in the editor */
+.guide-editor .ProseMirror h1 {
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+  margin-bottom: 0.5rem !important;
+}
+.guide-editor .ProseMirror h2 {
+  font-size: 1.25rem !important;
+  font-weight: 700 !important;
+  margin-bottom: 0.4rem !important;
+}
+.guide-editor .ProseMirror h3 {
+  font-size: 1.1rem !important;
+  font-weight: 700 !important;
+  margin-bottom: 0.3rem !important;
+}
+
 .guide-editor .ProseMirror p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
   @apply text-black/40 dark:text-white/40 float-left h-0 pointer-events-none;
+}
+
+/* Table styles — editor (ProseMirror) */
+.guide-editor .ProseMirror table {
+  border-collapse: collapse;
+  width: 100%;
+  overflow: hidden;
+  table-layout: fixed;
+  margin: 1rem 0;
+}
+
+.guide-editor .ProseMirror table td,
+.guide-editor .ProseMirror table th {
+  border: 1.5px solid rgba(0, 0, 0, 0.15);
+  padding: 6px 12px;
+  min-width: 60px;
+  vertical-align: top;
+  text-align: left;
+}
+
+.dark .guide-editor .ProseMirror table td,
+.dark .guide-editor .ProseMirror table th {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.guide-editor .ProseMirror table th {
+  background: rgba(0, 0, 0, 0.04);
+  font-weight: 600;
+}
+
+.dark .guide-editor .ProseMirror table th {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* Selected cell highlight */
+.guide-editor .ProseMirror .selectedCell::after {
+  background: rgba(0, 0, 0, 0.06);
+  content: "";
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+.dark .guide-editor .ProseMirror .selectedCell::after {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Table renderer styles */
+.guide-table {
+  border-collapse: collapse;
 }

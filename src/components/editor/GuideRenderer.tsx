@@ -29,6 +29,26 @@ export default function GuideRenderer({ content }: GuideRendererProps) {
     );
   }
 
+  // Footnote registry: map refId → {number, content}
+  // Footnotes without a refId get a unique auto-key per index.
+  const footnoteRegistry = new Map<string, { num: number; content: string }>();
+  let footnoteCounter = 0;
+
+  // Assign (or look up) a footnote number for a given node.
+  // Returns the number and registers the entry if new.
+  const registerFootnote = (attrs: any, nodeIndex: number): number => {
+    const refId: string = attrs?.refId || `__auto_${nodeIndex}`;
+    if (footnoteRegistry.has(refId)) {
+      return footnoteRegistry.get(refId)!.num;
+    }
+    footnoteCounter += 1;
+    footnoteRegistry.set(refId, {
+      num: footnoteCounter,
+      content: attrs?.content || "",
+    });
+    return footnoteCounter;
+  };
+
   const renderNode = (node: any, index: number) => {
     switch (node.type) {
       case "section":
@@ -111,7 +131,7 @@ export default function GuideRenderer({ content }: GuideRendererProps) {
             className="mb-3 text-[13px] text-black dark:text-white"
           >
             {node.content?.map((child: any, i: number) =>
-              renderInline(child, i)
+              renderInline(child, i),
             )}
           </p>
         );
@@ -121,7 +141,7 @@ export default function GuideRenderer({ content }: GuideRendererProps) {
         const headingClassName = "font-display mb-2 text-black dark:text-white";
         const headingStyle = { fontSize: level === 2 ? "16px" : "14px" };
         const children = node.content?.map((child: any, i: number) =>
-          renderInline(child, i)
+          renderInline(child, i),
         );
 
         if (level === 2) {
@@ -159,7 +179,7 @@ export default function GuideRenderer({ content }: GuideRendererProps) {
                 return (
                   <span key={i}>
                     {child.content?.map((c: any, j: number) =>
-                      renderInline(c, j)
+                      renderInline(c, j),
                     )}
                   </span>
                 );
@@ -183,7 +203,7 @@ export default function GuideRenderer({ content }: GuideRendererProps) {
                       return (
                         <span key={j}>
                           {child.content?.map((c: any, k: number) =>
-                            renderInline(c, k)
+                            renderInline(c, k),
                           )}
                         </span>
                       );
@@ -215,7 +235,7 @@ export default function GuideRenderer({ content }: GuideRendererProps) {
                   return (
                     <span key={i}>
                       {child.content?.map((c: any, j: number) =>
-                        renderInline(c, j)
+                        renderInline(c, j),
                       )}
                     </span>
                   );
@@ -224,6 +244,52 @@ export default function GuideRenderer({ content }: GuideRendererProps) {
               })}
             </div>
           </div>
+        );
+
+      case "blockquote":
+        return (
+          <blockquote
+            key={index}
+            className="border-l-4 border-black/20 dark:border-white/20 pl-4 my-3 text-[13px] text-black/70 dark:text-white/70 italic"
+          >
+            {node.content?.map(renderNode)}
+          </blockquote>
+        );
+
+      case "table":
+        return (
+          <div key={index} className="overflow-x-auto my-4">
+            <table className="guide-table w-full text-[13px] border-collapse border border-black/20 dark:border-white/20">
+              <tbody>{node.content?.map(renderNode)}</tbody>
+            </table>
+          </div>
+        );
+
+      case "tableRow":
+        return <tr key={index}>{node.content?.map(renderNode)}</tr>;
+
+      case "tableHeader":
+        return (
+          <th
+            key={index}
+            className="border border-black/20 dark:border-white/20 px-3 py-2 bg-black/5 dark:bg-white/5 font-medium text-black dark:text-white text-left"
+            colSpan={node.attrs?.colspan || 1}
+            rowSpan={node.attrs?.rowspan || 1}
+          >
+            {node.content?.map(renderNode)}
+          </th>
+        );
+
+      case "tableCell":
+        return (
+          <td
+            key={index}
+            className="border border-black/20 dark:border-white/20 px-3 py-2 text-black dark:text-white"
+            colSpan={node.attrs?.colspan || 1}
+            rowSpan={node.attrs?.rowspan || 1}
+          >
+            {node.content?.map(renderNode)}
+          </td>
         );
 
       default:
@@ -249,7 +315,7 @@ export default function GuideRenderer({ content }: GuideRendererProps) {
       parts.push(
         <sup key={`${baseKey}-ref-${partIndex}`} className="ref-sup">
           [{match[1]}]
-        </sup>
+        </sup>,
       );
       lastIndex = match.index + match[0].length;
       partIndex++;
@@ -265,6 +331,22 @@ export default function GuideRenderer({ content }: GuideRendererProps) {
   };
 
   const renderInline = (node: any, index: number) => {
+    if (node.type === "footnote") {
+      const fnNum = registerFootnote(node.attrs, index);
+      const fnText = node.attrs?.content || "";
+      return (
+        <sup key={index} className="font-mono text-[10px] leading-none">
+          <a
+            href={`#footnote-${fnNum}`}
+            className="text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white no-underline"
+            title={fnText || `Footnote ${fnNum}`}
+          >
+            [{fnNum}]
+          </a>
+        </sup>
+      );
+    }
+
     if (node.type === "text") {
       let content: React.ReactNode = formatReferences(node.text, index);
 
@@ -300,6 +382,29 @@ export default function GuideRenderer({ content }: GuideRendererProps) {
   return (
     <div className="guide-renderer">
       {parsedContent.content.map(renderNode)}
+      {footnoteRegistry.size > 0 && (
+        <div className="mt-8 pt-4 border-t border-black/10 dark:border-white/10">
+          <h4 className="text-[11px] font-medium text-black/50 dark:text-white/50 uppercase tracking-wider mb-2">
+            Footnotes
+          </h4>
+          <ol className="space-y-1">
+            {Array.from(footnoteRegistry.values())
+              .sort((a, b) => a.num - b.num)
+              .map(({ num, content }) => (
+                <li
+                  key={num}
+                  id={`footnote-${num}`}
+                  className="text-[12px] text-black/70 dark:text-white/70 flex gap-2 scroll-mt-8"
+                >
+                  <sup className="text-[10px] font-mono mt-0.5 shrink-0">
+                    [{num}]
+                  </sup>
+                  <span>{content}</span>
+                </li>
+              ))}
+          </ol>
+        </div>
+      )}
     </div>
   );
 }

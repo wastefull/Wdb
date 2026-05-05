@@ -10,6 +10,8 @@ import {
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
+import GuideEditor from "../editor/GuideEditor";
+import GuideRenderer from "../editor/GuideRenderer";
 import {
   Select,
   SelectContent,
@@ -53,7 +55,7 @@ interface ReviewModalProps {
   onApprove: (
     submissionId: string,
     editedContent?: any,
-    wasEditedByAdmin?: boolean
+    wasEditedByAdmin?: boolean,
   ) => void;
   onReject: (submissionId: string, feedback: string) => void;
   onRequestRevision: (submissionId: string, feedback: string) => void;
@@ -71,7 +73,7 @@ export function ReviewModal({
   >(null);
   const [feedback, setFeedback] = useState("");
   const [editedContent, setEditedContent] = useState<any>(
-    submission.content_data
+    submission.content_data,
   );
   const [processing, setProcessing] = useState(false);
 
@@ -83,7 +85,7 @@ export function ReviewModal({
         await onApprove(
           submission.id,
           wasEdited ? editedContent : undefined,
-          wasEdited
+          wasEdited,
         );
       } else if (action === "reject") {
         if (!feedback.trim()) {
@@ -255,15 +257,19 @@ export function ReviewModal({
             <Label htmlFor="edit-content" className="text-[12px] normal">
               Content *
             </Label>
-            <Textarea
-              id="edit-content"
-              value={editedContent.content || ""}
-              onChange={(e) =>
-                setEditedContent({ ...editedContent, content: e.target.value })
-              }
-              className="mt-1 text-[11px] min-h-[200px]"
-              rows={10}
-            />
+            <div className="mt-1 border border-[#211f1c]/20 dark:border-white/20 rounded-lg overflow-hidden">
+              <GuideEditor
+                initialContent={
+                  editedContent.content &&
+                  typeof editedContent.content === "object"
+                    ? editedContent.content
+                    : undefined
+                }
+                onChange={(content) =>
+                  setEditedContent({ ...editedContent, content })
+                }
+              />
+            </div>
           </div>
         </div>
       );
@@ -286,13 +292,19 @@ export function ReviewModal({
           </p>
         </div>
         {submission.content_data.content && (
-          <div className="card-muted max-h-[300px] overflow-y-auto">
-            <p className="text-[11px] text-black/70 dark:text-white/70 mb-1">
+          <div className="card-muted max-h-[400px] overflow-y-auto">
+            <p className="text-[11px] text-black/70 dark:text-white/70 mb-2">
               <strong>Content:</strong>
             </p>
-            <pre className="text-[11px] normal whitespace-pre-wrap">
-              {submission.content_data.content}
-            </pre>
+            {typeof submission.content_data.content === "object" ? (
+              <div className="prose prose-sm max-w-none dark:prose-invert text-[13px]">
+                <GuideRenderer content={submission.content_data.content} />
+              </div>
+            ) : (
+              <pre className="text-[11px] normal whitespace-pre-wrap">
+                {submission.content_data.content}
+              </pre>
+            )}
           </div>
         )}
       </div>

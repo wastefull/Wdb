@@ -40,6 +40,7 @@ interface MaterialDetailViewProps {
   isAdminModeActive?: boolean;
   isAuthenticated?: boolean;
   currentUserId?: string;
+  userRole?: string;
   onEditMaterial?: (material: Material) => void;
   onSuggestEdit?: (material: Material) => void;
   onViewArticles?: (category: CategoryType) => void;
@@ -55,6 +56,7 @@ export function MaterialDetailView({
   isAdminModeActive,
   isAuthenticated,
   currentUserId,
+  userRole,
   onEditMaterial,
   onSuggestEdit,
   onViewArticles,
@@ -176,7 +178,7 @@ export function MaterialDetailView({
 
     if (!canManageArticle(editingArticle.article)) return;
 
-    if (!isAdminModeActive) {
+    if (!isAdminModeActive && userRole !== "admin") {
       const changeReason = prompt(
         "Briefly explain your suggested article changes (required):",
       );

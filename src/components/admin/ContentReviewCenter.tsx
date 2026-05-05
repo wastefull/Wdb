@@ -784,7 +784,9 @@ function SubmissionCard({
     }
     return (
       submission.content_data?.description ||
-      submission.content_data?.content?.substring(0, 100) ||
+      (typeof submission.content_data?.content === "string"
+        ? submission.content_data.content.substring(0, 100)
+        : undefined) ||
       "No description"
     );
   };
