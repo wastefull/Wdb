@@ -194,7 +194,7 @@ export function ContentReviewCenter({
       }
 
       // Get editor's name if edited by admin
-      let editorName;
+      let editorName: string | undefined;
       if (wasEditedByAdmin) {
         try {
           const editorProfile = await api.getUserProfile(currentUserId);

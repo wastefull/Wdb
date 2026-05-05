@@ -145,6 +145,16 @@ export function MaterialDetailView({
       .filter((candidate): candidate is Material => !!candidate);
   }, [allMaterials, material.linkedMaterialIds]);
 
+  const parentHubs = useMemo(
+    () =>
+      allMaterials.filter(
+        (m) =>
+          (m.isHub || m.category === "Elements") &&
+          m.linkedMaterialIds?.includes(material.id),
+      ),
+    [allMaterials, material.id],
+  );
+
   const materialPermalink = `${window.location.origin}${buildMaterialPermalinkPath(
     material,
   )}`;
@@ -270,6 +280,8 @@ export function MaterialDetailView({
           hasCoverImage={Boolean(coverImage)}
           isHub={isHub}
           linkedMaterials={linkedMaterials}
+          parentHubs={parentHubs}
+          materialName={material.name}
           copied={copied}
           onCopyMaterialLink={handleCopyMaterialLink}
         />
