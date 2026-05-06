@@ -29,7 +29,7 @@ export function MaterialDetailSidebar({
 
   return (
     <div
-      className={`${isHub ? "bg-black/5 dark:bg-white/10 transition-colors rounded-md" : ""} pl-4 pt-4 col-start-1 col-end-3 min-w-67`}
+      className={`${isHub ? "bg-black/5 dark:bg-white/10 transition-colors rounded-md" : ""} pl-4 pt-4 col-start-1 col-end-3 min-w-67 cursor-pointer`}
     >
       <PeriodicTableCard
         isElementHub={isElementHub}
@@ -48,7 +48,7 @@ export function MaterialDetailSidebar({
                 <button
                   type="button"
                   onClick={() => navigateToMaterialDetail(hub.id)}
-                  className="retro-btn-primary px-2 py-1 rounded-md border border-[#211f1c] dark:border-white/20 text-[11px] text-black/80 dark:text-white/80 bg-white dark:bg-[#2a2825] hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+                  className="retro-btn-primary px-2 py-1 rounded-md border border-[#211f1c] dark:border-white/20 text-[11px] text-black/80 dark:text-white/80 bg-white dark:bg-[#2a2825] hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
                 >
                   {hub.name}
                 </button>
@@ -68,9 +68,7 @@ export function MaterialDetailSidebar({
       )}
 
       {isHub && <LinkedMaterialsCard linkedMaterials={linkedMaterials} />}
-      {isHub && (
-        <hr className="border-black/10 dark:border-white/10 w-auto pb-4" />
-      )}
+      {isHub && <hr className="border-black/10 dark:border-white/10 w-auto" />}
       <CopyPermalinkButton
         copied={copied}
         onClick={onCopyMaterialLink}
