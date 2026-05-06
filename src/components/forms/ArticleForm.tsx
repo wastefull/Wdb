@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Upload, X } from "lucide-react";
 import { ArticleFormProps } from "../../types/article";
 import { TiptapContent } from "../../types/guide";
@@ -7,6 +7,7 @@ import { UserSelector } from "./UserSelector";
 import GuideEditor from "../editor/GuideEditor";
 import { toast } from "sonner";
 import { logger } from "../../utils/logger";
+import { DiscardChangesDialog } from "../shared/DiscardChangesDialog";
 export function ArticleForm({
   article,
   onSave,
@@ -15,6 +16,7 @@ export function ArticleForm({
 }: ArticleFormProps) {
   const [showImportModal, setShowImportModal] = useState(false);
   const [importJson, setImportJson] = useState("");
+  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
 
   // Admin-only: user to attribute the article to
   const [onBehalfOfUserId, setOnBehalfOfUserId] = useState<string | null>(null);
@@ -107,6 +109,21 @@ export function ArticleForm({
     // Prevent browser from intercepting text editing shortcuts
     if (e.metaKey || e.ctrlKey) {
       e.stopPropagation();
+    }
+  };
+
+  const initialFormData = useRef<string | null>(null);
+  if (initialFormData.current === null) {
+    initialFormData.current = JSON.stringify(formData);
+  }
+
+  const isDirty = () => JSON.stringify(formData) !== initialFormData.current;
+
+  const handleRequestCancel = () => {
+    if (isDirty()) {
+      setShowDiscardConfirm(true);
+    } else {
+      onCancel();
     }
   };
 
@@ -337,13 +354,19 @@ export function ArticleForm({
           </button>
           <button
             type="button"
-            onClick={onCancel}
+            onClick={handleRequestCancel}
             className="bg-waste-compost h-10 px-8 rounded-[6px] border border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] text-[14px] text-black hover:translate-y-px hover:shadow-[2px_3px_0px_-1px_#000000] transition-all"
           >
             Cancel
           </button>
         </div>
       </form>
+      {showDiscardConfirm && (
+        <DiscardChangesDialog
+          onKeepEditing={() => setShowDiscardConfirm(false)}
+          onDiscard={onCancel}
+        />
+      )}
     </div>
   );
 }

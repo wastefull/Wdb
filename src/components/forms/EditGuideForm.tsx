@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { BookOpen, X, Loader2, Upload } from "lucide-react";
 import {
   Guide,
@@ -11,6 +11,7 @@ import GuideEditor from "../editor/GuideEditor";
 import type { TiptapContent } from "../../types/guide";
 import { toast } from "sonner";
 import { logger } from "../../utils/logger";
+import { DiscardChangesDialog } from "../shared/DiscardChangesDialog";
 interface EditGuideFormProps {
   guide: Guide;
   onClose: () => void;
@@ -32,6 +33,7 @@ export function EditGuideForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
   const [importJson, setImportJson] = useState("");
+  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
 
   // Parse content if it's a JSON string
   const parseContent = (content: any): TiptapContent => {
@@ -45,6 +47,8 @@ export function EditGuideForm({
     }
     return content as TiptapContent;
   };
+
+  const initialFormData = useRef<string | null>(null);
 
   // Check if the guide references a material that no longer exists (orphaned)
   const isOrphanedMaterial =
@@ -69,6 +73,33 @@ export function EditGuideForm({
     guide.required_materials?.join(", ") || "",
   );
   const [tagsInput, setTagsInput] = useState(guide.tags?.join(", ") || "");
+
+  if (initialFormData.current === null) {
+    initialFormData.current = JSON.stringify({
+      title: guide.title,
+      description: guide.description,
+      content: parseContent(guide.content),
+      method: guide.method,
+      category: guide.category,
+      material_id: guide.material_id,
+      difficulty_level: guide.difficulty_level,
+      estimated_time: guide.estimated_time || "",
+      required_materials: guide.required_materials || [],
+      tags: guide.tags || [],
+      cover_image_url: guide.cover_image_url || "",
+      meta_description: guide.meta_description || "",
+    });
+  }
+
+  const isDirty = () => JSON.stringify(formData) !== initialFormData.current;
+
+  const handleRequestClose = () => {
+    if (isDirty()) {
+      setShowDiscardConfirm(true);
+    } else {
+      onClose();
+    }
+  };
 
   // Handle importing guide data from JSON
   const handleImport = () => {
@@ -172,7 +203,7 @@ export function EditGuideForm({
               </button>
             )}
             <button
-              onClick={onClose}
+              onClick={handleRequestClose}
               className="icon-box-sm hover:bg-black/5 dark:hover:bg-white/10"
               disabled={isSubmitting}
             >
@@ -503,7 +534,7 @@ export function EditGuideForm({
           <div className="flex gap-3 pt-4 border-t border-[#211f1c]/20 dark:border-white/20">
             <button
               type="button"
-              onClick={onClose}
+              onClick={handleRequestClose}
               disabled={isSubmitting}
               className="retro-button flex-1"
             >
@@ -526,6 +557,12 @@ export function EditGuideForm({
           </div>
         </form>
       </div>
+      {showDiscardConfirm && (
+        <DiscardChangesDialog
+          onKeepEditing={() => setShowDiscardConfirm(false)}
+          onDiscard={onClose}
+        />
+      )}
     </div>
   );
 }

@@ -5,6 +5,7 @@ export {
 } from "./AccessibilityContext";
 
 export { BackArrow } from "./BackArrow";
+export { DiscardChangesDialog } from "./DiscardChangesDialog";
 export { LastUpdated } from "./LastUpdated";
 
 // Error handling & loading

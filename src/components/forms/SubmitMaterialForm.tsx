@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "../ui/select";
 import { logger } from "../../utils/logger";
+import { DiscardChangesDialog } from "../shared/DiscardChangesDialog";
 import {
   searchWikidataForMaterial,
   fetchWikipediaSummary,
@@ -323,6 +324,22 @@ export function SubmitMaterialForm({
   const [description, setDescription] = useState("");
   const [isHub, setIsHub] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
+
+  const hasChanges = () =>
+    name.trim() !== (initialName || "").trim() ||
+    aliases.trim() !== "" ||
+    category !== "" ||
+    description.trim() !== "" ||
+    isHub !== false;
+
+  const handleRequestClose = () => {
+    if (hasChanges()) {
+      setShowDiscardConfirm(true);
+    } else {
+      onClose();
+    }
+  };
 
   const parsedAliases = useMemo(
     () =>
@@ -574,7 +591,7 @@ export function SubmitMaterialForm({
         <div className="flex items-center justify-between p-4 border-b border-[#211f1c] dark:border-white/20">
           <h3 className="normal">Submit New Material</h3>
           <button
-            onClick={onClose}
+            onClick={handleRequestClose}
             className="p-1.5 rounded-md hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
           >
             <X size={16} className="normal" />
@@ -809,7 +826,7 @@ export function SubmitMaterialForm({
           <div className="flex gap-2 pt-4">
             <button
               type="button"
-              onClick={onClose}
+              onClick={handleRequestClose}
               className="flex-1 h-10 px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-waste-compost hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[12px] text-black"
               disabled={submitting}
             >
@@ -829,6 +846,12 @@ export function SubmitMaterialForm({
           </div>
         </form>
       </div>
+      {showDiscardConfirm && (
+        <DiscardChangesDialog
+          onKeepEditing={() => setShowDiscardConfirm(false)}
+          onDiscard={onClose}
+        />
+      )}
     </div>
   );
 }

@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "../ui/select";
 import { logger } from "../../utils/logger";
+import { DiscardChangesDialog } from "../shared/DiscardChangesDialog";
 
 interface SuggestMaterialEditFormProps {
   material: Material;
@@ -48,6 +49,15 @@ export function SuggestMaterialEditForm({
   const [linkSearchQuery, setLinkSearchQuery] = useState("");
   const [changeReason, setChangeReason] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
+
+  const handleRequestClose = () => {
+    if (hasChanges() || changeReason.trim()) {
+      setShowDiscardConfirm(true);
+    } else {
+      onClose();
+    }
+  };
 
   const handleCategoryChange = (value: string) => {
     setCategory(value);
@@ -208,7 +218,7 @@ export function SuggestMaterialEditForm({
             {isAdminMode ? "Edit Material" : "Suggest Edit"}
           </h3>
           <button
-            onClick={onClose}
+            onClick={handleRequestClose}
             className="p-1.5 rounded-md hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
           >
             <X size={16} className="normal" />
@@ -407,7 +417,7 @@ export function SuggestMaterialEditForm({
           <div className="flex gap-2 pt-4">
             <button
               type="button"
-              onClick={onClose}
+              onClick={handleRequestClose}
               className="flex-1 h-10 px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-waste-compost hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[12px] text-black"
               disabled={submitting}
             >
@@ -427,6 +437,12 @@ export function SuggestMaterialEditForm({
           </div>
         </form>
       </div>
+      {showDiscardConfirm && (
+        <DiscardChangesDialog
+          onKeepEditing={() => setShowDiscardConfirm(false)}
+          onDiscard={onClose}
+        />
+      )}
     </div>,
     document.body,
   );

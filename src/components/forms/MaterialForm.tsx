@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   Material,
   MATERIAL_CATEGORIES,
   MaterialCategory,
 } from "../../types/material";
 import { UserSelector } from "./UserSelector";
+import { DiscardChangesDialog } from "../shared/DiscardChangesDialog";
 
 export interface MaterialFormProps {
   material?: Material;
@@ -43,6 +44,18 @@ export function MaterialForm({
     // Prevent browser from intercepting text editing shortcuts
     if (e.metaKey || e.ctrlKey) {
       e.stopPropagation();
+    }
+  };
+
+  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
+  const initialFormData = useRef(JSON.stringify(formData));
+  const isDirty = () => JSON.stringify(formData) !== initialFormData.current;
+
+  const handleRequestCancel = () => {
+    if (isDirty()) {
+      setShowDiscardConfirm(true);
+    } else {
+      onCancel();
     }
   };
 
@@ -196,13 +209,19 @@ export function MaterialForm({
           </button>
           <button
             type="button"
-            onClick={onCancel}
+            onClick={handleRequestCancel}
             className="bg-waste-compost h-10 px-8 rounded-[6px] border border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] text-[14px] text-black hover:translate-y-px hover:shadow-[2px_3px_0px_-1px_#000000] transition-all"
           >
             Cancel
           </button>
         </div>
       </form>
+      {showDiscardConfirm && (
+        <DiscardChangesDialog
+          onKeepEditing={() => setShowDiscardConfirm(false)}
+          onDiscard={onCancel}
+        />
+      )}
     </div>
   );
 }
