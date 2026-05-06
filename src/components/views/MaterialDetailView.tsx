@@ -275,6 +275,7 @@ export function MaterialDetailView({
         coverImage={coverImage}
         onBack={onBack}
         materialId={material.id}
+        materialName={material.name}
         aliases={combinedAliases}
         category={material.category}
         isHub={isHub}

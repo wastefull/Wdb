@@ -73,6 +73,17 @@ export function SearchResultsView({
 
   const normalizedQueryCategoryFilter = queryCategoryFilter?.toLowerCase();
 
+  const queryHubFilter = useMemo(() => {
+    const match = query.match(/^hub\s*:\s*(.+)$/i);
+    return match?.[1]?.trim() || null;
+  }, [query]);
+
+  const hubMaterial = useMemo(() => {
+    if (!queryHubFilter) return null;
+    const normalized = queryHubFilter.toLowerCase();
+    return materials.find((m) => m.name.toLowerCase() === normalized) ?? null;
+  }, [queryHubFilter, materials]);
+
   const { categories, getCategoryByName } = useCategoryContext();
 
   // Filter state — holds category IDs (stable slugs)
@@ -125,6 +136,9 @@ export function SearchResultsView({
       result = result.filter(
         (m) => m.category.toLowerCase() === normalizedQueryCategoryFilter,
       );
+    } else if (queryHubFilter) {
+      const linkedIds = new Set(hubMaterial?.linkedMaterialIds ?? []);
+      result = result.filter((m) => linkedIds.has(m.id));
     } else if (query) {
       result = result.filter(
         (m) =>
@@ -182,6 +196,8 @@ export function SearchResultsView({
     query,
     queryCategoryFilter,
     normalizedQueryCategoryFilter,
+    queryHubFilter,
+    hubMaterial,
     selectedCategories,
     minCompostability,
     minRecyclability,
@@ -220,6 +236,10 @@ export function SearchResultsView({
             <>
               Category:{" "}
               <span className="font-bold">"{queryCategoryFilter}"</span>
+            </>
+          ) : queryHubFilter ? (
+            <>
+              Linked to: <span className="font-bold">"{queryHubFilter}"</span>
             </>
           ) : query ? (
             <>

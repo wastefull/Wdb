@@ -1,17 +1,16 @@
 import { useNavigationContext } from "../../contexts/NavigationContext";
-import { Material } from "../../types/material";
 
 interface MaterialHubButtonProps {
-  category: Material["category"];
+  materialName: string;
 }
 
-export function MaterialHubButton({ category }: MaterialHubButtonProps) {
+export function MaterialHubButton({ materialName }: MaterialHubButtonProps) {
   const { navigateToSearchResults } = useNavigationContext();
 
   return (
     <button
       type="button"
-      onClick={() => navigateToSearchResults(`category:${category}`)}
+      onClick={() => navigateToSearchResults(`hub:${materialName}`)}
       className="tag-green cursor-pointer w-fit whitespace-nowrap"
       aria-label="Hub material"
     >

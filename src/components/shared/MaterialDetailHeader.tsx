@@ -10,6 +10,7 @@ interface MaterialDetailHeaderProps {
   coverImage?: string;
   onBack: () => void;
   materialId: string;
+  materialName: string;
   aliases: string[];
   category: Material["category"];
   isHub: boolean;
@@ -20,6 +21,7 @@ export function MaterialDetailHeader({
   coverImage,
   onBack,
   materialId,
+  materialName,
   aliases,
   category,
   isHub,
@@ -55,7 +57,7 @@ export function MaterialDetailHeader({
         <div className="hidden md:block col-span-1">&nbsp;</div>
         <div className="col-span-3 md:col-span-1 md:min-w-45 justify-self-end md:justify-self-center">
           <div className="grid grid-cols-1 grid-rows-4 md:grid-cols-[max-content_max-content] md:grid-rows-2 md:w-fit md:justify-start gap-1">
-            {isHub && <MaterialHubButton category={category} />}
+            {isHub && <MaterialHubButton materialName={materialName} />}
             {!isHub && <div>&nbsp;</div>}
             <MaterialCategoryButton category={category} />
             <div> &nbsp;</div>
