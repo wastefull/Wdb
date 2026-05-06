@@ -303,6 +303,7 @@ b:not(h1 b, h2 b, h3 b, h4 b, h5 b, h6 b),
       font-size: var(--text-base);
       font-weight: var(--font-weight-medium);
       line-height: 1.5;
+      cursor: pointer;
     }
     input {
       font-size: var(--text-base);
@@ -312,6 +313,9 @@ b:not(h1 b, h2 b, h3 b, h4 b, h5 b, h6 b),
   }
 }
 
+kbd {
+  @apply text-[10px] px-1.5 py-0.5 rounded border border-[#e5e1d8] text-[#6b6b6b];
+}
 /* ==========================================================================
    Layout Utilities
    ========================================================================== */
@@ -1194,6 +1198,36 @@ body {
   @apply hover:translate-y-px hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all;
 }
 
+/* liquid hover */
+.liquid {
+  border: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.liquid::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -25%;
+  width: 150%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent,
+    rgba(255, 255, 255, 0.689),
+    transparent
+  );
+  transform: translateX(-100%);
+  transition: 0.6s;
+  overflow: hidden;
+}
+
+.liquid:hover::after {
+  transform: translateX(100%);
+  overflow: hidden;
+}
 /* Small interactive retro button */
 .retro-btn {
   @apply rounded-md border border-[#211f1c] dark:border-white/20;

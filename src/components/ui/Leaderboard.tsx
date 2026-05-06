@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Trophy, Medal, Award, User } from "lucide-react";
+import { Trophy, Medal, Award, User, Star } from "lucide-react";
 import * as api from "../../utils/api";
 import { logger } from "../../utils/logger";
 
@@ -41,7 +41,7 @@ export function Leaderboard({ onUserClick }: LeaderboardProps) {
   const getRankIcon = (rank: number) => {
     switch (rank) {
       case 1:
-        return <Trophy size={16} className="text-yellow-500" />;
+        return <Star size={16} className="text-yellow-500" />;
       case 2:
         return <Medal size={16} className="text-gray-400" />;
       case 3:
@@ -58,7 +58,7 @@ export function Leaderboard({ onUserClick }: LeaderboardProps) {
   if (loading) {
     return (
       <div className="p-4">
-        <h3 className="text-[13px] font-display mb-3 flex items-center gap-2">
+        <h3 className="text-[13px] uppercase tracking-[0.08em] text-black/60 dark:text-white/60 mb-4 flex items-center gap-2">
           <Trophy size={14} className="text-yellow-500" />
           Top Contributors
         </h3>
@@ -77,7 +77,7 @@ export function Leaderboard({ onUserClick }: LeaderboardProps) {
   if (leaders.length === 0) {
     return (
       <div className="p-4">
-        <h3 className="text-[13px] font-display mb-3 flex items-center gap-2">
+        <h3 className="text-[13px] uppercase tracking-[0.08em] text-black/60 dark:text-white/60 mb-4 flex items-center gap-2">
           <Trophy size={14} className="text-yellow-500" />
           Top Contributors
         </h3>
@@ -90,7 +90,7 @@ export function Leaderboard({ onUserClick }: LeaderboardProps) {
 
   return (
     <div className="p-4">
-      <h3 className="text-[13px] font-display mb-3 flex items-center gap-2">
+      <h3 className="text-[13px] uppercase tracking-[0.08em] text-black/60 dark:text-white/60 mb-4 flex items-center gap-2">
         <Trophy size={14} className="text-yellow-500" />
         Top Contributors
       </h3>

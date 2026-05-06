@@ -157,6 +157,7 @@ export function SearchBar({
                 setIsDropdownOpen(true);
               }
             }}
+            id="main-search-input"
             ref={inputRef}
             onKeyDownCapture={handleKeyDown}
             onBlur={() => {
@@ -170,11 +171,7 @@ export function SearchBar({
             aria-expanded={isDropdownOpen && hasSuggestions}
             aria-controls="material-search-suggestions"
           />
-          {!isMobile && (
-            <kbd className="text-[10px] px-1.5 py-0.5 rounded border border-[#e5e1d8] text-[#6b6b6b]">
-              {isMac ? "⌘K" : "Ctrl K"}
-            </kbd>
-          )}
+          {!isMobile && <kbd>{isMac ? "⌘K" : "Ctrl K"}</kbd>}
         </div>
       </div>
 

@@ -870,8 +870,7 @@ function AppContent() {
   );
   const showLeaderboardPanel =
     currentView.type === "materials" || currentView.type === "user-profile";
-  // const showLeftPanel = currentView.type === "materials";
-  const showLeftPanel = false; // TODO
+  const showLeftPanel = currentView.type === "materials";
   const navigateToAdminHome = () => {
     navigateTo(getAdminHomeViewByRole(userRole));
   };

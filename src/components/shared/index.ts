@@ -17,7 +17,7 @@ export { AliasDisplay } from "./AliasDisplay";
 export { CookieConsent } from "./CookieConsent";
 export { CopyPermalinkButton } from "./CopyPermalinkButton";
 export { FrontPage } from "./FrontPage";
-export { LeftPanel } from "./LeftPanel";
+export { ResourcesPanel as LeftPanel } from "./LeftPanel";
 export { LinkedMaterialsCard } from "./LinkedMaterialsCard";
 export { LogoLink } from "./LogoLink";
 export { MaterialArticleCount } from "./MaterialArticleCount";
