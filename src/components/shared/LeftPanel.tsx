@@ -54,7 +54,7 @@ export function ResourcesPanel() {
         </ul>
 
         <div
-          className={`arcade-card card mt-8 p-1 rounded-lg border-[1.5px] border-[#211f1c] bg-white`}
+          className={`arcade-card mt-8 p-3 rounded-lg border-[1.5px] border-[#211f1c] bg-waste-reuse text-center text-sm text-gray-800 dark:text-white/80 `}
         >
           <p className="text-sm uppercase tracking-[0.04em] leading-5">
             Can't find a material?
