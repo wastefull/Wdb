@@ -84,11 +84,15 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-[400px]">
+      <div className="w-full max-w-100">
         {/* Auth Window */}
         <div className="retro-card overflow-hidden backdrop-blur-md bg-white/70! dark:bg-[#2a2825]/70!">
           {/* Mini Status Bar */}
-          <StatusBar variant="mini" title="Welcome back!" onClose={onClose} />
+          <StatusBar
+            variant="mini"
+            title="Log in or sign up"
+            onClose={onClose}
+          />
 
           {/* Form Content */}
           <div className="p-6 bg-[#faf7f2]/90 dark:bg-[#2a2825]/90">
@@ -116,24 +120,13 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
               </div>
             ) : authMode === "magic-link" ? (
               <div className="space-y-3">
-                <button
-                  onClick={handleGoogleSignIn}
-                  disabled={loading}
-                  className="w-full h-10 retro-btn-primary arcade-bg-cyan arcade-btn-cyan text-[13px] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
-                >
-                  <Link size={16} />
-                  {loading
-                    ? "Redirecting to Google..."
-                    : "Continue with Google (@wastefull.org)"}
-                </button>
-
                 <div className="text-center text-[10px] text-black/50 dark:text-white/50">
-                  or use a one-time magic link
+                  Log in or sign up with just your email
                 </div>
 
                 <div>
-                  <label className="text-[12px] normal block mb-1">
-                    Email Address
+                  <label className="text-[12px] normal block mb-1 uppercase tracking-[0.04em] text-black/70 dark:text-white/70">
+                    Email Address:
                   </label>
                   <input
                     type="email"
@@ -145,7 +138,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
                         handleSendMagicLink();
                       }
                     }}
-                    placeholder="you@example.com"
+                    placeholder="awesome.person@example.com"
                     className="retro-input"
                   />
                 </div>
@@ -173,6 +166,19 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
                 >
                   <Mail size={16} />
                   {loading ? "Sending..." : "Send Magic Link"}
+                </button>
+                <div className="text-center text-[10px] text-black/50 dark:text-white/50">
+                  or
+                </div>
+                <button
+                  onClick={handleGoogleSignIn}
+                  disabled={loading}
+                  className="w-full h-10 retro-btn-primary arcade-bg-cyan arcade-btn-cyan text-[13px] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
+                >
+                  <Link size={16} />
+                  {loading
+                    ? "Redirecting to Google..."
+                    : "Staff login (@wastefull.org)"}
                 </button>
               </div>
             ) : null}

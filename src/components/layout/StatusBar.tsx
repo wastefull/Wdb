@@ -75,15 +75,15 @@ export function StatusBar({
   // Mini variant for modals - simplified with just close button and title
   if (variant === "mini") {
     return (
-      <div className="h-8 bg-[#faf7f2] dark:bg-[#2a2825] border-b-[1.5px] border-[#211f1c] dark:border-white/20 flex items-center justify-center relative">
+      <div className="h-9 bg-[#faf7f2] dark:bg-[#2a2825] border-b-[1.5px] border-[#211f1c] dark:border-white/20 flex items-center justify-center relative">
         {/* Close Button - Red circle on left */}
         {onClose && (
           <button
             onClick={onClose}
-            className="group absolute left-2 w-[11px] h-[11px] cursor-pointer"
+            className="group absolute left-2 w-4.5 h-4.5 cursor-pointer"
             aria-label="Close"
           >
-            <div className="absolute inset-[-8.333%] arcade-fill-red">
+            <div className="absolute inset-0 arcade-fill-red">
               <svg
                 className="block size-full"
                 fill="none"
@@ -94,15 +94,18 @@ export function StatusBar({
                   cx="7"
                   cy="7"
                   fill="var(--fill-0, #E6BCB5)"
-                  r="6.5"
+                  r="6"
                   stroke="var(--stroke-0, #211F1C)"
                 />
               </svg>
             </div>
             {/* X appears on hover */}
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-              <X size={8} className="text-black" strokeWidth={2.5} />
-            </div>
+            <X
+              size={10}
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-black opacity-0 group-hover:opacity-100 transition-[opacity]"
+              style={{ willChange: "opacity" }}
+              strokeWidth={2.5}
+            />
           </button>
         )}
         {/* Centered Title */}
