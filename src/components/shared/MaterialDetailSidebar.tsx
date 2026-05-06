@@ -40,7 +40,7 @@ export function MaterialDetailSidebar({
       {parentHubs.length > 0 && (
         <div className="mb-5">
           <p className="text-[11px] uppercase tracking-[0.08em] text-black/50 dark:text-white/40 mb-2">
-            Part of
+            Linked to
           </p>
           <div className="flex flex-col gap-1">
             {parentHubs.map((hub) => (

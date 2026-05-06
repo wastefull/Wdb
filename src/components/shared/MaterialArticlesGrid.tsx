@@ -3,13 +3,23 @@ import { Plus } from "lucide-react";
 import { Article, CategoryType } from "../../types/article";
 
 interface MaterialArticlesGridProps {
-  articles: Array<{ article: Article; category: CategoryType }>;
+  articles: Array<{
+    article: Article;
+    category: CategoryType;
+    linkedMaterialName?: string;
+    linkedMaterialId?: string;
+  }>;
   onEditArticle: (article: Article, category: CategoryType) => void;
   onDeleteArticle: (article: Article, category: CategoryType) => void;
-  onReadMore: (articleId: string, category: CategoryType) => void;
+  onReadMore: (
+    articleId: string,
+    category: CategoryType,
+    materialId?: string,
+  ) => void;
   isAdminModeActive?: boolean;
   currentUserId?: string;
   onViewArticles?: (category: CategoryType) => void;
+  onViewMaterial?: (materialId: string) => void;
 }
 
 const categoryLabels = {
@@ -34,6 +44,7 @@ export function MaterialArticlesGrid({
   isAdminModeActive,
   currentUserId,
   onViewArticles,
+  onViewMaterial,
 }: MaterialArticlesGridProps) {
   const categoriesWithArticles = new Set(articles.map((a) => a.category));
   const emptyCategories = ALL_CATEGORIES.filter(
@@ -48,27 +59,38 @@ export function MaterialArticlesGrid({
             All Articles
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            {articles.map(({ article, category }) => (
-              <ArticleCard
-                key={`${category}-${article.id}`}
-                article={article}
-                onEdit={() => onEditArticle(article, category)}
-                onDelete={() => onDeleteArticle(article, category)}
-                sustainabilityCategory={{
-                  label: categoryLabels[category],
-                  color: categoryColors[category],
-                }}
-                onReadMore={() => onReadMore(article.id, category)}
-                isAdminModeActive={isAdminModeActive}
-                canManageArticle={
-                  !!(
-                    currentUserId &&
-                    (article.created_by === currentUserId ||
-                      article.author_id === currentUserId)
-                  )
-                }
-              />
-            ))}
+            {articles.map(
+              ({ article, category, linkedMaterialName, linkedMaterialId }) => (
+                <ArticleCard
+                  key={`${category}-${article.id}`}
+                  article={article}
+                  onEdit={() => onEditArticle(article, category)}
+                  onDelete={() => onDeleteArticle(article, category)}
+                  sustainabilityCategory={{
+                    label: categoryLabels[category],
+                    color: categoryColors[category],
+                  }}
+                  onReadMore={() =>
+                    onReadMore(article.id, category, linkedMaterialId)
+                  }
+                  isAdminModeActive={isAdminModeActive}
+                  canManageArticle={
+                    !linkedMaterialName &&
+                    !!(
+                      currentUserId &&
+                      (article.created_by === currentUserId ||
+                        article.author_id === currentUserId)
+                    )
+                  }
+                  linkedMaterialName={linkedMaterialName}
+                  onViewLinkedMaterial={
+                    linkedMaterialId && onViewMaterial
+                      ? () => onViewMaterial(linkedMaterialId)
+                      : undefined
+                  }
+                />
+              ),
+            )}
           </div>
         </>
       )}

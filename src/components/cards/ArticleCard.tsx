@@ -10,6 +10,8 @@ export interface ArticleCardProps {
   onReadMore?: () => void;
   isAdminModeActive?: boolean;
   canManageArticle?: boolean;
+  linkedMaterialName?: string;
+  onViewLinkedMaterial?: () => void;
 }
 
 // Helper to extract plain text preview from TiptapContent
@@ -58,6 +60,8 @@ export function ArticleCard({
   onReadMore,
   isAdminModeActive,
   canManageArticle,
+  linkedMaterialName,
+  onViewLinkedMaterial,
 }: ArticleCardProps) {
   const coverImage = article.cover_image_url || article.overview?.image;
   const preview = getContentPreview(article);
@@ -135,6 +139,19 @@ export function ArticleCard({
           >
             Read more...
           </button>
+        )}
+
+        {/* Linked material attribution */}
+        {linkedMaterialName && onViewLinkedMaterial && (
+          <p className="text-[10px] text-black/50 dark:text-white/40 pt-1 text-right dark:border-white/10">
+            From{" "}
+            <button
+              onClick={onViewLinkedMaterial}
+              className="underline hover:text-black dark:hover:text-white transition-colors"
+            >
+              {linkedMaterialName}
+            </button>
+          </p>
         )}
       </div>
     </div>

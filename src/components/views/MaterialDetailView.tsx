@@ -36,7 +36,11 @@ interface MaterialDetailViewProps {
   onBack: () => void;
   onViewCategoryMaterials: (category: Material["category"]) => void;
   onUpdateMaterial: (material: Material) => void;
-  onViewArticleStandalone: (articleId: string, category: CategoryType) => void;
+  onViewArticleStandalone: (
+    articleId: string,
+    category: CategoryType,
+    materialId?: string,
+  ) => void;
   isAdminModeActive?: boolean;
   isAuthenticated?: boolean;
   currentUserId?: string;
@@ -44,6 +48,7 @@ interface MaterialDetailViewProps {
   onEditMaterial?: (material: Material) => void;
   onSuggestEdit?: (material: Material) => void;
   onViewArticles?: (category: CategoryType) => void;
+  onViewMaterial?: (materialId: string) => void;
 }
 
 export function MaterialDetailView({
@@ -60,6 +65,7 @@ export function MaterialDetailView({
   onEditMaterial,
   onSuggestEdit,
   onViewArticles,
+  onViewMaterial,
 }: MaterialDetailViewProps) {
   const isElementHub = material.category === "Elements";
   const isHub = material.isHub || isElementHub;
@@ -146,6 +152,30 @@ export function MaterialDetailView({
       .map((id) => byId.get(id))
       .filter((candidate): candidate is Material => !!candidate);
   }, [allMaterials, material.linkedMaterialIds]);
+
+  const displayArticles = useMemo(() => {
+    const ownArticles = getAllArticles(material).map((entry) => ({
+      ...entry,
+      linkedMaterialName: undefined as string | undefined,
+      linkedMaterialId: undefined as string | undefined,
+    }));
+    const linkedArticles = isHub
+      ? linkedMaterials.flatMap((linked) =>
+          getAllArticles(linked).map((entry) => ({
+            ...entry,
+            linkedMaterialName: linked.name,
+            linkedMaterialId: linked.id,
+          })),
+        )
+      : [];
+    const byDate = (
+      a: { article: { dateAdded: string } },
+      b: { article: { dateAdded: string } },
+    ) =>
+      new Date(b.article.dateAdded).getTime() -
+      new Date(a.article.dateAdded).getTime();
+    return [...ownArticles.sort(byDate), ...linkedArticles.sort(byDate)];
+  }, [material, isHub, linkedMaterials]);
 
   const parentHubs = useMemo(
     () =>
@@ -248,7 +278,7 @@ export function MaterialDetailView({
         aliases={combinedAliases}
         category={material.category}
         isHub={isHub}
-        totalArticles={totalArticles}
+        totalArticles={displayArticles.length}
       />
       {canShowEditAction && (
         <div className="mb-4 flex justify-end">
@@ -307,16 +337,19 @@ export function MaterialDetailView({
       )}
 
       <MaterialArticlesGrid
-        articles={allArticles}
+        articles={displayArticles}
         onEditArticle={(article, category) => {
           setEditingArticle({ article, category });
           setShowForm(true);
         }}
         onDeleteArticle={handleDeleteArticle}
-        onReadMore={onViewArticleStandalone}
+        onReadMore={(articleId, category, materialId) =>
+          onViewArticleStandalone(articleId, category, materialId)
+        }
         isAdminModeActive={isAdminModeActive}
         currentUserId={currentUserId}
         onViewArticles={onViewArticles}
+        onViewMaterial={onViewMaterial}
       />
 
       <AlertDialog

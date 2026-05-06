@@ -969,8 +969,12 @@ function AppContent() {
           onBack={goBack}
           onViewCategoryMaterials={handleViewCategoryMaterials}
           onUpdateMaterial={handleUpdateMaterial}
-          onViewArticleStandalone={(articleId, category) =>
-            handleViewArticleStandalone(material.id, articleId, category)
+          onViewArticleStandalone={(articleId, category, materialId) =>
+            handleViewArticleStandalone(
+              materialId ?? material.id,
+              articleId,
+              category,
+            )
           }
           isAdminModeActive={isAdminModeActive}
           isAuthenticated={!!user}
@@ -981,6 +985,7 @@ function AppContent() {
           onViewArticles={(category) =>
             handleViewArticles(material.id, category)
           }
+          onViewMaterial={handleViewMaterial}
         />
       );
     },
