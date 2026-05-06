@@ -259,6 +259,14 @@ b:not(h1 b, h2 b, h3 b, h4 b, h5 b, h6 b),
   body {
     @apply bg-background text-foreground font-sniglet;
   }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-weight: 400; /* Sniglet only has 400 and 800; prevent class-order-sensitive selector from forcing 600 → 800 */
+  }
   h1 {
     font-size: var(--text-2xl);
     font-weight: var(--font-weight-light);
@@ -271,22 +279,18 @@ b:not(h1 b, h2 b, h3 b, h4 b, h5 b, h6 b),
   :where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) {
     h1 {
       font-size: var(--text-2xl);
-      font-weight: var(--font-weight-medium);
       line-height: 1.5;
     }
     h2 {
       font-size: var(--text-xl);
-      font-weight: var(--font-weight-medium);
       line-height: 1.5;
     }
     h3 {
       font-size: var(--text-lg);
-      font-weight: var(--font-weight-medium);
       line-height: 1.5;
     }
     h4 {
       font-size: var(--text-base);
-      font-weight: var(--font-weight-medium);
       line-height: 1.5;
     }
     p {
@@ -296,12 +300,10 @@ b:not(h1 b, h2 b, h3 b, h4 b, h5 b, h6 b),
     }
     label {
       font-size: var(--text-base);
-      font-weight: var(--font-weight-medium);
       line-height: 1.5;
     }
     button {
       font-size: var(--text-base);
-      font-weight: var(--font-weight-medium);
       line-height: 1.5;
       cursor: pointer;
     }

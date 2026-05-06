@@ -67,9 +67,9 @@ export function FrontPage({
             </h1>
             <h2 className="text-center pb-4">
               {" "}
-              <p className="text-[12px] text-black/50 dark:text-white/60 ">
-                Search {materials.length} materials for compost, recycle, and
-                upcycle pathways — backed by current research.
+              <p className="text-normal text-black/50 dark:text-white/60 ">
+                Search {materials.length} community-contributed materials for
+                compost, recycle, and upcycle options
               </p>
             </h2>
           </main>

@@ -102,8 +102,8 @@ export function PopularArticles() {
       <div className="flex items-end justify-between mb-4">
         <div>
           <h2>Popular this week</h2>
-          <p className="text-xs text-[#6b6b6b] mt-1">
-            Recently updated entries across all three pathways.
+          <p className="text-[#6b6b6b] mt-1">
+            See what materials your community is talking about.
           </p>
         </div>
         <button

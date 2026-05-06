@@ -384,7 +384,7 @@ export default function GuideRenderer({ content }: GuideRendererProps) {
       {parsedContent.content.map(renderNode)}
       {footnoteRegistry.size > 0 && (
         <div className="mt-8 pt-4 border-t border-black/10 dark:border-white/10">
-          <h4 className="text-[11px] font-medium text-black/50 dark:text-white/50 uppercase tracking-wider mb-2">
+          <h4 className="text-[11px] text-black/50 dark:text-white/50 uppercase tracking-wider mb-2">
             Footnotes
           </h4>
           <ol className="space-y-1">
