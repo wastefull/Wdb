@@ -83,7 +83,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="flex items-center justify-center p-4">
       <div className="w-full max-w-100">
         {/* Auth Window */}
         <div className="retro-card overflow-hidden backdrop-blur-md bg-white/70! dark:bg-[#2a2825]/70!">

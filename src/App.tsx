@@ -875,6 +875,12 @@ function AppContent() {
     navigateTo(getAdminHomeViewByRole(userRole));
   };
 
+  const authModalOverlayStyle: React.CSSProperties = {
+    transform: "scale(calc(1 / var(--a11y-font-scale, 1)))",
+    transformOrigin: "top left",
+    width: "calc(100vw * var(--a11y-font-scale, 1))",
+    height: "calc(100vh * var(--a11y-font-scale, 1))",
+  };
   const authModalOuterDivClasses =
     "fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4";
   const authModalInnerDivClasses = "relative max-w-md w-full";
@@ -1317,7 +1323,7 @@ function AppContent() {
     <>
       {/* Auth Modal */}
       {showAuthModal && (
-        <div className={authModalOuterDivClasses}>
+        <div className={authModalOuterDivClasses} style={authModalOverlayStyle}>
           <div className={authModalInnerDivClasses}>
             <AuthView
               onAuthSuccess={(userData) => {
