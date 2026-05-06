@@ -124,7 +124,7 @@ import { SimplifiedRoadmap } from "./components/roadmap";
 // Other component groups
 import { Toaster } from "./components/ui/sonner";
 import { Leaderboard } from "./components/ui/Leaderboard";
-import { LeftPanel } from "./components/shared";
+import { LeftPanel, Sidebar } from "./components/shared";
 import { SearchBar } from "./components/search";
 import type { SearchSuggestion } from "./components/search/SearchBar";
 import { StatusBar } from "./components/layout";
@@ -1356,11 +1356,9 @@ function AppContent() {
             <div className="flex">
               {/* Left panel - visible on medium screens and wider, front page only */}
               {showLeftPanel && (
-                <aside className="hidden md:block w-52 lg:w-64 shrink-0 border-r-[1.5px] border-[#211f1c] dark:border-white/20">
-                  <div className="sticky top-0 max-h-[calc(100vh-100px)] overflow-y-auto">
-                    <LeftPanel />
-                  </div>
-                </aside>
+                <Sidebar side="left">
+                  <LeftPanel />
+                </Sidebar>
               )}
 
               {/* Main content - grows to fill space */}
@@ -1381,11 +1379,9 @@ function AppContent() {
 
               {/* Sidebar - visible on medium screens and wider */}
               {showLeaderboardPanel && (
-                <aside className="hidden md:block w-52 lg:w-64 shrink-0 border-l-[1.5px] border-[#211f1c] dark:border-white/20">
-                  <div className="sticky top-0 max-h-[calc(100vh-100px)] overflow-y-auto">
-                    <Leaderboard onUserClick={navigateToUserProfile} />
-                  </div>
-                </aside>
+                <Sidebar side="right">
+                  <Leaderboard onUserClick={navigateToUserProfile} />
+                </Sidebar>
               )}
             </div>
           </div>

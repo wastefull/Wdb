@@ -40,6 +40,7 @@ export { PopularArticles } from "./PopularArticles";
 export { RasterizedQuantileArticleCategories } from "./RasterizedQuantileArticleCategories";
 export { ReviewModal } from "./ReviewModal";
 export { ScrollHintArrow } from "./ScrollHintArrow.tsx";
+export { Sidebar } from "./Sidebar";
 export { ViewConfiguration } from "./ViewConfiguration";
 export type { ViewRendererMap } from "./ViewConfiguration";
 export { VirtualizedMaterialList } from "./VirtualizedMaterialList";
