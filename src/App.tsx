@@ -220,6 +220,8 @@ function AppContent() {
     useState("");
   const [materialToEdit, setMaterialToEdit] = useState<Material | null>(null);
   const [showSubmitArticleForm, setShowSubmitArticleForm] = useState(false);
+  const [showFrontLeftPanel, setShowFrontLeftPanel] = useState(false);
+  const [showFrontRightPanel, setShowFrontRightPanel] = useState(false);
   const [permalinkDisambiguateCandidates, setPermalinkDisambiguateCandidates] =
     useState<Material[] | null>(null);
   const [pendingMaterialPermalink, setPendingMaterialPermalink] =
@@ -1359,9 +1361,14 @@ function AppContent() {
 
             {/* Content area with optional sidebar */}
             <div className="flex">
-              {/* Left panel - visible on medium screens and wider, front page only */}
+              {/* Left panel - always rendered on front page; tab visible even when collapsed */}
               {showLeftPanel && (
-                <Sidebar side="left">
+                <Sidebar
+                  side="left"
+                  label="Resources"
+                  isOpen={showFrontLeftPanel}
+                  onToggle={() => setShowFrontLeftPanel((prev) => !prev)}
+                >
                   <LeftPanel />
                 </Sidebar>
               )}
@@ -1376,15 +1383,20 @@ function AppContent() {
                 {/* Footer - inside rounded container */}
                 <PageFooter />
 
-                {/* Scroll hint arrow - shown when sidebar is below */}
+                {/* Scroll hint arrow - shown on mobile when leaderboard card is below */}
                 {showLeaderboardPanel && showScrollHint && (
                   <ScrollHintArrow cta="See top contributors" />
                 )}
               </div>
 
-              {/* Sidebar - visible on medium screens and wider */}
+              {/* Right panel - always rendered when leaderboard is active; tab visible even when collapsed */}
               {showLeaderboardPanel && (
-                <Sidebar side="right">
+                <Sidebar
+                  side="right"
+                  label="Top Contributors"
+                  isOpen={showFrontRightPanel}
+                  onToggle={() => setShowFrontRightPanel((prev) => !prev)}
+                >
                   <Leaderboard onUserClick={navigateToUserProfile} />
                 </Sidebar>
               )}

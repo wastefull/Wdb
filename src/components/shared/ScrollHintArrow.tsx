@@ -17,7 +17,7 @@ export function ScrollHintArrow({ cta }: ScrollHintArrowProps) {
         animate={{ y: [0, 6, 0] }}
         transition={{
           duration: 1.5,
-          repeat: Infinity,
+          repeat: 10,
           ease: "easeInOut",
         }}
         className="flex flex-col items-center gap-1 text-black/30 dark:text-white/30"
