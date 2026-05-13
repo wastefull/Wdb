@@ -11,6 +11,7 @@ import {
 import { ReactNode } from "react";
 import { ScrollHintArrow } from "./ScrollHintArrow";
 import { motion, MotionConfig, AnimatePresence } from "motion/react";
+import { useAccessibility } from "./AccessibilityContext";
 
 interface SidebarProps {
   side: "left" | "right";
@@ -28,6 +29,8 @@ export function Sidebar({
   onToggle,
   children,
 }: SidebarProps) {
+  const { settings } = useAccessibility();
+  const reduceMotion = settings.reduceMotion;
   // Outer border separates the sidebar column from the main content
   const outerBorder =
     side === "left"
@@ -77,7 +80,7 @@ export function Sidebar({
               transition={{
                 duration: 1.5,
                 repeat: Infinity,
-                repeatDelay: 4,
+                repeatDelay: reduceMotion ? 0 : 4,
                 ease: "easeInOut",
               }}
               className="flex flex-row items-center gap-0 text--muted"
@@ -99,7 +102,7 @@ export function Sidebar({
   );
 
   return (
-    <MotionConfig reducedMotion="user">
+    <MotionConfig reducedMotion={reduceMotion ? "always" : "never"}>
       <div className="hidden md:flex items-stretch shrink-0">
         {/* Right panel: tab is outside/left of the bordered aside */}
         {side === "right" && tab}
