@@ -78,6 +78,7 @@ export function Sidebar({
                 transition={{
                   duration: 1.5,
                   repeat: Infinity,
+                  repeatDelay: 4,
                   ease: "easeInOut",
                 }}
                 className="flex flex-row items-center gap-0 text--muted"
