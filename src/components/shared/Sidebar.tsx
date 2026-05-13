@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { ReactNode } from "react";
 import { ScrollHintArrow } from "./ScrollHintArrow";
-import { motion, MotionConfig } from "motion/react";
+import { motion, MotionConfig, AnimatePresence } from "motion/react";
 
 interface SidebarProps {
   side: "left" | "right";
@@ -67,52 +67,61 @@ export function Sidebar({
             aria-label={`Close ${label}`}
           />
         ) : (
-          <MotionConfig reducedMotion="user">
+          <motion.div
+            initial={{ opacity: 0.5 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1, duration: 1.5 }}
+          >
             <motion.div
-              initial={{ opacity: 0.5 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1, duration: 1.5 }}
+              animate={{ x: [0, 3, 0] }}
+              transition={{
+                duration: 1.5,
+                repeat: Infinity,
+                repeatDelay: 4,
+                ease: "easeInOut",
+              }}
+              className="flex flex-row items-center gap-0 text--muted"
             >
-              <motion.div
-                animate={{ x: [0, 3, 0] }}
-                transition={{
-                  duration: 1.5,
-                  repeat: Infinity,
-                  repeatDelay: 4,
-                  ease: "easeInOut",
-                }}
-                className="flex flex-row items-center gap-0 text--muted"
+              {/* Chevron sits between the panel border and the label on both sides */}
+              {side === "left" && <ChevronLeft size={10} />}
+              <span
+                style={{ writingMode: "vertical-rl" }}
+                className={`block ${labelRotation} text-xs uppercase tracking-wider`}
               >
-                {/* Chevron sits between the panel border and the label on both sides */}
-                {side === "left" && <ChevronLeft size={10} />}
-                <span
-                  style={{ writingMode: "vertical-rl" }}
-                  className={`block ${labelRotation} text-xs uppercase tracking-wider`}
-                >
-                  {label}
-                </span>
-                {side === "right" && <ChevronRight size={10} />}
-              </motion.div>
+                {label}
+              </span>
+              {side === "right" && <ChevronRight size={10} />}
             </motion.div>
-          </MotionConfig>
+          </motion.div>
         )}
       </button>
     </div>
   );
 
   return (
-    <div className="hidden md:flex items-stretch shrink-0">
-      {/* Right panel: tab is outside/left of the bordered aside */}
-      {side === "right" && tab}
+    <MotionConfig reducedMotion="user">
+      <div className="hidden md:flex items-stretch shrink-0">
+        {/* Right panel: tab is outside/left of the bordered aside */}
+        {side === "right" && tab}
 
-      {isOpen && (
-        <aside className={`w-48 lg:w-64 h-full ${outerBorder}`}>
-          {children}
-        </aside>
-      )}
+        <AnimatePresence initial={false}>
+          {isOpen && (
+            <motion.aside
+              key="panel"
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: "auto", opacity: 1 }}
+              exit={{ width: 0, opacity: 0 }}
+              transition={{ duration: 0.25, ease: "easeInOut" }}
+              className={`overflow-hidden h-full ${outerBorder}`}
+            >
+              <div className="w-48 lg:w-64">{children}</div>
+            </motion.aside>
+          )}
+        </AnimatePresence>
 
-      {/* Left panel: tab is outside/right of the bordered aside */}
-      {side === "left" && tab}
-    </div>
+        {/* Left panel: tab is outside/right of the bordered aside */}
+        {side === "left" && tab}
+      </div>
+    </MotionConfig>
   );
 }
