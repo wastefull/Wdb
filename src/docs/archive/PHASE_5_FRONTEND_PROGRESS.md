@@ -242,7 +242,7 @@ Option B: **Component Extraction**
     <div className="grid grid-cols-2 gap-3 mt-4">
       <Button
         onClick={() => handleCalculateCC("practical")}
-        className="bg-[#e6beb5] hover:bg-[#d6aea5] text-black"
+        className="bg-(--waste-compost) hover:bg-[#d6aea5] text-black"
       >
         <Calculator className="w-4 h-4 mr-2" />
         Calculate Practical CC
@@ -281,7 +281,7 @@ Option B: **Component Extraction**
             onChange={(e) =>
               handleParameterChange(
                 "CC_practical_mean",
-                parseFloat(e.target.value) || 0
+                parseFloat(e.target.value) || 0,
               )
             }
             className="text-[12px]"
@@ -353,7 +353,7 @@ Option B: **Component Extraction**
             onChange={(e) =>
               handleParameterChange(
                 "CC_theoretical_mean",
-                parseFloat(e.target.value) || 0
+                parseFloat(e.target.value) || 0,
               )
             }
             className="text-[12px]"

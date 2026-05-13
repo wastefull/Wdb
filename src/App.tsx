@@ -1338,9 +1338,9 @@ function AppContent() {
 
       <div className={authModalBackgroundClasses}>
         {/* Main layout container - allows window to grow past 1000px with sidebar */}
-        <div className="max-w-350 mx-auto">
+        <div className="max-w-500 mx-auto">
           {/* Simulated window with optional sidebar inside */}
-          <div className="bg-[#faf7f2] dark:bg-[#1a1917] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 overflow-visible mb-6">
+          <div className="bg-[#faf7f2] dark:bg-[#1a1917] rounded-(--retro-rounding) border-[1.5px] border-[#211f1c] dark:border-white/20 overflow-visible mb-6">
             <StatusBar
               title="Waste"
               titlePop="DB"

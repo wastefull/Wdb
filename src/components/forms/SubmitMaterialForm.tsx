@@ -587,7 +587,7 @@ export function SubmitMaterialForm({
 
   return (
     <div className="fixed inset-0 bg-black/30 dark:bg-black/60 flex items-center justify-center p-4 z-50">
-      <div className="bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 w-full max-w-md shadow-[4px_4px_0px_0px_#000000] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]">
+      <div className="bg-white dark:bg-[#2a2825] rounded-(--retro-rounding) border-[1.5px] border-[#211f1c] dark:border-white/20 w-full max-w-md shadow-[4px_4px_0px_0px_#000000] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]">
         <div className="flex items-center justify-between p-4 border-b border-[#211f1c] dark:border-white/20">
           <h3 className="normal">Submit New Material</h3>
           <button

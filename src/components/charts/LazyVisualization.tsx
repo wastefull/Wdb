@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from "react";
 
 interface LazyVisualizationProps {
   children: React.ReactNode;
@@ -16,10 +16,10 @@ interface LazyVisualizationProps {
 export function LazyVisualization({
   children,
   placeholder,
-  rootMargin = '200px', // Load 200px before entering viewport
+  rootMargin = "200px", // Load 200px before entering viewport
   threshold = 0.01,
   onLoad,
-  className = ''
+  className = "",
 }: LazyVisualizationProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [hasLoaded, setHasLoaded] = useState(false);
@@ -40,7 +40,7 @@ export function LazyVisualization({
       {
         rootMargin,
         threshold,
-      }
+      },
     );
 
     observer.observe(container);
@@ -52,16 +52,24 @@ export function LazyVisualization({
 
   return (
     <div ref={containerRef} className={className}>
-      {isVisible ? children : (placeholder || <div className="h-64 bg-[#e5e4dc] dark:bg-[#3a3835] animate-pulse rounded-[11.464px]" />)}
+      {isVisible
+        ? children
+        : placeholder || (
+            <div className="h-64 bg-[#e5e4dc] dark:bg-[#3a3835] animate-pulse rounded-(--retro-rounding)" />
+          )}
     </div>
   );
 }
 
 // Placeholder component for visualizations
-export function VisualizationPlaceholder({ height = 256 }: { height?: number }) {
+export function VisualizationPlaceholder({
+  height = 256,
+}: {
+  height?: number;
+}) {
   return (
-    <div 
-      className="bg-[#e5e4dc] dark:bg-[#3a3835] rounded-[11.464px] border-[1.5px] border-[#211f1c]/20 dark:border-white/20 flex items-center justify-center"
+    <div
+      className="bg-[#e5e4dc] dark:bg-[#3a3835] rounded-(--retro-rounding) border-[1.5px] border-[#211f1c]/20 dark:border-white/20 flex items-center justify-center"
       style={{ height: `${height}px` }}
     >
       <div className="text-center">

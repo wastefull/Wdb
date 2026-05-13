@@ -209,7 +209,7 @@ const [ruCalculating, setRUCalculating] = useState(false);
   results={crResults}
   processing={crProcessing}
   onApply={handleCRApply}
-  applyColor="bg-[#e6beb5] text-black" // Optional, defaults to coral
+  applyColor="bg-(--waste-compost) text-black" // Optional, defaults to coral
 />
 ```
 
@@ -335,7 +335,7 @@ const handleCCPreview = async () => {
         });
 
         return { ...result, label: getScoreLabel(result.public, "CC") };
-      })
+      }),
     );
 
     setCCResults(results);

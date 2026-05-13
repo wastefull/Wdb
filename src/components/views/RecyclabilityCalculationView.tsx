@@ -112,7 +112,7 @@ Where:
         )}
       </div>
 
-      <div className="bg-white rounded-[11.464px] border-[1.5px] border-[#211f1c] p-6 max-w-3xl mx-auto">
+      <div className="bg-white rounded-(--retro-rounding) border-[1.5px] border-[#211f1c] p-6 max-w-3xl mx-auto">
         {isEditing ? (
           <div>
             <label className="text-[13px] text-black block mb-2">

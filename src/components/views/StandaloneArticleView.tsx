@@ -248,7 +248,7 @@ export function StandaloneArticleView({
 
       {/* Content card — full width up to 5xl */}
       {!editing && (
-        <div className="bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 p-6">
+        <div className="bg-white dark:bg-[#2a2825] rounded-(--retro-rounding) border-[1.5px] border-[#211f1c] dark:border-white/20 p-6">
           <div className="space-y-6">
             {/* Cover Image */}
             {(article.cover_image_url || article.overview?.image) && (

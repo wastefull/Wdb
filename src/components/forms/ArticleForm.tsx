@@ -169,7 +169,7 @@ export function ArticleForm({
   };
 
   return (
-    <div className="relative rounded-[11.464px] p-6 ">
+    <div className="relative rounded-(--retro-rounding) p-6 ">
       {/* Import Modal */}
       {showImportModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">

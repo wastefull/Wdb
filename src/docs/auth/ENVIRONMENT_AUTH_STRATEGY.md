@@ -181,7 +181,7 @@ const showPasswordAuth = isDevelopment();
 }
 {
   authMode !== "magic-link-sent" && !showPasswordAuth && (
-    <div className="mb-6 p-3 bg-[#e4e3ac]/30...">
+    <div className="mb-6 p-3 bg-(--waste-recycle)/30...">
       <p>Secure passwordless authentication</p>
     </div>
   );

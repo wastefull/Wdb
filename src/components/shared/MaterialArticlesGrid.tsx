@@ -107,7 +107,7 @@ export function MaterialArticlesGrid({
               <button
                 key={category}
                 onClick={() => onViewArticles?.(category)}
-                className="flex flex-col items-center justify-center gap-2 p-6 rounded-[11.464px] border-[1.5px] border-dashed border-[#211f1c]/40 dark:border-white/20 hover:border-[#211f1c] dark:hover:border-white/50 transition-colors group cursor-pointer"
+                className="flex flex-col items-center justify-center gap-2 p-6 rounded-(--retro-rounding) border-[1.5px] border-dashed border-[#211f1c]/40 dark:border-white/20 hover:border-[#211f1c] dark:hover:border-white/50 transition-colors group cursor-pointer"
                 style={{ backgroundColor: `${categoryColors[category]}33` }}
               >
                 <div

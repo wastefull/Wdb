@@ -247,7 +247,7 @@ export function RetroButtons({ title, titlePop, version }: RetroButtonsProps) {
                           </svg>
                         </div>
                       </PopoverTrigger>
-                      <PopoverContent className="w-64 p-4 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] rounded-[11.464px] shadow-[3px_4px_0px_-1px_#000000]">
+                      <PopoverContent className="w-64 p-4 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] rounded-(--retro-rounding) shadow-[3px_4px_0px_-1px_#000000]">
                         <div className="space-y-3">
                           <div className="flex items-center gap-2">
                             <RotateCcw size={16} />
@@ -308,7 +308,7 @@ export function RetroButtons({ title, titlePop, version }: RetroButtonsProps) {
                           </svg>
                         </div>
                       </PopoverTrigger>
-                      <PopoverContent className="w-64 p-4 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] rounded-[11.464px] shadow-[3px_4px_0px_-1px_#000000]">
+                      <PopoverContent className="w-64 p-4 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] rounded-(--retro-rounding) shadow-[3px_4px_0px_-1px_#000000]">
                         <div className="space-y-3">
                           <div className="flex items-center gap-2">
                             <Type size={16} />
@@ -389,7 +389,7 @@ export function RetroButtons({ title, titlePop, version }: RetroButtonsProps) {
                           </svg>
                         </div>
                       </PopoverTrigger>
-                      <PopoverContent className="w-64 p-4 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] rounded-[11.464px] shadow-[3px_4px_0px_-1px_#000000]">
+                      <PopoverContent className="w-64 p-4 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] rounded-(--retro-rounding) shadow-[3px_4px_0px_-1px_#000000]">
                         <div className="space-y-3">
                           <div className="flex items-center gap-2">
                             <Eye size={16} />

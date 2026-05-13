@@ -94,7 +94,7 @@ export function MaterialForm({
   };
 
   return (
-    <div className="bg-white relative rounded-[11.464px] p-6 border-[1.5px] border-[#211f1c]">
+    <div className="bg-white relative rounded-(--retro-rounding) p-6 border-[1.5px] border-[#211f1c]">
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div>
           <label className="text-[13px] text-black block mb-1">

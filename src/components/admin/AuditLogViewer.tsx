@@ -83,7 +83,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
           headers: {
             Authorization: `Bearer ${accessToken || publicAnonKey}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -110,7 +110,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
           headers: {
             Authorization: `Bearer ${accessToken || publicAnonKey}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -162,7 +162,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
   });
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-[#e8f4f8] to-[#b8c8cb] dark:from-[#0a0908] dark:to-[#1a1917] p-6">
+    <div className="min-h-screen bg-linear-to-b from-[#e8f4f8] to-(--waste-reuse) dark:from-[#0a0908] dark:to-[#1a1917] p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6">
@@ -384,7 +384,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
                         <td className="px-4 py-3">
                           <span
                             className={`inline-block px-2 py-1 rounded-md border font-['Sniglet'] text-[10px] ${getActionColor(
-                              log.action
+                              log.action,
                             )}`}
                           >
                             {log.action}
@@ -479,7 +479,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
                   <h3 className="label-muted mb-1">Action</h3>
                   <span
                     className={`inline-block px-3 py-1 rounded-md border font-['Sniglet'] text-[12px] ${getActionColor(
-                      selectedLog.action
+                      selectedLog.action,
                     )}`}
                   >
                     {selectedLog.action}

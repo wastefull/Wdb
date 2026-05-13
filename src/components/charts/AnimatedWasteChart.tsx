@@ -116,7 +116,7 @@ export function AnimatedWasteChart({
       )}
 
       <div
-        className="bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-sm overflow-hidden"
+        className="bg-white dark:bg-[#2a2825] rounded-(--retro-rounding) border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-sm overflow-hidden"
         style={{ padding: isMobile ? "8px" : "16px" }}
       >
         <div

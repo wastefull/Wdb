@@ -297,7 +297,7 @@ export function GlideStaticTable({
   };
 
   return (
-    <div className="bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 overflow-hidden">
+    <div className="bg-white dark:bg-[#2a2825] rounded-(--retro-rounding) border-[1.5px] border-[#211f1c] dark:border-white/20 overflow-hidden">
       <div className="overflow-hidden">
         <DataEditor
           columns={columns}

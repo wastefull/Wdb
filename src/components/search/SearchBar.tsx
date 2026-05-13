@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { SearchIcon } from "./SearchIcon";
+import { Kbd } from "../ui/Kbd";
 import { useIsMobile } from "../ui/use-mobile";
 
 export interface SearchSuggestion {
@@ -14,10 +15,6 @@ export interface SearchBarProps {
   onSearch?: (value: string) => void;
   suggestions?: SearchSuggestion[];
 }
-
-const isMac =
-  typeof navigator !== "undefined" &&
-  /Mac|iPhone|iPad/.test(navigator.platform);
 
 export function SearchBar({
   value,
@@ -136,7 +133,7 @@ export function SearchBar({
   return (
     <div
       ref={containerRef}
-      className="relative shrink-0 w-full px-5 py-4 bg-white dark:bg-[#2a2825] "
+      className="relative shrink-0 w-full px-5 py-4 bg-white dark:bg-[#2a2825] rounded-full"
     >
       <div
         aria-hidden="true"
@@ -171,7 +168,7 @@ export function SearchBar({
             aria-expanded={isDropdownOpen && hasSuggestions}
             aria-controls="material-search-suggestions"
           />
-          {!isMobile && <kbd>{isMac ? "⌘K" : "Ctrl K"}</kbd>}
+          {!isMobile && <Kbd macText="⌘K" pcText="Ctrl K" />}
         </div>
       </div>
 

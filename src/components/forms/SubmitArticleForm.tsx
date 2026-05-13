@@ -92,7 +92,7 @@ export function SubmitArticleForm({
       });
 
       toast.success(
-        "Article submitted for review! You'll be notified when it's reviewed."
+        "Article submitted for review! You'll be notified when it's reviewed.",
       );
       onSubmitSuccess();
       onClose();
@@ -108,7 +108,7 @@ export function SubmitArticleForm({
 
   return (
     <div className="fixed inset-0 bg-black/30 dark:bg-black/60 flex items-center justify-center p-4 z-50">
-      <div className="bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 w-full max-w-2xl shadow-[4px_4px_0px_0px_#000000] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] max-h-[90vh] overflow-y-auto">
+      <div className="bg-white dark:bg-[#2a2825] rounded-(--retro-rounding) border-[1.5px] border-[#211f1c] dark:border-white/20 w-full max-w-2xl shadow-[4px_4px_0px_0px_#000000] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-4 border-b border-[#211f1c] dark:border-white/20 sticky top-0 bg-white dark:bg-[#2a2825] z-10">
           <h3 className="normal">Submit New Article</h3>
           <button

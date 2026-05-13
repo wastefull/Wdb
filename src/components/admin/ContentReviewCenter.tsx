@@ -807,7 +807,7 @@ function SubmissionCard({
 
   return (
     <div
-      className={`bg-white dark:bg-[#1a1917] rounded-[11.464px] border-[1.5px] p-4 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all ${
+      className={`bg-white dark:bg-[#1a1917] rounded-(--retro-rounding) border-[1.5px] p-4 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all ${
         isSelected
           ? "border-[#211f1c] dark:border-white/60 ring-2 ring-waste-recycle dark:ring-waste-recycle/60 shadow-[2px_2px_0px_0px_#000000]"
           : "border-[#211f1c] dark:border-white/20"

@@ -183,7 +183,7 @@ export function UserManagementView({
           </p>
         </div>
       ) : (
-        <div className="bg-white dark:bg-[#1a1917] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 overflow-hidden">
+        <div className="bg-white dark:bg-[#1a1917] rounded-(--retro-rounding) border-[1.5px] border-[#211f1c] dark:border-white/20 overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>

@@ -18,21 +18,28 @@
   /* Colors */
   --white: oklch(1 0 0);
   --whitish: oklch(0.92 0.02 95);
+  --imaginary: rgba(255, 255, 255, 0.2);
+  --conceptual: rgba(255, 255, 255, 0.4);
   --black: oklch(0 0 0);
-  --blackish: oklch(0.08 0.01 260);
+  --blackish: oklch(27.788% 0.00613 78.167);
   --grey: oklch(55.458% 0.02621 285.488);
   --red: oklch(55.798% 0.21367 19.385);
-  --subtle: oklch(0% 0 0 / 0.1);
   --quicksilver: oklch(0.708 0 0);
-  --mysteryblack: oklch(27.788% 0.00613 78.167);
   --wisp: oklch(100% 0.00011 271.152 / 0.2);
-  --inky: oklch(0% 0 0 / 0.8);
-
+  --cyan: oklch(0.65 0.15 195);
+  --depressionblue: oklch(0.2 0.05 195);
+  --yellowy: oklch(0.85 0.15 85);
+  --idk: oklch(0.25 0.08 85);
+  --iron: #4a5861;
+  --kbd: #e5e1d8;
+  --temp-green: #bae1c3;
+  --neon-green: oklch(0.75 0.18 145);
   /* Typography scale */
-  --font-size: 12px;
+  --font-size: 16px;
   --a11y-font-scale: 1;
   --font-weight-normal: 400;
   --font-weight-medium: 600;
+  --text-base: 16px;
 
   /* Surface colors */
   --background: var(--white);
@@ -53,9 +60,11 @@
   --accent-foreground: var(--black);
   --destructive: var(--red);
   --destructive-foreground: var(--white);
+  --hover-shadow: 2px 2px 0px 0px #000000;
+  --retro-hover-shadow: 2px 3px 0px -1px #000000;
 
   /* Form colors */
-  --border: var(--subtle);
+  --border: var(--blackish);
   --input: transparent;
   --input-background: #f3f3f5;
   --switch-background: #cbced4;
@@ -89,8 +98,95 @@
   --stem: rgb(132, 181, 39);
   --leaf: rgb(146, 210, 34);
   --earth: rgb(91, 79, 91);
-  --texture: url("https://www.transparenttextures.com/patterns/3px-tile.png");
-  --texture-size: 3px 3px;
+  --texture: url("https://www.transparenttextures.com/patterns/scribble-light.png");
+  --texture-size: 100px 100px;
+  --texture-color: var(--color-primary-foreground);
+
+  /* Cards */
+  --retro-rounding: 11.464px;
+  --retro-bg: var(--white);
+  --retro-text: var(--black);
+  --retro-shadow: 3px 4px 0px -1px #000000;
+  --retro-thick-shadow: 3px 3px 0px 0px #000000;
+  --retro-thin-shadow: 1px 1px 0px 0px #000000;
+  --retro-border-width: 1.5px;
+  --retro-border: var(--retro-border-width) var(--blackish);
+
+  /* WYSIWYG editor */
+  --wysiwyg-text: oklch(0% 0 0 / 0.4);
+  --wysiwyg-icon-box-border: var(--blackish);
+  --wysiwyg-icon-button-border: var(--blackish);
+  --wysiwyg-icon-button-text: var(--black);
+  --wysiwyg-icon-button-text-active: var(--white);
+  --wysiwyg-icon-button-bg: var(--white);
+  --wysiwyg-icon-button-bg-active: var(--black);
+  /* Heading sizes for WYSIWYG editor */
+  --wysiwygh1: 1.5rem;
+  --wysiwygh2: 1.25rem;
+  --wysiwygh3: 1.1rem;
+  --font-weight-hack: 700; /* Sniglet only has 400 and 800, so we use 700 to approximate a "semi-bold" weight for headings in the WYSIWYG editor */
+  --wysiwygh1-margin-bottom: 0.5rem;
+  --wysiwygh2-margin-bottom: 0.4rem;
+  --wysiwygh3-margin-bottom: 0.3rem;
+
+  /* Markdown */
+  --markdown-h1: 2rem;
+  --markdown-h-lineheight: 1.3;
+  --markdown-p-lineheight: 1.6;
+  --markdown-blockquote-font-style: italic;
+  --markdown-table-border-color: #211f1c;
+
+  /* Arcade colors */
+  --arcade-red: #3a1a1a;
+  --arcade-green: #1a3a1a;
+  --arcade-cyan: #1a2a3a;
+  --arcade-amber: #3a2a1a;
+
+  /* Arcade fill tokens */
+  --arcade-fill-red-fill: rgba(230, 188, 181, 1);
+  --arcade-fill-red-stroke: rgba(33, 31, 28, 1);
+  --arcade-fill-amber-fill: rgba(228, 227, 172, 1);
+  --arcade-fill-amber-stroke: rgba(33, 31, 28, 1);
+  --arcade-fill-cyan-fill: rgba(184, 200, 203, 1);
+  --arcade-fill-cyan-stroke: rgba(33, 31, 28, 1);
+  --arcade-fill-green-fill: rgba(189, 212, 183, 1);
+  --arcade-fill-green-stroke: rgba(33, 31, 28, 1);
+
+  /* Tag tokens */
+  --tag-cyan-text: var(--black);
+  --tag-cyan-bg: var(--waste-reuse);
+  --tag-yellow-text: var(--black);
+  --tag-yellow-bg: var(--waste-recycle);
+  --tag-pink-text: var(--black);
+  --tag-pink-bg: var(--waste-compost);
+  --tag-green-text: var(--black);
+  --tag-green-bg: var(--temp-green);
+
+  /* Menu item tokens */
+  --menu-text: rgb(0 0 0 / 0.7);
+  --menu-text-hover: var(--black);
+  --menu-text-dim: rgb(0 0 0 / 0.6);
+  --menu-text-muted: rgb(0 0 0 / 0.4);
+  --menu-bg-hover: rgb(0 0 0 / 0.05);
+
+  /* Prose & scrollbar tokens */
+  --prose-border: var(--markdown-table-border-color);
+  --prose-thead-bg: var(--waste-recycle);
+  --prose-row-even-bg: rgba(228, 227, 172, 0.1);
+  --scrollbar-track-bg: #f5f5f5;
+  --scrollbar-track-border: #211f1c;
+  --scrollbar-thumb-bg: var(--waste-reuse);
+  --scrollbar-thumb-hover-bg: #a0b5b8;
+
+  /* Guide editor tokens */
+  --guide-table-border-color: var(--blackish);
+  --guide-selected-cell-bg: var(--conceptual);
+
+  /* Surface tokens */
+  --surface-bg: var(--white);
+  --surface-bg-subtle: var(--whitish);
+  --surface-border: var(--blackish);
+  --surface-border-muted: color-mix(in srgb, var(--blackish) 20%, transparent);
 }
 
 /* ==========================================================================
@@ -98,9 +194,13 @@
    Deep blacks with phosphor-glow accents, easy on the eyes
    ========================================================================== */
 .dark {
+  /* General color overrides */
+  --conceptual: rgba(0, 0, 0, 0.4);
+
   /* Near-black background - like a CRT off-state */
   --background: oklch(0.08 0.01 260);
   --foreground: oklch(0.92 0.02 95); /* Warm phosphor white, not harsh */
+  --hover-shadow: 2px 2px 0px 0px rgba(255, 255, 255, 0.2);
 
   /* Cards slightly lifted from background */
   --card: oklch(0.12 0.01 260);
@@ -160,10 +260,86 @@
   --stem: rgb(71, 101, 40);
   --leaf: rgb(109, 165, 0);
   --earth: rgb(229, 225, 216);
+
+  --texture-color: black;
+
+  /* Cards */
+  --retro-bg: var(--black);
+  --retro-text: var(--white);
+  --retro-shadow: 3px 4px 0px -1px rgba(255, 255, 255, 0.2);
+  --retro-thick-shadow: 3px 3px 0px 0px rgba(255, 255, 255, 0.15);
+  --retro-thick-shadow-hc: 3px 3px 0px 0px #ffffff;
+  --retro-thin-shadow: 1px 1px 0px 0px rgba(255, 255, 255, 0.2);
+  --retro-hover-shadow: 2px 3px 0px -1px rgba(255, 255, 255, 0.2);
+  --retro-border-white: color-mix(in oklab, var(--white) 20%, transparent);
+  --retro-border: var(--retro-border-width) var(--retro-border-white);
+
+  /* WYSIWYG editor */
+  --wysiwyg-text: oklch(1 0 0 / 0.4);
+  --wysiwyg-icon-box-border: var(--imaginary);
+
+  --wysiwyg-icon-button-border: var(--imaginary);
+  --wysiwyg-icon-button-text: var(--white);
+  --wysiwyg-icon-button-text-active: var(--black);
+  --wysiwyg-icon-button-bg: var(--blackish);
+  --wysiwyg-icon-button-bg-active: var(--white);
+
+  /* Arcade colors */
+  --arcade-red: #ff9999;
+  --arcade-green: #7fff7f;
+  /* --arcade-cyan: #7fdfff; */
+  --arcade-amber: #ffd77f;
+
+  /* Arcade fill tokens */
+  --arcade-fill-red-fill: rgba(255, 100, 100, 0.8);
+  --arcade-fill-red-stroke: rgba(255, 153, 153, 0.5);
+  --arcade-fill-amber-fill: rgba(255, 215, 100, 0.8);
+  --arcade-fill-amber-stroke: rgba(255, 215, 127, 0.5);
+  --arcade-fill-cyan-fill: rgba(100, 200, 255, 0.8);
+  --arcade-fill-cyan-stroke: rgba(127, 223, 255, 0.5);
+  --arcade-fill-green-fill: rgba(100, 255, 100, 0.8);
+  --arcade-fill-green-stroke: rgba(127, 255, 127, 0.5);
+
+  /* Tag tokens */
+  --tag-cyan-text: var(--cyan);
+  --tag-cyan-bg: var(--depressionblue);
+  --tag-yellow-text: var(--yellowy);
+  --tag-yellow-bg: var(--idk);
+  --tag-pink-text: oklch(0.75 0.12 15);
+  --tag-pink-bg: oklch(0.22 0.06 15);
+  --tag-green-text: var(--neon-green);
+  --tag-green-bg: var(--blackish);
+
+  /* Menu item tokens */
+  --menu-text: rgb(255 255 255 / 0.7);
+  --menu-text-hover: var(--white);
+  --menu-text-dim: rgb(255 255 255 / 0.6);
+  --menu-text-muted: rgb(255 255 255 / 0.4);
+  --menu-bg-hover: rgb(255 255 255 / 0.1);
+
+  /* Prose & scrollbar tokens */
+  --prose-border: var(--imaginary);
+  --prose-thead-bg: #3a3825;
+  --prose-row-even-bg: rgba(255, 255, 255, 0.03);
+  --scrollbar-track-bg: var(--blackish);
+  --scrollbar-track-border: var(--imaginary);
+  --scrollbar-thumb-bg: var(--iron);
+  --scrollbar-thumb-hover-bg: #5a6871;
+
+  /* Guide editor tokens */
+  --guide-table-border-color: var(--imaginary);
+  --guide-selected-cell-bg: var(--imaginary);
+
+  /* Surface tokens */
+  --surface-bg: var(--blackish);
+  --surface-bg-subtle: var(--blackish);
+  --surface-border: var(--imaginary);
+  --surface-border-muted: var(--imaginary);
 }
 
 .textured {
   background-image: var(--texture);
+  background-color: var(--texture-color);
   background-size: var(--texture-size);
 }
 
@@ -316,7 +492,7 @@ b:not(h1 b, h2 b, h3 b, h4 b, h5 b, h6 b),
 }
 
 kbd {
-  @apply text-[10px] px-1.5 py-0.5 rounded border border-[#e5e1d8] text-[#6b6b6b];
+  @apply text-xs px-1.5 py-0.5 rounded border border-(--kbd) text-(--iron);
 }
 /* ==========================================================================
    Layout Utilities
@@ -333,7 +509,7 @@ body {
 }
 
 .status-bar-layout {
-  @apply box-border content-stretch flex h-[42px] items-center justify-between px-[5px] py-0 relative w-full;
+  @apply box-border content-stretch flex h-10.5 items-center justify-between px-1.25 py-0 relative w-full;
 }
 
 /* ==========================================================================
@@ -344,26 +520,26 @@ body {
   .text-black:not(
     .dark\:text-white,
     .dark\:text-black,
-    .bg-\[#b8c8cb\] .text-black,
-    .bg-\[#e4e3ac\] .text-black,
-    .bg-\[#e6beb5\] .text-black,
-    .bg-\[#bdd4b7\] .text-black,
-    .bg-\[#b8c8cb\] *,
-    .bg-\[#e4e3ac\] *,
-    .bg-\[#e6beb5\] *,
-    .bg-\[#bdd4b7\] *
+    .bg-\(--waste-reuse\) .text-black,
+    .bg-\(--waste-recycle\) .text-black,
+    .bg-\(--waste-compost\) .text-black,
+    .bg-\(--waste-science\) .text-black,
+    .bg-\(--waste-reuse\) *,
+    .bg-\(--waste-recycle\) *,
+    .bg-\(--waste-compost\) *,
+    .bg-\(--waste-science\) *
   ) {
   color: white !important;
 }
 
 .dark
-  .bg-white:not([class*="dark:bg-[#2a2825]"]):not(
-    [class*="dark:bg-[#1a1917]"]
+  .bg-white:not([class*="dark:bg-(--blackish)"]):not(
+    [class*="dark:bg-(--blackish)"]
   ) {
-  background-color: var(--mysteryblack);
+  background-color: var(--blackish);
 }
 
-.dark [class*="border-[#211f1c]"]:not([class*="dark:border-white/20"]) {
+.dark [class*="border-(--blackish)"]:not([class*="dark:border-(--imaginary)"]) {
   border-color: var(--wisp) !important;
 }
 
@@ -371,7 +547,13 @@ body {
    Accessibility: High Contrast Mode
    ========================================================================== */
 .high-contrast {
-  --border: var(--inky);
+  /* High-contrast color overrides via CSS variables */
+  --waste-compost: #c74444;
+  --waste-recycle: #d4b400;
+  --waste-reuse: #4a90a4;
+  --waste-science: #5a9a4d;
+
+  --border: var(--blackish);
 
   &.dark {
     --border: var(--white);
@@ -391,19 +573,13 @@ body {
 
   .shadow-sm,
   [class*="shadow-"] {
-    box-shadow: 3px 3px 0px 0px #000000 !important;
+    box-shadow: var(--retro-thick-shadow) !important;
   }
 
   &.dark .shadow-sm,
   &.dark [class*="shadow-"] {
-    box-shadow: 3px 3px 0px 0px #ffffff !important;
+    box-shadow: var(--retro-thick-shadow-hc) !important;
   }
-
-  /* High-contrast color overrides via CSS variables */
-  --waste-compost: #c74444;
-  --waste-recycle: #d4b400;
-  --waste-reuse: #4a90a4;
-  --waste-science: #5a9a4d;
 
   &.dark {
     --waste-compost: #ff6b6b;
@@ -542,18 +718,18 @@ body {
    Font inheritance from body (Sniglet) - no need to repeat font-family
    ========================================================================== */
 .prose h1 {
-  font-size: 2rem;
+  font-size: var(--markdown-h1);
 }
 
 .prose h1,
 .prose h2,
 .prose h3,
 .prose h4 {
-  line-height: 1.3;
+  line-height: var(--markdown-h-lineheight);
 }
 
 .prose p {
-  line-height: 1.6;
+  line-height: var(--markdown-p-lineheight);
 }
 
 .prose strong {
@@ -562,7 +738,7 @@ body {
 
 .prose ul,
 .prose ol {
-  line-height: 1.6;
+  line-height: var(--markdown-p-lineheight);
   padding-left: 1.5rem;
   margin-top: 1rem;
   margin-bottom: 1rem;
@@ -583,20 +759,16 @@ body {
 }
 
 .prose hr {
-  border-color: #211f1c;
+  border-color: var(--prose-border);
   margin-top: 2em;
   margin-bottom: 2em;
-}
-
-.dark .prose hr {
-  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .prose blockquote {
   border-left-width: 3px;
   padding-left: 1rem;
   margin: 1.5rem 0;
-  font-style: italic;
+  font-style: var(--markdown-blockquote-font-style);
 }
 
 /* ==========================================================================
@@ -607,33 +779,20 @@ body {
   border-collapse: separate;
   border-spacing: 0;
   margin: 1.5rem 0;
-  border: 1.5px solid #211f1c;
+  border: 1.5px solid var(--prose-border);
   border-radius: 8px;
   overflow: hidden;
 }
 
-.dark .prose table {
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
 .prose thead {
-  background-color: #e4e3ac;
-}
-
-.dark .prose thead {
-  background-color: #3a3825;
+  background-color: var(--prose-thead-bg);
 }
 
 .prose th {
   padding: 8px 12px;
   text-align: left;
-  border-bottom: 1.5px solid #211f1c;
-  border-right: 1px solid #211f1c;
-}
-
-.dark .prose th {
-  border-bottom-color: rgba(255, 255, 255, 0.2);
-  border-right-color: rgba(255, 255, 255, 0.2);
+  border-bottom: 1.5px solid var(--prose-border);
+  border-right: 1px solid var(--prose-border);
 }
 
 .prose th:last-child {
@@ -642,13 +801,8 @@ body {
 
 .prose td {
   padding: 8px 12px;
-  border-bottom: 1px solid rgba(33, 31, 28, 0.2);
-  border-right: 1px solid rgba(33, 31, 28, 0.1);
-}
-
-.dark .prose td {
-  border-bottom-color: rgba(255, 255, 255, 0.1);
-  border-right-color: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--imaginary);
+  border-right: 1px solid var(--imaginary);
 }
 
 .prose td:last-child {
@@ -660,11 +814,7 @@ body {
 }
 
 .prose tbody tr:nth-child(even) {
-  background-color: rgba(228, 227, 172, 0.1);
-}
-
-.dark .prose tbody tr:nth-child(even) {
-  background-color: rgba(255, 255, 255, 0.03);
+  background-color: var(--prose-row-even-bg);
 }
 
 /* ==========================================================================
@@ -675,11 +825,7 @@ body {
   margin: 1.5rem 0;
   border-radius: 8px;
   scrollbar-width: thin;
-  scrollbar-color: #b8c8cb #f5f5f5;
-}
-
-.dark .table-scroll-wrapper {
-  scrollbar-color: #4a5861 #1a1917;
+  scrollbar-color: var(--scrollbar-thumb-bg) var(--scrollbar-track-bg);
 }
 
 /* Webkit scrollbar styling */
@@ -688,33 +834,19 @@ body {
 }
 
 .table-scroll-wrapper::-webkit-scrollbar-track {
-  background: #f5f5f5;
-  border: 1px solid #211f1c;
+  background: var(--scrollbar-track-bg);
+  border: 1px solid var(--scrollbar-track-border);
   border-radius: 5px;
-}
-
-.dark .table-scroll-wrapper::-webkit-scrollbar-track {
-  background: #1a1917;
-  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .table-scroll-wrapper::-webkit-scrollbar-thumb {
-  background: #b8c8cb;
-  border: 1px solid #211f1c;
+  background: var(--scrollbar-thumb-bg);
+  border: 1px solid var(--prose-border);
   border-radius: 5px;
 }
 
-.dark .table-scroll-wrapper::-webkit-scrollbar-thumb {
-  background: #4a5861;
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
 .table-scroll-wrapper::-webkit-scrollbar-thumb:hover {
-  background: #a0b5b8;
-}
-
-.dark .table-scroll-wrapper::-webkit-scrollbar-thumb:hover {
-  background: #5a6871;
+  background: var(--scrollbar-thumb-hover-bg);
 }
 
 /* ==========================================================================
@@ -724,166 +856,120 @@ body {
 
 /* Red variant - "off" state, warnings, destructive-ish */
 .arcade-btn-red {
-  color: #3a1a1a;
-}
-
-.dark .arcade-btn-red {
-  color: #ff9999 !important;
+  color: var(--arcade-red);
 }
 
 /* Green variant - "on" state, success, active */
 .arcade-btn-green {
-  color: #1a3a1a;
-}
-
-.dark .arcade-btn-green {
-  color: #7fff7f !important;
+  color: var(--arcade-green);
 }
 
 /* Cyan variant - info, links, navigation */
 .arcade-btn-cyan {
-  color: #1a2a3a;
-}
-
-.dark .arcade-btn-cyan {
-  color: #7fdfff !important;
+  color: var(--arcade-cyan);
 }
 
 /* Amber variant - warnings, highlights */
 .arcade-btn-amber {
-  color: #3a2a1a;
-}
-
-.dark .arcade-btn-amber {
-  color: #ffd77f !important;
+  color: var(--arcade-amber);
 }
 
 /* Arcade container backgrounds */
 .arcade-bg-red {
-  background-color: #e6beb5;
+  background-color: var(--waste-compost);
 }
 
-.dark .arcade-bg-red {
+/* .dark .arcade-bg-red {
   background-color: #3a1a1a;
-}
+} */
 
 .arcade-bg-green {
-  background-color: #bdd4b7;
+  background-color: var(--waste-science);
 }
-
+/* 
 .dark .arcade-bg-green {
   background-color: #1a3a1a;
-}
+} */
 
 .arcade-bg-cyan {
-  background-color: #b8c8cb;
+  background-color: var(--waste-reuse);
 }
 
-.dark .arcade-bg-cyan {
+/* .dark .arcade-bg-cyan {
   background-color: #1a2a3a;
-}
+} */
 
 .arcade-bg-amber {
-  background-color: #e4e3ac;
+  background-color: var(--waste-recycle);
 }
-
+/* 
 .dark .arcade-bg-amber {
   background-color: #3a3a1a;
-}
+} */
 
 /* Arcade SVG fills - for circle buttons like status bar */
 .arcade-fill-red {
-  --fill-0: rgba(230, 188, 181, 1);
-  --stroke-0: rgba(33, 31, 28, 1);
-}
-
-.dark .arcade-fill-red {
-  --fill-0: rgba(255, 100, 100, 0.8) !important;
-  --stroke-0: rgba(255, 153, 153, 0.5) !important;
+  --fill-0: var(--arcade-fill-red-fill);
+  --stroke-0: var(--arcade-fill-red-stroke);
 }
 
 .arcade-fill-amber {
-  --fill-0: rgba(228, 227, 172, 1);
-  --stroke-0: rgba(33, 31, 28, 1);
-}
-
-.dark .arcade-fill-amber {
-  --fill-0: rgba(255, 215, 100, 0.8) !important;
-  --stroke-0: rgba(255, 215, 127, 0.5) !important;
+  --fill-0: var(--arcade-fill-amber-fill);
+  --stroke-0: var(--arcade-fill-amber-stroke);
 }
 
 .arcade-fill-cyan {
-  --fill-0: rgba(184, 200, 203, 1);
-  --stroke-0: rgba(33, 31, 28, 1);
-}
-
-.dark .arcade-fill-cyan {
-  --fill-0: rgba(100, 200, 255, 0.8) !important;
-  --stroke-0: rgba(127, 223, 255, 0.5) !important;
+  --fill-0: var(--arcade-fill-cyan-fill);
+  --stroke-0: var(--arcade-fill-cyan-stroke);
 }
 
 .arcade-fill-green {
-  --fill-0: rgba(189, 212, 183, 1);
-  --stroke-0: rgba(33, 31, 28, 1);
-}
-
-.dark .arcade-fill-green {
-  --fill-0: rgba(100, 255, 100, 0.8) !important;
-  --stroke-0: rgba(127, 255, 127, 0.5) !important;
+  --fill-0: var(--arcade-fill-green-fill);
+  --stroke-0: var(--arcade-fill-green-stroke);
 }
 
 /* ==========================================================================
    Sidebar / Accordion Menu Items
    ========================================================================== */
 .menu-item {
-  @apply w-full text-left text-[12px] py-2 px-3 rounded-md transition-colors;
-  @apply text-black/70 hover:text-black;
-  @apply hover:bg-black/5;
+  @apply w-full text-left text-base py-2 px-3 rounded-md transition-colors;
+  color: var(--menu-text);
+  @apply hover:bg-(--menu-bg-hover);
 }
-
-.dark .menu-item {
-  @apply text-white/70 hover:text-white;
-  @apply hover:bg-white/10;
+.menu-item:hover {
+  color: var(--menu-text-hover);
 }
 
 .menu-item-nested {
-  @apply w-full text-left text-[11px] py-2 px-3 pl-6 rounded-md transition-colors;
-  @apply text-black/60 hover:text-black;
-  @apply hover:bg-black/5;
+  @apply w-full text-left text-sm py-2 px-3 pl-6 rounded-md transition-colors;
+  color: var(--menu-text-dim);
+  @apply hover:bg-(--menu-bg-hover);
 }
-
-.dark .menu-item-nested {
-  @apply text-white/60 hover:text-white;
-  @apply hover:bg-white/10;
+.menu-item-nested:hover {
+  color: var(--menu-text-hover);
 }
 
 .menu-item-deep {
-  @apply w-full text-left text-[12px] py-2 px-3 pl-8 rounded-md transition-colors;
-  @apply text-black/70 hover:text-black;
-  @apply hover:bg-black/5;
+  @apply w-full text-left text-base py-2 px-3 pl-8 rounded-md transition-colors;
+  color: var(--menu-text);
+  @apply hover:bg-(--menu-bg-hover);
 }
-
-.dark .menu-item-deep {
-  @apply text-white/70 hover:text-white;
-  @apply hover:bg-white/10;
+.menu-item-deep:hover {
+  color: var(--menu-text-hover);
 }
 
 .menu-item-disabled {
-  @apply w-full text-left text-[12px] py-2 px-3 rounded-md cursor-not-allowed;
-  @apply text-black/40;
-}
-
-.dark .menu-item-disabled {
-  @apply text-white/40;
+  @apply w-full text-left text-base py-2 px-3 rounded-md cursor-not-allowed;
+  color: var(--menu-text-muted);
 }
 
 .menu-header {
-  @apply text-[12px] px-3 py-2;
+  @apply text-base px-3 py-2;
   @apply text-black dark:text-white;
 }
 
 .menu-subheader {
-  @apply text-[11px] px-3 py-1;
+  @apply text-sm px-3 py-1;
   @apply text-black/50 dark:text-white/50;
 }
 
@@ -891,7 +977,7 @@ body {
    Navigation Tabs (horizontal menu below status bar)
    ========================================================================== */
 .nav-tabs {
-  @apply border-b-[1.5px] border-[#211f1c] dark:border-white/20;
+  @apply border-b-[1.5px] border-(--surface-border);
   @apply px-4 py-2;
   @apply transition-colors duration-300;
 }
@@ -928,7 +1014,7 @@ body {
 
 /* Default background when no tab is active */
 .nav-tabs:not([data-color]) {
-  @apply bg-[#faf7f2] dark:bg-[#1a1917];
+  @apply bg-(--surface-bg-subtle);
 }
 
 .nav-tabs-inner {
@@ -938,7 +1024,7 @@ body {
 
 .nav-tab {
   @apply flex items-center gap-1.5 px-3 py-1.5 rounded-lg;
-  @apply text-[12px] text-black/70 dark:text-white/70;
+  @apply text-black/70 dark:text-white/70;
   @apply hover:text-black dark:hover:text-white;
   @apply hover:bg-black/5 dark:hover:bg-white/10;
   @apply transition-colors;
@@ -976,13 +1062,13 @@ body {
 
 .nav-tab-active {
   @apply text-black dark:text-white;
-  @apply bg-black/10 dark:bg-white/20;
+  @apply bg-black/10 dark:bg-(--imaginary);
 }
 
 .beta-badge {
-  @apply text-[8px] px-1.5 py-0.5 rounded-full uppercase;
+  @apply text-xs px-1.5 py-0.5 rounded-full uppercase;
   @apply bg-waste-science text-black;
-  @apply border border-[#211f1c] dark:border-white/20;
+  @apply border border-(--surface-border);
 }
 .title-pop {
   color: var(--earth);
@@ -1012,23 +1098,23 @@ body {
    Labels & Text
    ========================================================================== */
 .normal {
-  @apply text-[12px] text-black dark:text-white;
+  @apply text-base text-black dark:text-white;
 }
 
 .muted {
-  @apply text-[12px] text-black/60 dark:text-white/60;
+  @apply text-base text-black/60 dark:text-white/60;
 }
 
 .label-muted-sm {
-  @apply text-[11px] text-black/60 dark:text-white/60;
+  @apply text-sm text-black/60 dark:text-white/60;
 }
 
 .label-muted-xs {
-  @apply text-[10px] text-black/60 dark:text-white/60;
+  @apply text-xs text-black/60 dark:text-white/60;
 }
 
 .caption {
-  @apply text-[9px] text-black/60 dark:text-white/60 mt-1;
+  @apply text-xs text-black/60 dark:text-white/60 mt-1;
 }
 
 /* ==========================================================================
@@ -1043,71 +1129,71 @@ body {
    Headings
    ========================================================================== */
 .heading-xl {
-  @apply font-display text-[24px] text-black dark:text-white;
+  @apply font-display text-4xl text-black dark:text-white;
 }
 
 .heading-lg {
-  @apply font-display text-[18px] text-black dark:text-white;
+  @apply font-display text-lg text-black dark:text-white;
 }
 
 .heading-md {
-  @apply font-display text-[14px] text-black dark:text-white;
+  @apply font-display text-base text-black dark:text-white;
 }
 
 .heading-sm {
-  @apply font-display text-[11px] text-black/60 dark:text-white/60;
+  @apply font-display text-sm text-black/60 dark:text-white/60;
 }
 
 /* ==========================================================================
    Panels & Cards
    ========================================================================== */
 .panel {
-  @apply p-4 bg-[#faf9f6] dark:bg-[#1a1918] border border-[#211f1c]/20 dark:border-white/20 rounded-lg;
+  @apply p-4 bg-(--surface-bg-subtle) border border-(--surface-border-muted) rounded-lg;
 }
 
 .panel-bordered {
-  @apply p-4 border-b border-[#211f1c]/20 dark:border-white/20;
+  @apply p-4 border-b border-(--surface-border-muted);
 }
 
 .card {
-  @apply p-3 bg-white dark:bg-[#2a2825] rounded-lg border border-[#211f1c] dark:border-white/20;
+  @apply p-3 bg-(--surface-bg) rounded-lg border border-(--surface-border);
 }
 
 .card-interactive {
-  @apply p-2 bg-waste-reuse dark:bg-[#2a3235] rounded-md border border-[#211f1c] dark:border-white/20;
-  @apply hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all;
+  @apply p-2 bg-waste-reuse dark:bg-(--blackish) rounded-md border border-(--surface-border);
+  @apply hover:shadow-(--hover-shadow) dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all;
 }
 
 .card-muted {
-  @apply bg-waste-reuse/30 dark:bg-[#2a3235]/30 border border-[#211f1c]/20 dark:border-white/10 rounded-md p-3;
+  @apply bg-waste-reuse/30 dark:bg-(--blackish)/30 border border-(--blackish)/20 dark:border-white/10 rounded-md p-3;
 }
 
 /* Reversed variants - inline retro-card styles since @apply can't reference custom classes */
 .reversed {
-  @apply bg-white dark:bg-[#1a1917] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20;
-  @apply shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)];
+  @apply bg-(--surface-bg) rounded-(--retro-rounding) border-(--retro-border) dark:border-(--imaginary);
+  @apply shadow-(--retro-shadow) dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)];
 }
 .flat-reversed {
-  @apply bg-white dark:bg-[#1a1917] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20;
+  @apply bg-(--surface-bg) rounded-(--retro-rounding) border-(--retro-border) dark:border-(--imaginary);
 }
 /* ==========================================================================
    Form Inputs
    ========================================================================== */
 .input-field {
-  @apply w-full px-3 py-2 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-xl;
-  @apply text-[13px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50;
-  @apply outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all;
+  @apply w-full px-3 py-2 bg-(--surface-bg) border-(--retro-border) dark:border-(--imaginary) rounded-xl;
+  @apply text-base text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50;
+  @apply outline-none focus:shadow-(--hover-shadow) dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all;
 }
 
 .input-field-sm {
-  @apply w-full px-3 py-2 bg-white dark:bg-[#2d2b28] border border-[#211f1c]/20 dark:border-white/20 rounded-md;
-  @apply text-[12px];
+  @apply w-full px-3 py-2 bg-(--surface-bg) border border-(--surface-border-muted) rounded-md;
+  @apply text-base;
 }
 
 .textarea-field {
-  @apply w-full px-3 py-2 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-xl;
-  @apply text-[13px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50;
-  @apply outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all;
+  @apply w-full px-3 py-2 bg-(--surface-bg) border-(--retro-border) dark:border-(--imaginary) rounded-xl;
+  @apply text-base text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50;
+  @apply outline-none focus:shadow-(--hover-shadow) dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all;
   @apply resize-none;
 }
 
@@ -1115,67 +1201,51 @@ body {
    Ghost Buttons (subtle, for toolbars/filters)
    ========================================================================== */
 .btn-ghost {
-  @apply px-2 py-1 text-[11px] rounded border border-[#211f1c]/20 dark:border-white/20;
-  @apply hover:bg-[#e5e4dc] dark:hover:bg-[#3a3835] transition-colors;
+  @apply px-2 py-1 text-sm rounded border border-(--surface-border-muted);
+  @apply hover:bg-(--surface-bg-subtle) transition-colors;
 }
 
 .btn-ghost-active {
-  @apply px-2 py-1 text-[11px] rounded border border-[#211f1c]/20 dark:border-white/20;
-  @apply bg-[#e5e4dc] dark:bg-[#3a3835];
+  @apply px-2 py-1 text-sm rounded border border-(--surface-border-muted);
+  @apply bg-(--surface-bg-subtle);
 }
 
 /* ==========================================================================
    Tags / Badges (small colored labels)
    ========================================================================== */
 .tag {
-  @apply inline-block px-2 py-0.5 rounded-md border border-[#211f1c] dark:border-white/20 text-[9px] text-black dark:text-white;
+  @apply inline-block px-2 py-0.5 rounded-md border border-(--surface-border) text-xs text-black dark:text-white;
 }
 
 .tag-cyan {
-  @apply inline-block px-2 py-0.5 rounded-md border border-[#211f1c] dark:border-white/20 text-[9px];
-  @apply text-black bg-waste-reuse;
-}
-
-.dark .tag-cyan {
-  @apply text-[oklch(0.65_0.15_195)] bg-[oklch(0.2_0.05_195)];
+  @apply inline-block px-2 py-0.5 rounded-md border border-(--surface-border) text-xs;
+  @apply text-(--tag-cyan-text) bg-(--tag-cyan-bg);
 }
 
 .tag-yellow {
-  @apply inline-block px-2 py-0.5 rounded-md border border-[#211f1c] dark:border-white/20 text-[9px];
-  @apply text-black bg-waste-recycle;
-}
-
-.dark .tag-yellow {
-  @apply text-[oklch(0.85_0.15_85)] bg-[oklch(0.25_0.08_85)];
+  @apply inline-block px-2 py-0.5 rounded-md border border-(--surface-border) text-xs;
+  @apply text-(--tag-yellow-text) bg-(--tag-yellow-bg);
 }
 
 .tag-pink {
-  @apply inline-block px-2 py-0.5 rounded-md border border-[#211f1c] dark:border-white/20 text-[9px];
-  @apply text-black bg-waste-compost;
-}
-
-.dark .tag-pink {
-  @apply text-[oklch(0.75_0.12_15)] bg-[oklch(0.22_0.06_15)];
+  @apply inline-block px-2 py-0.5 rounded-md border border-(--surface-border) text-xs;
+  @apply text-(--tag-pink-text) bg-(--tag-pink-bg);
 }
 
 .tag-green {
-  @apply inline-block px-2 py-0.5 rounded-md border border-[#211f1c] dark:border-white/20 text-[9px];
-  @apply text-black bg-[#bae1c3];
-}
-
-.dark .tag-green {
-  @apply text-[oklch(0.75_0.18_145)] bg-[oklch(0.2_0.06_145)];
+  @apply inline-block px-2 py-0.5 rounded-md border border-(--surface-border) text-xs;
+  @apply text-(--tag-green-text) bg-(--tag-green-bg);
 }
 
 /* ==========================================================================
    Table Headers (right-aligned, display font)
    ========================================================================== */
 .table-header {
-  @apply px-4 py-3 text-right font-display text-[11px] text-black dark:text-white;
+  @apply px-4 py-3 text-right font-display text-sm text-black dark:text-white;
 }
 
 .table-cell {
-  @apply px-4 py-3 text-[12px] text-black dark:text-white;
+  @apply px-4 py-3 text-base text-black dark:text-white;
 }
 
 /* ==========================================================================
@@ -1184,20 +1254,20 @@ body {
 
 /* Standard retro card with shadow */
 .retro-card {
-  @apply bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20;
-  @apply shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)];
+  @apply bg-(--surface-bg) rounded-(--retro-rounding) border-(--retro-border) dark:border-(--imaginary);
+  @apply shadow-(--retro-shadow) dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)];
 }
 
 /* Retro card without shadow (flat) */
 .retro-card-flat {
-  @apply bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20;
+  @apply bg-(--surface-bg) rounded-(--retro-rounding) border-(--retro-border) dark:border-(--imaginary);
 }
 
 /* Retro card that acts as a button (with hover) */
 .retro-card-button {
-  @apply bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20;
-  @apply shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)];
-  @apply hover:translate-y-px hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all;
+  @apply bg-(--surface-bg) rounded-(--retro-rounding) border-(--retro-border) dark:border-(--imaginary);
+  @apply shadow-(--retro-shadow);
+  @apply hover:translate-y-px hover:shadow-(--retro-hover-shadow) transition-all;
 }
 
 /* liquid hover */
@@ -1232,63 +1302,66 @@ body {
 }
 /* Small interactive retro button */
 .retro-btn {
-  @apply rounded-md border border-[#211f1c] dark:border-white/20;
-  @apply hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all;
+  @apply rounded-md border border-(--surface-border);
+  @apply hover:shadow-(--hover-shadow) transition-all;
 }
 
 /* Primary action button with press effect */
 .retro-btn-primary {
-  @apply rounded-xl border border-[#211f1c] dark:border-white/20;
-  @apply shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)];
+  @apply rounded-xl border border-(--blackish) dark:border-(--retro-border-white);
+  @apply shadow-(--hover-shadow) dark:shadow-(--retro-hover-shadow);
   @apply hover:translate-y-px hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all;
 }
 
 /* Card with subtle hover effect (2x2 -> 3x3 shadow on hover) */
 .retro-card-hover {
-  @apply bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20;
-  @apply shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.1)];
-  @apply hover:shadow-[3px_3px_0px_0px_#000000] dark:hover:shadow-[3px_3px_0px_0px_rgba(255,255,255,0.15)] transition-all;
+  @apply bg-(--surface-bg) rounded-(--retro-rounding) border-(--retro-border) dark:border-(--imaginary);
+  @apply shadow-(--hover-shadow);
+  @apply hover:shadow-(--retro-thick-shadow) transition-all;
 }
 
 /* ==========================================================================
    Form Inputs (retro style)
    ========================================================================== */
 .retro-input {
-  @apply w-full px-3 py-2 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-xl;
-  @apply text-[13px] text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50;
-  @apply outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all;
+  @apply w-full px-3 py-2 bg-input-background border-(--retro-border) rounded-xl;
+  @apply text-base text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50;
+  @apply outline-none focus:shadow-(--hover-shadow) transition-all;
 }
 
 /* ==========================================================================
    Icon Containers (small boxes with colored backgrounds)
    ========================================================================== */
 .icon-box {
-  @apply p-3 rounded-md border border-[#211f1c] dark:border-white/20;
+  @apply p-3 rounded-md border border-(--wysiwyg-icon-box-border);
 }
 
 .icon-box-sm {
-  @apply p-1.5 rounded-md border border-[#211f1c] dark:border-white/20;
-  @apply hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all;
+  @apply p-1.5 rounded-md border border-(--wysiwyg-icon-box-border);
+  @apply hover:shadow-(--hover-shadow) transition-all;
 }
 
 /* ==========================================================================
    Guide Editor Styles
    ========================================================================== */
 .retro-icon-button {
-  @apply p-2 rounded-md border border-[#211f1c] dark:border-white/20;
-  @apply bg-white dark:bg-[#1a1917] text-black dark:text-white;
-  @apply hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all;
+  @apply p-2 rounded-md border border-(--wysiwyg-icon-button-border);
+  @apply bg-(--wysiwyg-icon-button-bg) text-(--wysiwyg-icon-button-text);
+  @apply hover:shadow-(--hover-shadow) transition-all;
 }
 
 .retro-icon-button.active {
-  @apply bg-black dark:bg-white text-white dark:text-black;
-  @apply shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)];
+  @apply bg-(--wysiwyg-icon-button-bg-active) text-(--wysiwyg-icon-button-text-active);
+  @apply shadow-(--hover-shadow);
 }
 
 .retro-button {
-  @apply px-4 py-2 rounded-md border border-[#211f1c] dark:border-white/20;
-  @apply bg-white dark:bg-[#1a1917] text-black dark:text-white text-[13px];
-  @apply hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all;
+  /* Shape */
+  @apply px-4 py-2 rounded-md border border-(--retro-border);
+  /* Colors */
+  @apply bg-(--retro-bg) text-(--retro-text);
+  /* Hover effect */
+  @apply hover:shadow-(--hover-shadow) transition-all;
 }
 
 /* Tiptap editor content styles */
@@ -1299,29 +1372,29 @@ body {
 /* Bold — show heavier weight in the editor since the app font has no bold variant */
 .guide-editor .ProseMirror strong,
 .guide-editor .ProseMirror b {
-  font-weight: 700 !important;
+  font-weight: var(--font-weight-hack) !important;
 }
 
 /* Headings — show size hierarchy in the editor */
 .guide-editor .ProseMirror h1 {
-  font-size: 1.5rem !important;
-  font-weight: 700 !important;
-  margin-bottom: 0.5rem !important;
+  font-size: var(----wysiwygh1) !important;
+  font-weight: var(--font-weight-hack) !important;
+  margin-bottom: var(--wysiwygh1-margin-bottom) !important;
 }
 .guide-editor .ProseMirror h2 {
-  font-size: 1.25rem !important;
-  font-weight: 700 !important;
-  margin-bottom: 0.4rem !important;
+  font-size: var(----wysiwygh2) !important;
+  font-weight: var(--font-weight-hack) !important;
+  margin-bottom: var(--wysiwygh2-margin-bottom) !important;
 }
 .guide-editor .ProseMirror h3 {
-  font-size: 1.1rem !important;
-  font-weight: 700 !important;
-  margin-bottom: 0.3rem !important;
+  font-size: var(----wysiwygh3) !important;
+  font-weight: var(--font-weight-hack) !important;
+  margin-bottom: var(--wysiwygh3-margin-bottom) !important;
 }
 
 .guide-editor .ProseMirror p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
-  @apply text-black/40 dark:text-white/40 float-left h-0 pointer-events-none;
+  @apply text-(--wysiwyg-text) float-left h-0 pointer-events-none;
 }
 
 /* Table styles — editor (ProseMirror) */
@@ -1335,30 +1408,21 @@ body {
 
 .guide-editor .ProseMirror table td,
 .guide-editor .ProseMirror table th {
-  border: 1.5px solid rgba(0, 0, 0, 0.15);
+  border: var(--retro-border-width) solid var(--guide-table-border-color);
   padding: 6px 12px;
   min-width: 60px;
   vertical-align: top;
   text-align: left;
 }
 
-.dark .guide-editor .ProseMirror table td,
-.dark .guide-editor .ProseMirror table th {
-  border-color: rgba(255, 255, 255, 0.15);
-}
-
 .guide-editor .ProseMirror table th {
-  background: rgba(0, 0, 0, 0.04);
+  background: var(--conceptual);
   font-weight: 600;
-}
-
-.dark .guide-editor .ProseMirror table th {
-  background: rgba(255, 255, 255, 0.06);
 }
 
 /* Selected cell highlight */
 .guide-editor .ProseMirror .selectedCell::after {
-  background: rgba(0, 0, 0, 0.06);
+  background: var(--guide-selected-cell-bg);
   content: "";
   left: 0;
   right: 0;
@@ -1366,10 +1430,6 @@ body {
   bottom: 0;
   pointer-events: none;
   position: absolute;
-}
-
-.dark .guide-editor .ProseMirror .selectedCell::after {
-  background: rgba(255, 255, 255, 0.08);
 }
 
 /* Table renderer styles */

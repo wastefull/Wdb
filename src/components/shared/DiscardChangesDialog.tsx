@@ -15,7 +15,7 @@ export function DiscardChangesDialog({
       onClick={onKeepEditing}
     >
       <div
-        className="bg-white dark:bg-[#2a2825] rounded-[11.464px] border-[1.5px] border-[#211f1c] dark:border-white/20 p-6 w-full max-w-sm shadow-[4px_4px_0px_0px_#000000] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]"
+        className="bg-white dark:bg-[#2a2825] rounded-(--retro-rounding) border-[1.5px] border-[#211f1c] dark:border-white/20 p-6 w-full max-w-sm shadow-[4px_4px_0px_0px_#000000] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]"
         onClick={(e) => e.stopPropagation()}
       >
         <h3 className="text-[16px] font-semibold text-black dark:text-white mb-2">
