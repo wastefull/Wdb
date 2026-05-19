@@ -50,7 +50,7 @@ export function RetroButtons({ title, titlePop, version }: RetroButtonsProps) {
   return (
     <div className="basis-0 grow h-full min-h-px min-w-px relative shrink-0">
       <div className="flex flex-row items-center justify-start md:justify-center size-full">
-        <div className="box-border content-stretch flex gap-1 md:gap-2.5 items-center justify-start md:justify-center px-[3px] md:px-[7px] py-0.5 relative size-full">
+        <div className="box-border content-stretch flex gap-1 md:gap-2.5 items-center justify-start md:justify-center px-0.75 md:px-1.75 py-0.5 relative size-full">
           {/* Mobile: Single accessibility button */}
           <div className="md:hidden">
             <Sheet
@@ -84,7 +84,7 @@ export function RetroButtons({ title, titlePop, version }: RetroButtonsProps) {
                     </svg>
                   </div>
                   {/* Gear icon centered */}
-                  <Settings className="absolute left-1/2 top-1/2 w-[9px] h-[9px] -translate-x-1/2 -translate-y-1/2 text-[#211f1c]" />
+                  <Settings className="absolute left-1/2 top-1/2 w-2.25 h-2.25 -translate-x-1/2 -translate-y-1/2 text-[#211f1c]" />
                 </button>
               </SheetTrigger>
               <SheetContent
@@ -448,7 +448,7 @@ export function RetroButtons({ title, titlePop, version }: RetroButtonsProps) {
             </div>
           </TooltipProvider>
 
-          <div className="pl-1 basis-0 grow min-h-px min-w-px flex items-center justify-center">
+          <div className="pt-4 pb-2 pl-1 basis-0 grow min-h-px min-w-px flex items-center justify-center">
             <h1
               className={`pr-2 z-1 title-pop ${isLogo ? "cursor-pointer" : ""}`}
               onClick={handleLogoClick}

@@ -119,7 +119,7 @@ export function StatusBar({
   // Full variant - main app status bar
   return (
     <header
-      className="h-[42px] md:min-w-[400px] relative shrink-0 w-full"
+      className="h-10.5 md:min-w-100 relative shrink-0 w-full"
       role="banner"
     >
       <div
