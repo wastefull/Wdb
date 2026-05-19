@@ -37,7 +37,7 @@ export default function EditorTestView() {
             <summary className="text-[13px] text-black/60 dark:text-white/60 cursor-pointer">
               View JSON
             </summary>
-            <pre className="mt-2 p-4 bg-black/5 dark:bg-white/5 rounded-md text-[11px] overflow-auto">
+            <pre className="mt-2 p-4 bg-black/5 dark:bg-white/5 rounded-md text-sm overflow-auto">
               {JSON.stringify(content, null, 2)}
             </pre>
           </details>

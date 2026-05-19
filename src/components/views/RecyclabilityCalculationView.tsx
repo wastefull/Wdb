@@ -181,7 +181,7 @@ Where:
                 ),
                 td: ({ node, ...props }) => (
                   <td
-                    className="text-[11px] text-black/80 px-3 py-2 border-r border-[#211f1c]/20 last:border-r-0"
+                    className="text-sm text-black/80 px-3 py-2 border-r border-[#211f1c]/20 last:border-r-0"
                     {...props}
                   />
                 ),

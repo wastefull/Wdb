@@ -167,7 +167,7 @@ export function ArticleEditor({
             placeholder="how-to-compost-pla-cups"
             className="text-[13px] font-mono"
           />
-          <p className="text-[11px] text-black/60 dark:text-white/60">
+          <p className="text-sm text-black/60 dark:text-white/60">
             URL: /articles/{slug || "your-slug-here"}
           </p>
         </div>
@@ -285,7 +285,7 @@ export function ArticleEditor({
                 rows={15}
                 className="text-[13px] font-mono"
               />
-              <p className="mt-2 text-[11px] text-black/60 dark:text-white/60">
+              <p className="mt-2 text-sm text-black/60 dark:text-white/60">
                 Supports Markdown: **bold**, *italic*, ## headings,
                 [links](url), lists
               </p>

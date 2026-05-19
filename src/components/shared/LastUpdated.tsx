@@ -40,7 +40,7 @@ export function LastUpdated({ date, className, relative }: LastUpdatedProps) {
 
   return (
     <span
-      className={`text-[11px] text-black/40 dark:text-white/40 ${className ?? ""}`}
+      className={`text-sm text-black/40 dark:text-white/40 ${className ?? ""}`}
     >
       Last updated {formatted}
     </span>

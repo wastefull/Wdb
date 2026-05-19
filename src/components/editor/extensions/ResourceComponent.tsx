@@ -77,7 +77,7 @@ export default function ResourceComponent({
               <div className="text-[13px] font-medium text-black dark:text-white">
                 {node.attrs.title || "Untitled Resource"}
               </div>
-              <div className="text-[11px] text-black/60 dark:text-white/60">
+              <div className="text-sm text-black/60 dark:text-white/60">
                 {node.attrs.type}
               </div>
             </div>

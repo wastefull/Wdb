@@ -397,7 +397,7 @@ export function AdminDashboard({
                   <Package size={20} className="text-waste-recycle" />
                 </div>
                 <div>
-                  <p className="text-[11px] text-black/60 dark:text-white/60 uppercase tracking-wide">
+                  <p className="text-sm text-black/60 dark:text-white/60 uppercase tracking-wide">
                     Materials
                   </p>
                   <p className="text-xl font-bold arcade-numbers">
@@ -413,7 +413,7 @@ export function AdminDashboard({
                   <FileText size={20} className="text-waste-reuse" />
                 </div>
                 <div>
-                  <p className="text-[11px] text-black/60 dark:text-white/60 uppercase tracking-wide">
+                  <p className="text-sm text-black/60 dark:text-white/60 uppercase tracking-wide">
                     Articles
                   </p>
                   <p className="text-xl font-bold arcade-numbers">
@@ -429,7 +429,7 @@ export function AdminDashboard({
                   <BookOpen size={20} className="text-waste-compost" />
                 </div>
                 <div>
-                  <p className="text-[11px] text-black/60 dark:text-white/60 uppercase tracking-wide">
+                  <p className="text-sm text-black/60 dark:text-white/60 uppercase tracking-wide">
                     Guides
                   </p>
                   <p className="text-xl font-bold arcade-numbers">
@@ -445,7 +445,7 @@ export function AdminDashboard({
                   <Users size={20} className="text-waste-science" />
                 </div>
                 <div>
-                  <p className="text-[11px] text-black/60 dark:text-white/60 uppercase tracking-wide">
+                  <p className="text-sm text-black/60 dark:text-white/60 uppercase tracking-wide">
                     Users
                   </p>
                   <p className="text-xl font-bold arcade-numbers">
@@ -624,7 +624,7 @@ export function AdminDashboard({
                   <CheckCircle size={20} className="text-green-500 shrink-0" />
                   <div>
                     <p className="text-[13px] font-medium normal">Database</p>
-                    <p className="text-[11px] text-black/60 dark:text-white/60">
+                    <p className="text-sm text-black/60 dark:text-white/60">
                       Supabase KV operational
                     </p>
                   </div>
@@ -636,7 +636,7 @@ export function AdminDashboard({
                     <p className="text-[13px] font-medium normal">
                       Edge Functions
                     </p>
-                    <p className="text-[11px] text-black/60 dark:text-white/60">
+                    <p className="text-sm text-black/60 dark:text-white/60">
                       API responding normally
                     </p>
                   </div>
@@ -648,7 +648,7 @@ export function AdminDashboard({
                     <p className="text-[13px] font-medium normal">
                       Authentication
                     </p>
-                    <p className="text-[11px] text-black/60 dark:text-white/60">
+                    <p className="text-sm text-black/60 dark:text-white/60">
                       Supabase Auth active
                     </p>
                   </div>

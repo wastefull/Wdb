@@ -105,7 +105,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
                     We've sent a secure sign-in link to <strong>{email}</strong>
                     . Click the link in your email to sign in instantly.
                   </p>
-                  <p className="text-[10px] text-black/50 dark:text-white/50">
+                  <p className="text-xs text-black/50 dark:text-white/50">
                     The link will expire in 1 hour for security.
                   </p>
                 </div>
@@ -120,7 +120,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
               </div>
             ) : authMode === "magic-link" ? (
               <div className="space-y-3">
-                <div className="text-center text-[10px] text-black/50 dark:text-white/50">
+                <div className="text-center text-xs text-black/50 dark:text-white/50">
                   Log in or sign up with just your email
                 </div>
 
@@ -167,7 +167,7 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
                   <Mail size={16} />
                   {loading ? "Sending..." : "Send Magic Link"}
                 </button>
-                <div className="text-center text-[10px] text-black/50 dark:text-white/50">
+                <div className="text-center text-xs text-black/50 dark:text-white/50">
                   or
                 </div>
                 <button

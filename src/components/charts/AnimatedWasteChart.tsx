@@ -380,7 +380,7 @@ export function AnimatedWasteChart({
                           <p className="text-[12px] normal">
                             {data.value}% {categoryMap[data.name] || data.name}
                           </p>
-                          <p className="text-[10px] text-black/60 dark:text-white/60">
+                          <p className="text-xs text-black/60 dark:text-white/60">
                             {articleCount} {articleText}
                           </p>
                         </div>

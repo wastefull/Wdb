@@ -127,7 +127,7 @@ export function ArticleCard({
         )}
 
         {/* Content Preview */}
-        <p className="text-[11px] text-black/70 dark:text-white/70 line-clamp-3">
+        <p className="text-sm text-black/70 dark:text-white/70 line-clamp-3">
           {preview}
         </p>
 
@@ -135,7 +135,7 @@ export function ArticleCard({
         {onReadMore && (
           <button
             onClick={onReadMore}
-            className="text-[11px] text-black dark:text-white hover:underline"
+            className="text-sm text-black dark:text-white hover:underline"
           >
             Read more...
           </button>
@@ -143,7 +143,7 @@ export function ArticleCard({
 
         {/* Linked material attribution */}
         {linkedMaterialName && onViewLinkedMaterial && (
-          <p className="text-[10px] text-black/50 dark:text-white/40 pt-1 text-right dark:border-white/10">
+          <p className="text-xs text-black/50 dark:text-white/40 pt-1 text-right dark:border-white/10">
             From{" "}
             <button
               onClick={onViewLinkedMaterial}

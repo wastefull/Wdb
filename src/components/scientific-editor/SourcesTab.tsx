@@ -103,7 +103,7 @@ export function SourcesTab({
   const handleAddFromLibrary = (librarySource: LibrarySource) => {
     // Check if already added
     const alreadyAdded = sources.some(
-      (s) => s.title === librarySource.title && s.doi === librarySource.doi
+      (s) => s.title === librarySource.title && s.doi === librarySource.doi,
     );
     if (alreadyAdded) {
       toast.error("This source has already been added");
@@ -131,7 +131,7 @@ export function SourcesTab({
   const totalWeight = sources.reduce((sum, s) => sum + (s.weight || 1.0), 0);
   const suggestedLevel = getSuggestedConfidenceLevel(
     sources.length,
-    totalWeight
+    totalWeight,
   );
   const currentLevel = material.confidence_level || "Medium";
 
@@ -147,7 +147,7 @@ export function SourcesTab({
       {levelHierarchy[currentLevel] > levelHierarchy[suggestedLevel] && (
         <Alert className="bg-amber-50 dark:bg-amber-900/20 border-amber-300 dark:border-amber-700">
           <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-          <AlertDescription className="text-[11px] text-amber-800 dark:text-amber-200">
+          <AlertDescription className="text-sm text-amber-800 dark:text-amber-200">
             <strong>Confidence Level Mismatch:</strong> Current level is "
             {currentLevel}" but you only have {sources.length} source(s).
             {sources.length === 0 &&
@@ -166,7 +166,7 @@ export function SourcesTab({
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <Label className="text-[10px]">Confidence Level</Label>
+            <Label className="text-xs">Confidence Level</Label>
             <Select
               value={currentLevel}
               onValueChange={(value: "High" | "Medium" | "Low") =>
@@ -190,7 +190,7 @@ export function SourcesTab({
           </div>
 
           <div>
-            <Label className="text-[10px]">Whitepaper Version</Label>
+            <Label className="text-xs">Whitepaper Version</Label>
             <Input
               type="text"
               value={material.whitepaper_version || ""}
@@ -218,9 +218,7 @@ export function SourcesTab({
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <p className="text-[11px] normal font-medium">
-                    {source.title}
-                  </p>
+                  <p className="text-sm normal font-medium">{source.title}</p>
                   {source.authors && (
                     <p className="text-[9px] text-black/60 dark:text-white/60">
                       {source.authors}
@@ -290,7 +288,7 @@ export function SourcesTab({
           ))}
 
           {sources.length === 0 && (
-            <p className="text-[11px] text-black/60 dark:text-white/60 text-center py-4">
+            <p className="text-sm text-black/60 dark:text-white/60 text-center py-4">
               No sources added yet
             </p>
           )}
@@ -311,7 +309,7 @@ export function SourcesTab({
             <DialogContent className="max-w-3xl">
               <DialogHeader>
                 <DialogTitle className="">Source Library</DialogTitle>
-                <DialogDescription className="text-[11px]">
+                <DialogDescription className="text-sm">
                   Browse and add academic sources from our curated library to
                   support your scientific data.
                 </DialogDescription>
@@ -348,7 +346,7 @@ export function SourcesTab({
                           >
                             <div className="flex items-start justify-between gap-3">
                               <div className="flex-1">
-                                <p className="text-[11px] normal font-medium">
+                                <p className="text-sm normal font-medium">
                                   {source.title}
                                 </p>
                                 {source.authors && (
@@ -412,7 +410,7 @@ export function SourcesTab({
                     <Card key={source.id} className="p-3">
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1">
-                          <p className="text-[11px] normal font-medium">
+                          <p className="text-sm normal font-medium">
                             {source.title}
                           </p>
                           {source.authors && (

@@ -131,19 +131,19 @@ export function QuantileVisualization({
         <div className="flex justify-between items-center">
           <button
             onClick={onClick}
-            className="text-[11px] normal hover:underline cursor-pointer text-left flex items-center gap-1"
+            className="text-sm normal hover:underline cursor-pointer text-left flex items-center gap-1"
             aria-label={`View ${label.toLowerCase()} articles (${
               articleCount || 0
             } articles)`}
           >
-            <span className="text-[11px] normal">{label}</span>
+            <span className="text-sm normal">{label}</span>
             {articleCount !== undefined && articleCount > 0 && (
               <span className="text-[9px] text-black/60 dark:text-white/60">
                 ({articleCount})
               </span>
             )}
           </button>
-          <span className="text-[11px] normal">{displayScore}</span>
+          <span className="text-sm normal">{displayScore}</span>
         </div>
       )}
 
@@ -282,7 +282,7 @@ function SimpleBar({
       }}
     >
       <div className="flex items-center justify-between mb-1">
-        <span className="text-[10px] text-black/70 dark:text-white/70">
+        <span className="text-xs text-black/70 dark:text-white/70">
           {label}
         </span>
         <div className="flex items-center gap-2">
@@ -292,7 +292,7 @@ function SimpleBar({
             </span>
           )}
           {showScores && (
-            <span className="text-[10px] text-black/70 dark:text-white/70">
+            <span className="text-xs text-black/70 dark:text-white/70">
               {score}
             </span>
           )}

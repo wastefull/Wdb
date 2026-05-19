@@ -44,7 +44,7 @@ export function AssetsManagementPage() {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -98,7 +98,7 @@ export function AssetsManagementPage() {
             Authorization: `Bearer ${accessToken}`,
           },
           body: formData,
-        }
+        },
       );
 
       if (!response.ok) {
@@ -130,14 +130,14 @@ export function AssetsManagementPage() {
     try {
       const response = await fetch(
         `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/assets/${encodeURIComponent(
-          assetName
+          assetName,
         )}`,
         {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -265,10 +265,10 @@ export function AssetsManagementPage() {
                       <p className="text-[14px] normal truncate">
                         {asset.name}
                       </p>
-                      <p className="text-[11px] text-black/50 dark:text-white/50">
+                      <p className="text-sm text-black/50 dark:text-white/50">
                         {formatFileSize(asset.size)}
                       </p>
-                      <p className="text-[10px] text-black/40 dark:text-white/40 font-mono truncate">
+                      <p className="text-xs text-black/40 dark:text-white/40 font-mono truncate">
                         {asset.publicUrl}
                       </p>
                     </div>

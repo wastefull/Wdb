@@ -93,7 +93,7 @@ export function StaticTable({
                   key={material.id}
                   className="border-b border-[#211f1c]/20 dark:border-white/10 hover:bg-[#211f1c]/5 dark:hover:bg-white/5"
                 >
-                  <TableCell className="text-[11px]">
+                  <TableCell className="text-sm">
                     {isEditing ? (
                       <Input
                         value={editData.name || ""}
@@ -103,7 +103,7 @@ export function StaticTable({
                             name: e.target.value,
                           })
                         }
-                        className="h-7 text-[11px] border-[#211f1c] dark:border-white/20"
+                        className="h-7 text-sm border-[#211f1c] dark:border-white/20"
                       />
                     ) : (
                       <button
@@ -168,11 +168,11 @@ export function StaticTable({
                                   ),
                                 })
                               }
-                              className="h-7 w-16 text-[11px] border-[#211f1c] dark:border-white/20 text-center"
+                              className="h-7 w-16 text-sm border-[#211f1c] dark:border-white/20 text-center"
                             />
                           ) : (
                             <div className="inline-flex items-center gap-1">
-                              <span className="text-[11px] normal">
+                              <span className="text-sm normal">
                                 {material.compostability}
                               </span>
                               <div className="w-12 h-1.5 bg-[#211f1c]/10 dark:bg-white/10 rounded-full overflow-hidden">
@@ -204,11 +204,11 @@ export function StaticTable({
                                   ),
                                 })
                               }
-                              className="h-7 w-16 text-[11px] border-[#211f1c] dark:border-white/20 text-center"
+                              className="h-7 w-16 text-sm border-[#211f1c] dark:border-white/20 text-center"
                             />
                           ) : (
                             <div className="inline-flex items-center gap-1">
-                              <span className="text-[11px] normal">
+                              <span className="text-sm normal">
                                 {material.recyclability}
                               </span>
                               <div className="w-12 h-1.5 bg-[#211f1c]/10 dark:bg-white/10 rounded-full overflow-hidden">
@@ -240,11 +240,11 @@ export function StaticTable({
                                   ),
                                 })
                               }
-                              className="h-7 w-16 text-[11px] border-[#211f1c] dark:border-white/20 text-center"
+                              className="h-7 w-16 text-sm border-[#211f1c] dark:border-white/20 text-center"
                             />
                           ) : (
                             <div className="inline-flex items-center gap-1">
-                              <span className="text-[11px] normal">
+                              <span className="text-sm normal">
                                 {material.reusability}
                               </span>
                               <div className="w-12 h-1.5 bg-[#211f1c]/10 dark:bg-white/10 rounded-full overflow-hidden">
@@ -264,7 +264,7 @@ export function StaticTable({
                             {getArticleCount(material, "reusability")}
                           </span>
                         </TableCell> */}
-                  <TableCell className="text-[11px] text-black/70 dark:text-white/70 max-w-xs">
+                  <TableCell className="text-sm text-black/70 dark:text-white/70 max-w-xs">
                     {isEditing ? (
                       <Input
                         value={editData.description || ""}
@@ -274,7 +274,7 @@ export function StaticTable({
                             description: e.target.value,
                           })
                         }
-                        className="h-7 text-[11px] border-[#211f1c] dark:border-white/20"
+                        className="h-7 text-sm border-[#211f1c] dark:border-white/20"
                       />
                     ) : (
                       <span className="truncate block">

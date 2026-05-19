@@ -115,7 +115,7 @@ export function ScientificMetadataView({
               className={classes(
                 styles.w4h4,
                 confidenceIconClasses.level.medium,
-                confidenceIconClasses.margin
+                confidenceIconClasses.margin,
               )}
             />
           )}
@@ -138,7 +138,7 @@ export function ScientificMetadataView({
           {validationWarning && (
             <Alert className="mb-4 bg-amber-50 dark:bg-amber-900/20 border-amber-300 dark:border-amber-700">
               <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-              <AlertDescription className="text-[11px] text-amber-800 dark:text-amber-200">
+              <AlertDescription className="text-sm text-amber-800 dark:text-amber-200">
                 <strong>Data Quality Issue:</strong> {validationWarning}
                 {isAdminModeActive &&
                   " Please edit scientific data to add sources or adjust confidence level."}
@@ -163,7 +163,7 @@ export function ScientificMetadataView({
           )}
 
           {!hasScientificData && (
-            <p className="text-[11px] text-black/60 dark:text-white/60 text-center py-4">
+            <p className="text-sm text-black/60 dark:text-white/60 text-center py-4">
               No scientific data available.{" "}
               {isAdminModeActive && "Click above to add scientific parameters."}
             </p>
@@ -190,7 +190,7 @@ export function ScientificMetadataView({
                       Raw Parameters (0-1 normalized)
                     </h4>
                   </div>
-                  <div className="grid grid-cols-1 gap-3 text-[11px]">
+                  <div className="grid grid-cols-1 gap-3 text-sm">
                     {material.Y_value !== undefined && (
                       <div>
                         <div
@@ -251,7 +251,7 @@ export function ScientificMetadataView({
                                 key={source.index}
                                 variant="outline"
                                 className={classes(
-                                  badgeClasses.variant.outline
+                                  badgeClasses.variant.outline,
                                 )}
                               >
                                 [{source.index + 1}]{" "}
@@ -287,7 +287,7 @@ export function ScientificMetadataView({
                                 key={source.index}
                                 variant="outline"
                                 className={classes(
-                                  badgeClasses.variant.outline
+                                  badgeClasses.variant.outline,
                                 )}
                               >
                                 [{source.index + 1}]{" "}
@@ -323,7 +323,7 @@ export function ScientificMetadataView({
                                 key={source.index}
                                 variant="outline"
                                 className={classes(
-                                  badgeClasses.variant.outline
+                                  badgeClasses.variant.outline,
                                 )}
                               >
                                 [{source.index + 1}]{" "}
@@ -362,7 +362,7 @@ export function ScientificMetadataView({
                                 key={source.index}
                                 variant="outline"
                                 className={classes(
-                                  badgeClasses.variant.outline
+                                  badgeClasses.variant.outline,
                                 )}
                               >
                                 [{source.index + 1}]{" "}
@@ -399,7 +399,7 @@ export function ScientificMetadataView({
                       Composite Recyclability Index (CR)
                     </h4>
                   </div>
-                  <div className="space-y-3 text-[11px]">
+                  <div className="space-y-3 text-sm">
                     {material.CR_practical_mean !== undefined && (
                       <div>
                         <div className="flex justify-between mb-1">
@@ -416,14 +416,14 @@ export function ScientificMetadataView({
                           </span>
                         </div>
                         {material.CR_practical_CI95 && (
-                          <div className="text-[10px] text-black/50 dark:text-white/50 mb-1">
+                          <div className="text-xs text-black/50 dark:text-white/50 mb-1">
                             95% CI: [
                             {(material.CR_practical_CI95.lower * 100).toFixed(
-                              1
+                              1,
                             )}
                             %,{" "}
                             {(material.CR_practical_CI95.upper * 100).toFixed(
-                              1
+                              1,
                             )}
                             %]
                           </div>
@@ -444,7 +444,7 @@ export function ScientificMetadataView({
                                     ?.split(" et al")[0] || "Source"}{" "}
                                   {source.year}
                                 </Badge>
-                              )
+                              ),
                             )}
                           </div>
                         )}
@@ -466,14 +466,14 @@ export function ScientificMetadataView({
                           </span>
                         </div>
                         {material.CR_theoretical_CI95 && (
-                          <div className="text-[10px] text-black/50 dark:text-white/50 mb-1">
+                          <div className="text-xs text-black/50 dark:text-white/50 mb-1">
                             95% CI: [
                             {(material.CR_theoretical_CI95.lower * 100).toFixed(
-                              1
+                              1,
                             )}
                             %,{" "}
                             {(material.CR_theoretical_CI95.upper * 100).toFixed(
-                              1
+                              1,
                             )}
                             %]
                           </div>
@@ -494,7 +494,7 @@ export function ScientificMetadataView({
                                     ?.split(" et al")[0] || "Source"}{" "}
                                   {source.year}
                                 </Badge>
-                              )
+                              ),
                             )}
                           </div>
                         )}
@@ -518,7 +518,7 @@ export function ScientificMetadataView({
                       Sources ({material.sources.length})
                     </h4>
                   </div>
-                  <div className="space-y-2 text-[10px]">
+                  <div className="space-y-2 text-xs">
                     {material.sources.map((source, idx) => (
                       <div
                         key={idx}
@@ -580,7 +580,7 @@ export function ScientificMetadataView({
                     Calculation Metadata
                   </h4>
                 </div>
-                <div className="space-y-1 text-[10px] text-black/60 dark:text-white/60">
+                <div className="space-y-1 text-xs text-black/60 dark:text-white/60">
                   {material.method_version && (
                     <div>Method: {material.method_version}</div>
                   )}

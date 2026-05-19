@@ -789,7 +789,7 @@ body {
 }
 
 .menu-item-nested {
-  @apply w-full text-left text-[11px] py-2 px-3 pl-6 rounded-md transition-colors;
+  @apply w-full text-left text-sm py-2 px-3 pl-6 rounded-md transition-colors;
   @apply text-black/60 hover:text-black;
   @apply hover:bg-black/5;
 }
@@ -825,7 +825,7 @@ body {
 }
 
 .menu-subheader {
-  @apply text-[11px] px-3 py-1;
+  @apply text-sm px-3 py-1;
   @apply text-black/50 dark:text-white/50;
 }
 
@@ -841,11 +841,11 @@ body {
 }
 
 .label-muted-sm {
-  @apply text-[11px] text-black/60 dark:text-white/60;
+  @apply text-sm text-black/60 dark:text-white/60;
 }
 
 .label-muted-xs {
-  @apply text-[10px] text-black/60 dark:text-white/60;
+  @apply text-xs text-black/60 dark:text-white/60;
 }
 
 .caption {
@@ -868,7 +868,7 @@ body {
 }
 
 .heading-sm {
-  @apply font-display text-[11px] text-black/60 dark:text-white/60;
+  @apply font-display text-sm text-black/60 dark:text-white/60;
 }
 
 /* ==========================================================================
@@ -920,12 +920,12 @@ body {
    Ghost Buttons (subtle, for toolbars/filters)
    ========================================================================== */
 .btn-ghost {
-  @apply px-2 py-1 text-[11px] rounded border border-[#211f1c]/20 dark:border-white/20;
+  @apply px-2 py-1 text-sm rounded border border-[#211f1c]/20 dark:border-white/20;
   @apply hover:bg-[#e5e4dc] dark:hover:bg-[#3a3835] transition-colors;
 }
 
 .btn-ghost-active {
-  @apply px-2 py-1 text-[11px] rounded border border-[#211f1c]/20 dark:border-white/20;
+  @apply px-2 py-1 text-sm rounded border border-[#211f1c]/20 dark:border-white/20;
   @apply bg-[#e5e4dc] dark:bg-[#3a3835];
 }
 
@@ -1039,7 +1039,7 @@ body {
    Table Headers (right-aligned, display font)
    ========================================================================== */
 .table-header {
-  @apply px-4 py-3 text-right font-display text-[11px] normal;
+  @apply px-4 py-3 text-right font-display text-sm normal;
 }
 
 .table-cell {

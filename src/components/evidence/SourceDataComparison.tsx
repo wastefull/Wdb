@@ -266,7 +266,7 @@ export function SourceDataComparison({
         <Button
           onClick={onBack}
           variant="outline"
-          className="border-[#211f1c] dark:border-white/20 text-[11px] md:text-sm mb-4"
+          className="border-[#211f1c] dark:border-white/20 text-sm md:text-sm mb-4"
         >
           <ArrowLeft className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
           Back
@@ -287,7 +287,7 @@ export function SourceDataComparison({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Material Selection */}
           <div>
-            <label className="text-[11px] normal mb-2 block">Material</label>
+            <label className="text-sm normal mb-2 block">Material</label>
             <Select
               value={selectedMaterial}
               onValueChange={setSelectedMaterial}
@@ -310,7 +310,7 @@ export function SourceDataComparison({
 
           {/* Dimension Filter */}
           <div>
-            <label className="text-[11px] normal mb-2 block">Dimension</label>
+            <label className="text-sm normal mb-2 block">Dimension</label>
             <Select
               value={selectedDimension}
               onValueChange={setSelectedDimension}
@@ -329,7 +329,7 @@ export function SourceDataComparison({
 
           {/* Parameter Selection */}
           <div>
-            <label className="text-[11px] normal mb-2 block">Parameter</label>
+            <label className="text-sm normal mb-2 block">Parameter</label>
             <Select
               value={selectedParameter}
               onValueChange={setSelectedParameter}
@@ -372,7 +372,7 @@ export function SourceDataComparison({
       {selectedMaterial && selectedParameter && !comparisonData && (
         <Alert className="bg-amber-50 dark:bg-amber-900/20 border-amber-300 dark:border-amber-700">
           <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-          <AlertDescription className="text-[11px] text-amber-800 dark:text-amber-200">
+          <AlertDescription className="text-sm text-amber-800 dark:text-amber-200">
             No sources are tagged for this parameter. Sources must explicitly
             cite which parameters they support.
           </AlertDescription>
@@ -388,7 +388,7 @@ export function SourceDataComparison({
                 <h2 className="text-[14px] normal mb-1">
                   {material.name} - {PARAMETER_INFO[selectedParameter].name}
                 </h2>
-                <p className="text-[11px] text-black/60 dark:text-white/60">
+                <p className="text-sm text-black/60 dark:text-white/60">
                   {PARAMETER_INFO[selectedParameter].description}
                 </p>
               </div>
@@ -410,7 +410,7 @@ export function SourceDataComparison({
                 </p>
                 <p className="text-[18px] normal">
                   {comparisonData.paramValue.toFixed(1)}
-                  <span className="text-[11px] ml-1">
+                  <span className="text-sm ml-1">
                     {PARAMETER_INFO[selectedParameter].unit}
                   </span>
                 </p>
@@ -449,7 +449,7 @@ export function SourceDataComparison({
           <Card className="bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
             <div className="p-4 border-b border-[#211f1c] dark:border-white/20">
               <h3 className="text-[14px] normal">Source Contributions</h3>
-              <p className="text-[11px] text-black/60 dark:text-white/60">
+              <p className="text-sm text-black/60 dark:text-white/60">
                 How each source contributes to the final weighted value
               </p>
             </div>
@@ -458,15 +458,13 @@ export function SourceDataComparison({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="text-[11px]">Source</TableHead>
-                    <TableHead className="text-[11px]">Type</TableHead>
-                    <TableHead className="text-[11px] text-right">
-                      Weight
-                    </TableHead>
-                    <TableHead className="text-[11px] text-right">
+                    <TableHead className="text-sm">Source</TableHead>
+                    <TableHead className="text-sm">Type</TableHead>
+                    <TableHead className="text-sm text-right">Weight</TableHead>
+                    <TableHead className="text-sm text-right">
                       Contribution
                     </TableHead>
-                    <TableHead className="text-[11px]">Links</TableHead>
+                    <TableHead className="text-sm">Links</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -474,7 +472,7 @@ export function SourceDataComparison({
                     <TableRow key={idx}>
                       <TableCell>
                         <div>
-                          <p className="text-[11px] normal font-medium">
+                          <p className="text-sm normal font-medium">
                             {sc.source.title}
                           </p>
                           {sc.source.authors && (
@@ -515,7 +513,7 @@ export function SourceDataComparison({
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
-                        <span className="text-[11px] normal">
+                        <span className="text-sm normal">
                           {sc.weight.toFixed(2)}
                         </span>
                       </TableCell>
@@ -527,7 +525,7 @@ export function SourceDataComparison({
                               style={{ width: `${sc.contribution}%` }}
                             />
                           </div>
-                          <span className="text-[11px] normal font-medium w-12 text-right">
+                          <span className="text-sm normal font-medium w-12 text-right">
                             {sc.contribution.toFixed(1)}%
                           </span>
                         </div>
@@ -581,7 +579,7 @@ export function SourceDataComparison({
           {/* Methodology Note */}
           <Alert className="bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-700">
             <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-            <AlertDescription className="text-[11px] text-blue-800 dark:text-blue-200">
+            <AlertDescription className="text-sm text-blue-800 dark:text-blue-200">
               <strong>How weighting works:</strong> Each source is assigned a
               weight based on its type (peer-reviewed = 1.0, government = 0.9,
               industrial = 0.7, etc.). The final parameter value is calculated

@@ -31,7 +31,7 @@ export function PublicExportView({
 
   const handleDownload = async (
     format: "json" | "csv",
-    exportType: "public" | "full"
+    exportType: "public" | "full",
   ) => {
     setDownloading(true);
 
@@ -111,7 +111,7 @@ export function PublicExportView({
           <AlertTitle className="text-[12px] text-blue-800 dark:text-blue-200">
             Open Data Access
           </AlertTitle>
-          <AlertDescription className="text-[10px] text-blue-700 dark:text-blue-300">
+          <AlertDescription className="text-xs text-blue-700 dark:text-blue-300">
             All WasteDB data is freely available under open license. Complete
             scientific data for all three dimensions: Recyclability,
             Compostability, and Reusability.
@@ -152,37 +152,37 @@ export function PublicExportView({
                     <div className="grid grid-cols-2 gap-2">
                       <Badge
                         variant="outline"
-                        className="text-[10px] justify-start"
+                        className="text-xs justify-start"
                       >
                         Material Name & Category
                       </Badge>
                       <Badge
                         variant="outline"
-                        className="text-[10px] justify-start"
+                        className="text-xs justify-start"
                       >
                         Description
                       </Badge>
                       <Badge
                         variant="outline"
-                        className="text-[10px] justify-start"
+                        className="text-xs justify-start"
                       >
                         Recyclability (0-100)
                       </Badge>
                       <Badge
                         variant="outline"
-                        className="text-[10px] justify-start"
+                        className="text-xs justify-start"
                       >
                         Compostability (0-100)
                       </Badge>
                       <Badge
                         variant="outline"
-                        className="text-[10px] justify-start"
+                        className="text-xs justify-start"
                       >
                         Reusability (0-100)
                       </Badge>
                       <Badge
                         variant="outline"
-                        className="text-[10px] justify-start"
+                        className="text-xs justify-start"
                       >
                         Confidence Level
                       </Badge>
@@ -222,7 +222,7 @@ export function PublicExportView({
               </div>
 
               <div className="mt-4 p-3 bg-[#faf9f6] dark:bg-[#1a1918] rounded-md border border-[#211f1c] dark:border-white/20">
-                <p className="text-[10px] text-black/60 dark:text-white/60">
+                <p className="text-xs text-black/60 dark:text-white/60">
                   <strong>Best for:</strong> Product labeling, educational
                   materials, consumer-facing applications, sustainability
                   reports, quick analysis
@@ -256,73 +256,73 @@ export function PublicExportView({
                     <div className="grid grid-cols-2 gap-2">
                       <Badge
                         variant="outline"
-                        className="text-[10px] justify-start"
+                        className="text-xs justify-start"
                       >
                         All Public Fields (8 cols)
                       </Badge>
                       <Badge
                         variant="outline"
-                        className="text-[10px] justify-start"
+                        className="text-xs justify-start"
                       >
                         CR Parameters: Y, D, C, M, E (0-1)
                       </Badge>
                       <Badge
                         variant="outline"
-                        className="text-[10px] justify-start"
+                        className="text-xs justify-start"
                       >
                         CC Parameters: B, N, T, H (0-1)
                       </Badge>
                       <Badge
                         variant="outline"
-                        className="text-[10px] justify-start"
+                        className="text-xs justify-start"
                       >
                         RU Parameters: L, R, U, C (0-1)
                       </Badge>
                       <Badge
                         variant="outline"
-                        className="text-[10px] justify-start"
+                        className="text-xs justify-start"
                       >
                         CR Practical & Theoretical (0-1)
                       </Badge>
                       <Badge
                         variant="outline"
-                        className="text-[10px] justify-start"
+                        className="text-xs justify-start"
                       >
                         CC Practical & Theoretical (0-1)
                       </Badge>
                       <Badge
                         variant="outline"
-                        className="text-[10px] justify-start"
+                        className="text-xs justify-start"
                       >
                         RU Practical & Theoretical (0-1)
                       </Badge>
                       <Badge
                         variant="outline"
-                        className="text-[10px] justify-start"
+                        className="text-xs justify-start"
                       >
                         95% Confidence Intervals (all 3)
                       </Badge>
                       <Badge
                         variant="outline"
-                        className="text-[10px] justify-start"
+                        className="text-xs justify-start"
                       >
                         Source Citations (DOI links)
                       </Badge>
                       <Badge
                         variant="outline"
-                        className="text-[10px] justify-start"
+                        className="text-xs justify-start"
                       >
                         Calculation Timestamps
                       </Badge>
                       <Badge
                         variant="outline"
-                        className="text-[10px] justify-start"
+                        className="text-xs justify-start"
                       >
                         Method Versions (CR-v1, CC-v1, RU-v1)
                       </Badge>
                       <Badge
                         variant="outline"
-                        className="text-[10px] justify-start"
+                        className="text-xs justify-start"
                       >
                         Whitepaper Version (2025.1)
                       </Badge>
@@ -362,7 +362,7 @@ export function PublicExportView({
               </div>
 
               <div className="mt-4 p-3 bg-[#faf9f6] dark:bg-[#1a1918] rounded-md border border-[#211f1c] dark:border-white/20">
-                <p className="text-[10px] text-black/60 dark:text-white/60">
+                <p className="text-xs text-black/60 dark:text-white/60">
                   <strong>Best for:</strong> Academic research, peer review,
                   reproducible studies, methodology validation, LCA databases,
                   multi-dimensional analysis
@@ -376,7 +376,7 @@ export function PublicExportView({
                 <ExternalLink className="w-4 h-4 normal" />
                 <h3 className="text-[14px] normal">Methodology References</h3>
               </div>
-              <p className="text-[11px] text-black/70 dark:text-white/70 mb-3">
+              <p className="text-sm text-black/70 dark:text-white/70 mb-3">
                 For detailed information about parameters, formulas, and data
                 collection standards, please refer to the WasteDB methodology
                 whitepapers (CR-v1, CC-v1, RU-v1).
@@ -384,7 +384,7 @@ export function PublicExportView({
 
               <div className="space-y-3">
                 <div>
-                  <h4 className="text-[11px] font-medium normal mb-2">
+                  <h4 className="text-sm font-medium normal mb-2">
                     Recyclability (CR) Parameters:
                   </h4>
                   <div className="flex flex-wrap gap-2">
@@ -405,7 +405,7 @@ export function PublicExportView({
                 </div>
 
                 <div>
-                  <h4 className="text-[11px] font-medium normal mb-2">
+                  <h4 className="text-sm font-medium normal mb-2">
                     Compostability (CC) Parameters:
                   </h4>
                   <div className="flex flex-wrap gap-2">
@@ -420,7 +420,7 @@ export function PublicExportView({
                 </div>
 
                 <div>
-                  <h4 className="text-[11px] font-medium normal mb-2">
+                  <h4 className="text-sm font-medium normal mb-2">
                     Reusability (RU) Parameters:
                   </h4>
                   <div className="flex flex-wrap gap-2">
@@ -451,7 +451,7 @@ export function PublicExportView({
               <h4 className="text-[12px] font-medium normal mb-1">
                 CSV Format
               </h4>
-              <p className="text-[10px] text-black/70 dark:text-white/70">
+              <p className="text-xs text-black/70 dark:text-white/70">
                 Comma-separated values compatible with Excel, Google Sheets, R,
                 and Python pandas. Public export: 8 columns. Research export: 39
                 columns with complete scientific metadata. First row contains
@@ -463,7 +463,7 @@ export function PublicExportView({
               <h4 className="text-[12px] font-medium normal mb-1">
                 JSON Format
               </h4>
-              <p className="text-[10px] text-black/70 dark:text-white/70">
+              <p className="text-xs text-black/70 dark:text-white/70">
                 Structured JSON with metadata including export date, format
                 type, and material count. Research exports include all 15
                 parameters across three dimensions, confidence intervals,
@@ -490,7 +490,7 @@ export function PublicExportView({
               <h4 className="text-[12px] font-medium normal mb-1">
                 Dual-Mode Scoring
               </h4>
-              <p className="text-[10px] text-black/70 dark:text-white/70">
+              <p className="text-xs text-black/70 dark:text-white/70">
                 Each dimension includes both <strong>Practical</strong>{" "}
                 (real-world infrastructure) and <strong>Theoretical</strong>{" "}
                 (ideal conditions) scores. The gap between them represents
@@ -504,19 +504,19 @@ export function PublicExportView({
         {/* License & Attribution */}
         <Card className="mt-6 p-6 bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
           <h3 className="text-[16px] normal mb-3">License & Attribution</h3>
-          <p className="text-[11px] text-black/70 dark:text-white/70 mb-3">
+          <p className="text-sm text-black/70 dark:text-white/70 mb-3">
             WasteDB is maintained by <strong>Wastefull</strong> (San Jose, CA)
             as an open scientific resource. All data is freely available for
             research, education, and commercial use.
           </p>
-          <p className="text-[10px] text-black/60 dark:text-white/60 mb-3">
+          <p className="text-xs text-black/60 dark:text-white/60 mb-3">
             When using WasteDB data in publications, please cite: <br />
             <em>
               WasteDB: Open Materials Sustainability Database. Wastefull,{" "}
               {new Date().getFullYear()}. Available at: wastedb.wastefull.org
             </em>
           </p>
-          <p className="text-[10px] text-black/60 dark:text-white/60">
+          <p className="text-xs text-black/60 dark:text-white/60">
             <strong>Methodology versions:</strong> CR-v1 (Recyclability), CC-v1
             (Compostability), RU-v1 (Reusability), VIZ-v1 (Visualization) — All
             version 2025.1

@@ -183,7 +183,7 @@ export function MaterialForm({
 
         {/* Note about sustainability scores */}
         <div className="bg-[#e5e4dc] dark:bg-[#3a3835] rounded-xl p-3 border border-[#211f1c]/20 dark:border-white/20">
-          <p className="text-[11px] text-black/70 dark:text-white/70">
+          <p className="text-sm text-black/70 dark:text-white/70">
             ℹ️ Sustainability scores (Compostability, Recyclability,
             Reusability) will be calculated by admins in the Data Management
             area based on scientific parameters.

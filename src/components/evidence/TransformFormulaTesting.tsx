@@ -357,7 +357,7 @@ export function TransformFormulaTesting({
                 <div className="font-['Tilt_Warp'] text-[14px] text-black mb-1">
                   {transform.parameter}
                 </div>
-                <div className="font-['Sniglet'] text-[10px] text-black/70 mb-2">
+                <div className="font-['Sniglet'] text-xs text-black/70 mb-2">
                   {transform.name}
                 </div>
                 <Progress value={successRate} className="h-1 mb-2" />
@@ -426,7 +426,7 @@ export function TransformFormulaTesting({
                   >
                     <td className="px-4 py-3">
                       <div
-                        className="inline-flex items-center justify-center w-8 h-8 rounded-md border border-[#211f1c] dark:border-white/20 font-['Tilt_Warp'] text-[11px]"
+                        className="inline-flex items-center justify-center w-8 h-8 rounded-md border border-[#211f1c] dark:border-white/20 font-['Tilt_Warp'] text-sm"
                         style={{
                           backgroundColor: getParameterColor(result.parameter),
                         }}
@@ -475,7 +475,7 @@ export function TransformFormulaTesting({
                       {result.error ? (
                         <Badge
                           variant="destructive"
-                          className="font-['Sniglet'] text-[10px]"
+                          className="font-['Sniglet'] text-xs"
                         >
                           <AlertCircle size={10} className="mr-1" />
                           {result.error}
@@ -483,7 +483,7 @@ export function TransformFormulaTesting({
                       ) : (
                         <Badge
                           variant="default"
-                          className="font-['Sniglet'] text-[10px]"
+                          className="font-['Sniglet'] text-xs"
                         >
                           <CheckCircle size={10} className="mr-1" />
                           Pass

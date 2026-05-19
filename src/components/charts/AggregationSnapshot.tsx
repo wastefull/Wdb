@@ -73,12 +73,12 @@ export function AggregationSnapshot({
             <CardTitle className="font-['Sniglet'] text-[14px]">
               Aggregation Snapshot: {parameter_code}
             </CardTitle>
-            <CardDescription className="font-['Sniglet'] text-[11px] mt-1">
+            <CardDescription className="font-['Sniglet'] text-sm mt-1">
               Computed {computedDate.toLocaleDateString()} at{" "}
               {computedDate.toLocaleTimeString()}
             </CardDescription>
           </div>
-          <Badge variant="outline" className="font-['Sniglet'] text-[10px]">
+          <Badge variant="outline" className="font-['Sniglet'] text-xs">
             {miu_count} MIUs
           </Badge>
         </div>
@@ -86,7 +86,7 @@ export function AggregationSnapshot({
       <CardContent className="space-y-4">
         {/* Aggregated Value */}
         <div className="p-3 bg-blue-50 dark:bg-blue-950/20 rounded-md border border-blue-200 dark:border-blue-800">
-          <div className="text-[10px] text-black/60 dark:text-white/60 font-['Sniglet'] mb-1">
+          <div className="text-xs text-black/60 dark:text-white/60 font-['Sniglet'] mb-1">
             Weighted Mean
           </div>
           <div className="text-[20px] font-['Tilt_Warp'] text-blue-600 dark:text-blue-400">
@@ -106,7 +106,7 @@ export function AggregationSnapshot({
             <div className="flex items-center justify-between p-2 bg-muted/50 rounded-md">
               <div className="flex items-center gap-2">
                 <FileText className="h-3 w-3 text-black/60 dark:text-white/60" />
-                <span className="font-['Sniglet'] text-[10px] normal">
+                <span className="font-['Sniglet'] text-xs normal">
                   Transform
                 </span>
               </div>
@@ -132,7 +132,7 @@ export function AggregationSnapshot({
             <div className="flex items-center justify-between p-2 bg-muted/50 rounded-md">
               <div className="flex items-center gap-2">
                 <Database className="h-3 w-3 text-black/60 dark:text-white/60" />
-                <span className="font-['Sniglet'] text-[10px] normal">
+                <span className="font-['Sniglet'] text-xs normal">
                   Ontology
                 </span>
               </div>
@@ -158,7 +158,7 @@ export function AggregationSnapshot({
             <div className="flex items-center justify-between p-2 bg-muted/50 rounded-md">
               <div className="flex items-center gap-2">
                 <BookOpen className="h-3 w-3 text-black/60 dark:text-white/60" />
-                <span className="font-['Sniglet'] text-[10px] normal">
+                <span className="font-['Sniglet'] text-xs normal">
                   Weight Policy
                 </span>
               </div>
@@ -179,7 +179,7 @@ export function AggregationSnapshot({
             <div className="flex items-center justify-between p-2 bg-muted/50 rounded-md">
               <div className="flex items-center gap-2">
                 <BookOpen className="h-3 w-3 text-black/60 dark:text-white/60" />
-                <span className="font-['Sniglet'] text-[10px] normal">
+                <span className="font-['Sniglet'] text-xs normal">
                   Codebook
                 </span>
               </div>
@@ -197,7 +197,7 @@ export function AggregationSnapshot({
             {weights_used.map((w, index) => (
               <div
                 key={w.miu_id}
-                className="flex items-center justify-between p-2 bg-muted/30 rounded-md text-[10px]"
+                className="flex items-center justify-between p-2 bg-muted/30 rounded-md text-xs"
               >
                 <span className="font-['Sniglet'] text-black/60 dark:text-white/60">
                   MIU {index + 1}
@@ -209,8 +209,8 @@ export function AggregationSnapshot({
                       w.confidence_level === "high"
                         ? "border-green-500 text-green-700 dark:text-green-400"
                         : w.confidence_level === "medium"
-                        ? "border-yellow-500 text-yellow-700 dark:text-yellow-400"
-                        : "border-red-500 text-red-700 dark:text-red-400"
+                          ? "border-yellow-500 text-yellow-700 dark:text-yellow-400"
+                          : "border-red-500 text-red-700 dark:text-red-400"
                     }`}
                   >
                     {w.confidence_level}
@@ -230,7 +230,7 @@ export function AggregationSnapshot({
             onClick={() => onViewEvidence(miu_ids)}
             variant="outline"
             size="sm"
-            className="w-full font-['Sniglet'] text-[11px]"
+            className="w-full font-['Sniglet'] text-sm"
           >
             View {miu_count} Evidence Point{miu_count !== 1 ? "s" : ""}
           </Button>

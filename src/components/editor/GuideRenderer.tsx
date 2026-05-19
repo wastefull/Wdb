@@ -116,7 +116,7 @@ export default function GuideRenderer({ content }: GuideRendererProps) {
                 <div className="text-[13px] font-medium text-black dark:text-white">
                   {node.attrs?.title || "Resource"}
                 </div>
-                <div className="text-[11px] text-black/60 dark:text-white/60">
+                <div className="text-sm text-black/60 dark:text-white/60">
                   {node.attrs?.type || "link"}
                 </div>
               </div>
@@ -335,7 +335,7 @@ export default function GuideRenderer({ content }: GuideRendererProps) {
       const fnNum = registerFootnote(node.attrs, index);
       const fnText = node.attrs?.content || "";
       return (
-        <sup key={index} className="font-mono text-[10px] leading-none">
+        <sup key={index} className="font-mono text-xs leading-none">
           <a
             href={`#footnote-${fnNum}`}
             className="text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white no-underline"
@@ -384,7 +384,7 @@ export default function GuideRenderer({ content }: GuideRendererProps) {
       {parsedContent.content.map(renderNode)}
       {footnoteRegistry.size > 0 && (
         <div className="mt-8 pt-4 border-t border-black/10 dark:border-white/10">
-          <h4 className="text-[11px] text-black/50 dark:text-white/50 uppercase tracking-wider mb-2">
+          <h4 className="text-sm text-black/50 dark:text-white/50 uppercase tracking-wider mb-2">
             Footnotes
           </h4>
           <ol className="space-y-1">
@@ -396,7 +396,7 @@ export default function GuideRenderer({ content }: GuideRendererProps) {
                   id={`footnote-${num}`}
                   className="text-[12px] text-black/70 dark:text-white/70 flex gap-2 scroll-mt-8"
                 >
-                  <sup className="text-[10px] font-mono mt-0.5 shrink-0">
+                  <sup className="text-xs font-mono mt-0.5 shrink-0">
                     [{num}]
                   </sup>
                   <span>{content}</span>

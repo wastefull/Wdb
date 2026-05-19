@@ -600,7 +600,7 @@ export function SubmitMaterialForm({
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div className="bg-waste-recycle dark:bg-[#3a3825] border border-[#211f1c] dark:border-white/20 rounded-md p-3 mb-4">
-            <p className="text-[11px] text-black dark:text-white leading-relaxed">
+            <p className="text-sm text-black dark:text-white leading-relaxed">
               💡{" "}
               <strong className="font-sans font-semibold">
                 Material pages
@@ -629,7 +629,7 @@ export function SubmitMaterialForm({
               placeholder="Comma-separated, e.g., Al, Aluminium"
               className="mt-1"
             />
-            <p className="mt-1 text-[10px] text-black/50 dark:text-white/50">
+            <p className="mt-1 text-xs text-black/50 dark:text-white/50">
               Alternate names that should also match this material page.
             </p>
           </div>
@@ -697,7 +697,7 @@ export function SubmitMaterialForm({
             {/* Disambiguation card */}
             {wikiCandidates.length > 0 && (
               <div className="mt-2 rounded-md border border-[#211f1c]/20 dark:border-white/20 bg-white dark:bg-[#1f1e1c] overflow-hidden">
-                <p className="px-3 py-1.5 text-[10px] text-black/50 dark:text-white/50 border-b border-[#211f1c]/10 dark:border-white/10">
+                <p className="px-3 py-1.5 text-xs text-black/50 dark:text-white/50 border-b border-[#211f1c]/10 dark:border-white/10">
                   Select the correct Wikidata entry:
                 </p>
                 {wikiCandidates.map((c) => (
@@ -709,7 +709,7 @@ export function SubmitMaterialForm({
                   >
                     <span className="block text-[12px] normal">{c.label}</span>
                     {c.description && (
-                      <span className="block text-[10px] text-black/50 dark:text-white/50 mt-0.5">
+                      <span className="block text-xs text-black/50 dark:text-white/50 mt-0.5">
                         {c.description}
                       </span>
                     )}
@@ -718,7 +718,7 @@ export function SubmitMaterialForm({
                 <button
                   type="button"
                   onClick={() => setWikiCandidates([])}
-                  className="w-full px-3 py-1.5 text-[10px] text-black/40 dark:text-white/40 hover:text-black/70 dark:hover:text-white/70 transition-colors text-center"
+                  className="w-full px-3 py-1.5 text-xs text-black/40 dark:text-white/40 hover:text-black/70 dark:hover:text-white/70 transition-colors text-center"
                 >
                   Dismiss
                 </button>
@@ -754,7 +754,7 @@ export function SubmitMaterialForm({
               />
               Mark as hub page
             </label>
-            <p className="mt-1 text-[10px] text-black/50 dark:text-white/50">
+            <p className="mt-1 text-xs text-black/50 dark:text-white/50">
               Hub pages can link to related materials (configured in admin data
               table).
             </p>
@@ -767,7 +767,7 @@ export function SubmitMaterialForm({
             >
               Description (optional)
               {wikiSource && (
-                <span className="ml-2 inline-flex items-center gap-1 text-[10px] text-emerald-700 dark:text-emerald-400 font-normal">
+                <span className="ml-2 inline-flex items-center gap-1 text-xs text-emerald-700 dark:text-emerald-400 font-normal">
                   <CheckCircle2 size={10} />
                   from Wikipedia
                   {wikiSource.sourceUrl && (
@@ -803,13 +803,13 @@ export function SubmitMaterialForm({
               className="mt-1 min-h-20"
               rows={3}
             />
-            <p className="mt-1 text-[10px] text-black/50 dark:text-white/50">
+            <p className="mt-1 text-xs text-black/50 dark:text-white/50">
               Examples: composition, common uses, special properties, etc.
             </p>
           </div>
 
           {duplicateMatch && duplicateLink && (
-            <div className="rounded-md border border-amber-700/30 bg-amber-100/60 dark:bg-amber-900/20 px-3 py-2 text-[11px] text-amber-900 dark:text-amber-100">
+            <div className="rounded-md border border-amber-700/30 bg-amber-100/60 dark:bg-amber-900/20 px-3 py-2 text-sm text-amber-900 dark:text-amber-100">
               Possible duplicate detected:{" "}
               <a
                 href={duplicateLink}

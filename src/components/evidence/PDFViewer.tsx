@@ -513,7 +513,7 @@ export function PDFViewer({
         <p className="font-['Sniglet'] text-[12px] text-red-600 dark:text-red-400 mb-1">
           Failed to load PDF
         </p>
-        <p className="font-['Sniglet'] text-[10px] text-red-500/80 dark:text-red-400/80 max-w-[300px] text-center">
+        <p className="font-['Sniglet'] text-xs text-red-500/80 dark:text-red-400/80 max-w-[300px] text-center">
           {error}
         </p>
       </div>
@@ -550,7 +550,7 @@ export function PDFViewer({
         <div className="flex items-center gap-2 min-w-0">
           <FileText className="w-4 h-4 text-black/60 dark:text-white/60 shrink-0" />
           {title && (
-            <span className="font-['Sniglet'] text-[11px] text-black/80 dark:text-white/80 truncate max-w-[150px]">
+            <span className="font-['Sniglet'] text-sm text-black/80 dark:text-white/80 truncate max-w-[150px]">
               {title}
             </span>
           )}
@@ -581,7 +581,7 @@ export function PDFViewer({
             max={numPages}
             value={currentPage}
             onChange={(e) => goToPage(parseInt(e.target.value) || 1)}
-            className="w-12 h-7 text-center text-[11px] p-1"
+            className="w-12 h-7 text-center text-sm p-1"
           />
 
           <Button
@@ -611,7 +611,7 @@ export function PDFViewer({
 
           <button
             onClick={resetZoom}
-            className="font-['Sniglet'] text-[10px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white px-1"
+            className="font-['Sniglet'] text-xs text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white px-1"
             title="Reset zoom"
           >
             {Math.round(scale * 100)}%
@@ -667,7 +667,7 @@ export function PDFViewer({
             placeholder="Search in document..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="flex-1 h-7 text-[11px]"
+            className="flex-1 h-7 text-sm"
           />
           <span className="font-['Sniglet'] text-[9px] text-black/40 dark:text-white/40">
             (Search coming soon)
@@ -679,10 +679,10 @@ export function PDFViewer({
       {selectedText && (
         <div className="flex items-center justify-between gap-2 p-2 border-b border-[#211f1c]/20 dark:border-white/20 bg-[#a8d5ba]/30 dark:bg-[#a8d5ba]/10">
           <div className="flex items-center gap-2 min-w-0">
-            <span className="font-['Sniglet'] text-[10px] text-black/60 dark:text-white/60 shrink-0">
+            <span className="font-['Sniglet'] text-xs text-black/60 dark:text-white/60 shrink-0">
               Selected:
             </span>
-            <span className="font-['Sniglet'] text-[11px] text-black/80 dark:text-white/80 truncate max-w-[300px]">
+            <span className="font-['Sniglet'] text-sm text-black/80 dark:text-white/80 truncate max-w-[300px]">
               "{selectedText.substring(0, 100)}
               {selectedText.length > 100 ? "..." : ""}"
             </span>
@@ -693,7 +693,7 @@ export function PDFViewer({
           <Button
             size="sm"
             onClick={copyToSnippet}
-            className={`h-7 text-[10px] ${
+            className={`h-7 text-xs ${
               copiedText
                 ? "bg-green-600 hover:bg-green-700"
                 : "bg-[#211f1c] hover:bg-[#3a3835]"

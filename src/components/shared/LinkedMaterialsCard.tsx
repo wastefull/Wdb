@@ -23,7 +23,7 @@ export function LinkedMaterialsCard({
             key={linkedMaterial.id}
             type="button"
             onClick={() => navigateToMaterialDetail(linkedMaterial.id)}
-            className="retro-btn-primary px-2 py-1 rounded-md border border-[#211f1c] dark:border-white/20 text-[11px] text-black/80 dark:text-white/80 bg-white dark:bg-[#2a2825] hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
+            className="retro-btn-primary px-2 py-1 rounded-md border border-[#211f1c] dark:border-white/20 text-sm text-black/80 dark:text-white/80 bg-white dark:bg-[#2a2825] hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
           >
             {linkedMaterial.name}
           </button>

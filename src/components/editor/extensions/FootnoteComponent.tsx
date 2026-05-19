@@ -45,14 +45,14 @@ export default function FootnoteComponent({
             autoFocus
             value={draftContent}
             onChange={(e) => setDraftContent(e.target.value)}
-            className="text-[11px] border border-black/20 dark:border-white/20 rounded px-1 py-0.5 bg-transparent text-black dark:text-white min-w-48 max-w-75"
+            className="text-sm border border-black/20 dark:border-white/20 rounded px-1 py-0.5 bg-transparent text-black dark:text-white min-w-48 max-w-75"
             placeholder="Footnote text (leave blank for back-reference)…"
           />
           <div className="flex items-center gap-1">
             <input
               value={draftRefId}
               onChange={(e) => setDraftRefId(e.target.value)}
-              className="text-[10px] font-mono border border-black/20 dark:border-white/20 rounded px-1 py-0.5 bg-transparent text-black/60 dark:text-white/60 flex-1"
+              className="text-xs font-mono border border-black/20 dark:border-white/20 rounded px-1 py-0.5 bg-transparent text-black/60 dark:text-white/60 flex-1"
               placeholder="Ref ID (share with back-references)…"
             />
             <button
@@ -60,7 +60,7 @@ export default function FootnoteComponent({
               onClick={() =>
                 navigator.clipboard.writeText(draftRefId).catch(() => {})
               }
-              className="text-[10px] px-1 py-0.5 border border-black/20 dark:border-white/20 rounded hover:bg-black/5 dark:hover:bg-white/5 shrink-0"
+              className="text-xs px-1 py-0.5 border border-black/20 dark:border-white/20 rounded hover:bg-black/5 dark:hover:bg-white/5 shrink-0"
               title="Copy ref ID"
             >
               copy
@@ -70,14 +70,14 @@ export default function FootnoteComponent({
             <button
               type="button"
               onClick={() => setEditing(false)}
-              className="text-[10px] px-2 py-0.5 border border-black/20 dark:border-white/20 rounded hover:bg-black/5 dark:hover:bg-white/5"
+              className="text-xs px-2 py-0.5 border border-black/20 dark:border-white/20 rounded hover:bg-black/5 dark:hover:bg-white/5"
             >
               cancel
             </button>
             <button
               type="button"
               onClick={handleSave}
-              className="text-[10px] px-2 py-0.5 bg-black dark:bg-white text-white dark:text-black rounded"
+              className="text-xs px-2 py-0.5 bg-black dark:bg-white text-white dark:text-black rounded"
             >
               save
             </button>
@@ -91,7 +91,7 @@ export default function FootnoteComponent({
             selected ? "outline outline-offset-1 outline-blue-400 rounded" : ""
           }`}
         >
-          <sup className="text-[10px] font-mono bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded px-1 leading-none text-black dark:text-white hover:bg-black/20 dark:hover:bg-white/20 transition-colors">
+          <sup className="text-xs font-mono bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded px-1 leading-none text-black dark:text-white hover:bg-black/20 dark:hover:bg-white/20 transition-colors">
             {isBackRef ? "↩" : "fn"}
           </sup>
         </span>

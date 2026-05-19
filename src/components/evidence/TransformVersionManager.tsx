@@ -73,7 +73,7 @@ export function TransformVersionManager({
   const [loading, setLoading] = useState(true);
   const [refreshingJobs, setRefreshingJobs] = useState(false);
   const [selectedTransform, setSelectedTransform] = useState<Transform | null>(
-    null
+    null,
   );
   const [showRecomputeDialog, setShowRecomputeDialog] = useState(false);
   const [newVersion, setNewVersion] = useState("");
@@ -105,7 +105,7 @@ export function TransformVersionManager({
       // Show toast only when manually refreshing
       if (refreshingJobs) {
         toast.success(
-          `Refreshed job list - ${data.jobs?.length || 0} job(s) found`
+          `Refreshed job list - ${data.jobs?.length || 0} job(s) found`,
         );
       }
     } catch (error) {
@@ -247,7 +247,7 @@ export function TransformVersionManager({
               {/* Group by dimension */}
               {["CR", "CC", "RU"].map((dimension) => {
                 const dimensionTransforms = transforms.transforms.filter(
-                  (t) => t.dimension === dimension
+                  (t) => t.dimension === dimension,
                 );
 
                 return (
@@ -280,7 +280,7 @@ export function TransformVersionManager({
                                 <div className="text-[16px] normal">
                                   {transform.parameter}
                                 </div>
-                                <div className="text-[11px] text-black/60 dark:text-white/60">
+                                <div className="text-sm text-black/60 dark:text-white/60">
                                   {transform.name}
                                 </div>
                               </div>
@@ -290,12 +290,12 @@ export function TransformVersionManager({
                             </div>
 
                             <div className="bg-white dark:bg-[#2a2825] rounded p-2 mb-2 border border-[#211f1c]/20 dark:border-white/10">
-                              <code className="font-mono text-[10px] normal">
+                              <code className="font-mono text-xs normal">
                                 {transform.formula}
                               </code>
                             </div>
 
-                            <div className="flex items-center gap-2 text-[10px] text-black/60 dark:text-white/60">
+                            <div className="flex items-center gap-2 text-xs text-black/60 dark:text-white/60">
                               <span>
                                 {transform.unit_input} → {transform.unit_output}
                               </span>
@@ -343,7 +343,7 @@ export function TransformVersionManager({
           <CardContent className="space-y-4">
             <Alert className="bg-orange-50 dark:bg-orange-900/20 border-orange-300 dark:border-orange-700">
               <AlertTriangle className="h-4 w-4 text-orange-600 dark:text-orange-400" />
-              <AlertDescription className="text-[11px] text-orange-900 dark:text-orange-100">
+              <AlertDescription className="text-sm text-orange-900 dark:text-orange-100">
                 <strong>Warning:</strong> Changing a transform formula will
                 trigger recomputation of all MIUs using this parameter. This
                 operation may take several minutes and will update material
@@ -354,7 +354,7 @@ export function TransformVersionManager({
             <div className="bg-white dark:bg-[#2a2825] rounded-lg p-4 border border-[#211f1c]/20 dark:border-white/10">
               <div className="grid grid-cols-2 gap-4 mb-3">
                 <div>
-                  <Label className="text-[11px] text-black/70 dark:text-white/70">
+                  <Label className="text-sm text-black/70 dark:text-white/70">
                     Current Version
                   </Label>
                   <div className="font-mono text-[12px] normal">
@@ -362,7 +362,7 @@ export function TransformVersionManager({
                   </div>
                 </div>
                 <div>
-                  <Label className="text-[11px] text-black/70 dark:text-white/70">
+                  <Label className="text-sm text-black/70 dark:text-white/70">
                     Current Formula
                   </Label>
                   <div className="font-mono text-[12px] normal">
@@ -456,7 +456,7 @@ export function TransformVersionManager({
           {jobs.length > 0 && (
             <Alert className="mb-4 bg-yellow-50 dark:bg-yellow-900/20 border-yellow-300 dark:border-yellow-700">
               <Clock className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
-              <AlertDescription className="text-[11px] text-yellow-900 dark:text-yellow-100">
+              <AlertDescription className="text-sm text-yellow-900 dark:text-yellow-100">
                 <strong>Note:</strong> Job processing is not yet implemented.
                 All jobs will remain in "pending" status until Phase 9.2 when
                 MIU (Material Impact Units) are added. At that point, jobs will
@@ -483,7 +483,7 @@ export function TransformVersionManager({
                         <div className="text-[14px] normal">
                           {job.parameter} Transform Update
                         </div>
-                        <div className="text-[11px] text-black/60 dark:text-white/60">
+                        <div className="text-sm text-black/60 dark:text-white/60">
                           {job.oldTransformVersion} → {job.newTransformVersion}
                         </div>
                       </div>
@@ -493,11 +493,11 @@ export function TransformVersionManager({
                     </Badge>
                   </div>
 
-                  <div className="text-[11px] text-black/70 dark:text-white/70 mb-2">
+                  <div className="text-sm text-black/70 dark:text-white/70 mb-2">
                     <strong>Reason:</strong> {job.reason}
                   </div>
 
-                  <div className="flex items-center gap-4 text-[10px] text-black/60 dark:text-white/60">
+                  <div className="flex items-center gap-4 text-xs text-black/60 dark:text-white/60">
                     <span>Job ID: {job.id}</span>
                     <span>
                       Created: {new Date(job.createdAt).toLocaleString()}
@@ -511,7 +511,7 @@ export function TransformVersionManager({
 
                   {job.errorMessage && (
                     <Alert className="mt-2 bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-700">
-                      <AlertDescription className="text-[11px] text-red-900 dark:text-red-100">
+                      <AlertDescription className="text-sm text-red-900 dark:text-red-100">
                         {job.errorMessage}
                       </AlertDescription>
                     </Alert>

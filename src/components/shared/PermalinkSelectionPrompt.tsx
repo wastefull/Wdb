@@ -36,7 +36,7 @@ export function PermalinkSelectionPrompt({
             <span className="text-[16px] leading-none">✕</span>
           </button>
         </div>
-        <p className="px-4 pt-3 text-[11px] text-black/60 dark:text-white/60">
+        <p className="px-4 pt-3 text-sm text-black/60 dark:text-white/60">
           The link matches more than one material. Choose one to continue.
         </p>
         <ul className="p-4 space-y-2">
@@ -48,7 +48,7 @@ export function PermalinkSelectionPrompt({
                 className="w-full text-left px-3 py-2 rounded-[8px] border border-[#211f1c]/20 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
               >
                 <span className="text-[13px] block">{candidate.name}</span>
-                <span className="text-[10px] text-black/50 dark:text-white/50">
+                <span className="text-xs text-black/50 dark:text-white/50">
                   {candidate.category}
                 </span>
               </button>

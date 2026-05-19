@@ -135,7 +135,7 @@ export function StatusBar({
             {!user && onSignIn && (
               <button
                 onClick={onSignIn}
-                className="px-2 md:px-3 py-1 md:py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 arcade-bg-cyan arcade-btn-cyan hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[10px] md:text-[11px]"
+                className="px-2 md:px-3 py-1 md:py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 arcade-bg-cyan arcade-btn-cyan hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-xs md:text-sm"
               >
                 Sign In
               </button>
@@ -161,7 +161,7 @@ export function StatusBar({
                     <SheetHeader className="border-b border-[#211f1c]/20 dark:border-white/20 pb-4">
                       <div className="flex items-center justify-between">
                         {/* Sync Status - left side */}
-                        <div className="flex items-center gap-1.5 text-[11px] text-black/50 dark:text-white/50 min-w-[70px]">
+                        <div className="flex items-center gap-1.5 text-sm text-black/50 dark:text-white/50 min-w-[70px]">
                           {syncStatus && (
                             <>
                               {syncStatus === "synced" && (
@@ -216,7 +216,7 @@ export function StatusBar({
                           <span className="text-[13px] font-medium">
                             {user.name || user.email.split("@")[0]}
                           </span>
-                          <span className="text-[11px] text-black/60 dark:text-white/60">
+                          <span className="text-sm text-black/60 dark:text-white/60">
                             View profile
                           </span>
                         </div>
@@ -307,7 +307,7 @@ export function StatusBar({
                         className="flex items-center gap-1 px-2 py-1 bg-white/50 dark:bg-black/20 rounded-md border border-[#211f1c]/20 dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all cursor-pointer"
                       >
                         <User className="w-3 h-3 normal" />
-                        <span className="text-[10px] normal max-w-[100px] truncate">
+                        <span className="text-xs normal max-w-[100px] truncate">
                           {user.name || user.email.split("@")[0]}
                         </span>
                       </button>
@@ -316,7 +316,7 @@ export function StatusBar({
                       side="bottom"
                       className="bg-black text-white border-black"
                     >
-                      <p className="text-[11px]">View profile</p>
+                      <p className="text-sm">View profile</p>
                     </TooltipContent>
                   </UITooltip>
                 </TooltipProvider>
@@ -344,7 +344,7 @@ export function StatusBar({
                             className="flex items-center gap-1 px-2 py-1 rounded-md border border-[#211f1c] dark:border-white/20 arcade-bg-cyan hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
                           >
                             <Briefcase className="w-3 h-3" />
-                            <span className="text-[10px] uppercase arcade-btn-cyan">
+                            <span className="text-xs uppercase arcade-btn-cyan">
                               Staff
                             </span>
                           </button>
@@ -353,7 +353,7 @@ export function StatusBar({
                           side="bottom"
                           className="bg-black text-white border-black"
                         >
-                          <p className="text-[11px]">Staff Dashboard</p>
+                          <p className="text-sm">Staff Dashboard</p>
                         </TooltipContent>
                       </UITooltip>
                     </TooltipProvider>
@@ -374,7 +374,7 @@ export function StatusBar({
                         side="bottom"
                         className="bg-black text-white border-black"
                       >
-                        <p className="text-[11px]">Sign out</p>
+                        <p className="text-sm">Sign out</p>
                       </TooltipContent>
                     </UITooltip>
                   </TooltipProvider>
@@ -427,7 +427,7 @@ export function StatusBar({
                     side="bottom"
                     className="bg-black text-white border-black"
                   >
-                    <p className="text-[11px]">
+                    <p className="text-sm">
                       {syncStatus === "synced" && "Synced to cloud"}
                       {syncStatus === "syncing" && "Syncing..."}
                       {syncStatus === "offline" && "Working offline"}

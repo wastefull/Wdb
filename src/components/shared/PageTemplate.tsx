@@ -111,7 +111,7 @@ export function PageTemplate({
           <div className="flex-1">
             <h1 className="text-[20px] md:text-[24px] normal mb-1">{title}</h1>
             {description && (
-              <p className="text-[11px] md:text-[12px] text-black/60 dark:text-white/60">
+              <p className="text-sm md:text-[12px] text-black/60 dark:text-white/60">
                 {description}
               </p>
             )}

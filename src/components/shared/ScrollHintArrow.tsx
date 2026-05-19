@@ -22,7 +22,7 @@ export function ScrollHintArrow({ cta }: ScrollHintArrowProps) {
         }}
         className="flex flex-col items-center gap-1 text-black/30 dark:text-white/30"
       >
-        <span className="text-[10px] uppercase tracking-wider">{cta}</span>
+        <span className="text-xs uppercase tracking-wider">{cta}</span>
         <ChevronDown size={16} />
       </motion.div>
     </motion.div>

@@ -71,7 +71,7 @@ export function SearchSuggestionChips({
       }`}
       aria-hidden={!isEmpty}
     >
-      <span className="text-[11px] text-black/40 dark:text-white/35 select-none line-clamp-1">
+      <span className="text-sm text-black/40 dark:text-white/35 select-none line-clamp-1">
         Try:
       </span>
       {chips.map((chip) => {

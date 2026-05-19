@@ -230,7 +230,7 @@ export function BlogView({ onBack }: BlogViewProps) {
               }}
             >
               <div className="flex flex-col gap-3">
-                <div className="flex items-center gap-2 text-[11px] text-black/60 dark:text-white/60">
+                <div className="flex items-center gap-2 text-sm text-black/60 dark:text-white/60">
                   <Calendar size={14} />
                   <span>
                     {formatDate(post.published_at || post.created_at)}
@@ -289,7 +289,7 @@ export function BlogView({ onBack }: BlogViewProps) {
           <div className="mb-4 rounded-lg border border-[#211f1c]/20 bg-white/70 p-4 dark:border-white/20 dark:bg-white/5">
             <div className="flex flex-col gap-3 md:flex-row md:items-end">
               <label className="block md:w-48">
-                <span className="mb-1 block text-[11px] uppercase tracking-[0.18em] text-black/50 dark:text-white/50">
+                <span className="mb-1 block text-sm uppercase tracking-[0.18em] text-black/50 dark:text-white/50">
                   Entry Date
                 </span>
                 <input
@@ -304,7 +304,7 @@ export function BlogView({ onBack }: BlogViewProps) {
               </label>
 
               <div className="flex-1">
-                <div className="mb-1 text-[11px] uppercase tracking-[0.18em] text-black/50 dark:text-white/50">
+                <div className="mb-1 text-sm uppercase tracking-[0.18em] text-black/50 dark:text-white/50">
                   Public Bullets
                 </div>
                 <Textarea
@@ -320,7 +320,7 @@ export function BlogView({ onBack }: BlogViewProps) {
             </div>
 
             <div className="mt-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-              <p className="text-[11px] text-black/55 dark:text-white/55">
+              <p className="text-sm text-black/55 dark:text-white/55">
                 One bullet per line. This entry is visible to everyone as soon
                 as you save it.
               </p>
@@ -377,7 +377,7 @@ export function BlogView({ onBack }: BlogViewProps) {
                       {formatChangelogDate(entry.entry_date)}
                     </h3>
                   </div>
-                  <span className="text-[10px] uppercase tracking-[0.18em] text-black/45 dark:text-white/45">
+                  <span className="text-xs uppercase tracking-[0.18em] text-black/45 dark:text-white/45">
                     {entry.items.length} change
                     {entry.items.length === 1 ? "" : "s"}
                   </span>
@@ -427,7 +427,7 @@ export function BlogView({ onBack }: BlogViewProps) {
         <div className="flex gap-1 md:gap-2 border-b border-[#211f1c]/20 dark:border-white/20 flex-wrap overflow-x-auto">
           <button
             onClick={() => setActiveTab("posts")}
-            className={`px-2 md:px-4 py-2 text-[10px] md:text-[12px] transition-colors whitespace-nowrap ${
+            className={`px-2 md:px-4 py-2 text-xs md:text-[12px] transition-colors whitespace-nowrap ${
               activeTab === "posts"
                 ? "normal border-b-2 border-[#211f1c] dark:border-white"
                 : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
@@ -437,7 +437,7 @@ export function BlogView({ onBack }: BlogViewProps) {
           </button>
           <button
             onClick={() => setActiveTab("changelog")}
-            className={`px-2 md:px-4 py-2 text-[10px] md:text-[12px] transition-colors whitespace-nowrap ${
+            className={`px-2 md:px-4 py-2 text-xs md:text-[12px] transition-colors whitespace-nowrap ${
               activeTab === "changelog"
                 ? "normal border-b-2 border-[#211f1c] dark:border-white"
                 : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"

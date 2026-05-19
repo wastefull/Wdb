@@ -64,7 +64,7 @@ export function WhitepaperSyncTool({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = async (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
@@ -111,7 +111,7 @@ export function WhitepaperSyncTool({
         errors.push(
           `Failed to read ${file.name}: ${
             error instanceof Error ? error.message : "Unknown error"
-          }`
+          }`,
         );
       }
     }
@@ -123,7 +123,7 @@ export function WhitepaperSyncTool({
       toast.success(
         `Loaded ${loadedWhitepapers.length} whitepaper${
           loadedWhitepapers.length > 1 ? "s" : ""
-        }`
+        }`,
       );
     }
 
@@ -179,8 +179,8 @@ export function WhitepaperSyncTool({
           "  - Content preview:",
           whitepaper.content.substring(
             0,
-            Math.min(100, whitepaper.content.length)
-          )
+            Math.min(100, whitepaper.content.length),
+          ),
         );
 
         await api.saveWhitepaper({
@@ -203,10 +203,10 @@ export function WhitepaperSyncTool({
 
     // Show summary toast
     const successCount = Object.values(results).filter(
-      (r) => r === "success"
+      (r) => r === "success",
     ).length;
     const errorCount = Object.values(results).filter(
-      (r) => r === "error"
+      (r) => r === "error",
     ).length;
 
     if (errorCount === 0) {
@@ -217,7 +217,7 @@ export function WhitepaperSyncTool({
   };
 
   const getStatusIcon = (
-    status: "success" | "error" | "pending" | undefined
+    status: "success" | "error" | "pending" | undefined,
   ) => {
     if (status === "success") {
       return <CheckCircle className="w-5 h-5 text-green-600" />;
@@ -258,10 +258,10 @@ export function WhitepaperSyncTool({
             Whitepapers section.
           </p>
           <div className="bg-waste-recycle dark:bg-[#211f1c] p-3 rounded-md mb-3">
-            <p className="text-[11px] text-black/80 dark:text-white/80 mb-2">
+            <p className="text-sm text-black/80 dark:text-white/80 mb-2">
               <strong>Expected files:</strong>
             </p>
-            <ul className="text-[10px] text-black/70 dark:text-white/70 space-y-1 list-disc list-inside">
+            <ul className="text-xs text-black/70 dark:text-white/70 space-y-1 list-disc list-inside">
               <li>Recyclability.md</li>
               <li>CC-v1.md (Compostability)</li>
               <li>RU-v1.md (Reusability)</li>
@@ -269,7 +269,7 @@ export function WhitepaperSyncTool({
               <li>Calculation_Methodology.md</li>
             </ul>
           </div>
-          <p className="text-[11px] text-black/60 dark:text-white/60">
+          <p className="text-sm text-black/60 dark:text-white/60">
             <strong>Admin only:</strong> This operation requires admin
             privileges.
           </p>
@@ -304,7 +304,7 @@ export function WhitepaperSyncTool({
                 Choose Files
               </Button>
             </label>
-            <p className="text-[10px] text-black/50 dark:text-white/50 mt-2">
+            <p className="text-xs text-black/50 dark:text-white/50 mt-2">
               You can select multiple .md files at once
             </p>
           </div>
@@ -330,7 +330,7 @@ export function WhitepaperSyncTool({
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="text-[14px] normal truncate">{wp.title}</h3>
-                    <p className="text-[10px] text-black/60 dark:text-white/60">
+                    <p className="text-xs text-black/60 dark:text-white/60">
                       {wp.filename} → whitepaper:{wp.slug} (
                       {(wp.size / 1024).toFixed(1)} KB)
                     </p>
@@ -381,7 +381,7 @@ export function WhitepaperSyncTool({
                       .length
                   }
                 </div>
-                <div className="text-[11px] text-green-700 dark:text-green-300">
+                <div className="text-sm text-green-700 dark:text-green-300">
                   Success
                 </div>
               </div>
@@ -392,7 +392,7 @@ export function WhitepaperSyncTool({
                       .length
                   }
                 </div>
-                <div className="text-[11px] text-red-700 dark:text-red-300">
+                <div className="text-sm text-red-700 dark:text-red-300">
                   Failed
                 </div>
               </div>
@@ -400,7 +400,7 @@ export function WhitepaperSyncTool({
                 <div className="text-[24px] font-bold text-blue-600 dark:text-blue-400">
                   {whitepapers.length}
                 </div>
-                <div className="text-[11px] text-blue-700 dark:text-blue-300">
+                <div className="text-sm text-blue-700 dark:text-blue-300">
                   Total
                 </div>
               </div>

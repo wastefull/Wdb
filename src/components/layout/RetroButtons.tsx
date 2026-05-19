@@ -193,7 +193,7 @@ export function RetroButtons({ title, titlePop, version }: RetroButtonsProps) {
                         onCheckedChange={togglePrioritizeOA}
                       />
                     </div>
-                    <p className="text-[11px] text-black/60 dark:text-white/60 mt-1">
+                    <p className="text-sm text-black/60 dark:text-white/60 mt-1">
                       Show open access sources first
                     </p>
                   </div> */}
@@ -253,7 +253,7 @@ export function RetroButtons({ title, titlePop, version }: RetroButtonsProps) {
                             <RotateCcw size={16} />
                             <h3 className="text-[14px]">Reset Settings</h3>
                           </div>
-                          <p className="text-[11px] text-black/70 dark:text-white/70">
+                          <p className="text-sm text-black/70 dark:text-white/70">
                             Reset all accessibility settings to default
                           </p>
                           <button
@@ -274,7 +274,7 @@ export function RetroButtons({ title, titlePop, version }: RetroButtonsProps) {
                   side="bottom"
                   className="bg-black text-white border-black"
                 >
-                  <p className="text-[11px]">Reset accessibility</p>
+                  <p className="text-sm">Reset accessibility</p>
                 </TooltipContent>
               </UITooltip>
 
@@ -355,7 +355,7 @@ export function RetroButtons({ title, titlePop, version }: RetroButtonsProps) {
                   side="bottom"
                   className="bg-black text-white border-black"
                 >
-                  <p className="text-[11px]">Font size</p>
+                  <p className="text-sm">Font size</p>
                 </TooltipContent>
               </UITooltip>
 
@@ -442,7 +442,7 @@ export function RetroButtons({ title, titlePop, version }: RetroButtonsProps) {
                   side="bottom"
                   className="bg-black text-white border-black"
                 >
-                  <p className="text-[11px]">Display options</p>
+                  <p className="text-sm">Display options</p>
                 </TooltipContent>
               </UITooltip>
             </div>

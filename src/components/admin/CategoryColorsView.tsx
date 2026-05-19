@@ -230,7 +230,7 @@ export function CategoryColorsView({ onBack }: CategoryColorsViewProps) {
                     </span>
 
                     {/* Hex value */}
-                    <span className="font-mono text-[11px] text-black/40 dark:text-white/40">
+                    <span className="font-mono text-sm text-black/40 dark:text-white/40">
                       {/^#[0-9a-fA-F]{6}$/.test(currentColor)
                         ? currentColor
                         : "—"}
@@ -238,7 +238,7 @@ export function CategoryColorsView({ onBack }: CategoryColorsViewProps) {
 
                     {/* Changed indicator */}
                     {isChanged && (
-                      <span className="text-[10px] text-black/35 dark:text-white/35 italic">
+                      <span className="text-xs text-black/35 dark:text-white/35 italic">
                         modified
                       </span>
                     )}
@@ -281,7 +281,7 @@ export function CategoryColorsView({ onBack }: CategoryColorsViewProps) {
 
                       {/* Hex input + per-row actions */}
                       <div className="flex items-center gap-3 mt-1">
-                        <label className="text-[11px] text-black/45 dark:text-white/45 font-sniglet">
+                        <label className="text-sm text-black/45 dark:text-white/45 font-sniglet">
                           Custom hex:
                         </label>
                         <input
@@ -301,7 +301,7 @@ export function CategoryColorsView({ onBack }: CategoryColorsViewProps) {
                             onClick={() =>
                               handleColorChange(cat.id, defaultColor)
                             }
-                            className="text-[11px] text-black/35 dark:text-white/35 hover:text-black dark:hover:text-white transition-colors"
+                            className="text-sm text-black/35 dark:text-white/35 hover:text-black dark:hover:text-white transition-colors"
                           >
                             Reset to default
                           </button>
@@ -316,14 +316,14 @@ export function CategoryColorsView({ onBack }: CategoryColorsViewProps) {
 
           {/* Live preview */}
           <div className="retro-card p-4 space-y-2">
-            <p className="text-[11px] text-black/50 dark:text-white/50 uppercase tracking-wide font-sniglet">
+            <p className="text-sm text-black/50 dark:text-white/50 uppercase tracking-wide font-sniglet">
               Live Preview
             </p>
             <div className="flex gap-2 flex-wrap">
               {categories.map((cat) => (
                 <span
                   key={cat.id}
-                  className="px-2.5 py-1 rounded-full text-[11px] font-sniglet border border-[#211f1c]/10 dark:border-white/10 transition-colors duration-100"
+                  className="px-2.5 py-1 rounded-full text-sm font-sniglet border border-[#211f1c]/10 dark:border-white/10 transition-colors duration-100"
                   style={{
                     backgroundColor: `var(${categoryToCssVar(cat.id)})`,
                     color: "black",
@@ -333,7 +333,7 @@ export function CategoryColorsView({ onBack }: CategoryColorsViewProps) {
                 </span>
               ))}
             </div>
-            <p className="text-[10px] text-black/35 dark:text-white/35 italic">
+            <p className="text-xs text-black/35 dark:text-white/35 italic">
               Uses the live CSS var — reflects dark mode and no-pastel
               overrides.
             </p>

@@ -366,22 +366,22 @@ export function UserProfileView({
               <CardTitle className="normal mb-1 wrap-break-word">
                 {profile.name}
                 {profile.role === "admin" && isAdminModeActive && (
-                  <span className="ml-2 px-2 py-0.5 text-[10px] bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded whitespace-nowrap">
+                  <span className="ml-2 px-2 py-0.5 text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded whitespace-nowrap">
                     Admin
                   </span>
                 )}
               </CardTitle>
               {profile.display_email && (
-                <CardDescription className="text-[11px] sm:text-[13px] break-all">
+                <CardDescription className="text-sm sm:text-[13px] break-all">
                   {profile.display_email}
                 </CardDescription>
               )}
               {profile.org_role && profile.org_role !== "Volunteer" && (
-                <p className="text-[11px] text-waste-science dark:text-waste-science mt-1">
+                <p className="text-sm text-waste-science dark:text-waste-science mt-1">
                   {profile.org_role}
                 </p>
               )}
-              <p className="text-[11px] text-black/50 dark:text-white/50 mt-2">
+              <p className="text-sm text-black/50 dark:text-white/50 mt-2">
                 Member since{" "}
                 {new Date(profile.created_at).toLocaleDateString("en-US", {
                   month: "long",
@@ -407,7 +407,7 @@ export function UserProfileView({
                 placeholder="https://example.com/avatar.jpg"
                 className="text-[13px]"
               />
-              <p className="text-[11px] text-black/60 dark:text-white/60">
+              <p className="text-sm text-black/60 dark:text-white/60">
                 Enter a URL to an image for your profile picture
               </p>
             </div>
@@ -427,7 +427,7 @@ export function UserProfileView({
                 placeholder="contact@example.com"
                 className="text-[13px]"
               />
-              <p className="text-[11px] text-black/60 dark:text-white/60">
+              <p className="text-sm text-black/60 dark:text-white/60">
                 Public contact email (leave blank to hide)
               </p>
             </div>
@@ -475,7 +475,7 @@ export function UserProfileView({
                 <option value="Board Treasurer">Board Treasurer</option>
                 <option value="Board President">Board President</option>
               </select>
-              <p className="text-[11px] text-black/60 dark:text-white/60">
+              <p className="text-sm text-black/60 dark:text-white/60">
                 This user's role in the Wastefull organization
               </p>
             </div>
@@ -612,7 +612,7 @@ export function UserProfileView({
                       {stats.materials}
                     </span>
                   </div>
-                  <p className="text-[11px] text-black/60 dark:text-white/60 uppercase tracking-wide">
+                  <p className="text-sm text-black/60 dark:text-white/60 uppercase tracking-wide">
                     Materials
                   </p>
                 </button>
@@ -639,7 +639,7 @@ export function UserProfileView({
                       {stats.articles}
                     </span>
                   </div>
-                  <p className="text-[11px] text-black/60 dark:text-white/60 uppercase tracking-wide">
+                  <p className="text-sm text-black/60 dark:text-white/60 uppercase tracking-wide">
                     Articles
                   </p>
                 </button>
@@ -666,7 +666,7 @@ export function UserProfileView({
                       {stats.guides}
                     </span>
                   </div>
-                  <p className="text-[11px] text-black/60 dark:text-white/60 uppercase tracking-wide">
+                  <p className="text-sm text-black/60 dark:text-white/60 uppercase tracking-wide">
                     Guides
                   </p>
                 </button>
@@ -693,7 +693,7 @@ export function UserProfileView({
                       {stats.mius}
                     </span>
                   </div>
-                  <p className="text-[11px] text-black/60 dark:text-white/60 uppercase tracking-wide">
+                  <p className="text-sm text-black/60 dark:text-white/60 uppercase tracking-wide">
                     MIUs
                   </p>
                 </button>
@@ -704,7 +704,7 @@ export function UserProfileView({
                       {stats.total}
                     </span>
                   </div>
-                  <p className="text-[11px] text-black/60 dark:text-white/60 uppercase tracking-wide">
+                  <p className="text-sm text-black/60 dark:text-white/60 uppercase tracking-wide">
                     Total
                   </p>
                 </div>
@@ -715,7 +715,7 @@ export function UserProfileView({
                 <div>
                   <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
                     Activity
-                    <span className="text-[11px] font-normal text-black/60 dark:text-white/60">
+                    <span className="text-sm font-normal text-black/60 dark:text-white/60">
                       (Last 12 months)
                     </span>
                   </h4>
@@ -743,7 +743,7 @@ export function UserProfileView({
                           setContributionFilter(null);
                           setContributionLimit(5);
                         }}
-                        className="text-[11px] font-normal text-waste-recycle hover:underline"
+                        className="text-sm font-normal text-waste-recycle hover:underline"
                       >
                         Clear filter
                       </button>
@@ -829,7 +829,7 @@ export function UserProfileView({
                             <p className="text-[13px] font-medium truncate">
                               {contrib.title}
                             </p>
-                            <p className="text-[11px] text-black/60 dark:text-white/60">
+                            <p className="text-sm text-black/60 dark:text-white/60">
                               {new Date(contrib.timestamp).toLocaleDateString(
                                 "en-US",
                                 {
@@ -904,7 +904,7 @@ export function UserProfileView({
                   >
                     Backfill Article Attributions
                   </button>
-                  <p className="text-[11px] text-black/60 dark:text-white/60 mt-2">
+                  <p className="text-sm text-black/60 dark:text-white/60 mt-2">
                     Sets you as the author for articles without attribution
                   </p>
                 </div>

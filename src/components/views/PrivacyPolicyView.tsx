@@ -121,7 +121,7 @@ export function PrivacyPolicyView({ onBack }: PrivacyPolicyViewProps) {
                     ],
                   ].map(([field, purpose, retention]) => (
                     <tr key={field}>
-                      <td className="p-3 font-mono text-[11px]">{field}</td>
+                      <td className="p-3 font-mono text-sm">{field}</td>
                       <td className="p-3">{purpose}</td>
                       <td className="p-3 hidden md:table-cell text-black/50 dark:text-white/50">
                         {retention}

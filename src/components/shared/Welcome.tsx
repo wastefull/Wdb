@@ -43,7 +43,7 @@ export function Welcome({ user, materials, onViewProfile }: WelcomeProps) {
         </p>
       </div>
 
-      <p className="text-[11px] text-black/50 dark:text-white/50">
+      <p className="text-sm text-black/50 dark:text-white/50">
         Can&apos;t find a material? Type its name to submit it from search
         suggestions.
       </p>

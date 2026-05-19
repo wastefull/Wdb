@@ -121,7 +121,7 @@ export function SubmitArticleForm({
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div className="bg-waste-recycle dark:bg-[#3a3825] border border-[#211f1c] dark:border-white/20 rounded-md p-3 mb-4">
-            <p className="text-[11px] normal">
+            <p className="text-sm normal">
               📝 <strong>Note:</strong> Your article will be reviewed by an
               admin before publication. You can use Markdown formatting in the
               content field.
@@ -194,7 +194,7 @@ export function SubmitArticleForm({
 
           {selectedMaterial && (
             <div className="bg-waste-reuse/30 dark:bg-[#2a3235]/30 border border-[#211f1c]/20 dark:border-white/10 rounded-md p-2">
-              <p className="text-[10px] text-black/70 dark:text-white/70">
+              <p className="text-xs text-black/70 dark:text-white/70">
                 <strong>Selected:</strong> {selectedMaterial.name} (
                 {selectedMaterial.category})
               </p>
@@ -204,7 +204,7 @@ export function SubmitArticleForm({
           <div>
             <Label htmlFor="article-content" className="text-[12px] normal">
               Article Content *{" "}
-              <span className="text-[10px] text-black/50 dark:text-white/50">
+              <span className="text-xs text-black/50 dark:text-white/50">
                 (Markdown supported)
               </span>
             </Label>
@@ -213,11 +213,11 @@ export function SubmitArticleForm({
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="Write your article here using Markdown formatting...&#10;&#10;## Example Heading&#10;&#10;Here's some **bold text** and *italic text*.&#10;&#10;- Bullet point 1&#10;- Bullet point 2"
-              className="mt-1 text-[11px] min-h-[300px]"
+              className="mt-1 text-sm min-h-[300px]"
               rows={15}
               required
             />
-            <p className="mt-1 text-[10px] text-black/50 dark:text-white/50">
+            <p className="mt-1 text-xs text-black/50 dark:text-white/50">
               Use **bold**, *italic*, headings (##), lists (-), and links
               ([text](url))
             </p>

@@ -198,13 +198,13 @@ export function ReviewModal({
     return (
       <div className="space-y-3">
         <div className="card-muted">
-          <p className="text-[11px] text-black/70 dark:text-white/70 mb-1">
+          <p className="text-sm text-black/70 dark:text-white/70 mb-1">
             <strong>Name:</strong>
           </p>
           <p className="text-[13px] normal">{submission.content_data.name}</p>
         </div>
         <div className="card-muted">
-          <p className="text-[11px] text-black/70 dark:text-white/70 mb-1">
+          <p className="text-sm text-black/70 dark:text-white/70 mb-1">
             <strong>Category:</strong>
           </p>
           <p className="text-[13px] normal">
@@ -213,7 +213,7 @@ export function ReviewModal({
         </div>
         {submission.content_data.description && (
           <div className="card-muted">
-            <p className="text-[11px] text-black/70 dark:text-white/70 mb-1">
+            <p className="text-sm text-black/70 dark:text-white/70 mb-1">
               <strong>Description:</strong>
             </p>
             <p className="text-[13px] normal">
@@ -224,7 +224,7 @@ export function ReviewModal({
         {submission.type === "edit_material" &&
           submission.content_data.change_reason && (
             <div className="bg-waste-recycle dark:bg-[#3a3825] border border-[#211f1c] dark:border-white/20 rounded-md p-3">
-              <p className="text-[11px] normal mb-1">
+              <p className="text-sm normal mb-1">
                 <strong>Reason for Change:</strong>
               </p>
               <p className="text-[12px] normal">
@@ -278,13 +278,13 @@ export function ReviewModal({
     return (
       <div className="space-y-3">
         <div className="card-muted">
-          <p className="text-[11px] text-black/70 dark:text-white/70 mb-1">
+          <p className="text-sm text-black/70 dark:text-white/70 mb-1">
             <strong>Title:</strong>
           </p>
           <p className="text-[13px] normal">{submission.content_data.title}</p>
         </div>
         <div className="card-muted">
-          <p className="text-[11px] text-black/70 dark:text-white/70 mb-1">
+          <p className="text-sm text-black/70 dark:text-white/70 mb-1">
             <strong>Category:</strong>
           </p>
           <p className="text-[13px] normal">
@@ -293,7 +293,7 @@ export function ReviewModal({
         </div>
         {submission.content_data.content && (
           <div className="card-muted max-h-[400px] overflow-y-auto">
-            <p className="text-[11px] text-black/70 dark:text-white/70 mb-2">
+            <p className="text-sm text-black/70 dark:text-white/70 mb-2">
               <strong>Content:</strong>
             </p>
             {typeof submission.content_data.content === "object" ? (
@@ -301,7 +301,7 @@ export function ReviewModal({
                 <GuideRenderer content={submission.content_data.content} />
               </div>
             ) : (
-              <pre className="text-[11px] normal whitespace-pre-wrap">
+              <pre className="text-sm normal whitespace-pre-wrap">
                 {submission.content_data.content}
               </pre>
             )}
@@ -333,7 +333,7 @@ export function ReviewModal({
           {!action ? (
             <div className="space-y-6">
               <div className="mb-4">
-                <p className="text-[11px] text-black/60 dark:text-white/60 mb-4">
+                <p className="text-sm text-black/60 dark:text-white/60 mb-4">
                   Submitted {new Date(submission.created_at).toLocaleString()}
                 </p>
                 {(submission.type === "new_material" ||
@@ -355,7 +355,7 @@ export function ReviewModal({
                       <CheckCircle size={16} className="text-black" />
                       <span className="text-[13px] text-black">Approve</span>
                     </div>
-                    <p className="text-[10px] text-black/70">
+                    <p className="text-xs text-black/70">
                       Accept and publish as-is
                     </p>
                   </button>
@@ -370,7 +370,7 @@ export function ReviewModal({
                         Edit Directly
                       </span>
                     </div>
-                    <p className="text-[10px] text-black/70">
+                    <p className="text-xs text-black/70">
                       Make changes and publish
                     </p>
                   </button>
@@ -385,7 +385,7 @@ export function ReviewModal({
                         Suggest Edits
                       </span>
                     </div>
-                    <p className="text-[10px] text-black/70">
+                    <p className="text-xs text-black/70">
                       Request revisions from submitter
                     </p>
                   </button>
@@ -398,7 +398,7 @@ export function ReviewModal({
                       <XCircle size={16} className="text-black" />
                       <span className="text-[13px] text-black">Reject</span>
                     </div>
-                    <p className="text-[10px] text-black/70">
+                    <p className="text-xs text-black/70">
                       Decline with feedback
                     </p>
                   </button>
@@ -410,7 +410,7 @@ export function ReviewModal({
               {action === "edit" && (
                 <>
                   <div className="bg-waste-reuse dark:bg-[#2a3235] border border-[#211f1c] dark:border-white/20 rounded-md p-3 mb-4">
-                    <p className="text-[11px] normal">
+                    <p className="text-sm normal">
                       ✏️ <strong>Edit Mode:</strong> Make your changes below.
                       You'll be credited as editor.
                     </p>

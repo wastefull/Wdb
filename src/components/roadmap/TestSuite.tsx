@@ -27,7 +27,7 @@ interface TestResult {
 export function TestSuite() {
   const { user } = useAuthContext();
   const [testResults, setTestResults] = useState<Record<string, TestResult>>(
-    {}
+    {},
   );
   const [runningAll, setRunningAll] = useState(false);
   const [selectedPhases, setSelectedPhases] = useState<Set<string>>(new Set());
@@ -61,7 +61,7 @@ export function TestSuite() {
     testFn: () => Promise<{
       success: boolean;
       message: string;
-    }>
+    }>,
   ) => {
     setTestResults((prev) => ({
       ...prev,
@@ -111,10 +111,10 @@ export function TestSuite() {
       selectedPhases.size === 0
         ? ""
         : selectedPhases.size === uniquePhases.length
-        ? ""
-        : ` (${selectedPhases.size} phase${
-            selectedPhases.size > 1 ? "s" : ""
-          })`;
+          ? ""
+          : ` (${selectedPhases.size} phase${
+              selectedPhases.size > 1 ? "s" : ""
+            })`;
     toast.success(`All tests completed${phaseText}`);
   };
 
@@ -159,10 +159,10 @@ export function TestSuite() {
 
   const totalTests = filteredTests.length;
   const passedTests = filteredTests.filter(
-    (t) => testResults[t.id]?.status === "success"
+    (t) => testResults[t.id]?.status === "success",
   ).length;
   const failedTests = filteredTests.filter(
-    (t) => testResults[t.id]?.status === "error"
+    (t) => testResults[t.id]?.status === "error",
   ).length;
 
   const copyFailedTests = async () => {
@@ -195,7 +195,7 @@ export function TestSuite() {
       "Result",
     ];
     const rows = failedTestData.map((test) =>
-      headers.map((header) => test[header as keyof typeof test]).join("\t")
+      headers.map((header) => test[header as keyof typeof test]).join("\t"),
     );
     const text = [headers.join("\t"), ...rows].join("\n");
 
@@ -214,7 +214,7 @@ export function TestSuite() {
 
       if (successful) {
         toast.success(
-          `Copied ${failedTestData.length} failed test(s) to clipboard`
+          `Copied ${failedTestData.length} failed test(s) to clipboard`,
         );
       } else {
         toast.error("Failed to copy to clipboard");
@@ -268,7 +268,7 @@ export function TestSuite() {
                   <button
                     key={phase}
                     onClick={() => togglePhase(phase)}
-                    className={`px-3 py-1.5 text-[11px] font-['Sniglet'] rounded-md border-2 transition-all ${
+                    className={`px-3 py-1.5 text-sm font-['Sniglet'] rounded-md border-2 transition-all ${
                       selectedPhases.has(phase)
                         ? "bg-[#bae1ff] border-[#9dd1ff] text-black shadow-sm translate-y-0"
                         : "bg-background border-border text-muted-foreground hover:border-[#bae1ff] hover:text-foreground translate-y-0 hover:-translate-y-0.5"
@@ -375,14 +375,14 @@ export function TestSuite() {
                         </div>
                       </td>
                       <td className="p-4">
-                        <span className="font-['Sniglet'] text-[11px] text-muted-foreground">
+                        <span className="font-['Sniglet'] text-sm text-muted-foreground">
                           {test.phase}
                         </span>
                       </td>
                       <td className="p-4">
                         <Badge
                           variant="outline"
-                          className="font-['Sniglet'] text-[10px]"
+                          className="font-['Sniglet'] text-xs"
                         >
                           {test.category}
                         </Badge>

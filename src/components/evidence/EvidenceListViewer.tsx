@@ -101,10 +101,10 @@ export function EvidenceListViewer({
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMaterial, setSelectedMaterial] = useState<string>(
-    materialFilter || "all"
+    materialFilter || "all",
   );
   const [selectedParameter, setSelectedParameter] = useState<string>(
-    parameterFilter || "all"
+    parameterFilter || "all",
   );
   const [selectedMIU, setSelectedMIU] = useState<MIU | null>(null);
 
@@ -138,7 +138,7 @@ export function EvidenceListViewer({
           headers: {
             Authorization: `Bearer ${publicAnonKey}`,
           },
-        }
+        },
       );
 
       if (response.ok) {
@@ -173,7 +173,7 @@ export function EvidenceListViewer({
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
-        }
+        },
       );
 
       if (response.ok) {
@@ -223,7 +223,7 @@ export function EvidenceListViewer({
             unit: editForm.unit || null,
             notes: editForm.notes || null,
           }),
-        }
+        },
       );
 
       if (response.ok) {
@@ -255,7 +255,7 @@ export function EvidenceListViewer({
           headers: {
             Authorization: `Bearer ${publicAnonKey}`,
           },
-        }
+        },
       );
 
       if (response.ok) {
@@ -296,7 +296,7 @@ export function EvidenceListViewer({
             Authorization: `Bearer ${accessToken}`,
           },
           body: JSON.stringify({ evidenceIds: idsToDelete }),
-        }
+        },
       );
 
       if (response.ok) {
@@ -404,8 +404,8 @@ export function EvidenceListViewer({
                   {PILOT_MATERIALS.filter((mat) =>
                     mius.some(
                       (m) =>
-                        m.material_id.toLowerCase() === mat.id.toLowerCase()
-                    )
+                        m.material_id.toLowerCase() === mat.id.toLowerCase(),
+                    ),
                   ).map((mat) => (
                     <SelectItem key={mat.id} value={mat.id}>
                       {mat.name}
@@ -416,8 +416,8 @@ export function EvidenceListViewer({
                     .filter(
                       (id) =>
                         !PILOT_MATERIALS.some(
-                          (p) => p.id.toLowerCase() === id.toLowerCase()
-                        )
+                          (p) => p.id.toLowerCase() === id.toLowerCase(),
+                        ),
                     )
                     .sort()
                     .map((id) => (
@@ -513,20 +513,20 @@ export function EvidenceListViewer({
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
-                        <Badge className="bg-[#bae1ff] text-black border-[#211f1c] font-['Sniglet'] text-[10px]">
+                        <Badge className="bg-[#bae1ff] text-black border-[#211f1c] font-['Sniglet'] text-xs">
                           {getMaterialName(miu.material_id)}
                         </Badge>
                         <Badge
                           variant="outline"
-                          className="border-[#211f1c] dark:border-white/20 font-['Sniglet'] text-[10px]"
+                          className="border-[#211f1c] dark:border-white/20 font-['Sniglet'] text-xs"
                         >
                           {miu.parameter_code} -{" "}
                           {getParameterName(miu.parameter_code)}
                         </Badge>
                         <Badge
                           className={`${getConfidenceBadge(
-                            miu.confidence_level
-                          )} font-['Sniglet'] text-[10px]`}
+                            miu.confidence_level,
+                          )} font-['Sniglet'] text-xs`}
                         >
                           {miu.confidence_level}
                         </Badge>
@@ -588,8 +588,8 @@ export function EvidenceListViewer({
                               </Label>
                               <Badge
                                 className={`${getConfidenceBadge(
-                                  miu.confidence_level
-                                )} font-['Sniglet'] text-[10px]`}
+                                  miu.confidence_level,
+                                )} font-['Sniglet'] text-xs`}
                               >
                                 {miu.confidence_level}
                               </Badge>
@@ -982,7 +982,7 @@ export function EvidenceListViewer({
               <p className="font-['Sniglet'] text-[12px] text-red-600 dark:text-red-300 mt-2">
                 Current filters:
               </p>
-              <ul className="font-['Sniglet'] text-[11px] text-red-600 dark:text-red-300 mt-1 ml-4 list-disc">
+              <ul className="font-['Sniglet'] text-sm text-red-600 dark:text-red-300 mt-1 ml-4 list-disc">
                 <li>
                   Material:{" "}
                   {selectedMaterial === "all" ? "All" : selectedMaterial}

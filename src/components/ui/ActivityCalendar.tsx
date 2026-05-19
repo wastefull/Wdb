@@ -86,7 +86,7 @@ export function ActivityCalendar({
   return (
     <div className="activity-calendar overflow-x-auto pb-2">
       {/* Month labels */}
-      <div className="flex gap-0.5 mb-2 text-[10px] text-black/60 dark:text-white/60">
+      <div className="flex gap-0.5 mb-2 text-xs text-black/60 dark:text-white/60">
         {months.map((month, i) => {
           const nextOffset =
             i < months.length - 1 ? months[i + 1].offset : weeks.length;
@@ -132,7 +132,7 @@ export function ActivityCalendar({
       </div>
 
       {/* Legend */}
-      <div className="flex items-center gap-2 mt-3 text-[10px] text-black/60 dark:text-white/60">
+      <div className="flex items-center gap-2 mt-3 text-xs text-black/60 dark:text-white/60">
         <span>Less</span>
         <div className="flex gap-0.5">
           {[0, 1, 2, 3, 4].map((level) => (

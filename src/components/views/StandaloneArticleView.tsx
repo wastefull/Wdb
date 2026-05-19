@@ -336,11 +336,11 @@ export function StandaloneArticleView({
 
             {/* Footer: date, editor credit, permalink */}
             <div className="pt-4 border-t border-[#211f1c]/20 dark:border-white/20 space-y-1">
-              <p className="text-[11px] text-black/50 dark:text-white/50">
+              <p className="text-sm text-black/50 dark:text-white/50">
                 Added: {new Date(article.dateAdded).toLocaleDateString()}
               </p>
               {editorName && (
-                <p className="text-[11px] text-black/40 dark:text-white/40 italic">
+                <p className="text-sm text-black/40 dark:text-white/40 italic">
                   Edited by {editorName}
                 </p>
               )}

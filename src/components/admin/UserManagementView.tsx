@@ -201,7 +201,7 @@ export function UserManagementView({
                   <TableCell className="text-[12px] normal">
                     {user.email}
                     {user.id === currentUserId && (
-                      <span className="ml-2 text-[10px] text-black/50 dark:text-white/50">
+                      <span className="ml-2 text-xs text-black/50 dark:text-white/50">
                         (You)
                       </span>
                     )}
@@ -222,7 +222,7 @@ export function UserManagementView({
                       }
                       disabled={user.id === currentUserId}
                     >
-                      <SelectTrigger className="w-[100px] h-8 text-[11px]">
+                      <SelectTrigger className="w-[100px] h-8 text-sm">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -247,10 +247,10 @@ export function UserManagementView({
                       </SelectContent>
                     </Select>
                   </TableCell>
-                  <TableCell className="text-[11px] text-black/70 dark:text-white/70">
+                  <TableCell className="text-sm text-black/70 dark:text-white/70">
                     {formatDate(user.created_at)}
                   </TableCell>
-                  <TableCell className="text-[11px] text-black/70 dark:text-white/70">
+                  <TableCell className="text-sm text-black/70 dark:text-white/70">
                     {formatDate(user.last_sign_in_at)}
                   </TableCell>
                   <TableCell className="text-right">

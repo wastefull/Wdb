@@ -375,28 +375,28 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
                         key={log.id}
                         className="border-t border-[#211f1c]/20 dark:border-white/20 hover:bg-[#e8f4f8] dark:hover:bg-[#2d2b28] transition-colors"
                       >
-                        <td className="px-4 py-3 font-['Sniglet'] text-[11px]">
+                        <td className="px-4 py-3 font-['Sniglet'] text-sm">
                           {new Date(log.timestamp).toLocaleString()}
                         </td>
-                        <td className="px-4 py-3 font-['Sniglet'] text-[11px]">
+                        <td className="px-4 py-3 font-['Sniglet'] text-sm">
                           {log.userEmail}
                         </td>
                         <td className="px-4 py-3">
                           <span
-                            className={`inline-block px-2 py-1 rounded-md border font-['Sniglet'] text-[10px] ${getActionColor(
+                            className={`inline-block px-2 py-1 rounded-md border font-['Sniglet'] text-xs ${getActionColor(
                               log.action,
                             )}`}
                           >
                             {log.action}
                           </span>
                         </td>
-                        <td className="px-4 py-3 font-['Sniglet'] text-[11px]">
+                        <td className="px-4 py-3 font-['Sniglet'] text-sm">
                           {log.entityType}
                         </td>
-                        <td className="px-4 py-3 font-['Sniglet'] text-[11px]">
+                        <td className="px-4 py-3 font-['Sniglet'] text-sm">
                           {log.entityId.slice(0, 20)}...
                         </td>
-                        <td className="px-4 py-3 font-['Sniglet'] text-[11px]">
+                        <td className="px-4 py-3 font-['Sniglet'] text-sm">
                           {log.changes.length} change
                           {log.changes.length !== 1 ? "s" : ""}
                         </td>
@@ -470,7 +470,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
                   <p className="font-['Sniglet'] text-[14px]">
                     {selectedLog.userEmail}
                   </p>
-                  <p className="font-['Sniglet'] text-[11px] text-black/40 dark:text-white/40">
+                  <p className="font-['Sniglet'] text-sm text-black/40 dark:text-white/40">
                     {selectedLog.userId}
                   </p>
                 </div>
@@ -507,7 +507,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
                 {selectedLog.before && (
                   <div>
                     <h3 className="label-muted mb-1">Before</h3>
-                    <pre className="bg-[#e8f4f8] dark:bg-[#2d2b28] p-3 rounded-md font-['Sniglet'] text-[10px] overflow-x-auto">
+                    <pre className="bg-[#e8f4f8] dark:bg-[#2d2b28] p-3 rounded-md font-['Sniglet'] text-xs overflow-x-auto">
                       {JSON.stringify(selectedLog.before, null, 2)}
                     </pre>
                   </div>
@@ -516,7 +516,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
                 {selectedLog.after && (
                   <div>
                     <h3 className="label-muted mb-1">After</h3>
-                    <pre className="bg-[#e8f4f8] dark:bg-[#2d2b28] p-3 rounded-md font-['Sniglet'] text-[10px] overflow-x-auto">
+                    <pre className="bg-[#e8f4f8] dark:bg-[#2d2b28] p-3 rounded-md font-['Sniglet'] text-xs overflow-x-auto">
                       {JSON.stringify(selectedLog.after, null, 2)}
                     </pre>
                   </div>

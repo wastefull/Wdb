@@ -47,7 +47,7 @@ export function PageFooter() {
           </motion.div>
         </div>
 
-        <p className="text-[11px] md:text-[12px] text-black/60 dark:text-white/60 max-w-3xl mx-auto px-4">
+        <p className="text-sm md:text-[12px] text-black/60 dark:text-white/60 max-w-3xl mx-auto px-4">
           <a
             href="https://wastefull.org"
             target="_blank"

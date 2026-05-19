@@ -206,7 +206,7 @@ export function SearchBar({
                   {suggestion.value}
                 </div>
                 {suggestion.subtitle && (
-                  <div className="text-[11px] text-black/55 dark:text-white/55 truncate mt-0.5">
+                  <div className="text-sm text-black/55 dark:text-white/55 truncate mt-0.5">
                     {suggestion.subtitle}
                   </div>
                 )}

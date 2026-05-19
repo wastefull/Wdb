@@ -281,7 +281,7 @@ export function CategoriesView({ onBack }: CategoriesViewProps) {
                     <span className="flex-1 font-sniglet text-[13px]">
                       {cat.name}
                     </span>
-                    <span className="font-mono text-[10px] text-black/30 dark:text-white/30 shrink-0">
+                    <span className="font-mono text-xs text-black/30 dark:text-white/30 shrink-0">
                       {cat.id}
                     </span>
                     <button
@@ -361,7 +361,7 @@ export function CategoriesView({ onBack }: CategoriesViewProps) {
           {/* Deleted categories */}
           {deleted.length > 0 && (
             <div className="space-y-2">
-              <p className="text-[11px] text-black/40 dark:text-white/40 uppercase tracking-wide font-sniglet px-1">
+              <p className="text-sm text-black/40 dark:text-white/40 uppercase tracking-wide font-sniglet px-1">
                 Deleted Categories
               </p>
               <div className="retro-card divide-y divide-[#211f1c]/8 dark:divide-white/8 opacity-60">
@@ -377,7 +377,7 @@ export function CategoriesView({ onBack }: CategoriesViewProps) {
                     <span className="flex-1 font-sniglet text-[13px] line-through text-black/50 dark:text-white/50">
                       {cat.name}
                     </span>
-                    <span className="font-mono text-[10px] text-black/20 dark:text-white/20 shrink-0">
+                    <span className="font-mono text-xs text-black/20 dark:text-white/20 shrink-0">
                       {cat.id}
                     </span>
                     <button
@@ -397,12 +397,12 @@ export function CategoriesView({ onBack }: CategoriesViewProps) {
           {/* Migration tool */}
           <div className="retro-card p-4 space-y-2">
             <p className="text-[12px] font-sniglet">Material Migration</p>
-            <p className="text-[11px] text-black/50 dark:text-white/50">
+            <p className="text-sm text-black/50 dark:text-white/50">
               Populate the stable{" "}
-              <code className="font-mono text-[10px]">categoryId</code> field on
-              all existing material records. Run this once after the initial
-              deploy, and again after any renames to ensure filters work
-              correctly for legacy materials.
+              <code className="font-mono text-xs">categoryId</code> field on all
+              existing material records. Run this once after the initial deploy,
+              and again after any renames to ensure filters work correctly for
+              legacy materials.
             </p>
             <button
               onClick={handleMigrate}

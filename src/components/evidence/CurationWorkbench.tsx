@@ -137,7 +137,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
   const [sources, setSources] = useState<any[]>([]);
   const [loadingSources, setLoadingSources] = useState(true);
   const [unitsOntology, setUnitsOntology] = useState<UnitsOntology | null>(
-    null
+    null,
   );
   const [unitValidationError, setUnitValidationError] = useState<string>("");
 
@@ -169,8 +169,8 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
     (m) =>
       m?.name &&
       PILOT_MATERIAL_PATTERNS.some((pattern) =>
-        m.name.toLowerCase().includes(pattern)
-      )
+        m.name.toLowerCase().includes(pattern),
+      ),
   );
 
   // Load sources for the source viewer
@@ -187,7 +187,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
           headers: {
             Authorization: `Bearer ${publicAnonKey}`,
           },
-        }
+        },
       );
 
       if (response.ok) {
@@ -220,7 +220,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
           headers: {
             Authorization: `Bearer ${publicAnonKey}`,
           },
-        }
+        },
       );
 
       if (response.ok) {
@@ -253,7 +253,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
       setUnitValidationError(
         `Invalid unit for parameter ${
           formData.parameter_code
-        }. Allowed units: ${parameterDef.allowed_units.join(", ")}`
+        }. Allowed units: ${parameterDef.allowed_units.join(", ")}`,
       );
     } else {
       setUnitValidationError("");
@@ -317,7 +317,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
             table_number: formData.table_number || null,
             dimension: "CR",
           }),
-        }
+        },
       );
 
       const data = await response.json();
@@ -424,8 +424,8 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                       isCompleted
                         ? "bg-[#a8d5ba] border-[#211f1c] dark:border-white"
                         : isActive
-                        ? "bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]"
-                        : "bg-[#e5e4dc] dark:bg-[#3a3835] border-[#211f1c]/20 dark:border-white/20"
+                          ? "bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]"
+                          : "bg-[#e5e4dc] dark:bg-[#3a3835] border-[#211f1c]/20 dark:border-white/20"
                     }`}
                   >
                     {isCompleted ? (
@@ -436,14 +436,14 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                   </div>
                   <div className="text-left hidden md:block">
                     <div
-                      className={`font-['Tilt_Warp'] text-[11px] ${
+                      className={`font-['Tilt_Warp'] text-sm ${
                         isActive ? "normal" : "text-black/40 dark:text-white/40"
                       }`}
                     >
                       Step {step.number}
                     </div>
                     <div
-                      className={`font-['Sniglet'] text-[10px] ${
+                      className={`font-['Sniglet'] text-xs ${
                         isActive ? "normal" : "text-black/40 dark:text-white/40"
                       }`}
                     >
@@ -623,7 +623,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                               onClick={() =>
                                 window.open(
                                   `https://doi.org/${selectedSource.doi}`,
-                                  "_blank"
+                                  "_blank",
                                 )
                               }
                               title="Open via DOI"
@@ -658,7 +658,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                               size={14}
                               className="text-black/60 dark:text-white/60"
                             />
-                            <span className="font-['Tilt_Warp'] text-[10px] normal">
+                            <span className="font-['Tilt_Warp'] text-xs normal">
                               Find Relevant Passages
                             </span>
                           </div>
@@ -667,10 +667,10 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                               value={scanParameter}
                               onChange={(e) =>
                                 setScanParameter(
-                                  e.target.value as ParameterCode | ""
+                                  e.target.value as ParameterCode | "",
                                 )
                               }
-                              className="h-7 px-2 text-[10px] font-['Sniglet'] bg-white dark:bg-[#1a1917] border border-[#211f1c]/20 dark:border-white/20 rounded"
+                              className="h-7 px-2 text-xs font-['Sniglet'] bg-white dark:bg-[#1a1917] border border-[#211f1c]/20 dark:border-white/20 rounded"
                             >
                               <option value="">Select parameter...</option>
                               <option value="Y">Y - Years to Degrade</option>
@@ -682,23 +682,23 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                             <Button
                               variant="outline"
                               size="sm"
-                              className="h-7 text-[10px]"
+                              className="h-7 text-xs"
                               disabled={!scanParameter || pdfPages.length === 0}
                               onClick={() => {
                                 if (scanParameter && pdfPages.length > 0) {
                                   const matches = scanPdfForMatches(
                                     pdfPages,
-                                    scanParameter as ParameterCode
+                                    scanParameter as ParameterCode,
                                   );
                                   setKeywordMatches(matches);
                                   setMatchesExpanded(true);
                                   if (matches.length === 0) {
                                     toast.info(
-                                      `No matches found for ${scanParameter} keywords`
+                                      `No matches found for ${scanParameter} keywords`,
                                     );
                                   } else {
                                     toast.success(
-                                      `Found ${matches.length} potential matches`
+                                      `Found ${matches.length} potential matches`,
                                     );
                                   }
                                 }
@@ -724,7 +724,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                               }
                               className="w-full flex items-center justify-between p-2 hover:bg-[#f5f5f0] dark:hover:bg-[#2a2825] transition-colors"
                             >
-                              <span className="font-['Tilt_Warp'] text-[10px] normal flex items-center gap-1">
+                              <span className="font-['Tilt_Warp'] text-xs normal flex items-center gap-1">
                                 <Target size={12} className="text-[#a8d5ba]" />
                                 Keyword Matches ({keywordMatches.length})
                               </span>
@@ -737,7 +737,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                             {matchesExpanded && (
                               <div className="max-h-[150px] overflow-y-auto border-t border-[#211f1c]/10 dark:border-white/10">
                                 {Array.from(
-                                  groupMatchesByPage(keywordMatches).entries()
+                                  groupMatchesByPage(keywordMatches).entries(),
                                 ).map(([pageNum, pageMatches]) => (
                                   <div
                                     key={pageNum}
@@ -756,7 +756,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                                           // Get unique keywords for this page
                                           const keywords = [
                                             ...new Set(
-                                              pageMatches.map((m) => m.keyword)
+                                              pageMatches.map((m) => m.keyword),
                                             ),
                                           ];
                                           setHighlightKeywords(keywords);
@@ -772,7 +772,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                                         .map(
                                           (
                                             match: KeywordMatch,
-                                            idx: number
+                                            idx: number,
                                           ) => (
                                             <div
                                               key={idx}
@@ -782,7 +782,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                                                   match.keyword,
                                                 ]);
                                                 setGoToPageRequest(
-                                                  match.pageNumber
+                                                  match.pageNumber,
                                                 );
                                               }}
                                             >
@@ -793,7 +793,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                                                 ...{match.context}...
                                               </span>
                                             </div>
-                                          )
+                                          ),
                                         )}
                                       {pageMatches.length > 3 && (
                                         <span className="text-[8px] text-black/40 dark:text-white/40 pl-1">
@@ -826,7 +826,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                                 page_number: pageNumber.toString(),
                               }));
                               toast.success(
-                                `Text copied to snippet field (Page ${pageNumber})`
+                                `Text copied to snippet field (Page ${pageNumber})`,
                               );
                             }}
                             onPageChange={(pageNumber) => {
@@ -851,11 +851,11 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="h-7 text-[10px]"
+                                className="h-7 text-xs"
                                 onClick={() =>
                                   window.open(
                                     `https://doi.org/${selectedSource.doi}`,
-                                    "_blank"
+                                    "_blank",
                                   )
                                 }
                               >
@@ -867,7 +867,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="h-7 text-[10px]"
+                                className="h-7 text-xs"
                                 onClick={() =>
                                   window.open(selectedSource.url, "_blank")
                                 }
@@ -880,13 +880,14 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="h-7 text-[10px]"
+                                className="h-7 text-xs"
                                 onClick={() =>
                                   window.open(
                                     `https://scholar.google.com/scholar?q=${encodeURIComponent(
-                                      selectedSource.doi || selectedSource.title
+                                      selectedSource.doi ||
+                                        selectedSource.title,
                                     )}`,
-                                    "_blank"
+                                    "_blank",
                                   )
                                 }
                               >
@@ -898,10 +899,10 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
 
                           {/* Abstract */}
                           <div>
-                            <Label className="font-['Tilt_Warp'] text-[10px] text-black/60 dark:text-white/60">
+                            <Label className="font-['Tilt_Warp'] text-xs text-black/60 dark:text-white/60">
                               ABSTRACT / SUMMARY
                             </Label>
-                            <p className="font-['Sniglet'] text-[11px] normal mt-2 leading-relaxed">
+                            <p className="font-['Sniglet'] text-sm normal mt-2 leading-relaxed">
                               {selectedSource.abstract ||
                                 selectedSource.summary ||
                                 "No abstract available. Use the buttons above to access the full document."}
@@ -910,7 +911,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
 
                           {/* No PDF helper */}
                           <div className="p-3 bg-[#fff9e6] dark:bg-[#3a3220] border border-[#f4d5a6] dark:border-[#5a4820] rounded-md space-y-2">
-                            <p className="font-['Sniglet'] text-[10px] text-black/80 dark:text-white/80">
+                            <p className="font-['Sniglet'] text-xs text-black/80 dark:text-white/80">
                               💡 <strong>No PDF uploaded yet.</strong>
                             </p>
                             <p className="font-['Sniglet'] text-[9px] text-black/60 dark:text-white/60">
@@ -956,7 +957,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                 <div className="space-y-4">
                   <div className="flex items-center gap-2">
                     <div
-                      className={`w-6 h-6 rounded-full border flex items-center justify-center text-[11px] font-['Tilt_Warp'] ${
+                      className={`w-6 h-6 rounded-full border flex items-center justify-center text-sm font-['Tilt_Warp'] ${
                         selectedSource
                           ? "bg-[#a8d5ba] border-[#211f1c] text-black"
                           : "border-[#211f1c]/40 text-black/40 dark:text-white/40"
@@ -975,18 +976,18 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                         <CardTitle className="font-['Tilt_Warp'] text-[14px]">
                           {selectedSource.title || "Untitled Source"}
                         </CardTitle>
-                        <CardDescription className="font-['Sniglet'] text-[11px]">
+                        <CardDescription className="font-['Sniglet'] text-sm">
                           {selectedSource.authors || selectedSource.citation}
                         </CardDescription>
                       </CardHeader>
                       <CardContent className="space-y-3">
                         {selectedSource.year && (
                           <div className="flex items-center gap-2">
-                            <Badge variant="secondary" className="text-[10px]">
+                            <Badge variant="secondary" className="text-xs">
                               {selectedSource.year}
                             </Badge>
                             {selectedSource.type && (
-                              <Badge variant="outline" className="text-[10px]">
+                              <Badge variant="outline" className="text-xs">
                                 {selectedSource.type}
                               </Badge>
                             )}
@@ -994,17 +995,17 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                         )}
                         {selectedSource.abstract && (
                           <div>
-                            <Label className="font-['Tilt_Warp'] text-[10px] text-black/60 dark:text-white/60">
+                            <Label className="font-['Tilt_Warp'] text-xs text-black/60 dark:text-white/60">
                               ABSTRACT
                             </Label>
-                            <p className="font-['Sniglet'] text-[11px] text-black/80 dark:text-white/80 mt-1 line-clamp-4">
+                            <p className="font-['Sniglet'] text-sm text-black/80 dark:text-white/80 mt-1 line-clamp-4">
                               {selectedSource.abstract}
                             </p>
                           </div>
                         )}
                         {selectedSource.doi && (
                           <div>
-                            <Label className="font-['Tilt_Warp'] text-[10px] text-black/60 dark:text-white/60">
+                            <Label className="font-['Tilt_Warp'] text-xs text-black/60 dark:text-white/60">
                               DOI
                             </Label>
                             <div className="flex items-center gap-2 mt-1">
@@ -1012,7 +1013,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                                 href={`https://doi.org/${selectedSource.doi}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="font-['Sniglet'] text-[11px] text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+                                className="font-['Sniglet'] text-sm text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
                               >
                                 {selectedSource.doi}
                                 <ExternalLink size={10} />
@@ -1081,7 +1082,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                 >
                   <div className="flex items-center gap-2">
                     <div
-                      className={`w-6 h-6 rounded-full border flex items-center justify-center text-[11px] font-['Tilt_Warp'] ${
+                      className={`w-6 h-6 rounded-full border flex items-center justify-center text-sm font-['Tilt_Warp'] ${
                         formData.material_id
                           ? "bg-[#a8d5ba] border-[#211f1c] text-black"
                           : "border-[#211f1c]/40 text-black/40 dark:text-white/40"
@@ -1128,7 +1129,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                 >
                   <div className="flex items-center gap-2">
                     <div
-                      className={`w-6 h-6 rounded-full border flex items-center justify-center text-[11px] font-['Tilt_Warp'] ${
+                      className={`w-6 h-6 rounded-full border flex items-center justify-center text-sm font-['Tilt_Warp'] ${
                         formData.parameter_code
                           ? "bg-[#a8d5ba] border-[#211f1c] text-black"
                           : "border-[#211f1c]/40 text-black/40 dark:text-white/40"
@@ -1157,7 +1158,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                             <div className="font-medium">
                               {param.code} - {param.name}
                             </div>
-                            <div className="text-[10px] text-muted-foreground">
+                            <div className="text-xs text-muted-foreground">
                               {param.description}
                             </div>
                           </div>
@@ -1177,7 +1178,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                 >
                   <div className="flex items-center gap-2">
                     <div
-                      className={`w-6 h-6 rounded-full border flex items-center justify-center text-[11px] font-['Tilt_Warp'] ${
+                      className={`w-6 h-6 rounded-full border flex items-center justify-center text-sm font-['Tilt_Warp'] ${
                         formData.raw_value &&
                         formData.raw_unit &&
                         formData.snippet
@@ -1195,7 +1196,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                   <div className="space-y-2">
                     <Label
                       htmlFor="snippet"
-                      className="font-['Sniglet'] text-[11px]"
+                      className="font-['Sniglet'] text-sm"
                     >
                       Text Snippet
                     </Label>
@@ -1208,9 +1209,9 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                       }
                       disabled={currentStep !== 4}
                       rows={4}
-                      className="font-['Sniglet'] text-[11px]"
+                      className="font-['Sniglet'] text-sm"
                     />
-                    <p className="text-[10px] text-muted-foreground font-['Sniglet']">
+                    <p className="text-xs text-muted-foreground font-['Sniglet']">
                       {formData.snippet.length}/250 words • Must be verbatim
                       from source
                     </p>
@@ -1220,7 +1221,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                     <div className="space-y-2">
                       <Label
                         htmlFor="raw_value"
-                        className="font-['Sniglet'] text-[11px]"
+                        className="font-['Sniglet'] text-sm"
                       >
                         Numeric Value
                       </Label>
@@ -1237,13 +1238,13 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                           })
                         }
                         disabled={currentStep !== 4}
-                        className="font-['Sniglet'] text-[11px]"
+                        className="font-['Sniglet'] text-sm"
                       />
                     </div>
                     <div className="space-y-2">
                       <Label
                         htmlFor="raw_unit"
-                        className="font-['Sniglet'] text-[11px]"
+                        className="font-['Sniglet'] text-sm"
                       >
                         Unit{" "}
                         {formData.parameter_code && unitsOntology && (
@@ -1265,7 +1266,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                           }
                           disabled={currentStep !== 4}
                         >
-                          <SelectTrigger className="w-full font-['Sniglet'] text-[11px]">
+                          <SelectTrigger className="w-full font-['Sniglet'] text-sm">
                             <SelectValue placeholder="Select unit..." />
                           </SelectTrigger>
                           <SelectContent>
@@ -1274,7 +1275,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                                 <SelectItem key={unit} value={unit}>
                                   {unit}
                                 </SelectItem>
-                              )
+                              ),
                             )}
                           </SelectContent>
                         </Select>
@@ -1290,7 +1291,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                             })
                           }
                           disabled={currentStep !== 4}
-                          className="font-['Sniglet'] text-[11px]"
+                          className="font-['Sniglet'] text-sm"
                         />
                       )}
                     </div>
@@ -1300,7 +1301,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                   {unitValidationError && currentStep === 4 && (
                     <Alert className="border-red-200 bg-red-50 dark:bg-red-950/20">
                       <AlertCircle className="size-4 text-red-600" />
-                      <AlertDescription className="font-['Sniglet'] text-[11px] text-red-800 dark:text-red-200">
+                      <AlertDescription className="font-['Sniglet'] text-sm text-red-800 dark:text-red-200">
                         {unitValidationError}
                       </AlertDescription>
                     </Alert>
@@ -1312,7 +1313,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                     currentStep === 4 &&
                     !unitValidationError && (
                       <div className="p-3 bg-[#e8f5e9] dark:bg-[#1b3a1f] border border-[#a5d6a7] dark:border-[#2e5a32] rounded-md">
-                        <p className="font-['Sniglet'] text-[10px] text-black/80 dark:text-white/80">
+                        <p className="font-['Sniglet'] text-xs text-black/80 dark:text-white/80">
                           ✅{" "}
                           <strong>
                             Valid unit for {formData.parameter_code}
@@ -1340,7 +1341,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full border border-[#211f1c]/40 flex items-center justify-center text-[11px] font-['Tilt_Warp'] text-black/40 dark:text-white/40">
+                    <div className="w-6 h-6 rounded-full border border-[#211f1c]/40 flex items-center justify-center text-sm font-['Tilt_Warp'] text-black/40 dark:text-white/40">
                       5
                     </div>
                     <Label className="font-['Tilt_Warp'] text-[13px]">
@@ -1352,7 +1353,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                     <div className="space-y-2">
                       <Label
                         htmlFor="page_number"
-                        className="font-['Sniglet'] text-[11px]"
+                        className="font-['Sniglet'] text-sm"
                       >
                         Page
                       </Label>
@@ -1368,13 +1369,13 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                           })
                         }
                         disabled={currentStep !== 5}
-                        className="font-['Sniglet'] text-[11px]"
+                        className="font-['Sniglet'] text-sm"
                       />
                     </div>
                     <div className="space-y-2">
                       <Label
                         htmlFor="figure_number"
-                        className="font-['Sniglet'] text-[11px]"
+                        className="font-['Sniglet'] text-sm"
                       >
                         Figure
                       </Label>
@@ -1389,13 +1390,13 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                           })
                         }
                         disabled={currentStep !== 5}
-                        className="font-['Sniglet'] text-[11px]"
+                        className="font-['Sniglet'] text-sm"
                       />
                     </div>
                     <div className="space-y-2">
                       <Label
                         htmlFor="table_number"
-                        className="font-['Sniglet'] text-[11px]"
+                        className="font-['Sniglet'] text-sm"
                       >
                         Table
                       </Label>
@@ -1410,7 +1411,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                           })
                         }
                         disabled={currentStep !== 5}
-                        className="font-['Sniglet'] text-[11px]"
+                        className="font-['Sniglet'] text-sm"
                       />
                     </div>
                   </div>
@@ -1418,7 +1419,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                   <div className="space-y-2">
                     <Label
                       htmlFor="confidence_level"
-                      className="font-['Sniglet'] text-[11px]"
+                      className="font-['Sniglet'] text-sm"
                     >
                       Confidence Level
                     </Label>
@@ -1445,10 +1446,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                   </div>
 
                   <div className="space-y-2">
-                    <Label
-                      htmlFor="notes"
-                      className="font-['Sniglet'] text-[11px]"
-                    >
+                    <Label htmlFor="notes" className="font-['Sniglet'] text-sm">
                       Notes (Optional)
                     </Label>
                     <Textarea
@@ -1460,7 +1458,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                       }
                       disabled={currentStep !== 5}
                       rows={3}
-                      className="font-['Sniglet'] text-[11px]"
+                      className="font-['Sniglet'] text-sm"
                     />
                   </div>
                 </div>

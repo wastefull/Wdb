@@ -196,7 +196,7 @@ export function StaffDashboard({
                   <Package size={20} className="text-waste-recycle" />
                 </div>
                 <div>
-                  <p className="text-[11px] text-black/60 dark:text-white/60 uppercase tracking-wide">
+                  <p className="text-sm text-black/60 dark:text-white/60 uppercase tracking-wide">
                     Materials
                   </p>
                   <p className="text-xl font-bold arcade-numbers">
@@ -212,7 +212,7 @@ export function StaffDashboard({
                   <FileText size={20} className="text-waste-reuse" />
                 </div>
                 <div>
-                  <p className="text-[11px] text-black/60 dark:text-white/60 uppercase tracking-wide">
+                  <p className="text-sm text-black/60 dark:text-white/60 uppercase tracking-wide">
                     Articles
                   </p>
                   <p className="text-xl font-bold arcade-numbers">
@@ -228,7 +228,7 @@ export function StaffDashboard({
                   <BookOpen size={20} className="text-waste-compost" />
                 </div>
                 <div>
-                  <p className="text-[11px] text-black/60 dark:text-white/60 uppercase tracking-wide">
+                  <p className="text-sm text-black/60 dark:text-white/60 uppercase tracking-wide">
                     Guides
                   </p>
                   <p className="text-xl font-bold arcade-numbers">
@@ -244,7 +244,7 @@ export function StaffDashboard({
                   <Users size={20} className="text-waste-science" />
                 </div>
                 <div>
-                  <p className="text-[11px] text-black/60 dark:text-white/60 uppercase tracking-wide">
+                  <p className="text-sm text-black/60 dark:text-white/60 uppercase tracking-wide">
                     Users
                   </p>
                   <p className="text-xl font-bold arcade-numbers">

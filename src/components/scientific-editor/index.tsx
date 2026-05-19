@@ -126,7 +126,7 @@ export function ScientificDataEditor({
 
       <Alert className="mb-4 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
         <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-        <AlertDescription className="text-[11px] text-blue-800 dark:text-blue-200">
+        <AlertDescription className="text-sm text-blue-800 dark:text-blue-200">
           All parameter values should be normalized to 0-1 scale. M_value
           (Infrastructure Maturity) is shared across all three dimensions.
         </AlertDescription>

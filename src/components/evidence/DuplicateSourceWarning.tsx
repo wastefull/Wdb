@@ -67,14 +67,14 @@ export function DuplicateSourceWarning({
           <div className="flex items-center gap-2">
             <Badge
               variant={matchType === "doi" ? "default" : "secondary"}
-              className="font-['Sniglet'] text-[10px]"
+              className="font-['Sniglet'] text-xs"
             >
               {matchType === "doi"
                 ? "100% DOI Match"
                 : `${confidence}% Title Match`}
             </Badge>
             {matchType === "title" && (
-              <span className="font-['Sniglet'] text-[10px] text-gray-500 dark:text-gray-400">
+              <span className="font-['Sniglet'] text-xs text-gray-500 dark:text-gray-400">
                 Fuzzy match using Levenshtein distance
               </span>
             )}
@@ -98,7 +98,7 @@ export function DuplicateSourceWarning({
             {existingSource.authors && existingSource.authors.length > 0 && (
               <div className="flex items-start gap-2">
                 <Users className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
-                <p className="font-['Sniglet'] text-[11px] text-gray-600 dark:text-gray-400">
+                <p className="font-['Sniglet'] text-sm text-gray-600 dark:text-gray-400">
                   {existingSource.authors.slice(0, 3).join(", ")}
                   {existingSource.authors.length > 3 &&
                     ` +${existingSource.authors.length - 3} more`}
@@ -109,7 +109,7 @@ export function DuplicateSourceWarning({
             {existingSource.year && (
               <div className="flex items-start gap-2">
                 <Calendar className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
-                <p className="font-['Sniglet'] text-[11px] text-gray-600 dark:text-gray-400">
+                <p className="font-['Sniglet'] text-sm text-gray-600 dark:text-gray-400">
                   {existingSource.year}
                 </p>
               </div>
@@ -118,7 +118,7 @@ export function DuplicateSourceWarning({
             {existingSource.doi && (
               <div className="flex items-start gap-2">
                 <Link2 className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
-                <p className="font-['Sniglet'] text-[11px] text-gray-600 dark:text-gray-400 break-all">
+                <p className="font-['Sniglet'] text-sm text-gray-600 dark:text-gray-400 break-all">
                   {existingSource.doi}
                 </p>
               </div>
@@ -127,7 +127,7 @@ export function DuplicateSourceWarning({
 
           {/* Explanation */}
           <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
-            <p className="font-['Sniglet'] text-[11px] text-blue-900 dark:text-blue-200">
+            <p className="font-['Sniglet'] text-sm text-blue-900 dark:text-blue-200">
               {matchType === "doi"
                 ? "🔍 DOI matches are 100% accurate. This is very likely the same publication."
                 : `🔍 This title is ${confidence}% similar to an existing source. Review carefully before adding.`}

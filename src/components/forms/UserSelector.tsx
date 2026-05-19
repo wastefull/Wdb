@@ -166,12 +166,12 @@ export function UserSelector({
                   </span>
                 </div>
                 {user.role === "admin" && (
-                  <span className="text-[10px] px-1.5 py-0.5 bg-waste-science/20 text-waste-science rounded">
+                  <span className="text-xs px-1.5 py-0.5 bg-waste-science/20 text-waste-science rounded">
                     Admin
                   </span>
                 )}
                 {user.role === "staff" && (
-                  <span className="text-[10px] px-1.5 py-0.5 bg-waste-recycle/20 text-waste-recycle rounded">
+                  <span className="text-xs px-1.5 py-0.5 bg-waste-recycle/20 text-waste-recycle rounded">
                     Staff
                   </span>
                 )}
@@ -188,7 +188,7 @@ export function UserSelector({
       )}
 
       {/* Helper text */}
-      <p className="text-[11px] text-black/50 dark:text-white/50 mt-1">
+      <p className="text-sm text-black/50 dark:text-white/50 mt-1">
         Optional: Attribute this content to another user. The audit log will
         still record you as the admin who performed the action.
       </p>

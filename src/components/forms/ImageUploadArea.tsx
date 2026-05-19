@@ -87,7 +87,7 @@ export function ImageUploadArea({
             <button
               type="button"
               onClick={() => onImageChange(undefined)}
-              className="absolute top-2 right-2 bg-waste-compost px-3 py-1 rounded-md border border-[#211f1c] shadow-[2px_2px_0px_0px_#000000] text-[11px] text-black hover:translate-y-px hover:shadow-[1px_1px_0px_0px_#000000] transition-all"
+              className="absolute top-2 right-2 bg-waste-compost px-3 py-1 rounded-md border border-[#211f1c] shadow-[2px_2px_0px_0px_#000000] text-sm text-black hover:translate-y-px hover:shadow-[1px_1px_0px_0px_#000000] transition-all"
             >
               Remove
             </button>
@@ -99,7 +99,7 @@ export function ImageUploadArea({
               <button
                 type="button"
                 onClick={() => setMode("upload")}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] transition-all ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm transition-all ${
                   mode === "upload"
                     ? "bg-white dark:bg-[#2a2825] shadow-sm text-black dark:text-white"
                     : "text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white"
@@ -111,7 +111,7 @@ export function ImageUploadArea({
               <button
                 type="button"
                 onClick={() => setMode("url")}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] transition-all ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm transition-all ${
                   mode === "url"
                     ? "bg-white dark:bg-[#2a2825] shadow-sm text-black dark:text-white"
                     : "text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white"
@@ -128,7 +128,7 @@ export function ImageUploadArea({
                   size={18}
                   className="text-black/40 dark:text-white/40"
                 />
-                <p className="text-[11px] text-black/60 dark:text-white/60">
+                <p className="text-sm text-black/60 dark:text-white/60">
                   Drop image here or click to upload
                 </p>
                 <input
@@ -154,7 +154,7 @@ export function ImageUploadArea({
                   type="button"
                   onClick={handleUrlSubmit}
                   disabled={!urlInput.trim()}
-                  className="px-3 py-2 bg-waste-recycle rounded-lg border border-[#211f1c] text-[11px] text-black disabled:opacity-50 disabled:cursor-not-allowed hover:enabled:translate-y-px transition-all"
+                  className="px-3 py-2 bg-waste-recycle rounded-lg border border-[#211f1c] text-sm text-black disabled:opacity-50 disabled:cursor-not-allowed hover:enabled:translate-y-px transition-all"
                 >
                   Add
                 </button>

@@ -136,7 +136,7 @@ export function LicensesView({ onBack }: { onBack: () => void }) {
                   )}
                 </h3>
               </div>
-              <span className="text-[11px] px-3 py-1 rounded-full arcade-bg-cyan arcade-btn-cyan border border-[#211f1c] dark:border-white/20 whitespace-nowrap">
+              <span className="text-sm px-3 py-1 rounded-full arcade-bg-cyan arcade-btn-cyan border border-[#211f1c] dark:border-white/20 whitespace-nowrap">
                 {license.licenseType}
               </span>
             </div>

@@ -278,10 +278,10 @@ export function GuideDetailView({ guideId, onBack }: GuideDetailViewProps) {
 
           {/* Author & Stats */}
           <div className="flex items-center justify-between pt-4 border-t border-[#211f1c]/10 dark:border-white/10">
-            <div className="text-[11px] text-black/50 dark:text-white/50">
+            <div className="text-sm text-black/50 dark:text-white/50">
               By {guide.author_name || "Anonymous"}
             </div>
-            <div className="flex items-center gap-3 text-[11px] text-black/50 dark:text-white/50">
+            <div className="flex items-center gap-3 text-sm text-black/50 dark:text-white/50">
               <span className="flex items-center gap-1">
                 <Eye size={12} />
                 {guide.views_count || 0} views
@@ -317,12 +317,12 @@ export function GuideDetailView({ guideId, onBack }: GuideDetailViewProps) {
         {/* Tags */}
         {guide.tags && guide.tags.length > 0 && (
           <div className="retro-card p-4">
-            <h2 className="text-[11px] text-black/50 dark:text-white/50 mb-2">
+            <h2 className="text-sm text-black/50 dark:text-white/50 mb-2">
               Tags
             </h2>
             <div className="flex flex-wrap gap-2">
               {guide.tags.map((tag, index) => (
-                <span key={index} className="tag-gray text-[11px]">
+                <span key={index} className="tag-gray text-sm">
                   {tag}
                 </span>
               ))}

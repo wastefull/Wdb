@@ -270,21 +270,21 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
     switch (status) {
       case "pending_review":
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[#f4d3a0] dark:bg-[#4a3f2a] border border-[#211f1c] dark:border-white/20 text-[10px] normal">
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[#f4d3a0] dark:bg-[#4a3f2a] border border-[#211f1c] dark:border-white/20 text-xs normal">
             <Clock size={10} />
             Pending Review
           </span>
         );
       case "approved":
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[#c8e5c8] dark:bg-[#2a3f2a] border border-[#211f1c] dark:border-white/20 text-[10px] normal">
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[#c8e5c8] dark:bg-[#2a3f2a] border border-[#211f1c] dark:border-white/20 text-xs normal">
             <CheckCircle size={10} />
             Approved
           </span>
         );
       case "rejected":
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-waste-compost dark:bg-[#3f2a2a] border border-[#211f1c] dark:border-white/20 text-[10px] normal">
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-waste-compost dark:bg-[#3f2a2a] border border-[#211f1c] dark:border-white/20 text-xs normal">
             <XCircle size={10} />
             Rejected
           </span>
@@ -292,7 +292,7 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
       case "needs_revision":
       case "pending_revision":
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-waste-recycle dark:bg-[#3a3825] border border-[#211f1c] dark:border-white/20 text-[10px] normal">
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-waste-recycle dark:bg-[#3a3825] border border-[#211f1c] dark:border-white/20 text-xs normal">
             <Edit3 size={10} />
             Needs Revision
           </span>
@@ -368,13 +368,13 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
                         {getSubmissionTitle(submission)}
                       </h3>
                     </div>
-                    <p className="text-[11px] text-black/60 dark:text-white/60 mb-2">
+                    <p className="text-sm text-black/60 dark:text-white/60 mb-2">
                       {getSubmissionLabel(submission.type)} • Submitted{" "}
                       {formatDate(submission.created_at)}
                     </p>
                     {submission.feedback && (
                       <div className="bg-waste-recycle dark:bg-[#3a3825] border border-[#211f1c] dark:border-white/20 rounded-md p-2 mt-2">
-                        <p className="text-[10px] normal">
+                        <p className="text-xs normal">
                           <strong>Feedback:</strong> {submission.feedback}
                         </p>
                       </div>
@@ -390,7 +390,7 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
                               {isArticleType(submission.type) ? (
                                 <>
                                   <div>
-                                    <label className="block text-[10px] normal mb-1">
+                                    <label className="block text-xs normal mb-1">
                                       Title
                                     </label>
                                     <input
@@ -406,7 +406,7 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
                                     />
                                   </div>
                                   <div>
-                                    <label className="block text-[10px] normal mb-1">
+                                    <label className="block text-xs normal mb-1">
                                       Content
                                     </label>
                                     <textarea
@@ -425,7 +425,7 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
                               ) : (
                                 <>
                                   <div>
-                                    <label className="block text-[10px] normal mb-1">
+                                    <label className="block text-xs normal mb-1">
                                       Material Name
                                     </label>
                                     <input
@@ -441,7 +441,7 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
                                     />
                                   </div>
                                   <div>
-                                    <label className="block text-[10px] normal mb-1">
+                                    <label className="block text-xs normal mb-1">
                                       Category
                                     </label>
                                     <select
@@ -463,7 +463,7 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
                                     </select>
                                   </div>
                                   <div>
-                                    <label className="block text-[10px] normal mb-1">
+                                    <label className="block text-xs normal mb-1">
                                       Description
                                     </label>
                                     <textarea
@@ -480,7 +480,7 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
                                   </div>
                                   {submission.type === "edit_material" && (
                                     <div>
-                                      <label className="block text-[10px] normal mb-1">
+                                      <label className="block text-xs normal mb-1">
                                         Reason for Change
                                       </label>
                                       <textarea
@@ -502,7 +502,7 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
                                 <button
                                   onClick={() => handleResubmit(submission)}
                                   disabled={submitting}
-                                  className="retro-btn-primary inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px]"
+                                  className="retro-btn-primary inline-flex items-center gap-1.5 px-3 py-1.5 text-sm"
                                 >
                                   <Send size={11} />
                                   {submitting
@@ -512,7 +512,7 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
                                 <button
                                   onClick={handleCancelEdit}
                                   disabled={submitting}
-                                  className="retro-icon-button inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px]"
+                                  className="retro-icon-button inline-flex items-center gap-1.5 px-3 py-1.5 text-sm"
                                 >
                                   <X size={11} />
                                   Cancel
@@ -522,7 +522,7 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
                           ) : (
                             <button
                               onClick={() => handleStartEdit(submission)}
-                              className="retro-btn-primary inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] mt-1"
+                              className="retro-btn-primary inline-flex items-center gap-1.5 px-3 py-1.5 text-sm mt-1"
                             >
                               <Edit3 size={11} />
                               Revise &amp; Resubmit
@@ -536,7 +536,7 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
                         <button
                           onClick={() => handleDeleteRejected(submission)}
                           disabled={deletingId === submission.id}
-                          className="retro-icon-button inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] bg-waste-compost"
+                          className="retro-icon-button inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-waste-compost"
                         >
                           <Trash2 size={11} />
                           {deletingId === submission.id

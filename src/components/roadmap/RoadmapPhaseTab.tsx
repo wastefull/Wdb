@@ -40,13 +40,13 @@ export function RoadmapPhaseTab({
                   : "bg-waste-recycle dark:bg-waste-recycle/30"
               } flex items-center justify-center mt-0.5`}
             >
-              <span className="text-[10px]">
+              <span className="text-xs">
                 {deliverable.completed ? "✓" : "○"}
               </span>
             </div>
             <div>
               <div className="label">{deliverable.title}</div>
-              <div className="text-[11px] text-black/60 dark:text-white/60">
+              <div className="text-sm text-black/60 dark:text-white/60">
                 {deliverable.description}
               </div>
             </div>

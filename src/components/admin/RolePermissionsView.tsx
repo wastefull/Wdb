@@ -159,7 +159,7 @@ export function RolePermissionsView({ onBack }: RolePermissionsViewProps) {
                   >
                     <td
                       colSpan={ALL_ROLES.length + 1}
-                      className="px-4 py-2 text-[11px] font-bold normal uppercase tracking-wider opacity-60"
+                      className="px-4 py-2 text-sm font-bold normal uppercase tracking-wider opacity-60"
                     >
                       {category.label}
                     </td>
@@ -176,7 +176,7 @@ export function RolePermissionsView({ onBack }: RolePermissionsViewProps) {
                           <span className="text-[13px] normal">
                             {PERMISSIONS[permission as Permission]}
                           </span>
-                          <span className="text-[11px] normal opacity-40 ml-2">
+                          <span className="text-sm normal opacity-40 ml-2">
                             {permission}
                           </span>
                         </div>
@@ -212,7 +212,7 @@ export function RolePermissionsView({ onBack }: RolePermissionsViewProps) {
         </div>
 
         {/* Legend */}
-        <div className="flex items-center gap-4 text-[11px] normal opacity-50">
+        <div className="flex items-center gap-4 text-sm normal opacity-50">
           <div className="flex items-center gap-1.5">
             <Shield size={11} />
             <span>Admin always has all permissions (cannot be modified)</span>

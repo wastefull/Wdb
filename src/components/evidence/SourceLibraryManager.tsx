@@ -109,7 +109,7 @@ export function SourceLibraryManager({
   const [showDeleteAllDialog, setShowDeleteAllDialog] = useState(false);
   const [removingDuplicates, setRemovingDuplicates] = useState(false);
   const [showUrlImportDialog, setShowUrlImportDialog] = useState<string | null>(
-    null
+    null,
   ); // sourceId for URL import
   const [importingPdfUrl, setImportingPdfUrl] = useState(false);
   const [pdfUrlInput, setPdfUrlInput] = useState("");
@@ -160,7 +160,7 @@ export function SourceLibraryManager({
 
   // Get all unique tags from sources
   const allTags = Array.from(
-    new Set(sources.flatMap((s) => s.tags || []))
+    new Set(sources.flatMap((s) => s.tags || [])),
   ).sort();
 
   // Filter sources
@@ -170,7 +170,7 @@ export function SourceLibraryManager({
       source.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       source.authors?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       source.tags?.some((tag) =>
-        tag.toLowerCase().includes(searchQuery.toLowerCase())
+        tag.toLowerCase().includes(searchQuery.toLowerCase()),
       );
 
     const matchesType = selectedType === "all" || source.type === selectedType;
@@ -190,8 +190,8 @@ export function SourceLibraryManager({
       material.sources?.some(
         (s) =>
           s.title === sourceTitle &&
-          (!sourceDoi || !s.doi || s.doi === sourceDoi)
-      )
+          (!sourceDoi || !s.doi || s.doi === sourceDoi),
+      ),
     );
   };
 
@@ -314,7 +314,7 @@ export function SourceLibraryManager({
 
     // Update local state
     setSources(
-      sources.map((s) => (s.id === editingSource?.id ? updatedSource : s))
+      sources.map((s) => (s.id === editingSource?.id ? updatedSource : s)),
     );
 
     // Sync to cloud if authenticated and admin
@@ -357,7 +357,7 @@ export function SourceLibraryManager({
         const errorMessage = error?.message || "Failed to delete source";
         if (errorMessage.includes("dependent evidence")) {
           toast.error(
-            "Cannot delete: Source has dependent evidence (MIUs). Delete the evidence first."
+            "Cannot delete: Source has dependent evidence (MIUs). Delete the evidence first.",
           );
         } else {
           toast.error(errorMessage);
@@ -386,12 +386,12 @@ export function SourceLibraryManager({
         // Keep only the sources that were skipped (have dependencies)
         setSources(sources.filter((s) => result.skippedIds.includes(s.id)));
         toast.warning(
-          `Deleted ${result.deletedCount} sources. ${result.skippedCount} sources skipped (have dependent evidence).`
+          `Deleted ${result.deletedCount} sources. ${result.skippedCount} sources skipped (have dependent evidence).`,
         );
       } else {
         setSources([]);
         toast.success(
-          `Successfully deleted all ${result.deletedCount} sources.`
+          `Successfully deleted all ${result.deletedCount} sources.`,
         );
       }
 
@@ -420,16 +420,16 @@ export function SourceLibraryManager({
 
         if (result.skippedCount > 0) {
           toast.warning(
-            `Removed ${result.deletedCount} duplicates. ${result.skippedCount} skipped (have dependencies).`
+            `Removed ${result.deletedCount} duplicates. ${result.skippedCount} skipped (have dependencies).`,
           );
         } else {
           toast.success(
-            `Successfully removed ${result.deletedCount} duplicate sources.`
+            `Successfully removed ${result.deletedCount} duplicate sources.`,
           );
         }
       } else if (result.duplicatesFound > 0) {
         toast.info(
-          `Found ${result.duplicatesFound} duplicates but all have dependencies.`
+          `Found ${result.duplicatesFound} duplicates but all have dependencies.`,
         );
       } else {
         toast.info("No duplicate sources found.");
@@ -480,7 +480,7 @@ export function SourceLibraryManager({
       setCrossRefData(null);
 
       const response = await fetch(
-        `https://api.crossref.org/works/${encodeURIComponent(cleanDoi)}`
+        `https://api.crossref.org/works/${encodeURIComponent(cleanDoi)}`,
       );
 
       if (!response.ok) {
@@ -537,7 +537,7 @@ export function SourceLibraryManager({
           await api.updateSource(editingSource.id, updatedSource);
           // Update local state
           setSources((prev) =>
-            prev.map((s) => (s.id === editingSource.id ? updatedSource : s))
+            prev.map((s) => (s.id === editingSource.id ? updatedSource : s)),
           );
           setEditingSource(updatedSource);
           setFormData((prev) => ({
@@ -545,7 +545,7 @@ export function SourceLibraryManager({
             citation_count: formatted.citationCount,
           }));
           toast.success(
-            `Citation count (${formatted.citationCount.toLocaleString()}) saved automatically`
+            `Citation count (${formatted.citationCount.toLocaleString()}) saved automatically`,
           );
         } catch (error) {
           logger.error("Failed to auto-update citation count:", error);
@@ -555,7 +555,9 @@ export function SourceLibraryManager({
     } catch (error) {
       logger.error("CrossRef fetch error:", error);
       setCrossRefError(
-        error instanceof Error ? error.message : "Failed to fetch from CrossRef"
+        error instanceof Error
+          ? error.message
+          : "Failed to fetch from CrossRef",
       );
     } finally {
       setFetchingCrossRef(false);
@@ -610,7 +612,7 @@ export function SourceLibraryManager({
 
       // Update the source with the PDF filename
       const updatedSources = sources.map((s) =>
-        s.id === sourceId ? { ...s, pdfFileName: result.fileName } : s
+        s.id === sourceId ? { ...s, pdfFileName: result.fileName } : s,
       );
       setSources(updatedSources);
 
@@ -632,7 +634,7 @@ export function SourceLibraryManager({
       toast.error(
         `Failed to upload PDF: ${
           error instanceof Error ? error.message : "Unknown error"
-        }`
+        }`,
       );
     } finally {
       setUploadingPdf(null);
@@ -670,7 +672,7 @@ export function SourceLibraryManager({
 
       // Update the source with the PDF filename
       const updatedSources = sources.map((s) =>
-        s.id === sourceId ? { ...s, pdfFileName: result.fileName } : s
+        s.id === sourceId ? { ...s, pdfFileName: result.fileName } : s,
       );
       setSources(updatedSources);
 
@@ -682,7 +684,7 @@ export function SourceLibraryManager({
       }
 
       toast.success(
-        `PDF imported successfully (${Math.round(result.size / 1024)}KB)`
+        `PDF imported successfully (${Math.round(result.size / 1024)}KB)`,
       );
       setShowUrlImportDialog(null);
       setPdfUrlInput("");
@@ -700,7 +702,7 @@ export function SourceLibraryManager({
       if (isAuthError) {
         toast.error(
           "This publisher blocks automated downloads. Please download the PDF manually and use the upload button.",
-          { duration: 6000 }
+          { duration: 6000 },
         );
       } else {
         toast.error(`Failed to import PDF: ${errorMessage}`);
@@ -721,7 +723,7 @@ export function SourceLibraryManager({
 
       // Update the source to remove the PDF filename
       const updatedSources = sources.map((s) =>
-        s.id === sourceId ? { ...s, pdfFileName: undefined } : s
+        s.id === sourceId ? { ...s, pdfFileName: undefined } : s,
       );
       setSources(updatedSources);
 
@@ -763,7 +765,7 @@ export function SourceLibraryManager({
             manual_oa_override: true,
             oa_status: newIsOA ? "manual" : "closed",
           }
-        : s
+        : s,
     );
     setSources(updatedSources);
 
@@ -786,7 +788,7 @@ export function SourceLibraryManager({
         toast.success(
           newIsOA
             ? "Marked as Open Access (manual override)"
-            : "Marked as Closed Access (manual override)"
+            : "Marked as Closed Access (manual override)",
         );
         setCloudSynced(true);
       }
@@ -863,7 +865,7 @@ export function SourceLibraryManager({
           toast.error(
             `Skipped ${
               importedSources.length - validSources.length
-            } invalid sources`
+            } invalid sources`,
           );
         }
 
@@ -909,12 +911,12 @@ export function SourceLibraryManager({
         `https://${
           api.projectId
         }.supabase.co/functions/v1/make-server-17cae920/sources/check-oa?doi=${encodeURIComponent(
-          doi
+          doi,
         )}`,
         {
           method: "GET",
           headers: { Authorization: `Bearer ${api.publicAnonKey}` },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -937,7 +939,7 @@ export function SourceLibraryManager({
               best_oa_pdf_url: data.best_oa_location?.url_for_pdf || null, // Direct PDF link (preferred)
               manual_oa_override: false, // Clear manual override since we just checked via Unpaywall
             }
-          : s
+          : s,
       );
       setSources(updatedSources);
 
@@ -997,7 +999,7 @@ export function SourceLibraryManager({
             <Button
               onClick={onBack}
               variant="outline"
-              className="border-[#211f1c] dark:border-white/20 text-[11px] md:text-sm"
+              className="border-[#211f1c] dark:border-white/20 text-sm md:text-sm"
             >
               <ArrowLeft className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
               Back
@@ -1026,7 +1028,7 @@ export function SourceLibraryManager({
             <Button
               onClick={handleExportSources}
               variant="outline"
-              className="border-[#211f1c] dark:border-white/20 text-[11px] md:text-sm"
+              className="border-[#211f1c] dark:border-white/20 text-sm md:text-sm"
               disabled={sources.length === 0}
             >
               <Download className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
@@ -1037,7 +1039,7 @@ export function SourceLibraryManager({
             {isAuthenticated && isAdmin && (
               <Button
                 variant="outline"
-                className="border-[#211f1c] dark:border-white/20 text-[11px] md:text-sm relative"
+                className="border-[#211f1c] dark:border-white/20 text-sm md:text-sm relative"
                 onClick={() =>
                   document.getElementById("import-sources-input")?.click()
                 }
@@ -1059,7 +1061,7 @@ export function SourceLibraryManager({
               <Button
                 onClick={handleRefreshFromCloud}
                 variant="outline"
-                className="border-[#211f1c] dark:border-white/20 text-[11px] md:text-sm"
+                className="border-[#211f1c] dark:border-white/20 text-sm md:text-sm"
               >
                 <RefreshCw className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
                 <span className="whitespace-nowrap">Refresh</span>
@@ -1074,7 +1076,7 @@ export function SourceLibraryManager({
                 <Button
                   onClick={handleSyncToCloud}
                   variant="outline"
-                  className="border-[#211f1c] dark:border-white/20 text-[11px] md:text-sm"
+                  className="border-[#211f1c] dark:border-white/20 text-sm md:text-sm"
                 >
                   <Cloud className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
                   <span className="whitespace-nowrap">Sync to Cloud</span>
@@ -1087,7 +1089,7 @@ export function SourceLibraryManager({
                 resetForm();
                 setShowForm(true);
               }}
-              className="bg-waste-reuse hover:bg-[#a8b8bb] text-black text-[11px] md:text-sm"
+              className="bg-waste-reuse hover:bg-[#a8b8bb] text-black text-sm md:text-sm"
               disabled={!isAuthenticated || !isAdmin}
             >
               <Plus className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
@@ -1099,7 +1101,7 @@ export function SourceLibraryManager({
               <Button
                 onClick={handleRemoveDuplicates}
                 variant="outline"
-                className="border-amber-500/50 text-amber-600 hover:bg-amber-500/10 dark:border-amber-500/30 dark:text-amber-400 text-[11px] md:text-sm"
+                className="border-amber-500/50 text-amber-600 hover:bg-amber-500/10 dark:border-amber-500/30 dark:text-amber-400 text-sm md:text-sm"
                 disabled={removingDuplicates}
               >
                 <Copy className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
@@ -1118,7 +1120,7 @@ export function SourceLibraryManager({
                 <DialogTrigger asChild>
                   <Button
                     variant="outline"
-                    className="border-red-500/50 text-red-600 hover:bg-red-500/10 dark:border-red-500/30 dark:text-red-400 text-[11px] md:text-sm"
+                    className="border-red-500/50 text-red-600 hover:bg-red-500/10 dark:border-red-500/30 dark:text-red-400 text-sm md:text-sm"
                     disabled={deletingAll}
                   >
                     <Trash2 className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
@@ -1187,7 +1189,7 @@ export function SourceLibraryManager({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Search */}
             <div>
-              <Label className="text-[11px] mb-2 block">Search</Label>
+              <Label className="text-sm mb-2 block">Search</Label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-black/40 dark:text-white/40" />
                 <Input
@@ -1202,7 +1204,7 @@ export function SourceLibraryManager({
 
             {/* Type Filter */}
             <div>
-              <Label className="text-[11px] mb-2 block">Source Type</Label>
+              <Label className="text-sm mb-2 block">Source Type</Label>
               <Select value={selectedType} onValueChange={setSelectedType}>
                 <SelectTrigger className="text-[12px]">
                   <SelectValue />
@@ -1220,7 +1222,7 @@ export function SourceLibraryManager({
 
             {/* Tag Filter */}
             <div>
-              <Label className="text-[11px] mb-2 block">Tags</Label>
+              <Label className="text-sm mb-2 block">Tags</Label>
               <div className="flex flex-wrap gap-1 max-h-[100px] overflow-y-auto p-2 bg-white dark:bg-[#1a1918] border border-[#211f1c] dark:border-white/20 rounded-md">
                 {allTags.map((tag) => (
                   <Badge
@@ -1233,7 +1235,7 @@ export function SourceLibraryManager({
                       setSelectedTags((prev) =>
                         prev.includes(tag)
                           ? prev.filter((t) => t !== tag)
-                          : [...prev, tag]
+                          : [...prev, tag],
                       );
                     }}
                   >
@@ -1278,7 +1280,7 @@ export function SourceLibraryManager({
             searchQuery ||
             showOAOnly) && (
             <div className="mt-3 flex items-center justify-between">
-              <p className="text-[11px] text-black/60 dark:text-white/60">
+              <p className="text-sm text-black/60 dark:text-white/60">
                 Showing {filteredSources.length} of {sources.length} sources
               </p>
               <Button
@@ -1303,14 +1305,14 @@ export function SourceLibraryManager({
             <Table className="table-fixed w-[99%]">
               <TableHeader>
                 <TableRow>
-                  <TableHead className="text-[11px] w-[38%]">Source</TableHead>
-                  <TableHead className="text-[11px] w-[9%]">Type</TableHead>
-                  <TableHead className="text-[11px] w-[7%]">Weight</TableHead>
-                  <TableHead className="text-[11px] w-[17%]">Tags</TableHead>
-                  <TableHead className="text-[11px] text-center w-[9%]">
+                  <TableHead className="text-sm w-[38%]">Source</TableHead>
+                  <TableHead className="text-sm w-[9%]">Type</TableHead>
+                  <TableHead className="text-sm w-[7%]">Weight</TableHead>
+                  <TableHead className="text-sm w-[17%]">Tags</TableHead>
+                  <TableHead className="text-sm text-center w-[9%]">
                     Usage
                   </TableHead>
-                  <TableHead className="text-[11px] w-[20%]">Actions</TableHead>
+                  <TableHead className="text-sm w-[20%]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -1321,7 +1323,7 @@ export function SourceLibraryManager({
                       <TableCell>
                         <div className="space-y-1">
                           <p
-                            className="text-[11px] normal font-medium truncate"
+                            className="text-sm normal font-medium truncate"
                             title={source.title}
                           >
                             {source.title}
@@ -1348,7 +1350,7 @@ export function SourceLibraryManager({
                                 >
                                   {source.citation_count >= 1000
                                     ? `${(source.citation_count / 1000).toFixed(
-                                        1
+                                        1,
                                       )}k`
                                     : source.citation_count}{" "}
                                   cited
@@ -1378,8 +1380,8 @@ export function SourceLibraryManager({
                                   const isOA = hasSourceOA
                                     ? source.is_open_access
                                     : hasStateOA
-                                    ? oaStatus.get(source.id)?.is_open_access
-                                    : undefined;
+                                      ? oaStatus.get(source.id)?.is_open_access
+                                      : undefined;
 
                                   const oaStatusText = hasManualOverride
                                     ? "Manual"
@@ -1409,7 +1411,7 @@ export function SourceLibraryManager({
                                               handleToggleOAStatus(source.id);
                                             } else {
                                               const url = oaStatus.get(
-                                                source.id
+                                                source.id,
                                               )?.best_oa_location?.url;
                                               if (url)
                                                 window.open(url, "_blank");
@@ -1425,7 +1427,7 @@ export function SourceLibraryManager({
                                             onClick={() =>
                                               checkOAStatus(
                                                 source.id,
-                                                source.doi!
+                                                source.doi!,
                                               )
                                             }
                                             disabled={checkingOA.has(source.id)}
@@ -1476,7 +1478,7 @@ export function SourceLibraryManager({
                                             onClick={() =>
                                               checkOAStatus(
                                                 source.id,
-                                                source.doi!
+                                                source.doi!,
                                               )
                                             }
                                             disabled={checkingOA.has(source.id)}
@@ -1523,7 +1525,7 @@ export function SourceLibraryManager({
                                 {source.pdfFileName && (
                                   <a
                                     href={api.getSourcePdfViewUrl(
-                                      source.pdfFileName
+                                      source.pdfFileName,
                                     )}
                                     target="_blank"
                                     rel="noopener noreferrer"
@@ -1538,7 +1540,7 @@ export function SourceLibraryManager({
                               <div className="flex items-center gap-2">
                                 <a
                                   href={api.getSourcePdfViewUrl(
-                                    source.pdfFileName
+                                    source.pdfFileName,
                                   )}
                                   target="_blank"
                                   rel="noopener noreferrer"
@@ -1547,13 +1549,13 @@ export function SourceLibraryManager({
                                   onClick={(e) => {
                                     logger.log(
                                       `🖱️ User clicked "View PDF" for:`,
-                                      source.pdfFileName!
+                                      source.pdfFileName!,
                                     );
                                     logger.log(
                                       `   URL:`,
                                       api.getSourcePdfViewUrl(
-                                        source.pdfFileName!
-                                      )
+                                        source.pdfFileName!,
+                                      ),
                                     );
                                     logger.log(`   Source:`, source.title);
                                   }}
@@ -1564,16 +1566,16 @@ export function SourceLibraryManager({
                                   onClick={async () => {
                                     logger.log(
                                       `🔍 Running diagnostics for:`,
-                                      source.pdfFileName!
+                                      source.pdfFileName!,
                                     );
                                     try {
                                       const diagnostics =
                                         await api.getSourcePdfDiagnostics(
-                                          source.pdfFileName!
+                                          source.pdfFileName!,
                                         );
                                       logger.log(
                                         ` Diagnostics results:`,
-                                        diagnostics
+                                        diagnostics,
                                       );
                                       logger.table(diagnostics.checks);
 
@@ -1593,7 +1595,7 @@ export function SourceLibraryManager({
                                         urlStatus === 200
                                       ) {
                                         toast.success(
-                                          "✅ All checks passed! PDF should be accessible."
+                                          "✅ All checks passed! PDF should be accessible.",
                                         );
                                       } else {
                                         const issues = [];
@@ -1603,16 +1605,16 @@ export function SourceLibraryManager({
                                           issues.push("File NOT FOUND");
                                         if (urlStatus !== 200)
                                           issues.push(
-                                            `URL returns ${urlStatus}`
+                                            `URL returns ${urlStatus}`,
                                           );
                                         toast.error(
-                                          `❌ Issues: ${issues.join(", ")}`
+                                          `❌ Issues: ${issues.join(", ")}`,
                                         );
                                       }
                                     } catch (error) {
                                       logger.error(
                                         "❌ Diagnostics failed:",
-                                        error
+                                        error,
                                       );
                                       toast.error("Failed to run diagnostics");
                                     }
@@ -1627,7 +1629,7 @@ export function SourceLibraryManager({
                               <a
                                 href={getGoogleScholarUrl(
                                   source.title,
-                                  source.authors
+                                  source.authors,
                                 )}
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -1648,7 +1650,7 @@ export function SourceLibraryManager({
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <span className="text-[10px] normal">
+                        <span className="text-xs normal">
                           {source.weight?.toFixed(1) || "1.0"}
                         </span>
                       </TableCell>
@@ -1677,7 +1679,7 @@ export function SourceLibraryManager({
                             {usage.length !== 1 ? "s" : ""}
                           </Badge>
                         ) : (
-                          <span className="text-[10px] text-black/40 dark:text-white/40">
+                          <span className="text-xs text-black/40 dark:text-white/40">
                             Unused
                           </span>
                         )}
@@ -1693,7 +1695,7 @@ export function SourceLibraryManager({
                                   onClick={() =>
                                     handlePdfDelete(
                                       source.id,
-                                      source.pdfFileName!
+                                      source.pdfFileName!,
                                     )
                                   }
                                   title="Delete PDF"
@@ -1810,7 +1812,7 @@ export function SourceLibraryManager({
               <DialogTitle className="">
                 {editingSource ? "Edit Source" : "Add New Source"}
               </DialogTitle>
-              <DialogDescription className="text-[11px]">
+              <DialogDescription className="text-sm">
                 Add or edit academic sources in the library. These sources can
                 be cited in scientific data.
               </DialogDescription>
@@ -1819,7 +1821,7 @@ export function SourceLibraryManager({
             <div className="space-y-4">
               {/* Title */}
               <div>
-                <Label className="text-[11px]">Title *</Label>
+                <Label className="text-sm">Title *</Label>
                 <Input
                   value={formData.title || ""}
                   onChange={(e) =>
@@ -1832,7 +1834,7 @@ export function SourceLibraryManager({
 
               {/* Authors */}
               <div>
-                <Label className="text-[11px]">Authors</Label>
+                <Label className="text-sm">Authors</Label>
                 <Input
                   value={formData.authors || ""}
                   onChange={(e) =>
@@ -1846,7 +1848,7 @@ export function SourceLibraryManager({
               {/* Year and Type */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label className="text-[11px]">Year</Label>
+                  <Label className="text-sm">Year</Label>
                   <Input
                     type="number"
                     value={formData.year}
@@ -1860,7 +1862,7 @@ export function SourceLibraryManager({
                   />
                 </div>
                 <div>
-                  <Label className="text-[11px]">Source Type</Label>
+                  <Label className="text-sm">Source Type</Label>
                   <Select
                     value={formData.type}
                     onValueChange={(value: Source["type"]) =>
@@ -1890,7 +1892,7 @@ export function SourceLibraryManager({
               {/* DOI and URL */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label className="text-[11px]">DOI</Label>
+                  <Label className="text-sm">DOI</Label>
                   <div className="flex gap-1">
                     <Input
                       value={formData.doi || ""}
@@ -1916,14 +1918,14 @@ export function SourceLibraryManager({
                     </Button>
                   </div>
                   {crossRefError && (
-                    <p className="text-[10px] text-amber-600 mt-1 flex items-center gap-1">
+                    <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
                       <AlertTriangle className="h-3 w-3" />
                       {crossRefError}
                     </p>
                   )}
                 </div>
                 <div>
-                  <Label className="text-[11px]">URL</Label>
+                  <Label className="text-sm">URL</Label>
                   <Input
                     value={formData.url || ""}
                     onChange={(e) =>
@@ -1937,7 +1939,7 @@ export function SourceLibraryManager({
 
               {/* CrossRef Metadata Panel */}
               {crossRefData && (
-                <div className="rounded-md border border-blue-200 bg-blue-50 p-3 text-[11px]">
+                <div className="rounded-md border border-blue-200 bg-blue-50 p-3 text-sm">
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-medium text-blue-800">
                       CrossRef Metadata (for reference)
@@ -2012,7 +2014,7 @@ export function SourceLibraryManager({
                     {crossRefData.abstract && (
                       <div className="mt-2">
                         <span className="font-medium">Abstract:</span>
-                        <p className="mt-1 text-[10px] leading-relaxed select-all text-gray-600 max-h-32 overflow-y-auto">
+                        <p className="mt-1 text-xs leading-relaxed select-all text-gray-600 max-h-32 overflow-y-auto">
                           {crossRefData.abstract}
                         </p>
                       </div>
@@ -2041,7 +2043,7 @@ export function SourceLibraryManager({
                         });
                         toast.success("Form populated with CrossRef data");
                       }}
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white text-[11px]"
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm"
                     >
                       <Download className="h-3 w-3 mr-2" />
                       Auto-fill Form with CrossRef Data
@@ -2052,7 +2054,7 @@ export function SourceLibraryManager({
 
               {/* Weight */}
               <div>
-                <Label className="text-[11px]">Weight (0-1)</Label>
+                <Label className="text-sm">Weight (0-1)</Label>
                 <Input
                   type="number"
                   step="0.1"
@@ -2074,7 +2076,7 @@ export function SourceLibraryManager({
 
               {/* Abstract */}
               <div>
-                <Label className="text-[11px]">Abstract</Label>
+                <Label className="text-sm">Abstract</Label>
                 <Textarea
                   value={formData.abstract || ""}
                   onChange={(e) =>
@@ -2088,7 +2090,7 @@ export function SourceLibraryManager({
 
               {/* Tags */}
               <div>
-                <Label className="text-[11px]">
+                <Label className="text-sm">
                   Tags (comma or semicolon-separated)
                 </Label>
                 <Input
@@ -2146,7 +2148,7 @@ export function SourceLibraryManager({
                 <Link className="w-4 h-4" />
                 Import PDF from URL
               </DialogTitle>
-              <DialogDescription className="text-[11px]">
+              <DialogDescription className="text-sm">
                 Download and store a PDF from an external URL. Works best with
                 Open Access sources (MDPI, arXiv, PubMed Central, etc.).
               </DialogDescription>
@@ -2154,7 +2156,7 @@ export function SourceLibraryManager({
 
             <div className="space-y-4 py-2">
               <div>
-                <Label className="text-[11px]">PDF URL</Label>
+                <Label className="text-sm">PDF URL</Label>
                 <Input
                   value={pdfUrlInput}
                   onChange={(e) => setPdfUrlInput(e.target.value)}
@@ -2164,7 +2166,7 @@ export function SourceLibraryManager({
                 />
                 {(() => {
                   const source = sources.find(
-                    (s) => s.id === showUrlImportDialog
+                    (s) => s.id === showUrlImportDialog,
                   );
                   if (
                     source?.best_oa_pdf_url &&
@@ -2197,7 +2199,7 @@ export function SourceLibraryManager({
 
               <Alert className="bg-amber-50 dark:bg-amber-900/20 border-amber-300 dark:border-amber-700">
                 <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                <AlertDescription className="text-[10px] text-amber-800 dark:text-amber-200">
+                <AlertDescription className="text-xs text-amber-800 dark:text-amber-200">
                   <strong>Blocked publishers:</strong> Science.org, Nature,
                   Springer, Wiley, Elsevier, IEEE, ACM block automated
                   downloads. For these, download the PDF in your browser and use
@@ -2248,7 +2250,7 @@ export function SourceLibraryManager({
         {!isAuthenticated || !isAdmin ? (
           <Alert className="mt-4 bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-700">
             <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-            <AlertDescription className="text-[11px] text-blue-800 dark:text-blue-200">
+            <AlertDescription className="text-sm text-blue-800 dark:text-blue-200">
               <strong>Note:</strong> Admin access required to modify the source
               library. Sign in with an admin account to add, edit, or delete
               sources.
@@ -2257,7 +2259,7 @@ export function SourceLibraryManager({
         ) : cloudSynced ? (
           <Alert className="mt-4 bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700">
             <Cloud className="h-4 w-4 text-green-600 dark:text-green-400" />
-            <AlertDescription className="text-[11px] text-green-800 dark:text-green-200">
+            <AlertDescription className="text-sm text-green-800 dark:text-green-200">
               <strong>Cloud Sync Active:</strong> Changes to the source library
               are automatically synced to the cloud and will persist across
               sessions.
@@ -2266,7 +2268,7 @@ export function SourceLibraryManager({
         ) : (
           <Alert className="mt-4 bg-orange-50 dark:bg-orange-900/20 border-orange-300 dark:border-orange-700">
             <CloudOff className="h-4 w-4 text-orange-600 dark:text-orange-400" />
-            <AlertDescription className="text-[11px] text-orange-800 dark:text-orange-200">
+            <AlertDescription className="text-sm text-orange-800 dark:text-orange-200">
               <strong>Local Only:</strong> Sources are stored locally. Click
               "Sync to Cloud" to save changes permanently.
             </AlertDescription>

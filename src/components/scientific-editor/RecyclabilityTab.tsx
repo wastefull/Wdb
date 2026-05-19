@@ -52,7 +52,7 @@ export function RecyclabilityTab({
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <Label className="text-[11px]">Yield (Y)</Label>
+            <Label className="text-sm">Yield (Y)</Label>
             <Input
               type="number"
               min="0"
@@ -68,7 +68,7 @@ export function RecyclabilityTab({
           </div>
 
           <div>
-            <Label className="text-[11px]">Degradability (D)</Label>
+            <Label className="text-sm">Degradability (D)</Label>
             <Input
               type="number"
               min="0"
@@ -84,7 +84,7 @@ export function RecyclabilityTab({
           </div>
 
           <div>
-            <Label className="text-[11px]">Contamination (C)</Label>
+            <Label className="text-sm">Contamination (C)</Label>
             <Input
               type="number"
               min="0"
@@ -100,7 +100,7 @@ export function RecyclabilityTab({
           </div>
 
           <div>
-            <Label className="text-[11px]">Maturity (M) - Shared</Label>
+            <Label className="text-sm">Maturity (M) - Shared</Label>
             <Input
               type="number"
               min="0"
@@ -116,7 +116,7 @@ export function RecyclabilityTab({
           </div>
 
           <div>
-            <Label className="text-[11px]">Energy (E)</Label>
+            <Label className="text-sm">Energy (E)</Label>
             <Input
               type="number"
               min="0"
@@ -154,7 +154,7 @@ export function RecyclabilityTab({
 
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <Label className="text-[10px]">Mean (0-1)</Label>
+              <Label className="text-xs">Mean (0-1)</Label>
               <Input
                 type="number"
                 min="0"
@@ -164,7 +164,7 @@ export function RecyclabilityTab({
                 onChange={(e) =>
                   onParameterChange(
                     "CR_practical_mean",
-                    parseFloat(e.target.value) || 0
+                    parseFloat(e.target.value) || 0,
                   )
                 }
                 className="text-[12px]"
@@ -172,7 +172,7 @@ export function RecyclabilityTab({
             </div>
 
             <div>
-              <Label className="text-[10px]">CI Lower</Label>
+              <Label className="text-xs">CI Lower</Label>
               <Input
                 type="number"
                 min="0"
@@ -191,7 +191,7 @@ export function RecyclabilityTab({
             </div>
 
             <div>
-              <Label className="text-[10px]">CI Upper</Label>
+              <Label className="text-xs">CI Upper</Label>
               <Input
                 type="number"
                 min="0"
@@ -211,7 +211,7 @@ export function RecyclabilityTab({
           </div>
 
           {formData.CR_practical_mean && (
-            <div className="mt-2 text-[11px] text-black/60 dark:text-white/60">
+            <div className="mt-2 text-sm text-black/60 dark:text-white/60">
               Public Score:{" "}
               <strong>
                 {Math.round(formData.CR_practical_mean * 100)}/100
@@ -228,7 +228,7 @@ export function RecyclabilityTab({
 
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <Label className="text-[10px]">Mean (0-1)</Label>
+              <Label className="text-xs">Mean (0-1)</Label>
               <Input
                 type="number"
                 min="0"
@@ -238,7 +238,7 @@ export function RecyclabilityTab({
                 onChange={(e) =>
                   onParameterChange(
                     "CR_theoretical_mean",
-                    parseFloat(e.target.value) || 0
+                    parseFloat(e.target.value) || 0,
                   )
                 }
                 className="text-[12px]"
@@ -246,7 +246,7 @@ export function RecyclabilityTab({
             </div>
 
             <div>
-              <Label className="text-[10px]">CI Lower</Label>
+              <Label className="text-xs">CI Lower</Label>
               <Input
                 type="number"
                 min="0"
@@ -265,7 +265,7 @@ export function RecyclabilityTab({
             </div>
 
             <div>
-              <Label className="text-[10px]">CI Upper</Label>
+              <Label className="text-xs">CI Upper</Label>
               <Input
                 type="number"
                 min="0"
@@ -285,7 +285,7 @@ export function RecyclabilityTab({
           </div>
 
           {formData.CR_theoretical_mean && (
-            <div className="mt-2 text-[11px] text-black/60 dark:text-white/60">
+            <div className="mt-2 text-sm text-black/60 dark:text-white/60">
               Public Score:{" "}
               <strong>
                 {Math.round(formData.CR_theoretical_mean * 100)}/100

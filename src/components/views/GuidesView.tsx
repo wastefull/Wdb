@@ -292,7 +292,7 @@ export function GuidesView({ onBack }: GuidesViewProps) {
 
                   {/* Time estimate at bottom */}
                   {guide.estimated_time && (
-                    <div className="flex items-center gap-1 text-[11px] text-black/50 dark:text-white/50">
+                    <div className="flex items-center gap-1 text-sm text-black/50 dark:text-white/50">
                       <Clock size={10} />
                       {guide.estimated_time}
                     </div>

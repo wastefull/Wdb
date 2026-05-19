@@ -86,7 +86,7 @@ export function DataRetentionManager({
             Authorization: `Bearer ${publicAnonKey}`,
             ...(accessToken && { "X-Session-Token": accessToken }),
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -108,7 +108,7 @@ export function DataRetentionManager({
     if (!stats || stats.screenshots.expired === 0) return;
 
     const confirmed = window.confirm(
-      `Are you sure you want to remove ${stats.screenshots.expired} expired screenshot(s)? This action cannot be undone.`
+      `Are you sure you want to remove ${stats.screenshots.expired} expired screenshot(s)? This action cannot be undone.`,
     );
 
     if (!confirmed) return;
@@ -124,7 +124,7 @@ export function DataRetentionManager({
             Authorization: `Bearer ${publicAnonKey}`,
             ...(accessToken && { "X-Session-Token": accessToken }),
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -149,7 +149,7 @@ export function DataRetentionManager({
     if (!stats || stats.auditLogs.expired === 0) return;
 
     const confirmed = window.confirm(
-      `Are you sure you want to delete ${stats.auditLogs.expired} expired audit log(s)? This action cannot be undone.`
+      `Are you sure you want to delete ${stats.auditLogs.expired} expired audit log(s)? This action cannot be undone.`,
     );
 
     if (!confirmed) return;
@@ -165,7 +165,7 @@ export function DataRetentionManager({
             Authorization: `Bearer ${publicAnonKey}`,
             ...(accessToken && { "X-Session-Token": accessToken }),
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -202,7 +202,7 @@ export function DataRetentionManager({
             Authorization: `Bearer ${publicAnonKey}`,
             ...(accessToken && { "X-Session-Token": accessToken }),
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -349,10 +349,10 @@ export function DataRetentionManager({
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
-                          <p className="font-['Sniglet'] text-[11px] font-semibold truncate">
+                          <p className="font-['Sniglet'] text-sm font-semibold truncate">
                             {source.title}
                           </p>
-                          <p className="font-['Sniglet'] text-[10px] text-black/50 dark:text-white/50">
+                          <p className="font-['Sniglet'] text-xs text-black/50 dark:text-white/50">
                             Created:{" "}
                             {new Date(source.created_at).toLocaleDateString()}
                           </p>
@@ -474,7 +474,7 @@ export function DataRetentionManager({
 
           {stats?.auditLogs.oldestLog && (
             <div className="p-3 bg-muted/50 rounded-lg">
-              <p className="font-['Sniglet'] text-[11px] font-semibold mb-1">
+              <p className="font-['Sniglet'] text-sm font-semibold mb-1">
                 Oldest Audit Log:
               </p>
               <p className="label-muted-xs">
@@ -575,7 +575,7 @@ export function DataRetentionManager({
                     </Alert>
 
                     <div className="mt-3 space-y-2">
-                      <h5 className="font-['Sniglet'] text-[11px] font-semibold">
+                      <h5 className="font-['Sniglet'] text-sm font-semibold">
                         Dependent Evidence:
                       </h5>
                       <div className="max-h-[150px] overflow-y-auto space-y-2">
@@ -584,17 +584,17 @@ export function DataRetentionManager({
                             key={evidence.id}
                             className="p-2 bg-white dark:bg-black/20 rounded border border-red-200 dark:border-red-800"
                           >
-                            <p className="font-['Sniglet'] text-[10px]">
+                            <p className="font-['Sniglet'] text-xs">
                               <strong>Material:</strong> {evidence.material_id}
                             </p>
-                            <p className="font-['Sniglet'] text-[10px]">
+                            <p className="font-['Sniglet'] text-xs">
                               <strong>Parameter:</strong>{" "}
                               {evidence.parameter_code}
                             </p>
                             <p className="font-['Sniglet'] text-[9px] text-black/50 dark:text-white/50">
                               Created:{" "}
                               {new Date(
-                                evidence.created_at
+                                evidence.created_at,
                               ).toLocaleDateString()}{" "}
                               by {evidence.created_by}
                             </p>
@@ -628,15 +628,13 @@ export function DataRetentionManager({
             </div>
             <div className="p-3 bg-muted/50 rounded-lg">
               <p className="label-muted-xs mb-1">Last Checked</p>
-              <div className="font-['Sniglet'] text-[11px]">
+              <div className="font-['Sniglet'] text-sm">
                 {stats ? new Date(stats.lastChecked).toLocaleTimeString() : "-"}
               </div>
             </div>
             <div className="p-3 bg-muted/50 rounded-lg">
               <p className="label-muted-xs mb-1">Policy Version</p>
-              <div className="font-['Sniglet'] text-[11px]">
-                v1.0 (Nov 2025)
-              </div>
+              <div className="font-['Sniglet'] text-sm">v1.0 (Nov 2025)</div>
             </div>
           </div>
         </CardContent>

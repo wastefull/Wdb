@@ -82,7 +82,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
   const { materials } = useMaterialsContext();
   const [viewMode, setViewMode] = useState<ViewMode>("evidence");
   const [selectedParameter, setSelectedParameter] = useState<string | null>(
-    null
+    null,
   );
   const [selectedMIU, setSelectedMIU] = useState<MIU | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -111,13 +111,13 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
   const [addingSource, setAddingSource] = useState(false);
   const [showAddSourceDialog, setShowAddSourceDialog] = useState(false);
   const [sourceToAdd, setSourceToAdd] = useState<Partial<api.Source> | null>(
-    null
+    null,
   );
   const [showAllMaterials, setShowAllMaterials] = useState(false);
   const [libraryDOIs, setLibraryDOIs] = useState<Set<string>>(new Set());
   const [filterOpenAccess, setFilterOpenAccess] = useState(false);
   const [oaStatusCache, setOaStatusCache] = useState<Map<string, boolean>>(
-    new Map()
+    new Map(),
   );
   const [checkingOABatch, setCheckingOABatch] = useState(false);
 
@@ -170,7 +170,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
     try {
       const sources = await api.getAllSources();
       const dois = new Set(
-        sources.filter((s) => s.doi).map((s) => s.doi!.toLowerCase())
+        sources.filter((s) => s.doi).map((s) => s.doi!.toLowerCase()),
       );
       setLibraryDOIs(dois);
     } catch (error) {
@@ -192,7 +192,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
-        }
+        },
       );
 
       if (response.ok) {
@@ -237,7 +237,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
-        }
+        },
       );
 
       if (response.ok) {
@@ -245,7 +245,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
         if (data.success && data.evidence) {
           // Filter to selected parameter
           const paramEvidence = data.evidence.filter(
-            (e: MIU) => e.parameter_code === selectedParameter
+            (e: MIU) => e.parameter_code === selectedParameter,
           );
           setEvidencePoints(paramEvidence);
         }
@@ -290,7 +290,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
             figure_number: formData.figure_number || null,
             table_number: formData.table_number || null,
           }),
-        }
+        },
       );
 
       const data = await response.json();
@@ -341,7 +341,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
             figure_number: formData.figure_number || null,
             table_number: formData.table_number || null,
           }),
-        }
+        },
       );
 
       const data = await response.json();
@@ -382,7 +382,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
-        }
+        },
       );
 
       const data = await response.json();
@@ -490,13 +490,13 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
       setOaStatus(oa);
       // Update cache
       setOaStatusCache((prev) =>
-        new Map(prev).set(result.doi.toLowerCase(), oa.is_open_access)
+        new Map(prev).set(result.doi.toLowerCase(), oa.is_open_access),
       );
     } catch (error) {
       logger.error("Error checking OA status:", error);
       setOaStatus({ is_open_access: false });
       setOaStatusCache((prev) =>
-        new Map(prev).set(result.doi.toLowerCase(), false)
+        new Map(prev).set(result.doi.toLowerCase(), false),
       );
     } finally {
       setCheckingOA(false);
@@ -512,7 +512,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
     for (let i = 0; i < dois.length; i += batchSize) {
       const batch = dois.slice(i, i + batchSize);
       const results = await Promise.allSettled(
-        batch.map((doi) => api.checkOAStatus(doi))
+        batch.map((doi) => api.checkOAStatus(doi)),
       );
 
       results.forEach((result, idx) => {
@@ -562,7 +562,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
       });
       if (duplicate.isDuplicate) {
         toast.error(
-          `Source already exists: ${duplicate.existingSource?.title}`
+          `Source already exists: ${duplicate.existingSource?.title}`,
         );
         return;
       }
@@ -574,7 +574,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
       // Update library DOIs cache
       if (sourceToAdd.doi) {
         setLibraryDOIs(
-          (prev) => new Set([...prev, sourceToAdd.doi!.toLowerCase()])
+          (prev) => new Set([...prev, sourceToAdd.doi!.toLowerCase()]),
         );
       }
 
@@ -599,7 +599,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
       e.parameter_code === selectedParameter &&
       (searchQuery === "" ||
         e.citation.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        e.snippet.toLowerCase().includes(searchQuery.toLowerCase()))
+        e.snippet.toLowerCase().includes(searchQuery.toLowerCase())),
   );
 
   return (
@@ -615,8 +615,8 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
             {viewMode === "evidence"
               ? "Collect and organize scientific evidence for material parameters"
               : viewMode === "browse-all"
-              ? "Browse and manage all evidence points (including test data)"
-              : "Search academic databases for relevant sources"}
+                ? "Browse and manage all evidence points (including test data)"
+                : "Search academic databases for relevant sources"}
           </p>
         </div>
 
@@ -706,7 +706,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                     <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center gap-2">
                         <div
-                          className="w-6 h-6 rounded-md border border-[#211f1c] dark:border-white/20 flex items-center justify-center font-['Tilt_Warp'] text-[10px]"
+                          className="w-6 h-6 rounded-md border border-[#211f1c] dark:border-white/20 flex items-center justify-center font-['Tilt_Warp'] text-xs"
                           style={{ backgroundColor: param.color }}
                         >
                           {param.code}
@@ -845,7 +845,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                   <h3 className="font-['Tilt_Warp'] text-[16px] normal mb-1">
                     Evidence Point Details
                   </h3>
-                  <p className="font-['Sniglet'] text-[10px] text-black/40 dark:text-white/40">
+                  <p className="font-['Sniglet'] text-xs text-black/40 dark:text-white/40">
                     ID: {selectedMIU.id}
                   </p>
                 </div>
@@ -855,7 +855,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                   <div className="p-4 space-y-4">
                     {/* Source Information */}
                     <div>
-                      <label className="block font-['Tilt_Warp'] text-[11px] text-black/60 dark:text-white/60 mb-2">
+                      <label className="block font-['Tilt_Warp'] text-sm text-black/60 dark:text-white/60 mb-2">
                         SOURCE
                       </label>
                       <div className="p-3 rounded-lg bg-[#e5e4dc] dark:bg-[#1a1917] border border-[#211f1c]/20 dark:border-white/20">
@@ -880,7 +880,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
 
                     {/* Value */}
                     <div>
-                      <label className="block font-['Tilt_Warp'] text-[11px] text-black/60 dark:text-white/60 mb-2">
+                      <label className="block font-['Tilt_Warp'] text-sm text-black/60 dark:text-white/60 mb-2">
                         EXTRACTED VALUE
                       </label>
                       <div className="p-3 rounded-lg bg-[#e5e4dc] dark:bg-[#1a1917] border border-[#211f1c]/20 dark:border-white/20">
@@ -892,7 +892,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
 
                     {/* Context */}
                     <div>
-                      <label className="block font-['Tilt_Warp'] text-[11px] text-black/60 dark:text-white/60 mb-2">
+                      <label className="block font-['Tilt_Warp'] text-sm text-black/60 dark:text-white/60 mb-2">
                         CONTEXT
                       </label>
                       <div className="p-3 rounded-lg bg-[#e5e4dc] dark:bg-[#1a1917] border border-[#211f1c]/20 dark:border-white/20">
@@ -904,7 +904,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
 
                     {/* Confidence */}
                     <div>
-                      <label className="block font-['Tilt_Warp'] text-[11px] text-black/60 dark:text-white/60 mb-2">
+                      <label className="block font-['Tilt_Warp'] text-sm text-black/60 dark:text-white/60 mb-2">
                         CONFIDENCE LEVEL
                       </label>
                       <Badge
@@ -913,7 +913,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                             ? "default"
                             : "secondary"
                         }
-                        className="font-['Sniglet'] text-[11px]"
+                        className="font-['Sniglet'] text-sm"
                       >
                         {selectedMIU.confidence_level.toUpperCase()}
                       </Badge>
@@ -921,21 +921,21 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
 
                     {/* Metadata */}
                     <div>
-                      <label className="block font-['Tilt_Warp'] text-[11px] text-black/60 dark:text-white/60 mb-2">
+                      <label className="block font-['Tilt_Warp'] text-sm text-black/60 dark:text-white/60 mb-2">
                         METADATA
                       </label>
                       <div className="space-y-2">
                         <div className="flex items-center justify-between p-2 rounded bg-[#e5e4dc] dark:bg-[#1a1917]">
                           <span className="label-muted-sm">Created by</span>
-                          <span className="font-['Sniglet'] text-[11px] normal">
+                          <span className="font-['Sniglet'] text-sm normal">
                             {selectedMIU.created_by}
                           </span>
                         </div>
                         <div className="flex items-center justify-between p-2 rounded bg-[#e5e4dc] dark:bg-[#1a1917]">
                           <span className="label-muted-sm">Created at</span>
-                          <span className="font-['Sniglet'] text-[11px] normal">
+                          <span className="font-['Sniglet'] text-sm normal">
                             {new Date(
-                              selectedMIU.created_at
+                              selectedMIU.created_at,
                             ).toLocaleDateString()}
                           </span>
                         </div>
@@ -1056,7 +1056,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                         <button
                           key={m.id}
                           onClick={() => handleSourceSearch(m.name)}
-                          className="px-2 py-1 text-[10px] font-['Sniglet'] bg-[#e5e4dc] dark:bg-[#1a1917] border border-[#211f1c]/20 dark:border-white/20 rounded-md hover:border-[#211f1c]/40 dark:hover:border-white/40 transition-colors"
+                          className="px-2 py-1 text-xs font-['Sniglet'] bg-[#e5e4dc] dark:bg-[#1a1917] border border-[#211f1c]/20 dark:border-white/20 rounded-md hover:border-[#211f1c]/40 dark:hover:border-white/40 transition-colors"
                         >
                           {m.name}
                         </button>
@@ -1064,7 +1064,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                       {materials.length > 5 && (
                         <button
                           onClick={() => setShowAllMaterials(!showAllMaterials)}
-                          className="px-2 py-1 text-[10px] font-['Sniglet'] bg-waste-reuse dark:bg-[#3a3835] border border-[#211f1c]/20 dark:border-white/20 rounded-md hover:border-[#211f1c]/40 dark:hover:border-white/40 transition-colors"
+                          className="px-2 py-1 text-xs font-['Sniglet'] bg-waste-reuse dark:bg-[#3a3835] border border-[#211f1c]/20 dark:border-white/20 rounded-md hover:border-[#211f1c]/40 dark:hover:border-white/40 transition-colors"
                         >
                           {showAllMaterials
                             ? "Show less"
@@ -1107,7 +1107,8 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                     // Filter results based on OA toggle
                     const filteredResults = filterOpenAccess
                       ? sourceSearchResults.filter(
-                          (r) => oaStatusCache.get(r.doi.toLowerCase()) === true
+                          (r) =>
+                            oaStatusCache.get(r.doi.toLowerCase()) === true,
                         )
                       : sourceSearchResults;
 
@@ -1138,10 +1139,10 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
 
                     return filteredResults.map((result, idx) => {
                       const isInLibrary = libraryDOIs.has(
-                        result.doi.toLowerCase()
+                        result.doi.toLowerCase(),
                       );
                       const isOpenAccess = oaStatusCache.get(
-                        result.doi.toLowerCase()
+                        result.doi.toLowerCase(),
                       );
                       return (
                         <button
@@ -1151,8 +1152,8 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                             selectedSearchResult?.doi === result.doi
                               ? "border-[#211f1c] dark:border-white bg-[#e5e4dc] dark:bg-[#3a3835] shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]"
                               : isInLibrary
-                              ? "border-[#a8d5ba] dark:border-[#a8d5ba]/60 bg-[#a8d5ba]/10 dark:bg-[#a8d5ba]/5"
-                              : "border-[#211f1c]/20 dark:border-white/20 hover:border-[#211f1c]/40 dark:hover:border-white/40"
+                                ? "border-[#a8d5ba] dark:border-[#a8d5ba]/60 bg-[#a8d5ba]/10 dark:bg-[#a8d5ba]/5"
+                                : "border-[#211f1c]/20 dark:border-white/20 hover:border-[#211f1c]/40 dark:hover:border-white/40"
                           }`}
                         >
                           <div className="flex items-start justify-between gap-2 mb-1">
@@ -1204,7 +1205,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
             {selectedSearchResult ? (
               (() => {
                 const isInLibrary = libraryDOIs.has(
-                  selectedSearchResult.doi.toLowerCase()
+                  selectedSearchResult.doi.toLowerCase(),
                 );
                 return (
                   <>
@@ -1223,7 +1224,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                               </Badge>
                             )}
                           </div>
-                          <p className="label-muted text-[11px]">
+                          <p className="label-muted text-sm">
                             {selectedSearchResult.authors.join(", ")}
                           </p>
                         </div>
@@ -1340,7 +1341,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                               href={oaStatus.best_oa_location.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="mt-2 inline-flex items-center gap-1 text-[11px] font-['Sniglet'] text-blue-600 dark:text-blue-400 hover:underline"
+                              className="mt-2 inline-flex items-center gap-1 text-sm font-['Sniglet'] text-blue-600 dark:text-blue-400 hover:underline"
                             >
                               <ExternalLink size={12} />
                               View Open Access Version
@@ -1482,7 +1483,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
               <Select
                 value={formData.source_type}
                 onValueChange={(
-                  value: "whitepaper" | "article" | "external" | "manual"
+                  value: "whitepaper" | "article" | "external" | "manual",
                 ) => setFormData({ ...formData, source_type: value })}
               >
                 <SelectTrigger className="w-full">
@@ -1689,7 +1690,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
               <Select
                 value={formData.source_type}
                 onValueChange={(
-                  value: "whitepaper" | "article" | "external" | "manual"
+                  value: "whitepaper" | "article" | "external" | "manual",
                 ) => setFormData({ ...formData, source_type: value })}
               >
                 <SelectTrigger className="w-full">
@@ -1853,7 +1854,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                         | "government"
                         | "industrial"
                         | "ngo"
-                        | "internal"
+                        | "internal",
                     ) => setSourceToAdd({ ...sourceToAdd, type: value })}
                   >
                     <SelectTrigger className="w-full">

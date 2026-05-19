@@ -266,7 +266,7 @@ export function SearchResultsView({
             <Filter size={16} />
             <span className="text-[14px] font-medium">Filters</span>
             {hasActiveFilters && (
-              <span className="text-[11px] bg-waste-recycle px-2 py-0.5 rounded-full border border-[#211f1c]">
+              <span className="text-sm bg-waste-recycle px-2 py-0.5 rounded-full border border-[#211f1c]">
                 Active
               </span>
             )}
@@ -298,7 +298,7 @@ export function SearchResultsView({
                   <div className="w-11 h-6 bg-gray-300 dark:bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-500"></div>
                 </div>
               </label>
-              <p className="text-[10px] text-purple-600 dark:text-purple-300 mt-1">
+              <p className="text-xs text-purple-600 dark:text-purple-300 mt-1">
                 Experimental features that may change or be removed
               </p>
             </div>
@@ -320,7 +320,7 @@ export function SearchResultsView({
                     Categories
                   </span>
                   {selectedCategories.length > 0 && (
-                    <span className="text-[10px] bg-waste-recycle px-1.5 py-0.5 rounded-full border border-[#211f1c] ml-1">
+                    <span className="text-xs bg-waste-recycle px-1.5 py-0.5 rounded-full border border-[#211f1c] ml-1">
                       {selectedCategories.length} selected
                     </span>
                   )}
@@ -331,7 +331,7 @@ export function SearchResultsView({
                       e.stopPropagation();
                       setSelectedCategories([]);
                     }}
-                    className="text-[11px] text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
+                    className="text-sm text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
                   >
                     Clear
                   </button>
@@ -347,7 +347,7 @@ export function SearchResultsView({
                         key={cat.id}
                         onClick={() => toggleCategory(cat.id)}
                         disabled={count === 0 && !isSelected}
-                        className={`text-[11px] px-3 py-1.5 rounded-full border transition-all ${
+                        className={`text-sm px-3 py-1.5 rounded-full border transition-all ${
                           isSelected
                             ? "bg-waste-recycle border-[#211f1c] shadow-[2px_2px_0px_0px_#000000]"
                             : count > 0
@@ -392,7 +392,7 @@ export function SearchResultsView({
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {/* Compostability */}
                     <div>
-                      <label className="text-[11px] text-black/60 dark:text-white/60 flex items-center justify-between mb-1">
+                      <label className="text-sm text-black/60 dark:text-white/60 flex items-center justify-between mb-1">
                         <span className="flex items-center gap-1">
                           <span
                             className="w-2 h-2 rounded-full"
@@ -415,7 +415,7 @@ export function SearchResultsView({
                     </div>
                     {/* Recyclability */}
                     <div>
-                      <label className="text-[11px] text-black/60 dark:text-white/60 flex items-center justify-between mb-1">
+                      <label className="text-sm text-black/60 dark:text-white/60 flex items-center justify-between mb-1">
                         <span className="flex items-center gap-1">
                           <span
                             className="w-2 h-2 rounded-full"
@@ -438,7 +438,7 @@ export function SearchResultsView({
                     </div>
                     {/* Reusability */}
                     <div>
-                      <label className="text-[11px] text-black/60 dark:text-white/60 flex items-center justify-between mb-1">
+                      <label className="text-sm text-black/60 dark:text-white/60 flex items-center justify-between mb-1">
                         <span className="flex items-center gap-1">
                           <span
                             className="w-2 h-2 rounded-full"
@@ -467,7 +467,7 @@ export function SearchResultsView({
             {hasActiveFilters && (
               <button
                 onClick={clearFilters}
-                className="flex items-center gap-1 text-[11px] text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
+                className="flex items-center gap-1 text-sm text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
               >
                 <X size={12} />
                 Clear all filters
@@ -479,13 +479,13 @@ export function SearchResultsView({
         {/* Sort Options - Always visible */}
         <div className="flex items-center justify-between p-4 border-t border-[#211f1c]/20 dark:border-white/10">
           <div className="flex items-center gap-2">
-            <span className="text-[11px] text-black/60 dark:text-white/60">
+            <span className="text-sm text-black/60 dark:text-white/60">
               Sort by:
             </span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-              className="text-[11px] px-2 py-1 bg-white dark:bg-[#2a2825] border border-[#211f1c]/30 dark:border-white/20 rounded-lg outline-none"
+              className="text-sm px-2 py-1 bg-white dark:bg-[#2a2825] border border-[#211f1c]/30 dark:border-white/20 rounded-lg outline-none"
             >
               <option value="name">Name</option>
               <option value="compostability">Compostability</option>
@@ -496,7 +496,7 @@ export function SearchResultsView({
               onClick={() =>
                 setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"))
               }
-              className="text-[11px] px-2 py-1 bg-white dark:bg-[#2a2825] border border-[#211f1c]/30 dark:border-white/20 rounded-lg hover:border-[#211f1c] dark:hover:border-white/40 transition-all"
+              className="text-sm px-2 py-1 bg-white dark:bg-[#2a2825] border border-[#211f1c]/30 dark:border-white/20 rounded-lg hover:border-[#211f1c] dark:hover:border-white/40 transition-all"
             >
               {sortOrder === "asc" ? "↑ Asc" : "↓ Desc"}
             </button>

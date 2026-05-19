@@ -43,7 +43,7 @@ export function AdminModeButton({
     >
       <button
         onClick={handleNavigateToDashboard}
-        className={`px-2 py-1 text-[10px] uppercase hover:opacity-70 transition-opacity ${
+        className={`px-2 py-1 text-xs uppercase hover:opacity-70 transition-opacity ${
           settings.adminMode ? "arcade-btn-green" : "arcade-btn-red"
         }`}
       >

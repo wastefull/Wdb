@@ -48,7 +48,7 @@ export function Leaderboard({ onUserClick }: LeaderboardProps) {
         return <Award size={16} className="text-amber-600" />;
       default:
         return (
-          <span className="text-[11px] text-black/40 dark:text-white/40 w-4 text-center">
+          <span className="text-sm text-black/40 dark:text-white/40 w-4 text-center">
             {rank}
           </span>
         );
@@ -81,7 +81,7 @@ export function Leaderboard({ onUserClick }: LeaderboardProps) {
           <Trophy size={14} className="text-yellow-500" />
           Top Contributors
         </h3>
-        <p className="text-[11px] text-black/60 dark:text-white/60 italic">
+        <p className="text-sm text-black/60 dark:text-white/60 italic">
           No contributors yet
         </p>
       </div>
@@ -121,7 +121,7 @@ export function Leaderboard({ onUserClick }: LeaderboardProps) {
             <div className="flex-1 min-w-0">
               <p className="text-[12px] font-medium truncate">{entry.name}</p>
             </div>
-            <div className="text-[11px] text-black/60 dark:text-white/60 tabular-nums">
+            <div className="text-sm text-black/60 dark:text-white/60 tabular-nums">
               {entry.total}
             </div>
           </button>

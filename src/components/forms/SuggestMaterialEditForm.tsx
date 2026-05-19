@@ -227,11 +227,11 @@ export function SuggestMaterialEditForm({
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div className="bg-waste-reuse dark:bg-[#2a3235] border border-[#211f1c] dark:border-white/20 rounded-md p-3 mb-4">
-            <p className="text-[11px] normal">
+            <p className="text-sm normal">
               ✏️ <strong>Editing:</strong> {material.name}
             </p>
             {!isAdminMode && (
-              <p className="text-[10px] text-black/70 dark:text-white/70 mt-1">
+              <p className="text-xs text-black/70 dark:text-white/70 mt-1">
                 Your suggested changes will be reviewed by an admin before being
                 applied.
               </p>
@@ -332,13 +332,13 @@ export function SuggestMaterialEditForm({
                   >
                     Linked Materials
                   </Label>
-                  <span className="text-[10px] text-black/50 dark:text-white/50">
+                  <span className="text-xs text-black/50 dark:text-white/50">
                     {linkedMaterialIds.length} selected
                   </span>
                 </div>
 
                 {!isHub && (
-                  <p className="text-[10px] text-black/60 dark:text-white/60 mb-3">
+                  <p className="text-xs text-black/60 dark:text-white/60 mb-3">
                     Enable "Hub page" to link related materials.
                   </p>
                 )}
@@ -371,7 +371,7 @@ export function SuggestMaterialEditForm({
                           onChange={() => toggleLinkedMaterial(candidate.id)}
                           className="w-3.5 h-3.5 accent-waste-recycle"
                         />
-                        <span className="text-[11px]">
+                        <span className="text-sm">
                           {candidate.name}
                           <span className="text-black/50 dark:text-white/50">
                             {` (${candidate.category})`}
@@ -383,7 +383,7 @@ export function SuggestMaterialEditForm({
                 </div>
 
                 {isHub && linkedMaterialIds.length > 0 && (
-                  <p className="mt-3 text-[10px] text-black/60 dark:text-white/60">
+                  <p className="mt-3 text-xs text-black/60 dark:text-white/60">
                     Linked:{" "}
                     {linkedMaterialIds
                       .map((id) => linkedMaterialNameById.get(id) || id)
@@ -408,7 +408,7 @@ export function SuggestMaterialEditForm({
                 rows={3}
                 required
               />
-              <p className="mt-1 text-[10px] text-black/50 dark:text-white/50">
+              <p className="mt-1 text-xs text-black/50 dark:text-white/50">
                 Help reviewers understand the benefit of your changes.
               </p>
             </div>

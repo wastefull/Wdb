@@ -195,7 +195,7 @@ export function NotificationBell({
           {unreadCount > 0 && (
             <button
               onClick={handleMarkAllAsRead}
-              className="text-[11px] text-blue-600 dark:text-blue-400 hover:underline"
+              className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
             >
               Mark all read
             </button>
@@ -236,7 +236,7 @@ export function NotificationBell({
                       <p className="text-[12px] normal mb-1">
                         {notification.message}
                       </p>
-                      <p className="text-[10px] text-black/50 dark:text-white/50">
+                      <p className="text-xs text-black/50 dark:text-white/50">
                         {formatTimeAgo(notification.created_at)}
                       </p>
                     </div>

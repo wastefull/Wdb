@@ -58,7 +58,7 @@ export function CompostabilityTab({
     } catch (error) {
       logger.error("Error calculating compostability:", error);
       toast.error(
-        "Failed to calculate compostability: " + (error as Error).message
+        "Failed to calculate compostability: " + (error as Error).message,
       );
     } finally {
       setCalculating(false);
@@ -75,7 +75,7 @@ export function CompostabilityTab({
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <Label className="text-[11px]">Biodegradation (B)</Label>
+            <Label className="text-sm">Biodegradation (B)</Label>
             <Input
               type="number"
               min="0"
@@ -91,7 +91,7 @@ export function CompostabilityTab({
           </div>
 
           <div>
-            <Label className="text-[11px]">Nutrient Balance (N)</Label>
+            <Label className="text-sm">Nutrient Balance (N)</Label>
             <Input
               type="number"
               min="0"
@@ -107,7 +107,7 @@ export function CompostabilityTab({
           </div>
 
           <div>
-            <Label className="text-[11px]">Toxicity (T)</Label>
+            <Label className="text-sm">Toxicity (T)</Label>
             <Input
               type="number"
               min="0"
@@ -123,7 +123,7 @@ export function CompostabilityTab({
           </div>
 
           <div>
-            <Label className="text-[11px]">Habitat Adaptability (H)</Label>
+            <Label className="text-sm">Habitat Adaptability (H)</Label>
             <Input
               type="number"
               min="0"
@@ -139,7 +139,7 @@ export function CompostabilityTab({
           </div>
 
           <div>
-            <Label className="text-[11px]">
+            <Label className="text-sm">
               Infrastructure Maturity (M) - Shared
             </Label>
             <Input
@@ -192,7 +192,7 @@ export function CompostabilityTab({
 
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <Label className="text-[10px]">Mean (0-1)</Label>
+              <Label className="text-xs">Mean (0-1)</Label>
               <Input
                 type="number"
                 min="0"
@@ -202,7 +202,7 @@ export function CompostabilityTab({
                 onChange={(e) =>
                   onParameterChange(
                     "CC_practical_mean",
-                    parseFloat(e.target.value) || 0
+                    parseFloat(e.target.value) || 0,
                   )
                 }
                 className="text-[12px]"
@@ -210,7 +210,7 @@ export function CompostabilityTab({
             </div>
 
             <div>
-              <Label className="text-[10px]">CI Lower</Label>
+              <Label className="text-xs">CI Lower</Label>
               <Input
                 type="number"
                 min="0"
@@ -229,7 +229,7 @@ export function CompostabilityTab({
             </div>
 
             <div>
-              <Label className="text-[10px]">CI Upper</Label>
+              <Label className="text-xs">CI Upper</Label>
               <Input
                 type="number"
                 min="0"
@@ -249,7 +249,7 @@ export function CompostabilityTab({
           </div>
 
           {formData.CC_practical_mean !== undefined && (
-            <div className="mt-2 text-[11px] text-black/60 dark:text-white/60">
+            <div className="mt-2 text-sm text-black/60 dark:text-white/60">
               Public Score:{" "}
               <strong>
                 {Math.round(formData.CC_practical_mean * 100)}/100
@@ -266,7 +266,7 @@ export function CompostabilityTab({
 
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <Label className="text-[10px]">Mean (0-1)</Label>
+              <Label className="text-xs">Mean (0-1)</Label>
               <Input
                 type="number"
                 min="0"
@@ -276,7 +276,7 @@ export function CompostabilityTab({
                 onChange={(e) =>
                   onParameterChange(
                     "CC_theoretical_mean",
-                    parseFloat(e.target.value) || 0
+                    parseFloat(e.target.value) || 0,
                   )
                 }
                 className="text-[12px]"
@@ -284,7 +284,7 @@ export function CompostabilityTab({
             </div>
 
             <div>
-              <Label className="text-[10px]">CI Lower</Label>
+              <Label className="text-xs">CI Lower</Label>
               <Input
                 type="number"
                 min="0"
@@ -303,7 +303,7 @@ export function CompostabilityTab({
             </div>
 
             <div>
-              <Label className="text-[10px]">CI Upper</Label>
+              <Label className="text-xs">CI Upper</Label>
               <Input
                 type="number"
                 min="0"
@@ -323,7 +323,7 @@ export function CompostabilityTab({
           </div>
 
           {formData.CC_theoretical_mean !== undefined && (
-            <div className="mt-2 text-[11px] text-black/60 dark:text-white/60">
+            <div className="mt-2 text-sm text-black/60 dark:text-white/60">
               Public Score:{" "}
               <strong>
                 {Math.round(formData.CC_theoretical_mean * 100)}/100
