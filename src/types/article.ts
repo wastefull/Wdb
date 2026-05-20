@@ -6,11 +6,6 @@
 
 import { TiptapContent } from "./guide";
 
-export interface ArticleSection {
-  image?: string; // base64 encoded image
-  content: string;
-}
-
 export interface Article {
   id: string;
   title: string;
@@ -25,19 +20,7 @@ export interface Article {
   cover_image_url?: string;
 
   // Rich text content (Tiptap JSON format)
-  content?: TiptapContent;
-
-  // Legacy section-based content (deprecated, for backward compatibility)
-  /** @deprecated Use content (TiptapContent) instead */
-  overview: {
-    image?: string;
-  };
-  /** @deprecated Use content (TiptapContent) instead */
-  introduction: ArticleSection;
-  /** @deprecated Use content (TiptapContent) instead */
-  supplies: ArticleSection;
-  /** @deprecated Use content (TiptapContent) instead */
-  step1: ArticleSection;
+  content: TiptapContent;
 
   dateAdded: string;
 
@@ -49,17 +32,12 @@ export interface Article {
 
   // Additional required properties
   slug: string;
-  content_markdown: string;
   material_id: string;
   author_id: string;
   created_at: string;
   updated_at: string;
   version: number;
   status: "draft" | "published" | "archived";
-
-  // Legacy field for backwards compatibility
-  /** @deprecated Use article_type instead */
-  category?: "DIY" | "Industrial" | "Experimental";
 }
 
 export type CategoryType = "compostability" | "recyclability" | "reusability";

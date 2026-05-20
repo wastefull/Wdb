@@ -21,25 +21,8 @@ export function AboutView({ onBack }: AboutViewProps) {
         <div className="retro-card p-6">
           <div className="flex items-start gap-4 mb-4">
             <div className="flex-1">
-              <h3 className="text-[18px] font-display text-black dark:text-white mb-2">
-                Our Mission
-              </h3>
-              <div className="mb-4 flex justify-center">
-                <img
-                  src={
-                    settings.darkMode
-                      ? "https://bdvfwjmaufjeqmxphmtv.supabase.co/storage/v1/object/public/make-17cae920-assets/logo_darkmode-1763068549938.png"
-                      : "https://bdvfwjmaufjeqmxphmtv.supabase.co/storage/v1/object/public/make-17cae920-assets/uplogo_transparent-1761169051994.png"
-                  }
-                  alt="Wastefull Logo"
-                  className={
-                    settings.darkMode
-                      ? "h-44 lg:h-56 w-auto"
-                      : "h-32 lg:h-44 w-auto"
-                  }
-                />
-              </div>
-              <p className="text-[13px] text-black/70 dark:text-white/70 leading-relaxed">
+              <h3 className="promo-heading mb-2">Our Mission</h3>
+              <p className="promo">
                 Wastefull is about reminding those of us who are bogged down by
                 shame and overwhelm that there are tangible, small things we can
                 do to fight back against systems that want us to numb out and
@@ -47,12 +30,31 @@ export function AboutView({ onBack }: AboutViewProps) {
                 we empower individuals and organizations to make informed
                 decisions that reduce waste and promote sustainability.
               </p>{" "}
-              <p>&nbsp;</p>
-              <p className="text-[13px] text-black/70 dark:text-white/70 leading-relaxed mt-2">
-                By fostering a culture of responsibility and innovation, we aim
-                to inspire individuals and organizations to take meaningful
-                actions that contribute to a more sustainable future.
-              </p>
+              <div className="mb-4 grid grid-cols-4">
+                <div className="col-span-3">
+                  <p className="promo mt-2">
+                    By fostering a culture of responsibility and innovation, we
+                    aim to inspire individuals and organizations to take
+                    meaningful actions that contribute to a more sustainable
+                    future.
+                  </p>
+                </div>
+                <div className="col-span-1 flex justify-end">
+                  <img
+                    src={
+                      settings.darkMode
+                        ? "https://bdvfwjmaufjeqmxphmtv.supabase.co/storage/v1/object/public/make-17cae920-assets/logo_darkmode-1763068549938.png"
+                        : "https://bdvfwjmaufjeqmxphmtv.supabase.co/storage/v1/object/public/make-17cae920-assets/uplogo_transparent-1761169051994.png"
+                    }
+                    alt="Wastefull Logo"
+                    className={
+                      settings.darkMode
+                        ? "h-44 lg:h-56 w-auto"
+                        : "h-32 lg:h-44 w-auto"
+                    }
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -60,17 +62,15 @@ export function AboutView({ onBack }: AboutViewProps) {
         <div className="retro-card p-6">
           <div className="flex items-start gap-4 mb-4">
             <div className="flex-1">
-              <h3 className="text-[18px] font-display text-black dark:text-white mb-2">
-                Waste is Opportunity
-              </h3>
-              <p className="text-[13px] text-black/70 dark:text-white/70 leading-relaxed">
+              <h3 className="promo-heading mb-2">Waste is Opportunity</h3>
+              <p className="promo">
                 A “wastefull” philosophy embraces waste not just as an
                 unfortunate side effect of production and survival, but as a
                 resource we can leverage to build stronger communities and
                 circular economies.
               </p>{" "}
               <p>&nbsp;</p>
-              <p className="text-[13px] text-black/70 dark:text-white/70 leading-relaxed mt-2">
+              <p className="promo mt-2">
                 By understanding the true cost of waste and recognizing its
                 potential value, we can shift our mindset from one of scarcity
                 to one of abundance—where waste becomes a source of innovation,
@@ -84,10 +84,8 @@ export function AboutView({ onBack }: AboutViewProps) {
         <div className="retro-card p-6">
           <div className="flex items-start gap-4 mb-4">
             <div className="flex-1">
-              <h3 className="text-[18px] font-display text-black dark:text-white mb-2">
-                WasteDB
-              </h3>
-              <p className="text-[13px] text-black/70 dark:text-white/70 leading-relaxed mb-3">
+              <h3 className="promo-heading mb-2">WasteDB</h3>
+              <p className="promo mb-3">
                 WasteDB is a platform that aggregates scientific research,
                 industry data, and community knowledge about waste management
                 methods for different materials. Our platform helps researchers,
@@ -102,7 +100,7 @@ export function AboutView({ onBack }: AboutViewProps) {
                 <li>Scientific research on waste reduction</li>
               </ul>{" "}
               <p>&nbsp;</p>
-              <p className="text-[13px] text-black/70 dark:text-white/70 leading-relaxed mt-3">
+              <p className="promo mt-3">
                 This project is under active daily development. If you have
                 ideas, feedback, or would like to contribute, please visit our
                 GitHub repository or contact us at{" "}
@@ -122,10 +120,8 @@ export function AboutView({ onBack }: AboutViewProps) {
               <Info size={24} />
             </div>
             <div className="flex-1">
-              <h3 className="text-[18px] font-display text-black dark:text-white mb-2">
-                Non-Profit Mission
-              </h3>
-              <p className="text-[13px] text-black/70 dark:text-white/70 leading-relaxed">
+              <h3 className="promo-heading mb-2">Non-Profit Mission</h3>
+              <p className="promo">
                 Wastefull, Inc. is a registered 501(c)(3) non-profit
                 organization dedicated to promoting sustainable waste management
                 practices through open access to data, public education, and
@@ -143,10 +139,8 @@ export function AboutView({ onBack }: AboutViewProps) {
               <Users size={24} />
             </div>
             <div className="flex-1">
-              <h3 className="text-[18px] font-display text-black dark:text-white mb-2">
-                Community-Driven
-              </h3>
-              <p className="text-[13px] text-black/70 dark:text-white/70 leading-relaxed">
+              <h3 className="promo-heading mb-2">Community-Driven</h3>
+              <p className="promo">
                 Collaborative research fosters innovation by bringing together
                 diverse perspectives and tools. This collective intelligence
                 enables lateral thinking, where unconventional solutions arise
@@ -160,7 +154,7 @@ export function AboutView({ onBack }: AboutViewProps) {
                 challenges in novel and effective ways.{" "}
               </p>
               <p>&nbsp;</p>
-              <p className="text-[13px] text-black/70 dark:text-white/70 leading-relaxed">
+              <p className="promo">
                 This is why WasteDB is built by and for the community. We
                 welcome contributions from researchers, waste management
                 professionals, and anyone passionate about sustainability. All
@@ -178,11 +172,9 @@ export function AboutView({ onBack }: AboutViewProps) {
               <Heart size={24} />
             </div>
             <div className="flex-1">
-              <h3 className="text-[18px] font-display text-black dark:text-white mb-2">
-                Open Source & Free
-              </h3>
+              <h3 className="promo-heading mb-2">Open Source & Free</h3>
 
-              <p className="text-[13px] text-black/70 dark:text-white/70 leading-relaxed">
+              <p className="promo">
                 WasteDB is completely free and open source. We believe that
                 environmental data should be a public good, accessible to
                 everyone without barriers. Our code is available on GitHub, all

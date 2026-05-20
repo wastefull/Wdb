@@ -22,85 +22,24 @@ export function ArticleForm({
   const [onBehalfOfUserId, setOnBehalfOfUserId] = useState<string | null>(null);
 
   // Initialize content from either new TiptapContent or migrate from legacy sections
-  const getInitialContent = (): TiptapContent => {
-    if (article?.content) {
-      return article.content;
-    }
-    // Migrate from legacy section-based content
-    if (
-      article?.introduction?.content ||
-      article?.supplies?.content ||
-      article?.step1?.content
-    ) {
-      const nodes: any[] = [];
-
-      if (article.introduction?.content) {
-        nodes.push({
-          type: "section",
-          attrs: { title: "Introduction" },
-          content: [
-            {
-              type: "paragraph",
-              content: [{ type: "text", text: article.introduction.content }],
-            },
-          ],
-        });
-      }
-      if (article.supplies?.content) {
-        nodes.push({
-          type: "section",
-          attrs: { title: "Supplies" },
-          content: [
-            {
-              type: "paragraph",
-              content: [{ type: "text", text: article.supplies.content }],
-            },
-          ],
-        });
-      }
-      if (article.step1?.content) {
-        nodes.push({
-          type: "section",
-          attrs: { title: "Step 1" },
-          content: [
-            {
-              type: "paragraph",
-              content: [{ type: "text", text: article.step1.content }],
-            },
-          ],
-        });
-      }
-
-      return { type: "doc", content: nodes };
-    }
-    return { type: "doc", content: [{ type: "paragraph" }] };
-  };
-
   const [formData, setFormData] = useState({
     title: article?.title || "",
     slug: article?.slug || "",
     article_type:
-      article?.article_type ||
-      article?.category ||
-      ("DIY" as "DIY" | "Industrial" | "Experimental"),
+      article?.article_type || ("DIY" as "DIY" | "Industrial" | "Experimental"),
     sustainability_category:
       article?.sustainability_category ||
       ("recyclability" as "compostability" | "recyclability" | "reusability"),
-    content_markdown: article?.content_markdown || "",
     material_id: article?.material_id || "",
     author_id: article?.author_id || "",
     status: article?.status || ("draft" as "draft" | "published" | "archived"),
     version: article?.version || 1,
     created_at: article?.created_at || new Date().toISOString(),
     updated_at: article?.updated_at || new Date().toISOString(),
-    cover_image_url:
-      article?.cover_image_url || article?.overview?.image || undefined,
-    content: getInitialContent(),
-    // Legacy fields for backward compatibility (empty defaults)
-    overview: { image: undefined as string | undefined },
-    introduction: { image: undefined as string | undefined, content: "" },
-    supplies: { image: undefined as string | undefined, content: "" },
-    step1: { image: undefined as string | undefined, content: "" },
+    cover_image_url: article?.cover_image_url || undefined,
+    content:
+      article?.content ??
+      ({ type: "doc", content: [{ type: "paragraph" }] } as TiptapContent),
   });
 
   const handleKeyDown = (

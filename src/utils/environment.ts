@@ -26,13 +26,6 @@ export function isDevelopment(): boolean {
 }
 
 /**
- * @deprecated Use isDevelopment() instead. Kept for backward compatibility.
- */
-export function isFigmaMake(): boolean {
-  return isDevelopment();
-}
-
-/**
  * Checks if the app is running in production
  *
  * @returns true if running in production (Cloudflare), false otherwise
