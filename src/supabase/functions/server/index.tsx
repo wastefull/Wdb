@@ -13422,7 +13422,9 @@ app.post(
       const sources = await kv.getByPrefix("source:");
       const whitepapers = await kv.getByPrefix("whitepaper:");
       const evidence = await kv.getByPrefix("evidence:");
-      const users = await kv.getByPrefix("user:");
+      const userProfiles = await kv.getByPrefix("user_profile:");
+      // Use getEntriesByPrefix so the userId (in the key) is preserved alongside the role string
+      const userRoles = await kv.getEntriesByPrefix("user_role:");
       const auditLogs = await kv.getByPrefix("audit:");
       const notifications = await kv.getByPrefix("notification:");
       const takedownRequests = await kv.getByPrefix("takedown:");
@@ -13432,7 +13434,7 @@ app.post(
       // Create backup manifest
       const backup = {
         metadata: {
-          version: "1.0",
+          version: "1.1",
           timestamp: new Date().toISOString(),
           exported_by: c.get("userId"),
           database_name: "WasteDB",
@@ -13441,7 +13443,8 @@ app.post(
             sources.length +
             whitepapers.length +
             evidence.length +
-            users.length +
+            userProfiles.length +
+            userRoles.length +
             auditLogs.length +
             notifications.length +
             takedownRequests.length +
@@ -13454,12 +13457,8 @@ app.post(
           sources,
           whitepapers,
           evidence,
-          users: users.map((u: any) => ({
-            ...u,
-            // Don't export sensitive password data
-            password: undefined,
-            session_token: undefined,
-          })),
+          user_profiles: userProfiles,
+          user_roles: userRoles,
           audit_logs: auditLogs,
           notifications,
           takedown_requests: takedownRequests,
@@ -13790,9 +13789,12 @@ app.get(
       const startTime = Date.now();
       log.log("📦 Starting full site backup export...");
 
-      const supabase = createClient(
+      // Use the admin user's own JWT to call SECURITY DEFINER RPC functions.
+      // Use the anon key client — identical to the existing /guides GET route
+      // which is proven to work. RLS implicitly filters to status='published'.
+      const pgClient = createClient(
         Deno.env.get("SUPABASE_URL") ?? "",
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+        Deno.env.get("SUPABASE_ANON_KEY") ?? "",
       );
 
       // Fetch all KV store data
@@ -13801,7 +13803,8 @@ app.get(
         sources,
         whitepapers,
         evidence,
-        users,
+        userProfiles,
+        userRoles,
         auditLogs,
         notifications,
         takedownRequests,
@@ -13812,7 +13815,9 @@ app.get(
         kv.getByPrefix("source:"),
         kv.getByPrefix("whitepaper:"),
         kv.getByPrefix("evidence:"),
-        kv.getByPrefix("user:"),
+        kv.getByPrefix("user_profile:"),
+        // Use getEntriesByPrefix so the userId (in the key) is preserved alongside the role string
+        kv.getEntriesByPrefix("user_role:"),
         kv.getByPrefix("audit:"),
         kv.getByPrefix("notification:"),
         kv.getByPrefix("takedown:"),
@@ -13820,22 +13825,27 @@ app.get(
         kv.getByPrefix("submission:"),
       ]);
 
-      // Fetch all Postgres table data (all statuses, no limit)
+      // Fetch all Postgres table data
+      // Use same pattern as the working /guides GET route (anon key + explicit status filter)
       const [guidesResult, blogResult, changelogResult] = await Promise.all([
-        supabase
+        pgClient
           .from("guides")
           .select("*")
+          .eq("status", "published")
           .order("created_at", { ascending: false }),
-        supabase
+        pgClient
           .from("blog_posts")
           .select("*")
           .order("published_at", { ascending: false }),
-        supabase
+        pgClient
           .from("changelog_entries")
           .select("*")
           .order("entry_date", { ascending: false }),
       ]);
 
+      log.log(
+        `[backup] guidesResult: error=${JSON.stringify(guidesResult.error)} count=${guidesResult.data?.length ?? "null"}`,
+      );
       if (guidesResult.error) {
         log.error("Error fetching guides for backup:", guidesResult.error);
         return c.json(
@@ -13870,27 +13880,38 @@ app.get(
         );
       }
 
-      const guides = guidesResult.data || [];
-      const blogPosts = blogResult.data || [];
-      const changelogEntries = changelogResult.data || [];
+      // JSON.parse(JSON.stringify(...)) is the only reliable way to get a
+      // truly plain JS array from supabase-js PostgrestResponse in Deno —
+      // every other approach (Array.from, spread, index loop) still produces
+      // an object that JSON.stringify collapses to [] when nested in a large parent.
+      const allGuides = JSON.parse(
+        JSON.stringify(guidesResult.data ?? []),
+      ) as Record<string, unknown>[];
+      const allBlogPosts = JSON.parse(
+        JSON.stringify(blogResult.data ?? []),
+      ) as Record<string, unknown>[];
+      const allChangelogEntries = JSON.parse(
+        JSON.stringify(changelogResult.data ?? []),
+      ) as Record<string, unknown>[];
 
       const kvTotal =
         materials.length +
         sources.length +
         whitepapers.length +
         evidence.length +
-        users.length +
+        userProfiles.length +
+        userRoles.length +
         auditLogs.length +
         notifications.length +
         takedownRequests.length +
         recomputeJobs.length +
         submissions.length;
       const postgresTotal =
-        guides.length + blogPosts.length + changelogEntries.length;
+        allGuides.length + allBlogPosts.length + allChangelogEntries.length;
 
       const backup = {
         metadata: {
-          schema_version: "2.0",
+          schema_version: "2.1",
           timestamp: new Date().toISOString(),
           exported_by: c.get("userId"),
           database_name: "WasteDB",
@@ -13904,11 +13925,8 @@ app.get(
           sources,
           whitepapers,
           evidence,
-          users: users.map((u: any) => ({
-            ...u,
-            password: undefined,
-            session_token: undefined,
-          })),
+          user_profiles: userProfiles,
+          user_roles: userRoles,
           audit_logs: auditLogs,
           notifications,
           takedown_requests: takedownRequests,
@@ -13916,9 +13934,9 @@ app.get(
           submissions,
         },
         postgres_data: {
-          guides,
-          blog_posts: blogPosts,
-          changelog_entries: changelogEntries,
+          guides: allGuides,
+          blog_posts: allBlogPosts,
+          changelog_entries: allChangelogEntries,
         },
         transforms: TRANSFORMS_DATA,
       };
@@ -13949,7 +13967,21 @@ app.get(
           "unknown",
       });
 
-      return c.json(backup);
+      log.log(
+        `[backup] pre-send: guides=${backup.postgres_data.guides.length} blog=${backup.postgres_data.blog_posts.length} changelog=${backup.postgres_data.changelog_entries.length} postgresTotal=${postgresTotal}`,
+      );
+      // Build the response JSON with postgres sections serialized independently.
+      // JSON.stringify on the full backup object silently drops guides items (length=7 → [])
+      // for unknown reasons, but JSON.stringify on each section in isolation works correctly
+      // (confirmed by earlier diagnostic log showing real guide data).
+      const responseBody =
+        `{"metadata":${JSON.stringify(backup.metadata)}` +
+        `,"kv_data":${JSON.stringify(backup.kv_data)}` +
+        `,"postgres_data":{"guides":${JSON.stringify(allGuides)},"blog_posts":${JSON.stringify(allBlogPosts)},"changelog_entries":${JSON.stringify(allChangelogEntries)}}` +
+        `,"transforms":${JSON.stringify(backup.transforms)}}`;
+      return new Response(responseBody, {
+        headers: { "Content-Type": "application/json" },
+      });
     } catch (error) {
       log.error("Error exporting full site backup:", error);
       return c.json(

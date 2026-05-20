@@ -32,7 +32,7 @@ import { SourceLibraryManager } from "../evidence/SourceLibraryManager";
 import { SourceDataComparison } from "../evidence/SourceDataComparison";
 import { ChartRasterizationDemo } from "../charts/ChartRasterizationDemo";
 import { logger } from "../../utils/logger";
-import { apiCall } from "../../utils/api";
+import { apiCall, publicAnonKey, projectId } from "../../utils/api";
 import { GlideStaticTable } from "./GlideStaticTable";
 
 interface DataManagementViewProps {
@@ -274,17 +274,30 @@ export function DataManagementView({
   const handleFullSiteBackup = async () => {
     setIsFullBackupLoading(true);
     try {
-      const data = await apiCall("/backup/full-export");
-      const blob = new Blob([JSON.stringify(data, null, 2)], {
-        type: "application/json",
-      });
+      // Fetch as raw text to avoid parse→re-stringify round-trip which drops guides data.
+      // apiCall() parses JSON and JSON.stringify() on re-serialization silently drops guides.
+      const token = sessionStorage.getItem("wastedb_access_token");
+      const response = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/backup/full-export`,
+        {
+          headers: {
+            Authorization: `Bearer ${publicAnonKey}`,
+            ...(token ? { "X-Session-Token": token } : {}),
+          },
+        },
+      );
+      if (!response.ok) {
+        throw new Error(`Backup failed: ${response.status}`);
+      }
+      const text = await response.text();
+      const meta = JSON.parse(text)?.metadata;
+      const blob = new Blob([text], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
       a.download = `wastedb-full-backup-${new Date().toISOString().split("T")[0]}.json`;
       a.click();
       URL.revokeObjectURL(url);
-      const meta = (data as any)?.metadata;
       toast.success(
         meta
           ? `Full backup downloaded: ${meta.total_records} records (${meta.kv_record_count} KV + ${meta.postgres_record_count} Postgres)`
