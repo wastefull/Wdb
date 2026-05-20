@@ -4,7 +4,7 @@ import { ArticleFormProps } from "../../types/article";
 import { TiptapContent } from "../../types/guide";
 import { ImageUploadArea } from "./ImageUploadArea";
 import { UserSelector } from "./UserSelector";
-import GuideEditor from "../editor/GuideEditor";
+import ContentEditor from "../editor/ContentEditor";
 import { toast } from "sonner";
 import { logger } from "../../utils/logger";
 import { DiscardChangesDialog } from "../shared/DiscardChangesDialog";
@@ -326,7 +326,7 @@ export function ArticleForm({
           <h3 className="text-[15px] text-black dark:text-white mb-4">
             Content
           </h3>
-          <GuideEditor
+          <ContentEditor
             initialContent={formData.content}
             onChange={(content) => setFormData({ ...formData, content })}
             placeholder="Start writing your article content... Use sections, tips, warnings, and lists to organize your content."

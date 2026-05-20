@@ -11,6 +11,3 @@ export { SubmitGuideForm } from "./SubmitGuideForm";
 export { SubmitMaterialForm } from "./SubmitMaterialForm";
 export { SuggestMaterialEditForm } from "./SuggestMaterialEditForm";
 export { TakedownRequestForm } from "./TakedownRequestForm";
-
-// Editors
-export { ArticleEditor } from "./ArticleEditor";

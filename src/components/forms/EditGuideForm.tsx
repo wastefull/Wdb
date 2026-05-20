@@ -7,7 +7,7 @@ import {
   GuideSubmission,
 } from "../../types/guide";
 import { Material } from "../../types/material";
-import GuideEditor from "../editor/GuideEditor";
+import ContentEditor from "../editor/ContentEditor";
 import type { TiptapContent } from "../../types/guide";
 import { toast } from "sonner";
 import { logger } from "../../utils/logger";
@@ -466,7 +466,7 @@ export function EditGuideForm({
               Guide Content <span className="text-red-500">*</span>
             </label>
             <div className="border border-[#211f1c]/20 dark:border-white/20 rounded-lg overflow-hidden">
-              <GuideEditor
+              <ContentEditor
                 initialContent={formData.content}
                 onChange={(content) =>
                   setFormData({

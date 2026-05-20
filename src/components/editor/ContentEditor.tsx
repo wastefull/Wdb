@@ -35,7 +35,7 @@ import { Resource } from "./extensions/Resource";
 import { CheckItem } from "./extensions/CheckItem";
 import { Footnote } from "./extensions/Footnote";
 
-interface GuideEditorProps {
+interface ContentEditorProps {
   initialContent?: any;
   onChange?: (content: any) => void;
   placeholder?: string;
@@ -76,11 +76,11 @@ const stripBoldFromHeadings = (content: any): any => {
   return content;
 };
 
-export default function GuideEditor({
+export default function ContentEditor({
   initialContent,
   onChange,
   placeholder = "Start writing your guide...",
-}: GuideEditorProps) {
+}: ContentEditorProps) {
   const [sourceMode, setSourceMode] = useState(false);
   const [sourceText, setSourceText] = useState("");
   const editor = useEditor({

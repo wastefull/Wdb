@@ -1,5 +1,5 @@
 import { useState } from "react";
-import GuideEditor from "../editor/GuideEditor";
+import ContentEditor from "../editor/ContentEditor";
 import GuideRenderer from "../editor/GuideRenderer";
 
 export default function EditorTestView() {
@@ -43,7 +43,7 @@ export default function EditorTestView() {
           </details>
         </div>
       ) : (
-        <GuideEditor
+        <ContentEditor
           onChange={setContent}
           placeholder="Start writing your guide... Try adding sections, tips, warnings, and resources!"
         />

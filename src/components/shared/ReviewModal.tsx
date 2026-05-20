@@ -10,7 +10,7 @@ import {
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
-import GuideEditor from "../editor/GuideEditor";
+import ContentEditor from "../editor/ContentEditor";
 import GuideRenderer from "../editor/GuideRenderer";
 import {
   Select,
@@ -258,7 +258,7 @@ export function ReviewModal({
               Content *
             </Label>
             <div className="mt-1 border border-[#211f1c]/20 dark:border-white/20 rounded-lg overflow-hidden">
-              <GuideEditor
+              <ContentEditor
                 initialContent={
                   editedContent.content &&
                   typeof editedContent.content === "object"
