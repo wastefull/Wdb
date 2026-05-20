@@ -32,6 +32,7 @@ import { SourceLibraryManager } from "../evidence/SourceLibraryManager";
 import { SourceDataComparison } from "../evidence/SourceDataComparison";
 import { ChartRasterizationDemo } from "../charts/ChartRasterizationDemo";
 import { logger } from "../../utils/logger";
+import { apiCall } from "../../utils/api";
 import { GlideStaticTable } from "./GlideStaticTable";
 
 interface DataManagementViewProps {
@@ -65,6 +66,7 @@ export function DataManagementView({
   const [nameFilter, setNameFilter] = useState("");
   const [showImportOptions, setShowImportOptions] = useState(false);
   const [pasteData, setPasteData] = useState("");
+  const [isFullBackupLoading, setIsFullBackupLoading] = useState(false);
   const isAdmin = userRole === "admin";
 
   const categoryOptions = useMemo(
@@ -268,7 +270,35 @@ export function DataManagementView({
     toast.success("Data exported successfully");
   };
 
-  // Full JSON backup with all scientific data
+  // Full site backup — calls API to include KV store + Postgres (guides, blog, changelog)
+  const handleFullSiteBackup = async () => {
+    setIsFullBackupLoading(true);
+    try {
+      const data = await apiCall("/backup/full-export");
+      const blob = new Blob([JSON.stringify(data, null, 2)], {
+        type: "application/json",
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `wastedb-full-backup-${new Date().toISOString().split("T")[0]}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      const meta = (data as any)?.metadata;
+      toast.success(
+        meta
+          ? `Full backup downloaded: ${meta.total_records} records (${meta.kv_record_count} KV + ${meta.postgres_record_count} Postgres)`
+          : "Full site backup downloaded",
+      );
+    } catch (error) {
+      toast.error("Failed to download full site backup");
+      logger.error("Full site backup error:", error);
+    } finally {
+      setIsFullBackupLoading(false);
+    }
+  };
+
+  // Materials-only JSON backup (local state)
   const handleExportBackup = () => {
     const backup = {
       version: "1.1",
@@ -489,14 +519,45 @@ export function DataManagementView({
             />
           </div>
 
-          {/* Backup Section */}
+          {/* Full Site Backup Section */}
           {isAdmin && (
             <div className="retro-card-flat mb-4 p-4">
               <div className="flex items-center justify-between mb-3">
                 <div>
-                  <h3 className="text-[14px] normal">Full Database Backup</h3>
+                  <h3 className="text-[14px] normal">Full Site Backup</h3>
                   <p className="text-sm text-black/60 dark:text-white/60">
-                    Export/import all materials with complete scientific data
+                    Export all site data: materials, evidence, sources, guides,
+                    blog posts, changelogs, user profiles, and audit trails
+                  </p>
+                </div>
+                <button
+                  onClick={handleFullSiteBackup}
+                  disabled={isFullBackupLoading}
+                  className="bg-waste-science h-9 px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] text-sm md:text-[12px] text-black hover:translate-y-px hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-1 md:gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Database size={14} className="text-black" />
+                  <span className="whitespace-nowrap">
+                    {isFullBackupLoading
+                      ? "Downloading…"
+                      : "Download Full Backup"}
+                  </span>
+                </button>
+              </div>
+              <p className="text-xs text-black/50 dark:text-white/50">
+                Includes both KV store and Postgres tables (all statuses). Use
+                this before migrations or for offsite archiving.
+              </p>
+            </div>
+          )}
+
+          {/* Materials Backup Section */}
+          {isAdmin && (
+            <div className="retro-card-flat mb-4 p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <h3 className="text-[14px] normal">Materials Backup</h3>
+                  <p className="text-sm text-black/60 dark:text-white/60">
+                    Export/import materials with complete scientific data
                   </p>
                 </div>
                 <div className="flex gap-2">
@@ -522,9 +583,9 @@ export function DataManagementView({
                 </div>
               </div>
               <p className="text-xs text-black/50 dark:text-white/50">
-                Backups include all scientific parameters (CR, CC, RU values),
-                sources, and articles. Use this for weekly backups or before
-                making major changes.
+                Materials-only backup. Includes all scientific parameters (CR,
+                CC, RU values), sources, and articles. Compatible with the
+                Restore Backup import.
               </p>
             </div>
           )}

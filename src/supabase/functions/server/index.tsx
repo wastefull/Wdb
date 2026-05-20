@@ -13780,6 +13780,186 @@ app.post(
   },
 );
 
+// Full site backup: KV store + Postgres tables (guides, blog, changelog) — admin only
+app.get(
+  "/make-server-17cae920/backup/full-export",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const startTime = Date.now();
+      log.log("📦 Starting full site backup export...");
+
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      );
+
+      // Fetch all KV store data
+      const [
+        materials,
+        sources,
+        whitepapers,
+        evidence,
+        users,
+        auditLogs,
+        notifications,
+        takedownRequests,
+        recomputeJobs,
+        submissions,
+      ] = await Promise.all([
+        kv.getByPrefix("material:"),
+        kv.getByPrefix("source:"),
+        kv.getByPrefix("whitepaper:"),
+        kv.getByPrefix("evidence:"),
+        kv.getByPrefix("user:"),
+        kv.getByPrefix("audit:"),
+        kv.getByPrefix("notification:"),
+        kv.getByPrefix("takedown:"),
+        kv.getByPrefix("recompute-job:"),
+        kv.getByPrefix("submission:"),
+      ]);
+
+      // Fetch all Postgres table data (all statuses, no limit)
+      const [guidesResult, blogResult, changelogResult] = await Promise.all([
+        supabase
+          .from("guides")
+          .select("*")
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("blog_posts")
+          .select("*")
+          .order("published_at", { ascending: false }),
+        supabase
+          .from("changelog_entries")
+          .select("*")
+          .order("entry_date", { ascending: false }),
+      ]);
+
+      if (guidesResult.error) {
+        log.error("Error fetching guides for backup:", guidesResult.error);
+        return c.json(
+          {
+            error: "Failed to fetch guides",
+            details: guidesResult.error.message,
+          },
+          500,
+        );
+      }
+      if (blogResult.error) {
+        log.error("Error fetching blog posts for backup:", blogResult.error);
+        return c.json(
+          {
+            error: "Failed to fetch blog posts",
+            details: blogResult.error.message,
+          },
+          500,
+        );
+      }
+      if (changelogResult.error) {
+        log.error(
+          "Error fetching changelog for backup:",
+          changelogResult.error,
+        );
+        return c.json(
+          {
+            error: "Failed to fetch changelog",
+            details: changelogResult.error.message,
+          },
+          500,
+        );
+      }
+
+      const guides = guidesResult.data || [];
+      const blogPosts = blogResult.data || [];
+      const changelogEntries = changelogResult.data || [];
+
+      const kvTotal =
+        materials.length +
+        sources.length +
+        whitepapers.length +
+        evidence.length +
+        users.length +
+        auditLogs.length +
+        notifications.length +
+        takedownRequests.length +
+        recomputeJobs.length +
+        submissions.length;
+      const postgresTotal =
+        guides.length + blogPosts.length + changelogEntries.length;
+
+      const backup = {
+        metadata: {
+          schema_version: "2.0",
+          timestamp: new Date().toISOString(),
+          exported_by: c.get("userId"),
+          database_name: "WasteDB",
+          kv_record_count: kvTotal,
+          postgres_record_count: postgresTotal,
+          total_records: kvTotal + postgresTotal,
+          export_duration_ms: 0,
+        },
+        kv_data: {
+          materials,
+          sources,
+          whitepapers,
+          evidence,
+          users: users.map((u: any) => ({
+            ...u,
+            password: undefined,
+            session_token: undefined,
+          })),
+          audit_logs: auditLogs,
+          notifications,
+          takedown_requests: takedownRequests,
+          recompute_jobs: recomputeJobs,
+          submissions,
+        },
+        postgres_data: {
+          guides,
+          blog_posts: blogPosts,
+          changelog_entries: changelogEntries,
+        },
+        transforms: TRANSFORMS_DATA,
+      };
+
+      backup.metadata.export_duration_ms = Date.now() - startTime;
+
+      log.log(
+        `✓ Full site backup completed in ${backup.metadata.export_duration_ms}ms`,
+      );
+      log.log(`✓ KV records: ${kvTotal}, Postgres records: ${postgresTotal}`);
+
+      await createAuditLog({
+        entity_type: "backup",
+        entity_id: "full-export",
+        action: "export",
+        user_id: c.get("userId"),
+        user_email: c.get("userEmail"),
+        changes: {
+          schema_version: "2.0",
+          kv_record_count: kvTotal,
+          postgres_record_count: postgresTotal,
+          total_records: backup.metadata.total_records,
+          duration_ms: backup.metadata.export_duration_ms,
+        },
+        ip_address:
+          c.req.header("x-forwarded-for") ||
+          c.req.header("x-real-ip") ||
+          "unknown",
+      });
+
+      return c.json(backup);
+    } catch (error) {
+      log.error("Error exporting full site backup:", error);
+      return c.json(
+        { error: "Failed to export full site backup", details: String(error) },
+        500,
+      );
+    }
+  },
+);
+
 // Debug endpoint to list all Phase 9.1 routes
 app.get("/make-server-17cae920/debug/phase91-status", (c) => {
   return c.json({
