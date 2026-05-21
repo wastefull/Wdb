@@ -1896,15 +1896,199 @@ const normalizeMaterialFromEntry = (entry: { key: string; value: any }) => {
   };
 };
 
+// ─── Step 13: Postgres → frontend Article shape ───────────────────────────────
+function pgArticleToShape(art: any) {
+  return {
+    id: art.id,
+    title: art.title,
+    article_type: art.article_type,
+    sustainability_category: art.sustainability_category,
+    cover_image_url: art.cover_image_url ?? undefined,
+    content: art.content,
+    dateAdded: art.date_added ?? art.created_at,
+    created_by: art.created_by ?? undefined,
+    edited_by: art.edited_by ?? undefined,
+    writer_name: art.writer_name ?? undefined,
+    editor_name: art.editor_name ?? undefined,
+    slug: art.slug,
+    material_id: art.legacy_material_kv_id,
+    author_id: art.created_by ?? undefined,
+    created_at: art.created_at,
+    updated_at: art.updated_at,
+    version: art.version,
+    status: art.status,
+  };
+}
+
+// ─── Step 13: Postgres → frontend Material shape ──────────────────────────────
+function pgMaterialToShape(
+  row: any,
+  categoryNameById: Map<string, string>,
+  articles: {
+    compostability: any[];
+    recyclability: any[];
+    reusability: any[];
+  },
+  sources: any[],
+) {
+  const num = (v: any) =>
+    v !== null && v !== undefined ? Number(v) : undefined;
+  return {
+    id: row.legacy_kv_id,
+    name: row.name,
+    aliases: row.aliases ?? undefined,
+    // category: prefer display name from categories table; fall back to raw category_id value
+    category:
+      categoryNameById.get(row.category_id) ?? row.category_id ?? "Plastics",
+    categoryId: row.category_id ?? undefined,
+    description: row.description ?? undefined,
+    isHub: row.is_hub ?? false,
+    linkedMaterialIds: row.linked_material_ids ?? undefined,
+    compostability: row.compostability ?? 0,
+    recyclability: row.recyclability ?? 0,
+    reusability: row.reusability ?? 0,
+    // CR-v1
+    Y_value: num(row.y_value),
+    D_value: num(row.d_value),
+    C_value: num(row.c_value),
+    M_value: num(row.m_value),
+    E_value: num(row.e_value),
+    CR_practical_mean: num(row.cr_practical_mean),
+    CR_theoretical_mean: num(row.cr_theoretical_mean),
+    CR_practical_CI95: row.cr_practical_ci95 ?? undefined,
+    CR_theoretical_CI95: row.cr_theoretical_ci95 ?? undefined,
+    // CC-v1
+    B_value: num(row.b_value),
+    N_value: num(row.n_value),
+    T_value: num(row.t_value),
+    H_value: num(row.h_value),
+    CC_practical_mean: num(row.cc_practical_mean),
+    CC_theoretical_mean: num(row.cc_theoretical_mean),
+    CC_practical_CI95: row.cc_practical_ci95 ?? undefined,
+    CC_theoretical_CI95: row.cc_theoretical_ci95 ?? undefined,
+    // RU-v1
+    L_value: num(row.l_value),
+    R_value: num(row.r_value),
+    U_value: num(row.u_value),
+    C_RU_value: num(row.c_ru_value),
+    RU_practical_mean: num(row.ru_practical_mean),
+    RU_theoretical_mean: num(row.ru_theoretical_mean),
+    RU_practical_CI95: row.ru_practical_ci95 ?? undefined,
+    RU_theoretical_CI95: row.ru_theoretical_ci95 ?? undefined,
+    // Provenance
+    confidence_level: row.confidence_level ?? undefined,
+    whitepaper_version: row.whitepaper_version ?? undefined,
+    calculation_timestamp: row.calculation_timestamp ?? undefined,
+    method_version: row.method_version ?? undefined,
+    wiki: row.wiki ?? undefined,
+    created_by: row.created_by ?? undefined,
+    edited_by: row.edited_by ?? undefined,
+    writer_name: row.writer_name ?? undefined,
+    editor_name: row.editor_name ?? undefined,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+    articles,
+    sources,
+  };
+}
+
+// ─── Step 13: GET /materials — reads from Postgres (was: KV scan) ─────────────
 app.get("/make-server-17cae920/materials", rateLimit("API"), async (c) => {
   try {
-    const userId = c.get("userId");
-    // Get materials for this user (or all if using public key for backward compat)
-    const materialEntries = await kv.getEntriesByPrefix("material:");
-    const materials = materialEntries
-      .map(normalizeMaterialFromEntry)
-      .filter((m) => typeof m.id === "string" && m.id.trim().length > 0);
-    return c.json({ materials: materials || [] });
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+    );
+
+    // 1. All materials that have a legacy KV id (service role bypasses RLS)
+    const { data: pgMaterials, error: matError } = await supabase
+      .from("materials")
+      .select("*")
+      .not("legacy_kv_id", "is", null);
+    if (matError) throw matError;
+
+    // 2. Category display-name lookup
+    const { data: categories } = await supabase
+      .from("material_categories")
+      .select("id, name")
+      .eq("deleted", false);
+    const categoryNameById = new Map<string, string>(
+      (categories ?? []).map((cat: any) => [cat.id, cat.name]),
+    );
+
+    // 3. All published articles, grouped by material KV id + sustainability_category
+    const { data: pgArticles } = await supabase
+      .from("articles")
+      .select("*")
+      .eq("status", "published");
+    type ArticleGroup = {
+      compostability: any[];
+      recyclability: any[];
+      reusability: any[];
+    };
+    const articlesByMaterial = new Map<string, ArticleGroup>();
+    for (const art of pgArticles ?? []) {
+      const mid = art.legacy_material_kv_id as string;
+      if (!articlesByMaterial.has(mid)) {
+        articlesByMaterial.set(mid, {
+          compostability: [],
+          recyclability: [],
+          reusability: [],
+        });
+      }
+      const cat = art.sustainability_category as
+        | "compostability"
+        | "recyclability"
+        | "reusability";
+      if (
+        cat === "compostability" ||
+        cat === "recyclability" ||
+        cat === "reusability"
+      ) {
+        articlesByMaterial.get(mid)![cat].push(pgArticleToShape(art));
+      }
+    }
+
+    // 4. material_sources with embedded source details, grouped by material KV id
+    const { data: matSources } = await supabase
+      .from("material_sources")
+      .select(
+        "legacy_material_kv_id, weight, parameters, sources(id, title, authors, year, doi, url, pdf_file_name)",
+      );
+    const sourcesByMaterial = new Map<string, any[]>();
+    for (const ms of matSources ?? []) {
+      const mid = ms.legacy_material_kv_id as string;
+      if (!sourcesByMaterial.has(mid)) sourcesByMaterial.set(mid, []);
+      if (ms.sources) {
+        sourcesByMaterial.get(mid)!.push({
+          title: ms.sources.title,
+          authors: ms.sources.authors ?? undefined,
+          year: ms.sources.year ?? undefined,
+          doi: ms.sources.doi ?? undefined,
+          url: ms.sources.url ?? undefined,
+          weight: ms.weight ?? undefined,
+          parameters: ms.parameters ?? undefined,
+          pdfFileName: ms.sources.pdf_file_name ?? undefined,
+        });
+      }
+    }
+
+    // 5. Map each Postgres row to the frontend Material shape
+    const materials = (pgMaterials ?? []).map((row: any) => {
+      const kvId = row.legacy_kv_id as string;
+      return pgMaterialToShape(
+        row,
+        categoryNameById,
+        articlesByMaterial.get(kvId) ?? {
+          compostability: [],
+          recyclability: [],
+          reusability: [],
+        },
+        sourcesByMaterial.get(kvId) ?? [],
+      );
+    });
+
+    return c.json({ materials });
   } catch (error) {
     log.error("Error fetching materials:", error);
     return c.json(

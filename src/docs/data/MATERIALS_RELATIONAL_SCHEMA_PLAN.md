@@ -21,11 +21,11 @@
 | 10   | Add FK constraints to `guides` (`material_id → uuid`, `created_by → user_profiles`) | ✅ Done        | `20260520000012_add_fk_guides.sql`                    |
 | 11   | Add FK constraint to `blog_posts` (`created_by → user_profiles`)                    | ✅ Done        | `20260520000013_add_fk_blog_posts.sql`                |
 | 12   | Switch contribution routes to Postgres                                              | ✅ Done        | —                                                     |
-| 13   | Switch materials read routes to Postgres                                            | ⬜ Not started | —                                                     |
+| 13   | Switch materials read routes to Postgres                                            | ✅ Done        | —                                                     |
 | 14   | Switch materials write routes to Postgres                                           | ⬜ Not started | —                                                     |
 | 15   | Drop KV namespaces (irreversible — requires explicit team approval)                 | ⬜ Not started | —                                                     |
 
-> Steps 1–7 were purely additive (new tables only). Steps 8–12 are complete. The KV store remains live for materials reads/writes until Steps 13–14.
+> Steps 1–7 were purely additive (new tables only). Steps 8–13 are complete. The KV store remains live for materials writes only until Step 14.
 
 ---
 
@@ -33,7 +33,7 @@
 
 **Previously:** Materials lived as monolithic JSON blobs in `kv_store_17cae920`, each containing core scores, scientific parameters, embedded `sources[]`, embedded `articles.{compostability|recyclability|reusability}[]`, and Wikimedia metadata.
 
-**Now:** All content has been extracted into dedicated Postgres tables (`materials`, `articles`, `sources`, `user_profiles`). KV blobs are still the live read/write source for material data — that switches in Steps 13–14. Contribution stats, activity calendars, the leaderboard, and admin totals already read from Postgres.
+**Now:** All content has been extracted into dedicated Postgres tables (`materials`, `articles`, `sources`, `user_profiles`). `GET /materials` now reads from Postgres — joining `material_categories` for display names, `articles` for embedded article groups, and `material_sources` + `sources` for citations. KV is still the write source for material data until Step 14. Contribution stats, activity calendars, the leaderboard, and admin totals all read from Postgres.
 
 ### Architecture decision: articles as a separate table ✅
 
@@ -46,6 +46,28 @@ We chose **Option B — separate `articles` table** (over keeping articles embed
 - Update one article = update one row, not re-serialize a 50 KB blob
 - Natural FK to `materials.id` with controlled cascade
 - Consistent with `guides` (same pattern, same infrastructure)
+
+---
+
+## Step 13 Route Changes
+
+The following route was switched from a KV scan to Postgres reads on May 21, 2026:
+
+| Route            | Before                                                              | After                                                                                           |
+| ---------------- | ------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `GET /materials` | `kv.getEntriesByPrefix("material:")` + `normalizeMaterialFromEntry` | Postgres `materials` + joined `material_categories`, `articles`, `material_sources` → `sources` |
+
+**Field mapping** (KV camelCase → Postgres snake_case → response camelCase):
+
+- `id` ← `legacy_kv_id` (KV string ID preserved for backward compatibility)
+- `category` ← `material_categories.name` looked up via `category_id`; falls back to raw `category_id`
+- `isHub` ← `is_hub`, `linkedMaterialIds` ← `linked_material_ids`
+- `Y_value` … `C_RU_value` ← `y_value` … `c_ru_value` (cast `NUMERIC` → `Number`)
+- `CR_practical_CI95` … `RU_theoretical_CI95` ← JSONB columns (passed through as-is)
+- `articles` ← all published rows from `articles` grouped by `legacy_material_kv_id` + `sustainability_category`
+- `sources` ← `material_sources` with embedded `sources` join (weight, parameters preserved)
+
+**KV write routes are unchanged** — `POST /materials`, `PUT /materials/:id`, `DELETE /materials/:id`, and `POST /materials/batch` still write to KV. That changes in Step 14.
 
 ---
 
