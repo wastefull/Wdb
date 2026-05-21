@@ -141,6 +141,9 @@ const STATIC_VIEW_HASH_TO_TYPE: Partial<Record<string, ViewType["type"]>> = {
   "review-center": "review-center",
   "source-library": "source-library",
   "source-comparison": "source-comparison",
+  roadmap: "roadmap",
+  "phase9-testing": "phase9-testing",
+  "phase9-day10-testing": "phase9-day10-testing",
 };
 
 const STATIC_VIEW_TYPE_TO_HASH: Partial<Record<ViewType["type"], string>> =
@@ -167,6 +170,26 @@ function getInitialViewFromUrlHash(): ViewType {
   }
 
   const rawHash = window.location.hash.replace(/^#\/?/, "").trim();
+
+  // roadmap-overview encodes its active tab: #roadmap-overview/tests
+  if (
+    rawHash === "roadmap-overview" ||
+    rawHash.startsWith("roadmap-overview/")
+  ) {
+    const tab = rawHash.split("/")[1] as
+      | "overview"
+      | "9.1"
+      | "9.2"
+      | "9.3"
+      | "9.4"
+      | "9.5"
+      | "10"
+      | "tests"
+      | "backlog"
+      | undefined;
+    return { type: "roadmap-overview", defaultTab: tab };
+  }
+
   const maybeViewType = STATIC_VIEW_HASH_TO_TYPE[rawHash];
 
   if (maybeViewType) {
@@ -281,7 +304,15 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
       return;
     }
 
-    const routeHash = STATIC_VIEW_TYPE_TO_HASH[view.type] || "";
+    let routeHash: string;
+    if (view.type === "roadmap-overview") {
+      routeHash = view.defaultTab
+        ? `roadmap-overview/${view.defaultTab}`
+        : "roadmap-overview";
+    } else {
+      routeHash = STATIC_VIEW_TYPE_TO_HASH[view.type] || "";
+    }
+
     const nextHash = routeHash ? `#${routeHash}` : "";
     const nextUrl = `${window.location.pathname}${window.location.search}${nextHash}`;
 

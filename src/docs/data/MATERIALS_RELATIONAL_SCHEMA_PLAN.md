@@ -1,7 +1,31 @@
 # Materials Relational Schema Plan
 
 **Updated:** May 20, 2026  
-**Status:** Design / Pre-implementation
+**Status:** In Progress
+
+---
+
+## Implementation Progress
+
+| Step | Description                                                                         | Status         | Migration File                                        |
+| ---- | ----------------------------------------------------------------------------------- | -------------- | ----------------------------------------------------- |
+| 1    | Create `user_profiles` table                                                        | ✅ Done        | `20260520000002_create_user_profiles_table.sql`       |
+| 2    | Create `material_categories` table                                                  | ✅ Done        | `20260520000003_create_material_categories_table.sql` |
+| 3    | Create `materials` table                                                            | ✅ Done        | `20260520000004_create_materials_table.sql`           |
+| 4    | Create `articles` table                                                             | ✅ Done        | `20260520000005_create_articles_table.sql`            |
+| 5    | Create `sources` table                                                              | ✅ Done        | `20260520000006_create_sources_table.sql`             |
+| 6    | Create `material_sources` junction table                                            | ✅ Done        | `20260520000007_create_material_sources_table.sql`    |
+| 7    | Create `material_links` junction table                                              | ✅ Done        | `20260520000008_create_material_links_table.sql`      |
+| 8    | Seed `user_profiles` from KV (one-time script)                                      | ✅ Done        | `20260520000009_seed_user_profiles.sql`               |
+| 9    | Seed `materials` + `articles` + `sources` from KV (one-time script)                 | ✅ Done        | `20260520000010_seed_materials_articles_sources.sql`  |
+| 10   | Add FK constraints to `guides` (`material_id → uuid`, `created_by → user_profiles`) | ⬜ Not started | —                                                     |
+| 11   | Add FK constraint to `blog_posts` (`created_by → user_profiles`)                    | ⬜ Not started | —                                                     |
+| 12   | Switch contribution routes to Postgres                                              | ⬜ Not started | —                                                     |
+| 13   | Switch materials read routes to Postgres                                            | ⬜ Not started | —                                                     |
+| 14   | Switch materials write routes to Postgres                                           | ⬜ Not started | —                                                     |
+| 15   | Drop KV namespaces (irreversible — requires explicit team approval)                 | ⬜ Not started | —                                                     |
+
+> Steps 1–7 are purely additive (new tables only). The KV store is untouched and the live site is unaffected until Step 12.
 
 ---
 
@@ -305,7 +329,7 @@ The migration needs to be non-destructive because the KV store remains live unti
 7. **Switch API routes** to read from Postgres instead of KV — one route at a time, behind a toggle; start with contribution stats (highest pain, clearest win)
 8. **Validate with backups** — run a full-site backup before and after each route switch, diff the data
 9. **Drop KV material/article/source/user_profile/user_role blobs** once all reads are confirmed correct
-10. **Drop `legacy_kv_id`** columns and remaining `kv_store_17cae920` namespace entries in a final cleanup migration
+10. **Drop `legacy_kv_id`** columns and remaining `kv_store_17cae920` namespace entries in a final cleanup migration - DO NOT DO THIS WITHOUT EXPLICIT PERMISSION FROM THE TEAM, as it is irreversible and would break the ability to roll back to KV if needed.
 
 ---
 

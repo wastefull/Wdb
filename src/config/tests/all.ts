@@ -5,6 +5,7 @@
  * Provides functions to retrieve all tests or filter by phase.
  */
 
+import { getPhase100Tests } from "./phases/10.0";
 import { getPhase901Tests } from "./phases/9.0.1";
 import { getPhase9010Tests } from "./phases/9.0.10";
 import { getPhase9011Tests } from "./phases/9.0.11";
@@ -40,6 +41,7 @@ export function buildAllTests(user: any): Test[] {
     ...getPhase9011Tests(user),
     ...getPhase91Tests(user),
     ...getPhase92Tests(user),
+    ...getPhase100Tests(user),
     // Future phases will be added here:
     // etc.
   ];

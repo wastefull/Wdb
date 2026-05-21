@@ -1,0 +1,82 @@
+-- Step 8: Seed user_profiles from KV store
+-- Reads user_profile:*, user_role:*, and user_last_signin:* keys from kv_store_17cae920
+-- and upserts them into the user_profiles table.
+--
+-- KV shape:
+--   user_profile:{uuid}  → {user_id, email, name, bio, social_link, avatar_url,
+--                           display_email, org_role, show_on_leaderboard, created_at, updated_at}
+--   user_role:{uuid}     → "user" | "staff" | "admin"  (plain string, not JSON object)
+--   user_last_signin:{uuid} → epoch ms integer (plain number)
+--
+-- This is purely additive. The KV store is not modified.
+-- Run idempotently: ON CONFLICT DO UPDATE so it is safe to re-run.
+
+INSERT INTO user_profiles (
+  id,
+  email,
+  name,
+  bio,
+  social_link,
+  avatar_url,
+  display_email,
+  org_role,
+  show_on_leaderboard,
+  role,
+  last_signin_at,
+  created_at,
+  updated_at
+)
+SELECT
+  (p.value->>'user_id')::uuid                                          AS id,
+  COALESCE(p.value->>'email', '')                                       AS email,
+  COALESCE(p.value->>'name', '')                                        AS name,
+  COALESCE(p.value->>'bio', '')                                         AS bio,
+  COALESCE(p.value->>'social_link', '')                                 AS social_link,
+  COALESCE(p.value->>'avatar_url', '')                                  AS avatar_url,
+  COALESCE(p.value->>'display_email', '')                               AS display_email,
+  COALESCE(p.value->>'org_role', 'Volunteer')                           AS org_role,
+  COALESCE((p.value->>'show_on_leaderboard')::boolean, true)            AS show_on_leaderboard,
+  -- role is stored as a plain JSON string (e.g. "admin"), not an object
+  COALESCE(
+    CASE
+      WHEN r.value #>> '{}' IN ('user', 'staff', 'admin') THEN r.value #>> '{}'
+      ELSE 'user'
+    END,
+    'user'
+  )                                                                      AS role,
+  -- last_signin stored as epoch ms integer; convert to timestamptz
+  CASE
+    WHEN s.value IS NOT NULL AND s.value #>> '{}' ~ '^\d+$'
+    THEN to_timestamp((s.value #>> '{}')::bigint / 1000.0)
+    ELSE NULL
+  END                                                                    AS last_signin_at,
+  COALESCE(
+    (p.value->>'created_at')::timestamptz,
+    NOW()
+  )                                                                      AS created_at,
+  COALESCE(
+    (p.value->>'updated_at')::timestamptz,
+    NOW()
+  )                                                                      AS updated_at
+FROM kv_store_17cae920 p
+-- Extract the UUID from the key: "user_profile:{uuid}"
+LEFT JOIN kv_store_17cae920 r
+  ON r.key = 'user_role:' || (p.value->>'user_id')
+LEFT JOIN kv_store_17cae920 s
+  ON s.key = 'user_last_signin:' || (p.value->>'user_id')
+WHERE p.key LIKE 'user_profile:%'
+  -- Guard: only rows with a valid UUID in user_id
+  AND (p.value->>'user_id') IS NOT NULL
+  AND (p.value->>'user_id') ~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+ON CONFLICT (id) DO UPDATE SET
+  email               = EXCLUDED.email,
+  name                = EXCLUDED.name,
+  bio                 = EXCLUDED.bio,
+  social_link         = EXCLUDED.social_link,
+  avatar_url          = EXCLUDED.avatar_url,
+  display_email       = EXCLUDED.display_email,
+  org_role            = EXCLUDED.org_role,
+  show_on_leaderboard = EXCLUDED.show_on_leaderboard,
+  role                = EXCLUDED.role,
+  last_signin_at      = EXCLUDED.last_signin_at,
+  updated_at          = NOW();
