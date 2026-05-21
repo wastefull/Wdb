@@ -75,6 +75,7 @@ import {
   RolePermissionsView,
   CategoryColorsView,
   CategoriesView,
+  MaintenanceModePanel,
 } from "./components/admin";
 
 // Forms
@@ -115,6 +116,7 @@ import {
   ScrollHintArrow,
   ViewConfiguration,
   Welcome,
+  MaintenanceScreen,
   type ViewRendererMap,
 } from "./components/shared";
 
@@ -189,9 +191,20 @@ function AppContent() {
     navigateToBlog,
     navigateToAbout,
     navigateToDonate,
+    navigateToMaintenanceMode,
   } = useNavigationContext();
   const { user, userRole, isAuthenticated, signIn, signOut, updateUserRole } =
     useAuthContext();
+
+  // Maintenance mode — fetched once on mount, re-fetched after toggle
+  const [maintenanceStatus, setMaintenanceStatus] = useState<{
+    enabled: boolean;
+    startedAt: number | null;
+  } | null>(null);
+
+  useEffect(() => {
+    api.getMaintenanceMode().then(setMaintenanceStatus);
+  }, []);
 
   // MaterialsContext is the single source of truth for all material data
   const {
@@ -1137,6 +1150,7 @@ function AppContent() {
         onNavigateToEvidenceLab={navigateToEvidenceLab}
         onNavigateToCurationWorkbench={navigateToCurationWorkbench}
         onNavigateToTransformTesting={navigateToTransformTesting}
+        onNavigateToMaintenanceMode={navigateToMaintenanceMode}
       />
     ),
     "staff-dashboard": () => (
@@ -1295,6 +1309,9 @@ function AppContent() {
       <CategoriesView onBack={navigateToAdminDashboard} />
     ),
     "assets-management": () => <AssetsManagementPage />,
+    "maintenance-mode": () => (
+      <MaintenanceModePanel onBack={navigateToAdminDashboard} />
+    ),
     "math-tools": (view) => (
       <MathView
         onBack={navigateToAdminDashboard}
@@ -1323,7 +1340,7 @@ function AppContent() {
   };
   return (
     <>
-      {/* Auth Modal */}
+      {/* Auth Modal — rendered at top level so it works during maintenance mode too */}
       {showAuthModal && (
         <div className={authModalOuterDivClasses} style={authModalOverlayStyle}>
           <div className={authModalInnerDivClasses}>
@@ -1338,141 +1355,154 @@ function AppContent() {
         </div>
       )}
 
-      <div className={authModalBackgroundClasses}>
-        {/* Main layout container - allows window to grow past 1000px with sidebar */}
-        <div className="max-w-500 mx-auto">
-          {/* Simulated window with optional sidebar inside */}
-          <div className="bg-[#faf7f2] dark:bg-[#1a1917] rounded-(--retro-rounding) border-[1.5px] border-[#211f1c] dark:border-white/20 overflow-visible mb-6">
-            <StatusBar
-              title="Waste"
-              titlePop="DB"
-              version="BETA"
-              currentView={currentView}
-              onViewChange={navigateTo}
-              syncStatus={syncStatus === "idle" ? undefined : syncStatus}
-              user={user}
-              userRole={userRole}
-              onLogout={handleLogout}
-              onSignIn={() => setShowAuthModal(true)}
-            />
+      {/* Maintenance gate — shown to non-admins when maintenance is active */}
+      {maintenanceStatus?.enabled && userRole !== "admin" && (
+        <MaintenanceScreen
+          startedAt={maintenanceStatus.startedAt}
+          onSignIn={() => setShowAuthModal(true)}
+        />
+      )}
 
-            {/* Navigation tabs - full width above flex container */}
-            <NavTabBar />
-
-            {/* Content area with optional sidebar */}
-            <div className="flex">
-              {/* Left panel - always rendered on front page; tab visible even when collapsed */}
-              {showLeftPanel && (
-                <Sidebar
-                  side="left"
-                  label="Resources"
-                  isOpen={showFrontLeftPanel}
-                  onToggle={() => setShowFrontLeftPanel((prev) => !prev)}
-                >
-                  <LeftPanel />
-                </Sidebar>
-              )}
-
-              {/* Main content - grows to fill space */}
-              <div className="flex-1 min-w-0">
-                <ViewConfiguration
+      {/* Normal app — always rendered for admins; hidden behind the gate otherwise */}
+      {(!maintenanceStatus?.enabled || userRole === "admin") && (
+        <>
+          <div className={authModalBackgroundClasses}>
+            {/* Main layout container - allows window to grow past 1000px with sidebar */}
+            <div className="max-w-500 mx-auto">
+              {/* Simulated window with optional sidebar inside */}
+              <div className="bg-[#faf7f2] dark:bg-[#1a1917] rounded-(--retro-rounding) border-[1.5px] border-[#211f1c] dark:border-white/20 overflow-visible mb-6">
+                <StatusBar
+                  title="Waste"
+                  titlePop="DB"
+                  version="BETA"
                   currentView={currentView}
-                  views={viewConfigurations}
+                  onViewChange={navigateTo}
+                  syncStatus={syncStatus === "idle" ? undefined : syncStatus}
+                  user={user}
+                  userRole={userRole}
+                  onLogout={handleLogout}
+                  onSignIn={() => setShowAuthModal(true)}
                 />
 
-                {/* Footer - inside rounded container */}
-                <PageFooter />
+                {/* Navigation tabs - full width above flex container */}
+                <NavTabBar />
 
-                {/* Scroll hint arrow - shown on mobile when leaderboard card is below */}
-                {showLeaderboardPanel && showScrollHint && (
-                  <ScrollHintArrow cta="See top contributors" />
-                )}
+                {/* Content area with optional sidebar */}
+                <div className="flex">
+                  {/* Left panel - always rendered on front page; tab visible even when collapsed */}
+                  {showLeftPanel && (
+                    <Sidebar
+                      side="left"
+                      label="Resources"
+                      isOpen={showFrontLeftPanel}
+                      onToggle={() => setShowFrontLeftPanel((prev) => !prev)}
+                    >
+                      <LeftPanel />
+                    </Sidebar>
+                  )}
+
+                  {/* Main content - grows to fill space */}
+                  <div className="flex-1 min-w-0">
+                    <ViewConfiguration
+                      currentView={currentView}
+                      views={viewConfigurations}
+                    />
+
+                    {/* Footer - inside rounded container */}
+                    <PageFooter />
+
+                    {/* Scroll hint arrow - shown on mobile when leaderboard card is below */}
+                    {showLeaderboardPanel && showScrollHint && (
+                      <ScrollHintArrow cta="See top contributors" />
+                    )}
+                  </div>
+
+                  {/* Right panel - always rendered when leaderboard is active; tab visible even when collapsed */}
+                  {showLeaderboardPanel && (
+                    <Sidebar
+                      side="right"
+                      label="Top Contributors"
+                      isOpen={showFrontRightPanel}
+                      onToggle={() => setShowFrontRightPanel((prev) => !prev)}
+                    >
+                      <Leaderboard onUserClick={navigateToUserProfile} />
+                    </Sidebar>
+                  )}
+                </div>
               </div>
 
-              {/* Right panel - always rendered when leaderboard is active; tab visible even when collapsed */}
+              {/* Mobile Leaderboard - separate window below main content, visible below md breakpoint */}
               {showLeaderboardPanel && (
-                <Sidebar
-                  side="right"
-                  label="Top Contributors"
-                  isOpen={showFrontRightPanel}
-                  onToggle={() => setShowFrontRightPanel((prev) => !prev)}
+                <motion.div
+                  ref={leaderboardRef}
+                  className="md:hidden mt-4 mx-4 md:mx-6 rounded-2xl border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#f5f4ef] dark:bg-[#1a1917] overflow-hidden"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={
+                    leaderboardVisible
+                      ? { opacity: 1, y: 0 }
+                      : { opacity: 0, y: 20 }
+                  }
+                  transition={{ duration: 0.5, ease: "easeOut" }}
                 >
                   <Leaderboard onUserClick={navigateToUserProfile} />
-                </Sidebar>
+                </motion.div>
+              )}
+
+              {/* Permalink Disambiguation Picker */}
+              {permalinkDisambiguateCandidates && (
+                <PermalinkSelectionPrompt
+                  candidates={permalinkDisambiguateCandidates}
+                  onClose={() => setPermalinkDisambiguateCandidates(null)}
+                />
+              )}
+
+              {/* Submission Forms */}
+              {showSubmitMaterialForm && (
+                <SubmitMaterialForm
+                  initialName={submitMaterialInitialName}
+                  onClose={() => {
+                    setShowSubmitMaterialForm(false);
+                    setSubmitMaterialInitialName("");
+                  }}
+                  onSubmitSuccess={() => {
+                    // Optionally refresh submissions or show a notification
+                    toast.success(
+                      'Material submitted! Check "My Submissions" for updates.',
+                    );
+                  }}
+                />
+              )}
+
+              {materialToEdit && (
+                <SuggestMaterialEditForm
+                  material={materialToEdit}
+                  allMaterials={materials}
+                  isAdminMode={userRole === "admin"}
+                  onClose={() => setMaterialToEdit(null)}
+                  onSubmitSuccess={() => {
+                    if (userRole !== "admin") {
+                      toast.success(
+                        'Edit suggestion submitted! Check "My Submissions" for updates.',
+                      );
+                    }
+                  }}
+                />
+              )}
+
+              {showSubmitArticleForm && (
+                <SubmitArticleForm
+                  onClose={() => setShowSubmitArticleForm(false)}
+                  onSubmitSuccess={() => {
+                    toast.success(
+                      'Article submitted! Check "My Submissions" for updates.',
+                    );
+                  }}
+                />
               )}
             </div>
           </div>
-
-          {/* Mobile Leaderboard - separate window below main content, visible below md breakpoint */}
-          {showLeaderboardPanel && (
-            <motion.div
-              ref={leaderboardRef}
-              className="md:hidden mt-4 mx-4 md:mx-6 rounded-2xl border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#f5f4ef] dark:bg-[#1a1917] overflow-hidden"
-              initial={{ opacity: 0, y: 20 }}
-              animate={
-                leaderboardVisible
-                  ? { opacity: 1, y: 0 }
-                  : { opacity: 0, y: 20 }
-              }
-              transition={{ duration: 0.5, ease: "easeOut" }}
-            >
-              <Leaderboard onUserClick={navigateToUserProfile} />
-            </motion.div>
-          )}
-
-          {/* Permalink Disambiguation Picker */}
-          {permalinkDisambiguateCandidates && (
-            <PermalinkSelectionPrompt
-              candidates={permalinkDisambiguateCandidates}
-              onClose={() => setPermalinkDisambiguateCandidates(null)}
-            />
-          )}
-
-          {/* Submission Forms */}
-          {showSubmitMaterialForm && (
-            <SubmitMaterialForm
-              initialName={submitMaterialInitialName}
-              onClose={() => {
-                setShowSubmitMaterialForm(false);
-                setSubmitMaterialInitialName("");
-              }}
-              onSubmitSuccess={() => {
-                // Optionally refresh submissions or show a notification
-                toast.success(
-                  'Material submitted! Check "My Submissions" for updates.',
-                );
-              }}
-            />
-          )}
-
-          {materialToEdit && (
-            <SuggestMaterialEditForm
-              material={materialToEdit}
-              allMaterials={materials}
-              isAdminMode={userRole === "admin"}
-              onClose={() => setMaterialToEdit(null)}
-              onSubmitSuccess={() => {
-                if (userRole !== "admin") {
-                  toast.success(
-                    'Edit suggestion submitted! Check "My Submissions" for updates.',
-                  );
-                }
-              }}
-            />
-          )}
-
-          {showSubmitArticleForm && (
-            <SubmitArticleForm
-              onClose={() => setShowSubmitArticleForm(false)}
-              onSubmitSuccess={() => {
-                toast.success(
-                  'Article submitted! Check "My Submissions" for updates.',
-                );
-              }}
-            />
-          )}
-        </div>
-      </div>
+        </>
+      )}
     </>
   );
 }

@@ -20,3 +20,4 @@ export { RolePermissionsView } from "./RolePermissionsView";
 // Settings
 export { CategoriesView } from "./CategoriesView";
 export { CategoryColorsView } from "./CategoryColorsView";
+export { MaintenanceModePanel } from "./MaintenanceModePanel";

@@ -50,6 +50,7 @@ interface AdminDashboardProps {
   onNavigateToEvidenceLab?: () => void;
   onNavigateToCurationWorkbench?: () => void;
   onNavigateToTransformTesting?: () => void;
+  onNavigateToMaintenanceMode?: () => void;
 }
 
 export function AdminDashboard({
@@ -75,6 +76,7 @@ export function AdminDashboard({
   onNavigateToEvidenceLab,
   onNavigateToCurationWorkbench,
   onNavigateToTransformTesting,
+  onNavigateToMaintenanceMode,
 }: AdminDashboardProps) {
   const [stats, setStats] = useState<{
     materials: number;
@@ -213,6 +215,14 @@ export function AdminDashboard({
                       className="menu-item"
                     >
                       Categories
+                    </button>
+                  )}
+                  {onNavigateToMaintenanceMode && (
+                    <button
+                      onClick={onNavigateToMaintenanceMode}
+                      className="menu-item"
+                    >
+                      Maintenance Mode
                     </button>
                   )}
                   <button className="menu-item-disabled" disabled>

@@ -1437,3 +1437,33 @@ export async function sendRejectionEmail(params: {
   });
   return data;
 }
+
+// ==================== MAINTENANCE MODE ====================
+
+export interface MaintenanceStatus {
+  enabled: boolean;
+  startedAt: number | null;
+}
+
+/** Public — fetch current maintenance mode state. Never throws; returns disabled on error. */
+export async function getMaintenanceMode(): Promise<MaintenanceStatus> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/maintenance`, {
+      headers: { Authorization: `Bearer ${publicAnonKey}` },
+    });
+    if (!response.ok) return { enabled: false, startedAt: null };
+    return await response.json();
+  } catch {
+    return { enabled: false, startedAt: null };
+  }
+}
+
+/** Admin only — enable or disable maintenance mode. */
+export async function setMaintenanceMode(
+  enabled: boolean,
+): Promise<MaintenanceStatus> {
+  return await apiCall("/maintenance", {
+    method: "POST",
+    body: JSON.stringify({ enabled }),
+  });
+}

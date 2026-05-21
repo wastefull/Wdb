@@ -911,6 +911,62 @@ app.get("/make-server-17cae920/health", (c) => {
   return c.json({ status: "ok" });
 });
 
+// ==================== MAINTENANCE MODE ====================
+
+// GET /maintenance — public, returns current maintenance state
+app.get("/make-server-17cae920/maintenance", async (c) => {
+  try {
+    const data = (await kv.get("site:maintenance_mode")) as {
+      enabled: boolean;
+      startedAt: number;
+    } | null;
+    return c.json({
+      enabled: data?.enabled ?? false,
+      startedAt: data?.enabled ? (data.startedAt ?? null) : null,
+    });
+  } catch (error) {
+    log.error("GET /maintenance error:", error);
+    return c.json({ enabled: false, startedAt: null });
+  }
+});
+
+// POST /maintenance — admin only, toggles maintenance mode
+app.post(
+  "/make-server-17cae920/maintenance",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const body = await c.req.json();
+      const enabled = Boolean(body.enabled);
+      if (enabled) {
+        await kv.set("site:maintenance_mode", {
+          enabled: true,
+          startedAt: Date.now(),
+        });
+      } else {
+        await kv.del("site:maintenance_mode");
+      }
+      const data = enabled
+        ? ((await kv.get("site:maintenance_mode")) as {
+            enabled: boolean;
+            startedAt: number;
+          })
+        : null;
+      log.log(
+        `Maintenance mode ${enabled ? "ENABLED" : "DISABLED"} by admin ${c.get("userEmail")}`,
+      );
+      return c.json({
+        enabled,
+        startedAt: data?.startedAt ?? null,
+      });
+    } catch (error) {
+      log.error("POST /maintenance error:", error);
+      return c.json({ error: "Failed to update maintenance mode" }, 500);
+    }
+  },
+);
+
 // Restore session from persistent cookie (public - handles its own auth via cookie)
 app.get("/make-server-17cae920/auth/session", async (c) => {
   try {

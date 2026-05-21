@@ -48,3 +48,4 @@ export { Welcome } from "./Welcome";
 
 // Documentation
 export { ApiDocumentation } from "./ApiDocumentation";
+export { MaintenanceScreen } from "./MaintenanceScreen";
