@@ -18,8 +18,8 @@
 | 7    | Create `material_links` junction table                                              | ✅ Done        | `20260520000008_create_material_links_table.sql`      |
 | 8    | Seed `user_profiles` from KV (one-time script)                                      | ✅ Done        | `20260520000009_seed_user_profiles.sql`               |
 | 9    | Seed `materials` + `articles` + `sources` from KV (one-time script)                 | ✅ Done        | `20260520000010_seed_materials_articles_sources.sql`  |
-| 10   | Add FK constraints to `guides` (`material_id → uuid`, `created_by → user_profiles`) | ⬜ Not started | —                                                     |
-| 11   | Add FK constraint to `blog_posts` (`created_by → user_profiles`)                    | ⬜ Not started | —                                                     |
+| 10   | Add FK constraints to `guides` (`material_id → uuid`, `created_by → user_profiles`) | ✅ Done        | `20260520000012_add_fk_guides.sql`                    |
+| 11   | Add FK constraint to `blog_posts` (`created_by → user_profiles`)                    | ✅ Done        | `20260520000013_add_fk_blog_posts.sql`                |
 | 12   | Switch contribution routes to Postgres                                              | ⬜ Not started | —                                                     |
 | 13   | Switch materials read routes to Postgres                                            | ⬜ Not started | —                                                     |
 | 14   | Switch materials write routes to Postgres                                           | ⬜ Not started | —                                                     |
