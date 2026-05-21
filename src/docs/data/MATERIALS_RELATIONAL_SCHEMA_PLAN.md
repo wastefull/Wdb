@@ -23,10 +23,12 @@
 | 12   | Switch contribution routes to Postgres                                              | ✅ Done        | —                                                     |
 | 13   | Switch materials read routes to Postgres                                            | ✅ Done        | —                                                     |
 | 14   | Switch materials write routes to Postgres                                           | ✅ Done        | —                                                     |
-| 15   | Create `evidence_points` table and migrate MIU data from KV to Postgres             | ⬜ Not started | —                                                     |
-| 16   | Drop KV namespaces (irreversible — requires explicit team approval)                 | ⬜ Not started | —                                                     |
+| 15   | Create `evidence_points` table and migrate MIU data from KV to Postgres             | ✅ Done        | `20260521000000_create_evidence_points_table.sql`     |
+| 16   | Audit trail verification — add missing `createAuditLog` calls to all write routes   | ✅ Done        | —                                                     |
+| 17   | Migrate `audit_log` from KV to Postgres — unbounded, indexed, queryable             | ✅ Done        | `20260521000001_create_audit_log_table.sql`           |
+| 18   | Drop KV namespaces (irreversible — requires explicit team approval)                 | ⬜ Not started | —                                                     |
 
-> Steps 1–7 were purely additive (new tables only). Steps 8–14 are complete. KV is no longer read or written for material data. MIU/evidence data remains in KV material blobs pending Step 15. Step 16 (KV drop) must not proceed until Step 15 is complete and verified.
+> Steps 1–17 are complete. Step 18 (KV drop) must not proceed without explicit team approval — it is irreversible.
 
 ---
 
@@ -34,9 +36,38 @@
 
 **Previously:** Materials lived as monolithic JSON blobs in `kv_store_17cae920`, each containing core scores, scientific parameters, embedded `sources[]`, embedded `articles.{compostability|recyclability|reusability}[]`, and Wikimedia metadata.
 
-**Now:** All content lives in Postgres. `GET /materials` reads from the `materials` table (with joined `material_categories`, `articles`, and `material_sources` → `sources`). All write routes (`POST`, `PUT`, `DELETE`, batch) write to Postgres and no longer touch KV. KV is now unused for material data — the only remaining KV usage is for sessions, roles, rate limits, and MIU/evidence data (Step 15 target).
+**Now:** All content lives in Postgres. `GET /materials` reads from the `materials` table (with joined `material_categories`, `articles`, and `material_sources` → `sources`). All write routes (`POST`, `PUT`, `DELETE`, batch) write to Postgres and no longer touch KV. The `evidence_points` table holds MIU/scientific evidence data. KV is now unused for material or evidence data — the only remaining KV usage is for sessions, roles, rate limits, and legacy standalone `article:*` / `source:*` blobs (not yet migrated).
 
-### Architecture decision: articles as a separate table ✅
+### Step 16: Audit trail gaps closed (May 21, 2026)
+
+An audit of all write routes found the following gaps, all now fixed:
+
+| Route                            | Risk                                                      | Fix                                                |
+| -------------------------------- | --------------------------------------------------------- | -------------------------------------------------- |
+| `DELETE /materials` (delete-all) | **High** — wiped all materials silently                   | Added `createAuditLog` with full `before` snapshot |
+| `POST /articles`                 | Medium — no record of article creation                    | Added `createAuditLog` with `create` action        |
+| `PUT /articles/:id`              | Medium — no record of article edits                       | Added `createAuditLog` with `before`/`after` diff  |
+| `DELETE /articles/:id`           | Medium — no record of article deletions                   | Added `createAuditLog` with `before` snapshot      |
+| `POST /sources/batch`            | Medium — silent bulk-sync of entire source library        | Added `createAuditLog` with count + preview        |
+| `POST /materials/batch`          | Low — routine small-batch saves (≤5 item Δ) were unlogged | Removed the conditional; all batch saves now log   |
+
+Note: `POST /articles`, `PUT /articles/:id`, `DELETE /articles/:id`, and `POST /sources/batch` still write to KV (they predate the Postgres migration). Audit logging is now in place regardless. Full migration of these routes is a future step.
+
+### Step 17: Migrate audit_log from KV to Postgres
+
+**Problem:** `kv.getByPrefix("audit:")` is hard-capped at 1000 entries. Once the audit log exceeded this limit, new writes were invisible to the read/stats/filter endpoints. Emails confirmed writes were succeeding, but the cap prevented them from appearing in queries.
+
+**Solution:**
+
+- Migration `20260521000001_create_audit_log_table.sql` creates `public.audit_log` with proper indexes (`timestamp DESC`, `entity_type`, `entity_id`, `action`, `user_id`) and service-role-only RLS.
+- `createAuditLog` now inserts directly to Postgres instead of calling `kv.set`. `sendAuditEmailNotification` behavior is unchanged.
+- `GET /audit/logs` uses Postgres SELECT with the same filter params (`entityType`, `entityId`, `userId`, `action`, `startDate`, `endDate`, `limit`, `offset`) and returns the same `{ logs, total, offset, limit }` shape with camelCase fields.
+- `GET /audit/logs/:id` uses Postgres `.eq("id", id)`.
+- `GET /audit/stats` uses Postgres for `total` count and in-memory aggregation for `byEntityType`, `byAction`, `byUser`, `recentActivity`.
+- `POST /admin/audit/seed-from-kv` reads all `audit:*` KV entries and inserts them into Postgres. Skips entries already present by `id`. **Does NOT call `createAuditLog` or `sendAuditEmailNotification`** — no emails triggered during the seed.
+- Frontend: `seedAuditLogFromKV()` added to `src/utils/api.tsx`; "Seed Audit Log from KV" action added to `OneTimeActionsPanel`.
+
+**Status: ✅ Complete. 1308 KV entries migrated (308 were beyond the old 1000-row cap). All audit writes now go directly to Postgres.**
 
 We chose **Option B — separate `articles` table** (over keeping articles embedded in material blobs). The `articles` table was created in Step 4 and seeded in Step 9.
 

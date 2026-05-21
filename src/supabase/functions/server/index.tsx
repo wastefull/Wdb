@@ -2368,35 +2368,31 @@ app.post(
 
       const isBulkDelete = existingCount > 0 && materials.length === 0;
       const isPotentialDataLoss = existingCount > 1 && materials.length <= 1;
-      const isSignificantChange =
-        Math.abs(existingCount - materials.length) > 5;
-      if (isBulkDelete || isPotentialDataLoss || isSignificantChange) {
-        await createAuditLog({
-          userId: c.get("userId"),
-          userEmail: c.get("userEmail"),
-          entityType: "materials_bulk",
-          entityId: "batch_save",
-          action: isBulkDelete ? "delete" : "update",
-          before: {
-            count: existingCount,
-            materials_preview: (existingRows ?? [])
-              .slice(0, 5)
-              .map((m: any) => ({ id: m.legacy_kv_id, name: m.name })),
-          },
-          after: {
-            count: materials.length,
-            is_bulk_delete: isBulkDelete,
-            is_potential_data_loss: isPotentialDataLoss,
-            materials_preview: materials
-              .slice(0, 5)
-              .map((m: any) => ({ id: m.id, name: m.name })),
-          },
-          req: c,
-        });
-        log.log(
-          `AUDIT: Bulk material operation - ${existingCount} → ${materials.length} materials`,
-        );
-      }
+      await createAuditLog({
+        userId: c.get("userId"),
+        userEmail: c.get("userEmail"),
+        entityType: "materials_bulk",
+        entityId: "batch_save",
+        action: isBulkDelete ? "delete" : "update",
+        before: {
+          count: existingCount,
+          materials_preview: (existingRows ?? [])
+            .slice(0, 5)
+            .map((m: any) => ({ id: m.legacy_kv_id, name: m.name })),
+        },
+        after: {
+          count: materials.length,
+          is_bulk_delete: isBulkDelete,
+          is_potential_data_loss: isPotentialDataLoss,
+          materials_preview: materials
+            .slice(0, 5)
+            .map((m: any) => ({ id: m.id, name: m.name })),
+        },
+        req: c,
+      });
+      log.log(
+        `AUDIT: Bulk material operation - ${existingCount} → ${materials.length} materials`,
+      );
 
       // Remove all existing material_sources (will be re-added per material below)
       const existingKvIds = (existingRows ?? [])
@@ -2587,16 +2583,32 @@ app.delete(
         Deno.env.get("SUPABASE_URL") ?? "",
         Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       );
-      const { count } = await supabase
+      const { data: previewRows, count } = await supabase
         .from("materials")
-        .select("id", { count: "exact", head: true })
-        .not("legacy_kv_id", "is", null);
+        .select("legacy_kv_id, name", { count: "exact" })
+        .not("legacy_kv_id", "is", null)
+        .limit(10);
       await supabase.from("material_sources").delete().not("id", "is", null);
       await supabase
         .from("articles")
         .delete()
         .not("legacy_material_kv_id", "is", null);
       await supabase.from("materials").delete().not("legacy_kv_id", "is", null);
+      await createAuditLog({
+        userId: c.get("userId"),
+        userEmail: c.get("userEmail"),
+        entityType: "materials_bulk",
+        entityId: "delete_all",
+        action: "delete",
+        before: {
+          count: count ?? 0,
+          materials_preview: (previewRows ?? []).map((m: any) => ({
+            id: m.legacy_kv_id,
+            name: m.name,
+          })),
+        },
+        req: c,
+      });
       return c.json({ success: true, deleted: count ?? 0 });
     } catch (error) {
       log.error("Error deleting all materials:", error);
@@ -6448,6 +6460,111 @@ app.post(
   },
 );
 
+// ─── Step 17: Seed audit_log Postgres table from KV entries ─────────────────
+// One-time admin endpoint. Reads all audit:* KV entries and inserts them into
+// the audit_log Postgres table. Safe to call multiple times — entries already
+// present (matched by id) are skipped.
+// IMPORTANT: does NOT call sendAuditEmailNotification or createAuditLog, so
+// no emails are triggered during the seed.
+app.post(
+  "/make-server-17cae920/admin/audit/seed-from-kv",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      );
+
+      // Paginate directly against kv_store_17cae920 to bypass the 1000-row
+      // PostgREST cap that kv.getByPrefix() inherits.
+      const PAGE_SIZE = 1000;
+      const allKvEntries: any[] = [];
+      let page = 0;
+      while (true) {
+        const { data: pageData, error: pageError } = await supabase
+          .from("kv_store_17cae920")
+          .select("value")
+          .like("key", "audit:%")
+          .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
+        if (pageError) throw pageError;
+        if (!pageData || pageData.length === 0) break;
+        allKvEntries.push(...pageData.map((r: any) => r.value));
+        if (pageData.length < PAGE_SIZE) break;
+        page++;
+      }
+
+      let inserted = 0;
+      let skipped = 0;
+      let errors = 0;
+      const errorLog: string[] = [];
+
+      // Use upsert with ignoreDuplicates — fully idempotent against concurrent inserts.
+      for (const entry of allKvEntries) {
+        const id = entry.id as string | undefined;
+        if (!id) {
+          skipped++;
+          continue;
+        }
+
+        // Normalise: KV entries may use camelCase or older shapes
+        const timestamp =
+          entry.timestamp ?? entry.created_at ?? new Date().toISOString();
+        const action = entry.action;
+        if (!action) {
+          skipped++;
+          continue;
+        }
+
+        const row: Record<string, any> = {
+          id,
+          timestamp,
+          user_id: entry.userId ?? entry.user_id ?? null,
+          user_email: entry.userEmail ?? entry.user_email ?? null,
+          entity_type: entry.entityType ?? entry.entity_type ?? null,
+          entity_id: entry.entityId ?? entry.entity_id ?? null,
+          action,
+          before: entry.before ?? null,
+          after: entry.after ?? null,
+          changes: entry.changes ?? [],
+          ip_address: entry.ipAddress ?? entry.ip_address ?? null,
+          user_agent: entry.userAgent ?? entry.user_agent ?? null,
+        };
+
+        const { error: upsertError } = await supabase
+          .from("audit_log")
+          .upsert(row, { onConflict: "id", ignoreDuplicates: true });
+
+        if (upsertError) {
+          errors++;
+          errorLog.push(`${id}: ${upsertError.message}`);
+        } else {
+          inserted++;
+        }
+      }
+
+      log.log(
+        `Audit seed: inserted=${inserted} skipped=${skipped} errors=${errors} total_kv=${allKvEntries.length}`,
+      );
+      return c.json({
+        success: true,
+        inserted,
+        skipped,
+        errors,
+        total_kv: allKvEntries.length,
+        error_log: errorLog.slice(0, 50),
+      });
+    } catch (error) {
+      log.error("Error seeding audit_log from KV:", error);
+      return c.json(
+        { error: "Audit seed failed", details: String(error) },
+        500,
+      );
+    }
+  },
+);
+
 app.get("/make-server-17cae920/admin/stats", async (c) => {
   try {
     const supabase = createClient(
@@ -6779,6 +6896,15 @@ app.post(
       };
 
       await kv.set(`article:${article.id}`, article);
+      await createAuditLog({
+        userId,
+        userEmail: c.get("userEmail"),
+        entityType: "article",
+        entityId: article.id,
+        action: "create",
+        after: { title: article.title, status: article.status },
+        req: c,
+      });
       return c.json({ article });
     } catch (error) {
       log.error("Error creating article:", error);
@@ -6818,6 +6944,16 @@ app.put("/make-server-17cae920/articles/:id", verifyAuth, async (c) => {
     };
 
     await kv.set(`article:${id}`, updatedArticle);
+    await createAuditLog({
+      userId,
+      userEmail: c.get("userEmail"),
+      entityType: "article",
+      entityId: id,
+      action: "update",
+      before: { title: existing.title, status: existing.status },
+      after: { title: updatedArticle.title, status: updatedArticle.status },
+      req: c,
+    });
     return c.json({ article: updatedArticle });
   } catch (error) {
     log.error("Error updating article:", error);
@@ -6849,6 +6985,15 @@ app.delete("/make-server-17cae920/articles/:id", verifyAuth, async (c) => {
     }
 
     await kv.del(`article:${id}`);
+    await createAuditLog({
+      userId,
+      userEmail: c.get("userEmail"),
+      entityType: "article",
+      entityId: id,
+      action: "delete",
+      before: { title: existing.title, status: existing.status },
+      req: c,
+    });
     return c.json({ success: true });
   } catch (error) {
     log.error("Error deleting article:", error);
@@ -8974,6 +9119,20 @@ app.post(
         savedSources.push(source);
       }
 
+      await createAuditLog({
+        userId,
+        userEmail: c.get("userEmail"),
+        entityType: "sources_bulk",
+        entityId: "batch_save",
+        action: "update",
+        after: {
+          count: savedSources.length,
+          sources_preview: savedSources
+            .slice(0, 5)
+            .map((s: any) => ({ id: s.id, title: s.title })),
+        },
+        req: c,
+      });
       log.log(`Batch saved ${savedSources.length} sources by user ${userId}`);
       return c.json({
         success: true,
@@ -13409,7 +13568,24 @@ async function createAuditLog(params: {
       : undefined,
   };
 
-  await kv.set(auditId, entry);
+  const _supabase = createClient(
+    Deno.env.get("SUPABASE_URL") ?? "",
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+  );
+  await _supabase.from("audit_log").insert({
+    id: auditId,
+    timestamp: entry.timestamp,
+    user_id: entry.userId,
+    user_email: entry.userEmail,
+    entity_type: entry.entityType,
+    entity_id: entry.entityId,
+    action: entry.action,
+    before: entry.before ?? null,
+    after: entry.after ?? null,
+    changes: entry.changes,
+    ip_address: entry.ipAddress ?? null,
+    user_agent: entry.userAgent ?? null,
+  });
   log.log(
     `📝 Audit log created: ${auditId} - ${params.action} ${params.entityType}:${params.entityId} by ${params.userEmail}`,
   );
@@ -13477,38 +13653,46 @@ app.get(
       const limit = parseInt(c.req.query("limit") || "100");
       const offset = parseInt(c.req.query("offset") || "0");
 
-      // Get all audit logs
-      const allLogs = await kv.getByPrefix("audit:");
-
-      // Filter logs
-      let filteredLogs = allLogs.filter((log: AuditLogEntry) => {
-        if (entityType && log.entityType !== entityType) return false;
-        if (entityId && log.entityId !== entityId) return false;
-        if (userId && log.userId !== userId) return false;
-        if (action && log.action !== action) return false;
-        if (startDate && new Date(log.timestamp) < new Date(startDate))
-          return false;
-        if (endDate && new Date(log.timestamp) > new Date(endDate))
-          return false;
-        return true;
-      });
-
-      // Sort by timestamp (newest first)
-      filteredLogs.sort(
-        (a: AuditLogEntry, b: AuditLogEntry) =>
-          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       );
 
-      // Paginate
-      const total = filteredLogs.length;
-      const paginatedLogs = filteredLogs.slice(offset, offset + limit);
+      let query = supabase
+        .from("audit_log")
+        .select("*", { count: "exact" })
+        .order("timestamp", { ascending: false });
 
-      return c.json({
-        logs: paginatedLogs,
-        total,
+      if (entityType) query = query.eq("entity_type", entityType);
+      if (entityId) query = query.eq("entity_id", entityId);
+      if (userId) query = query.eq("user_id", userId);
+      if (action) query = query.eq("action", action);
+      if (startDate) query = query.gte("timestamp", startDate);
+      if (endDate) query = query.lte("timestamp", endDate);
+
+      const { data, count, error } = await query.range(
         offset,
-        limit,
-      });
+        offset + limit - 1,
+      );
+      if (error) throw error;
+
+      // Map snake_case columns → camelCase AuditLogEntry
+      const logs = (data ?? []).map((r: any) => ({
+        id: r.id,
+        timestamp: r.timestamp,
+        userId: r.user_id,
+        userEmail: r.user_email,
+        entityType: r.entity_type,
+        entityId: r.entity_id,
+        action: r.action,
+        before: r.before,
+        after: r.after,
+        changes: r.changes ?? [],
+        ipAddress: r.ip_address,
+        userAgent: r.user_agent,
+      }));
+
+      return c.json({ logs, total: count ?? 0, offset, limit });
     } catch (error) {
       log.error("Error fetching audit logs:", error);
       return c.json(
@@ -13527,13 +13711,34 @@ app.get(
   async (c) => {
     try {
       const id = c.req.param("id");
-      const log = await kv.get(id);
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      );
+      const { data: r, error } = await supabase
+        .from("audit_log")
+        .select("*")
+        .eq("id", id)
+        .maybeSingle();
+      if (error) throw error;
+      if (!r) return c.json({ error: "Audit log not found" }, 404);
 
-      if (!log) {
-        return c.json({ error: "Audit log not found" }, 404);
-      }
-
-      return c.json({ log });
+      return c.json({
+        log: {
+          id: r.id,
+          timestamp: r.timestamp,
+          userId: r.user_id,
+          userEmail: r.user_email,
+          entityType: r.entity_type,
+          entityId: r.entity_id,
+          action: r.action,
+          before: r.before,
+          after: r.after,
+          changes: r.changes ?? [],
+          ipAddress: r.ip_address,
+          userAgent: r.user_agent,
+        },
+      });
     } catch (error) {
       log.error("Error fetching audit log:", error);
       return c.json(
@@ -13551,38 +13756,78 @@ app.get(
   verifyAdmin,
   async (c) => {
     try {
-      const allLogs = await kv.getByPrefix("audit:");
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      );
 
-      // Calculate statistics
-      const stats = {
-        total: allLogs.length,
-        byEntityType: {} as Record<string, number>,
-        byAction: {} as Record<string, number>,
-        byUser: {} as Record<string, { email: string; count: number }>,
-        recentActivity: allLogs
-          .sort(
-            (a: AuditLogEntry, b: AuditLogEntry) =>
-              new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
-          )
-          .slice(0, 10),
-      };
+      const [totalRes, byTypeRes, byActionRes, byUserRes, recentRes] =
+        await Promise.all([
+          supabase
+            .from("audit_log")
+            .select("*", { count: "exact", head: true }),
+          supabase.rpc("audit_log_count_by_entity_type").catch(() => ({
+            data: null,
+          })),
+          supabase.from("audit_log").select("action").limit(10000),
+          supabase.from("audit_log").select("user_id, user_email").limit(10000),
+          supabase
+            .from("audit_log")
+            .select("*")
+            .order("timestamp", { ascending: false })
+            .limit(10),
+        ]);
 
-      allLogs.forEach((log: AuditLogEntry) => {
-        // Count by entity type
-        stats.byEntityType[log.entityType] =
-          (stats.byEntityType[log.entityType] || 0) + 1;
+      // Build aggregations in-memory (rpc fallback)
+      const byEntityType: Record<string, number> = {};
+      const byAction: Record<string, number> = {};
+      const byUser: Record<string, { email: string; count: number }> = {};
 
-        // Count by action
-        stats.byAction[log.action] = (stats.byAction[log.action] || 0) + 1;
-
-        // Count by user
-        if (!stats.byUser[log.userId]) {
-          stats.byUser[log.userId] = { email: log.userEmail, count: 0 };
+      (byActionRes.data ?? []).forEach((r: any) => {
+        byAction[r.action] = (byAction[r.action] || 0) + 1;
+      });
+      (byUserRes.data ?? []).forEach((r: any) => {
+        if (!byUser[r.user_id]) {
+          byUser[r.user_id] = { email: r.user_email, count: 0 };
         }
-        stats.byUser[log.userId].count++;
+        byUser[r.user_id].count++;
       });
 
-      return c.json({ stats });
+      // entity_type from recent + action rows (cheap approximation for stats)
+      const allSampled = [
+        ...(byActionRes.data ?? []),
+        ...(recentRes.data ?? []),
+      ];
+      allSampled.forEach((r: any) => {
+        if (r.entity_type) {
+          byEntityType[r.entity_type] = (byEntityType[r.entity_type] || 0) + 1;
+        }
+      });
+
+      const recentActivity = (recentRes.data ?? []).map((r: any) => ({
+        id: r.id,
+        timestamp: r.timestamp,
+        userId: r.user_id,
+        userEmail: r.user_email,
+        entityType: r.entity_type,
+        entityId: r.entity_id,
+        action: r.action,
+        before: r.before,
+        after: r.after,
+        changes: r.changes ?? [],
+        ipAddress: r.ip_address,
+        userAgent: r.user_agent,
+      }));
+
+      return c.json({
+        stats: {
+          total: totalRes.count ?? 0,
+          byEntityType,
+          byAction,
+          byUser,
+          recentActivity,
+        },
+      });
     } catch (error) {
       log.error("Error fetching audit stats:", error);
       return c.json(

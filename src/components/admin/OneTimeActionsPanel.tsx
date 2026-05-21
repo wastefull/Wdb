@@ -27,6 +27,15 @@ const ACTIONS: OneTimeAction[] = [
       "Admin only. Check the response for errors before marking Step 15 complete.",
     run: api.seedEvidenceFromKV,
   },
+  {
+    id: "seed-audit-log-from-kv",
+    title: "Seed Audit Log from KV",
+    description:
+      "Reads all audit:* KV entries and migrates them into the audit_log Postgres table. Safe to run multiple times — already-seeded entries are skipped. Does NOT trigger audit email notifications.",
+    warning:
+      "Admin only. Run after deploying the audit_log table migration (Step 17).",
+    run: api.seedAuditLogFromKV,
+  },
 ];
 
 type ActionState =
