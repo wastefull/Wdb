@@ -26,9 +26,11 @@
 | 15   | Create `evidence_points` table and migrate MIU data from KV to Postgres             | ✅ Done        | `20260521000000_create_evidence_points_table.sql`     |
 | 16   | Audit trail verification — add missing `createAuditLog` calls to all write routes   | ✅ Done        | —                                                     |
 | 17   | Migrate `audit_log` from KV to Postgres — unbounded, indexed, queryable             | ✅ Done        | `20260521000001_create_audit_log_table.sql`           |
-| 18   | Drop KV namespaces (irreversible — requires explicit team approval)                 | ⬜ Not started | —                                                     |
+| 18   | Switch `user_profile` write paths to Postgres — eliminate KV dual-write             | ⬜ Not started | —                                                     |
+| 19   | Consolidate roles into `user_profiles` — add `role` column, remove `user_role:*`    | ⬜ Not started | —                                                     |
+| 20   | Drop migrated KV namespaces (deferred — see note below)                             | ⏸ Deferred     | —                                                     |
 
-> Steps 1–17 are complete. Step 18 (KV drop) must not proceed without explicit team approval — it is irreversible.
+> Steps 1–17 are complete. Steps 18–19 (user_profile + roles migration) are the recommended next work. Step 20 (KV drop) is deferred — `session:*` and several other namespaces are still actively written and have no Postgres equivalent yet. Only `audit:*` is safe to delete today.
 
 ---
 
@@ -404,6 +406,47 @@ The migration needs to be non-destructive because the KV store remains live unti
 8. **Validate with backups** — run a full-site backup before and after each route switch, diff the data
 9. **Drop KV material/article/source/user_profile/user_role blobs** once all reads are confirmed correct
 10. **Drop `legacy_kv_id`** columns and remaining `kv_store_17cae920` namespace entries in a final cleanup migration - DO NOT DO THIS WITHOUT EXPLICIT PERMISSION FROM THE TEAM, as it is irreversible and would break the ability to roll back to KV if needed.
+
+---
+
+## Steps 18–19 Plan
+
+### Step 18: Switch `user_profile` write paths to Postgres
+
+The `user_profiles` table already exists and most reads already come from Postgres. The remaining KV dual-writes are in:
+
+- `POST /auth/signup` — `kv.set("user_profile:${id}", initialProfile)`
+- Magic link callback — `kv.set("user_profile:${id}", ...)`
+- OAuth callback — reads then maybe sets `user_profile:*`
+- `PUT /users/:id` — `kv.set("user_profile:${id}", updatedProfile)`
+- Profile GET — falls back to `kv.get("user_profile:${id}")` if Postgres returns nothing
+
+**Work:** Switch each of these to `user_profiles.upsert()`. Remove KV fallback reads once the table is confirmed populated. Existing `user_profiles` Postgres table schema is from Step 1 — no new migration needed. Add a "Seed user_profiles from KV" one-time action if any gaps are found.
+
+### Step 19: Consolidate roles into `user_profiles`
+
+`user_role:*` is read on every authenticated request (inside `verifyAdmin` and throughout the auth flow) and is currently a plain string in KV. The `user_profiles` table already has context about each user — role belongs there.
+
+**Work:**
+
+1. Add `role TEXT NOT NULL DEFAULT 'user'` column to `user_profiles` (migration)
+2. Backfill from `user_role:*` KV entries (one-time admin action or inline migration script)
+3. Switch `verifyAdmin`, role GET/SET, sign-up, and magic link to read/write `user_profiles.role`
+4. Remove all `kv.get/set("user_role:*")` calls
+
+**Benefit:** Eliminates one KV round-trip per authenticated request. Role is now a proper column — queryable, FK-joinable, auditable.
+
+### Step 20: Drop migrated KV namespaces (deferred)
+
+Safe to delete today: `audit:*`
+
+Blocked until Steps 18–19 complete: `user_profile:*`, `user_role:*`
+
+Blocked until sessions are evaluated: `session:*`, `magic_token:*`, `failed_attempts:*`, `user_last_signin:*`, `auth_email_alias:*`, `recent_signups:*`
+
+Blocked until migrated: `whitepaper:*`, `site_settings:*`, `role_permissions:*`, `site:maintenance_mode`
+
+Still dual-writing (routes not yet switched): `article:*`, `source:*`
 
 ---
 
