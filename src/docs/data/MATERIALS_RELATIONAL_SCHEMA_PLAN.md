@@ -22,10 +22,10 @@
 | 11   | Add FK constraint to `blog_posts` (`created_by → user_profiles`)                    | ✅ Done        | `20260520000013_add_fk_blog_posts.sql`                |
 | 12   | Switch contribution routes to Postgres                                              | ✅ Done        | —                                                     |
 | 13   | Switch materials read routes to Postgres                                            | ✅ Done        | —                                                     |
-| 14   | Switch materials write routes to Postgres                                           | ⬜ Not started | —                                                     |
+| 14   | Switch materials write routes to Postgres                                           | ✅ Done        | —                                                     |
 | 15   | Drop KV namespaces (irreversible — requires explicit team approval)                 | ⬜ Not started | —                                                     |
 
-> Steps 1–7 were purely additive (new tables only). Steps 8–13 are complete. The KV store remains live for materials writes only until Step 14.
+> Steps 1–7 were purely additive (new tables only). Steps 8–14 are complete. KV is no longer read or written for material data. Step 15 (drop KV namespaces) requires explicit team approval.
 
 ---
 
@@ -33,7 +33,7 @@
 
 **Previously:** Materials lived as monolithic JSON blobs in `kv_store_17cae920`, each containing core scores, scientific parameters, embedded `sources[]`, embedded `articles.{compostability|recyclability|reusability}[]`, and Wikimedia metadata.
 
-**Now:** All content has been extracted into dedicated Postgres tables (`materials`, `articles`, `sources`, `user_profiles`). `GET /materials` now reads from Postgres — joining `material_categories` for display names, `articles` for embedded article groups, and `material_sources` + `sources` for citations. KV is still the write source for material data until Step 14. Contribution stats, activity calendars, the leaderboard, and admin totals all read from Postgres.
+**Now:** All content lives in Postgres. `GET /materials` reads from the `materials` table (with joined `material_categories`, `articles`, and `material_sources` → `sources`). All write routes (`POST`, `PUT`, `DELETE`, batch) write to Postgres and no longer touch KV. KV is now unused for material data — the only remaining KV usage is for sessions, roles, rate limits, and MIU/evidence data (not yet migrated).
 
 ### Architecture decision: articles as a separate table ✅
 
@@ -67,7 +67,34 @@ The following route was switched from a KV scan to Postgres reads on May 21, 202
 - `articles` ← all published rows from `articles` grouped by `legacy_material_kv_id` + `sustainability_category`
 - `sources` ← `material_sources` with embedded `sources` join (weight, parameters preserved)
 
-**KV write routes are unchanged** — `POST /materials`, `PUT /materials/:id`, `DELETE /materials/:id`, and `POST /materials/batch` still write to KV. That changes in Step 14.
+**KV write routes are unchanged** — `POST /materials`, `PUT /materials/:id`, `DELETE /materials/:id`, and `POST /materials/batch` still write to KV. That changed in Step 14.
+
+---
+
+## Step 14 Route Changes
+
+The following routes were switched from KV writes to Postgres on May 21, 2026:
+
+| Route                   | Before                                       | After                                                             |
+| ----------------------- | -------------------------------------------- | ----------------------------------------------------------------- |
+| `POST /materials`       | `kv.set("material:${id}", material)`         | `materials.upsert(row, { onConflict: "legacy_kv_id" })` + sources |
+| `POST /materials/batch` | `kv.mdel(oldKeys)` + `kv.mset(keys, values)` | Postgres upsert per material, delete removed materials            |
+| `PUT /materials/:id`    | `kv.get` + `kv.set`                          | `materials.update(row).eq("legacy_kv_id", id)`                    |
+| `DELETE /materials/:id` | `kv.del("material:${id}")`                   | Delete from `material_sources`, `articles`, `materials` by KV ID  |
+| `DELETE /materials`     | `kv.getByPrefix` + `kv.mdel`                 | Delete all rows from `material_sources`, `articles`, `materials`  |
+
+**Helpers added:**
+
+- `materialToPostgresRow(material)` — maps the Material interface (camelCase) to a Postgres row (snake_case). Handles numeric coercion, UUID validation, and status enum validation (defaults to `"published"`).
+- `upsertMaterialSources(supabase, kvId, sources)` — deletes existing `material_sources` for the material, then re-inserts each source after deduplicating against the `sources` table by DOI (primary) or title+year (fallback), inserting new source rows as needed.
+
+**Key decisions:**
+
+- `on_behalf_of` is now validated against the `user_profiles` Postgres table (previously KV `user_role:` and `user_profile:` keys).
+- `created_at` and `created_by` from existing Postgres rows are preserved on re-save — the incoming material cannot overwrite them.
+- The batch route does **not** delete articles for removed materials (articles are now independent content). The single-material DELETE does cascade-delete related articles.
+- The batch route's `deleted` count in the response refers to materials removed from Postgres (not in the new array).
+- KV is now completely unused for material data.
 
 ---
 

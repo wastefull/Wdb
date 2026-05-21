@@ -2098,13 +2098,154 @@ app.get("/make-server-17cae920/materials", rateLimit("API"), async (c) => {
   }
 });
 
-// Create a new material
+// ─── Step 14: Material → Postgres row mapper ─────────────────────────────────
+function materialToPostgresRow(material: any) {
+  const isUuid = (s: any) =>
+    typeof s === "string" &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
+  const toUuid = (s: any) => (isUuid(s) ? (s as string) : null);
+  const toNum = (v: any) =>
+    v !== undefined && v !== null && v !== "" ? Number(v) : null;
+  return {
+    legacy_kv_id: material.id,
+    slug: material.id,
+    name: material.name,
+    aliases: material.aliases ?? null,
+    category_id: material.categoryId ?? material.category ?? null,
+    description: material.description ?? null,
+    is_hub: material.isHub ?? false,
+    linked_material_ids: material.linkedMaterialIds ?? null,
+    compostability:
+      material.compostability !== undefined && material.compostability !== null
+        ? Math.round(Number(material.compostability))
+        : null,
+    recyclability:
+      material.recyclability !== undefined && material.recyclability !== null
+        ? Math.round(Number(material.recyclability))
+        : null,
+    reusability:
+      material.reusability !== undefined && material.reusability !== null
+        ? Math.round(Number(material.reusability))
+        : null,
+    y_value: toNum(material.Y_value),
+    d_value: toNum(material.D_value),
+    c_value: toNum(material.C_value),
+    m_value: toNum(material.M_value),
+    e_value: toNum(material.E_value),
+    cr_practical_mean: toNum(material.CR_practical_mean),
+    cr_theoretical_mean: toNum(material.CR_theoretical_mean),
+    cr_practical_ci95: material.CR_practical_CI95 ?? null,
+    cr_theoretical_ci95: material.CR_theoretical_CI95 ?? null,
+    b_value: toNum(material.B_value),
+    n_value: toNum(material.N_value),
+    t_value: toNum(material.T_value),
+    h_value: toNum(material.H_value),
+    cc_practical_mean: toNum(material.CC_practical_mean),
+    cc_theoretical_mean: toNum(material.CC_theoretical_mean),
+    cc_practical_ci95: material.CC_practical_CI95 ?? null,
+    cc_theoretical_ci95: material.CC_theoretical_CI95 ?? null,
+    l_value: toNum(material.L_value),
+    r_value: toNum(material.R_value),
+    u_value: toNum(material.U_value),
+    c_ru_value: toNum(material.C_RU_value),
+    ru_practical_mean: toNum(material.RU_practical_mean),
+    ru_theoretical_mean: toNum(material.RU_theoretical_mean),
+    ru_practical_ci95: material.RU_practical_CI95 ?? null,
+    ru_theoretical_ci95: material.RU_theoretical_CI95 ?? null,
+    confidence_level: ["High", "Medium", "Low"].includes(
+      material.confidence_level,
+    )
+      ? material.confidence_level
+      : null,
+    whitepaper_version: material.whitepaper_version ?? null,
+    calculation_timestamp: material.calculation_timestamp ?? null,
+    method_version: material.method_version ?? null,
+    wiki: material.wiki ?? null,
+    status: ["draft", "published", "archived"].includes(material.status)
+      ? material.status
+      : "published",
+    created_by: toUuid(material.created_by),
+    edited_by: toUuid(material.edited_by),
+    writer_name: material.writer_name ?? null,
+    editor_name: material.editor_name ?? null,
+    created_at: material.created_at ?? null,
+    updated_at: new Date().toISOString(),
+  };
+}
+
+// ─── Step 14: Sync sources for a material ────────────────────────────────────
+// Replaces all material_sources for kvId, deduplicating against existing sources.
+async function upsertMaterialSources(
+  supabase: any,
+  kvId: string,
+  sources: any[],
+) {
+  await supabase
+    .from("material_sources")
+    .delete()
+    .eq("legacy_material_kv_id", kvId);
+
+  if (!sources?.length) return;
+
+  for (const source of sources) {
+    if (!source.title) continue;
+    let sourceId: string | null = null;
+
+    // 1. Match by DOI
+    if (source.doi) {
+      const { data: byDoi } = await supabase
+        .from("sources")
+        .select("id")
+        .eq("doi", source.doi)
+        .maybeSingle();
+      if (byDoi) sourceId = byDoi.id;
+    }
+    // 2. Fall back to title + year
+    if (!sourceId) {
+      let q = supabase.from("sources").select("id").eq("title", source.title);
+      if (source.year) q = q.eq("year", source.year);
+      const { data: byTitle } = await q.maybeSingle();
+      if (byTitle) sourceId = byTitle.id;
+    }
+    // 3. Insert new source
+    if (!sourceId) {
+      const { data: inserted } = await supabase
+        .from("sources")
+        .insert({
+          title: source.title,
+          authors: source.authors ?? null,
+          year: source.year ?? null,
+          doi: source.doi ?? null,
+          url: source.url ?? null,
+          pdf_file_name: source.pdfFileName ?? null,
+        })
+        .select("id")
+        .single();
+      if (inserted) sourceId = inserted.id;
+    }
+
+    if (sourceId) {
+      await supabase.from("material_sources").insert({
+        legacy_material_kv_id: kvId,
+        source_id: sourceId,
+        weight: source.weight ?? null,
+        parameters: source.parameters ?? null,
+      });
+    }
+  }
+}
+
+// ─── Step 14: Create a new material ──────────────────────────────────────────
 app.post(
   "/make-server-17cae920/materials",
   verifyAuth,
   requirePermission("materials.create"),
   async (c) => {
     try {
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      );
       const adminUserId = c.get("userId");
       const adminEmail = c.get("userEmail");
       const material = await c.req.json();
@@ -2112,17 +2253,16 @@ app.post(
         return c.json({ error: "Material ID is required" }, 400);
       }
 
-      // Support "on_behalf_of" for admin posting as another user
-      // The on_behalf_of field should contain the target user's ID
+      // on_behalf_of: validate target user exists in user_profiles
       const onBehalfOf = material.on_behalf_of;
       let effectiveCreator = adminUserId;
-
       if (onBehalfOf) {
-        // Verify the target user exists by checking their role or profile
-        // User roles are stored at `user_role:${userId}`, profiles at `user_profile:${userId}`
-        const targetUserRole = await kv.get(`user_role:${onBehalfOf}`);
-        const targetUserProfile = await kv.get(`user_profile:${onBehalfOf}`);
-        if (targetUserRole === null && !targetUserProfile) {
+        const { data: targetProfile } = await supabase
+          .from("user_profiles")
+          .select("id")
+          .eq("id", onBehalfOf)
+          .maybeSingle();
+        if (!targetProfile) {
           log.warn(
             `Admin ${adminEmail} attempted to post on behalf of non-existent user ${onBehalfOf}`,
           );
@@ -2135,23 +2275,44 @@ app.post(
         log.log(
           `Admin ${adminEmail} creating material on behalf of user ${onBehalfOf}`,
         );
-        // Remove on_behalf_of from the stored material data
         delete material.on_behalf_of;
       }
 
-      // Set created_by to effective creator (admin or on_behalf_of user)
-      if (!material.created_by) {
-        material.created_by = effectiveCreator;
-      }
-      if (!material.created_at) {
-        material.created_at = new Date().toISOString();
-      }
+      if (!material.created_by) material.created_by = effectiveCreator;
+      if (!material.created_at) material.created_at = new Date().toISOString();
       material.updated_at = new Date().toISOString();
 
-      await kv.set(`material:${material.id}`, material);
+      // Preserve created_at / created_by from any existing Postgres row
+      const { data: existingRow } = await supabase
+        .from("materials")
+        .select("created_at, created_by")
+        .eq("legacy_kv_id", material.id)
+        .maybeSingle();
+      if (existingRow) {
+        material.created_at = existingRow.created_at;
+        if (!material.created_by) material.created_by = existingRow.created_by;
+      }
 
-      // Audit log - always records the admin who performed the action
-      // but includes on_behalf_of info if present
+      const row = materialToPostgresRow(material);
+      // Ensure created_by falls back to effective creator
+      if (!row.created_by) {
+        const isUuid = (s: any) =>
+          typeof s === "string" &&
+          /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+            s,
+          );
+        row.created_by = isUuid(effectiveCreator) ? effectiveCreator : null;
+      }
+
+      const { error: upsertError } = await supabase
+        .from("materials")
+        .upsert(row, { onConflict: "legacy_kv_id" });
+      if (upsertError) throw upsertError;
+
+      if (material.sources?.length) {
+        await upsertMaterialSources(supabase, material.id, material.sources);
+      }
+
       await createAuditLog({
         userId: adminUserId,
         userEmail: adminEmail,
@@ -2178,34 +2339,38 @@ app.post(
   },
 );
 
-// Batch save materials
-// This endpoint REPLACES all materials with the provided array
+// ─── Step 14: Batch save materials ───────────────────────────────────────────
+// Replaces all materials with the provided array (destructive bulk operation).
 app.post(
   "/make-server-17cae920/materials/batch",
   verifyAuth,
   requirePermission("materials.batch"),
   async (c) => {
     try {
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      );
       const { materials } = await c.req.json();
       if (!Array.isArray(materials)) {
         return c.json({ error: "Materials must be an array" }, 400);
       }
 
-      // First, get all existing materials
-      const existingMaterialEntries = await kv.getEntriesByPrefix("material:");
-      const existingMaterials = existingMaterialEntries.map(
-        normalizeMaterialFromEntry,
+      // Fetch existing for audit log + created_at / created_by preservation
+      const { data: existingRows } = await supabase
+        .from("materials")
+        .select("id, legacy_kv_id, name, created_at, created_by")
+        .not("legacy_kv_id", "is", null);
+      const existingByKvId = new Map<string, any>(
+        (existingRows ?? []).map((r: any) => [r.legacy_kv_id, r]),
       );
-      const existingCount = existingMaterials?.length || 0;
+      const existingCount = existingRows?.length ?? 0;
 
-      // AUDIT: Log bulk operations, especially potential data loss
       const isBulkDelete = existingCount > 0 && materials.length === 0;
       const isPotentialDataLoss = existingCount > 1 && materials.length <= 1;
       const isSignificantChange =
         Math.abs(existingCount - materials.length) > 5;
-
       if (isBulkDelete || isPotentialDataLoss || isSignificantChange) {
-        // Create audit log for significant bulk operations
         await createAuditLog({
           userId: c.get("userId"),
           userEmail: c.get("userEmail"),
@@ -2214,9 +2379,9 @@ app.post(
           action: isBulkDelete ? "delete" : "update",
           before: {
             count: existingCount,
-            materials_preview: existingMaterials
-              ?.slice(0, 5)
-              .map((m: any) => ({ id: m.id, name: m.name })),
+            materials_preview: (existingRows ?? [])
+              .slice(0, 5)
+              .map((m: any) => ({ id: m.legacy_kv_id, name: m.name })),
           },
           after: {
             count: materials.length,
@@ -2233,42 +2398,58 @@ app.post(
         );
       }
 
-      // Delete all existing materials
-      if (existingMaterialEntries && existingMaterialEntries.length > 0) {
-        const keysToDelete = existingMaterialEntries.map((entry: any) =>
-          String(entry.key),
-        );
-        await kv.mdel(keysToDelete);
-        log.log(`Deleted ${keysToDelete.length} existing materials`);
+      // Remove all existing material_sources (will be re-added per material below)
+      const existingKvIds = (existingRows ?? [])
+        .map((r: any) => r.legacy_kv_id)
+        .filter(Boolean);
+      if (existingKvIds.length > 0) {
+        await supabase
+          .from("material_sources")
+          .delete()
+          .in("legacy_material_kv_id", existingKvIds);
       }
 
-      // Build lookup of existing materials to preserve server-side fields
-      const existingById = new Map<string, any>();
-      if (existingMaterials) {
-        for (const m of existingMaterials) {
-          existingById.set(m.id, m);
+      // Delete materials that are not present in the new batch
+      const newKvIds = new Set(materials.map((m: any) => m.id));
+      const toDeleteKvIds = existingKvIds.filter(
+        (id: string) => !newKvIds.has(id),
+      );
+      if (toDeleteKvIds.length > 0) {
+        await supabase
+          .from("materials")
+          .delete()
+          .in("legacy_kv_id", toDeleteKvIds);
+        log.log(`Deleted ${toDeleteKvIds.length} removed materials`);
+      }
+
+      // Upsert each incoming material, preserving created_at / created_by
+      for (const material of materials) {
+        const existingRow = existingByKvId.get(material.id);
+        if (existingRow) {
+          if (!material.created_at)
+            material.created_at = existingRow.created_at;
+          if (!material.created_by)
+            material.created_by = existingRow.created_by;
+        }
+        if (!material.created_at)
+          material.created_at = new Date().toISOString();
+
+        const row = materialToPostgresRow(material);
+        const { error } = await supabase
+          .from("materials")
+          .upsert(row, { onConflict: "legacy_kv_id" });
+        if (error) log.error(`Batch upsert error for ${material.id}:`, error);
+
+        if (material.sources?.length) {
+          await upsertMaterialSources(supabase, material.id, material.sources);
         }
       }
 
-      // Now save the new materials (if any), preserving created_at/created_by
-      if (materials.length > 0) {
-        const keys = materials.map((m: any) => `material:${m.id}`);
-        const values = materials.map((m: any) => {
-          const existing = existingById.get(m.id);
-          if (existing) {
-            if (!m.created_at) m.created_at = existing.created_at;
-            if (!m.created_by) m.created_by = existing.created_by;
-          }
-          return m;
-        });
-        await kv.mset(keys, values);
-        log.log(`Saved ${materials.length} materials`);
-      }
-
+      log.log(`Batch saved ${materials.length} materials`);
       return c.json({
         success: true,
         count: materials.length,
-        deleted: existingMaterials?.length || 0,
+        deleted: toDeleteKvIds.length,
       });
     } catch (error) {
       log.error("Error batch saving materials:", error);
@@ -2280,50 +2461,57 @@ app.post(
   },
 );
 
-// Update a material
+// ─── Step 14: Update a material ──────────────────────────────────────────────
 app.put(
   "/make-server-17cae920/materials/:id",
   verifyAuth,
   requirePermission("materials.edit"),
   async (c) => {
     try {
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      );
       const id = c.req.param("id");
       const userId = c.get("userId");
       const material = await c.req.json();
 
-      // Verify the material exists
-      const existing = await kv.get(`material:${id}`);
+      // Verify the material exists in Postgres
+      const { data: existing } = await supabase
+        .from("materials")
+        .select("id, created_at, created_by")
+        .eq("legacy_kv_id", id)
+        .maybeSingle();
       if (!existing) {
         return c.json({ error: "Material not found" }, 404);
       }
 
-      // Preserve created_by if it exists, otherwise set it
-      if (!material.created_by && existing.created_by) {
-        material.created_by = existing.created_by;
-      } else if (!material.created_by) {
-        material.created_by = userId;
+      // Preserve provenance from existing row
+      material.created_at = existing.created_at;
+      if (!material.created_by) {
+        material.created_by = existing.created_by ?? userId;
       }
-
-      // Preserve created_at from existing record, or backfill if missing
-      if (!material.created_at) {
-        material.created_at =
-          existing.created_at ||
-          existing.updated_at ||
-          new Date().toISOString();
-      }
-
       material.updated_at = new Date().toISOString();
+      material.id = id;
 
-      await kv.set(`material:${id}`, material);
+      const row = materialToPostgresRow(material);
+      const { error: updateError } = await supabase
+        .from("materials")
+        .update(row)
+        .eq("legacy_kv_id", id);
+      if (updateError) throw updateError;
 
-      // Audit log
+      if (Array.isArray(material.sources)) {
+        await upsertMaterialSources(supabase, id, material.sources);
+      }
+
       await createAuditLog({
         userId: c.get("userId"),
         userEmail: c.get("userEmail"),
         entityType: "material",
         entityId: id,
         action: "update",
-        before: existing,
+        before: { legacy_kv_id: id, ...existing },
         after: material,
         req: c,
       });
@@ -2339,21 +2527,32 @@ app.put(
   },
 );
 
-// Delete a material
+// ─── Step 14: Delete a material ──────────────────────────────────────────────
 app.delete(
   "/make-server-17cae920/materials/:id",
   verifyAuth,
   requirePermission("materials.delete"),
   async (c) => {
     try {
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      );
       const id = c.req.param("id");
 
-      // Get existing material for audit log
-      const existing = await kv.get(`material:${id}`);
+      const { data: existing } = await supabase
+        .from("materials")
+        .select("*")
+        .eq("legacy_kv_id", id)
+        .maybeSingle();
 
-      await kv.del(`material:${id}`);
+      await supabase
+        .from("material_sources")
+        .delete()
+        .eq("legacy_material_kv_id", id);
+      await supabase.from("articles").delete().eq("legacy_material_kv_id", id);
+      await supabase.from("materials").delete().eq("legacy_kv_id", id);
 
-      // Audit log
       if (existing) {
         await createAuditLog({
           userId: c.get("userId"),
@@ -2377,19 +2576,28 @@ app.delete(
   },
 );
 
-// Delete all materials
+// ─── Step 14: Delete all materials ───────────────────────────────────────────
 app.delete(
   "/make-server-17cae920/materials",
   verifyAuth,
   requirePermission("materials.delete"),
   async (c) => {
     try {
-      const materialEntries = await kv.getEntriesByPrefix("material:");
-      if (materialEntries && materialEntries.length > 0) {
-        const keys = materialEntries.map((entry) => String(entry.key));
-        await kv.mdel(keys);
-      }
-      return c.json({ success: true, deleted: materialEntries?.length || 0 });
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      );
+      const { count } = await supabase
+        .from("materials")
+        .select("id", { count: "exact", head: true })
+        .not("legacy_kv_id", "is", null);
+      await supabase.from("material_sources").delete().not("id", "is", null);
+      await supabase
+        .from("articles")
+        .delete()
+        .not("legacy_material_kv_id", "is", null);
+      await supabase.from("materials").delete().not("legacy_kv_id", "is", null);
+      return c.json({ success: true, deleted: count ?? 0 });
     } catch (error) {
       log.error("Error deleting all materials:", error);
       return c.json(

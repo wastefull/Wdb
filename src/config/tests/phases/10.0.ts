@@ -1386,5 +1386,216 @@ export function getPhase100Tests(user: any): Test[] {
         }
       },
     },
+
+    // ─── Step 13: GET /materials via edge function ────────────────────────────
+
+    {
+      id: "schema-10.0-step13-get-materials-shape",
+      name: "GET /materials: returns Postgres-sourced KV-compatible shape",
+      description:
+        "Verify the edge function GET /materials returns { materials: [...] } where each " +
+        "entry has the KV-compatible fields: id (legacy_kv_id), name, category, " +
+        "compostability, recyclability, reusability, articles (object), sources (array).",
+      phase: "10.0",
+      category: "Schema Migration",
+      testFn: async () => {
+        try {
+          const res = await fetch(`${EDGE_URL}/materials`, {
+            headers: getPublicHeaders(),
+          });
+          if (!res.ok) {
+            const text = await res.text();
+            return { success: false, message: `HTTP ${res.status}: ${text}` };
+          }
+          const data = await res.json();
+          if (!Array.isArray(data.materials)) {
+            return {
+              success: false,
+              message: `Expected { materials: [...] }, got: ${JSON.stringify(data).slice(0, 120)}`,
+            };
+          }
+          if (data.materials.length === 0) {
+            return {
+              success: false,
+              message: "No materials returned — table may be empty",
+            };
+          }
+          const m = data.materials[0];
+          const requiredFields = [
+            "id",
+            "name",
+            "category",
+            "compostability",
+            "recyclability",
+            "reusability",
+            "articles",
+            "sources",
+          ];
+          const missing = requiredFields.filter((f) => !(f in m));
+          if (missing.length > 0) {
+            return {
+              success: false,
+              message: `First material missing fields: ${missing.join(", ")}`,
+            };
+          }
+          if (typeof m.articles !== "object" || m.articles === null) {
+            return {
+              success: false,
+              message: `articles is not an object: ${typeof m.articles}`,
+            };
+          }
+          if (!Array.isArray(m.sources)) {
+            return {
+              success: false,
+              message: `sources is not an array: ${typeof m.sources}`,
+            };
+          }
+          return {
+            success: true,
+            message: `GET /materials ✓ — ${data.materials.length} materials with correct KV-compatible shape`,
+          };
+        } catch (err) {
+          return {
+            success: false,
+            message: `Error: ${err instanceof Error ? err.message : err}`,
+          };
+        }
+      },
+    },
+
+    // ─── Step 14: Write routes round-trip ────────────────────────────────────
+
+    {
+      id: "schema-10.0-step14-write-roundtrip",
+      name: "materials write: POST → verify → PUT → DELETE round-trip",
+      description:
+        "Verify all Postgres write routes work end-to-end. Creates a test material, " +
+        "confirms it appears in GET /materials, updates it, then deletes it. " +
+        "Skipped if no user is signed in (requires admin permission).",
+      phase: "10.0",
+      category: "Schema Migration",
+      testFn: async () => {
+        const accessToken = sessionStorage.getItem("wastedb_access_token");
+        if (!accessToken) {
+          return {
+            success: true,
+            message: "Skipped — sign in as admin to test write routes",
+          };
+        }
+        const authHeaders = {
+          Authorization: `Bearer ${publicAnonKey}`,
+          "X-Session-Token": accessToken,
+          "Content-Type": "application/json",
+        };
+        const testId = `test-step14-${Date.now()}`;
+        try {
+          // POST — create
+          const createRes = await fetch(`${EDGE_URL}/materials`, {
+            method: "POST",
+            headers: authHeaders,
+            body: JSON.stringify({
+              id: testId,
+              name: "Step 14 Test Material (safe to delete)",
+              category: "plastics",
+              compostability: 0,
+              recyclability: 10,
+              reusability: 5,
+              status: "draft",
+            }),
+          });
+          if (!createRes.ok) {
+            const text = await createRes.text();
+            return {
+              success: false,
+              message: `POST failed (${createRes.status}): ${text}`,
+            };
+          }
+
+          // GET — verify the new material appears (service role returns all statuses)
+          const getRes = await fetch(`${EDGE_URL}/materials`, {
+            headers: getPublicHeaders(),
+          });
+          if (!getRes.ok) {
+            await fetch(`${EDGE_URL}/materials/${testId}`, {
+              method: "DELETE",
+              headers: authHeaders,
+            });
+            return {
+              success: false,
+              message: `GET after POST failed (${getRes.status})`,
+            };
+          }
+          const { materials } = await getRes.json();
+          const created = (materials ?? []).find((m: any) => m.id === testId);
+          if (!created) {
+            await fetch(`${EDGE_URL}/materials/${testId}`, {
+              method: "DELETE",
+              headers: authHeaders,
+            });
+            return {
+              success: false,
+              message: `Created material not found in GET /materials response`,
+            };
+          }
+
+          // PUT — update the name
+          const updateRes = await fetch(`${EDGE_URL}/materials/${testId}`, {
+            method: "PUT",
+            headers: authHeaders,
+            body: JSON.stringify({
+              id: testId,
+              name: "Step 14 Test Material (updated)",
+              category: "plastics",
+              compostability: 0,
+              recyclability: 10,
+              reusability: 5,
+              status: "draft",
+            }),
+          });
+          if (!updateRes.ok) {
+            const text = await updateRes.text();
+            await fetch(`${EDGE_URL}/materials/${testId}`, {
+              method: "DELETE",
+              headers: authHeaders,
+            });
+            return {
+              success: false,
+              message: `PUT failed (${updateRes.status}): ${text}`,
+            };
+          }
+
+          // DELETE — clean up
+          const deleteRes = await fetch(`${EDGE_URL}/materials/${testId}`, {
+            method: "DELETE",
+            headers: authHeaders,
+          });
+          if (!deleteRes.ok) {
+            const text = await deleteRes.text();
+            return {
+              success: false,
+              message: `DELETE failed (${deleteRes.status}): ${text}`,
+            };
+          }
+
+          return {
+            success: true,
+            message: `Write round-trip ✓ — POST, GET (verified), PUT, DELETE all succeeded via Postgres`,
+          };
+        } catch (err) {
+          try {
+            await fetch(`${EDGE_URL}/materials/${testId}`, {
+              method: "DELETE",
+              headers: authHeaders,
+            });
+          } catch {
+            // best-effort cleanup
+          }
+          return {
+            success: false,
+            message: `Error: ${err instanceof Error ? err.message : err}`,
+          };
+        }
+      },
+    },
   ];
 }
