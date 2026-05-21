@@ -10,9 +10,10 @@
  */
 
 import { projectId, publicAnonKey } from "../../../utils/supabase/info";
-import { Test } from "../types";
+import { Test, getPublicHeaders } from "../types";
 
 const REST_URL = `https://${projectId}.supabase.co/rest/v1`;
+const EDGE_URL = `https://${projectId}.supabase.co/functions/v1/make-server-17cae920`;
 
 /** Perform a PostgREST SELECT. Returns the parsed JSON array or throws. */
 async function pgRest(
@@ -1145,6 +1146,194 @@ export function getPhase100Tests(user: any): Test[] {
           return {
             success: true,
             message: `All ${guides.length} non-null material_id guide(s) resolve to materials ✓`,
+          };
+        } catch (err) {
+          return {
+            success: false,
+            message: `Error: ${err instanceof Error ? err.message : err}`,
+          };
+        }
+      },
+    },
+
+    // ─── Step 12: Contribution routes switched to Postgres ──────────────────
+
+    {
+      id: "schema-10.0-step12-admin-stats",
+      name: "admin/stats: returns Postgres-sourced counts",
+      description:
+        "Verify /admin/stats returns non-zero counts for materials, articles, guides, and users — " +
+        "all now sourced from Postgres tables, not KV scans.",
+      phase: "10.0",
+      category: "Schema Migration",
+      testFn: async () => {
+        try {
+          const res = await fetch(`${EDGE_URL}/admin/stats`, {
+            headers: getPublicHeaders(),
+          });
+          if (!res.ok) {
+            const text = await res.text();
+            return { success: false, message: `HTTP ${res.status}: ${text}` };
+          }
+          const data = await res.json();
+          const { stats } = data;
+          if (!stats) {
+            return { success: false, message: "No stats object in response" };
+          }
+          const { materials, articles, guides, users } = stats;
+          if (
+            typeof materials !== "number" ||
+            typeof articles !== "number" ||
+            typeof guides !== "number" ||
+            typeof users !== "number"
+          ) {
+            return {
+              success: false,
+              message: `Invalid stats shape: ${JSON.stringify(stats)}`,
+            };
+          }
+          if (materials === 0 || articles === 0 || users === 0) {
+            return {
+              success: false,
+              message: `Expected non-zero counts — materials: ${materials}, articles: ${articles}, guides: ${guides}, users: ${users}`,
+            };
+          }
+          return {
+            success: true,
+            message: `Postgres-sourced counts ✓ — materials: ${materials}, articles: ${articles}, guides: ${guides}, users: ${users}`,
+          };
+        } catch (err) {
+          return {
+            success: false,
+            message: `Error: ${err instanceof Error ? err.message : err}`,
+          };
+        }
+      },
+    },
+
+    {
+      id: "schema-10.0-step12-leaderboard",
+      name: "leaderboard: returns Postgres-sourced leader rows",
+      description:
+        "Verify /leaderboard returns { leaders: [...] } with the expected shape — " +
+        "now sourced from Postgres materials/articles/guides tables and user_profiles.",
+      phase: "10.0",
+      category: "Schema Migration",
+      testFn: async () => {
+        try {
+          const res = await fetch(`${EDGE_URL}/leaderboard?limit=5`, {
+            headers: getPublicHeaders(),
+          });
+          if (!res.ok) {
+            const text = await res.text();
+            return { success: false, message: `HTTP ${res.status}: ${text}` };
+          }
+          const data = await res.json();
+          if (!Array.isArray(data.leaders)) {
+            return {
+              success: false,
+              message: `Expected leaders array, got: ${JSON.stringify(data)}`,
+            };
+          }
+          if (data.leaders.length > 0) {
+            const leader = data.leaders[0];
+            const requiredFields = [
+              "userId",
+              "name",
+              "materials",
+              "articles",
+              "guides",
+              "mius",
+              "total",
+            ];
+            const missing = requiredFields.filter((f) => !(f in leader));
+            if (missing.length > 0) {
+              return {
+                success: false,
+                message: `Leader entry missing fields: ${missing.join(", ")}`,
+              };
+            }
+            const expectedTotal =
+              leader.materials + leader.articles + leader.guides + leader.mius;
+            if (leader.total !== expectedTotal) {
+              return {
+                success: false,
+                message: `total (${leader.total}) does not match sum of components (${expectedTotal})`,
+              };
+            }
+          }
+          return {
+            success: true,
+            message: `Leaderboard ✓ — ${data.leaders.length} leader(s) with correct shape`,
+          };
+        } catch (err) {
+          return {
+            success: false,
+            message: `Error: ${err instanceof Error ? err.message : err}`,
+          };
+        }
+      },
+    },
+
+    {
+      id: "schema-10.0-step12-contributions-stats",
+      name: "contributions/stats: correct shape for current user",
+      description:
+        "Verify /profile/:userId/contributions/stats returns { stats: { materials, articles, guides, mius, total } } " +
+        "where total = sum of components. Skipped if no user is signed in.",
+      phase: "10.0",
+      category: "Schema Migration",
+      testFn: async () => {
+        if (!user?.id) {
+          return {
+            success: true,
+            message:
+              "Skipped — sign in to test contribution stats for your account",
+          };
+        }
+        try {
+          const accessToken = sessionStorage.getItem("wastedb_access_token");
+          const headers = accessToken
+            ? {
+                Authorization: `Bearer ${publicAnonKey}`,
+                "X-Session-Token": accessToken,
+                "Content-Type": "application/json",
+              }
+            : getPublicHeaders();
+          const res = await fetch(
+            `${EDGE_URL}/profile/${user.id}/contributions/stats`,
+            { headers },
+          );
+          if (!res.ok) {
+            const text = await res.text();
+            return { success: false, message: `HTTP ${res.status}: ${text}` };
+          }
+          const data = await res.json();
+          const { stats } = data;
+          if (!stats) {
+            return { success: false, message: "No stats object in response" };
+          }
+          const { materials, articles, guides, mius, total } = stats;
+          if (
+            [materials, articles, guides, mius, total].some(
+              (v) => typeof v !== "number",
+            )
+          ) {
+            return {
+              success: false,
+              message: `Invalid stats shape: ${JSON.stringify(stats)}`,
+            };
+          }
+          const expectedTotal = materials + articles + guides + mius;
+          if (total !== expectedTotal) {
+            return {
+              success: false,
+              message: `total (${total}) does not match sum of components (${expectedTotal})`,
+            };
+          }
+          return {
+            success: true,
+            message: `contributions/stats ✓ — materials: ${materials}, articles: ${articles}, guides: ${guides}, mius: ${mius}, total: ${total}`,
           };
         } catch (err) {
           return {

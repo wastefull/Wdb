@@ -5561,65 +5561,35 @@ app.get(
       const userId = c.req.param("userId");
       log.log(`[Contributions] Fetching stats for userId: ${userId}`);
 
-      // Count materials created by user
-      const allMaterials = (await kv.getByPrefix("material:")) || [];
-      log.log(`[Contributions] Total materials in DB: ${allMaterials.length}`);
-      const userMaterials = allMaterials.filter((m) => m.created_by === userId);
-      log.log(
-        `[Contributions] User materials: ${userMaterials.length}`,
-        userMaterials.map((m) => ({
-          id: m.id,
-          name: m.name,
-          created_by: m.created_by,
-        })),
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       );
 
-      // Count articles written by user (nested inside materials)
-      // Articles are stored in material.articles.{compostability|recyclability|reusability}[]
-      // Each article has its own created_by/author_id field
-      let userArticleCount = 0;
-      for (const material of allMaterials) {
-        if (material.articles) {
-          if (material.articles.compostability) {
-            userArticleCount += material.articles.compostability.filter(
-              (a) => a.created_by === userId || a.author_id === userId,
-            ).length;
-          }
-          if (material.articles.recyclability) {
-            userArticleCount += material.articles.recyclability.filter(
-              (a) => a.created_by === userId || a.author_id === userId,
-            ).length;
-          }
-          if (material.articles.reusability) {
-            userArticleCount += material.articles.reusability.filter(
-              (a) => a.created_by === userId || a.author_id === userId,
-            ).length;
-          }
-        }
-      }
-      log.log(
-        `[Contributions] User articles (nested in materials): ${userArticleCount}`,
-      );
+      // Count materials from Postgres
+      const { count: materialsCount, error: mErr } = await supabase
+        .from("materials")
+        .select("*", { count: "exact", head: true })
+        .eq("created_by", userId);
+      if (mErr) log.error("[Contributions] Error counting materials:", mErr);
 
-      // Count guides created by user (from Postgres)
-      let guidesCount = 0;
-      try {
-        const supabase = createClient(
-          Deno.env.get("SUPABASE_URL") ?? "",
-          Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-        );
-        const { count } = await supabase
-          .from("guides")
-          .select("*", { count: "exact", head: true })
-          .eq("created_by", userId);
-        guidesCount = count || 0;
-        log.log(`[Contributions] User guides: ${guidesCount}`);
-      } catch (err) {
-        log.error(`[Contributions] Error fetching guides:`, err);
-      }
+      // Count articles from Postgres
+      const { count: articlesCount, error: aErr } = await supabase
+        .from("articles")
+        .select("*", { count: "exact", head: true })
+        .eq("created_by", userId);
+      if (aErr) log.error("[Contributions] Error counting articles:", aErr);
 
-      // Count MIUs (evidence points) - scan all materials for curator_id in evidence
+      // Count guides from Postgres
+      const { count: guidesCount, error: gErr } = await supabase
+        .from("guides")
+        .select("*", { count: "exact", head: true })
+        .eq("created_by", userId);
+      if (gErr) log.error("[Contributions] Error counting guides:", gErr);
+
+      // MIUs (evidence points) not yet migrated to Postgres — scan KV
       let miuCount = 0;
+      const allMaterials = (await kv.getByPrefix("material:")) || [];
       for (const material of allMaterials) {
         if (material.evidence) {
           for (const param in material.evidence) {
@@ -5633,13 +5603,17 @@ app.get(
         }
       }
 
+      const mats = materialsCount ?? 0;
+      const arts = articlesCount ?? 0;
+      const guides = guidesCount ?? 0;
       const stats = {
-        materials: userMaterials.length,
-        articles: userArticleCount,
-        guides: guidesCount,
+        materials: mats,
+        articles: arts,
+        guides,
         mius: miuCount,
-        total: userMaterials.length + userArticleCount + guidesCount + miuCount,
+        total: mats + arts + guides + miuCount,
       };
+      log.log(`[Contributions] Stats:`, stats);
 
       return c.json({ stats });
     } catch (error) {
@@ -5667,86 +5641,67 @@ app.get(
         ? new Date(startDate)
         : new Date(end.getFullYear() - 1, end.getMonth(), end.getDate());
 
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      );
+
       // Collect all contributions with timestamps
       const contributions: Array<{
         date: string;
         type: string;
       }> = [];
 
-      // Get materials
+      // Get materials from Postgres
+      const { data: userMaterials } = await supabase
+        .from("materials")
+        .select("created_at")
+        .eq("created_by", userId)
+        .gte("created_at", start.toISOString())
+        .lte("created_at", end.toISOString());
+      for (const material of userMaterials ?? []) {
+        if (material.created_at) {
+          contributions.push({
+            date: new Date(material.created_at).toISOString().split("T")[0],
+            type: "material",
+          });
+        }
+      }
+
+      // Get articles from Postgres
+      const { data: userArticles } = await supabase
+        .from("articles")
+        .select("created_at")
+        .eq("created_by", userId)
+        .gte("created_at", start.toISOString())
+        .lte("created_at", end.toISOString());
+      for (const article of userArticles ?? []) {
+        if (article.created_at) {
+          contributions.push({
+            date: new Date(article.created_at).toISOString().split("T")[0],
+            type: "article",
+          });
+        }
+      }
+
+      // Get guides from Postgres
+      const { data: guides } = await supabase
+        .from("guides")
+        .select("created_at")
+        .eq("created_by", userId)
+        .gte("created_at", start.toISOString())
+        .lte("created_at", end.toISOString());
+      for (const guide of guides ?? []) {
+        if (guide.created_at) {
+          contributions.push({
+            date: new Date(guide.created_at).toISOString().split("T")[0],
+            type: "guide",
+          });
+        }
+      }
+
+      // MIUs not yet migrated — scan KV
       const allMaterials = (await kv.getByPrefix("material:")) || [];
-      const userMaterials = allMaterials.filter((m) => m.created_by === userId);
-      for (const material of userMaterials) {
-        const timestamp = material.created_at || material.updated_at;
-        if (timestamp) {
-          const date = new Date(timestamp);
-          if (date >= start && date <= end) {
-            contributions.push({
-              date: date.toISOString().split("T")[0],
-              type: "material",
-            });
-          }
-        }
-      }
-
-      // Get articles (nested inside materials)
-      for (const material of allMaterials) {
-        if (material.articles) {
-          for (const category of [
-            "compostability",
-            "recyclability",
-            "reusability",
-          ]) {
-            const articleList = material.articles[category];
-            if (Array.isArray(articleList)) {
-              for (const article of articleList) {
-                if (
-                  (article.created_by === userId ||
-                    article.author_id === userId) &&
-                  article.created_at
-                ) {
-                  const date = new Date(article.created_at);
-                  if (date >= start && date <= end) {
-                    contributions.push({
-                      date: date.toISOString().split("T")[0],
-                      type: "article",
-                    });
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-
-      // Get guides (from Postgres)
-      try {
-        const supabase = createClient(
-          Deno.env.get("SUPABASE_URL") ?? "",
-          Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-        );
-        const { data: guides } = await supabase
-          .from("guides")
-          .select("created_at")
-          .eq("created_by", userId);
-        if (guides) {
-          for (const guide of guides) {
-            if (guide.created_at) {
-              const date = new Date(guide.created_at);
-              if (date >= start && date <= end) {
-                contributions.push({
-                  date: date.toISOString().split("T")[0],
-                  type: "guide",
-                });
-              }
-            }
-          }
-        }
-      } catch (err) {
-        log.error("[Activity] Error fetching guides:", err);
-      }
-
-      // Get MIUs from evidence
       for (const material of allMaterials) {
         if (material.evidence) {
           for (const param in material.evidence) {
@@ -5816,6 +5771,11 @@ app.get(
       const limit = parseInt(c.req.query("limit") || "10", 10);
       const typeFilter = c.req.query("type"); // Optional: "material", "article", "miu", "guide"
 
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      );
+
       const contributions: Array<{
         type: "material" | "article" | "miu" | "guide";
         title: string;
@@ -5825,94 +5785,70 @@ app.get(
         category?: string;
       }> = [];
 
-      // Get materials
-      const allMaterials = (await kv.getByPrefix("material:")) || [];
+      // Get materials from Postgres
       if (!typeFilter || typeFilter === "material") {
-        const userMaterials = allMaterials.filter(
-          (m) => m.created_by === userId,
-        );
-        for (const material of userMaterials) {
-          const ts = material.created_at || material.updated_at;
-          if (ts) {
+        const { data: userMaterials } = await supabase
+          .from("materials")
+          .select("id, name, created_at")
+          .eq("created_by", userId)
+          .order("created_at", { ascending: false });
+        for (const material of userMaterials ?? []) {
+          if (material.created_at) {
             contributions.push({
               type: "material",
               title: material.name || "Untitled Material",
-              timestamp: ts,
+              timestamp: material.created_at,
               id: material.id,
             });
           }
         }
       }
 
-      // Get articles (nested inside materials)
+      // Get articles from Postgres
       if (!typeFilter || typeFilter === "article") {
-        for (const material of allMaterials) {
-          if (material.articles) {
-            const categories = [
-              "compostability",
-              "recyclability",
-              "reusability",
-            ] as const;
-            for (const category of categories) {
-              const articleArray = material.articles[category];
-              if (Array.isArray(articleArray)) {
-                // Check both created_by and author_id for compatibility
-                for (const article of articleArray) {
-                  if (
-                    article.created_by === userId ||
-                    article.author_id === userId
-                  ) {
-                    const articleTs = article.dateAdded || article.created_at;
-                    if (articleTs) {
-                      contributions.push({
-                        type: "article",
-                        title: article.title || "Untitled Article",
-                        timestamp: articleTs,
-                        id:
-                          article.id ||
-                          `${material.id}:${category}:${article.title}`,
-                        materialId: material.id,
-                        category,
-                      });
-                    }
-                  }
-                }
-              }
-            }
+        const { data: userArticles } = await supabase
+          .from("articles")
+          .select(
+            "id, title, created_at, legacy_material_kv_id, sustainability_category",
+          )
+          .eq("created_by", userId)
+          .order("created_at", { ascending: false });
+        for (const article of userArticles ?? []) {
+          if (article.created_at) {
+            contributions.push({
+              type: "article",
+              title: article.title || "Untitled Article",
+              timestamp: article.created_at,
+              id: article.id,
+              materialId: article.legacy_material_kv_id,
+              category: article.sustainability_category,
+            });
           }
         }
       }
 
       // Get guides from Postgres
       if (!typeFilter || typeFilter === "guide") {
-        try {
-          const supabase = createClient(
-            Deno.env.get("SUPABASE_URL") ?? "",
-            Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-          );
-          const { data: guides } = await supabase
-            .from("guides")
-            .select("id, title, created_at")
-            .eq("created_by", userId);
-          if (guides) {
-            for (const guide of guides) {
-              if (guide.created_at) {
-                contributions.push({
-                  type: "guide",
-                  title: guide.title || "Untitled Guide",
-                  timestamp: guide.created_at,
-                  id: guide.id,
-                });
-              }
-            }
+        const { data: guides } = await supabase
+          .from("guides")
+          .select("id, title, created_at")
+          .eq("created_by", userId)
+          .order("created_at", { ascending: false });
+        for (const guide of guides ?? []) {
+          if (guide.created_at) {
+            contributions.push({
+              type: "guide",
+              title: guide.title || "Untitled Guide",
+              timestamp: guide.created_at,
+              id: guide.id,
+            });
           }
-        } catch (err) {
-          log.error("Error fetching guides for contributions:", err);
         }
       }
 
-      // Get MIUs from evidence
+      // MIUs not yet migrated — scan KV
       if (!typeFilter || typeFilter === "miu") {
+        const allMaterials = (await kv.getByPrefix("material:")) || [];
         for (const material of allMaterials) {
           if (material.evidence) {
             for (const param in material.evidence) {
@@ -5967,29 +5903,30 @@ app.get("/make-server-17cae920/admin/stats", async (c) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     );
 
-    const allMaterials = (await kv.getByPrefix("material:")) || [];
+    // Count materials from Postgres
+    const { count: materialsCount } = await supabase
+      .from("materials")
+      .select("*", { count: "exact", head: true });
 
-    // Count materials
-    const materialsCount = allMaterials.length;
+    // Count articles from Postgres
+    const { count: articlesCount } = await supabase
+      .from("articles")
+      .select("*", { count: "exact", head: true });
 
-    // Count articles (nested in materials)
-    let articlesCount = 0;
+    // Count guides from Postgres
+    const { count: guidesCount } = await supabase
+      .from("guides")
+      .select("*", { count: "exact", head: true });
+
+    // Count users from Postgres user_profiles
+    const { count: usersCount } = await supabase
+      .from("user_profiles")
+      .select("*", { count: "exact", head: true });
+
+    // MIU count not yet migrated — scan KV
     let miusCount = 0;
+    const allMaterials = (await kv.getByPrefix("material:")) || [];
     for (const material of allMaterials) {
-      if (material.articles) {
-        const categories = [
-          "compostability",
-          "recyclability",
-          "reusability",
-        ] as const;
-        for (const category of categories) {
-          const articleArray = material.articles[category];
-          if (Array.isArray(articleArray)) {
-            articlesCount += articleArray.length;
-          }
-        }
-      }
-      // Count MIUs
       if (material.evidence) {
         for (const param in material.evidence) {
           const evidenceList = material.evidence[param];
@@ -6000,22 +5937,13 @@ app.get("/make-server-17cae920/admin/stats", async (c) => {
       }
     }
 
-    // Count guides from Postgres
-    const { count: guidesCount } = await supabase
-      .from("guides")
-      .select("*", { count: "exact", head: true });
-
-    // Count users from KV store
-    const allProfiles = (await kv.getByPrefix("user_profile:")) || [];
-    const usersCount = allProfiles.length;
-
     return c.json({
       stats: {
-        materials: materialsCount,
-        articles: articlesCount,
-        guides: guidesCount || 0,
+        materials: materialsCount ?? 0,
+        articles: articlesCount ?? 0,
+        guides: guidesCount ?? 0,
         mius: miusCount,
-        users: usersCount,
+        users: usersCount ?? 0,
       },
     });
   } catch (error) {
@@ -6032,7 +5960,6 @@ app.get("/make-server-17cae920/leaderboard", async (c) => {
   try {
     const limit = parseInt(c.req.query("limit") || "10", 10);
 
-    // Create supabase client for Postgres queries
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
@@ -6050,6 +5977,65 @@ app.get("/make-server-17cae920/leaderboard", async (c) => {
       }
     > = new Map();
 
+    const bump = (
+      userId: string,
+      field: "materials" | "articles" | "guides" | "mius",
+    ) => {
+      const entry = contributionsByUser.get(userId) || {
+        userId,
+        materials: 0,
+        articles: 0,
+        guides: 0,
+        mius: 0,
+      };
+      entry[field]++;
+      contributionsByUser.set(userId, entry);
+    };
+
+    // Materials from Postgres
+    const { data: allMaterialsData } = await supabase
+      .from("materials")
+      .select("created_by")
+      .not("created_by", "is", null);
+    for (const m of allMaterialsData ?? []) {
+      if (m.created_by) bump(m.created_by, "materials");
+    }
+
+    // Articles from Postgres
+    const { data: allArticlesData } = await supabase
+      .from("articles")
+      .select("created_by")
+      .not("created_by", "is", null);
+    for (const a of allArticlesData ?? []) {
+      if (a.created_by) bump(a.created_by, "articles");
+    }
+
+    // Guides from Postgres (published only)
+    const { data: allGuides } = await supabase
+      .from("guides")
+      .select("created_by")
+      .eq("status", "published")
+      .not("created_by", "is", null);
+    for (const g of allGuides ?? []) {
+      if (g.created_by) bump(g.created_by, "guides");
+    }
+
+    // MIUs not yet migrated — scan KV
+    const allMaterials = (await kv.getByPrefix("material:")) || [];
+    for (const material of allMaterials) {
+      if (material.evidence) {
+        for (const param in material.evidence) {
+          const evidenceList = material.evidence[param];
+          if (Array.isArray(evidenceList)) {
+            for (const evidence of evidenceList) {
+              if (evidence.curator_id) bump(evidence.curator_id, "mius");
+            }
+          }
+        }
+      }
+    }
+
+    // Merge across linked auth identities (email aliases → canonical user)
     const { data: authUsersData, error: authUsersError } =
       await supabase.auth.admin.listUsers();
     if (authUsersError) {
@@ -6062,96 +6048,6 @@ app.get("/make-server-17cae920/leaderboard", async (c) => {
       (authUsersData?.users || []).map((user) => [user.id, user]),
     );
 
-    const allMaterials = (await kv.getByPrefix("material:")) || [];
-
-    // Count guides from Postgres
-    const { data: allGuides } = await supabase
-      .from("guides")
-      .select("created_by")
-      .eq("status", "published");
-
-    if (allGuides) {
-      for (const guide of allGuides) {
-        if (guide.created_by) {
-          const entry = contributionsByUser.get(guide.created_by) || {
-            userId: guide.created_by,
-            materials: 0,
-            articles: 0,
-            guides: 0,
-            mius: 0,
-          };
-          entry.guides++;
-          contributionsByUser.set(guide.created_by, entry);
-        }
-      }
-    }
-
-    // Count materials and nested articles
-    for (const material of allMaterials) {
-      if (material.created_by) {
-        const entry = contributionsByUser.get(material.created_by) || {
-          userId: material.created_by,
-          materials: 0,
-          articles: 0,
-          guides: 0,
-          mius: 0,
-        };
-        entry.materials++;
-        contributionsByUser.set(material.created_by, entry);
-      }
-
-      // Count nested articles
-      if (material.articles) {
-        const categories = [
-          "compostability",
-          "recyclability",
-          "reusability",
-        ] as const;
-        for (const category of categories) {
-          const articleArray = material.articles[category];
-          if (Array.isArray(articleArray)) {
-            for (const article of articleArray) {
-              const authorId = article.created_by || article.author_id;
-              if (authorId) {
-                const entry = contributionsByUser.get(authorId) || {
-                  userId: authorId,
-                  materials: 0,
-                  articles: 0,
-                  guides: 0,
-                  mius: 0,
-                };
-                entry.articles++;
-                contributionsByUser.set(authorId, entry);
-              }
-            }
-          }
-        }
-      }
-
-      // Count MIUs
-      if (material.evidence) {
-        for (const param in material.evidence) {
-          const evidenceList = material.evidence[param];
-          if (Array.isArray(evidenceList)) {
-            for (const evidence of evidenceList) {
-              if (evidence.curator_id) {
-                const entry = contributionsByUser.get(evidence.curator_id) || {
-                  userId: evidence.curator_id,
-                  materials: 0,
-                  articles: 0,
-                  guides: 0,
-                  mius: 0,
-                };
-                entry.mius++;
-                contributionsByUser.set(evidence.curator_id, entry);
-              }
-            }
-          }
-        }
-      }
-    }
-
-    // Merge contributions across linked auth identities (email aliases -> canonical user).
     const canonicalContributionsByUser: Map<
       string,
       {
@@ -6180,59 +6076,58 @@ app.get("/make-server-17cae920/leaderboard", async (c) => {
         guides: 0,
         mius: 0,
       };
-
       existing.materials += stats.materials;
       existing.articles += stats.articles;
       existing.guides += stats.guides;
       existing.mius += stats.mius;
-
       canonicalContributionsByUser.set(canonicalUserId, existing);
     }
 
-    // Build leaderboard with user profile info
+    // Fetch all relevant user profiles from Postgres in one query
+    const leaderUserIds = [...canonicalContributionsByUser.keys()];
+    const { data: profileRows } =
+      leaderUserIds.length > 0
+        ? await supabase
+            .from("user_profiles")
+            .select("id, name, avatar_url, show_on_leaderboard")
+            .in("id", leaderUserIds)
+        : { data: [] };
+    const profileById = new Map((profileRows ?? []).map((p) => [p.id, p]));
+
+    // Build leaderboard
     const leaders = [];
     for (const [userId, stats] of canonicalContributionsByUser) {
       const total =
         stats.materials + stats.articles + stats.guides + stats.mius;
-      if (total > 0) {
-        // Fetch user profile for avatar
-        let profile = await kv.get(`user_profile:${userId}`);
+      if (total === 0) continue;
 
-        // Users can opt out from appearing in public leaderboard results.
-        if (profile?.show_on_leaderboard === false) {
-          continue;
+      const profile = profileById.get(userId);
+
+      // Users can opt out from appearing in public leaderboard results.
+      if (profile?.show_on_leaderboard === false) continue;
+
+      let name = "Anonymous";
+      if (profile?.name) {
+        name = profile.name;
+      } else {
+        const authUser = authUserById.get(userId);
+        if (authUser?.email) {
+          name = authUser.email.split("@")[0];
         }
-
-        let name = "Anonymous";
-        let avatar_url = profile?.avatar_url;
-
-        // Prefer the app profile name so external auth providers don't overwrite display identity.
-        if (profile?.name) {
-          name = profile.name;
-        } else {
-          const { data: authUser } =
-            await supabase.auth.admin.getUserById(userId);
-          if (authUser?.user) {
-            name = authUser.user.email?.split("@")[0] || "Anonymous";
-          } else if (profile) {
-            name = profile.email?.split("@")[0] || "Anonymous";
-          }
-        }
-
-        leaders.push({
-          userId,
-          name,
-          avatar_url,
-          materials: stats.materials,
-          articles: stats.articles,
-          guides: stats.guides,
-          mius: stats.mius,
-          total,
-        });
       }
+
+      leaders.push({
+        userId,
+        name,
+        avatar_url: profile?.avatar_url ?? null,
+        materials: stats.materials,
+        articles: stats.articles,
+        guides: stats.guides,
+        mius: stats.mius,
+        total,
+      });
     }
 
-    // Sort by total contributions descending
     leaders.sort((a, b) => b.total - a.total);
 
     return c.json({ leaders: leaders.slice(0, limit) });

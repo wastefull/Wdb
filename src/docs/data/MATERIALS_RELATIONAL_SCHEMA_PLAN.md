@@ -1,6 +1,6 @@
 # Materials Relational Schema Plan
 
-**Updated:** May 20, 2026  
+**Updated:** May 21, 2026  
 **Status:** In Progress
 
 ---
@@ -20,67 +20,60 @@
 | 9    | Seed `materials` + `articles` + `sources` from KV (one-time script)                 | ✅ Done        | `20260520000010_seed_materials_articles_sources.sql`  |
 | 10   | Add FK constraints to `guides` (`material_id → uuid`, `created_by → user_profiles`) | ✅ Done        | `20260520000012_add_fk_guides.sql`                    |
 | 11   | Add FK constraint to `blog_posts` (`created_by → user_profiles`)                    | ✅ Done        | `20260520000013_add_fk_blog_posts.sql`                |
-| 12   | Switch contribution routes to Postgres                                              | ⬜ Not started | —                                                     |
+| 12   | Switch contribution routes to Postgres                                              | ✅ Done        | —                                                     |
 | 13   | Switch materials read routes to Postgres                                            | ⬜ Not started | —                                                     |
 | 14   | Switch materials write routes to Postgres                                           | ⬜ Not started | —                                                     |
 | 15   | Drop KV namespaces (irreversible — requires explicit team approval)                 | ⬜ Not started | —                                                     |
 
-> Steps 1–7 are purely additive (new tables only). The KV store is untouched and the live site is unaffected until Step 12.
+> Steps 1–7 were purely additive (new tables only). Steps 8–12 are complete. The KV store remains live for materials reads/writes until Steps 13–14.
 
 ---
 
-## Current State
+## Current State (as of May 21, 2026)
 
-Materials live as monolithic JSON blobs in `kv_store_17cae920`. Each blob contains:
+**Previously:** Materials lived as monolithic JSON blobs in `kv_store_17cae920`, each containing core scores, scientific parameters, embedded `sources[]`, embedded `articles.{compostability|recyclability|reusability}[]`, and Wikimedia metadata.
 
-- Core identification and sustainability scores
-- Scientific parameter values and confidence intervals
-- `sources[]` — embedded citation objects
-- `articles.{compostability|recyclability|reusability}[]` — embedded rich-text articles
-- `wiki` — Wikimedia enrichment metadata
+**Now:** All content has been extracted into dedicated Postgres tables (`materials`, `articles`, `sources`, `user_profiles`). KV blobs are still the live read/write source for material data — that switches in Steps 13–14. Contribution stats, activity calendars, the leaderboard, and admin totals already read from Postgres.
 
-The `guides` table in Postgres already has `material_id` (text) and `material_name` (text) pointing back to KV materials. This is the only existing relational link.
+### Architecture decision: articles as a separate table ✅
 
----
+We chose **Option B — separate `articles` table** (over keeping articles embedded in material blobs). The `articles` table was created in Step 4 and seeded in Step 9.
 
-## Articles: Embedded vs. Separate Table
+**Rationale:** The embedded approach was a KV-era compromise. Moving to Postgres makes the join cost negligible, while the benefits are significant:
 
-### Option A: Keep articles embedded in materials (current approach)
-
-**Pros**
-
-- Single read returns everything for a material page — no joins
-- Works naturally with a KV or document store
-
-**Cons**
-
-- Cannot query across articles independently (e.g., "latest published articles", "all articles by author X", "unreviewed articles queue")
-- Updating one article requires rewriting the entire material blob — expensive, error-prone, hard to audit
-- No referential integrity — a deleted material silently orphans all its articles
-- Cannot paginate or full-text search articles without scanning every material
-- Articles cannot be associated with more than one category or material without duplication
-- Difficult to apply separate RLS policies to articles vs. materials
-- The KV blob grows unboundedly as articles accumulate — backup and restore complexity scales with it
-- Already partially denormalized: the type definition marks `articles` as legacy and the field is optional
-
-### Option B: Separate `articles` table (recommended)
-
-**Pros**
-
-- Each article is a first-class row with its own lifecycle (draft → published → archived), author, timestamps, and RLS
-- A material page load is one `SELECT` + one `JOIN` — negligible overhead in Postgres
-- Independent querying: unreviewed queue, author attribution, category feeds, full-text search (pg_trgm / pgvector)
+- Each article is a first-class row with its own lifecycle, author, timestamps, and RLS
+- Independent querying (unreviewed queue, author feeds, full-text search)
 - Update one article = update one row, not re-serialize a 50 KB blob
-- Natural FK to `materials.id` — delete cascades can be controlled explicitly
-- Consistent with how `guides` already works (separate table with `material_id`)
-- Enables articles and guides to share infrastructure (review queue, status workflow, audit trail)
+- Natural FK to `materials.id` with controlled cascade
+- Consistent with `guides` (same pattern, same infrastructure)
 
-**Cons**
+---
 
-- Material page load requires a join (trivially handled by Supabase's `select("*, articles(*)")`)
-- Slightly more complex initial migration
+## Step 12 Route Changes
 
-**Verdict: Separate table.** The embedded approach was a KV-era compromise. Moving to Postgres makes the cost of a join effectively zero, while the benefits — independent querying, referential integrity, RLS, audit trails — are significant. The type definition already anticipates this; `articles` is marked as a legacy field.
+The following routes were switched from full `kv.getByPrefix("material:")` scans to Postgres queries on May 21, 2026:
+
+| Route                                     | Before                                               | After                                                           |
+| ----------------------------------------- | ---------------------------------------------------- | --------------------------------------------------------------- |
+| `GET /profile/:id/contributions/stats`    | Full KV scan, filter by `created_by`                 | `COUNT` queries on `materials`, `articles`, `guides`            |
+| `GET /profile/:id/contributions/activity` | Full KV scan + date filter                           | `SELECT created_at` from Postgres with date range               |
+| `GET /profile/:id/contributions/recent`   | Full KV scan + nested article iteration              | `SELECT` ordered by `created_at DESC` on each table             |
+| `GET /admin/stats`                        | Full KV scan + `user_profile:` prefix scan           | `COUNT` on all 4 Postgres tables                                |
+| `GET /leaderboard`                        | Full KV scan + per-user `kv.get("user_profile:...")` | Bulk `SELECT created_by` + single `user_profiles` `.in()` query |
+
+> **MIU (evidence point) counts** remain KV-based in all routes — no `evidence` Postgres table exists yet.
+
+### Performance improvement
+
+Each KV route did a full `kv.getByPrefix("material:")` prefix scan — deserializing every material blob (~50 KB each) into memory on every request. With Postgres, each of these is now a single indexed query:
+
+| Route                     | KV: operations per call                                            | Postgres: operations per call                                   |
+| ------------------------- | ------------------------------------------------------------------ | --------------------------------------------------------------- |
+| `/contributions/stats`    | Deserialize all ~N material blobs, filter by `created_by`          | 3 indexed `COUNT` queries                                       |
+| `/contributions/activity` | Deserialize all ~N blobs, iterate nested articles with date filter | 3 range scans on indexed `created_at`                           |
+| `/contributions/recent`   | Deserialize all ~N blobs, flatten and sort nested articles         | 3 index seeks ordered by `created_at DESC`                      |
+| `/admin/stats`            | Deserialize all ~N material blobs + all M user_profile blobs       | 4 `COUNT` queries                                               |
+| `/leaderboard`            | Deserialize all ~N material blobs + 1 `kv.get` per leader          | 3 `SELECT created_by` + 1 batched `user_profiles` `.in()` fetch |
 
 ---
 
