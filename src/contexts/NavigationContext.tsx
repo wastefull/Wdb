@@ -92,7 +92,8 @@ export type ViewType =
   | { type: "editor-test" }
   | { type: "about" }
   | { type: "donate" }
-  | { type: "maintenance-mode" };
+  | { type: "maintenance-mode" }
+  | { type: "one-time-actions" };
 
 export type UserRole = "user" | "staff" | "admin";
 
@@ -122,6 +123,7 @@ export const ADMIN_VIEW_TYPES = new Set<ViewType["type"]>([
   "roadmap",
   "roadmap-overview",
   "maintenance-mode",
+  "one-time-actions",
 ]);
 
 export function isAdminViewType(viewType: ViewType["type"]): boolean {
@@ -274,6 +276,7 @@ interface NavigationContextType {
   navigateToAbout: () => void;
   navigateToDonate: () => void;
   navigateToMaintenanceMode: () => void;
+  navigateToOneTimeActions: () => void;
   goBack: () => void;
 }
 
@@ -557,6 +560,10 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
     navigateTo({ type: "maintenance-mode" });
   };
 
+  const navigateToOneTimeActions = () => {
+    navigateTo({ type: "one-time-actions" });
+  };
+
   const goBack = () => {
     if (viewHistory.length > 1) {
       const newHistory = viewHistory.slice(0, -1);
@@ -626,6 +633,7 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
     navigateToAbout,
     navigateToDonate,
     navigateToMaintenanceMode,
+    navigateToOneTimeActions,
     goBack,
   };
 

@@ -21,3 +21,4 @@ export { RolePermissionsView } from "./RolePermissionsView";
 export { CategoriesView } from "./CategoriesView";
 export { CategoryColorsView } from "./CategoryColorsView";
 export { MaintenanceModePanel } from "./MaintenanceModePanel";
+export { OneTimeActionsPanel } from "./OneTimeActionsPanel";

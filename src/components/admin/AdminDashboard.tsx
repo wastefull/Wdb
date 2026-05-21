@@ -51,6 +51,7 @@ interface AdminDashboardProps {
   onNavigateToCurationWorkbench?: () => void;
   onNavigateToTransformTesting?: () => void;
   onNavigateToMaintenanceMode?: () => void;
+  onNavigateToOneTimeActions?: () => void;
 }
 
 export function AdminDashboard({
@@ -77,6 +78,7 @@ export function AdminDashboard({
   onNavigateToCurationWorkbench,
   onNavigateToTransformTesting,
   onNavigateToMaintenanceMode,
+  onNavigateToOneTimeActions,
 }: AdminDashboardProps) {
   const [stats, setStats] = useState<{
     materials: number;
@@ -223,6 +225,14 @@ export function AdminDashboard({
                       className="menu-item"
                     >
                       Maintenance Mode
+                    </button>
+                  )}
+                  {onNavigateToOneTimeActions && (
+                    <button
+                      onClick={onNavigateToOneTimeActions}
+                      className="menu-item"
+                    >
+                      One-Time Actions
                     </button>
                   )}
                   <button className="menu-item-disabled" disabled>

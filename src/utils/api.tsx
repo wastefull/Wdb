@@ -1116,6 +1116,16 @@ export async function getAdminStats(): Promise<{
   return data.stats;
 }
 
+export async function seedEvidenceFromKV(): Promise<{
+  success: boolean;
+  inserted: number;
+  skipped: number;
+  errors: number;
+  error_log: unknown[];
+}> {
+  return await apiCall("/admin/evidence/seed-from-kv", { method: "POST" });
+}
+
 export async function getUserContributionStats(userId: string): Promise<{
   materials: number;
   articles: number;

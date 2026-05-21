@@ -76,6 +76,7 @@ import {
   CategoryColorsView,
   CategoriesView,
   MaintenanceModePanel,
+  OneTimeActionsPanel,
 } from "./components/admin";
 
 // Forms
@@ -192,6 +193,7 @@ function AppContent() {
     navigateToAbout,
     navigateToDonate,
     navigateToMaintenanceMode,
+    navigateToOneTimeActions,
   } = useNavigationContext();
   const { user, userRole, isAuthenticated, signIn, signOut, updateUserRole } =
     useAuthContext();
@@ -1151,6 +1153,7 @@ function AppContent() {
         onNavigateToCurationWorkbench={navigateToCurationWorkbench}
         onNavigateToTransformTesting={navigateToTransformTesting}
         onNavigateToMaintenanceMode={navigateToMaintenanceMode}
+        onNavigateToOneTimeActions={navigateToOneTimeActions}
       />
     ),
     "staff-dashboard": () => (
@@ -1311,6 +1314,9 @@ function AppContent() {
     "assets-management": () => <AssetsManagementPage />,
     "maintenance-mode": () => (
       <MaintenanceModePanel onBack={navigateToAdminDashboard} />
+    ),
+    "one-time-actions": () => (
+      <OneTimeActionsPanel onBack={navigateToAdminDashboard} />
     ),
     "math-tools": (view) => (
       <MathView

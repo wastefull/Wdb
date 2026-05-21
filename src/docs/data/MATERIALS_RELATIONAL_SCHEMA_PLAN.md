@@ -23,9 +23,10 @@
 | 12   | Switch contribution routes to Postgres                                              | ✅ Done        | —                                                     |
 | 13   | Switch materials read routes to Postgres                                            | ✅ Done        | —                                                     |
 | 14   | Switch materials write routes to Postgres                                           | ✅ Done        | —                                                     |
-| 15   | Drop KV namespaces (irreversible — requires explicit team approval)                 | ⬜ Not started | —                                                     |
+| 15   | Create `evidence_points` table and migrate MIU data from KV to Postgres             | ⬜ Not started | —                                                     |
+| 16   | Drop KV namespaces (irreversible — requires explicit team approval)                 | ⬜ Not started | —                                                     |
 
-> Steps 1–7 were purely additive (new tables only). Steps 8–14 are complete. KV is no longer read or written for material data. Step 15 (drop KV namespaces) requires explicit team approval.
+> Steps 1–7 were purely additive (new tables only). Steps 8–14 are complete. KV is no longer read or written for material data. MIU/evidence data remains in KV material blobs pending Step 15. Step 16 (KV drop) must not proceed until Step 15 is complete and verified.
 
 ---
 
@@ -33,7 +34,7 @@
 
 **Previously:** Materials lived as monolithic JSON blobs in `kv_store_17cae920`, each containing core scores, scientific parameters, embedded `sources[]`, embedded `articles.{compostability|recyclability|reusability}[]`, and Wikimedia metadata.
 
-**Now:** All content lives in Postgres. `GET /materials` reads from the `materials` table (with joined `material_categories`, `articles`, and `material_sources` → `sources`). All write routes (`POST`, `PUT`, `DELETE`, batch) write to Postgres and no longer touch KV. KV is now unused for material data — the only remaining KV usage is for sessions, roles, rate limits, and MIU/evidence data (not yet migrated).
+**Now:** All content lives in Postgres. `GET /materials` reads from the `materials` table (with joined `material_categories`, `articles`, and `material_sources` → `sources`). All write routes (`POST`, `PUT`, `DELETE`, batch) write to Postgres and no longer touch KV. KV is now unused for material data — the only remaining KV usage is for sessions, roles, rate limits, and MIU/evidence data (Step 15 target).
 
 ### Architecture decision: articles as a separate table ✅
 

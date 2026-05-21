@@ -5979,21 +5979,11 @@ app.get(
         .eq("created_by", userId);
       if (gErr) log.error("[Contributions] Error counting guides:", gErr);
 
-      // MIUs (evidence points) not yet migrated to Postgres — scan KV
-      let miuCount = 0;
-      const allMaterials = (await kv.getByPrefix("material:")) || [];
-      for (const material of allMaterials) {
-        if (material.evidence) {
-          for (const param in material.evidence) {
-            const evidenceList = material.evidence[param];
-            if (Array.isArray(evidenceList)) {
-              miuCount += evidenceList.filter(
-                (e) => e.curator_id === userId,
-              ).length;
-            }
-          }
-        }
-      }
+      // MIUs — read from Postgres evidence_points (Step 15)
+      const { count: miuCount } = await supabase
+        .from("evidence_points")
+        .select("*", { count: "exact", head: true })
+        .eq("curator_id", userId);
 
       const mats = materialsCount ?? 0;
       const arts = articlesCount ?? 0;
@@ -6092,26 +6082,19 @@ app.get(
         }
       }
 
-      // MIUs not yet migrated — scan KV
-      const allMaterials = (await kv.getByPrefix("material:")) || [];
-      for (const material of allMaterials) {
-        if (material.evidence) {
-          for (const param in material.evidence) {
-            const evidenceList = material.evidence[param];
-            if (Array.isArray(evidenceList)) {
-              for (const evidence of evidenceList) {
-                if (evidence.curator_id === userId && evidence.timestamp) {
-                  const date = new Date(evidence.timestamp);
-                  if (date >= start && date <= end) {
-                    contributions.push({
-                      date: date.toISOString().split("T")[0],
-                      type: "miu",
-                    });
-                  }
-                }
-              }
-            }
-          }
+      // MIUs — read from Postgres evidence_points (Step 15)
+      const { data: miuActivity } = await supabase
+        .from("evidence_points")
+        .select("created_at")
+        .eq("curator_id", userId)
+        .gte("created_at", start.toISOString())
+        .lte("created_at", end.toISOString());
+      for (const ep of miuActivity ?? []) {
+        if (ep.created_at) {
+          contributions.push({
+            date: new Date(ep.created_at).toISOString().split("T")[0],
+            type: "miu",
+          });
         }
       }
 
@@ -6238,31 +6221,30 @@ app.get(
         }
       }
 
-      // MIUs not yet migrated — scan KV
+      // MIUs — read from Postgres evidence_points (Step 15)
       if (!typeFilter || typeFilter === "miu") {
-        const allMaterials = (await kv.getByPrefix("material:")) || [];
-        for (const material of allMaterials) {
-          if (material.evidence) {
-            for (const param in material.evidence) {
-              const evidenceList = material.evidence[param];
-              if (Array.isArray(evidenceList)) {
-                for (const evidence of evidenceList) {
-                  if (evidence.curator_id === userId && evidence.timestamp) {
-                    contributions.push({
-                      type: "miu",
-                      title: `${param} evidence for ${
-                        material.name || "material"
-                      }`,
-                      timestamp: evidence.timestamp,
-                      id: `${material.id}:${param}:${
-                        evidence.id || Date.now()
-                      }`,
-                      materialId: material.id,
-                    });
-                  }
-                }
-              }
-            }
+        const { data: recentMius } = await supabase
+          .from("evidence_points")
+          .select(
+            "id, parameter, material_legacy_kv_id, created_at, materials(name)",
+          )
+          .eq("curator_id", userId)
+          .order("created_at", { ascending: false })
+          .limit(limit);
+        for (const ep of recentMius ?? []) {
+          if (ep.created_at) {
+            const matName =
+              (ep.materials as any)?.name ??
+              (ep.material_legacy_kv_id
+                ? `material ${ep.material_legacy_kv_id}`
+                : "material");
+            contributions.push({
+              type: "miu",
+              title: `${ep.parameter ?? "Evidence"} for ${matName}`,
+              timestamp: ep.created_at,
+              id: ep.id,
+              materialId: ep.material_legacy_kv_id,
+            });
           }
         }
       }
@@ -6288,6 +6270,184 @@ app.get(
 );
 
 // Get admin dashboard stats (public endpoint for totals)
+// ─── Step 15: Seed evidence_points from KV material blobs ──────────────────
+// One-time admin endpoint. Reads material:* KV blobs and inserts every embedded
+// evidence entry into the evidence_points Postgres table.
+// Safe to call multiple times — duplicates are skipped via conflict detection.
+app.post(
+  "/make-server-17cae920/admin/evidence/seed-from-kv",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      );
+
+      // Parameter → dimension mapping
+      const dimensionForParam = (p: string): string | null => {
+        if (["Y", "D", "C", "M", "E"].includes(p)) return "CR";
+        if (["B", "N", "T", "H"].includes(p)) return "CC";
+        if (["L", "R", "U", "C_RU"].includes(p)) return "RU";
+        return null;
+      };
+
+      // Build a lookup of legacy_kv_id → materials.id (UUID)
+      const { data: materialRows } = await supabase
+        .from("materials")
+        .select("id, legacy_kv_id")
+        .not("legacy_kv_id", "is", null);
+      const uuidByKvId = new Map<string, string>(
+        (materialRows ?? []).map((r: any) => [r.legacy_kv_id, r.id]),
+      );
+
+      // Read all material KV blobs
+      const allMaterials = (await kv.getByPrefix("material:")) || [];
+
+      let inserted = 0;
+      let skipped = 0;
+      let errors = 0;
+      const errorLog: string[] = [];
+
+      for (const material of allMaterials) {
+        if (!material.evidence) continue;
+        const kvId = material.id as string;
+        const materialId = uuidByKvId.get(kvId) ?? null;
+
+        for (const param in material.evidence) {
+          const evidenceList = material.evidence[param];
+          if (!Array.isArray(evidenceList)) continue;
+
+          for (const ev of evidenceList) {
+            // Skip entries with no useful identity
+            if (!ev.curator_id && !ev.timestamp && !ev.id) {
+              skipped++;
+              continue;
+            }
+
+            // Check if already seeded (by legacy_kv_raw identity)
+            const evId = ev.id ?? null;
+            if (evId) {
+              const { data: existing } = await supabase
+                .from("evidence_points")
+                .select("id")
+                .eq("legacy_kv_raw->>id", evId)
+                .maybeSingle();
+              if (existing) {
+                skipped++;
+                continue;
+              }
+            }
+
+            const row: Record<string, any> = {
+              material_id: materialId,
+              material_legacy_kv_id: kvId,
+              parameter: [
+                "Y",
+                "D",
+                "C",
+                "M",
+                "E",
+                "B",
+                "N",
+                "T",
+                "H",
+                "L",
+                "R",
+                "U",
+                "C_RU",
+              ].includes(param)
+                ? param
+                : null,
+              dimension: dimensionForParam(param),
+              curator_id: ev.curator_id ?? null,
+              created_at:
+                ev.timestamp ?? ev.created_at ?? new Date().toISOString(),
+              updated_at:
+                ev.timestamp ?? ev.created_at ?? new Date().toISOString(),
+              snippet: ev.snippet ?? null,
+              source_ref: ev.source_ref ?? ev.sourceRef ?? null,
+              source_type: ev.source_type ?? ev.sourceType ?? null,
+              value_raw: ev.value_raw ?? ev.valueRaw ?? null,
+              units: ev.units ?? null,
+              value_norm: ev.value_norm ?? ev.valueNorm ?? null,
+              page: ev.page ?? null,
+              figure: ev.figure ?? null,
+              table_ref: ev.table_ref ?? ev.tableRef ?? null,
+              paragraph: ev.paragraph ?? null,
+              process: ev.process ?? null,
+              stream: ev.stream ?? null,
+              region: ev.region ?? null,
+              scale: ev.scale ?? null,
+              method_completeness: ev.method_completeness ?? null,
+              sample_size: ev.sample_size ?? null,
+              confidence_notes: ev.confidence_notes ?? null,
+              conflict_of_interest: ev.conflict_of_interest ?? null,
+              evidence_type: [
+                "positive",
+                "negative",
+                "limit",
+                "threshold",
+              ].includes(ev.evidence_type)
+                ? ev.evidence_type
+                : "positive",
+              validation_status: [
+                "pending",
+                "validated",
+                "flagged",
+                "duplicate",
+              ].includes(ev.validation_status)
+                ? ev.validation_status
+                : "pending",
+              codebook_version: ev.codebook_version ?? "v0",
+              transform_version: ev.transform_version ?? "v1.0",
+              extraction_session_id: ev.extraction_session_id ?? null,
+              is_legacy: true,
+              legacy_kv_raw: ev,
+            };
+
+            const { error: insertError } = await supabase
+              .from("evidence_points")
+              .insert(row);
+
+            if (insertError) {
+              errors++;
+              errorLog.push(`${kvId}/${param}: ${insertError.message}`);
+            } else {
+              inserted++;
+            }
+          }
+        }
+      }
+
+      await createAuditLog({
+        userId: c.get("userId"),
+        userEmail: c.get("userEmail"),
+        entityType: "evidence_points",
+        entityId: "seed-from-kv",
+        action: "create",
+        after: { inserted, skipped, errors },
+        req: c,
+      });
+
+      log.log(
+        `Evidence seed: inserted=${inserted} skipped=${skipped} errors=${errors}`,
+      );
+      return c.json({
+        success: true,
+        inserted,
+        skipped,
+        errors,
+        error_log: errorLog.slice(0, 50),
+      });
+    } catch (error) {
+      log.error("Error seeding evidence_points from KV:", error);
+      return c.json({ error: "Seed failed", details: String(error) }, 500);
+    }
+  },
+);
+
 app.get("/make-server-17cae920/admin/stats", async (c) => {
   try {
     const supabase = createClient(
@@ -6315,19 +6475,10 @@ app.get("/make-server-17cae920/admin/stats", async (c) => {
       .from("user_profiles")
       .select("*", { count: "exact", head: true });
 
-    // MIU count not yet migrated — scan KV
-    let miusCount = 0;
-    const allMaterials = (await kv.getByPrefix("material:")) || [];
-    for (const material of allMaterials) {
-      if (material.evidence) {
-        for (const param in material.evidence) {
-          const evidenceList = material.evidence[param];
-          if (Array.isArray(evidenceList)) {
-            miusCount += evidenceList.length;
-          }
-        }
-      }
-    }
+    // MIUs — read from Postgres evidence_points (Step 15)
+    const { count: miusCount } = await supabase
+      .from("evidence_points")
+      .select("*", { count: "exact", head: true });
 
     return c.json({
       stats: {
@@ -6412,19 +6563,13 @@ app.get("/make-server-17cae920/leaderboard", async (c) => {
       if (g.created_by) bump(g.created_by, "guides");
     }
 
-    // MIUs not yet migrated — scan KV
-    const allMaterials = (await kv.getByPrefix("material:")) || [];
-    for (const material of allMaterials) {
-      if (material.evidence) {
-        for (const param in material.evidence) {
-          const evidenceList = material.evidence[param];
-          if (Array.isArray(evidenceList)) {
-            for (const evidence of evidenceList) {
-              if (evidence.curator_id) bump(evidence.curator_id, "mius");
-            }
-          }
-        }
-      }
+    // MIUs — read from Postgres evidence_points (Step 15)
+    const { data: allEvidenceData } = await supabase
+      .from("evidence_points")
+      .select("curator_id")
+      .not("curator_id", "is", null);
+    for (const ep of allEvidenceData ?? []) {
+      if (ep.curator_id) bump(ep.curator_id, "mius");
     }
 
     // Merge across linked auth identities (email aliases → canonical user)
