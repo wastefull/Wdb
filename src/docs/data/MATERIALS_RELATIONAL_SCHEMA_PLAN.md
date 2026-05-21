@@ -7,30 +7,30 @@
 
 ## Implementation Progress
 
-| Step | Description                                                                         | Status         | Migration File                                        |
-| ---- | ----------------------------------------------------------------------------------- | -------------- | ----------------------------------------------------- |
-| 1    | Create `user_profiles` table                                                        | ✅ Done        | `20260520000002_create_user_profiles_table.sql`       |
-| 2    | Create `material_categories` table                                                  | ✅ Done        | `20260520000003_create_material_categories_table.sql` |
-| 3    | Create `materials` table                                                            | ✅ Done        | `20260520000004_create_materials_table.sql`           |
-| 4    | Create `articles` table                                                             | ✅ Done        | `20260520000005_create_articles_table.sql`            |
-| 5    | Create `sources` table                                                              | ✅ Done        | `20260520000006_create_sources_table.sql`             |
-| 6    | Create `material_sources` junction table                                            | ✅ Done        | `20260520000007_create_material_sources_table.sql`    |
-| 7    | Create `material_links` junction table                                              | ✅ Done        | `20260520000008_create_material_links_table.sql`      |
-| 8    | Seed `user_profiles` from KV (one-time script)                                      | ✅ Done        | `20260520000009_seed_user_profiles.sql`               |
-| 9    | Seed `materials` + `articles` + `sources` from KV (one-time script)                 | ✅ Done        | `20260520000010_seed_materials_articles_sources.sql`  |
-| 10   | Add FK constraints to `guides` (`material_id → uuid`, `created_by → user_profiles`) | ✅ Done        | `20260520000012_add_fk_guides.sql`                    |
-| 11   | Add FK constraint to `blog_posts` (`created_by → user_profiles`)                    | ✅ Done        | `20260520000013_add_fk_blog_posts.sql`                |
-| 12   | Switch contribution routes to Postgres                                              | ✅ Done        | —                                                     |
-| 13   | Switch materials read routes to Postgres                                            | ✅ Done        | —                                                     |
-| 14   | Switch materials write routes to Postgres                                           | ✅ Done        | —                                                     |
-| 15   | Create `evidence_points` table and migrate MIU data from KV to Postgres             | ✅ Done        | `20260521000000_create_evidence_points_table.sql`     |
-| 16   | Audit trail verification — add missing `createAuditLog` calls to all write routes   | ✅ Done        | —                                                     |
-| 17   | Migrate `audit_log` from KV to Postgres — unbounded, indexed, queryable             | ✅ Done        | `20260521000001_create_audit_log_table.sql`           |
-| 18   | Switch `user_profile` write paths to Postgres — eliminate KV dual-write             | ⬜ Not started | —                                                     |
-| 19   | Consolidate roles into `user_profiles` — add `role` column, remove `user_role:*`    | ⬜ Not started | —                                                     |
-| 20   | Drop migrated KV namespaces (deferred — see note below)                             | ⏸ Deferred     | —                                                     |
+| Step | Description                                                                         | Status     | Migration File                                        |
+| ---- | ----------------------------------------------------------------------------------- | ---------- | ----------------------------------------------------- |
+| 1    | Create `user_profiles` table                                                        | ✅ Done    | `20260520000002_create_user_profiles_table.sql`       |
+| 2    | Create `material_categories` table                                                  | ✅ Done    | `20260520000003_create_material_categories_table.sql` |
+| 3    | Create `materials` table                                                            | ✅ Done    | `20260520000004_create_materials_table.sql`           |
+| 4    | Create `articles` table                                                             | ✅ Done    | `20260520000005_create_articles_table.sql`            |
+| 5    | Create `sources` table                                                              | ✅ Done    | `20260520000006_create_sources_table.sql`             |
+| 6    | Create `material_sources` junction table                                            | ✅ Done    | `20260520000007_create_material_sources_table.sql`    |
+| 7    | Create `material_links` junction table                                              | ✅ Done    | `20260520000008_create_material_links_table.sql`      |
+| 8    | Seed `user_profiles` from KV (one-time script)                                      | ✅ Done    | `20260520000009_seed_user_profiles.sql`               |
+| 9    | Seed `materials` + `articles` + `sources` from KV (one-time script)                 | ✅ Done    | `20260520000010_seed_materials_articles_sources.sql`  |
+| 10   | Add FK constraints to `guides` (`material_id → uuid`, `created_by → user_profiles`) | ✅ Done    | `20260520000012_add_fk_guides.sql`                    |
+| 11   | Add FK constraint to `blog_posts` (`created_by → user_profiles`)                    | ✅ Done    | `20260520000013_add_fk_blog_posts.sql`                |
+| 12   | Switch contribution routes to Postgres                                              | ✅ Done    | —                                                     |
+| 13   | Switch materials read routes to Postgres                                            | ✅ Done    | —                                                     |
+| 14   | Switch materials write routes to Postgres                                           | ✅ Done    | —                                                     |
+| 15   | Create `evidence_points` table and migrate MIU data from KV to Postgres             | ✅ Done    | `20260521000000_create_evidence_points_table.sql`     |
+| 16   | Audit trail verification — add missing `createAuditLog` calls to all write routes   | ✅ Done    | —                                                     |
+| 17   | Migrate `audit_log` from KV to Postgres — unbounded, indexed, queryable             | ✅ Done    | `20260521000001_create_audit_log_table.sql`           |
+| 18   | Switch `user_profile` write paths to Postgres — eliminate KV dual-write             | ✅ Done    | —                                                     |
+| 19   | Consolidate roles into `user_profiles` — add `role` column, remove `user_role:*`    | ✅ Done    | `20260521000002_add_role_to_user_profiles.sql`        |
+| 20   | Drop migrated KV namespaces (deferred — see note below)                             | ⏸ Deferred | —                                                     |
 
-> Steps 1–17 are complete. Steps 18–19 (user_profile + roles migration) are the recommended next work. Step 20 (KV drop) is deferred — `session:*` and several other namespaces are still actively written and have no Postgres equivalent yet. Only `audit:*` is safe to delete today.
+> Steps 1–19 are complete. Step 20 (KV drop) is deferred — `session:*` and several other namespaces are still actively written and have no Postgres equivalent yet. Only `audit:*` is safe to delete today.
 
 ---
 

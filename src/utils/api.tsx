@@ -1137,6 +1137,17 @@ export async function seedAuditLogFromKV(): Promise<{
   return await apiCall("/admin/audit/seed-from-kv", { method: "POST" });
 }
 
+export async function seedRolesFromKV(): Promise<{
+  success: boolean;
+  updated: number;
+  skipped: number;
+  errors: number;
+  total_kv: number;
+  error_log: unknown[];
+}> {
+  return await apiCall("/admin/roles/seed-from-kv", { method: "POST" });
+}
+
 export async function getUserContributionStats(userId: string): Promise<{
   materials: number;
   articles: number;

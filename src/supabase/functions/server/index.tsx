@@ -264,7 +264,7 @@ function rateLimit(
             data: { user },
           } = await supabase.auth.getUser(token);
           if (user) {
-            const userRole = await kv.get(`user_role:${user.id}`);
+            const userRole = await getUserRole(user.id);
             if (userRole === "admin" || user.email === "natto@wastefull.org") {
               log.log(
                 `✓ Admin user ${user.email} bypassing ${type} rate limit`,
@@ -762,10 +762,34 @@ async function verifyAuth(c: any, next: any) {
   }
 }
 
+// ─── Role helpers (Step 19) ─────────────────────────────────────────────────
+// Roles are stored in user_profiles.role (Postgres). These helpers replace all
+// kv.get/set("user_role:*") calls throughout the file.
+
+function _roleClient() {
+  return createClient(
+    Deno.env.get("SUPABASE_URL") ?? "",
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+  );
+}
+
+async function getUserRole(userId: string): Promise<string> {
+  const { data } = await _roleClient()
+    .from("user_profiles")
+    .select("role")
+    .eq("id", userId)
+    .maybeSingle();
+  return data?.role || "user";
+}
+
+async function setUserRole(userId: string, role: string): Promise<void> {
+  await _roleClient()
+    .from("user_profiles")
+    .upsert({ id: userId, role }, { onConflict: "id" });
+}
+
 // Middleware to verify admin role
-// NOTE: User roles are stored separately from profiles in KV at key `user_role:${userId}`
-// This is because roles are checked frequently in middleware and keeping them separate
-// improves performance. Profile objects do NOT store role; it must be fetched separately.
+// NOTE: User roles are stored in user_profiles.role (Postgres) — see getUserRole().
 async function verifyAdmin(c: any, next: any) {
   const userId = c.get("userId");
   const userEmail = c.get("userEmail");
@@ -778,25 +802,17 @@ async function verifyAdmin(c: any, next: any) {
   }
 
   try {
-    // Get user role from KV store
-    const userRole = await kv.get(`user_role:${userId}`);
+    const userRole = await getUserRole(userId);
+    log.log("verifyAdmin: User role from Postgres:", userRole);
 
-    log.log("verifyAdmin: User role from KV:", userRole);
-
-    // If no role is set, check if this is an admin email
-    if (!userRole) {
-      // Initialize role for natto@wastefull.org as admin
-      if (userEmail === "natto@wastefull.org") {
-        log.log("verifyAdmin: Initializing admin role for natto@wastefull.org");
-        await kv.set(`user_role:${userId}`, "admin");
-        c.set("userRole", "admin");
-        await next();
-        return;
-      }
-      // Default role is 'user'
-      log.log("verifyAdmin: Setting default user role");
-      await kv.set(`user_role:${userId}`, "user");
-      return c.json({ error: "Forbidden - admin role required" }, 403);
+    // Bootstrap: if the account has never had a role written and is the
+    // owner email, promote it now so the first sign-in works.
+    if (userRole === "user" && userEmail === "natto@wastefull.org") {
+      log.log("verifyAdmin: Bootstrapping admin role for natto@wastefull.org");
+      await setUserRole(userId, "admin");
+      c.set("userRole", "admin");
+      await next();
+      return;
     }
 
     if (userRole !== "admin") {
@@ -877,7 +893,7 @@ async function hasPermission(
   userId: string,
   permission: string,
 ): Promise<boolean> {
-  const userRole = await kv.get(`user_role:${userId}`);
+  const userRole = await getUserRole(userId);
   // Admin always has all permissions
   if (userRole === "admin") return true;
 
@@ -993,9 +1009,16 @@ app.get("/make-server-17cae920/auth/session", async (c) => {
       return c.json({ user: null }, 200);
     }
 
-    const profile = await kv.get(`user_profile:${sessionData.userId}`);
+    const { data: _sessionProfileRow } = await createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+    )
+      .from("user_profiles")
+      .select("name")
+      .eq("id", sessionData.userId)
+      .maybeSingle();
     const displayName =
-      profile?.name ||
+      _sessionProfileRow?.name ||
       (sessionData.canonicalEmail || sessionData.email)?.split("@")[0];
 
     // Refresh cookie expiry on each use
@@ -1122,25 +1145,23 @@ app.post(
         : [email.toLowerCase()];
       await kv.set(recentSignupsKey, updatedSignups.slice(-10)); // Keep last 10
 
-      // Initialize user role
+      // Initialize user profile + role in Postgres
       const initialRole = getInitialRole(email);
-      await kv.set(`user_role:${data.user.id}`, initialRole);
-
-      // Initialize user profile
-      const initialProfile = {
-        user_id: data.user.id,
-        email: data.user.email,
-        name: data.user.user_metadata?.name || email.split("@")[0],
-        bio: "",
-        social_link: "",
-        avatar_url: "",
-        display_email: "",
-        show_on_leaderboard: true,
-        org_role: "Volunteer",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-      await kv.set(`user_profile:${data.user.id}`, initialProfile);
+      await supabase.from("user_profiles").upsert(
+        {
+          id: data.user.id,
+          email: data.user.email || "",
+          name: data.user.user_metadata?.name || email.split("@")[0],
+          bio: "",
+          social_link: "",
+          avatar_url: "",
+          display_email: "",
+          show_on_leaderboard: true,
+          org_role: "Volunteer",
+          role: initialRole,
+        },
+        { onConflict: "id", ignoreDuplicates: true },
+      );
 
       log.log(
         `New user created: ${email} (role: ${initialRole}) - awaiting email confirmation`,
@@ -1273,9 +1294,13 @@ app.post("/make-server-17cae920/auth/signin", rateLimit("AUTH"), async (c) => {
     // Log successful login
     log.log(`Successful login: ${email}`);
 
-    const signinProfile = await kv.get(`user_profile:${data.user.id}`);
+    const { data: _signinProfileRow } = await supabase
+      .from("user_profiles")
+      .select("name")
+      .eq("id", data.user.id)
+      .maybeSingle();
     const signinDisplayName =
-      signinProfile?.name ||
+      _signinProfileRow?.name ||
       data.user.email?.split("@")[0] ||
       email.split("@")[0];
 
@@ -1290,6 +1315,10 @@ app.post("/make-server-17cae920/auth/signin", rateLimit("AUTH"), async (c) => {
       createdAt: Date.now(),
     });
     await kv.set(`user_last_signin:${data.user.id}`, Date.now());
+    await supabase
+      .from("user_profiles")
+      .update({ last_signin_at: new Date().toISOString() })
+      .eq("id", data.user.id);
     setSessionCookie(c, signinSessionToken);
 
     return c.json({
@@ -1567,23 +1596,27 @@ app.post("/make-server-17cae920/auth/verify-magic-link", async (c) => {
       } else {
         userData = newUser;
 
-        // Initialize user role
+        // Initialize user role in Postgres
         const initialRole = getInitialRole(trimmedEmail);
-        await kv.set(`user_role:${userData.user.id}`, initialRole);
+        await setUserRole(userData.user.id, initialRole);
         log.log(
           `New magic link user created: ${trimmedEmail} (role: ${initialRole})`,
         );
       }
     }
 
-    // Ensure user role is set (in case it's an existing user without a role)
-    const existingRole = await kv.get(`user_role:${userData.user.id}`);
-    if (!existingRole) {
+    // Ensure role is set for existing users (ignoreDuplicates won't help here
+    // since the row already exists — use upsert without ignoreDuplicates only
+    // if the current role is the default).
+    const currentRole = await getUserRole(userData.user.id);
+    if (currentRole === "user") {
       const initialRole = getInitialRole(trimmedEmail);
-      await kv.set(`user_role:${userData.user.id}`, initialRole);
-      log.log(
-        `Role initialized for existing user: ${trimmedEmail} (role: ${initialRole})`,
-      );
+      if (initialRole !== "user") {
+        await setUserRole(userData.user.id, initialRole);
+        log.log(
+          `Role upgraded for existing user: ${trimmedEmail} (role: ${initialRole})`,
+        );
+      }
     }
 
     // Mark token as used
@@ -1611,6 +1644,10 @@ app.post("/make-server-17cae920/auth/verify-magic-link", async (c) => {
 
     // Track last sign-in time for user management display
     await kv.set(`user_last_signin:${userData.user.id}`, Date.now());
+    await supabase
+      .from("user_profiles")
+      .update({ last_signin_at: new Date().toISOString() })
+      .eq("id", userData.user.id);
 
     // Verify the session was stored
     const verifySession = await kv.get(`session:${accessToken}`);
@@ -1625,9 +1662,13 @@ app.post("/make-server-17cae920/auth/verify-magic-link", async (c) => {
     log.log(`Successful magic link verification: ${trimmedEmail}`);
     log.log(`Returning access_token to frontend: ${accessToken}`);
 
-    const magicLinkProfile = await kv.get(`user_profile:${userData.user.id}`);
+    const { data: _magicLinkProfileRow } = await supabase
+      .from("user_profiles")
+      .select("name")
+      .eq("id", userData.user.id)
+      .maybeSingle();
     const magicLinkDisplayName =
-      magicLinkProfile?.name ||
+      _magicLinkProfileRow?.name ||
       userData.user.email?.split("@")[0] ||
       trimmedEmail.split("@")[0];
 
@@ -1745,10 +1786,11 @@ app.post(
         );
       }
 
-      const existingRole = await kv.get(`user_role:${canonicalUserId}`);
-      if (!existingRole) {
+      const existingRole = await getUserRole(canonicalUserId);
+      if (existingRole === "user") {
         const initialRole = getInitialRole(canonicalUser.email || authEmail);
-        await kv.set(`user_role:${canonicalUserId}`, initialRole);
+        if (initialRole !== "user")
+          await setUserRole(canonicalUserId, initialRole);
       }
 
       const accessTokenForSession = crypto.randomUUID();
@@ -1765,10 +1807,18 @@ app.post(
 
       // Track last sign-in time for user management display
       await kv.set(`user_last_signin:${canonicalUserId}`, Date.now());
+      await supabaseAdmin
+        .from("user_profiles")
+        .update({ last_signin_at: new Date().toISOString() })
+        .eq("id", canonicalUserId);
 
-      const canonicalProfile = await kv.get(`user_profile:${canonicalUserId}`);
+      const { data: _oauthProfileRow } = await supabaseAdmin
+        .from("user_profiles")
+        .select("name")
+        .eq("id", canonicalUserId)
+        .maybeSingle();
       const preferredDisplayName =
-        canonicalProfile?.name ||
+        _oauthProfileRow?.name ||
         canonicalUser.email?.split("@")[0] ||
         authEmail.split("@")[0];
 
@@ -2629,17 +2679,8 @@ app.get("/make-server-17cae920/users/me/role", verifyAuth, async (c) => {
     const userEmail = c.get("userEmail");
     log.log(`Getting role for user: ${userId} (${userEmail})`);
 
-    let userRole = await kv.get(`user_role:${userId}`);
-    log.log(`Retrieved role from KV: ${userRole}`);
-
-    // Initialize role if not set
-    if (!userRole) {
-      userRole = getInitialRole(userEmail);
-      await kv.set(`user_role:${userId}`, userRole);
-      log.log(`Initialized role for user: ${userRole}`);
-    }
-
-    log.log(`Returning role: ${userRole}`);
+    const userRole = await getUserRole(userId);
+    log.log(`Retrieved role from Postgres: ${userRole}`);
     return c.json({ role: userRole });
   } catch (error) {
     log.error("Error getting user role:", error);
@@ -2669,26 +2710,20 @@ app.get("/make-server-17cae920/users", verifyAuth, verifyAdmin, async (c) => {
     // Get roles for all users
     const usersWithRoles = await Promise.all(
       data.users.map(async (user) => {
-        let role = await kv.get(`user_role:${user.id}`);
-        const profile = await kv.get(`user_profile:${user.id}`);
+        const { data: _profileRow } = await supabase
+          .from("user_profiles")
+          .select("name, last_signin_at, role")
+          .eq("id", user.id)
+          .maybeSingle();
 
-        // Initialize role if not set
-        if (!role) {
-          role = getInitialRole(user.email || "");
-          await kv.set(`user_role:${user.id}`, role);
-        }
+        const role = _profileRow?.role || getInitialRole(user.email || "");
 
-        // Prefer KV-tracked last sign-in (updated by custom magic link flow)
-        // over Supabase's field, which only updates via native Supabase auth
-        const kvLastSignIn = (await kv.get(`user_last_signin:${user.id}`)) as
-          | number
-          | null;
-        const lastSignInAt = kvLastSignIn
-          ? new Date(kvLastSignIn).toISOString()
-          : user.last_sign_in_at;
+        // Prefer Postgres-tracked last sign-in; fall back to Supabase Auth field
+        const lastSignInAt =
+          _profileRow?.last_signin_at || user.last_sign_in_at;
 
         const displayName =
-          profile?.name ||
+          _profileRow?.name ||
           user.user_metadata?.name ||
           user.email?.split("@")[0];
 
@@ -2730,10 +2765,9 @@ app.put(
         );
       }
 
-      // Get old role for audit log
-      const oldRole = await kv.get(`user_role:${userId}`);
-
-      await kv.set(`user_role:${userId}`, role);
+      // Get old role for audit log, then update
+      const oldRole = await getUserRole(userId);
+      await setUserRole(userId, role);
 
       // Audit log
       await createAuditLog({
@@ -2780,18 +2814,15 @@ app.delete(
 
       // Get user info for audit log
       const { data: userData } = await supabase.auth.admin.getUserById(userId);
-      const userRole = await kv.get(`user_role:${userId}`);
+      const userRole = await getUserRole(userId);
 
-      // Delete user from Supabase Auth
+      // Delete user from Supabase Auth (cascade deletes user_profiles row)
       const { error } = await supabase.auth.admin.deleteUser(userId);
 
       if (error) {
         log.error("Error deleting user:", error);
         return c.json({ error: error.message || "Failed to delete user" }, 500);
       }
-
-      // Delete user role from KV store
-      await kv.del(`user_role:${userId}`);
 
       // Audit log
       if (userData?.user) {
@@ -2856,35 +2887,35 @@ app.put(
         return c.json({ error: error.message || "Failed to update user" }, 500);
       }
 
-      // Keep KV profile aligned with admin edits so profile/leaderboard show the same identity.
+      // Keep Postgres user_profiles aligned with admin edits.
       if (name !== undefined || email !== undefined) {
-        const existingProfile =
-          (await kv.get(`user_profile:${userId}`)) ||
-          ({} as Record<string, any>);
-        const now = new Date().toISOString();
+        const { data: existingProfile } = await supabase
+          .from("user_profiles")
+          .select("*")
+          .eq("id", userId)
+          .maybeSingle();
         const nextEmail =
-          email || data.user.email || existingProfile.email || "";
+          email || data.user.email || existingProfile?.email || "";
         const nextName =
           name ||
-          existingProfile.name ||
+          existingProfile?.name ||
           data.user.user_metadata?.name ||
           (nextEmail ? nextEmail.split("@")[0] : "User");
 
-        const syncedProfile = {
-          user_id: userId,
-          email: nextEmail,
-          name: nextName,
-          bio: existingProfile.bio || "",
-          social_link: existingProfile.social_link || "",
-          avatar_url: existingProfile.avatar_url || "",
-          display_email: existingProfile.display_email || "",
-          show_on_leaderboard: existingProfile.show_on_leaderboard ?? true,
-          org_role: existingProfile.org_role || "Volunteer",
-          created_at: existingProfile.created_at || now,
-          updated_at: now,
-        };
-
-        await kv.set(`user_profile:${userId}`, syncedProfile);
+        await supabase.from("user_profiles").upsert(
+          {
+            id: userId,
+            email: nextEmail,
+            name: nextName,
+            bio: existingProfile?.bio || "",
+            social_link: existingProfile?.social_link || "",
+            avatar_url: existingProfile?.avatar_url || "",
+            display_email: existingProfile?.display_email || "",
+            show_on_leaderboard: existingProfile?.show_on_leaderboard ?? true,
+            org_role: existingProfile?.org_role || "Volunteer",
+          },
+          { onConflict: "id" },
+        );
       }
 
       return c.json({
@@ -4744,8 +4775,7 @@ async function initializeAdminUser() {
       });
 
       if (!error && data) {
-        // Set admin role in KV store
-        await kv.set(`user_role:${data.user.id}`, "admin");
+        await setUserRole(data.user.id, "admin");
       }
     }
   } catch (error) {
@@ -5658,25 +5688,25 @@ app.post(
 app.get("/make-server-17cae920/profile/:userId", async (c) => {
   try {
     const userId = c.req.param("userId");
-    let profile = await kv.get(`user_profile:${userId}`);
+    const _profileSupabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+    );
+    let { data: pgProfile } = await _profileSupabase
+      .from("user_profiles")
+      .select("*")
+      .eq("id", userId)
+      .maybeSingle();
 
-    // If profile doesn't exist, create a default one (for existing users)
-    if (!profile) {
+    // If profile doesn't exist in Postgres, create a default one
+    if (!pgProfile) {
       log.log(`Profile not found for user ${userId}, creating default profile`);
-
-      // Try to get user email from context or from Supabase
       let userEmail = c.get("userEmail");
       let userName = userEmail ? userEmail.split("@")[0] : "User";
-
-      // If we don't have email in context, try to get it from Supabase
       if (!userEmail) {
         try {
-          const supabase = createClient(
-            Deno.env.get("SUPABASE_URL") ?? "",
-            Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-          );
           const { data: userData } =
-            await supabase.auth.admin.getUserById(userId);
+            await _profileSupabase.auth.admin.getUserById(userId);
           if (userData?.user) {
             userEmail = userData.user.email || "";
             userName =
@@ -5686,30 +5716,45 @@ app.get("/make-server-17cae920/profile/:userId", async (c) => {
           log.error("Error fetching user data from Supabase:", err);
         }
       }
-
-      profile = {
-        user_id: userId,
-        email: userEmail || "",
-        name: userName,
-        bio: "",
-        social_link: "",
-        avatar_url: "",
-        display_email: "",
-        show_on_leaderboard: true,
-        org_role: "Volunteer",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-
-      await kv.set(`user_profile:${userId}`, profile);
+      const { data: inserted } = await _profileSupabase
+        .from("user_profiles")
+        .upsert(
+          {
+            id: userId,
+            email: userEmail || "",
+            name: userName,
+            bio: "",
+            social_link: "",
+            avatar_url: "",
+            display_email: "",
+            show_on_leaderboard: true,
+            org_role: "Volunteer",
+          },
+          { onConflict: "id" },
+        )
+        .select()
+        .maybeSingle();
+      pgProfile = inserted;
       log.log(`Created default profile for user ${userId}`);
     }
 
-    // Fetch user role from separate KV key and attach to profile response
-    // Roles are stored at `user_role:${userId}` for performance (separate from profile object)
-    // Default to "user" if no role is set
-    const userRole = (await kv.get(`user_role:${userId}`)) || "user";
-    profile.role = userRole;
+    // Map Postgres row to the profile shape the frontend expects
+    const profile = pgProfile
+      ? {
+          user_id: pgProfile.id,
+          email: pgProfile.email,
+          name: pgProfile.name,
+          bio: pgProfile.bio,
+          social_link: pgProfile.social_link,
+          avatar_url: pgProfile.avatar_url,
+          display_email: pgProfile.display_email,
+          show_on_leaderboard: pgProfile.show_on_leaderboard,
+          org_role: pgProfile.org_role,
+          role: pgProfile.role,
+          created_at: pgProfile.created_at,
+          updated_at: pgProfile.updated_at,
+        }
+      : null;
 
     return c.json({ profile });
   } catch (error) {
@@ -5736,32 +5781,60 @@ app.put("/make-server-17cae920/profile/:userId", verifyAuth, async (c) => {
     }
 
     const updates = await c.req.json();
-    const existing = (await kv.get(`user_profile:${userId}`)) || {};
+    const _putSupabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+    );
+    const { data: existing } = await _putSupabase
+      .from("user_profiles")
+      .select("*")
+      .eq("id", userId)
+      .maybeSingle();
 
     // Merge updates (bio, social_link, avatar_url, display_email)
-    const updatedProfile = {
-      ...existing,
+    const patch: Record<string, any> = {
       bio: updates.bio,
       social_link: updates.social_link,
       avatar_url: updates.avatar_url,
-      display_email: updates.display_email ?? existing.display_email ?? "",
+      display_email: updates.display_email ?? existing?.display_email ?? "",
       show_on_leaderboard:
         updates.show_on_leaderboard !== undefined
           ? Boolean(updates.show_on_leaderboard)
-          : (existing.show_on_leaderboard ?? true),
-      updated_at: new Date().toISOString(),
+          : (existing?.show_on_leaderboard ?? true),
     };
 
     // org_role can only be changed by admins
     if (updates.org_role !== undefined) {
-      const requestingUserRole = await kv.get(`user_role:${requestingUserId}`);
+      const requestingUserRole = await getUserRole(requestingUserId);
       if (requestingUserRole === "admin") {
-        updatedProfile.org_role = updates.org_role;
+        patch.org_role = updates.org_role;
       }
       // Non-admins silently ignore org_role changes
     }
 
-    await kv.set(`user_profile:${userId}`, updatedProfile);
+    const { data: updatedRow } = await _putSupabase
+      .from("user_profiles")
+      .update(patch)
+      .eq("id", userId)
+      .select()
+      .maybeSingle();
+
+    const updatedProfile = updatedRow
+      ? {
+          user_id: updatedRow.id,
+          email: updatedRow.email,
+          name: updatedRow.name,
+          bio: updatedRow.bio,
+          social_link: updatedRow.social_link,
+          avatar_url: updatedRow.avatar_url,
+          display_email: updatedRow.display_email,
+          show_on_leaderboard: updatedRow.show_on_leaderboard,
+          org_role: updatedRow.org_role,
+          role: updatedRow.role,
+          created_at: updatedRow.created_at,
+          updated_at: updatedRow.updated_at,
+        }
+      : null;
     return c.json({ profile: updatedProfile });
   } catch (error) {
     log.error("Error updating profile:", error);
@@ -6565,6 +6638,89 @@ app.post(
   },
 );
 
+// ─── Step 19: Seed user_profiles.role from KV user_role:* entries ────────────
+// One-time admin endpoint. Reads all user_role:* KV entries and writes the role
+// into the matching user_profiles row. Safe to run multiple times — a row whose
+// role is already non-default ('user') is skipped unless the KV value differs,
+// in which case the KV value wins (KV is authoritative until this seed completes).
+app.post(
+  "/make-server-17cae920/admin/roles/seed-from-kv",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      );
+
+      // Paginate through kv_store_17cae920 to get all user_role:* entries
+      const PAGE_SIZE = 1000;
+      const allKvEntries: Array<{ key: string; value: any }> = [];
+      let page = 0;
+      while (true) {
+        const { data: pageData, error: pageError } = await supabase
+          .from("kv_store_17cae920")
+          .select("key, value")
+          .like("key", "user_role:%")
+          .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
+        if (pageError) throw pageError;
+        if (!pageData || pageData.length === 0) break;
+        allKvEntries.push(...pageData);
+        if (pageData.length < PAGE_SIZE) break;
+        page++;
+      }
+
+      let updated = 0;
+      let skipped = 0;
+      let errors = 0;
+      const errorLog: string[] = [];
+
+      const UUID_RE =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+      for (const { key, value } of allKvEntries) {
+        // key format: "user_role:<userId>"
+        const userId = key.replace("user_role:", "");
+        if (!userId || !UUID_RE.test(userId)) {
+          skipped++;
+          continue;
+        }
+
+        // value is the role string (e.g. "admin" or "user")
+        const role = typeof value === "string" ? value : "user";
+
+        const { error: updateError } = await supabase
+          .from("user_profiles")
+          .update({ role })
+          .eq("id", userId);
+
+        if (updateError) {
+          errors++;
+          errorLog.push(`${userId}: ${updateError.message}`);
+        } else {
+          updated++;
+        }
+      }
+
+      log.log(
+        `Role seed: updated=${updated} skipped=${skipped} errors=${errors} total_kv=${allKvEntries.length}`,
+      );
+      return c.json({
+        success: true,
+        updated,
+        skipped,
+        errors,
+        total_kv: allKvEntries.length,
+        error_log: errorLog.slice(0, 50),
+      });
+    } catch (error) {
+      log.error("Error seeding roles from KV:", error);
+      return c.json({ error: "Role seed failed", details: String(error) }, 500);
+    }
+  },
+);
+
 app.get("/make-server-17cae920/admin/stats", async (c) => {
   try {
     const supabase = createClient(
@@ -7069,11 +7225,19 @@ app.post("/make-server-17cae920/submissions", verifyAuth, async (c) => {
     // Look up submitter's name for the notification
     let submitterName = "a user";
     try {
-      const profile = await kv.get(`user_profile:${userId}`);
-      if (profile?.name) {
-        submitterName = profile.name;
-      } else if (profile?.email) {
-        submitterName = profile.email.split("@")[0];
+      const _submissionSupabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      );
+      const { data: _submitterRow } = await _submissionSupabase
+        .from("user_profiles")
+        .select("name, email")
+        .eq("id", userId)
+        .maybeSingle();
+      if (_submitterRow?.name) {
+        submitterName = _submitterRow.name;
+      } else if (_submitterRow?.email) {
+        submitterName = _submitterRow.email.split("@")[0];
       }
     } catch (_) {
       // Fall back to generic name
@@ -7422,7 +7586,7 @@ app.get(
     try {
       const userId = c.req.param("userId");
       const requestingUserId = c.get("userId");
-      const userRole = await kv.get(`user_role:${requestingUserId}`);
+      const userRole = await getUserRole(requestingUserId);
 
       // Users can only see their own notifications, admins see all admin notifications
       if (
@@ -9574,7 +9738,7 @@ app.post(
             data: { user },
           } = await supabase.auth.getUser(token);
           if (user) {
-            const userRole = await kv.get(`user_role:${user.id}`);
+            const userRole = await getUserRole(user.id);
             if (userRole === "admin" || user.email === "natto@wastefull.org") {
               isAdmin = true;
               log.log(
@@ -11493,7 +11657,7 @@ app.get(
       // Users can only view their own notifications (or 'admin' special case)
       // Admin users can view admin notifications
       if (userId !== "admin" && userId !== requestingUserId) {
-        const userRole = await kv.get(`user_role:${requestingUserId}`);
+        const userRole = await getUserRole(requestingUserId);
         if (userRole !== "admin") {
           return c.json(
             { error: "Unauthorized: You can only view your own notifications" },
@@ -11534,16 +11698,29 @@ app.put(
       const notificationId = c.req.param("notificationId");
       const requestingUserId = c.get("userId");
 
-      // Find the notification by searching all user prefixes
-      // This is inefficient but necessary since we only have notificationId
-      const allUsers = (await kv.getByPrefix("user_role:")) || [];
+      // Find the notification by trying the requesting user's key first,
+      // then scanning all user_profiles ids (Postgres replaces user_role: KV scan).
+      const _notifSupabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      );
       let notification = null;
       let notificationKey = null;
 
-      // Try to find the notification
-      for (const userRole of allUsers) {
-        const userId = (userRole as any).key?.split(":")[1];
-        if (userId) {
+      // Try the requesting user's own notification first (fast path)
+      const ownKey = `notification:${requestingUserId}:${notificationId}`;
+      const ownFound = await kv.get(ownKey);
+      if (ownFound) {
+        notification = ownFound;
+        notificationKey = ownKey;
+      }
+
+      // Slow path: scan all user IDs from Postgres
+      if (!notification) {
+        const { data: allProfiles } = await _notifSupabase
+          .from("user_profiles")
+          .select("id");
+        for (const { id: userId } of allProfiles ?? []) {
           const key = `notification:${userId}:${notificationId}`;
           const found = await kv.get(key);
           if (found) {
@@ -11570,7 +11747,7 @@ app.put(
 
       // Verify user owns this notification
       if (notification.user_id !== requestingUserId) {
-        const userRole = await kv.get(`user_role:${requestingUserId}`);
+        const userRole = await getUserRole(requestingUserId);
         if (userRole !== "admin" && notification.user_id !== "admin") {
           return c.json(
             {
@@ -11628,7 +11805,7 @@ app.put(
         // Continue to mark notifications as read
       } else {
         // Case 2: Admins can mark admin notifications as read
-        const userRole = await kv.get(`user_role:${requestingUserId}`);
+        const userRole = await getUserRole(requestingUserId);
         log.log(
           `📧 Authorization check - userRole: "${userRole}" (type: ${typeof userRole}), userId: "${userId}"`,
         );
@@ -13377,7 +13554,7 @@ async function sendAuditEmailNotification(entry: AuditLogEntry) {
   }
 
   try {
-    // For now, hardcode admin email (in production, query user_role KV store)
+    // For now, hardcode admin email (in production, query user_profiles.role)
     const adminEmails = ["natto@wastefull.org"];
 
     // Format changes for email
@@ -14157,7 +14334,13 @@ app.post(
       const evidence = await kv.getByPrefix("evidence:");
       const userProfiles = await kv.getByPrefix("user_profile:");
       // Use getEntriesByPrefix so the userId (in the key) is preserved alongside the role string
-      const userRoles = await kv.getEntriesByPrefix("user_role:");
+      const { data: _roleRows } = await pgClient
+        .from("user_profiles")
+        .select("id, role");
+      const userRoles = (_roleRows ?? []).map((r: any) => ({
+        key: `user_role:${r.id}`,
+        value: r.role,
+      }));
       const auditLogs = await kv.getByPrefix("audit:");
       const notifications = await kv.getByPrefix("notification:");
       const takedownRequests = await kv.getByPrefix("takedown:");
@@ -14549,8 +14732,16 @@ app.get(
         kv.getByPrefix("whitepaper:"),
         kv.getByPrefix("evidence:"),
         kv.getByPrefix("user_profile:"),
-        // Use getEntriesByPrefix so the userId (in the key) is preserved alongside the role string
-        kv.getEntriesByPrefix("user_role:"),
+        // Roles now come from Postgres user_profiles.role (Step 19)
+        pgClient
+          .from("user_profiles")
+          .select("id, role")
+          .then(({ data }) =>
+            (data ?? []).map((r: any) => ({
+              key: `user_role:${r.id}`,
+              value: r.role,
+            })),
+          ),
         kv.getByPrefix("audit:"),
         kv.getByPrefix("notification:"),
         kv.getByPrefix("takedown:"),

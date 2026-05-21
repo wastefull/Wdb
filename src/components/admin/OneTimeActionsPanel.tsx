@@ -36,6 +36,15 @@ const ACTIONS: OneTimeAction[] = [
       "Admin only. Run after deploying the audit_log table migration (Step 17).",
     run: api.seedAuditLogFromKV,
   },
+  {
+    id: "seed-roles-from-kv",
+    title: "Seed Roles from KV",
+    description:
+      "Reads all user_role:* KV entries and updates user_profiles.role in Postgres. Safe to run multiple times — KV value wins if it differs from 'user'. Does NOT trigger audit emails.",
+    warning:
+      "Admin only. Run after deploying the role column migration (Step 19).",
+    run: api.seedRolesFromKV,
+  },
 ];
 
 type ActionState =

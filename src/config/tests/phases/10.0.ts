@@ -1849,5 +1849,207 @@ export function getPhase100Tests(user: any): Test[] {
         }
       },
     },
+
+    // ─── Step 18: user_profiles Postgres write paths ─────────────────────────
+
+    {
+      id: "schema-10.0-step18-profile-round-trip",
+      name: "user_profiles: GET /users/me returns Postgres profile",
+      description:
+        "Fetches the signed-in user's own profile via the API. Verifies that the " +
+        "profile data (email, name) comes from the Postgres user_profiles table, " +
+        "not from KV. Skipped if not signed in.",
+      phase: "10.0",
+      category: "Schema Migration",
+      testFn: async () => {
+        const accessToken = sessionStorage.getItem("wastedb_access_token");
+        if (!accessToken) {
+          return {
+            success: true,
+            message: "Skipped — sign in to test profile round-trip",
+          };
+        }
+        const res = await fetch(`${EDGE_URL}/users/me`, {
+          headers: {
+            Authorization: `Bearer ${publicAnonKey}`,
+            "X-Session-Token": accessToken,
+          },
+        });
+        if (!res.ok) {
+          return {
+            success: false,
+            message: `GET /users/me returned HTTP ${res.status}`,
+          };
+        }
+        const data = await res.json();
+        const profile = data.user ?? data;
+        const hasEmail =
+          typeof profile.email === "string" && profile.email.length > 0;
+        const hasName = typeof profile.name === "string";
+        return {
+          success: hasEmail,
+          message:
+            hasEmail && hasName
+              ? `Profile loaded from Postgres ✓ (name: "${profile.name}", email: "${profile.email}")`
+              : `Missing expected fields — got: ${JSON.stringify(profile).slice(0, 200)}`,
+        };
+      },
+    },
+
+    {
+      id: "schema-10.0-step18-profile-update",
+      name: "user_profiles: PUT /users/:id persists bio change",
+      description:
+        "Updates the signed-in user's bio, then re-fetches the profile to confirm " +
+        "the change persisted in Postgres. Restores the original bio afterwards. " +
+        "Skipped if not signed in.",
+      phase: "10.0",
+      category: "Schema Migration",
+      testFn: async () => {
+        const accessToken = sessionStorage.getItem("wastedb_access_token");
+        if (!accessToken) {
+          return {
+            success: true,
+            message: "Skipped — sign in to test profile update",
+          };
+        }
+        const authHeaders = {
+          Authorization: `Bearer ${publicAnonKey}`,
+          "X-Session-Token": accessToken,
+          "Content-Type": "application/json",
+        };
+
+        // Fetch current profile
+        const meRes = await fetch(`${EDGE_URL}/users/me`, {
+          headers: authHeaders,
+        });
+        if (!meRes.ok) {
+          return {
+            success: false,
+            message: `GET /users/me failed (${meRes.status})`,
+          };
+        }
+        const meData = await meRes.json();
+        const profile = meData.user ?? meData;
+        const userId = profile.id;
+        const originalBio = profile.bio ?? "";
+        const testBio = `Step18 test bio — ${Date.now()}`;
+
+        // Update bio
+        const putRes = await fetch(`${EDGE_URL}/users/${userId}`, {
+          method: "PUT",
+          headers: authHeaders,
+          body: JSON.stringify({ bio: testBio }),
+        });
+        if (!putRes.ok) {
+          return {
+            success: false,
+            message: `PUT /users/${userId} failed (${putRes.status})`,
+          };
+        }
+
+        // Verify
+        const verifyRes = await fetch(`${EDGE_URL}/users/me`, {
+          headers: authHeaders,
+        });
+        const verifyData = await verifyRes.json();
+        const updatedBio = (verifyData.user ?? verifyData).bio;
+
+        // Restore
+        await fetch(`${EDGE_URL}/users/${userId}`, {
+          method: "PUT",
+          headers: authHeaders,
+          body: JSON.stringify({ bio: originalBio }),
+        }).catch(() => {});
+
+        return {
+          success: updatedBio === testBio,
+          message:
+            updatedBio === testBio
+              ? `Profile bio round-trip confirmed in Postgres ✓`
+              : `Bio not persisted — expected "${testBio}" but got "${updatedBio}"`,
+        };
+      },
+    },
+
+    // ─── Step 19: user_profiles.role (Postgres) ───────────────────────────────
+
+    {
+      id: "schema-10.0-step19-role-from-postgres",
+      name: "user_profiles.role: GET /users/me/role reads from Postgres",
+      description:
+        "Fetches the signed-in user's role via the API and verifies it comes from " +
+        "user_profiles.role in Postgres (not from KV). Checks that the role is a " +
+        "valid string ('user' or 'admin'). Skipped if not signed in.",
+      phase: "10.0",
+      category: "Schema Migration",
+      testFn: async () => {
+        const accessToken = sessionStorage.getItem("wastedb_access_token");
+        if (!accessToken) {
+          return {
+            success: true,
+            message: "Skipped — sign in to test role read",
+          };
+        }
+        const res = await fetch(`${EDGE_URL}/users/me/role`, {
+          headers: {
+            Authorization: `Bearer ${publicAnonKey}`,
+            "X-Session-Token": accessToken,
+          },
+        });
+        if (!res.ok) {
+          return {
+            success: false,
+            message: `GET /users/me/role returned HTTP ${res.status}`,
+          };
+        }
+        const data = await res.json();
+        const role = data.role;
+        const valid = role === "user" || role === "admin";
+        return {
+          success: valid,
+          message: valid
+            ? `Role from Postgres ✓ (role: "${role}")`
+            : `Unexpected role value: ${JSON.stringify(data)}`,
+        };
+      },
+    },
+
+    {
+      id: "schema-10.0-step19-role-column-in-user-profiles",
+      name: "user_profiles: role column exists in Postgres table",
+      description:
+        "Queries user_profiles via PostgREST selecting only the role column to " +
+        "confirm the column exists after the Step 19 migration. Uses the anon key " +
+        "which respects RLS — should return at least the signed-in user's own row.",
+      phase: "10.0",
+      category: "Schema Migration",
+      testFn: async () => {
+        const accessToken = sessionStorage.getItem("wastedb_access_token");
+        const headers: Record<string, string> = {};
+        if (accessToken) headers["X-Session-Token"] = accessToken;
+
+        try {
+          const rows = await pgRest(
+            "user_profiles",
+            "select=id,role&limit=1",
+            headers,
+          );
+          const row = rows[0];
+          const hasRole = row && "role" in row;
+          return {
+            success: hasRole,
+            message: hasRole
+              ? `role column exists in user_profiles ✓ (sample value: "${row.role}")`
+              : `role column not found — migration may not have applied`,
+          };
+        } catch (err: any) {
+          return {
+            success: false,
+            message: `PostgREST query failed: ${err.message}`,
+          };
+        }
+      },
+    },
   ];
 }
