@@ -1854,11 +1854,11 @@ export function getPhase100Tests(user: any): Test[] {
 
     {
       id: "schema-10.0-step18-profile-round-trip",
-      name: "user_profiles: GET /users/me returns Postgres profile",
+      name: "user_profiles: GET /profile/:userId returns Postgres profile",
       description:
-        "Fetches the signed-in user's own profile via the API. Verifies that the " +
-        "profile data (email, name) comes from the Postgres user_profiles table, " +
-        "not from KV. Skipped if not signed in.",
+        "Fetches the signed-in user's own profile via GET /profile/:userId. " +
+        "Verifies that the profile data (email, name) comes from the Postgres " +
+        "user_profiles table, not from KV. Skipped if not signed in.",
       phase: "10.0",
       category: "Schema Migration",
       testFn: async () => {
@@ -1869,7 +1869,17 @@ export function getPhase100Tests(user: any): Test[] {
             message: "Skipped — sign in to test profile round-trip",
           };
         }
-        const res = await fetch(`${EDGE_URL}/users/me`, {
+        // Get userId from wastedb_user (works for JWT and opaque cookie sessions)
+        const userInfoStr1 = sessionStorage.getItem("wastedb_user");
+        const userId = userInfoStr1 ? JSON.parse(userInfoStr1).id : null;
+        if (!userId) {
+          return {
+            success: false,
+            message:
+              "Could not find userId in wastedb_user — try signing out and back in",
+          };
+        }
+        const res = await fetch(`${EDGE_URL}/profile/${userId}`, {
           headers: {
             Authorization: `Bearer ${publicAnonKey}`,
             "X-Session-Token": accessToken,
@@ -1878,11 +1888,11 @@ export function getPhase100Tests(user: any): Test[] {
         if (!res.ok) {
           return {
             success: false,
-            message: `GET /users/me returned HTTP ${res.status}`,
+            message: `GET /profile/${userId} returned HTTP ${res.status}`,
           };
         }
         const data = await res.json();
-        const profile = data.user ?? data;
+        const profile = data.user ?? data.profile ?? data;
         const hasEmail =
           typeof profile.email === "string" && profile.email.length > 0;
         const hasName = typeof profile.name === "string";
@@ -1898,11 +1908,11 @@ export function getPhase100Tests(user: any): Test[] {
 
     {
       id: "schema-10.0-step18-profile-update",
-      name: "user_profiles: PUT /users/:id persists bio change",
+      name: "user_profiles: PUT /profile/:userId persists bio change",
       description:
-        "Updates the signed-in user's bio, then re-fetches the profile to confirm " +
-        "the change persisted in Postgres. Restores the original bio afterwards. " +
-        "Skipped if not signed in.",
+        "Updates the signed-in user's bio via PUT /profile/:userId, then re-fetches " +
+        "the profile to confirm the change persisted in Postgres. Restores the " +
+        "original bio afterwards. Skipped if not signed in.",
       phase: "10.0",
       category: "Schema Migration",
       testFn: async () => {
@@ -1919,24 +1929,34 @@ export function getPhase100Tests(user: any): Test[] {
           "Content-Type": "application/json",
         };
 
+        // Get userId from wastedb_user (works for JWT and opaque cookie sessions)
+        const userInfoStr2 = sessionStorage.getItem("wastedb_user");
+        const userId = userInfoStr2 ? JSON.parse(userInfoStr2).id : null;
+        if (!userId) {
+          return {
+            success: false,
+            message:
+              "Could not find userId in wastedb_user — try signing out and back in",
+          };
+        }
+
         // Fetch current profile
-        const meRes = await fetch(`${EDGE_URL}/users/me`, {
+        const meRes = await fetch(`${EDGE_URL}/profile/${userId}`, {
           headers: authHeaders,
         });
         if (!meRes.ok) {
           return {
             success: false,
-            message: `GET /users/me failed (${meRes.status})`,
+            message: `GET /profile/${userId} failed (${meRes.status})`,
           };
         }
         const meData = await meRes.json();
-        const profile = meData.user ?? meData;
-        const userId = profile.id;
+        const profile = meData.user ?? meData.profile ?? meData;
         const originalBio = profile.bio ?? "";
         const testBio = `Step18 test bio — ${Date.now()}`;
 
         // Update bio
-        const putRes = await fetch(`${EDGE_URL}/users/${userId}`, {
+        const putRes = await fetch(`${EDGE_URL}/profile/${userId}`, {
           method: "PUT",
           headers: authHeaders,
           body: JSON.stringify({ bio: testBio }),
@@ -1944,19 +1964,20 @@ export function getPhase100Tests(user: any): Test[] {
         if (!putRes.ok) {
           return {
             success: false,
-            message: `PUT /users/${userId} failed (${putRes.status})`,
+            message: `PUT /profile/${userId} failed (${putRes.status})`,
           };
         }
 
         // Verify
-        const verifyRes = await fetch(`${EDGE_URL}/users/me`, {
+        const verifyRes = await fetch(`${EDGE_URL}/profile/${userId}`, {
           headers: authHeaders,
         });
         const verifyData = await verifyRes.json();
-        const updatedBio = (verifyData.user ?? verifyData).bio;
+        const updatedBio = (verifyData.user ?? verifyData.profile ?? verifyData)
+          .bio;
 
         // Restore
-        await fetch(`${EDGE_URL}/users/${userId}`, {
+        await fetch(`${EDGE_URL}/profile/${userId}`, {
           method: "PUT",
           headers: authHeaders,
           body: JSON.stringify({ bio: originalBio }),
