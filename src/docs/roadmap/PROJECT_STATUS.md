@@ -2,7 +2,7 @@
 
 **Organization:** Wastefull  
 **Project:** WasteDB - Open Materials Sustainability Database  
-**Updated:** January 5, 2026
+**Updated:** May 23, 2026
 **Production URL:** https://db.wastefull.org
 
 ---
@@ -15,44 +15,38 @@ Build an open, accessible, and scientifically rigorous materials database that c
 
 ## Overall Progress
 
-### Phases Completed: 8.5 / 10 (85%)
+### Stages Completed: 4 / 6 (67%)
 
 ```
-[████████████████████████████████████████████████] 85%
+[████████████████████████████████                ] 67%
 
-✅ Phase 1: Data Model Integration            [COMPLETE]
-✅ Phase 2: Admin & Research Tools             [COMPLETE]
-✅ Phase 3: Public Data & Export Layer         [COMPLETE]
-✅ Phase 3.5: Auth & Asset Infrastructure      [COMPLETE]
-✅ Phase 4: Visualization & Accessibility      [COMPLETE]
-✅ Phase 5: Multi-Dimensional Data Layer       [COMPLETE]
-  ✅ Source Library Management                 [PRODUCTION READY]
-✅ Phase 6: Content Management & Editorial     [COMPLETE]
-  ✅ Phase 6.1: Foundation                     [COMPLETE]
-  ✅ Phase 6.2: Submission Forms               [COMPLETE]
-  ✅ Phase 6.3: Review Center                  [COMPLETE]
-  ✅ Phase 6.4: Editorial Features             [COMPLETE]
-  ✅ Phase 6.5: Notifications & Email          [COMPLETE]
-✅ Phase 7: Research API & Data Publication    [COMPLETE]
-✅ Phase 8: Performance & Scalability          [COMPLETE]
-  ✅ Phase 8.1: Chart Rasterization            [COMPLETE]
-  ✅ Phase 8.2: Lazy Loading                   [COMPLETE]
-  ✅ Phase 8.3: Virtual Scrolling              [COMPLETE]
-  ✅ Phase 8.4: Performance Monitoring         [COMPLETE]
-🔄 Phase 9: Evidence Pipeline & Curation      [IN PROGRESS - 55%]
-  ✅ Phase 9.0: Critical Infrastructure        [COMPLETE]
-  ✅ Phase 9.1: Database Schema & Backend      [COMPLETE]
-  🔄 Phase 9.2: Curation Workbench UI          [IN PROGRESS - PDF Tooling]
-  ⬜ Phase 9.3: Aggregation Engine              [PLANNED]
-  ⬜ Phase 9.4: Scale to 30 Materials           [PLANNED]
-  ⬜ Phase 9.5: Public Evidence Layer           [PLANNED]
-⬜ Phase 10: Advanced Performance              [PLANNED]
+✅ Stage 1: Foundation                        [COMPLETE — Oct–Nov 2025]
+   Phases 1–8: data model, admin tools, export, visualization,
+   multi-dimensional data, content management, research API, performance
+
+✅ Stage 2: Evidence Infrastructure           [COMPLETE — Nov 2025]
+   Phases 9.0–9.1: transform governance, evidence CRUD, legal framework,
+   audit logging, aggregation backend (on KV store)
+
+⏸️ Stage 3: Curation Lab                     [PARTIAL — pivoted May 2026]
+   Phase 9.2: Workbench ✅, PDF viewer ✅, MIU edit/delete ✅
+   Not completed: Evidence List Viewer ❌, pilot MIU extraction ❌ (→ Stage 6)
+   Phases 9.3–9.5 deprioritized.
+
+✅ Stage 4: Data Migration                    [COMPLETE — May 21, 2026]
+   Phase 10: KV Store → Postgres; all 9 tables migrated with RLS + seeded data
+
+⬜ Stage 5: TBD                               [PLANNED]
+   Details coming soon.
+
+⬜ Stage 6: Scale                             [PLANNED]
+   Aggregation engine, Evidence List Viewer, pilot MIU extraction,
+   evidence curation for 30+ materials, public traceability layer
 ```
 
-### Phase 9.2 Scope Revision (January 5, 2026)
+### Stage 3 Pivot Note (May 2026)
 
-Original pilot scope (6 materials × 5 parameters) reduced to **1 material (PET) × 5 parameters**.  
-PDF tooling accelerated from Phase 9.4 to enable practical evidence extraction workflow.
+Phase 9.2 (Curation Lab) was partially shipped. The team pivoted to complete the KV→Postgres database migration (Stage 4 / Phase 10) before resuming evidence curation at scale. Evidence List Viewer and pilot MIU extraction carried forward to Stage 6.
 
 ---
 
@@ -91,7 +85,6 @@ Materials now have a complete scientific data layer while preserving the simple 
   - Source citation manager with DOI links
   - Real-time validation (0-1 range, CI checks)
 - **BatchScientificOperations** - Bulk data management
-
   - Statistics dashboard with confidence metrics
   - JSON export/import for backup and sharing
   - CSV export for research (R/Python/Excel)
@@ -117,14 +110,12 @@ Admins can now efficiently manage scientific data at both individual and batch l
 ### Achievements
 
 - **Server Endpoints** - Two public API routes
-
   - `/export/public` - Lay-friendly 0-100 scale data
   - `/export/full` - Research-grade normalized data
   - Both support CSV and JSON formats
   - No authentication required (open access)
 
 - **PublicExportView** - User-friendly export interface
-
   - Tabbed design (Public vs Research)
   - Clear explanations and use cases
   - Download as CSV or JSON
@@ -161,7 +152,6 @@ Anyone can now download, analyze, and build upon WasteDB data—empowering educa
   - Email sender: `WasteDB <auth@wastefull.org>`
   - Wastefull green branding on templates
 - **Email Confirmation Security** - Required for new accounts
-
   - Email verification before first sign-in
   - Prevents fake accounts and spam
   - Supabase confirmation link system
@@ -170,7 +160,6 @@ Anyone can now download, analyze, and build upon WasteDB data—empowering educa
   - Complete setup documentation
 
 - **Asset Storage CDN** - Supabase Storage integration
-
   - Public bucket `make-17cae920-assets`
   - 5MB file limit per upload
   - Supported formats: PNG, JPG, SVG, WebP
@@ -258,7 +247,6 @@ Users can now see the gap between what science makes possible and what infrastru
 ### Backend Deliverables ✅
 
 - ✅ **Type System Updates**
-
   - Extended `/types/material.ts` with 20 new fields
   - Added CC parameters: B, N, T, H + means and CIs
   - Added RU parameters: L, R, U, C_RU + means and CIs
@@ -266,7 +254,6 @@ Users can now see the gap between what science makes possible and what infrastru
   - ConfidenceInterval interfaces for CC and RU
 
 - ✅ **Calculation Endpoints (Admin Only)**
-
   - `POST /calculate/compostability` - CC index calculation
   - `POST /calculate/reusability` - RU index calculation
   - `POST /calculate/all-dimensions` - Batch calculation
@@ -275,23 +262,19 @@ Users can now see the gap between what science makes possible and what infrastru
   - Whitepaper-compliant weight configurations
 
 - ✅ **Export System Updates**
-
   - Extended full CSV export from 24 to 39 columns
   - Added all CC and RU parameters and composite indices
   - Maintained backward compatibility
   - JSON export includes all new fields
 
 - ✅ **API Utilities**
-
   - `calculateCompostability()` function
   - `calculateReusability()` function
   - `calculateAllDimensions()` function
   - TypeScript interfaces for params and results
 
 - ✅ **Methodology Documentation**
-
   - **CC-v1 (Compostability) Whitepaper**
-
     - Parameters: B (Biodegradation), N (Nutrient Balance), T (Toxicity), H (Habitat Adaptability), M (Maturity)
     - Formula: `CC = w_B·B + w_N·N + w_H·H + w_M·M − w_T·T`
     - Dual mode: Theoretical (ideal) vs Practical (regional facilities)
@@ -555,21 +538,18 @@ Transform WasteDB from a parameter-entry system to an evidence-extraction platfo
   - Selective invalidation by material ID
   - Cache statistics and management
 - **Rasterization Hook** (`/utils/useRasterizedChart.ts`)
-
   - SVG-to-canvas conversion
   - Automatic caching with loading states
   - Error handling with fallback
   - React integration with refs
 
 - **Rasterized Component** (`/components/RasterizedQuantileVisualization.tsx`)
-
   - Drop-in replacement for QuantileVisualization
   - Dual rendering (hidden SVG + visible image)
   - Full accessibility preservation
   - Progressive enhancement
 
 - **Cache Manager UI** (`/components/ChartCacheManager.tsx`)
-
   - Admin dashboard for cache statistics
   - Manual cache clearing controls
   - Visual feedback with metrics
@@ -857,7 +837,6 @@ Transform WasteDB from a parameter-entry system to an evidence-extraction platfo
 ## 🌟 Key Achievements
 
 1. **Open Science** ✅
-
    - No authentication required for data access
    - Complete source traceability
    - Transparent methodology
@@ -865,7 +844,6 @@ Transform WasteDB from a parameter-entry system to an evidence-extraction platfo
    - Four versioned whitepapers (CR-v1, CC-v1, RU-v1, VIZ-v1)
 
 2. **Dual-Scale System** ✅
-
    - User-friendly 0-100 scores for public
    - Research-grade 0-1 parameters for science
    - Clear mapping between scales
@@ -873,7 +851,6 @@ Transform WasteDB from a parameter-entry system to an evidence-extraction platfo
    - Visual representation of both practical and theoretical scores
 
 3. **Admin Efficiency** ✅
-
    - Individual material editor
    - Batch operations tool
    - Auto-calculation from parameters
@@ -881,7 +858,6 @@ Transform WasteDB from a parameter-entry system to an evidence-extraction platfo
    - Scientific data editor with source management
 
 4. **Data Quality** ✅
-
    - Confidence assessment system
    - Source weighting
    - Confidence intervals (95% CI)

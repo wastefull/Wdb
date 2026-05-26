@@ -1,21 +1,23 @@
 # Phase 9 Status Summary
 
-**Current Phase:** Phase 9.2 - Curation Workbench UI  
-**Overall Status:** Phase 9.0 ✅ | Phase 9.1 ✅ | Phase 9.2 🚧
-**Updated:** January 5, 2026
+**Current Phase:** Pivoted to Stage 4 (Data Migration) after Phase 9.2 partial  
+**Overall Status:** Phase 9.0 ✅ | Phase 9.1 ✅ | Phase 9.2 ⏸️ Partial | Phase 9.3–9.5 Deprioritized  
+**Updated:** May 23, 2026
 
 ---
 
 ## Quick Reference
 
-| Phase | Status         | Completion Date | Key Deliverables                                                            |
-| ----- | -------------- | --------------- | --------------------------------------------------------------------------- |
-| 9.0   | ✅ Complete    | Nov 17, 2025    | Critical infrastructure (legal, transforms, notifications, evidence system) |
-| 9.1   | ✅ Complete    | Nov 20, 2025    | Database schema, API endpoints, aggregations backend                        |
-| 9.2   | 🚧 In Progress | TBD             | Curation Workbench UI, PDF Tooling, PET Pilot (15 MIUs)                     |
-| 9.3   | 📋 Planned     | TBD             | Aggregation engine, validation workflow                                     |
-| 9.4   | 📋 Planned     | TBD             | Scale to 30 materials                                                       |
-| 9.5   | 📋 Planned     | TBD             | Public launch & documentation                                               |
+| Phase | Status           | Completion Date  | Key Deliverables                                                                                 |
+| ----- | ---------------- | ---------------- | ------------------------------------------------------------------------------------------------ |
+| 9.0   | ✅ Complete      | Nov 17, 2025     | Critical infrastructure (legal, transforms, notifications, evidence system)                      |
+| 9.1   | ✅ Complete      | Nov 20, 2025     | Database schema, API endpoints, aggregations backend                                             |
+| 9.2   | ⏸️ Partial       | Pivoted May 2026 | Curation Workbench ✅, PDF viewer ✅, MIU edit/delete ✅; Evidence List Viewer ❌, pilot MIUs ❌ |
+| 9.3   | 🚫 Deprioritized | —                | Aggregation engine (moved to Stage 5: Scale)                                                     |
+| 9.4   | 🚫 Deprioritized | —                | Scale to 30 materials (moved to Stage 5: Scale)                                                  |
+| 9.5   | 🚫 Deprioritized | —                | Public launch (moved to Stage 5: Scale)                                                          |
+
+> **Pivot note (May 2026):** After Phase 9.2 partial completion, the team pivoted to a full KV→Postgres database migration (Stage 4 / Phase 10), completing May 21, 2026. Phases 9.3–9.5 are deprioritized; their goals are now part of Stage 5: Scale.
 
 ---
 
@@ -227,148 +229,61 @@ Efficient querying via prefix-based indexes:
 
 ---
 
-## 🚧 Phase 9.2 In Progress (Curation Workbench UI)
+## ⏸️ Phase 9.2 Partial (Curation Lab — Pivoted May 2026)
 
-**Status:** Active development  
-**Updated:** January 5, 2026  
-**Purpose:** Build UI for evidence extraction workflow with PDF tooling
+**Status:** Partially completed. Team pivoted to Stage 4 (Data Migration) in early 2026.  
+**Updated:** May 23, 2026
 
-### Scope Revision (January 5, 2026)
+### What Was Completed ✅
 
-**Original scope** (6 materials × 5 parameters = ~45 MIUs via copy/paste) proved impractical.  
-Manual extraction time was 15-30 min/MIU, not 3 min as estimated.
+#### Curation Workbench
 
-**Revised scope:**
-
-- **Material:** PET only (single material deep-dive)
-- **Parameters:** Y, D, C, M, E (5 CR parameters)
-- **Target:** 15+ MIUs (≥3 per parameter)
-- **Change:** PDF tooling accelerated from Phase 9.4 to 9.2
-
-### Completed Deliverables ✅
-
-#### Curation Workbench Component
-
-- ✅ CurationWorkbench.tsx component created
-- ✅ Split-pane layout with source viewer and evidence wizard
-- ✅ 5-step progressive wizard with validation
+- ✅ CurationWorkbench.tsx — split-pane layout with 5-step extraction wizard
 - ✅ Source selection from Source Library Manager
-- ✅ Material and parameter selection (pilot scope)
-- ✅ Form validation and error handling
-- ✅ Integration with POST /evidence endpoint
-- ✅ Wastefull brand retro design system
+- ✅ Material and parameter selection
+- ✅ Form validation and integration with POST /evidence endpoint
 
-#### Evidence List Viewer Component
+#### PDF Tooling
 
-- ✅ EvidenceListViewer.tsx component created
-- ✅ Filter by material and parameter (pilot scope)
-- ✅ Search functionality (snippets and citations)
-- ✅ MIU detail view modal with full metadata
-- ✅ Confidence level badges with color coding
-- ✅ Locator display (page/figure/table)
-- ✅ Integration with GET /evidence endpoint
+- ✅ Integrated PDF viewer in CurationWorkbench left pane
+- ✅ Text selection → auto-populate snippet field
+- ✅ Page number extraction for locator auto-populate
+- ✅ Basic PDF navigation (page jump, zoom)
 
-#### MIU Edit/Delete Functionality ✅ (Dec 3, 2025)
+#### MIU Edit/Delete
 
-- ✅ Edit button in MIU detail modal
-- ✅ Edit form with value, unit, and notes fields
+- ✅ Edit button in MIU detail with value, unit, and notes fields
 - ✅ PUT /evidence/:id endpoint integration
 - ✅ Delete button with confirmation dialog
 - ✅ DELETE /evidence/:id endpoint integration
-- ✅ Loading states for save/delete operations
 - ✅ Toast notifications for success/error
 
-#### Unit Ontology Validation
+### What Was NOT Completed ❌
 
-- ✅ Unit ontology validation integration
-- ✅ Real-time unit validation against allowed units
-- ✅ Unit dropdown with parameter-specific options
-- ✅ Canonical unit display and conversion hints
-- ✅ Validation error messages with allowed units
+- ❌ Evidence List Viewer (browse/filter/search all MIUs) — deprioritized
+- ❌ Unit ontology validation in the UI — deprioritized
+- ❌ PET pilot MIU extraction (15+ MIUs target) — never reached
+- ❌ Double-extraction validation workflow
 
-### In Progress 🔄 (PDF Tooling - Accelerated)
+### Why the Pivot?
 
-**Decision (Jan 5, 2026):** PDF tools moved from Phase 9.4 to Phase 9.2 due to manual extraction being too time-intensive.
-
-- 🔄 Integrated PDF viewer with text selection
-- 🔄 Text selection → auto-populate snippet field
-- 🔄 Page number click → auto-populate locator
-- 🔄 PDF navigation (page jump, zoom)
-
-### Deferred to Phase 9.3+ ⏸️
-
-- ⏸️ PDF annotation/highlighting persistence
-- ⏸️ OCR text extraction from scanned PDFs
-- ⏸️ Smart context pre-fill (AI-assisted)
-- ⏸️ Double-extraction validation workflow
-
-### Remaining Work
-
-1. **PDF Viewer Integration** (1-2 days) - REQUIRED
-
-   - Embed PDF viewer in CurationWorkbench left pane
-   - Text selection captures snippet
-   - Page number extraction for locator field
-   - Basic navigation (page jump, zoom)
-
-2. **PET Pilot Extraction** (4-6 hours with PDF tools) - REQUIRED
-   - Extract 15+ MIUs (1 material × 5 parameters × 3+ MIUs)
-   - Test full workflow end-to-end
-   - Validate time-per-MIU improvement
-
-### Backend Ready ✅
-
-All Phase 9.1 endpoints and data structures ready for UI to consume.
+After shipping the Curation Workbench and PDF tools, the team identified that the KV Store was a blocking constraint for scaling evidence curation. The relational data model needed to be in Postgres before investing more in the curation tooling. The team completed Stage 4 (Data Migration) on May 21, 2026, and Phases 9.3–9.5 are now folded into Stage 5: Scale.
 
 ---
 
-## 📋 Future Phases (Planned)
+## 🚫 Phases 9.3–9.5 — Deprioritized
 
-### Phase 9.3: Aggregation Engine & Validation
+These phases were scoped but never started. Their goals are now part of **Stage 5: Scale**:
 
-- MIU selection/filtering UI
-- Quality score visualization
-- Inter-rater reliability (κ) calculations
-- Conflict resolution workflows
-
-### Phase 9.4: Scale to 30 Materials
-
-- Curator onboarding
-- Batch operations
-- Performance optimization
-- Progress tracking dashboards
-
-### Phase 9.5: Public Launch
-
-- Public Evidence tab (read-only)
-- API documentation site
-- MIU citation generator
-- User guides & tutorials
+- **9.3 (Aggregation Engine)** → Stage 5
+- **9.4 (Scale to 30 Materials)** → Stage 5
+- **9.5 (Public Evidence Layer)** → Stage 5
 
 ---
 
-## Key Architecture Decisions
+## Architecture Note (Updated May 2026)
 
-### Why KV Store?
-
-- No database migrations required in localhost environment
-- Prefix-based indexes provide efficient querying
-- Easy to migrate to Postgres later (export + bulk insert)
-- Sufficient for Phase 9 prototype/pilot scope
-
-### Backward Compatibility Strategy
-
-- Phase 9.1 EXTENDS Phase 9.0 (never replaces)
-- Keep field names unchanged (parameter_code, raw_value, raw_unit)
-- Add new fields as optional with sensible defaults
-- All Phase 9.0 endpoints continue working
-
-### Security Model
-
-- Auth middleware simulates RLS (admin-only write access)
-- Signed URLs for file storage (time-limited access)
-- Rate limiting on public endpoints
-- Audit logging for all mutations
+The KV Store used in Phases 9.0–9.2 has been fully replaced by Postgres as of Stage 4 (May 21, 2026). All evidence_points, materials, sources, and audit_log records are now in relational tables with RLS and foreign-key constraints. See [PHASE_10_POLISH_AND_SCALE.md](./PHASE_10_POLISH_AND_SCALE.md) for migration details.
 
 ---
 
@@ -387,43 +302,22 @@ All Phase 9.1 endpoints and data structures ready for UI to consume.
 
 - `/utils/supabase/evidence.ts` - Evidence data layer
 - `/utils/supabase/aggregations.ts` - Aggregations data layer
-- `/supabase/functions/server/evidence-routes.tsx` - 11 API endpoints
+- Evidence API endpoints in the monolithic server function
 - Phase 9.1 tests (migrated to `TestSuite.tsx`)
 - Schema documentation
 
-### Modified
+### Created in Phase 9.2 (partial)
 
-- `/supabase/functions/server/index.tsx` - Route registration + data guards
-- `/components/AdminDashboard.tsx` - Navigation links
-- `/components/SimplifiedRoadmap.tsx` - Phase tracking
-
----
-
-## Success Metrics
-
-### Phase 9.0
-
-✅ All 11 days completed  
-✅ 40+ automated tests passing  
-✅ Legal framework established  
-✅ Transform governance operational  
-✅ Evidence system fully functional
-
-### Phase 9.1
-
-✅ 8 schema fields added  
-✅ 11 API endpoints implemented  
-✅ 10 automated tests passing  
-✅ Zero breaking changes to Phase 9.0 data  
-✅ Complete documentation
+- `CurationWorkbench.tsx` - Split-pane curation UI with 5-step wizard
+- PDF viewer integration with text-selection tooling
+- MIU edit/delete modals
 
 ---
 
 ## Related Documentation
 
-- **Schema Details:** `/docs/PHASE_9_SCHEMA.md` - Database schema, KV patterns, API reference
-- **Roadmap:** `/docs/PHASE_9_ROADMAP.md` - High-level Phase 9.0-9.5 timeline
-- **Overall Roadmap:** `/docs/ROADMAP.md` - Full WasteDB roadmap
+- **Phase 10 (Data Migration):** `PHASE_10_POLISH_AND_SCALE.md`
+- **Overall Status:** `PROJECT_STATUS.md`
 
 ---
 

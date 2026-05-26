@@ -25,25 +25,38 @@ interface SimplifiedRoadmapProps {
   onBack?: () => void;
   defaultTab?:
     | "overview"
-    | "9.1"
-    | "9.2"
-    | "9.3"
-    | "9.4"
-    | "9.5"
-    | "10"
+    | "curation-lab"
+    | "data-migration"
+    | "next-stage"
+    | "scale"
     | "tests"
     | "backlog";
   /** When true, locks to overview tab only (no tests, no phase tabs) */
   staffMode?: boolean;
 }
 
-// Define available phase tabs in order - the first one is automatically the active phase
+// Define available stage tabs in order — the first one is shown as the "next up" stage.
 export const PHASE_TABS = [
-  { id: "9.2", label: "9.2", fullName: "Phase 9.2: Curation Workbench UI" },
-  { id: "9.3", label: "9.3", fullName: "Phase 9.3" },
-  { id: "9.4", label: "9.4", fullName: "Phase 9.4" },
-  { id: "9.5", label: "9.5", fullName: "Phase 9.5" },
-  { id: "10", label: "10", fullName: "Phase 10: Advanced Optimization" },
+  {
+    id: "next-stage",
+    label: "Next Stage",
+    fullName: "Next Stage (TBD)",
+  },
+  {
+    id: "scale",
+    label: "Scale",
+    fullName: "Scale: Evidence Curation & Growth",
+  },
+  {
+    id: "data-migration",
+    label: "Data Migration",
+    fullName: "Data Migration: KV → Postgres",
+  },
+  {
+    id: "curation-lab",
+    label: "Curation Lab",
+    fullName: "Curation Lab (Partial)",
+  },
 ];
 
 export function SimplifiedRoadmap({
@@ -59,18 +72,16 @@ export function SimplifiedRoadmap({
   // Use activePhase.id as default if defaultTab not provided
   const [activeTab, setActiveTab] = React.useState<
     | "overview"
-    | "9.1"
-    | "9.2"
-    | "9.3"
-    | "9.4"
-    | "9.5"
-    | "10"
+    | "curation-lab"
+    | "data-migration"
+    | "next-stage"
+    | "scale"
     | "tests"
     | "backlog"
   >(
     staffMode
       ? "overview"
-      : defaultTab || (activePhase.id as any) || "overview",
+      : (defaultTab as any) || (activePhase.id as any) || "overview",
   );
 
   // Backlog (Future Enhancements)
@@ -466,132 +477,86 @@ export function SimplifiedRoadmap({
   const phases: PhaseData[] = [
     {
       number: 1,
-      title: "Data Model Integration",
+      title: "Foundation",
       status: "complete",
-      completedDate: "October 20, 2025",
+      completedDate: "November 2, 2025",
       description:
-        "Introduced the WasteDB scientific data layer with normalized parameters across three dimensions",
+        "Core data model, admin tools, public export, visualization, multi-dimensional scientific data, content management, research API, and performance infrastructure",
       keyDeliverables: [
-        "Extended schema for CR, CC, RU scientific fields",
-        "Confidence intervals and source weighting",
-        "Migration scripts and API validation",
+        "Scientific data model with CR, CC, RU parameters and confidence intervals",
+        "Admin & research tools (ScientificDataEditor, BatchOperations)",
+        "Hybrid Quantile-Halo visualization with accessibility support",
+        "Content management & editorial workflow with email notifications",
+        "Public REST API and CSV/JSON export layer",
+        "Chart rasterization, virtual scrolling, and performance monitoring",
       ],
     },
     {
       number: 2,
-      title: "Admin & Research Tools",
+      title: "Evidence Infrastructure",
       status: "complete",
-      completedDate: "October 20, 2025",
+      completedDate: "November 20, 2025",
       description:
-        "Built comprehensive admin tools for scientific parameter management",
+        "Transform governance, MIU evidence system, legal framework, audit logging, and aggregation backend — all on KV store",
       keyDeliverables: [
-        "Data Processing View with dual modes (Theoretical & Practical)",
-        "Admin Source Manager for citation metadata",
-        "Auto-calculation of confidence categories",
+        "Versioned transform definitions for all 13 parameters",
+        "Evidence points CRUD API with unit/transform validation",
+        "Legal framework: MIU licensing, DMCA takedown process",
+        "Audit logging, data retention, backup & export",
+        "Open access triage (Unpaywall integration)",
+        "Parameter aggregation backend with version snapshots",
       ],
     },
     {
       number: 3,
-      title: "Public Data & Export Layer",
-      status: "complete",
-      completedDate: "October 20, 2025",
+      title: "Curation Lab",
+      status: "in-progress",
+      completedDate: "Partial — pivoted May 2026",
       description:
-        "Created export system translating scientific data to user-friendly formats",
+        "Curation Workbench UI for evidence extraction with PDF tooling. Partially shipped before the team pivoted to the database migration.",
       keyDeliverables: [
-        "Public CSV export (0-100 scale)",
-        "Research export (raw normalized data + CI)",
-        "JSON and CSV format support",
+        "✅ Curation Workbench: split-pane layout + 5-step extraction wizard",
+        "✅ Integrated PDF viewer with text-selection → auto-populate",
+        "✅ MIU edit and delete with confirmation dialog",
+        "⏸️ Evidence List Viewer (deprioritized)",
+        "⏸️ PET pilot MIU extraction: 15+ MIUs (deprioritized)",
       ],
     },
     {
       number: 4,
-      title: "Visualization & Accessibility",
+      title: "Data Migration",
       status: "complete",
-      completedDate: "October 22, 2025",
+      completedDate: "May 21, 2026",
       description:
-        "Implemented Hybrid Quantile-Halo Visualization Model with comprehensive accessibility",
+        "Migrated all core data from KV Store to a proper Postgres relational schema, with RLS, seeded data, and foreign-key integrity.",
       keyDeliverables: [
-        "Three visualization modes (Overlap, Near-Overlap, Gap)",
-        "High-contrast, dark mode, reduced-motion support",
-        "Interactive tooltips and ARIA labels",
+        "Relational tables: materials, articles, sources, user_profiles",
+        "material_categories, material_links, material_sources join tables",
+        "evidence_points and audit_log moved to Postgres",
+        "RLS policies for all tables (anon, auth, admin tiers)",
+        "Migration scripts + seeded data for all existing content",
       ],
     },
     {
       number: 5,
-      title: "Multi-Dimensional Scientific Data Layer",
-      status: "complete",
-      completedDate: "October 23, 2025",
-      description:
-        "Extended scientific infrastructure to all three dimensions (CR, CC, RU)",
-      keyDeliverables: [
-        "Calculation endpoints for CC and RU",
-        "ScientificDataEditor with tabbed interface",
-        "Whitepapers for all three dimensions",
-      ],
+      title: "Next Stage (TBD)",
+      status: "planned",
+      description: "Coming soon — stage details being finalized.",
+      keyDeliverables: [],
     },
     {
       number: 6,
-      title: "Content Management & Editorial Workflow",
-      status: "complete",
-      completedDate: "November 2, 2025",
-      description:
-        "Enabled community-driven content creation with admin editorial oversight",
-      keyDeliverables: [
-        "User profiles and submission workflow",
-        "Content Review Center with approve/edit/flag",
-        "Email notifications via Resend",
-      ],
-    },
-    {
-      number: 7,
-      title: "Research API & Data Publication",
-      status: "complete",
-      completedDate: "October 30, 2025",
-      description:
-        "Opened WasteDB data for public and academic use with comprehensive API",
-      keyDeliverables: [
-        "REST API with /materials, /stats, /categories endpoints",
-        "Versioned methodology information",
-        "Interactive API documentation",
-      ],
-    },
-    {
-      number: 8,
-      title: "Performance & Scalability",
-      status: "complete",
-      completedDate: "November 2, 2025",
-      description:
-        "Optimized rendering performance for large datasets and complex visualizations",
-      keyDeliverables: [
-        "Chart rasterization with IndexedDB caching",
-        "Virtual scrolling for material lists",
-        "Performance monitoring and metrics collection",
-        "Lazy loading for visualization rendering",
-      ],
-    },
-    {
-      number: 9,
-      title: "Evidence Pipeline & Curation System",
-      status: "in-progress",
-      completedDate: "November 13, 2025 (partial)",
-      description:
-        "Building granular evidence extraction system with transform governance",
-      keyDeliverables: [
-        "Phase 9.0: Transform governance and versioning ✅",
-        "Phase 9.1: Evidence points database schema (planned)",
-        "Phase 9.2: Curation Workbench UI (planned)",
-      ],
-    },
-    {
-      number: 10,
-      title: "Advanced Performance & Data Optimization",
+      title: "Scale",
       status: "planned",
       description:
-        "Future enhancements for server-side rendering, database optimization, and progressive loading",
+        "Build on the relational foundation: aggregation engine, evidence curation at scale, and public traceability layer.",
       keyDeliverables: [
-        "Server-side rendering for static charts",
-        "Database query optimization for large collections",
-        "Progressive loading for scientific data editor",
+        "Aggregation engine with weighted statistics and CI",
+        "Evidence List Viewer (browse/filter/search all MIUs)",
+        "PET pilot MIU extraction: 15+ MIUs (≥3 per CR parameter)",
+        "Evidence curation for 30+ materials across all dimensions",
+        "Public evidence traceability tab on material detail pages",
+        "Community curator onboarding and quality metrics",
       ],
     },
   ];
@@ -633,18 +598,15 @@ export function SimplifiedRoadmap({
       onBack={onBack}
       maxWidth="5xl"
     >
-      {/* Active Phase Badge - first phase tab is always the active one */}
+      {/* Next Stage Badge */}
       {!staffMode && (
         <div className="mb-6 flex items-center gap-3">
           <span className="text-sm font-['Sniglet'] text-muted-foreground">
-            Active Phase:
+            Next Up:
           </span>
           <Badge className="bg-[#bae1ff] text-black hover:bg-[#9dd1ff] font-['Sniglet'] px-3 py-1">
             {activePhase.fullName}
           </Badge>
-          <span className="text-xs text-muted-foreground font-['Sniglet']">
-            (When complete, remove this tab to advance to the next phase)
-          </span>
         </div>
       )}
 
@@ -663,54 +625,44 @@ export function SimplifiedRoadmap({
               Overview
             </button>
             <button
-              onClick={() => setActiveTab("9.2")}
+              onClick={() => setActiveTab("next-stage")}
               className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
-                activeTab === "9.2"
+                activeTab === "next-stage"
                   ? "normal border-b-2 border-[#211f1c] dark:border-white"
                   : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
               }`}
             >
-              9.2
+              Next Stage
             </button>
             <button
-              onClick={() => setActiveTab("9.3")}
+              onClick={() => setActiveTab("scale")}
               className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
-                activeTab === "9.3"
+                activeTab === "scale"
                   ? "normal border-b-2 border-[#211f1c] dark:border-white"
                   : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
               }`}
             >
-              9.3
+              Scale
             </button>
             <button
-              onClick={() => setActiveTab("9.4")}
+              onClick={() => setActiveTab("data-migration")}
               className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
-                activeTab === "9.4"
+                activeTab === "data-migration"
                   ? "normal border-b-2 border-[#211f1c] dark:border-white"
                   : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
               }`}
             >
-              9.4
+              Data Migration
             </button>
             <button
-              onClick={() => setActiveTab("9.5")}
+              onClick={() => setActiveTab("curation-lab")}
               className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
-                activeTab === "9.5"
+                activeTab === "curation-lab"
                   ? "normal border-b-2 border-[#211f1c] dark:border-white"
                   : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
               }`}
             >
-              9.5
-            </button>
-            <button
-              onClick={() => setActiveTab("10")}
-              className={`px-4 py-2 font-['Sniglet'] text-[12px] transition-colors ${
-                activeTab === "10"
-                  ? "normal border-b-2 border-[#211f1c] dark:border-white"
-                  : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
-              }`}
-            >
-              10
+              Curation Lab
             </button>
             <button
               onClick={() => setActiveTab("tests")}
@@ -805,7 +757,7 @@ export function SimplifiedRoadmap({
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
                             <span className="text-sm font-mono text-muted-foreground">
-                              Phase {phase.number}
+                              Stage {phase.number}
                             </span>
                             {getStatusBadge(phase.status)}
                           </div>
@@ -879,7 +831,7 @@ export function SimplifiedRoadmap({
         </div>
       )}
 
-      {activeTab === "9.2" && (
+      {activeTab === "curation-lab" && (
         <div className="space-y-8">
           {/* Phase Header */}
           <Card className="border-2">
@@ -1206,6 +1158,9 @@ export function SimplifiedRoadmap({
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Implementation Status</CardTitle>
+              <CardDescription>
+                ⏸️ Partial — pivoted to Data Migration (May 2026)
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -1215,53 +1170,41 @@ export function SimplifiedRoadmap({
                     Completed
                   </h4>
                   <ul className="space-y-1 text-sm text-muted-foreground ml-6">
-                    <li>✅ CurationWorkbench.tsx component created</li>
-                    <li>✅ Split-pane layout with source viewer and wizard</li>
-                    <li>✅ 5-step progressive wizard with validation</li>
+                    <li>
+                      ✅ CurationWorkbench.tsx — split-pane layout + 5-step
+                      extraction wizard
+                    </li>
+                    <li>
+                      ✅ Integrated PDF viewer with text selection →
+                      auto-populate
+                    </li>
+                    <li>
+                      ✅ MIU edit form (value, unit, notes) with PUT
+                      /evidence/:id
+                    </li>
+                    <li>
+                      ✅ MIU delete with confirmation dialog and DELETE
+                      /evidence/:id
+                    </li>
                     <li>✅ Source selection from Source Library Manager</li>
-                    <li>✅ Material and parameter selection (pilot scope)</li>
+                    <li>✅ Material and parameter selection</li>
                     <li>✅ Form validation and error handling</li>
                     <li>✅ Integration with POST /evidence endpoint</li>
-                    <li>✅ Wastefull brand retro design system</li>
-                    <li>✅ EvidenceListViewer.tsx component created</li>
-                    <li>✅ Filter by material and parameter (pilot scope)</li>
-                    <li>✅ Search functionality (snippets and citations)</li>
-                    <li>✅ MIU detail view modal with full metadata</li>
-                    <li>✅ Confidence level badges with color coding</li>
-                    <li>✅ Locator display (page/figure/table)</li>
-                    <li>✅ Integration with GET /evidence endpoint</li>
-                    <li>✅ Unit ontology validation integration</li>
-                    <li>✅ Real-time unit validation against allowed units</li>
-                    <li>✅ Unit dropdown with parameter-specific options</li>
-                    <li>✅ Canonical unit display and conversion hints</li>
-                    <li>✅ Validation error messages with allowed units</li>
-                    <li>✅ MIU edit form with value, unit, notes fields</li>
-                    <li>✅ MIU delete with confirmation dialog</li>
-                    <li>✅ PUT/DELETE /evidence/:id endpoint integration</li>
-                  </ul>
-                </div>
-                <div>
-                  <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
-                    <Clock className="size-4 text-blue-600" />
-                    In Progress (PDF Tooling - Accelerated)
-                  </h4>
-                  <ul className="space-y-1 text-sm text-muted-foreground ml-6">
-                    <li>🔄 Integrated PDF viewer with text selection</li>
-                    <li>🔄 Text selection → auto-populate snippet field</li>
-                    <li>🔄 Page number click → auto-populate locator</li>
-                    <li>🔄 PDF navigation (page jump, zoom)</li>
                   </ul>
                 </div>
                 <div>
                   <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
                     <Circle className="size-4 text-gray-400" />
-                    Deferred to Phase 9.3+
+                    Not Completed — Deprioritized
                   </h4>
                   <ul className="space-y-1 text-sm text-muted-foreground ml-6">
+                    <li>⏸️ Unit ontology validation integration</li>
                     <li>⏸️ PDF annotation/highlighting persistence</li>
-                    <li>⏸️ OCR text extraction from scanned PDFs</li>
-                    <li>⏸️ Smart context pre-fill (AI-assisted)</li>
                     <li>⏸️ Double-extraction validation workflow</li>
+                    <li className="text-xs italic text-muted-foreground/70 mt-1">
+                      Evidence List Viewer and Pilot MIU extraction moved to
+                      Scale stage.
+                    </li>
                   </ul>
                 </div>
               </div>
@@ -1271,9 +1214,150 @@ export function SimplifiedRoadmap({
           {/* Show testing console for this phase */}
           <PhaseFilteredTests
             phase="9.2"
-            title="Phase 9.2 Tests"
+            title="Curation Lab Tests"
             description="Curation Workbench UI Tests"
           />
+        </div>
+      )}
+
+      {activeTab === "data-migration" && (
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-2xl mb-1">Data Migration: KV → Postgres</h2>
+            <p className="text-muted-foreground text-sm">
+              Completed May 21, 2026 — Migrated all core data from the Supabase
+              KV Store to a proper relational Postgres schema with RLS and
+              seeded data.
+            </p>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <CheckCircle2 className="size-5 text-green-600" />
+                Migration Complete
+              </CardTitle>
+              <CardDescription>
+                All tables migrated May 20–21, 2026
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <h4 className="text-sm font-semibold mb-2">Tables Created</h4>
+                  <ul className="space-y-1 text-sm text-muted-foreground ml-6">
+                    <li>
+                      ✅ <code>user_profiles</code> — user accounts and roles
+                    </li>
+                    <li>
+                      ✅ <code>material_categories</code> — category taxonomy
+                    </li>
+                    <li>
+                      ✅ <code>materials</code> — core materials with scientific
+                      fields
+                    </li>
+                    <li>
+                      ✅ <code>articles</code> — long-form material articles
+                    </li>
+                    <li>
+                      ✅ <code>sources</code> — bibliographic source library
+                    </li>
+                    <li>
+                      ✅ <code>material_sources</code> — material ↔ source join
+                      table
+                    </li>
+                    <li>
+                      ✅ <code>material_links</code> — external resource links
+                    </li>
+                    <li>
+                      ✅ <code>evidence_points</code> — MIU evidence records
+                    </li>
+                    <li>
+                      ✅ <code>audit_log</code> — all mutations with actor +
+                      timestamp
+                    </li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="text-sm font-semibold mb-2">Infrastructure</h4>
+                  <ul className="space-y-1 text-sm text-muted-foreground ml-6">
+                    <li>✅ Row-Level Security (RLS) policies on all tables</li>
+                    <li>✅ Anon, authenticated, and admin access tiers</li>
+                    <li>
+                      ✅ Migration scripts in <code>supabase/migrations/</code>
+                    </li>
+                    <li>
+                      ✅ Seeded data for all existing materials and sources
+                    </li>
+                    <li>✅ Foreign-key integrity enforced across all tables</li>
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {activeTab === "next-stage" && (
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-2xl mb-1">Next Stage (TBD)</h2>
+            <p className="text-muted-foreground text-sm">
+              Stage details coming soon.
+            </p>
+          </div>
+          <Card>
+            <CardContent className="pt-6">
+              <p className="text-sm text-muted-foreground italic">
+                This stage is being defined. Check back soon.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {activeTab === "scale" && (
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-2xl mb-1">Scale: Evidence Curation & Growth</h2>
+            <p className="text-muted-foreground text-sm">
+              Planned — Build on the relational Postgres foundation to enable
+              evidence curation at scale, aggregation, and public traceability.
+            </p>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Circle className="size-5 text-gray-400" />
+                Planned Work
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-1 text-sm text-muted-foreground ml-6">
+                <li>
+                  ⬜ Aggregation engine with weighted statistics and confidence
+                  intervals
+                </li>
+                <li>
+                  ⬜ Evidence List Viewer (browse/filter/search all MIUs){" "}
+                  <span className="text-xs">(carried from Curation Lab)</span>
+                </li>
+                <li>
+                  ⬜ PET pilot MIU extraction: 15+ MIUs (≥3 per CR parameter){" "}
+                  <span className="text-xs">(carried from Curation Lab)</span>
+                </li>
+                <li>
+                  ⬜ Evidence curation for 30+ materials across all dimensions
+                </li>
+                <li>
+                  ⬜ Public evidence traceability tab on material detail pages
+                </li>
+                <li>⬜ Community curator onboarding workflow</li>
+                <li>⬜ Evidence quality metrics and duplicate detection</li>
+              </ul>
+            </CardContent>
+          </Card>
         </div>
       )}
 

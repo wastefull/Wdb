@@ -462,10 +462,10 @@ export function RoadmapView({ onBack }: RoadmapViewProps) {
           <ArrowLeft size={16} className="text-black" />
         </button>
         <div className="flex-1">
-          <h2 className="heading-xl">Roadmap: Phase 9.0</h2>
+          <h2 className="heading-xl">Evidence Infrastructure: Days 1–11</h2>
           <p className="label-muted">
-            Transform governance, admin dashboard redesign, and infrastructure
-            improvements
+            Evidence infrastructure foundation: legal framework, transform
+            governance, evidence storage, audit logging, and security hardening
           </p>
         </div>
       </div>
