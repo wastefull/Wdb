@@ -257,6 +257,32 @@ export function UserProfileView({
     }
   };
 
+  // Fix post-migration attribution: matches writer_name → user_profiles.name to
+  // set correct created_by UUIDs so contributions show up on author profiles.
+  // const handleBackfillAttribution = async () => {
+  //   if (
+  //     !confirm(
+  //       "This will update articles.created_by for all articles by matching writer_name to user profile names. This fixes missing contributions on author profiles after the schema migration. Continue?",
+  //     )
+  //   ) {
+  //     return;
+  //   }
+
+  //   try {
+  //     const result = await api.backfillArticleAttribution();
+  //     toast.success(
+  //       `Attribution backfill complete! Updated ${result.updatedCount} article(s).`,
+  //     );
+  //     if (result.errors?.length) {
+  //       logError("Backfill errors:", result.errors);
+  //     }
+  //     loadInitialContributions();
+  //   } catch (error) {
+  //     logError("Error backfilling article attribution:", error);
+  //     toast.error("Failed to backfill article attribution");
+  //   }
+  // };
+
   const handleSave = async () => {
     try {
       setSaving(true);
@@ -895,6 +921,21 @@ export function UserProfileView({
                 </div>
               )}
 
+              {/* Admin: fix post-migration article attribution */}
+              {/* {isAdminModeActive && (
+                <div className="pt-4 border-t border-[#211f1c]/20 dark:border-white/20">
+                  <button
+                    onClick={handleBackfillAttribution}
+                    className="retro-btn-primary arcade-bg-amber arcade-btn-amber px-4 h-9 text-[13px] w-full sm:w-auto"
+                  >
+                    Fix Article Attributions (writer_name → UUID)
+                  </button>
+                  <p className="text-sm text-black/60 dark:text-white/60 mt-2">
+                    Post-migration fix: resolves author names to UUIDs so
+                    articles appear on contributor profiles.
+                  </p>
+                </div>
+              )} */}
               {/* Admin backfill button - DISABLED (uncomment if needed for data recovery)
               {isAdminModeActive && isOwnProfile && (
                 <div className="pt-4 border-t border-[#211f1c]/20 dark:border-white/20">

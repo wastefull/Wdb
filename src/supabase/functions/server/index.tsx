@@ -5913,6 +5913,88 @@ app.post(
   },
 );
 
+// Backfill articles.created_by from the KV store article-level author_id field.
+// The seed migration read art->>'created_by', but KV articles use 'author_id'.
+// This endpoint re-reads the KV store and syncs the correct UUID into Postgres.
+app.post(
+  "/make-server-17cae920/admin/backfill-article-attribution",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      );
+
+      const uuidRe =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+      const allMaterials = (await kv.getByPrefix("material:")) || [];
+      let updatedCount = 0;
+      const errors: string[] = [];
+
+      for (const material of allMaterials) {
+        const kvId = (material.id as string) || "";
+        if (!kvId) continue;
+
+        const categories = [
+          "compostability",
+          "recyclability",
+          "reusability",
+        ] as const;
+
+        for (const category of categories) {
+          const artList = (material.articles as any)?.[category];
+          if (!Array.isArray(artList)) continue;
+
+          for (const art of artList) {
+            // KV articles use author_id; fall back to created_by
+            const authorId: string | undefined =
+              art.author_id || art.created_by;
+            if (!authorId || !uuidRe.test(authorId)) continue;
+
+            const title: string = art.title || "untitled";
+            // Reproduce the same slug logic as the seed migration
+            const slug: string =
+              art.slug?.trim() ||
+              title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+
+            const { data: updated, error: updateErr } = await supabase
+              .from("articles")
+              .update({ created_by: authorId })
+              .eq("legacy_material_kv_id", kvId)
+              .eq("sustainability_category", category)
+              .eq("slug", slug)
+              .select("id");
+
+            if (updateErr) {
+              errors.push(`${kvId}/${category}/${slug}: ${updateErr.message}`);
+            } else {
+              updatedCount += (updated ?? []).length;
+            }
+          }
+        }
+      }
+
+      return c.json({
+        success: true,
+        updatedCount,
+        errors: errors.length ? errors : undefined,
+      });
+    } catch (error) {
+      log.error("Error backfilling article attribution:", error);
+      return c.json(
+        {
+          error: "Failed to backfill article attribution",
+          details: String(error),
+        },
+        500,
+      );
+    }
+  },
+);
+
 // Backfill: mark all existing draft articles as published (admin only)
 app.post(
   "/make-server-17cae920/admin/backfill-article-status",

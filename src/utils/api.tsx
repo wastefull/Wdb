@@ -1243,6 +1243,20 @@ export async function backfillCreatedBy(): Promise<{
   return data;
 }
 
+// Backfill articles.created_by from KV store article-level author_id.
+// Fixes post-migration bug where profile contribution counts showed 0 for
+// authors whose articles were migrated without valid created_by UUIDs.
+export async function backfillArticleAttribution(): Promise<{
+  success: boolean;
+  updatedCount: number;
+  errors?: string[];
+}> {
+  const data = await apiCall(`/admin/backfill-article-attribution`, {
+    method: "POST",
+  });
+  return data;
+}
+
 // ===== ARTICLES =====
 
 export async function getArticles(params?: {

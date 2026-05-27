@@ -347,8 +347,8 @@ SELECT
     'published'
   )                                                                         AS status,
   COALESCE((art->>'version')::integer, 1)                                   AS version,
-  CASE WHEN art->>'created_by' ~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
-    THEN (art->>'created_by')::uuid ELSE NULL END                           AS created_by,
+  CASE WHEN COALESCE(art->>'author_id', art->>'created_by') ~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+    THEN (COALESCE(art->>'author_id', art->>'created_by'))::uuid ELSE NULL END AS created_by,
   CASE WHEN art->>'edited_by' ~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
     THEN (art->>'edited_by')::uuid ELSE NULL END                            AS edited_by,
   art->>'writer_name'                                                       AS writer_name,
@@ -381,6 +381,8 @@ ON CONFLICT (legacy_material_kv_id, slug) DO UPDATE SET
   cover_image_url         = EXCLUDED.cover_image_url,
   status                  = EXCLUDED.status,
   version                 = EXCLUDED.version,
+  created_by              = EXCLUDED.created_by,
+  edited_by               = EXCLUDED.edited_by,
   writer_name             = EXCLUDED.writer_name,
   editor_name             = EXCLUDED.editor_name,
   date_added              = EXCLUDED.date_added,
@@ -430,8 +432,8 @@ SELECT
     'published'
   )                                                                         AS status,
   COALESCE((art->>'version')::integer, 1)                                   AS version,
-  CASE WHEN art->>'created_by' ~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
-    THEN (art->>'created_by')::uuid ELSE NULL END                           AS created_by,
+  CASE WHEN COALESCE(art->>'author_id', art->>'created_by') ~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+    THEN (COALESCE(art->>'author_id', art->>'created_by'))::uuid ELSE NULL END AS created_by,
   CASE WHEN art->>'edited_by' ~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
     THEN (art->>'edited_by')::uuid ELSE NULL END                            AS edited_by,
   art->>'writer_name'                                                       AS writer_name,
@@ -464,6 +466,8 @@ ON CONFLICT (legacy_material_kv_id, slug) DO UPDATE SET
   cover_image_url         = EXCLUDED.cover_image_url,
   status                  = EXCLUDED.status,
   version                 = EXCLUDED.version,
+  created_by              = EXCLUDED.created_by,
+  edited_by               = EXCLUDED.edited_by,
   writer_name             = EXCLUDED.writer_name,
   editor_name             = EXCLUDED.editor_name,
   date_added              = EXCLUDED.date_added,
@@ -513,8 +517,8 @@ SELECT
     'published'
   )                                                                         AS status,
   COALESCE((art->>'version')::integer, 1)                                   AS version,
-  CASE WHEN art->>'created_by' ~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
-    THEN (art->>'created_by')::uuid ELSE NULL END                           AS created_by,
+  CASE WHEN COALESCE(art->>'author_id', art->>'created_by') ~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+    THEN (COALESCE(art->>'author_id', art->>'created_by'))::uuid ELSE NULL END AS created_by,
   CASE WHEN art->>'edited_by' ~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
     THEN (art->>'edited_by')::uuid ELSE NULL END                            AS edited_by,
   art->>'writer_name'                                                       AS writer_name,
@@ -547,6 +551,8 @@ ON CONFLICT (legacy_material_kv_id, slug) DO UPDATE SET
   cover_image_url         = EXCLUDED.cover_image_url,
   status                  = EXCLUDED.status,
   version                 = EXCLUDED.version,
+  created_by              = EXCLUDED.created_by,
+  edited_by               = EXCLUDED.edited_by,
   writer_name             = EXCLUDED.writer_name,
   editor_name             = EXCLUDED.editor_name,
   date_added              = EXCLUDED.date_added,
