@@ -9,18 +9,25 @@ export function DiscardChangesDialog({
   onKeepEditing,
   onDiscard,
 }: DiscardChangesDialogProps) {
+  const portalTarget =
+    typeof document !== "undefined" ? document.documentElement : null;
+
+  if (!portalTarget) {
+    return null;
+  }
+
   return createPortal(
     <div
-      className="fixed inset-0 bg-black/40 dark:bg-black/60 flex items-center justify-center z-200"
+      className="fixed inset-0 bg-black/40 dark:bg-black/60 flex items-start justify-center overflow-y-auto pt-10 px-4 z-200"
       onClick={onKeepEditing}
     >
       <div
-        className="bg-white dark:bg-[#2a2825] rounded-(--retro-rounding) border-[1.5px] border-[#211f1c] dark:border-white/20 p-6 w-full max-w-sm shadow-[4px_4px_0px_0px_#000000] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]"
+        className="mt-10 bg-white dark:bg-[#2a2825] rounded-(--retro-rounding) border-[1.5px] border-[#211f1c] dark:border-white/20 p-6 w-full max-w-sm shadow-[4px_4px_0px_0px_#000000] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="text-[16px] font-semibold text-black dark:text-white mb-2">
+        <h1 className="text-[16px] font-semibold text-black dark:text-white mb-2">
           Discard changes?
-        </h3>
+        </h1>
         <p className="text-[13px] text-black/70 dark:text-white/60 mb-5">
           You have unsaved changes that will be lost.
         </p>
@@ -42,6 +49,6 @@ export function DiscardChangesDialog({
         </div>
       </div>
     </div>,
-    document.body,
+    portalTarget,
   );
 }

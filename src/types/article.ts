@@ -53,4 +53,6 @@ export interface ArticleFormProps {
   onCancel: () => void;
   /** Whether admin mode is active (shows UserSelector) */
   isAdminMode?: boolean;
+  /** Optional callback for parent views to guard navigation while editing */
+  onDirtyChange?: (isDirty: boolean) => void;
 }

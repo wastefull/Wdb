@@ -1,10 +1,11 @@
-import { useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Download, X } from "lucide-react";
 import { ArticleFormProps } from "../../types/article";
 import { TiptapContent } from "../../types/guide";
 import { ImageUploadArea } from "./ImageUploadArea";
 import { UserSelector } from "./UserSelector";
 import ContentEditor from "../editor/ContentEditor";
+import { useNavigationContext } from "../../contexts/NavigationContext";
 import { toast } from "sonner";
 import { logger } from "../../utils/logger";
 import { DiscardChangesDialog } from "../shared/DiscardChangesDialog";
@@ -13,7 +14,9 @@ export function ArticleForm({
   onSave,
   onCancel,
   isAdminMode = false,
+  onDirtyChange,
 }: ArticleFormProps) {
+  const { setHasUnsavedChanges } = useNavigationContext();
   const [showImportModal, setShowImportModal] = useState(false);
   const [importJson, setImportJson] = useState("");
   const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
@@ -57,6 +60,30 @@ export function ArticleForm({
   }
 
   const isDirty = () => JSON.stringify(formData) !== initialFormData.current;
+
+  useEffect(() => {
+    const dirty = isDirty();
+    onDirtyChange?.(dirty);
+    setHasUnsavedChanges(dirty);
+  }, [formData, onDirtyChange, setHasUnsavedChanges]);
+
+  useEffect(() => {
+    return () => {
+      onDirtyChange?.(false);
+      setHasUnsavedChanges(false);
+    };
+  }, [onDirtyChange, setHasUnsavedChanges]);
+
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (!isDirty()) return;
+      event.preventDefault();
+      event.returnValue = "";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [formData]);
 
   const handleRequestCancel = () => {
     if (isDirty()) {

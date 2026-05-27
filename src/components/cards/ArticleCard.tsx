@@ -16,7 +16,6 @@ export interface ArticleCardProps {
 
 // Helper to extract plain text preview from TiptapContent
 function getContentPreview(article: Article, maxLength: number = 150): string {
-  // Try new TiptapContent first
   if (
     article.content &&
     article.content.type === "doc" &&
@@ -39,15 +38,6 @@ function getContentPreview(article: Article, maxLength: number = 150): string {
     }
   }
 
-  // Fall back to legacy content
-  const legacyText =
-    article.introduction?.content || article.supplies?.content || "";
-  if (legacyText) {
-    return legacyText.length > maxLength
-      ? legacyText.substring(0, maxLength) + "..."
-      : legacyText;
-  }
-
   return "No content preview available.";
 }
 
@@ -63,7 +53,7 @@ export function ArticleCard({
   linkedMaterialName,
   onViewLinkedMaterial,
 }: ArticleCardProps) {
-  const coverImage = article.cover_image_url || article.overview?.image;
+  const coverImage = article.cover_image_url;
   const preview = getContentPreview(article);
 
   return (
@@ -84,7 +74,7 @@ export function ArticleCard({
           )}
           <div className="flex items-center gap-2 mt-1">
             <span className="inline-block px-2 py-0.5 bg-waste-recycle rounded-md border border-[#211f1c] text-[9px] text-black">
-              {article.article_type || article.category}
+              {article.article_type}
             </span>
             {sustainabilityCategory && (
               <span

@@ -11,6 +11,7 @@ import {
 import { RasterizedQuantileVisualization } from "../charts/RasterizedQuantileVisualization";
 import { ArticleCard } from "../cards";
 import { ArticleForm } from "../forms";
+import { DiscardChangesDialog } from "../shared/DiscardChangesDialog";
 
 interface ArticlesViewProps {
   material: Material;
@@ -37,6 +38,9 @@ export function ArticlesView({
 }: ArticlesViewProps) {
   const [showForm, setShowForm] = useState(false);
   const [editingArticle, setEditingArticle] = useState<Article | null>(null);
+  const [isFormDirty, setIsFormDirty] = useState(false);
+  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
+  const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
 
   const categoryColors = {
     compostability: "#e6beb5",
@@ -108,6 +112,21 @@ export function ArticlesView({
     }
   };
 
+  const clearFormState = () => {
+    setShowForm(false);
+    setEditingArticle(null);
+    setIsFormDirty(false);
+  };
+
+  const runWithUnsavedGuard = (action: () => void) => {
+    if (showForm && isFormDirty) {
+      setPendingAction(() => action);
+      setShowDiscardConfirm(true);
+      return;
+    }
+    action();
+  };
+
   return (
     <div className="p-6">
       <div className="flex items-center gap-4 mb-6">
@@ -124,10 +143,12 @@ export function ArticlesView({
         </div>
         {user && (
           <button
-            onClick={() => {
-              setShowForm(true);
-              setEditingArticle(null);
-            }}
+            onClick={() =>
+              runWithUnsavedGuard(() => {
+                setShowForm(true);
+                setEditingArticle(null);
+              })
+            }
             className="retro-card-button h-10 px-6 text-[14px] text-black flex items-center gap-2"
             style={{ backgroundColor: categoryColors[category] }}
           >
@@ -141,10 +162,8 @@ export function ArticlesView({
         <ArticleForm
           article={editingArticle || undefined}
           onSave={editingArticle ? handleUpdateArticle : handleAddArticle}
-          onCancel={() => {
-            setShowForm(false);
-            setEditingArticle(null);
-          }}
+          onCancel={clearFormState}
+          onDirtyChange={setIsFormDirty}
           isAdminMode={isAdminModeActive}
         />
       )}
@@ -182,16 +201,34 @@ export function ArticlesView({
           <ArticleCard
             key={article.id}
             article={article}
-            onEdit={() => {
-              setEditingArticle(article);
-              setShowForm(true);
-            }}
+            onEdit={() =>
+              runWithUnsavedGuard(() => {
+                setEditingArticle(article);
+                setShowForm(true);
+              })
+            }
             onDelete={() => handleDeleteArticle(article.id)}
             onReadMore={() => onViewArticleStandalone(article.id)}
             isAdminModeActive={isAdminModeActive}
           />
         ))}
       </div>
+
+      {showDiscardConfirm && (
+        <DiscardChangesDialog
+          onKeepEditing={() => {
+            setShowDiscardConfirm(false);
+            setPendingAction(null);
+          }}
+          onDiscard={() => {
+            const action = pendingAction;
+            setShowDiscardConfirm(false);
+            setPendingAction(null);
+            clearFormState();
+            action?.();
+          }}
+        />
+      )}
 
       {articles.length === 0 && (
         <div className="text-center py-12">

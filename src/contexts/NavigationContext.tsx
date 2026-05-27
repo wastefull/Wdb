@@ -11,6 +11,7 @@ import React, {
   ReactNode,
   useCallback,
 } from "react";
+import { DiscardChangesDialog } from "../components/shared/DiscardChangesDialog";
 import { navigationLogger } from "../utils/loggerFactories";
 import { CategoryType, ArticleType } from "../types/article";
 
@@ -207,6 +208,7 @@ interface NavigationContextType {
   // State
   currentView: ViewType;
   setCurrentView: (view: ViewType) => void;
+  setHasUnsavedChanges: (hasUnsavedChanges: boolean) => void;
 
   // Navigation
   navigateTo: (view: ViewType) => void;
@@ -304,6 +306,11 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
   const initialView = getInitialViewFromUrlHash();
   const [currentView, setCurrentView] = useState<ViewType>(initialView);
   const [viewHistory, setViewHistory] = useState<ViewType[]>([initialView]);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
+  const [pendingNavigationAction, setPendingNavigationAction] = useState<
+    (() => void) | null
+  >(null);
 
   const syncHashWithView = useCallback((view: ViewType) => {
     if (typeof window === "undefined") {
@@ -325,17 +332,28 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
     window.history.replaceState({}, "", nextUrl);
   }, []);
 
+  const runWithUnsavedChangesGuard = (action: () => void) => {
+    if (hasUnsavedChanges) {
+      setPendingNavigationAction(() => action);
+      setShowDiscardConfirm(true);
+      return;
+    }
+    action();
+  };
+
   const navigateTo = (view: ViewType) => {
     navigationLogger.info("Navigating to:", view.type);
-    setCurrentView(view);
-    // Replace the history entry when leaving the transient loading state so
-    // the user can't "go back" to a blank loading screen.
-    setViewHistory((prev) =>
-      prev[prev.length - 1]?.type === "permalink-loading"
-        ? [...prev.slice(0, -1), view]
-        : [...prev, view],
-    );
-    syncHashWithView(view);
+    runWithUnsavedChangesGuard(() => {
+      setCurrentView(view);
+      // Replace the history entry when leaving the transient loading state so
+      // the user can't "go back" to a blank loading screen.
+      setViewHistory((prev) =>
+        prev[prev.length - 1]?.type === "permalink-loading"
+          ? [...prev.slice(0, -1), view]
+          : [...prev, view],
+      );
+      syncHashWithView(view);
+    });
   };
 
   const navigateToAuth = () => {
@@ -565,22 +583,25 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
   };
 
   const goBack = () => {
-    if (viewHistory.length > 1) {
-      const newHistory = viewHistory.slice(0, -1);
-      const previousView = newHistory[newHistory.length - 1];
-      navigationLogger.info("Going back to:", previousView.type);
-      setCurrentView(previousView);
-      setViewHistory(newHistory);
-      syncHashWithView(previousView);
-    } else {
-      navigationLogger.info("Already at root view, navigating to materials");
-      navigateToMaterials();
-    }
+    runWithUnsavedChangesGuard(() => {
+      if (viewHistory.length > 1) {
+        const newHistory = viewHistory.slice(0, -1);
+        const previousView = newHistory[newHistory.length - 1];
+        navigationLogger.info("Going back to:", previousView.type);
+        setCurrentView(previousView);
+        setViewHistory(newHistory);
+        syncHashWithView(previousView);
+      } else {
+        navigationLogger.info("Already at root view, navigating to materials");
+        navigateToMaterials();
+      }
+    });
   };
 
   const value: NavigationContextType = {
     currentView,
     setCurrentView,
+    setHasUnsavedChanges,
     navigateTo,
     navigateToAuth,
     navigateToMaterials,
@@ -640,6 +661,21 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
   return (
     <NavigationContext.Provider value={value}>
       {children}
+      {showDiscardConfirm && (
+        <DiscardChangesDialog
+          onKeepEditing={() => {
+            setShowDiscardConfirm(false);
+            setPendingNavigationAction(null);
+          }}
+          onDiscard={() => {
+            const action = pendingNavigationAction;
+            setShowDiscardConfirm(false);
+            setPendingNavigationAction(null);
+            setHasUnsavedChanges(false);
+            action?.();
+          }}
+        />
+      )}
     </NavigationContext.Provider>
   );
 };

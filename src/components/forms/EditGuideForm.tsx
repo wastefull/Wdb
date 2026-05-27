@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { BookOpen, X, Loader2, Download } from "lucide-react";
 import {
   Guide,
@@ -9,6 +9,7 @@ import {
 import { Material } from "../../types/material";
 import ContentEditor from "../editor/ContentEditor";
 import type { TiptapContent } from "../../types/guide";
+import { useNavigationContext } from "../../contexts/NavigationContext";
 import { toast } from "sonner";
 import { logger } from "../../utils/logger";
 import { DiscardChangesDialog } from "../shared/DiscardChangesDialog";
@@ -30,6 +31,7 @@ export function EditGuideForm({
   materials,
   isAdmin = false,
 }: EditGuideFormProps) {
+  const { setHasUnsavedChanges } = useNavigationContext();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
   const [importJson, setImportJson] = useState("");
@@ -92,6 +94,27 @@ export function EditGuideForm({
   }
 
   const isDirty = () => JSON.stringify(formData) !== initialFormData.current;
+
+  useEffect(() => {
+    setHasUnsavedChanges(isDirty());
+  }, [formData, setHasUnsavedChanges]);
+
+  useEffect(() => {
+    return () => {
+      setHasUnsavedChanges(false);
+    };
+  }, [setHasUnsavedChanges]);
+
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (!isDirty()) return;
+      event.preventDefault();
+      event.returnValue = "";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [formData]);
 
   const handleRequestClose = () => {
     if (isDirty()) {
@@ -248,7 +271,7 @@ export function EditGuideForm({
                 <textarea
                   value={importJson}
                   onChange={(e) => setImportJson(e.target.value)}
-                  className="input-field min-h-[300px] font-mono text-[12px]"
+                  className="input-field min-h-75 font-mono text-[12px]"
                   placeholder='{"title": "...", "content": {"type": "doc", "content": [...]}}'
                 />
                 <div className="flex gap-3">

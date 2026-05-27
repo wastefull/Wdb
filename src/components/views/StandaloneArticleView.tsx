@@ -85,13 +85,10 @@ export function StandaloneArticleView({
   };
 
   const handleTypeClick = () => {
-    const type = article.article_type || article.category;
-    if (type) {
-      navigateTo({
-        type: "all-articles",
-        articleType: type as "DIY" | "Industrial" | "Experimental",
-      });
-    }
+    navigateTo({
+      type: "all-articles",
+      articleType: article.article_type,
+    });
   };
 
   const handleCategoryClick = () => {
@@ -110,12 +107,7 @@ export function StandaloneArticleView({
     }
   };
 
-  // Check if article has new TiptapContent or legacy sections
   const hasRichContent = article.content && article.content.type === "doc";
-  const hasLegacyContent =
-    article.introduction?.content ||
-    article.supplies?.content ||
-    article.step1?.content;
   const canShowArticleActions = !!(
     canManageArticle &&
     (onSaveEdit || onDelete)
@@ -173,15 +165,13 @@ export function StandaloneArticleView({
             </p>
           )}
           <div className="flex flex-wrap items-center gap-2 mt-2">
-            {(article.article_type || article.category) && (
-              <button
-                onClick={handleTypeClick}
-                className="tag-yellow cursor-pointer hover:opacity-80 transition-opacity"
-                title={`View all ${article.article_type || article.category} articles`}
-              >
-                {article.article_type || article.category}
-              </button>
-            )}
+            <button
+              onClick={handleTypeClick}
+              className="tag-yellow cursor-pointer hover:opacity-80 transition-opacity"
+              title={`View all ${article.article_type} articles`}
+            >
+              {article.article_type}
+            </button>
             {sustainabilityCategory && (
               <button
                 onClick={handleCategoryClick}
@@ -251,10 +241,10 @@ export function StandaloneArticleView({
         <div className="bg-white dark:bg-[#2a2825] rounded-(--retro-rounding) border-[1.5px] border-[#211f1c] dark:border-white/20 p-6">
           <div className="space-y-6">
             {/* Cover Image */}
-            {(article.cover_image_url || article.overview?.image) && (
+            {article.cover_image_url && (
               <div>
                 <img
-                  src={article.cover_image_url || article.overview?.image}
+                  src={article.cover_image_url}
                   alt={article.title}
                   className="w-full h-auto rounded-lg border border-[#211f1c] dark:border-white/20"
                 />
@@ -269,7 +259,7 @@ export function StandaloneArticleView({
             )}
 
             {/* No content message */}
-            {!hasRichContent && !hasLegacyContent && (
+            {!hasRichContent && (
               <p className="text-[13px] text-black/60 dark:text-white/60 italic">
                 No content available for this article.
               </p>

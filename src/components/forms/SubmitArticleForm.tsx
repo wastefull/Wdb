@@ -13,7 +13,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { useNavigationContext } from "../../contexts/NavigationContext";
 import { logger } from "../../utils/logger";
+import { DiscardChangesDialog } from "../shared/DiscardChangesDialog";
 const ARTICLE_CATEGORIES = ["Compostability", "Recyclability", "Reusability"];
 
 interface SubmitArticleFormProps {
@@ -29,6 +31,7 @@ export function SubmitArticleForm({
   preselectedCategory,
   preselectedMaterialId,
 }: SubmitArticleFormProps) {
+  const { setHasUnsavedChanges } = useNavigationContext();
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState(preselectedCategory || "");
   const [materialId, setMaterialId] = useState(preselectedMaterialId || "");
@@ -36,10 +39,46 @@ export function SubmitArticleForm({
   const [submitting, setSubmitting] = useState(false);
   const [materials, setMaterials] = useState<Material[]>([]);
   const [loadingMaterials, setLoadingMaterials] = useState(false);
+  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
 
   useEffect(() => {
     loadMaterials();
   }, []);
+
+  const isDirty = () =>
+    title.trim().length > 0 ||
+    category.trim().length > 0 ||
+    materialId.trim().length > 0 ||
+    content.trim().length > 0;
+
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (!isDirty()) return;
+      event.preventDefault();
+      event.returnValue = "";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [title, category, materialId, content]);
+
+  useEffect(() => {
+    setHasUnsavedChanges(isDirty());
+  }, [title, category, materialId, content, setHasUnsavedChanges]);
+
+  useEffect(() => {
+    return () => {
+      setHasUnsavedChanges(false);
+    };
+  }, [setHasUnsavedChanges]);
+
+  const handleRequestClose = () => {
+    if (isDirty()) {
+      setShowDiscardConfirm(true);
+      return;
+    }
+    onClose();
+  };
 
   const loadMaterials = async () => {
     try {
@@ -112,7 +151,7 @@ export function SubmitArticleForm({
         <div className="flex items-center justify-between p-4 border-b border-[#211f1c] dark:border-white/20 sticky top-0 bg-white dark:bg-[#2a2825] z-10">
           <h3 className="normal">Submit New Article</h3>
           <button
-            onClick={onClose}
+            onClick={handleRequestClose}
             className="p-1.5 rounded-md hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
           >
             <X size={16} className="normal" />
@@ -213,7 +252,7 @@ export function SubmitArticleForm({
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="Write your article here using Markdown formatting...&#10;&#10;## Example Heading&#10;&#10;Here's some **bold text** and *italic text*.&#10;&#10;- Bullet point 1&#10;- Bullet point 2"
-              className="mt-1 text-sm min-h-[300px]"
+              className="mt-1 text-sm min-h-75"
               rows={15}
               required
             />
@@ -226,7 +265,7 @@ export function SubmitArticleForm({
           <div className="flex gap-2 pt-4">
             <button
               type="button"
-              onClick={onClose}
+              onClick={handleRequestClose}
               className="flex-1 h-10 px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-waste-compost hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[12px] text-black"
               disabled={submitting}
             >
@@ -242,6 +281,13 @@ export function SubmitArticleForm({
           </div>
         </form>
       </div>
+
+      {showDiscardConfirm && (
+        <DiscardChangesDialog
+          onKeepEditing={() => setShowDiscardConfirm(false)}
+          onDiscard={onClose}
+        />
+      )}
     </div>
   );
 }
