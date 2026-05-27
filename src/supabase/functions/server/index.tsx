@@ -15199,6 +15199,8 @@ app.post(
           material_name: materialName,
           status: "published", // Auto-publish for now
           published_at: new Date().toISOString(),
+          reviewed_by: userId,
+          reviewed_at: new Date().toISOString(),
         })
         .select()
         .single();
