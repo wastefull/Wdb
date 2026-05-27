@@ -9,7 +9,7 @@ export function PrivacyPolicyView({ onBack }: PrivacyPolicyViewProps) {
   return (
     <PageTemplate
       title="Privacy Policy"
-      description="Last updated: April 10, 2026"
+      description="Last updated: May 27, 2026"
       onBack={onBack}
       backButtonLabel="Legal"
       maxWidth="3xl"
@@ -266,6 +266,34 @@ export function PrivacyPolicyView({ onBack }: PrivacyPolicyViewProps) {
         </section>
 
         {/* Why */}
+        <section className="space-y-4">
+          <h2 className="text-[16px] normal text-black dark:text-white">
+            Audit and Activity Logs
+          </h2>
+          <p>
+            WasteDB records audit events for administrative and data-integrity
+            actions. Based on current implementation and exported logs, audit
+            entries may include:
+          </p>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Event metadata (timestamp, action, entity type, entity ID)</li>
+            <li>User identifiers (user ID and user email)</li>
+            <li>Request metadata (IP address and user-agent)</li>
+            <li>
+              Change payloads (before/after snapshots and derived change text)
+            </li>
+          </ul>
+          <p>
+            These logs are used for security monitoring, abuse prevention,
+            incident response, and change-traceability. Audit logs are intended
+            for admin-only access and are not public content.
+          </p>
+          <p>
+            Audit-log retention is currently designed around a 7-year compliance
+            window in project policy and retention tooling.
+          </p>
+        </section>
+
         <section className="space-y-3">
           <h2 className="text-[16px] normal text-black dark:text-white">
             Why We Process This Data
@@ -275,6 +303,7 @@ export function PrivacyPolicyView({ onBack }: PrivacyPolicyViewProps) {
             <li>Secure sign-in and prevent abuse</li>
             <li>Maintain active sessions</li>
             <li>Provide basic profile and display behavior</li>
+            <li>Provide administrative auditability and incident forensics</li>
           </ul>
         </section>
 

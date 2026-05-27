@@ -1,6 +1,6 @@
 # WasteDB Privacy Policy
 
-Last updated: April 10, 2026
+Last updated: May 27, 2026
 
 This policy explains what personally identifiable information (PII) WasteDB receives through Supabase authentication and Google OAuth, and how cookies are used.
 
@@ -111,6 +111,23 @@ We process this data to:
 - Maintain active sessions
 - Provide basic profile/display behavior
 
+## Audit and Activity Logs
+
+WasteDB records administrative and data-integrity events in an audit log.
+
+Based on current implementation and exported records, audit entries may include:
+
+- Event metadata (timestamp, action, entity type, entity ID)
+- User identifiers (user ID and user email)
+- Request metadata (IP address and user-agent)
+- Change payloads (before/after snapshots and derived change descriptions)
+
+Important:
+
+- before/after snapshots can include operational content needed to reconstruct a change.
+- Audit logs are intended for admin-only access and are not public-facing content.
+- Audit logs are used for security monitoring, abuse prevention, incident response, and change traceability.
+
 ## Sharing
 
 WasteDB relies on service providers to process auth-related data:
@@ -128,6 +145,8 @@ WasteDB implements:
 - Email verification checks
 - Provider/domain checks for Google OAuth
 - Server-side session expiry controls
+
+Audit-log retention is currently designed around a 7-year compliance window in project policy and retention tooling.
 
 ## Your Choices
 

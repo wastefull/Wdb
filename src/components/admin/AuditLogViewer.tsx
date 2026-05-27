@@ -42,6 +42,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
   const [stats, setStats] = useState<AuditStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedLog, setSelectedLog] = useState<AuditLogEntry | null>(null);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   // Filters
   const [entityTypeFilter, setEntityTypeFilter] = useState("");
@@ -56,6 +57,32 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
   const [total, setTotal] = useState(0);
   const limit = 50;
 
+  const normalizeLog = (row: any): AuditLogEntry => {
+    const action =
+      row?.action === "create" ||
+      row?.action === "update" ||
+      row?.action === "delete"
+        ? row.action
+        : "update";
+
+    return {
+      id: String(row?.id ?? ""),
+      timestamp: String(row?.timestamp ?? new Date().toISOString()),
+      userId: String(row?.userId ?? ""),
+      userEmail: String(row?.userEmail ?? "unknown"),
+      entityType: String(row?.entityType ?? "unknown"),
+      entityId: String(row?.entityId ?? ""),
+      action,
+      before: row?.before ?? null,
+      after: row?.after ?? null,
+      changes: Array.isArray(row?.changes)
+        ? row.changes.map((c: any) => String(c))
+        : [],
+      ipAddress: row?.ipAddress ? String(row.ipAddress) : undefined,
+      userAgent: row?.userAgent ? String(row.userAgent) : undefined,
+    };
+  };
+
   useEffect(() => {
     fetchLogs();
     fetchStats();
@@ -64,7 +91,9 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
   async function fetchLogs() {
     try {
       setLoading(true);
+      setFetchError(null);
       const accessToken = sessionStorage.getItem("wastedb_access_token");
+      const isCustomToken = !!accessToken && accessToken !== publicAnonKey;
 
       const params = new URLSearchParams({
         offset: String(page * limit),
@@ -81,20 +110,30 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
         `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/audit/logs?${params}`,
         {
           headers: {
-            Authorization: `Bearer ${accessToken || publicAnonKey}`,
+            Authorization: `Bearer ${publicAnonKey}`,
+            ...(isCustomToken ? { "X-Session-Token": accessToken } : {}),
           },
         },
       );
 
       if (!response.ok) {
-        throw new Error("Failed to fetch audit logs");
+        const errorBody = await response.text();
+        throw new Error(
+          `Failed to fetch audit logs (${response.status}): ${errorBody}`,
+        );
       }
 
       const data = await response.json();
-      setLogs(data.logs);
-      setTotal(data.total);
+      const normalizedLogs = Array.isArray(data?.logs)
+        ? data.logs.map(normalizeLog)
+        : [];
+      setLogs(normalizedLogs);
+      setTotal(Number(data?.total ?? normalizedLogs.length));
     } catch (error) {
       log.error("Error fetching audit logs:", error);
+      setFetchError(
+        "Unable to load audit logs. Please confirm admin mode and sign-in state.",
+      );
     } finally {
       setLoading(false);
     }
@@ -103,18 +142,23 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
   async function fetchStats() {
     try {
       const accessToken = sessionStorage.getItem("wastedb_access_token");
+      const isCustomToken = !!accessToken && accessToken !== publicAnonKey;
 
       const response = await fetch(
         `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/audit/stats`,
         {
           headers: {
-            Authorization: `Bearer ${accessToken || publicAnonKey}`,
+            Authorization: `Bearer ${publicAnonKey}`,
+            ...(isCustomToken ? { "X-Session-Token": accessToken } : {}),
           },
         },
       );
 
       if (!response.ok) {
-        throw new Error("Failed to fetch audit stats");
+        const errorBody = await response.text();
+        throw new Error(
+          `Failed to fetch audit stats (${response.status}): ${errorBody}`,
+        );
       }
 
       const data = await response.json();
@@ -154,15 +198,17 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
     return (
-      log.entityType.toLowerCase().includes(query) ||
-      log.entityId.toLowerCase().includes(query) ||
-      log.userEmail.toLowerCase().includes(query) ||
-      log.changes.some((change) => change.toLowerCase().includes(query))
+      (log.entityType || "").toLowerCase().includes(query) ||
+      (log.entityId || "").toLowerCase().includes(query) ||
+      (log.userEmail || "").toLowerCase().includes(query) ||
+      (Array.isArray(log.changes) ? log.changes : []).some((change) =>
+        (change || "").toLowerCase().includes(query),
+      )
     );
   });
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-[#e8f4f8] to-(--waste-reuse) dark:from-[#0a0908] dark:to-[#1a1917] p-6">
+    <div className="min-h-screen bg-linear-to-b from-[#e8f4f8] to-waste-reuse dark:from-[#0a0908] dark:to-[#1a1917] p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6">
@@ -324,6 +370,12 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
           </div>
         </div>
 
+        {fetchError && (
+          <div className="mb-6 px-4 py-3 rounded-md border border-red-500/40 bg-red-500/10 text-red-700 dark:text-red-300 font-['Sniglet'] text-[12px]">
+            {fetchError}
+          </div>
+        )}
+
         {/* Logs Table */}
         <div className="bg-white dark:bg-[#1a1917] rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)]">
           <div className="panel-bordered">
@@ -379,7 +431,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
                           {new Date(log.timestamp).toLocaleString()}
                         </td>
                         <td className="px-4 py-3 font-['Sniglet'] text-sm">
-                          {log.userEmail}
+                          {log.userEmail || "unknown"}
                         </td>
                         <td className="px-4 py-3">
                           <span
@@ -394,7 +446,9 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
                           {log.entityType}
                         </td>
                         <td className="px-4 py-3 font-['Sniglet'] text-sm">
-                          {log.entityId.slice(0, 20)}...
+                          {log.entityId
+                            ? `${log.entityId.slice(0, 20)}...`
+                            : "—"}
                         </td>
                         <td className="px-4 py-3 font-['Sniglet'] text-sm">
                           {log.changes.length} change
