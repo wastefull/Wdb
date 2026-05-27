@@ -3,6 +3,7 @@ import { X, Loader2, CheckCircle2, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import * as api from "../../utils/api";
 import { useAuthContext } from "../../contexts/AuthContext";
+import { useCategoryContext } from "../../contexts/CategoryContext";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
@@ -22,17 +23,6 @@ import {
 } from "../../utils/wikiEnrichment";
 import { Material } from "../../types/material";
 import { buildMaterialPermalinkPath } from "../../utils/permalinks";
-
-const CATEGORIES = [
-  "Packaging",
-  "Textiles",
-  "Electronics",
-  "Construction",
-  "Food & Organic",
-  "Plastics",
-  "Metals",
-  "Other",
-];
 
 const MATERIAL_HINT_WORDS = [
   "material",
@@ -318,6 +308,7 @@ export function SubmitMaterialForm({
 }: SubmitMaterialFormProps) {
   const { userRole } = useAuthContext();
   const isAdmin = userRole === "admin";
+  const { categories } = useCategoryContext();
   const [name, setName] = useState(initialName || "");
   const [aliases, setAliases] = useState("");
   const [category, setCategory] = useState("");
@@ -465,9 +456,16 @@ export function SubmitMaterialForm({
     setName(candidate.label);
 
     const suggestedCategory = guessCategoryFromCandidate(candidate);
-    if (suggestedCategory && !category) {
-      setCategory(suggestedCategory);
-      toast.info(`Category auto-selected: ${suggestedCategory}`);
+    const matchedCat = suggestedCategory
+      ? categories.find(
+          (c) =>
+            c.name === suggestedCategory ||
+            c.aliases?.includes(suggestedCategory),
+        )
+      : null;
+    if (matchedCat && !category) {
+      setCategory(matchedCat.name);
+      toast.info(`Category auto-selected: ${matchedCat.name}`);
     }
 
     // If description already has user text, ask before replacing
@@ -735,9 +733,9 @@ export function SubmitMaterialForm({
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
               <SelectContent>
-                {CATEGORIES.map((cat) => (
-                  <SelectItem key={cat} value={cat} className="">
-                    {cat}
+                {categories.map((cat) => (
+                  <SelectItem key={cat.id} value={cat.name} className="">
+                    {cat.name}
                   </SelectItem>
                 ))}
               </SelectContent>

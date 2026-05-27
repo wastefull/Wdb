@@ -1,9 +1,6 @@
 import { useState, useRef } from "react";
-import {
-  Material,
-  MATERIAL_CATEGORIES,
-  MaterialCategory,
-} from "../../types/material";
+import { Material, MaterialCategory } from "../../types/material";
+import { useCategoryContext } from "../../contexts/CategoryContext";
 import { UserSelector } from "./UserSelector";
 import { DiscardChangesDialog } from "../shared/DiscardChangesDialog";
 
@@ -24,9 +21,15 @@ export function MaterialForm({
   onCancel,
   isAdminMode = false,
 }: MaterialFormProps) {
+  const { categories, getCategoryByName } = useCategoryContext();
   const [formData, setFormData] = useState({
     name: material?.name || "",
-    category: (material?.category || "Plastics") as MaterialCategory,
+    category: material?.category || categories[0]?.name || "Plastics",
+    categoryId:
+      material?.categoryId ||
+      getCategoryByName(material?.category ?? "")?.id ||
+      categories[0]?.id ||
+      "",
     compostability: material?.compostability || 0,
     recyclability: material?.recyclability || 0,
     reusability: material?.reusability || 0,
@@ -76,7 +79,8 @@ export function MaterialForm({
       {
         ...existingFields,
         name: formData.name,
-        category: formData.category,
+        category: formData.category as MaterialCategory,
+        categoryId: formData.categoryId || undefined,
         description: formData.description,
         compostability: formData.compostability || 0,
         recyclability: formData.recyclability || 0,
@@ -114,18 +118,22 @@ export function MaterialForm({
           <label className="text-[13px] text-black block mb-1">Category</label>
           <select
             value={formData.category}
-            onChange={(e) =>
+            onChange={(e) => {
+              const selected = categories.find(
+                (c) => c.name === e.target.value,
+              );
               setFormData({
                 ...formData,
                 category: e.target.value as MaterialCategory,
+                categoryId: selected?.id ?? formData.categoryId,
                 isHub: e.target.value === "Elements" ? true : formData.isHub,
-              })
-            }
+              });
+            }}
             className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-xl text-[14px] outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all"
           >
-            {MATERIAL_CATEGORIES.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.name}>
+                {cat.name}
               </option>
             ))}
           </select>

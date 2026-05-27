@@ -20,17 +20,7 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-
-const CATEGORIES = [
-  "Packaging",
-  "Textiles",
-  "Electronics",
-  "Construction",
-  "Food & Organic",
-  "Plastics",
-  "Metals",
-  "Other",
-];
+import { useCategoryContext } from "../../contexts/CategoryContext";
 
 interface Submission {
   id: string;
@@ -68,6 +58,7 @@ export function ReviewModal({
   onReject,
   onRequestRevision,
 }: ReviewModalProps) {
+  const { categories } = useCategoryContext();
   const [action, setAction] = useState<
     "approve" | "edit" | "suggest" | "reject" | null
   >(null);
@@ -166,9 +157,9 @@ export function ReviewModal({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {CATEGORIES.map((cat) => (
-                  <SelectItem key={cat} value={cat} className="">
-                    {cat}
+                {categories.map((cat) => (
+                  <SelectItem key={cat.id} value={cat.name} className="">
+                    {cat.name}
                   </SelectItem>
                 ))}
               </SelectContent>
