@@ -1,6 +1,6 @@
 # **ROADMAP.md**
 
-**Updated:** December 18, 2025
+**Updated:** May 27, 2026
 _A development roadmap for integrating Wastefull's data science methodology into the WasteDB platform._
 
 ---
@@ -29,325 +29,153 @@ WasteDB will:
 
 ## **Major Phases**
 
-**Progress: 8.5 of 10 phases complete (85%)**
+**Progress: 3 of 10 stages complete (30%)**
 
 ```
-[██████████████████████████████████████████░░░░░░░░] 85%
+[███████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 30%
 ```
 
-### **1. Data Model Integration** ✅ COMPLETE
+### **1. Foundation** ✅ COMPLETE
 
-**Goal:** Introduce the WasteDB scientific data layer without disrupting the public schema.
-
-**Deliverables** ✅
-
-- Extend Supabase schema for new scientific fields across all three dimensions:
-
-  **Recyclability (CR-v1):**
-
-  - `CR_practical_mean`, `CR_practical_CI95`, `CR_theoretical_mean`, `CR_theoretical_CI95`
-  - Parameters: `Y_value`, `D_value`, `C_value`, `M_value`, `E_value`
-
-  **Compostability (CC-v1):**
-
-  - `CC_practical_mean`, `CC_practical_CI95`, `CC_theoretical_mean`, `CC_theoretical_CI95`
-  - Parameters: `B_value`, `N_value`, `T_value`, `H_value`, `M_value`
-
-  **Reusability (RU-v1):**
-
-  - `RU_practical_mean`, `RU_practical_CI95`, `RU_theoretical_mean`, `RU_theoretical_CI95`
-  - Parameters: `L_value`, `R_value`, `U_value`, `C_value`, `M_value`
-
-  **Shared metadata:**
-
-  - `confidence_level`, `sources`, `whitepaper_version`, `method_version`, `calculation_timestamp`
-
-- Preserve existing public fields for backward compatibility (`recyclability = CR_practical_mean * 100`).
-- Add migration scripts and validate new endpoints.
-- Ensure localStorage mirrors public data only for performance.
-
-**Status:** Completed October 20, 2025. Currently only CR (Recyclability) fully implemented; CC and RU data fields planned.
-
----
-
-### **2. Admin & Research Tools** ✅ COMPLETE
-
-**Goal:** Give administrators and researchers full control of scientific parameters.
+**Goal:** Establish WasteDB's core product surface and scientific platform foundations.
 
 **Deliverables** ✅
 
-- Extend _Data Processing View_ with dual modes (Theoretical & Practical).
-- Compute both $CR_{theo}$ and $CR_{prac}$ and write results to Supabase.
-- Add confidence interval display and "show parameter detail" toggle.
-- Create _Admin Source Manager_ for editing JSON-based citation metadata.
-- Auto-recalculate confidence categories on save.
+- Scientific data model with CR, CC, and RU parameters plus confidence intervals
+- Admin and research tools for calculation, review, and batch operations
+- Public export layer and visualization infrastructure
+- Content management and editorial workflow foundation
+- Research API, chart rasterization, virtual scrolling, and performance monitoring
 
-**Status:** Completed October 20, 2025 for CR (Recyclability). Extension to CC and RU planned.
+**Status:** Completed November 2, 2025.
 
 ---
 
-### **3. Public Data & Export Layer** ✅ COMPLETE
+### **2. Evidence Infrastructure** ✅ COMPLETE
 
-**Goal:** Translate scientific data into user-friendly CSVs and visualizations.
+**Goal:** Build the evidence, governance, and compliance infrastructure behind WasteDB's scientific claims.
 
 **Deliverables** ✅
 
-- ✅ Build `/api/export/public` for lay-friendly CSVs (0–100 scale).
-- ✅ Build `/api/export/full` for researchers (raw normalized data + CI).
-- ✅ Implement mapping logic:
+- Versioned transform definitions for all 13 parameters
+- Evidence points CRUD API with unit and transform validation
+- Legal framework, takedown process, audit logging, data retention, and exports
+- Observability, source deletion guards, and policy snapshot infrastructure
+- Aggregation backend and supporting admin workflows
 
-  - `recyclability = CR_practical_mean * 100`
-  - `compostability = 100 × (1 - D)` for biological materials
-  - optional `(est.)` flag for low-confidence entries
-
-- ✅ Support `.csv` and `.json` export formats.
-
-**Status:** Completed October 20, 2025. See `/docs/PHASE_3_COMPLETE.md` for details.
+**Status:** Completed November 20, 2025.
 
 ---
 
-### **4. Visualization & Accessibility** ✅ COMPLETE
+### **3. Curation Lab** 🔄 IN PROGRESS
 
-**Goal:** Communicate uncertainty and scientific rigor through accessible, unified visualizations.
-
-**Deliverables** ✅
-
-- ✅ Implemented **Hybrid Quantile-Halo Visualization Model (VIZ-v1)** for all three dimensions
-- ✅ Created unified renderer with three visualization modes:
-  - **Overlap Mode:** Dense quantile dots across shared confidence intervals
-  - **Near-Overlap Mode:** Bridging dots with soft merged halos
-  - **Gap Mode:** Separated halos with gradient gap zone showing innovation potential
-- ✅ Comprehensive accessibility support:
-  - High-contrast mode with distinct color palettes
-  - Dark mode variants with appropriate contrast
-  - Reduced-motion mode for users with vestibular disorders
-  - Full ARIA labels and keyboard navigation
-- ✅ Interactive opacity states (hover animations on halos)
-- ✅ Tooltips showing practical/theoretical means, confidence intervals, and gap metrics
-- ✅ Score bar colors (dimension-specific): Recyclability (yellow), Compostability (coral), Reusability (blue-gray)
-- ✅ Documentation: `/whitepapers/VIZ-v1.md`, `/docs/VIZ_UNIFIED.md`
-
-**Status:** Completed October 22, 2025. See `/docs/PHASE_4_VISUALIZATION_COMPLETE.md` for details.
-
----
-
-### **5. Multi-Dimensional Scientific Data Layer** ✅ COMPLETE
-
-**Goal:** Extend scientific data infrastructure to Compostability and Reusability.
-
-**Backend Deliverables** ✅
-
-- ✅ Extend Material type with 20 new fields (CC and RU parameters + composite indices)
-- ✅ Add calculation logic for CC (Compostability) composite index
-- ✅ Add calculation logic for RU (Reusability) composite index
-- ✅ Create `/calculate/compostability` endpoint
-- ✅ Create `/calculate/reusability` endpoint
-- ✅ Create `/calculate/all-dimensions` batch endpoint
-- ✅ Update export endpoints to include CC and RU fields (39 total CSV columns)
-- ✅ Add API utility functions for calculations
-- ✅ Create whitepapers: `CC-v1.md` (Compostability) and `RU-v1.md` (Reusability)
-
-**Frontend Deliverables** ✅
-
-- ✅ Implement ScientificDataEditor with tabbed interface for CR/CC/RU
-- ✅ Refactor into modular structure (7 files, ~185 lines each)
-- ✅ Create parameter input forms for all 15 parameters across three dimensions
-- ✅ Implement CC and RU calculation buttons with API integration
-- ✅ Share M_value across all three dimensions
-- ✅ Update DataProcessingView with three separate calculators (CR/CC/RU tabs)
-- ✅ Update source library tags for compostability and reusability sources
-- ✅ Extend QuantileVisualization with dimension selector (scoreType prop)
-
-**Status:** Completed October 23, 2025. All three dimensions (CR, CC, RU) now have complete scientific data infrastructure, calculation endpoints, parameter editors, and visualizations. See `/docs/PHASE_5_COMPLETE.md` for details.
-
----
-
-### **6. Content Management & Editorial Workflow** 🔄 IN PROGRESS
-
-**Goal:** Enable community-driven content creation with admin editorial oversight.
+**Goal:** Build the evidence extraction workbench and editor experience for MIU-based curation.
 
 **Deliverables**
 
-**Phase 6.1: Foundation** ✅ COMPLETE
+- ✅ Curation Workbench split-pane interface and 5-step extraction wizard
+- ✅ Integrated PDF viewer with selection-to-form prefill flows
+- ✅ MIU create, edit, and delete workflows
+- ⏸️ Evidence List Viewer and pilot extraction work carried forward
+- ⬜ Double-extraction validation and conflict resolution
 
-- ✅ User profiles with bio, social links, and contribution history
-- ✅ Articles data model (markdown-based, tied to materials)
-- ✅ Submissions workflow (new materials, material edits, articles)
-- ✅ Notifications system with bell UI
-- ✅ Basic WYSIWYG markdown editor
-- ✅ "Inactivate" button in User Management
-
-**Phase 6.2: Submission Forms** ✅ COMPLETE
-
-- ✅ Submit new material form (basic fields only)
-- ✅ Suggest material description edit form
-- ✅ Submit new article form (category + material selector)
-- ✅ "Pending Review" badges for submitters (My Submissions view)
-- ✅ User-facing submission workflow integrated into main UI
-- ✅ "Suggest Edit" button on material cards for non-admin users
-- ✅ "My Submissions" view to track submission status
-
-**Phase 6.3: Content Review Center** ✅ COMPLETE
-
-- ✅ Three-tab interface (Review / Pending / Moderation)
-- ✅ Review feed with type icons, snippets, Review/Flag buttons
-- ✅ Review modal with Approve/Edit Directly/Suggest Edits
-- ✅ Flag system moving content to Moderation tab
-- ✅ Submission cards with timestamps and status indicators
-- ✅ Direct editing capability for admin reviewers
-- ✅ Auto-publishing approved submissions to database
-
-**Phase 6.4: Editorial Features** ✅ COMPLETE
-
-- ✅ "Suggest Edits" workflow with email feedback via Resend
-- ✅ "Edit Directly" with dual Writer/Editor credit attribution
-- ✅ Published materials show Writer and Editor credits
-- ⬜ Inline diff viewer for article updates (color + icons) - DEFERRED
-
-**Phase 6.5: Notifications & Email** ✅ COMPLETE
-
-- ✅ Email templates for editorial feedback and approvals (with logo)
-- ✅ Notification triggers (new submission, feedback, approval, rejection)
-- ✅ Manual Pending actions ("Remit to Review" / "Delete")
-
-**Status:** Phase 6.5 and Phase 8 (partial) completed November 2, 2025. Email system with logo integration complete. Performance optimizations (lazy loading, virtual scrolling, monitoring) implemented.
+**Status:** Partial. Work paused in May 2026 while the team executed the database migration.
 
 ---
 
-### **7. Research API & Data Publication** ✅ COMPLETE
+### **4. Data Migration** ✅ COMPLETE
 
-**Goal:** Open WasteDB data for public and academic use.
+**Goal:** Move core application data from the KV store to relational Postgres with RLS and foreign-key integrity.
 
 **Deliverables** ✅
 
-- ✅ Create `/api/v1/materials` (read-only, paginated JSON)
-- ✅ Add `/api/v1/materials/:id` for detailed metadata
-- ✅ Create `/api/v1/stats` for aggregate database statistics
-- ✅ Create `/api/v1/categories` for material category listing
-- ✅ Create `/api/v1/methodology` for scoring methodology information
-- ✅ Include `whitepaper_version`, `calculation_date`, and `method_version`
-- ✅ Build comprehensive API documentation component
-- ✅ Integrate API docs into main UI navigation with Code icon
+- Relational tables for materials, articles, sources, user profiles, evidence points, and audit logs
+- Join tables for categories, links, and source relationships
+- Row-level security for anon, authenticated, and admin access tiers
+- Migration scripts and seeded data for existing content
+- Foreign-key integrity enforced across the migrated data model
 
-**Status:** Completed October 30, 2025. See `/docs/PHASE_7_API_INTEGRATION_COMPLETE.md` for details.
+**Status:** Completed May 21, 2026.
 
 ---
 
-### **8. Performance & Scalability** ✅ COMPLETE
+### **5. Privacy, Audit & Revision History** 📋 PLANNED
 
-**Goal:** Optimize rendering performance for large datasets and complex visualizations.
-
-**Deliverables** ✅
-
-- **Local Rasterization of Charts:** Pre-render quantile visualizations to canvas/image format to prevent poor page performance with many materials
-  - ✅ Implement IndexedDB caching infrastructure (`/utils/chartCache.ts`)
-  - ✅ Create SVG-to-canvas rasterization hook (`/utils/useRasterizedChart.ts`)
-  - ✅ Build rasterized component wrapper (`/components/RasterizedQuantileVisualization.tsx`)
-  - ✅ Add cache management UI for admins (`/components/ChartCacheManager.tsx`)
-  - ✅ Maintain accessibility with ARIA labels and keyboard navigation
-  - ✅ Preserve interactivity (tooltips, click handlers, hover states)
-  - ✅ Implement lazy loading for visualization rendering
-- ✅ Implement virtual scrolling for material lists
-- ✅ Performance monitoring and metrics collection
-
-**Status:** Completed November 2, 2025. Chart rasterization, lazy loading, virtual scrolling, and performance monitoring implemented. Advanced optimization items migrated to Phase 10. See `/docs/PHASE_8_PERFORMANCE_OPTIMIZATIONS.md` for details.
-
----
-
-### **9. Evidence Pipeline & Curation System** 🔄 IN PROGRESS
-
-**Goal:** Enable granular, auditable evidence extraction from sources with reproducible aggregation into material parameters.
-
-**Overview:** Transform WasteDB from a parameter-entry system to an evidence-extraction platform where every numeric value is traceable to specific passages, figures, and tables in peer-reviewed literature using Minimally Interpretable Units (MIUs).
-
-**Current Status:** Phase 9.0 ✅ | Phase 9.1 ✅ | Phase 9.2 🚧
+**Goal:** Redesign WasteDB's logging and provenance model around privacy minimization while preserving scientific trust, security, and accountability.
 
 **Deliverables**
 
-**Phase 9.0: Critical Infrastructure** ✅ COMPLETE (Nov 12-17, 2025)
+- Split the current broad audit model into three layers:
+  - public or semi-public revision history for content provenance
+  - restricted admin audit for approvals, deletions, and role-sensitive actions
+  - security telemetry for authentication, abuse prevention, and suspicious activity
+- Minimize default audit payloads to actor ID, action, target, timestamp, change summary, and changed fields
+- Limit full before/after snapshots to content revision history and explicitly justified integrity-critical cases
+- Separate request metadata from content/admin revisions so IP address and user-agent are collected only where operationally necessary
+- Prefer stable user IDs over email duplication in audit records unless email is specifically needed for an operational workflow
+- Introduce tiered retention:
+  - revision history retained for provenance
+  - minimal admin accountability logs retained for compliance needs
+  - raw IP address and full user-agent retained for shorter, security-scoped windows
+- Update privacy policy, retention documentation, exports, and admin tooling to reflect the layered model
 
-- ✅ **Day 1:** Legal & licensing (MIU licensing policy CC BY 4.0, DMCA takedown process)
-- ✅ **Day 2:** Transform governance (versioned transforms, auto-recompute system)
-- ✅ **Day 3:** Controlled vocabularies (units ontology, context ontology)
-- ✅ **Day 4:** Evidence collection system (Evidence Lab UI, audit logging)
-- ✅ **Day 5:** Validation rules (server-side middleware, Zod schemas)
-- ✅ **Day 6:** Observability & monitoring (structured logging, email notifications)
-- ✅ **Day 7:** Data guards (source deletion protection, cascade delete warnings)
-- ✅ **Day 8:** Policy snapshots (reproducibility infrastructure)
-- ✅ **Day 9:** Backup & export (research export system, point-in-time restore)
-- ✅ **Day 10:** Security hardening (RLS verification, signed URLs, rate limiting)
-- ✅ **Day 11:** Testing & documentation (40+ automated tests, API documentation)
-- 📄 Files: `/legal/*`, `/ontologies/*`, 10+ UI components
+**Success Criteria**
 
-**Phase 9.1: Database Schema & Backend** ✅ COMPLETE (Nov 18-20, 2025)
+- Full-content snapshots are no longer the generic default for private audit rows
+- IP address and user-agent retention is narrowed and separated by purpose
+- Public-facing content provenance remains reconstructible without exposing unnecessary personal data
+- Privacy disclosures match actual implementation and retention behavior
 
-- ✅ Evidence points schema (8 new fields: source_ref, source_weight, validation_status, etc.)
-- ✅ Parameter aggregations schema (weighted mean, CI95, versioning, MIU traceability)
-- ✅ KV store indexes (efficient querying via prefix-based patterns)
-- ✅ 11 API endpoints (5 evidence, 5 aggregation, 1 data guard)
-- ✅ Data integrity guards (source deletion blocked if MIUs reference it)
-- ✅ Testing infrastructure (10 automated tests, integrated in admin panel)
-- ✅ Backward compatibility (all Phase 9.0 endpoints continue working)
-- 📄 Documentation: `/docs/PHASE_9_SCHEMA.md`
-- 📄 Files: `/utils/supabase/evidence.ts`, `/utils/supabase/aggregations.ts`
-
-**Phase 9.2: Curation Workbench UI** 🔄 IN PROGRESS
-
-- ✅ CurationWorkbench.tsx component (split-pane layout, 5-step wizard)
-- ✅ EvidenceListViewer.tsx component (filter, search, detail modal)
-- ✅ Unit ontology validation (real-time validation, parameter-specific options)
-- ✅ Integration with POST/GET evidence endpoints
-- 🔄 Smart context pre-fill (detect material/parameter from text)
-- 🔄 MIU review and edit functionality
-- ⏸️ PDF annotation tools (DEFERRED to Phase 9.4 - better ROI when scaling)
-- ⬜ Double-extraction validation (task assignment, κ calculation, conflict resolution)
-- ⬜ Pilot extraction (90+ MIUs: 6 materials × 5 parameters × 3+ MIUs)
-
-**Phase 9.3: Aggregation Engine & Validation** ⬜ PLANNED
-
-- ⬜ MIU selection/filtering UI
-- ⬜ Quality score visualization
-- ⬜ Inter-rater reliability (κ) calculations
-- ⬜ Conflict resolution workflows
-
-**Phase 9.4: Scale to 30 Materials** ⬜ PLANNED
-
-- ⬜ PDF annotation tools (before scaling to all materials)
-- ⬜ Curator onboarding
-- ⬜ Batch operations
-- ⬜ Performance optimization
-- ⬜ Progress tracking dashboards
-- ⬜ Scale to 8 materials × 13 parameters (~300+ MIUs)
-
-**Phase 9.5: Public Launch** ⬜ PLANNED
-
-- ⬜ Public Evidence tab (read-only)
-- ⬜ API documentation site
-- ⬜ MIU citation generator
-- ⬜ User guides & tutorials
-
-**Success Criteria:**
-
-- ✅ Phase 9.0: All 11 days completed, 40+ tests passing, legal framework established
-- ✅ Phase 9.1: 8 schema fields added, 11 API endpoints, zero breaking changes
-- 🔄 Phase 9.2: Workbench UI built, pilot extraction in progress
-- ⬜ Overall: 250-300 MIUs, all 13 parameters covered, κ ≥ 0.7, median <3 min/MIU
-
-**Status:** Phases 9.0 and 9.1 complete (Nov 20, 2025). Phase 9.2 in progress. See `/docs/PHASE_9_STATUS.md` for detailed progress tracking.
+**Status:** Planned as the next stage after the KV-to-Postgres migration.
 
 ---
 
-### **10. Advanced Performance & Data Optimization** 📋 PLANNED
+### **6. TBD** 📋 PLANNED
 
-**Goal:** Further enhance system performance with advanced optimization strategies for server-side rendering, database queries, and progressive data loading.
+**Goal:** Reserved for upcoming planned work before scaling.
+
+**Status:** TBD.
+
+---
+
+### **7. TBD** 📋 PLANNED
+
+**Goal:** Reserved for upcoming planned work before scaling.
+
+**Status:** TBD.
+
+---
+
+### **8. TBD** 📋 PLANNED
+
+**Goal:** Reserved for upcoming planned work before scaling.
+
+**Status:** TBD.
+
+---
+
+### **9. TBD** 📋 PLANNED
+
+**Goal:** Reserved for upcoming planned work before scaling.
+
+**Status:** TBD.
+
+---
+
+### **10. Scale** 📋 PLANNED
+
+**Goal:** Build on the relational foundation to enable evidence curation at scale, aggregation, and public traceability.
 
 **Deliverables**
 
-- ⬜ **Server-Side Chart Rendering:** Add server-side rendering option for static charts to reduce client-side computation
-- ⬜ **Database Query Optimization:** Optimize database queries for large material collections with indexing and query plan analysis
-- ⬜ **Progressive Data Loading:** Add progressive loading for scientific data editor to handle complex parameter forms efficiently
+- ⬜ Aggregation engine with weighted statistics and confidence intervals
+- ⬜ Evidence List Viewer for browsing, filtering, and searching MIUs at scale
+- ⬜ Pilot extraction expansion across additional materials and parameters
+- ⬜ Evidence curation for 30+ materials across all dimensions
+- ⬜ Public evidence traceability layer on material detail pages
+- ⬜ Community curator onboarding, quality metrics, and duplicate detection
 
-**Status:** Planned. Items migrated from Phase 8 for future implementation after Phase 9 completion.
+**Status:** Planned for after interim Stages 6-9 are defined and completed.
 
 ---
 

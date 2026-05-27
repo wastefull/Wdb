@@ -40,12 +40,12 @@ export const PHASE_TABS = [
   {
     id: "next-stage",
     label: "Next Stage",
-    fullName: "Next Stage (TBD)",
+    fullName: "Stage 5: Privacy, Audit & Revision History",
   },
   {
     id: "scale",
     label: "Scale",
-    fullName: "Scale: Evidence Curation & Growth",
+    fullName: "Stage 10: Scale: Evidence Curation & Growth",
   },
   {
     id: "data-migration",
@@ -539,13 +539,49 @@ export function SimplifiedRoadmap({
     },
     {
       number: 5,
-      title: "Next Stage (TBD)",
+      title: "Privacy, Audit & Revision History",
       status: "planned",
-      description: "Coming soon — stage details being finalized.",
-      keyDeliverables: [],
+      description:
+        "Rework WasteDB's logging and provenance model around privacy minimization: separate public-facing revision history from restricted admin audit and security telemetry, reduce identifiable defaults, and adopt tiered retention.",
+      keyDeliverables: [
+        "Split current logging into revision history, restricted admin audit, and security telemetry",
+        "Minimize default audit records to actor ID, action, target, timestamp, and change summary",
+        "Move IP address and user-agent into security/request-context records with tighter retention",
+        "Limit full before/after snapshots to true revision-history and integrity-critical cases",
+        "Adopt tiered retention rules for revisions, admin audit records, and raw request metadata",
+        "Update policy, exports, and admin tooling to match the new logging model",
+      ],
     },
     {
       number: 6,
+      title: "TBD",
+      status: "planned",
+      description: "Reserved for upcoming planned work before scaling.",
+      keyDeliverables: [],
+    },
+    {
+      number: 7,
+      title: "TBD",
+      status: "planned",
+      description: "Reserved for upcoming planned work before scaling.",
+      keyDeliverables: [],
+    },
+    {
+      number: 8,
+      title: "TBD",
+      status: "planned",
+      description: "Reserved for upcoming planned work before scaling.",
+      keyDeliverables: [],
+    },
+    {
+      number: 9,
+      title: "TBD",
+      status: "planned",
+      description: "Reserved for upcoming planned work before scaling.",
+      keyDeliverables: [],
+    },
+    {
+      number: 10,
       title: "Scale",
       status: "planned",
       description:
@@ -1301,16 +1337,47 @@ export function SimplifiedRoadmap({
       {activeTab === "next-stage" && (
         <div className="space-y-6">
           <div>
-            <h2 className="text-2xl mb-1">Next Stage (TBD)</h2>
+            <h2 className="text-2xl mb-1">
+              Stage 5: Privacy, Audit & Revision History
+            </h2>
             <p className="text-muted-foreground text-sm">
-              Stage details coming soon.
+              Planned - rebuild the current audit model around clearer data
+              minimization, layered logging, and retention by purpose.
             </p>
           </div>
           <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Circle className="size-5 text-gray-400" />
+                Planned Work
+              </CardTitle>
+              <CardDescription>
+                Separate content provenance from security and admin telemetry
+              </CardDescription>
+            </CardHeader>
             <CardContent className="pt-6">
-              <p className="text-sm text-muted-foreground italic">
-                This stage is being defined. Check back soon.
-              </p>
+              <ul className="space-y-1 text-sm text-muted-foreground ml-6">
+                <li>
+                  ⬜ Create distinct models for public revision history,
+                  restricted admin audit, and security event logging
+                </li>
+                <li>
+                  ⬜ Reduce default audit fields to minimal accountability data
+                  instead of full-content snapshots
+                </li>
+                <li>
+                  ⬜ Restrict raw IP address and full user-agent retention to
+                  security use cases with shorter retention windows
+                </li>
+                <li>
+                  ⬜ Use stable actor IDs by default and avoid duplicating email
+                  in every audit row unless operationally necessary
+                </li>
+                <li>
+                  ⬜ Update policy, retention tooling, exports, and admin UI to
+                  reflect the layered logging model
+                </li>
+              </ul>
             </CardContent>
           </Card>
         </div>
@@ -1319,10 +1386,13 @@ export function SimplifiedRoadmap({
       {activeTab === "scale" && (
         <div className="space-y-6">
           <div>
-            <h2 className="text-2xl mb-1">Scale: Evidence Curation & Growth</h2>
+            <h2 className="text-2xl mb-1">
+              Stage 10: Scale: Evidence Curation & Growth
+            </h2>
             <p className="text-muted-foreground text-sm">
-              Planned — Build on the relational Postgres foundation to enable
-              evidence curation at scale, aggregation, and public traceability.
+              Planned - after interim stages 6-9 are defined and shipped, build
+              on the relational Postgres foundation to enable evidence curation
+              at scale, aggregation, and public traceability.
             </p>
           </div>
 
