@@ -11915,31 +11915,35 @@ app.put(
         log.log(`✅ Admin marking admin notifications as read`);
       }
 
-      // Get all notifications for this user
-      const notifications =
-        (await kv.getByPrefix(`notification:${userId}:`)) || [];
+      // Migration-safe bulk update:
+      // - New format: notification:{userId}:{notificationId}
+      // - Legacy format: notification:{notificationId}
+      // We scan entries to preserve the original key used for each record.
+      const allEntries = (await kv.getEntriesByPrefix("notification:")) || [];
+      const userEntries = allEntries.filter(
+        (entry: any) => entry?.value?.user_id === userId,
+      );
 
-      // Mark all as read
-      const updatePromises = notifications.map(async (notification: any) => {
+      // Mark all as read using each entry's real key
+      const updatePromises = userEntries.map(async (entry: any) => {
         const updated = {
-          ...notification,
+          ...entry.value,
           read: true,
         };
-        const key = `notification:${userId}:${notification.id}`;
-        await kv.set(key, updated);
+        await kv.set(entry.key, updated);
         return updated;
       });
 
       await Promise.all(updatePromises);
 
       log.log(
-        `✓ Marked ${notifications.length} notifications as read for user ${userId}`,
+        `✓ Marked ${userEntries.length} notifications as read for user ${userId}`,
       );
 
       return c.json({
         success: true,
-        updated_count: notifications.length,
-        message: `Marked ${notifications.length} notifications as read`,
+        updated_count: userEntries.length,
+        message: `Marked ${userEntries.length} notifications as read`,
       });
     } catch (error) {
       log.error("Error marking all notifications as read:", error);
