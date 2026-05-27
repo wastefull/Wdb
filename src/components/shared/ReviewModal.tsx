@@ -21,6 +21,7 @@ import {
 } from "../ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { useCategoryContext } from "../../contexts/CategoryContext";
+import { Modal } from "./Modal";
 
 interface Submission {
   id: string;
@@ -283,7 +284,7 @@ export function ReviewModal({
           </p>
         </div>
         {submission.content_data.content && (
-          <div className="card-muted max-h-[400px] overflow-y-auto">
+          <div className="card-muted max-h-100 overflow-y-auto">
             <p className="text-sm text-black/70 dark:text-white/70 mb-2">
               <strong>Content:</strong>
             </p>
@@ -303,8 +304,11 @@ export function ReviewModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/30 dark:bg-black/60 flex items-center justify-center p-4 z-50">
-      <div className="bg-white dark:bg-[#2a2825] rounded-(--retro-rounding) border-[1.5px] border-[#211f1c] dark:border-white/20 w-full max-w-3xl shadow-[4px_4px_0px_0px_#000000] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] max-h-[90vh] overflow-y-auto">
+    <Modal
+      onClose={onClose}
+      panelClassName="w-full max-w-3xl max-h-[90vh] overflow-y-auto p-0"
+    >
+      <div>
         <div className="flex items-center justify-between p-4 border-b border-[#211f1c] dark:border-white/20 sticky top-0 bg-white dark:bg-[#2a2825] z-10">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-md bg-waste-reuse dark:bg-[#2a3235] border border-[#211f1c] dark:border-white/20">
@@ -431,7 +435,7 @@ export function ReviewModal({
                         ? "Explain what changes you'd like to see..."
                         : "Explain why this submission is being rejected..."
                     }
-                    className="mt-1 min-h-[100px]"
+                    className="mt-1 min-h-25"
                     rows={5}
                   />
                 </div>
@@ -469,6 +473,6 @@ export function ReviewModal({
           )}
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }

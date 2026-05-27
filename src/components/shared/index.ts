@@ -7,6 +7,7 @@ export {
 export { BackArrow } from "./BackArrow";
 export { DiscardChangesDialog } from "./DiscardChangesDialog";
 export { LastUpdated } from "./LastUpdated";
+export { Modal } from "./Modal";
 
 // Error handling & loading
 export { ErrorBoundary } from "./ErrorBoundary";

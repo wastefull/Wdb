@@ -16,6 +16,8 @@ import {
 import { useNavigationContext } from "../../contexts/NavigationContext";
 import { logger } from "../../utils/logger";
 import { DiscardChangesDialog } from "../shared/DiscardChangesDialog";
+import { Modal } from "../shared/Modal";
+
 const ARTICLE_CATEGORIES = ["Compostability", "Recyclability", "Reusability"];
 
 interface SubmitArticleFormProps {
@@ -119,7 +121,6 @@ export function SubmitArticleForm({
     try {
       setSubmitting(true);
 
-      // Create submission for new article
       await api.createSubmission({
         type: "new_article",
         content_data: {
@@ -146,8 +147,11 @@ export function SubmitArticleForm({
   const selectedMaterial = materials.find((m) => m.id === materialId);
 
   return (
-    <div className="fixed inset-0 bg-black/30 dark:bg-black/60 flex items-center justify-center p-4 z-50">
-      <div className="bg-white dark:bg-[#2a2825] rounded-(--retro-rounding) border-[1.5px] border-[#211f1c] dark:border-white/20 w-full max-w-2xl shadow-[4px_4px_0px_0px_#000000] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] max-h-[90vh] overflow-y-auto">
+    <Modal
+      onClose={handleRequestClose}
+      panelClassName="w-full max-w-2xl max-h-[90vh] overflow-y-auto p-0"
+    >
+      <div>
         <div className="flex items-center justify-between p-4 border-b border-[#211f1c] dark:border-white/20 sticky top-0 bg-white dark:bg-[#2a2825] z-10">
           <h3 className="normal">Submit New Article</h3>
           <button
@@ -280,14 +284,14 @@ export function SubmitArticleForm({
             </button>
           </div>
         </form>
-      </div>
 
-      {showDiscardConfirm && (
-        <DiscardChangesDialog
-          onKeepEditing={() => setShowDiscardConfirm(false)}
-          onDiscard={onClose}
-        />
-      )}
-    </div>
+        {showDiscardConfirm && (
+          <DiscardChangesDialog
+            onKeepEditing={() => setShowDiscardConfirm(false)}
+            onDiscard={onClose}
+          />
+        )}
+      </div>
+    </Modal>
   );
 }

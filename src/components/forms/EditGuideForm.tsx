@@ -13,6 +13,7 @@ import { useNavigationContext } from "../../contexts/NavigationContext";
 import { toast } from "sonner";
 import { logger } from "../../utils/logger";
 import { DiscardChangesDialog } from "../shared/DiscardChangesDialog";
+import { Modal } from "../shared/Modal";
 interface EditGuideFormProps {
   guide: Guide;
   onClose: () => void;
@@ -202,8 +203,11 @@ export function EditGuideForm({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="retro-card w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+    <Modal
+      onClose={handleRequestClose}
+      panelClassName="retro-card w-full max-w-3xl max-h-[90vh] overflow-y-auto p-0"
+    >
+      <div>
         <div className="sticky top-0 bg-white dark:bg-[#2a2825] border-b border-[#211f1c]/20 dark:border-white/20 p-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="icon-box arcade-bg-green arcade-btn-green">
@@ -237,8 +241,14 @@ export function EditGuideForm({
 
         {/* Import Modal */}
         {showImportModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-60">
-            <div className="retro-card w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+          <Modal
+            onClose={() => {
+              setShowImportModal(false);
+              setImportJson("");
+            }}
+            panelClassName="retro-card w-full max-w-2xl max-h-[80vh] overflow-y-auto p-0"
+          >
+            <div>
               <div className="p-6 border-b border-[#211f1c]/20 dark:border-white/20 flex items-center justify-between">
                 <h3 className="text-[16px] font-display text-black dark:text-white">
                   Import Guide Data
@@ -296,7 +306,7 @@ export function EditGuideForm({
                 </div>
               </div>
             </div>
-          </div>
+          </Modal>
         )}
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
@@ -579,13 +589,13 @@ export function EditGuideForm({
             </button>
           </div>
         </form>
+        {showDiscardConfirm && (
+          <DiscardChangesDialog
+            onKeepEditing={() => setShowDiscardConfirm(false)}
+            onDiscard={onClose}
+          />
+        )}
       </div>
-      {showDiscardConfirm && (
-        <DiscardChangesDialog
-          onKeepEditing={() => setShowDiscardConfirm(false)}
-          onDiscard={onClose}
-        />
-      )}
-    </div>
+    </Modal>
   );
 }

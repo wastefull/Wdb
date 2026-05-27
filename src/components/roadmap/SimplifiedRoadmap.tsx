@@ -30,7 +30,13 @@ interface SimplifiedRoadmapProps {
     | "next-stage"
     | "scale"
     | "tests"
-    | "backlog";
+    | "backlog"
+    | "9.1"
+    | "9.2"
+    | "9.3"
+    | "9.4"
+    | "9.5"
+    | "10";
   /** When true, locks to overview tab only (no tests, no phase tabs) */
   staffMode?: boolean;
 }

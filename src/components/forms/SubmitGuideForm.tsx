@@ -11,6 +11,7 @@ import ContentEditor from "../editor/ContentEditor";
 import type { TiptapContent } from "../../types/guide";
 import { toast } from "sonner";
 import { logger } from "../../utils/logger";
+import { Modal } from "../shared/Modal";
 interface SubmitGuideFormProps {
   onClose: () => void;
   onSubmit: (guide: GuideSubmission) => Promise<void>;
@@ -122,8 +123,11 @@ export function SubmitGuideForm({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="retro-card w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+    <Modal
+      onClose={onClose}
+      panelClassName="retro-card w-full max-w-3xl max-h-[90vh] overflow-y-auto p-0"
+    >
+      <div>
         <div className="sticky top-0 bg-white dark:bg-[#2a2825] border-b border-[#211f1c]/20 dark:border-white/20 p-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="icon-box arcade-bg-green arcade-btn-green">
@@ -189,7 +193,7 @@ export function SubmitGuideForm({
                 <textarea
                   value={importJson}
                   onChange={(e) => setImportJson(e.target.value)}
-                  className="input-field min-h-[300px] font-mono text-[12px]"
+                  className="input-field min-h-75 font-mono text-[12px]"
                   placeholder='{"title": "...", "content": {"type": "doc", "content": [...]}}'
                 />
                 <div className="flex gap-3">
@@ -473,6 +477,6 @@ export function SubmitGuideForm({
           </div>
         </form>
       </div>
-    </div>
+    </Modal>
   );
 }

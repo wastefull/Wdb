@@ -23,7 +23,6 @@ import {
 } from "../../utils/wikiEnrichment";
 import { Material } from "../../types/material";
 import { buildMaterialPermalinkPath } from "../../utils/permalinks";
-
 const MATERIAL_HINT_WORDS = [
   "material",
   "paper",
@@ -41,8 +40,6 @@ const MATERIAL_HINT_WORDS = [
 const NON_MATERIAL_HINT_WORDS = [
   "city",
   "county",
-  "surname",
-  "family name",
   "given name",
   "person",
   "village",
