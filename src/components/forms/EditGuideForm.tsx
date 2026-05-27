@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { BookOpen, X, Loader2, Upload } from "lucide-react";
+import { BookOpen, X, Loader2, Download } from "lucide-react";
 import {
   Guide,
   GuideMethod,
@@ -198,7 +198,7 @@ export function EditGuideForm({
                 className="retro-icon-button flex items-center gap-1 px-3"
                 title="Import guide data from JSON"
               >
-                <Upload size={16} />
+                <Download size={16} />
                 <span className="text-[12px]">Import</span>
               </button>
             )}

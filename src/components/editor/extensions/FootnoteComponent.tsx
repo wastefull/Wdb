@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { NodeViewWrapper } from "@tiptap/react";
 import type { NodeViewProps } from "@tiptap/react";
+import { NotebookPen, Reply } from "lucide-react";
 
 export default function FootnoteComponent({
   node,
@@ -38,14 +39,14 @@ export default function FootnoteComponent({
     <NodeViewWrapper as="span" className="inline-block" contentEditable={false}>
       {editing ? (
         <span
-          className="inline-flex flex-col gap-1 border border-black/20 dark:border-white/20 bg-white dark:bg-[#1a1817] rounded p-2 shadow-sm z-50 relative"
+          className="inline-flex flex-col gap-1 w-md max-w-[90vw] border border-black/20 dark:border-white/20 bg-white dark:bg-[#1a1817] rounded p-2 shadow-sm z-50 relative"
           onKeyDown={handleKeyDown}
         >
           <input
             autoFocus
             value={draftContent}
             onChange={(e) => setDraftContent(e.target.value)}
-            className="text-sm border border-black/20 dark:border-white/20 rounded px-1 py-0.5 bg-transparent text-black dark:text-white min-w-48 max-w-75"
+            className="w-full text-sm border border-black/20 dark:border-white/20 rounded px-1 py-0.5 bg-transparent text-black dark:text-white"
             placeholder="Footnote text (leave blank for back-reference)…"
           />
           <div className="flex items-center gap-1">
@@ -92,7 +93,7 @@ export default function FootnoteComponent({
           }`}
         >
           <sup className="text-xs font-mono bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded px-1 leading-none text-black dark:text-white hover:bg-black/20 dark:hover:bg-white/20 transition-colors">
-            {isBackRef ? "↩" : "fn"}
+            {isBackRef ? <Reply size={10} /> : <NotebookPen size={10} />}
           </sup>
         </span>
       )}

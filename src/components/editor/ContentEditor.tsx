@@ -23,7 +23,8 @@ import {
   CheckCircle,
   XCircle,
   Table2,
-  Superscript,
+  NotebookPen,
+  Reply,
   Eraser,
   Code2,
 } from "lucide-react";
@@ -397,7 +398,7 @@ export default function ContentEditor({
           className="retro-icon-button"
           title="Insert Footnote — double-click badge to edit text &amp; copy Ref ID"
         >
-          <Superscript size={16} />
+          <NotebookPen size={16} />
         </button>
 
         {/* Back-reference — same footnote number as an existing one */}
@@ -420,7 +421,7 @@ export default function ContentEditor({
           className="retro-icon-button"
           title="Insert back-reference (cite same footnote again)"
         >
-          <Superscript size={16} className="opacity-50" />
+          <Reply size={16} className="opacity-70" />
         </button>
 
         <div className="w-px h-6 bg-black/10 dark:bg-white/10 mx-1" />

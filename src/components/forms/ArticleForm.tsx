@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Upload, X } from "lucide-react";
+import { Download, X } from "lucide-react";
 import { ArticleFormProps } from "../../types/article";
 import { TiptapContent } from "../../types/guide";
 import { ImageUploadArea } from "./ImageUploadArea";
@@ -173,7 +173,7 @@ export function ArticleForm({
             onClick={() => setShowImportModal(true)}
             className="flex items-center gap-2 px-3 py-1.5 text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white border border-[#211f1c]/30 dark:border-white/20 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-all"
           >
-            <Upload size={14} />
+            <Download size={14} />
             Import JSON
           </button>
         </div>
