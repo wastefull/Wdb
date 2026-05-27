@@ -268,65 +268,6 @@ export function StandaloneArticleView({
               </div>
             )}
 
-            {/* Legacy Content (backward compatibility) */}
-            {!hasRichContent && hasLegacyContent && (
-              <>
-                {article.introduction?.content && (
-                  <div>
-                    <h3 className="text-[15px] text-black dark:text-white mb-3">
-                      Introduction
-                    </h3>
-                    {article.introduction.image && (
-                      <img
-                        src={article.introduction.image}
-                        alt="Introduction"
-                        className="w-full h-auto rounded-lg border border-[#211f1c] dark:border-white/20 mb-3"
-                      />
-                    )}
-                    <p className="text-[13px] text-black/80 dark:text-white/80 whitespace-pre-wrap leading-relaxed">
-                      {article.introduction.content}
-                    </p>
-                  </div>
-                )}
-
-                {article.supplies?.content && (
-                  <div>
-                    <h3 className="text-[15px] text-black dark:text-white mb-3">
-                      Supplies
-                    </h3>
-                    {article.supplies.image && (
-                      <img
-                        src={article.supplies.image}
-                        alt="Supplies"
-                        className="w-full h-auto rounded-lg border border-[#211f1c] dark:border-white/20 mb-3"
-                      />
-                    )}
-                    <p className="text-[13px] text-black/80 dark:text-white/80 whitespace-pre-wrap leading-relaxed">
-                      {article.supplies.content}
-                    </p>
-                  </div>
-                )}
-
-                {article.step1?.content && (
-                  <div>
-                    <h3 className="text-[15px] text-black dark:text-white mb-3">
-                      Step 1
-                    </h3>
-                    {article.step1.image && (
-                      <img
-                        src={article.step1.image}
-                        alt="Step 1"
-                        className="w-full h-auto rounded-lg border border-[#211f1c] dark:border-white/20 mb-3"
-                      />
-                    )}
-                    <p className="text-[13px] text-black/80 dark:text-white/80 whitespace-pre-wrap leading-relaxed">
-                      {article.step1.content}
-                    </p>
-                  </div>
-                )}
-              </>
-            )}
-
             {/* No content message */}
             {!hasRichContent && !hasLegacyContent && (
               <p className="text-[13px] text-black/60 dark:text-white/60 italic">
