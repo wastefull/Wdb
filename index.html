@@ -5,6 +5,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>WasteDB</title>
+  <link rel="icon" type="image/png"
+    href="https://bdvfwjmaufjeqmxphmtv.supabase.co/storage/v1/object/public/make-17cae920-assets/uplogo_transparent-1761169051994.png?v=20260527-1" />
+  <link rel="apple-touch-icon"
+    href="https://bdvfwjmaufjeqmxphmtv.supabase.co/storage/v1/object/public/make-17cae920-assets/uplogo_transparent-1761169051994.png?v=20260527-1" />
   <!-- Google Fonts - preconnect for faster loading -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,6 +16,21 @@
     href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=JetBrains+Mono:wght@400;500;700&family=Press+Start+2P&family=Sniglet:wght@400;800&family=Tilt+Warp&display=swap"
     rel="stylesheet">
   <link href="https://fonts.cdnfonts.com/css/genty-demo" rel="stylesheet">
+  <script>
+    (function () {
+      var isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+      if (!isLocalhost) return;
+
+      var baseIconUrl = "https://bdvfwjmaufjeqmxphmtv.supabase.co/storage/v1/object/public/make-17cae920-assets/uplogo_transparent-1761169051994.png";
+      var cacheBustedIconUrl = baseIconUrl + "?v=" + Date.now();
+
+      var iconLink = document.querySelector('link[rel="icon"]');
+      var appleIconLink = document.querySelector('link[rel="apple-touch-icon"]');
+
+      if (iconLink) iconLink.setAttribute("href", cacheBustedIconUrl);
+      if (appleIconLink) appleIconLink.setAttribute("href", cacheBustedIconUrl);
+    })();
+  </script>
 </head>
 
 <body>
