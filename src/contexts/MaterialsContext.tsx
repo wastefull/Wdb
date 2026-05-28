@@ -32,6 +32,7 @@ interface MaterialsContextType {
     options?: { onBehalfOf?: string },
   ) => void;
   updateMaterial: (materialData: Omit<Material, "id"> | Material) => void;
+  updateMaterialLocal: (material: Material) => void;
   deleteMaterial: (id: string) => void;
 
   // Batch Operations
@@ -391,6 +392,12 @@ export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({
     toast.success(`Added ${newMaterial.name} successfully`);
   };
 
+  const updateMaterialLocal = (material: Material) => {
+    const updated = materials.map((m) => (m.id === material.id ? material : m));
+    setMaterials(updated);
+    localStorage.setItem("materials", JSON.stringify(updated));
+  };
+
   const updateMaterial = async (
     materialData: Omit<Material, "id"> | Material,
   ) => {
@@ -530,6 +537,7 @@ export const MaterialsProvider: React.FC<MaterialsProviderProps> = ({
     supabaseAvailable,
     addMaterial,
     updateMaterial,
+    updateMaterialLocal,
     deleteMaterial,
     bulkImport,
     updateMaterials,

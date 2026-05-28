@@ -216,6 +216,7 @@ function AppContent() {
     supabaseAvailable,
     addMaterial,
     updateMaterial,
+    updateMaterialLocal,
     deleteMaterial,
     bulkImport,
     updateMaterials,
@@ -1049,18 +1050,28 @@ function AppContent() {
             canManageArticle
               ? async (updated) => {
                   if (isAdminModeActive || userRole === "admin") {
-                    const updatedMaterial = updateArticleInMaterial(
-                      material,
-                      view.category,
-                      view.articleId,
-                      (a) => ({
+                    try {
+                      await api.updateArticle(view.articleId, {
                         ...updated,
-                        id: a.id,
-                        dateAdded: a.dateAdded,
                         updated_at: new Date().toISOString(),
-                      }),
-                    );
-                    handleUpdateMaterial(updatedMaterial);
+                      });
+                      const updatedMaterial = updateArticleInMaterial(
+                        material,
+                        view.category,
+                        view.articleId,
+                        (a) => ({
+                          ...updated,
+                          id: a.id,
+                          dateAdded: a.dateAdded,
+                          updated_at: new Date().toISOString(),
+                        }),
+                      );
+                      // Update local state only — article already persisted above
+                      updateMaterialLocal(updatedMaterial);
+                      toast.success("Article updated.");
+                    } catch {
+                      toast.error("Failed to update article");
+                    }
                     return;
                   }
 
