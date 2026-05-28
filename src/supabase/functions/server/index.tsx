@@ -7586,45 +7586,25 @@ function getContributionLevel(count: number): 0 | 1 | 2 | 3 | 4 {
 // Get all articles (public)
 app.get("/make-server-17cae920/articles", async (c) => {
   try {
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+    );
     const status = c.req.query("status");
     const materialId = c.req.query("material_id");
 
-    const allMaterialEntries = (await kv.getEntriesByPrefix("material:")) || [];
-    const articles: any[] = [];
+    let query = supabase
+      .from("articles")
+      .select("*")
+      .order("updated_at", { ascending: false });
 
-    for (const entry of allMaterialEntries) {
-      const material = entry.value || {};
-      // Normalize ID same way as normalizeMaterialFromEntry: prefer value's id, fall back to key suffix
-      const idFromKey = entry.key.startsWith("material:")
-        ? entry.key.slice("material:".length)
-        : "";
-      const resolvedId =
-        typeof material.id === "string" && material.id.trim().length > 0
-          ? material.id
-          : idFromKey;
+    if (status) query = query.eq("status", status);
+    if (materialId) query = query.eq("legacy_material_kv_id", materialId);
 
-      if (!material.articles) continue;
-      for (const category of [
-        "compostability",
-        "recyclability",
-        "reusability",
-      ]) {
-        const articleList = material.articles[category];
-        if (!Array.isArray(articleList)) continue;
-        for (const article of articleList) {
-          if (materialId && resolvedId !== materialId) continue;
-          if (status && article.status !== status) continue;
-          articles.push({
-            ...article,
-            material_id: article.material_id || resolvedId,
-            sustainability_category:
-              article.sustainability_category || category,
-          });
-        }
-      }
-    }
+    const { data, error } = await query;
+    if (error) throw error;
 
-    return c.json({ articles });
+    return c.json({ articles: data ?? [] });
   } catch (error) {
     log.error("Error fetching articles:", error);
     return c.json(
@@ -7637,14 +7617,23 @@ app.get("/make-server-17cae920/articles", async (c) => {
 // Get single article
 app.get("/make-server-17cae920/articles/:id", async (c) => {
   try {
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+    );
     const id = c.req.param("id");
-    const article = await kv.get(`article:${id}`);
 
-    if (!article) {
+    const { data, error } = await supabase
+      .from("articles")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (error || !data) {
       return c.json({ error: "Article not found" }, 404);
     }
 
-    return c.json({ article });
+    return c.json({ article: data });
   } catch (error) {
     log.error("Error fetching article:", error);
     return c.json(
@@ -7743,7 +7732,7 @@ app.put("/make-server-17cae920/articles/:id", verifyAuth, async (c) => {
     );
     const id = c.req.param("id");
     const userId = c.get("userId");
-    const updates = await c.req.json();
+    const d = await c.req.json();
 
     const { data: existing, error: fetchErr } = await supabase
       .from("articles")
@@ -7760,9 +7749,32 @@ app.put("/make-server-17cae920/articles/:id", verifyAuth, async (c) => {
     if (!canEditOwn && !canEditAny)
       return c.json({ error: "Unauthorized" }, 403);
 
+    // Build a safe update object with only known DB columns.
+    // The frontend Article type has fields (material_id, author_id, dateAdded)
+    // that don't exist as columns in the articles table — passing them raw would
+    // cause a Postgres error and silently drop the entire update.
+    const safeUpdate: Record<string, unknown> = {
+      updated_at: new Date().toISOString(),
+    };
+    if (d.title !== undefined) safeUpdate.title = String(d.title).trim();
+    if (d.slug !== undefined) safeUpdate.slug = d.slug;
+    if (d.content !== undefined) safeUpdate.content = d.content;
+    if (d.cover_image_url !== undefined)
+      safeUpdate.cover_image_url = d.cover_image_url ?? null;
+    if (d.article_type !== undefined) safeUpdate.article_type = d.article_type;
+    if (d.sustainability_category !== undefined)
+      safeUpdate.sustainability_category = d.sustainability_category;
+    if (d.status !== undefined) safeUpdate.status = d.status;
+    if (d.version !== undefined) safeUpdate.version = Number(d.version);
+    if (d.writer_name !== undefined)
+      safeUpdate.writer_name = d.writer_name ?? null;
+    if (d.editor_name !== undefined)
+      safeUpdate.editor_name = d.editor_name ?? null;
+    if (d.edited_by !== undefined) safeUpdate.edited_by = d.edited_by ?? null;
+
     const { data: updated, error: updateErr } = await supabase
       .from("articles")
-      .update({ ...updates, updated_at: new Date().toISOString() })
+      .update(safeUpdate)
       .eq("id", id)
       .select()
       .single();
