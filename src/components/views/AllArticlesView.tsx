@@ -1,7 +1,17 @@
+import { useEffect, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { Material } from "../../types/material";
 import { CategoryType, ArticleType } from "../../types/article";
 import { ArticleCard } from "../cards";
+
+function getAllArticlesColumnCount(windowWidth: number): number {
+  if (windowWidth >= 2200) return 6;
+  if (windowWidth >= 1800) return 5;
+  if (windowWidth >= 1400) return 4;
+  if (windowWidth >= 1024) return 3;
+  if (windowWidth >= 768) return 2;
+  return 1;
+}
 
 const ALL_CATEGORIES: CategoryType[] = [
   "compostability",
@@ -34,6 +44,20 @@ export function AllArticlesView({
   onBack,
   onViewArticleStandalone,
 }: AllArticlesViewProps) {
+  const [columnCount, setColumnCount] = useState(2);
+
+  useEffect(() => {
+    const updateColumnCount = () => {
+      setColumnCount(getAllArticlesColumnCount(window.innerWidth));
+    };
+
+    updateColumnCount();
+    window.addEventListener("resize", updateColumnCount);
+    return () => {
+      window.removeEventListener("resize", updateColumnCount);
+    };
+  }, []);
+
   const categoriesToShow = category ? [category] : ALL_CATEGORIES;
 
   const articlesWithMaterial = materials.flatMap((material) =>
@@ -72,7 +96,12 @@ export function AllArticlesView({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div
+        className="grid gap-4"
+        style={{
+          gridTemplateColumns: `repeat(${columnCount}, minmax(0, 1fr))`,
+        }}
+      >
         {articlesWithMaterial.map(({ article, material, cat }) => (
           <div key={`${material.id}-${article.id}-${cat}`} className="relative">
             <div className="absolute top-3 right-3 bg-white/90 px-2 py-1 rounded-md border border-[#211f1c] z-10">
