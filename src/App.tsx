@@ -1109,14 +1109,19 @@ function AppContent() {
           onDelete={
             canManageArticle
               ? async () => {
-                  const updatedMaterial = removeArticleFromMaterial(
-                    material,
-                    view.category,
-                    view.articleId,
-                  );
-                  handleUpdateMaterial(updatedMaterial);
-                  navigateToMaterialDetail(material.id);
-                  toast.success("Article deleted");
+                  try {
+                    await api.deleteArticle(view.articleId);
+                    const updatedMaterial = removeArticleFromMaterial(
+                      material,
+                      view.category,
+                      view.articleId,
+                    );
+                    updateMaterialLocal(updatedMaterial);
+                    navigateToMaterialDetail(material.id);
+                    toast.success("Article deleted");
+                  } catch {
+                    toast.error("Failed to delete article");
+                  }
                 }
               : undefined
           }
