@@ -41,6 +41,14 @@ const VALID_CATEGORIES = new Set([
   "reusability",
 ]);
 
+function getMaxPopularArticles(windowWidth: number): number {
+  if (windowWidth >= 2200) return 6;
+  if (windowWidth >= 1800) return 5;
+  if (windowWidth >= 1400) return 4;
+  if (windowWidth >= 768) return 3;
+  return 1;
+}
+
 export function PopularArticles() {
   const { navigateTo } = useNavigationContext();
   const { materials } = useMaterialsContext();
@@ -51,6 +59,24 @@ export function PopularArticles() {
   );
 
   const [popularArticles, setPopularArticles] = useState<PopularArticle[]>([]);
+  const [maxVisibleArticles, setMaxVisibleArticles] = useState(3);
+
+  useEffect(() => {
+    const updateMaxVisibleArticles = () => {
+      setMaxVisibleArticles(getMaxPopularArticles(window.innerWidth));
+    };
+
+    updateMaxVisibleArticles();
+    window.addEventListener("resize", updateMaxVisibleArticles);
+    return () => {
+      window.removeEventListener("resize", updateMaxVisibleArticles);
+    };
+  }, []);
+
+  const visiblePopularArticles = useMemo(
+    () => popularArticles.slice(0, maxVisibleArticles),
+    [popularArticles, maxVisibleArticles],
+  );
 
   useEffect(() => {
     api
@@ -88,8 +114,7 @@ export function PopularArticles() {
               ...pathwayConfig[category],
             };
           })
-          .filter((a) => !!a.materialId)
-          .slice(0, 3);
+          .filter((a) => !!a.materialId);
 
         setPopularArticles(mapped);
       })
@@ -99,7 +124,7 @@ export function PopularArticles() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [materialNameById]);
 
-  if (popularArticles.length === 0) return null;
+  if (visiblePopularArticles.length === 0) return null;
 
   return (
     <section className="mt-14 p-6">
@@ -118,8 +143,13 @@ export function PopularArticles() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {popularArticles.map(
+      <div
+        className="grid gap-4"
+        style={{
+          gridTemplateColumns: `repeat(${visiblePopularArticles.length}, minmax(0, 1fr))`,
+        }}
+      >
+        {visiblePopularArticles.map(
           ({
             articleId,
             materialId,
