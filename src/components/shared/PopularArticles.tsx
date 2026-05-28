@@ -71,23 +71,27 @@ export function PopularArticles() {
           return tb - ta;
         });
 
-        setPopularArticles(
-          sorted.slice(0, 3).map((a: any) => {
+        const mapped = sorted
+          .map((a: any) => {
             const category = (a.sustainability_category || a.category) as
               | "compostability"
               | "recyclability"
               | "reusability";
+            const materialId = a.material_id || a.legacy_material_kv_id;
             return {
               articleId: a.id,
-              materialId: a.material_id,
-              materialName: materialNameById.get(a.material_id) ?? "",
+              materialId,
+              materialName: materialNameById.get(materialId) ?? "",
               title: a.title,
               category,
               articleType: a.article_type ?? a.category ?? "",
               ...pathwayConfig[category],
             };
-          }),
-        );
+          })
+          .filter((a) => !!a.materialId)
+          .slice(0, 3);
+
+        setPopularArticles(mapped);
       })
       .catch((err) => {
         articlesLogger.error("failed to load popular articles:", err);
