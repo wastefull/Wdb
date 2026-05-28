@@ -7654,74 +7654,120 @@ app.get("/make-server-17cae920/articles/:id", async (c) => {
   }
 });
 
-// Create article
+// Create article (admin direct-publish → Postgres)
 app.post(
   "/make-server-17cae920/articles",
   verifyAuth,
   requirePermission("articles.create"),
   async (c) => {
     try {
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      );
       const userId = c.get("userId");
-      const articleData = await c.req.json();
+      const d = await c.req.json();
 
-      const article = {
-        id: crypto.randomUUID(),
-        ...articleData,
-        author_id: userId,
-        status: "draft",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+      const now = new Date().toISOString();
+      const title = String(d.title || "Untitled Article").trim();
+      const slugBase = title
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+
+      const normalizeCategory = (v: unknown) => {
+        const raw = String(v ?? "")
+          .trim()
+          .toLowerCase();
+        if (raw === "compostability" || raw === "composting")
+          return "compostability";
+        if (raw === "recyclability" || raw === "recycling")
+          return "recyclability";
+        if (raw === "reusability" || raw === "reuse") return "reusability";
+        return raw || null;
       };
 
-      await kv.set(`article:${article.id}`, article);
+      const row = {
+        title,
+        slug: `${slugBase || "article"}-${Date.now()}`,
+        article_type: d.article_type || "DIY",
+        sustainability_category: normalizeCategory(
+          d.sustainability_category || d.category,
+        ),
+        cover_image_url: d.cover_image_url ?? null,
+        content: d.content ?? { type: "doc", content: [] },
+        legacy_material_kv_id: d.material_id || d.legacy_material_kv_id || null,
+        created_by: d.created_by || userId,
+        edited_by: null,
+        writer_name: d.writer_name ?? null,
+        editor_name: d.editor_name ?? null,
+        version: Number.isFinite(Number(d.version)) ? Number(d.version) : 1,
+        status: "published",
+        date_added: d.date_added || d.dateAdded || now,
+        created_at: d.created_at || now,
+        updated_at: now,
+      };
+
+      const { data: inserted, error: insertErr } = await supabase
+        .from("articles")
+        .insert(row)
+        .select()
+        .single();
+      if (insertErr) throw insertErr;
+
       await createAuditLog({
         userId,
         userEmail: c.get("userEmail"),
         entityType: "article",
-        entityId: article.id,
+        entityId: inserted.id,
         action: "create",
-        after: { title: article.title, status: article.status },
+        after: { title: inserted.title, status: inserted.status },
         req: c,
       });
-      return c.json({ article });
+      return c.json({ article: inserted });
     } catch (error) {
       log.error("Error creating article:", error);
-      return c.json(
-        { error: "Failed to create article", details: String(error) },
-        500,
-      );
+      const msg = (error as any)?.message ?? String(error);
+      return c.json({ error: "Failed to create article", details: msg }, 500);
     }
   },
 );
 
-// Update article
+// Update article (Postgres)
 app.put("/make-server-17cae920/articles/:id", verifyAuth, async (c) => {
   try {
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+    );
     const id = c.req.param("id");
     const userId = c.get("userId");
     const updates = await c.req.json();
 
-    const existing = await kv.get(`article:${id}`);
-    if (!existing) {
-      return c.json({ error: "Article not found" }, 404);
-    }
+    const { data: existing, error: fetchErr } = await supabase
+      .from("articles")
+      .select("id, created_by, title, status")
+      .eq("id", id)
+      .maybeSingle();
+    if (fetchErr) throw fetchErr;
+    if (!existing) return c.json({ error: "Article not found" }, 404);
 
-    // Check permission (author with edit.own, or edit.any)
-    const isOwner = existing.author_id === userId;
+    const isOwner = existing.created_by === userId;
     const canEditOwn =
       isOwner && (await hasPermission(userId, "articles.edit.own"));
     const canEditAny = await hasPermission(userId, "articles.edit.any");
-    if (!canEditOwn && !canEditAny) {
+    if (!canEditOwn && !canEditAny)
       return c.json({ error: "Unauthorized" }, 403);
-    }
 
-    const updatedArticle = {
-      ...existing,
-      ...updates,
-      updated_at: new Date().toISOString(),
-    };
+    const { data: updated, error: updateErr } = await supabase
+      .from("articles")
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq("id", id)
+      .select()
+      .single();
+    if (updateErr) throw updateErr;
 
-    await kv.set(`article:${id}`, updatedArticle);
     await createAuditLog({
       userId,
       userEmail: c.get("userEmail"),
@@ -7729,40 +7775,48 @@ app.put("/make-server-17cae920/articles/:id", verifyAuth, async (c) => {
       entityId: id,
       action: "update",
       before: { title: existing.title, status: existing.status },
-      after: { title: updatedArticle.title, status: updatedArticle.status },
+      after: { title: updated.title, status: updated.status },
       req: c,
     });
-    return c.json({ article: updatedArticle });
+    return c.json({ article: updated });
   } catch (error) {
     log.error("Error updating article:", error);
-    return c.json(
-      { error: "Failed to update article", details: String(error) },
-      500,
-    );
+    const msg = (error as any)?.message ?? String(error);
+    return c.json({ error: "Failed to update article", details: msg }, 500);
   }
 });
 
-// Delete article (author or admin)
+// Delete article (Postgres)
 app.delete("/make-server-17cae920/articles/:id", verifyAuth, async (c) => {
   try {
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+    );
     const id = c.req.param("id");
     const userId = c.get("userId");
 
-    const existing = await kv.get(`article:${id}`);
-    if (!existing) {
-      return c.json({ error: "Article not found" }, 404);
-    }
+    const { data: existing, error: fetchErr } = await supabase
+      .from("articles")
+      .select("id, created_by, title, status")
+      .eq("id", id)
+      .maybeSingle();
+    if (fetchErr) throw fetchErr;
+    if (!existing) return c.json({ error: "Article not found" }, 404);
 
-    // Check permission (author with delete.own, or delete.any)
-    const isOwner = existing.author_id === userId;
+    const isOwner = existing.created_by === userId;
     const canDeleteOwn =
       isOwner && (await hasPermission(userId, "articles.delete.own"));
     const canDeleteAny = await hasPermission(userId, "articles.delete.any");
-    if (!canDeleteOwn && !canDeleteAny) {
+    if (!canDeleteOwn && !canDeleteAny)
       return c.json({ error: "Unauthorized" }, 403);
-    }
 
-    await kv.del(`article:${id}`);
+    const { error: deleteErr } = await supabase
+      .from("articles")
+      .delete()
+      .eq("id", id);
+    if (deleteErr) throw deleteErr;
+
     await createAuditLog({
       userId,
       userEmail: c.get("userEmail"),
@@ -7775,10 +7829,8 @@ app.delete("/make-server-17cae920/articles/:id", verifyAuth, async (c) => {
     return c.json({ success: true });
   } catch (error) {
     log.error("Error deleting article:", error);
-    return c.json(
-      { error: "Failed to delete article", details: String(error) },
-      500,
-    );
+    const msg = (error as any)?.message ?? String(error);
+    return c.json({ error: "Failed to delete article", details: msg }, 500);
   }
 });
 

@@ -85,27 +85,35 @@ export function ArticlesView({
       return;
     }
 
-    // If admin is posting on behalf of another user, use that user's ID
+    // Admin direct-publish: write straight to Postgres
     const creatorId = options?.onBehalfOf || user?.id;
-
-    const newArticle: Article = {
-      ...articleData,
-      id: Date.now().toString(),
-      dateAdded: new Date().toISOString(),
-      status: "published",
-      // Set created_by and author_id to the target user (or current user)
-      created_by: creatorId || articleData.created_by,
-      author_id: creatorId || articleData.author_id,
-    };
-
-    const updatedMaterial = addArticleToMaterial(
-      material,
-      category,
-      newArticle,
-    );
-
-    onUpdateMaterial(updatedMaterial);
-    setShowForm(false);
+    void (async () => {
+      try {
+        const inserted = await api.createArticle({
+          ...articleData,
+          created_by: creatorId,
+          material_id: material.id,
+          legacy_material_kv_id: material.id,
+          sustainability_category: category,
+        });
+        // Optimistic local state update so the list refreshes immediately
+        const localArticle: Article = {
+          ...articleData,
+          id: inserted?.id ?? Date.now().toString(),
+          dateAdded: inserted?.date_added ?? new Date().toISOString(),
+          status: "published",
+          created_by: creatorId,
+          author_id: creatorId || articleData.author_id,
+        };
+        onUpdateMaterial(
+          addArticleToMaterial(material, category, localArticle),
+        );
+        setShowForm(false);
+        toast.success("Article published.");
+      } catch {
+        toast.error("Failed to publish article");
+      }
+    })();
   };
 
   const handleUpdateArticle = (
@@ -147,21 +155,33 @@ export function ArticlesView({
       return;
     }
 
-    const updatedMaterial = updateArticleInMaterial(
-      material,
-      category,
-      editingArticle.id,
-      (a) => ({
-        ...articleData,
-        id: a.id,
-        dateAdded: a.dateAdded,
-        updated_at: new Date().toISOString(),
-      }),
-    );
-
-    onUpdateMaterial(updatedMaterial);
-    setEditingArticle(null);
-    setShowForm(false);
+    // Admin direct-publish: write update straight to Postgres
+    void (async () => {
+      try {
+        await api.updateArticle(editingArticle.id, {
+          ...articleData,
+          updated_at: new Date().toISOString(),
+        });
+        onUpdateMaterial(
+          updateArticleInMaterial(
+            material,
+            category,
+            editingArticle.id,
+            (a) => ({
+              ...articleData,
+              id: a.id,
+              dateAdded: a.dateAdded,
+              updated_at: new Date().toISOString(),
+            }),
+          ),
+        );
+        setEditingArticle(null);
+        setShowForm(false);
+        toast.success("Article updated.");
+      } catch {
+        toast.error("Failed to update article");
+      }
+    })();
   };
 
   const handleDeleteArticle = (id: string) => {
@@ -199,10 +219,17 @@ export function ArticlesView({
       return;
     }
 
+    // Admin direct-delete: remove from Postgres
     if (confirm("Are you sure you want to delete this article?")) {
-      const updatedMaterial = removeArticleFromMaterial(material, category, id);
-
-      onUpdateMaterial(updatedMaterial);
+      void (async () => {
+        try {
+          await api.deleteArticle(id);
+          onUpdateMaterial(removeArticleFromMaterial(material, category, id));
+          toast.success("Article deleted.");
+        } catch {
+          toast.error("Failed to delete article");
+        }
+      })();
     }
   };
 

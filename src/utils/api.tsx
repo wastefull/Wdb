@@ -1382,10 +1382,19 @@ export async function getArticle(id: string): Promise<any> {
 
 export async function createArticle(article: {
   title: string;
-  slug: string;
-  content_markdown: string;
-  category: "composting" | "recycling" | "reuse";
-  material_id: string;
+  sustainability_category: string;
+  legacy_material_kv_id?: string;
+  material_id?: string;
+  content: object;
+  article_type?: string;
+  created_by?: string;
+  created_at?: string;
+  date_added?: string;
+  version?: number;
+  cover_image_url?: string | null;
+  writer_name?: string | null;
+  editor_name?: string | null;
+  slug?: string;
 }): Promise<any> {
   const data = await apiCall("/articles", {
     method: "POST",
