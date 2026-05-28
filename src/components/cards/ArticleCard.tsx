@@ -1,5 +1,6 @@
 import { Edit2, Trash2 } from "lucide-react";
-import { Article } from "../../types/article";
+import { Article, CategoryType } from "../../types/article";
+import { useNavigationContext } from "../../contexts/NavigationContext";
 
 export interface ArticleCardProps {
   article: Article;
@@ -12,6 +13,25 @@ export interface ArticleCardProps {
   canManageArticle?: boolean;
   linkedMaterialName?: string;
   onViewLinkedMaterial?: () => void;
+}
+
+function resolveCategoryForFilter(
+  article: Article,
+  sustainabilityCategory?: { label: string; color: string },
+): CategoryType | undefined {
+  if (
+    article.sustainability_category === "compostability" ||
+    article.sustainability_category === "recyclability" ||
+    article.sustainability_category === "reusability"
+  ) {
+    return article.sustainability_category;
+  }
+
+  const label = sustainabilityCategory?.label.toLowerCase();
+  if (label?.includes("compost")) return "compostability";
+  if (label?.includes("recycl")) return "recyclability";
+  if (label?.includes("reuse")) return "reusability";
+  return undefined;
 }
 
 // Helper to extract plain text preview from TiptapContent
@@ -53,8 +73,13 @@ export function ArticleCard({
   linkedMaterialName,
   onViewLinkedMaterial,
 }: ArticleCardProps) {
+  const { navigateTo } = useNavigationContext();
   const coverImage = article.cover_image_url;
   const preview = getContentPreview(article);
+  const categoryForFilter = resolveCategoryForFilter(
+    article,
+    sustainabilityCategory,
+  );
 
   return (
     <div className="bg-white dark:bg-[#2a2825] relative rounded-(--retro-rounding) p-4 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] border-[1.5px] border-[#211f1c] dark:border-white/20">
@@ -73,16 +98,31 @@ export function ArticleCard({
             </h4>
           )}
           <div className="flex items-center gap-2 mt-1">
-            <span className="inline-block px-2 py-0.5 bg-waste-recycle rounded-md border border-[#211f1c] text-[9px] text-black">
+            <button
+              onClick={() =>
+                navigateTo({
+                  type: "all-articles",
+                  articleType: article.article_type,
+                })
+              }
+              className="inline-block px-2 py-0.5 bg-waste-recycle rounded-md border border-[#211f1c] text-[9px] text-black hover:brightness-95 cursor-pointer"
+            >
               {article.article_type}
-            </span>
+            </button>
             {sustainabilityCategory && (
-              <span
-                className="inline-block px-2 py-0.5 rounded-md border border-[#211f1c] text-[9px] text-black"
+              <button
+                onClick={() =>
+                  categoryForFilter &&
+                  navigateTo({
+                    type: "all-articles",
+                    category: categoryForFilter,
+                  })
+                }
+                className="inline-block px-2 py-0.5 rounded-md border border-[#211f1c] text-[9px] text-black hover:brightness-95 cursor-pointer"
                 style={{ backgroundColor: sustainabilityCategory.color }}
               >
                 {sustainabilityCategory.label}
-              </span>
+              </button>
             )}
           </div>
         </div>

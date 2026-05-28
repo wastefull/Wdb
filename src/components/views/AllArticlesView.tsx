@@ -3,6 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { Material } from "../../types/material";
 import { CategoryType, ArticleType } from "../../types/article";
 import { ArticleCard } from "../cards";
+import { useNavigationContext } from "../../contexts/NavigationContext";
 
 function getAllArticlesColumnCount(windowWidth: number): number {
   if (windowWidth >= 2200) return 6;
@@ -44,6 +45,7 @@ export function AllArticlesView({
   onBack,
   onViewArticleStandalone,
 }: AllArticlesViewProps) {
+  const { navigateToMaterialDetail } = useNavigationContext();
   const [columnCount, setColumnCount] = useState(2);
 
   useEffect(() => {
@@ -105,7 +107,12 @@ export function AllArticlesView({
         {articlesWithMaterial.map(({ article, material, cat }) => (
           <div key={`${material.id}-${article.id}-${cat}`} className="relative">
             <div className="absolute top-3 right-3 bg-white/90 px-2 py-1 rounded-md border border-[#211f1c] z-10">
-              <p className="text-xs text-black">{material.name}</p>
+              <button
+                onClick={() => navigateToMaterialDetail(material.id)}
+                className="text-xs text-black hover:underline cursor-pointer"
+              >
+                {material.name}
+              </button>
             </div>
             <ArticleCard
               article={article}
