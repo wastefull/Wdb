@@ -12,6 +12,7 @@ import { useCategoryContext } from "../../contexts/CategoryContext";
 import {
   DEFAULT_CATEGORY_COLORS,
   type CategoryColorMap,
+  categoryToContrastCssVar,
   categoryToCssVar,
   loadAndApplyCategoryColors,
   saveCategoryColors,
@@ -326,7 +327,7 @@ export function CategoryColorsView({ onBack }: CategoryColorsViewProps) {
                   className="px-2.5 py-1 rounded-full text-sm font-sniglet border border-[#211f1c]/10 dark:border-white/10 transition-colors duration-100"
                   style={{
                     backgroundColor: `var(${categoryToCssVar(cat.id)})`,
-                    color: "black",
+                    color: `var(${categoryToContrastCssVar(cat.id)})`,
                   }}
                 >
                   {cat.name}

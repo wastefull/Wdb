@@ -1110,6 +1110,12 @@ body {
   @apply text-base text-black dark:text-white;
 }
 
+.text-fine-outline {
+  text-shadow:
+    0 0 0.65px rgba(0, 0, 0, 0.5),
+    0 0 0.55px rgba(255, 255, 255, 0.28);
+}
+
 .muted {
   @apply text-base text-black/60 dark:text-white/60;
 }
@@ -1322,6 +1328,15 @@ body {
   @apply hover:shadow-(--hover-shadow) transition-all;
 }
 
+.search-chip {
+  @apply text-xs px-2.5 py-1 rounded-full
+            border border-[#211f1c]/20 dark:border-white/15
+            shadow-[1.5px_1.5px_0px_0px_#211f1c] dark:shadow-[1.5px_1.5px_0px_0px_rgba(255,255,255,0.12)]
+            hover:shadow-[0.5px_0.5px_0px_0px_#211f1c] dark:hover:shadow-[0.5px_0.5px_0px_0px_rgba(255,255,255,0.12)]
+            hover:translate-y-px hover:opacity-80
+            active:translate-y-0.5 active:shadow-none
+            transition-all duration-100 cursor-pointer;
+}
 /* Primary action button with press effect */
 .retro-btn-primary {
   @apply rounded-xl border border-(--blackish) dark:border-(--retro-border-white);

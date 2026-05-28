@@ -364,10 +364,10 @@ export function StatusBar({
                       <TooltipTrigger asChild>
                         <button
                           onClick={onLogout}
-                          className="p-1.5 rounded-md border border-[#211f1c] dark:border-white/20 arcade-bg-red hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                          className="p-1.5 rounded-md border border-[#211f1c] text-black  dark:border-white/20 arcade-bg-red hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
                           aria-label="Sign out"
                         >
-                          <LogOut className="w-3 h-3 arcade-btn-red" />
+                          <LogOut className="w-3 h-3 dark:text-black text-black" />
                         </button>
                       </TooltipTrigger>
                       <TooltipContent

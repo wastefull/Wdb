@@ -1,6 +1,9 @@
 import { useNavigationContext } from "../../contexts/NavigationContext";
 import { Material } from "../../types/material";
-import { categoryToCssVar } from "../../utils/categoryColors";
+import {
+  categoryToContrastCssVar,
+  categoryToCssVar,
+} from "../../utils/categoryColors";
 
 interface MaterialCategoryButtonProps {
   category: Material["category"];
@@ -15,8 +18,11 @@ export function MaterialCategoryButton({
     <button
       type="button"
       onClick={() => navigateToSearchResults(`category:${category}`)}
-      style={{ backgroundColor: `var(${categoryToCssVar(category)})` }}
-      className="tag cursor-pointer w-fit whitespace-nowrap"
+      style={{
+        backgroundColor: `var(${categoryToCssVar(category)})`,
+        color: `var(${categoryToContrastCssVar(category)})`,
+      }}
+      className="tag text-fine-outline cursor-pointer w-fit whitespace-nowrap"
       aria-label={`View all ${category} materials`}
     >
       {category}

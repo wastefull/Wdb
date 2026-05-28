@@ -2,7 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { useMaterialsContext } from "../../contexts/MaterialsContext";
 import { useNavigationContext } from "../../contexts/NavigationContext";
 import type { Material, MaterialCategory } from "../../types/material";
-import { categoryToCssVar } from "../../utils/categoryColors";
+import {
+  categoryToContrastCssVar,
+  categoryToCssVar,
+} from "../../utils/categoryColors";
 
 const CHIPS_TO_SHOW = 5;
 
@@ -71,25 +74,22 @@ export function SearchSuggestionChips({
       }`}
       aria-hidden={!isEmpty}
     >
-      <span className="text-sm text-black/40 dark:text-white/35 select-none line-clamp-1">
-        Try:
-      </span>
+      <span className="text-sm select-none line-clamp-1">Try:</span>
       {chips.map((chip) => {
         const cssVar = categoryToCssVar(chip.category as MaterialCategory);
+        const contrastCssVar = categoryToContrastCssVar(
+          chip.category as MaterialCategory,
+        );
         return (
           <button
             key={chip.id}
             type="button"
             onClick={() => navigateToMaterialDetail(chip.id)}
-            style={{ backgroundColor: `var(${cssVar})` }}
-            className="text-xs px-2.5 py-1 rounded-full
-            border border-[#211f1c]/20 dark:border-white/15
-            text-black dark:text-black/80
-            shadow-[1.5px_1.5px_0px_0px_#211f1c] dark:shadow-[1.5px_1.5px_0px_0px_rgba(255,255,255,0.12)]
-            hover:shadow-[0.5px_0.5px_0px_0px_#211f1c] dark:hover:shadow-[0.5px_0.5px_0px_0px_rgba(255,255,255,0.12)]
-            hover:translate-y-px hover:opacity-80
-            active:translate-y-0.5 active:shadow-none
-            transition-all duration-100 cursor-pointer"
+            style={{
+              backgroundColor: `var(${cssVar})`,
+              color: `var(${contrastCssVar})`,
+            }}
+            className="search-chip text-fine-outline"
           >
             {chip.name}
           </button>

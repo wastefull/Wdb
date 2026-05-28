@@ -23,6 +23,9 @@ export type CategoryColorMap = Record<string, string>;
 let _baseColors: CategoryColorMap = {};
 let _darkColors: CategoryColorMap = {};
 let _npColors: CategoryColorMap = {};
+let _baseTextColors: CategoryColorMap = {};
+let _darkTextColors: CategoryColorMap = {};
+let _npTextColors: CategoryColorMap = {};
 
 // ---------------------------------------------------------------------------
 // HSL utilities
@@ -85,6 +88,14 @@ function deriveNoPastelVariant(hex: string): string {
   return hslToHex(h, npS, npL);
 }
 
+function deriveContrastTextVariant(hex: string): string {
+  if (!/^#[0-9a-fA-F]{6}$/.test(hex)) return "#211f1c";
+  const [h, s, l] = hexToHsl(hex);
+  const textL = l >= 58 ? 15 : 92;
+  const textS = Math.min(82, Math.max(18, s + (l >= 58 ? 12 : 6)));
+  return hslToHex(h, textS, textL);
+}
+
 function getCurrentMode(): "dark" | "np" | "base" {
   if (typeof document === "undefined") return "base";
   const cl = document.documentElement.classList;
@@ -103,9 +114,19 @@ export function updateColorModeVars(): void {
   const mode = getCurrentMode();
   const map =
     mode === "dark" ? _darkColors : mode === "np" ? _npColors : _baseColors;
+  const textMap =
+    mode === "dark"
+      ? _darkTextColors
+      : mode === "np"
+        ? _npTextColors
+        : _baseTextColors;
   const root = document.documentElement;
   for (const [slug, color] of Object.entries(map)) {
     root.style.setProperty(`--cat-${slug}`, color);
+    root.style.setProperty(
+      `--cat-${slug}-contrast`,
+      textMap[slug] ?? "#211f1c",
+    );
   }
 }
 
@@ -128,6 +149,10 @@ export function categoryToSlug(category: string): string {
  */
 export function categoryToCssVar(category: string): string {
   return `--cat-${categoryToSlug(category)}`;
+}
+
+export function categoryToContrastCssVar(category: string): string {
+  return `--cat-${categoryToSlug(category)}-contrast`;
 }
 
 /**
@@ -156,11 +181,17 @@ export function applyCategoryColors(colors: CategoryColorMap): void {
   _baseColors = {};
   _darkColors = {};
   _npColors = {};
+  _baseTextColors = {};
+  _darkTextColors = {};
+  _npTextColors = {};
   for (const [category, color] of Object.entries(colors)) {
     const slug = categoryToSlug(category);
     _baseColors[slug] = color;
     _darkColors[slug] = deriveDarkVariant(color);
     _npColors[slug] = deriveNoPastelVariant(color);
+    _baseTextColors[slug] = deriveContrastTextVariant(_baseColors[slug]);
+    _darkTextColors[slug] = deriveContrastTextVariant(_darkColors[slug]);
+    _npTextColors[slug] = deriveContrastTextVariant(_npColors[slug]);
   }
   updateColorModeVars();
 }
