@@ -61,9 +61,19 @@ const MATERIAL_CATEGORIES = [
 
 interface MySubmissionsViewProps {
   onBack: () => void;
+  onViewMaterial?: (materialId: string) => void;
+  onViewArticle?: (
+    materialId: string,
+    category: "compostability" | "recyclability" | "reusability",
+    articleId: string,
+  ) => void;
 }
 
-export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
+export function MySubmissionsView({
+  onBack,
+  onViewMaterial,
+  onViewArticle,
+}: MySubmissionsViewProps) {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -318,6 +328,97 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
     }
   };
 
+  const normalizeArticleCategory = (
+    value: unknown,
+  ): "compostability" | "recyclability" | "reusability" | null => {
+    const raw = String(value ?? "")
+      .trim()
+      .toLowerCase();
+    if (raw === "compostability" || raw === "composting") {
+      return "compostability";
+    }
+    if (raw === "recyclability" || raw === "recycling") {
+      return "recyclability";
+    }
+    if (raw === "reusability" || raw === "reuse") {
+      return "reusability";
+    }
+    return null;
+  };
+
+  const renderSubmissionLink = (submission: Submission) => {
+    const materialId =
+      submission.content_data?.material_id ||
+      submission.content_data?.materialId ||
+      submission.original_content_id;
+    const articleId =
+      submission.type === "new_article"
+        ? submission.content_data?.article_id
+        : submission.content_data?.article_id || submission.original_content_id;
+    const category = normalizeArticleCategory(
+      submission.content_data?.sustainability_category ||
+        submission.content_data?.category,
+    );
+
+    if (
+      (submission.type === "new_article" ||
+        submission.type === "update_article") &&
+      submission.status === "approved" &&
+      materialId &&
+      articleId &&
+      category &&
+      onViewArticle
+    ) {
+      return (
+        <button
+          type="button"
+          onClick={() => onViewArticle(materialId, category, articleId)}
+          className="text-[12px] normal underline hover:no-underline text-black/80 dark:text-white/80 mt-1"
+        >
+          View published article
+        </button>
+      );
+    }
+
+    if (
+      (submission.type === "new_article" ||
+        submission.type === "update_article") &&
+      submission.status === "approved" &&
+      materialId &&
+      onViewMaterial
+    ) {
+      return (
+        <button
+          type="button"
+          onClick={() => onViewMaterial(materialId)}
+          className="text-[12px] normal underline hover:no-underline text-black/80 dark:text-white/80 mt-1"
+        >
+          View material
+        </button>
+      );
+    }
+
+    if (
+      (submission.type === "new_material" ||
+        submission.type === "edit_material") &&
+      submission.status === "approved" &&
+      materialId &&
+      onViewMaterial
+    ) {
+      return (
+        <button
+          type="button"
+          onClick={() => onViewMaterial(materialId)}
+          className="text-[12px] normal underline hover:no-underline text-black/80 dark:text-white/80 mt-1"
+        >
+          View material
+        </button>
+      );
+    }
+
+    return null;
+  };
+
   return (
     <div className="p-6">
       <div className="flex items-center gap-4 mb-6">
@@ -327,7 +428,7 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
         >
           <ArrowLeft size={16} />
         </button>
-        <h2 className="normal">Pending Submissions</h2>
+        <h2 className="normal">My Submissions</h2>
       </div>
 
       {loading ? (
@@ -343,11 +444,10 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
             className="mx-auto mb-4 text-black/20 dark:text-white/20"
           />
           <p className="text-[14px] text-black/70 dark:text-white/70">
-            No pending submissions
+            No submissions yet
           </p>
           <p className="text-[12px] text-black/50 dark:text-white/50 mt-2">
-            All your submissions have been reviewed. New submissions will appear
-            here until approved.
+            Submissions of any status will appear here.
           </p>
         </div>
       ) : (
@@ -372,6 +472,7 @@ export function MySubmissionsView({ onBack }: MySubmissionsViewProps) {
                       {getSubmissionLabel(submission.type)} • Submitted{" "}
                       {formatDate(submission.created_at)}
                     </p>
+                    {renderSubmissionLink(submission)}
                     {submission.feedback && (
                       <div className="bg-waste-recycle dark:bg-[#3a3825] border border-[#211f1c] dark:border-white/20 rounded-md p-2 mt-2">
                         <p className="text-xs normal">

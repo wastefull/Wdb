@@ -6051,6 +6051,546 @@ app.post(
   },
 );
 
+// Generic: insert a single article directly into Postgres (admin only)
+app.post(
+  "/make-server-17cae920/admin/insert-article",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      );
+      const body = await c.req.json();
+
+      const UUID_RE =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      const toUuid = (...candidates: unknown[]): string | null => {
+        for (const v of candidates) {
+          if (typeof v === "string" && UUID_RE.test(v)) return v;
+        }
+        return null;
+      };
+
+      const now = new Date().toISOString();
+      const title = String(body.title || "Untitled Article").trim();
+      const slug = title
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+
+      const row = {
+        title,
+        slug: `${slug || "article"}-${Date.now()}`,
+        article_type: body.article_type || "DIY",
+        sustainability_category: body.sustainability_category,
+        cover_image_url: body.cover_image_url ?? null,
+        content: body.content ?? { type: "doc", content: [] },
+        legacy_material_kv_id: body.legacy_material_kv_id,
+        created_by: toUuid(body.created_by),
+        edited_by: null,
+        writer_name: body.writer_name ?? null,
+        editor_name: body.editor_name ?? null,
+        version: Number.isFinite(Number(body.version))
+          ? Number(body.version)
+          : 1,
+        status: "published",
+        date_added: body.date_added || body.created_at || now,
+        created_at: body.created_at || now,
+        updated_at: now,
+      };
+
+      const { data: inserted, error } = await supabase
+        .from("articles")
+        .insert(row)
+        .select("id")
+        .single();
+      if (error) throw error;
+
+      return c.json({ success: true, article_id: inserted.id, title });
+    } catch (error) {
+      log.error("Error inserting article:", error);
+      const msg = (error as any)?.message ?? String(error);
+      return c.json({ error: "Failed to insert article", details: msg }, 500);
+    }
+  },
+);
+
+// Recovery: migrate KV-only articles (numeric IDs from admin direct-publish) to Postgres
+app.post(
+  "/make-server-17cae920/admin/migrate-kv-articles-to-postgres",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      );
+
+      const UUID_RE =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      const isUuid = (v: unknown) => typeof v === "string" && UUID_RE.test(v);
+
+      const toUuid = (...candidates: unknown[]): string | null => {
+        for (const c of candidates) {
+          if (isUuid(c)) return c as string;
+        }
+        return null;
+      };
+
+      const normalizeCategory = (value: unknown) => {
+        const raw = String(value ?? "")
+          .trim()
+          .toLowerCase();
+        if (raw === "compostability" || raw === "composting")
+          return "compostability";
+        if (raw === "recyclability" || raw === "recycling")
+          return "recyclability";
+        if (raw === "reusability" || raw === "reuse") return "reusability";
+        return null;
+      };
+
+      const normalizeContent = (value: unknown) => {
+        if (value && typeof value === "object") return value;
+        if (typeof value === "string" && value.trim().length > 0) {
+          return {
+            type: "doc",
+            content: [
+              {
+                type: "paragraph",
+                content: [{ type: "text", text: value.trim() }],
+              },
+            ],
+          };
+        }
+        return { type: "doc", content: [{ type: "paragraph" }] };
+      };
+
+      const allMaterialEntries =
+        (await kv.getEntriesByPrefix("material:")) || [];
+
+      const migrated: string[] = [];
+      const skipped: string[] = [];
+      const errors: string[] = [];
+
+      for (const entry of allMaterialEntries) {
+        const material = entry.value || {};
+        const materialKvId = entry.key.startsWith("material:")
+          ? entry.key.slice("material:".length)
+          : "";
+
+        if (!material.articles) continue;
+
+        for (const rawCat of [
+          "compostability",
+          "recyclability",
+          "reusability",
+        ]) {
+          const articleList = material.articles[rawCat];
+          if (!Array.isArray(articleList)) continue;
+
+          for (const article of articleList) {
+            // Only migrate articles with numeric/non-UUID IDs (KV-only originals)
+            if (isUuid(article.id)) {
+              skipped.push(
+                `${materialKvId}/${rawCat}/${article.id}: already a UUID, skipping`,
+              );
+              continue;
+            }
+
+            const category = normalizeCategory(rawCat) ?? rawCat;
+            const title = String(article.title || "Untitled Article").trim();
+
+            try {
+              // Check for an existing Postgres article with same title + material to avoid dupes
+              const { data: existing } = await supabase
+                .from("articles")
+                .select("id")
+                .eq("legacy_material_kv_id", materialKvId)
+                .eq("sustainability_category", category)
+                .eq("title", title)
+                .maybeSingle();
+
+              if (existing) {
+                skipped.push(
+                  `${materialKvId}/${rawCat}/${article.id}: "${title}" already in Postgres as ${existing.id}`,
+                );
+                continue;
+              }
+
+              const now = new Date().toISOString();
+              const slug = title
+                .toLowerCase()
+                .trim()
+                .replace(/[^a-z0-9]+/g, "-")
+                .replace(/^-+|-+$/g, "");
+
+              const row = {
+                title,
+                slug: `${slug || "article"}-${Date.now()}`,
+                article_type: article.article_type || "DIY",
+                sustainability_category: category,
+                cover_image_url: article.cover_image_url ?? null,
+                content: normalizeContent(article.content),
+                legacy_material_kv_id: materialKvId,
+                created_by: toUuid(article.created_by, article.author_id),
+                edited_by: null,
+                writer_name: article.writer_name ?? null,
+                editor_name: article.editor_name ?? null,
+                version: Number.isFinite(Number(article.version))
+                  ? Number(article.version)
+                  : 1,
+                status: "published",
+                date_added: article.dateAdded || article.created_at || now,
+                created_at: article.created_at || now,
+                updated_at: now,
+              };
+
+              const { data: inserted, error: insertErr } = await supabase
+                .from("articles")
+                .insert(row)
+                .select("id")
+                .single();
+              if (insertErr) throw insertErr;
+
+              migrated.push(
+                `${materialKvId}/${rawCat}/${article.id}: inserted as ${inserted.id} ("${title}")`,
+              );
+            } catch (err) {
+              const msg =
+                err instanceof Error
+                  ? err.message
+                  : ((err as any)?.message ?? JSON.stringify(err));
+              errors.push(`${materialKvId}/${rawCat}/${article.id}: ${msg}`);
+            }
+          }
+        }
+      }
+
+      return c.json({
+        success: true,
+        migrated: migrated.length,
+        skipped: skipped.length,
+        errors: errors.length,
+        details: { migrated, skipped, errors },
+      });
+    } catch (error) {
+      log.error("Error migrating KV articles:", error);
+      return c.json(
+        {
+          error: "Failed to migrate KV articles",
+          details: String(error),
+        },
+        500,
+      );
+    }
+  },
+);
+
+// Recovery: re-apply all approved article submissions to Postgres (admin only)
+app.post(
+  "/make-server-17cae920/admin/recover-approved-articles",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      );
+
+      const allSubmissions = (await kv.getByPrefix("submission:")) || [];
+
+      const approvedArticleSubmissions = allSubmissions.filter(
+        (s: any) =>
+          s.status === "approved" &&
+          (s.type === "new_article" || s.type === "update_article") &&
+          s.content_data,
+      );
+
+      const normalizeCategory = (value: unknown) => {
+        const raw = String(value ?? "")
+          .trim()
+          .toLowerCase();
+        if (raw === "compostability" || raw === "composting")
+          return "compostability";
+        if (raw === "recyclability" || raw === "recycling")
+          return "recyclability";
+        if (raw === "reusability" || raw === "reuse") return "reusability";
+        return null;
+      };
+
+      const UUID_RE =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      const toUuidOrNull = (...candidates: unknown[]): string | null => {
+        for (const c of candidates) {
+          if (typeof c === "string" && UUID_RE.test(c)) return c;
+        }
+        return null;
+      };
+
+      const buildSlug = (title: string, explicit?: string) => {
+        const base = (explicit || title)
+          .toLowerCase()
+          .trim()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-+|-+$/g, "");
+        return base || `article-${Date.now()}`;
+      };
+
+      const normalizeContent = (value: unknown) => {
+        if (value && typeof value === "object") return value;
+        if (typeof value === "string" && value.trim().length > 0) {
+          return {
+            type: "doc",
+            content: [
+              {
+                type: "paragraph",
+                content: [{ type: "text", text: value.trim() }],
+              },
+            ],
+          };
+        }
+        return { type: "doc", content: [{ type: "paragraph" }] };
+      };
+
+      const recovered: string[] = [];
+      const skipped: string[] = [];
+      const errors: string[] = [];
+
+      for (const sub of approvedArticleSubmissions) {
+        const data = sub.content_data;
+        const now = new Date().toISOString();
+
+        try {
+          if (sub.type === "new_article") {
+            const materialId = data.material_id;
+            const category = normalizeCategory(
+              data.sustainability_category || data.category,
+            );
+            if (!materialId || !category) {
+              skipped.push(`${sub.id}: missing material_id or category`);
+              continue;
+            }
+
+            // Old KV articles used numeric timestamp IDs — discard those, treat as new
+            const existingArticleId = toUuidOrNull(data.article_id);
+            if (existingArticleId) {
+              // Check if already in Postgres
+              const { data: existing } = await supabase
+                .from("articles")
+                .select("id")
+                .eq("id", existingArticleId)
+                .maybeSingle();
+              if (existing) {
+                skipped.push(
+                  `${sub.id}: article ${existingArticleId} already exists`,
+                );
+                continue;
+              }
+            }
+
+            const title = String(data.title || "Untitled Article").trim();
+            // Always make slug unique to avoid collisions with deleted/orphaned rows
+            const baseSlug = buildSlug(title, data.slug);
+            const uniqueSlug = existingArticleId
+              ? baseSlug
+              : `${baseSlug}-${Date.now()}`;
+            const row: Record<string, unknown> = {
+              title,
+              slug: uniqueSlug,
+              article_type: data.article_type || "DIY",
+              sustainability_category: category,
+              cover_image_url: data.cover_image_url ?? null,
+              content: normalizeContent(data.content),
+              legacy_material_kv_id: materialId,
+              created_by: toUuidOrNull(
+                data.created_by,
+                data.author_id,
+                sub.submitted_by,
+              ),
+              edited_by: null,
+              writer_name: data.writer_name ?? null,
+              editor_name: data.editor_name ?? null,
+              version: Number.isFinite(Number(data.version))
+                ? Number(data.version)
+                : 1,
+              status: "published",
+              date_added: data.dateAdded || data.created_at || now,
+              created_at: data.created_at || now,
+              updated_at: now,
+            };
+
+            let createdArticleId: string;
+            if (existingArticleId) {
+              // Upsert by id — handles the case where the article already exists
+              row.id = existingArticleId;
+              const { data: upserted, error: upsertErr } = await supabase
+                .from("articles")
+                .upsert(row, { onConflict: "id" })
+                .select("id")
+                .limit(1);
+              if (upsertErr) throw upsertErr;
+              createdArticleId = upserted?.[0]?.id || existingArticleId;
+            } else {
+              const { data: inserted, error: insertErr } = await supabase
+                .from("articles")
+                .insert(row)
+                .select("id")
+                .single();
+              if (insertErr) throw insertErr;
+              createdArticleId = inserted.id;
+            }
+
+            // Store created id back into submission content_data for link resolution
+            await kv.set(`submission:${sub.id}`, {
+              ...sub,
+              content_data: {
+                ...data,
+                article_id: createdArticleId,
+                sustainability_category: category,
+              },
+            });
+
+            recovered.push(
+              `${sub.id}: inserted article ${createdArticleId} ("${title}")`,
+            );
+          } else if (sub.type === "update_article") {
+            const rawArticleId =
+              sub.original_content_id || data.article_id || data.id;
+            const articleId = toUuidOrNull(rawArticleId);
+            const category = normalizeCategory(
+              data.sustainability_category || data.category,
+            );
+
+            if (!articleId) {
+              // Original article was a KV-only article (numeric ID) — never in Postgres.
+              // Treat as a new insert using the submission's content snapshot.
+              const materialId = data.material_id;
+              if (!materialId || !category) {
+                skipped.push(
+                  `${sub.id}: update_article with legacy KV id, missing material/category`,
+                );
+                continue;
+              }
+              const title = String(data.title || "Untitled Article").trim();
+              const row: Record<string, unknown> = {
+                title,
+                slug: `${buildSlug(title, data.slug)}-${Date.now()}`,
+                article_type: data.article_type || "DIY",
+                sustainability_category: category,
+                cover_image_url: data.cover_image_url ?? null,
+                content: normalizeContent(data.content),
+                legacy_material_kv_id: materialId,
+                created_by: toUuidOrNull(
+                  data.created_by,
+                  data.author_id,
+                  sub.submitted_by,
+                ),
+                edited_by: null,
+                writer_name: data.writer_name ?? null,
+                editor_name: data.editor_name ?? null,
+                version: Number.isFinite(Number(data.version))
+                  ? Number(data.version)
+                  : 1,
+                status: "published",
+                date_added: data.dateAdded || data.created_at || now,
+                created_at: data.created_at || now,
+                updated_at: now,
+              };
+              const { data: inserted, error: insertErr } = await supabase
+                .from("articles")
+                .insert(row)
+                .select("id")
+                .single();
+              if (insertErr) throw insertErr;
+              await kv.set(`submission:${sub.id}`, {
+                ...sub,
+                content_data: {
+                  ...data,
+                  article_id: inserted.id,
+                  sustainability_category: category,
+                },
+              });
+              recovered.push(
+                `${sub.id}: inserted (from legacy update) article ${inserted.id} ("${title}")`,
+              );
+            } else {
+              // Article exists in Postgres — update it
+              const articleUpdates: Record<string, unknown> = {
+                updated_at: now,
+                status: "published",
+              };
+              if (data.title !== undefined) articleUpdates.title = data.title;
+              if (data.slug !== undefined) articleUpdates.slug = data.slug;
+              if (data.article_type !== undefined)
+                articleUpdates.article_type = data.article_type;
+              if (data.cover_image_url !== undefined)
+                articleUpdates.cover_image_url = data.cover_image_url;
+              if (data.content !== undefined)
+                articleUpdates.content = normalizeContent(data.content);
+              if (data.material_id !== undefined)
+                articleUpdates.legacy_material_kv_id = data.material_id;
+              if (category) articleUpdates.sustainability_category = category;
+
+              const { data: updatedRows, error: updateErr } = await supabase
+                .from("articles")
+                .update(articleUpdates)
+                .eq("id", articleId)
+                .select("id");
+              if (updateErr) throw updateErr;
+              if (!updatedRows || updatedRows.length === 0) {
+                skipped.push(
+                  `${sub.id}: article ${articleId} not found in Postgres for update`,
+                );
+                continue;
+              }
+              await kv.set(`submission:${sub.id}`, {
+                ...sub,
+                content_data: {
+                  ...data,
+                  article_id: articleId,
+                  sustainability_category: category,
+                },
+              });
+              recovered.push(`${sub.id}: updated article ${articleId}`);
+            }
+          }
+        } catch (err) {
+          const errMsg =
+            err instanceof Error
+              ? err.message
+              : (err as any)?.message
+                ? `${(err as any).message} (code: ${(err as any).code ?? "?"})`
+                : JSON.stringify(err);
+          errors.push(`${sub.id}: ${errMsg}`);
+        }
+      }
+
+      return c.json({
+        success: true,
+        total: approvedArticleSubmissions.length,
+        recovered: recovered.length,
+        skipped: skipped.length,
+        errors: errors.length,
+        details: { recovered, skipped, errors },
+      });
+    } catch (error) {
+      log.error("Error recovering approved articles:", error);
+      return c.json(
+        {
+          error: "Failed to recover approved articles",
+          details: String(error),
+        },
+        500,
+      );
+    }
+  },
+);
+
 // Debug endpoint - get all articles with author info
 app.get("/make-server-17cae920/debug/articles", verifyAuth, async (c) => {
   try {
@@ -7434,53 +7974,65 @@ app.put(
         return c.json({ error: "Submission not found" }, 404);
       }
 
-      const updatedSubmission = {
-        ...existing,
-        ...updates,
-        reviewed_by: userId,
-        updated_at: new Date().toISOString(),
-      };
-
-      await kv.set(`submission:${id}`, updatedSubmission);
+      let updatedContentData = existing.content_data;
 
       // If approved, apply content changes to Postgres (source of truth for reads).
       if (updates.status === "approved" && existing.content_data) {
+        const type = existing.type as string;
+        const data = existing.content_data;
+        const supabase = createClient(
+          Deno.env.get("SUPABASE_URL") ?? "",
+          Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+        );
+
+        const normalizeCategory = (value: unknown) => {
+          const raw = String(value ?? "")
+            .trim()
+            .toLowerCase();
+          if (!raw) return null;
+          if (raw === "compostability" || raw === "composting") {
+            return "compostability";
+          }
+          if (raw === "recyclability" || raw === "recycling") {
+            return "recyclability";
+          }
+          if (raw === "reusability" || raw === "reuse") {
+            return "reusability";
+          }
+          return null;
+        };
+
+        const buildSlug = (title: string, explicit?: string) => {
+          const base = (explicit || title)
+            .toLowerCase()
+            .trim()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "");
+          return base || `article-${Date.now()}`;
+        };
+
+        const normalizeArticleContent = (value: unknown) => {
+          if (value && typeof value === "object") return value;
+          if (typeof value === "string" && value.trim().length > 0) {
+            return {
+              type: "doc",
+              content: [
+                {
+                  type: "paragraph",
+                  content: [{ type: "text", text: value.trim() }],
+                },
+              ],
+            };
+          }
+          return {
+            type: "doc",
+            content: [{ type: "paragraph" }],
+          };
+        };
+
+        const now = new Date().toISOString();
+
         try {
-          const type = existing.type as string;
-          const data = existing.content_data;
-          const supabase = createClient(
-            Deno.env.get("SUPABASE_URL") ?? "",
-            Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-          );
-
-          const normalizeCategory = (value: unknown) => {
-            const raw = String(value ?? "")
-              .trim()
-              .toLowerCase();
-            if (!raw) return null;
-            if (raw === "compostability" || raw === "composting") {
-              return "compostability";
-            }
-            if (raw === "recyclability" || raw === "recycling") {
-              return "recyclability";
-            }
-            if (raw === "reusability" || raw === "reuse") {
-              return "reusability";
-            }
-            return null;
-          };
-
-          const buildSlug = (title: string, explicit?: string) => {
-            const base = (explicit || title)
-              .toLowerCase()
-              .trim()
-              .replace(/[^a-z0-9]+/g, "-")
-              .replace(/^-+|-+$/g, "");
-            return base || `article-${Date.now()}`;
-          };
-
-          const now = new Date().toISOString();
-
           if (type === "new_article") {
             const materialId = data.material_id;
             const category = normalizeCategory(
@@ -7497,10 +8049,7 @@ app.put(
               article_type: data.article_type || "DIY",
               sustainability_category: category,
               cover_image_url: data.cover_image_url ?? null,
-              content: data.content || {
-                type: "doc",
-                content: [{ type: "paragraph" }],
-              },
+              content: normalizeArticleContent(data.content),
               legacy_material_kv_id: materialId,
               created_by:
                 data.created_by || data.author_id || existing.submitted_by,
@@ -7516,18 +8065,31 @@ app.put(
               updated_at: now,
             };
 
+            let createdArticleId: string | undefined;
             if (data.id) {
               row.id = data.id;
-              const { error: upsertErr } = await supabase
+              const { data: upsertedRows, error: upsertErr } = await supabase
                 .from("articles")
-                .upsert(row, { onConflict: "id" });
+                .upsert(row, { onConflict: "id" })
+                .select("id")
+                .limit(1);
               if (upsertErr) throw upsertErr;
+              createdArticleId = upsertedRows?.[0]?.id || String(data.id);
             } else {
-              const { error: insertErr } = await supabase
+              const { data: inserted, error: insertErr } = await supabase
                 .from("articles")
-                .insert(row);
+                .insert(row)
+                .select("id")
+                .single();
               if (insertErr) throw insertErr;
+              createdArticleId = inserted?.id;
             }
+
+            updatedContentData = {
+              ...data,
+              article_id: createdArticleId,
+              sustainability_category: category,
+            };
           } else if (type === "update_article") {
             const articleId =
               existing.original_content_id || data.article_id || data.id;
@@ -7553,8 +8115,9 @@ app.put(
             if (data.cover_image_url !== undefined) {
               articleUpdates.cover_image_url = data.cover_image_url;
             }
-            if (data.content !== undefined)
-              articleUpdates.content = data.content;
+            if (data.content !== undefined) {
+              articleUpdates.content = normalizeArticleContent(data.content);
+            }
             if (data.material_id !== undefined) {
               articleUpdates.legacy_material_kv_id = data.material_id;
             }
@@ -7575,11 +8138,19 @@ app.put(
               .from("articles")
               .update(articleUpdates)
               .eq("id", articleId)
-              .select("id");
+              .select("id")
+              .limit(1);
             if (updateErr) throw updateErr;
             if (!updatedRows || updatedRows.length === 0) {
               throw new Error(`Article not found for update: ${articleId}`);
             }
+
+            updatedContentData = {
+              ...data,
+              article_id: articleId,
+              sustainability_category:
+                category || data.sustainability_category || data.category,
+            };
           } else if (type === "delete_article") {
             const articleId =
               existing.original_content_id || data.article_id || data.id;
@@ -7592,15 +8163,36 @@ app.put(
               .delete()
               .eq("id", articleId);
             if (deleteErr) throw deleteErr;
+
+            updatedContentData = {
+              ...data,
+              article_id: articleId,
+            };
           }
         } catch (applyErr) {
           log.error(
             "Error applying approved submission to Postgres:",
             applyErr,
           );
-          // Non-fatal — submission is still marked approved
+          return c.json(
+            {
+              error: "Failed to apply approved submission",
+              details: String(applyErr),
+            },
+            500,
+          );
         }
       }
+
+      const updatedSubmission = {
+        ...existing,
+        ...updates,
+        content_data: updatedContentData,
+        reviewed_by: userId,
+        updated_at: new Date().toISOString(),
+      };
+
+      await kv.set(`submission:${id}`, updatedSubmission);
 
       // If approved/rejected, notify the submitter
       if (updates.status === "approved" || updates.status === "rejected") {

@@ -1239,7 +1239,20 @@ function AppContent() {
         }
       />
     ),
-    "my-submissions": () => <MySubmissionsView onBack={goBack} />,
+    "my-submissions": () => (
+      <MySubmissionsView
+        onBack={goBack}
+        onViewMaterial={navigateToMaterialDetail}
+        onViewArticle={(materialId, category, articleId) =>
+          navigateTo({
+            type: "article-standalone",
+            articleId,
+            materialId,
+            category,
+          })
+        }
+      />
+    ),
     "review-center": () => (
       <ContentReviewCenter
         onBack={navigateToAdminHome}

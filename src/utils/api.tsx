@@ -1230,6 +1230,106 @@ export async function debugArticles(): Promise<any> {
   return data;
 }
 
+// Insert a single article directly into Postgres (admin only)
+export async function insertArticle(payload: {
+  title: string;
+  sustainability_category: string;
+  legacy_material_kv_id: string;
+  content: object;
+  article_type?: string;
+  created_by?: string;
+  created_at?: string;
+  date_added?: string;
+  version?: number;
+  cover_image_url?: string | null;
+  writer_name?: string | null;
+  editor_name?: string | null;
+}): Promise<{ success: boolean; article_id: string; title: string }> {
+  return apiCall(`/admin/insert-article`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+// Recover the "Keep your old toothbrushes!" article lost from the audit log on 2026-05-28
+export async function recoverToothbrushArticle(): Promise<{
+  success: boolean;
+  article_id: string;
+  title: string;
+}> {
+  return insertArticle({
+    title: "Keep your old toothbrushes!",
+    sustainability_category: "reusability",
+    legacy_material_kv_id: "1777917094988nldci0vbj",
+    article_type: "DIY",
+    created_by: "20dc1826-f27b-4a85-ab35-7a576087332e",
+    created_at: "2026-05-28T15:57:41.226Z",
+    date_added: "2026-05-28T15:59:09.073Z",
+    version: 1,
+    content: {
+      type: "doc",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "Toothbrushes are underrated all-purpose, no-scratch cleaning tools that have been perfected over the course of the last century to actually make surfaces clean of pretty sticky contaminants. A retired toothbrush is excellent for scrubbing grout, faucet edges, tile corners, shoe soles, bike chains, small tools, plant pots, window tracks, and other narrow or dirty surfaces. The important safety step is to clearly separate it from active toothbrushes and avoid using it on food-contact, medical, or high-hygiene surfaces. Upcycling is not a complete solution to toothbrush waste, but it can extend the life of an object that is otherwise difficult to recycle and only partly compostable in some designs. ",
+            },
+          ],
+        },
+        { type: "paragraph" },
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "Plastic toothbrushes are often the more durable option for cleaning tasks, but bamboo toothbrushes can also be reused, especially as garden markers, plant labels, craft handles, or light-duty cleaning tools, though they may not last as long in wet conditions. Electric toothbrush handles should generally be kept in service as long as they work safely, because replacing the whole device creates more e-waste. ",
+            },
+          ],
+        },
+        { type: "paragraph" },
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "While it doesn't erase the need for better product design, better recovery infrastructure, or clearer disposal pathways, reusing your toothbrush helps slow the flow of refined petroleum into landfill while we work on better solutions. Reuse the object where it genuinely helps; then dispose of it according to its actual material and local recovery options. But don't be afraid to use this highly engineered, if not perfected, small cleaning tool.",
+            },
+          ],
+        },
+      ],
+    },
+  });
+}
+
+// Migrate KV-only articles (admin direct-published with numeric IDs) to Postgres (admin only)
+export async function migrateKvArticlesToPostgres(): Promise<{
+  migrated: number;
+  skipped: number;
+  errors: number;
+  details: { migrated: string[]; skipped: string[]; errors: string[] };
+}> {
+  const data = await apiCall(`/admin/migrate-kv-articles-to-postgres`, {
+    method: "POST",
+  });
+  return data;
+}
+
+// Recover all approved article submissions that were never persisted to Postgres (admin only)
+export async function recoverApprovedArticles(): Promise<{
+  total: number;
+  recovered: number;
+  skipped: number;
+  errors: number;
+  details: { recovered: string[]; skipped: string[]; errors: string[] };
+}> {
+  const data = await apiCall(`/admin/recover-approved-articles`, {
+    method: "POST",
+  });
+  return data;
+}
+
 // Backfill created_by for existing materials and articles (admin only)
 export async function backfillCreatedBy(): Promise<{
   success: boolean;

@@ -19,6 +19,33 @@ interface OneTimeAction {
 
 const ACTIONS: OneTimeAction[] = [
   {
+    id: "recover-toothbrush-article",
+    title: "Recover 'Keep your old toothbrushes!' Article",
+    description:
+      "Restores the reusability article for Toothbrush that was direct-published by an admin on 2026-05-28 but never persisted to Postgres (the content was recovered from the audit log). Safe to run once — will create a duplicate if run again.",
+    warning:
+      "Run only once. Check that the article does not already exist before running.",
+    run: api.recoverToothbrushArticle,
+  },
+  {
+    id: "migrate-kv-articles",
+    title: "Migrate KV-Only Articles to Postgres",
+    description:
+      "Scans all KV material blobs and inserts any articles with numeric (pre-UUID) IDs into the Postgres articles table. These are articles that were direct-published by admins before the Postgres persistence fix. Safe to run multiple times — articles already in Postgres (matched by title + material + category) are skipped.",
+    warning:
+      "Admin only. Run this once to recover articles that were added directly through the admin article editor before today's fix.",
+    run: api.migrateKvArticlesToPostgres,
+  },
+  {
+    id: "recover-approved-articles",
+    title: "Recover Approved Articles",
+    description:
+      "Scans all approved article submissions in KV and re-inserts any that are missing from the Postgres articles table. Safe to run multiple times — articles already in Postgres are skipped.",
+    warning:
+      "Admin only. Run this once after deploying the article persistence fix to restore any articles that were approved but never saved.",
+    run: api.recoverApprovedArticles,
+  },
+  {
     id: "seed-evidence-from-kv",
     title: "Seed Evidence Points from KV",
     description:
