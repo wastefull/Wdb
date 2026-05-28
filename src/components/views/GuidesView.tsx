@@ -154,6 +154,22 @@ export function GuidesView({ onBack }: GuidesViewProps) {
       description="Practical guides to help you compost, recycle, create, and repair sustainably"
       onBack={onBack}
     >
+      {/* Submit Button */}
+      <div className="flex justify-center ml-auto mb-6 hover:cursor-pointer">
+        <button
+          onClick={() => {
+            if (!isAuthenticated) {
+              toast.error("Please sign in to submit a guide");
+              return;
+            }
+            setShowSubmitForm(true);
+          }}
+          className="retro-btn-primary px-6 py-3 bg-waste-science text-black text-[13px] flex items-center gap-2"
+        >
+          <Plus size={18} />
+          Submit a Guide
+        </button>
+      </div>
       {/* Category Filter */}
       <div className="flex flex-wrap justify-center gap-3 mb-8">
         <button
@@ -213,6 +229,20 @@ export function GuidesView({ onBack }: GuidesViewProps) {
           <Settings size={14} className="inline-block mr-1.5" />
           Repair & Maintenance
         </button>
+      </div>
+
+      <div className="mt-8 p-4 border border-[#211f1c]/20 dark:border-white/20 rounded-lg mb-2 grid grid-cols-24">
+        <BookOpen size={16} className="inline-block mr-2 col-span-1" />
+        <p className="text-[12px] text-black/60 dark:text-white/60 col-span-23">
+          Guides are community-contributed resources related to specific
+          materials and methods. They differ from articles by providing
+          step-by-step instructions and practical advice, rather than
+          investigating the properties or impacts of materials. Whether you're
+          looking to start composting at home, learn how to recycle creatively,
+          or find repair tips, our guides offer hands-on knowledge to help you
+          take action. If you have expertise to share, consider submitting your
+          own guide to contribute to the community!
+        </p>
       </div>
 
       {/* Regular Guides List */}
@@ -303,32 +333,6 @@ export function GuidesView({ onBack }: GuidesViewProps) {
           })}
         </div>
       )}
-
-      <div className="mt-8 p-4 border border-[#211f1c]/20 dark:border-white/20 rounded-lg">
-        <p className="text-[12px] text-black/60 dark:text-white/60">
-          <BookOpen size={16} className="inline-block mr-2" />
-          Guides are community-contributed resources related to specific
-          materials and methods. They differ from articles by providing
-          step-by-step instructions and practical advice.
-        </p>
-      </div>
-
-      {/* Submit Button - always visible at bottom */}
-      <div className="mt-6 flex justify-center">
-        <button
-          onClick={() => {
-            if (!isAuthenticated) {
-              toast.error("Please sign in to submit a guide");
-              return;
-            }
-            setShowSubmitForm(true);
-          }}
-          className="retro-btn-primary px-6 py-3 bg-waste-science text-black text-[13px] flex items-center gap-2"
-        >
-          <Plus size={18} />
-          Submit a Guide
-        </button>
-      </div>
 
       {/* Submit Form Modal */}
       {showSubmitForm && (

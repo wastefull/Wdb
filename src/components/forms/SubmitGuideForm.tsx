@@ -193,7 +193,7 @@ export function SubmitGuideForm({
                 <textarea
                   value={importJson}
                   onChange={(e) => setImportJson(e.target.value)}
-                  className="input-field min-h-75 font-mono text-[12px]"
+                  className="input-field min-h-75 font-mono"
                   placeholder='{"title": "...", "content": {"type": "doc", "content": [...]}}'
                 />
                 <div className="flex gap-3">
@@ -221,10 +221,10 @@ export function SubmitGuideForm({
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="p-6 space-y-6 retro-input">
           {/* Title */}
           <div>
-            <label className="block text-[12px] normal mb-2">
+            <label className="block mb-2">
               Title <span className="text-red-500">*</span>
             </label>
             <input
@@ -241,7 +241,7 @@ export function SubmitGuideForm({
 
           {/* Description */}
           <div>
-            <label className="block text-[12px] normal mb-2">
+            <label className="block mb-2">
               Short Description <span className="text-red-500">*</span>
             </label>
             <textarea
@@ -258,7 +258,7 @@ export function SubmitGuideForm({
           {/* Method and Material */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-[12px] normal mb-2">
+              <label className="block mb-2">
                 Method <span className="text-red-500">*</span>
               </label>
               <select
@@ -285,7 +285,7 @@ export function SubmitGuideForm({
             </div>
 
             <div>
-              <label className="block text-[12px] normal mb-2">Category</label>
+              <label className="block mb-2">Category</label>
               <select
                 value={formData.category || ""}
                 onChange={(e) =>
@@ -309,9 +309,7 @@ export function SubmitGuideForm({
 
           {/* Material */}
           <div>
-            <label className="block text-[12px] normal mb-2">
-              Related Material (Optional)
-            </label>
+            <label className="block mb-2">Related Material (Optional)</label>
             <select
               value={formData.material_id || ""}
               onChange={(e) =>
@@ -336,9 +334,7 @@ export function SubmitGuideForm({
           {/* Difficulty and Time */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-[12px] normal mb-2">
-                Difficulty Level
-              </label>
+              <label className="block mb-2">Difficulty Level</label>
               <select
                 value={formData.difficulty_level || ""}
                 onChange={(e) =>
@@ -362,9 +358,7 @@ export function SubmitGuideForm({
             </div>
 
             <div>
-              <label className="block text-[12px] normal mb-2">
-                Estimated Time
-              </label>
+              <label className="block mb-2">Estimated Time</label>
               <input
                 type="text"
                 value={formData.estimated_time || ""}
@@ -379,10 +373,10 @@ export function SubmitGuideForm({
 
           {/* Content */}
           <div>
-            <label className="block text-[12px] normal mb-2">
+            <label className="block mb-2">
               Guide Content <span className="text-red-500">*</span>
             </label>
-            <div className="border border-[#211f1c]/20 dark:border-white/20 rounded-lg overflow-hidden">
+            <div className="rounded-lg overflow-hidden">
               <ContentEditor
                 initialContent={formData.content}
                 onChange={(content) =>
@@ -402,9 +396,7 @@ export function SubmitGuideForm({
 
           {/* Required Materials */}
           <div>
-            <label className="block text-[12px] normal mb-2">
-              Required Materials/Tools
-            </label>
+            <label className="block mb-2">Required Materials/Tools</label>
             <input
               type="text"
               value={materialsInput}
@@ -416,7 +408,7 @@ export function SubmitGuideForm({
 
           {/* Tags */}
           <div>
-            <label className="block text-[12px] normal mb-2">Tags</label>
+            <label className="block mb-2">Tags</label>
             <input
               type="text"
               value={tagsInput}
@@ -428,9 +420,7 @@ export function SubmitGuideForm({
 
           {/* Cover Image */}
           <div>
-            <label className="block text-[12px] normal mb-2">
-              Cover Image URL (Optional)
-            </label>
+            <label className="block mb-2">Cover Image URL (Optional)</label>
             <input
               type="url"
               value={formData.cover_image_url || ""}
@@ -442,8 +432,9 @@ export function SubmitGuideForm({
             />
             <p className="caption mt-1">
               Use a direct image URL (e.g., from Unsplash, right-click image →
-              Copy Image Address). Unsplash page URLs won't work - you need the
-              CDN URL starting with images.unsplash.com
+              Copy Image Address). <br />
+              Unsplash page URLs won't work - you need the CDN URL starting with
+              images.unsplash.com
             </p>
           </div>
 

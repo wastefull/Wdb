@@ -424,9 +424,8 @@ export default function ContentEditor({
           <Reply size={16} className="opacity-70" />
         </button>
 
-        <div className="w-px h-6 bg-black/10 dark:bg-white/10 mx-1" />
-
         {/* Source toggle */}
+        <div className="hidden -px h-6 bg-black/10 dark:bg-white/10 mx-1" />
         <button
           type="button"
           onClick={() => {
@@ -448,7 +447,7 @@ export default function ContentEditor({
             }
             setSourceMode((m) => !m);
           }}
-          className={`retro-icon-button ${sourceMode ? "active" : ""}`}
+          className={`hidden retro-icon-button ${sourceMode ? "active" : ""}`}
           title={sourceMode ? "Back to editor" : "View / edit source JSON"}
         >
           <Code2 size={16} />

@@ -108,6 +108,7 @@ export function StandaloneArticleView({
   };
 
   const hasRichContent = article.content && article.content.type === "doc";
+  const hasCoverImage = !!article.cover_image_url;
   const canShowArticleActions = !!(
     canManageArticle &&
     (onSaveEdit || onDelete)
@@ -238,43 +239,48 @@ export function StandaloneArticleView({
 
       {/* Content card — full width up to 5xl */}
       {!editing && (
-        <div className="bg-white dark:bg-[#2a2825] rounded-(--retro-rounding) border-[1.5px] border-[#211f1c] dark:border-white/20 p-6">
-          <div className="space-y-6">
-            {/* Cover Image */}
-            {article.cover_image_url && (
-              <div>
-                <img
-                  src={article.cover_image_url}
-                  alt={article.title}
-                  className="w-full h-auto rounded-lg border border-[#211f1c] dark:border-white/20"
-                />
-              </div>
-            )}
+        <div className="space-y-6 md:space-y-0 md:flex md:items-stretch md:justify-center md:gap-4">
+          {/* Cover Image */}
+          {hasCoverImage && (
+            <div className="w-full max-w-3xl mx-auto md:mx-0 md:max-w-none md:w-2/5 md:relative md:overflow-hidden md:rounded-lg md:border md:border-[#211f1c] md:dark:border-white/20">
+              <img
+                src={article.cover_image_url}
+                alt={article.title}
+                className="w-full h-auto rounded-lg border border-[#211f1c] dark:border-white/20 md:absolute md:inset-0 md:h-full md:w-full md:rounded-none md:border-0 md:object-cover"
+              />
+            </div>
+          )}
+          <div
+            className={`w-full max-w-3xl mx-auto md:mx-0 md:max-w-none ${
+              hasCoverImage ? "md:w-3/5" : "md:w-full"
+            }`}
+          >
+            <div className="retro-card h-full">
+              {/* Rich Content (TiptapContent) */}
+              {hasRichContent && (
+                <div className="prose prose-sm max-w-none dark:prose-invert">
+                  <GuideRenderer content={article.content} />
+                </div>
+              )}
 
-            {/* Rich Content (TiptapContent) */}
-            {hasRichContent && (
-              <div className="prose prose-sm max-w-none dark:prose-invert">
-                <GuideRenderer content={article.content} />
-              </div>
-            )}
-
-            {/* No content message */}
-            {!hasRichContent && (
-              <p className="text-[13px] text-black/60 dark:text-white/60 italic">
-                No content available for this article.
-              </p>
-            )}
-
-            {/* Footer: date, editor credit, permalink */}
-            <div className="pt-4 border-t border-[#211f1c]/20 dark:border-white/20 space-y-1">
-              <p className="text-sm text-black/50 dark:text-white/50">
-                Added: {new Date(article.dateAdded).toLocaleDateString()}
-              </p>
-              {editorName && (
-                <p className="text-sm text-black/40 dark:text-white/40 italic">
-                  Edited by {editorName}
+              {/* No content message */}
+              {!hasRichContent && (
+                <p className="text-[13px] text-black/60 dark:text-white/60 italic">
+                  No content available for this article.
                 </p>
               )}
+
+              {/* Footer: date, editor credit, permalink */}
+              <div className="pt-4 border-t border-[#211f1c]/20 dark:border-white/20 space-y-1">
+                <p className="text-sm text-black/50 dark:text-white/50">
+                  Added: {new Date(article.dateAdded).toLocaleDateString()}
+                </p>
+                {editorName && (
+                  <p className="text-sm text-black/40 dark:text-white/40 italic">
+                    Edited by {editorName}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         </div>

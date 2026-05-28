@@ -16,7 +16,7 @@ const DEFAULT_OVERLAY_CLASS_NAME =
   "fixed inset-0 z-200 bg-black/40 dark:bg-black/60 flex items-start justify-center overflow-y-auto pt-10 px-4";
 
 const DEFAULT_PANEL_CLASS_NAME =
-  "mt-10 bg-white dark:bg-[#2a2825] rounded-(--retro-rounding) border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[4px_4px_0px_0px_#000000] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]";
+  "mt-10 bg-white dark:bg-[#2a2825] rounded-(--retro-rounding) retro-card";
 
 export function Modal({
   onClose,

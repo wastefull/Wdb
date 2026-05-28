@@ -270,7 +270,7 @@ export function ArticlesView({
                 setEditingArticle(null);
               })
             }
-            className="retro-card-button h-10 px-6 text-[14px] text-black flex items-center gap-2"
+            className="retro-btn-primary h-10 px-6 text-[14px] text-black flex items-center gap-2"
             style={{ backgroundColor: categoryColors[category] }}
           >
             <Plus size={16} className="text-black" />
