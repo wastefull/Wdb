@@ -7,9 +7,11 @@ import {
   Calendar,
   User,
   Activity,
+  X,
 } from "lucide-react";
 import { projectId, publicAnonKey } from "../../utils/supabase/info";
 import { logger as log } from "../../utils/logger";
+import { Modal } from "../shared/Modal";
 interface AuditLogEntry {
   id: string;
   timestamp: string;
@@ -498,58 +500,70 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
 
       {/* Detail Modal */}
       {selectedLog && (
-        <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
-          onClick={() => setSelectedLog(null)}
+        <Modal
+          onClose={() => setSelectedLog(null)}
+          panelClassName="w-full max-w-3xl flex flex-col max-h-[85vh]"
         >
-          <div
-            className="bg-white dark:bg-[#1a1917] rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] max-w-3xl w-full max-h-[80vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="p-6">
-              <h2 className="font-['Tilt_Warp'] text-[24px] mb-4">
-                Audit Log Details
-              </h2>
+          {/* Sticky header */}
+          <div className="flex items-start justify-between px-6 pt-6 pb-4 border-b border-[#211f1c]/10 dark:border-white/10 shrink-0">
+            <h2 className="font-['Tilt_Warp'] text-[22px]">
+              Audit Log Details
+            </h2>
+            <button
+              onClick={() => setSelectedLog(null)}
+              className="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
+              aria-label="Close"
+            >
+              <X size={18} />
+            </button>
+          </div>
 
-              <div className="space-y-4">
+          {/* Scrollable body */}
+          <div className="overflow-y-auto px-6 py-5">
+            <div className="space-y-5">
+              {/* Metadata row */}
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <h3 className="label-muted mb-1">Timestamp</h3>
-                  <p className="font-['Sniglet'] text-[14px]">
+                  <p className="label-muted mb-0.5">Timestamp</p>
+                  <p className="font-['Sniglet'] text-[13px]">
                     {new Date(selectedLog.timestamp).toLocaleString()}
                   </p>
                 </div>
-
                 <div>
-                  <h3 className="label-muted mb-1">User</h3>
-                  <p className="font-['Sniglet'] text-[14px]">
-                    {selectedLog.userEmail}
-                  </p>
-                  <p className="font-['Sniglet'] text-sm text-black/40 dark:text-white/40">
-                    {selectedLog.userId}
-                  </p>
-                </div>
-
-                <div>
-                  <h3 className="label-muted mb-1">Action</h3>
+                  <p className="label-muted mb-0.5">Action</p>
                   <span
-                    className={`inline-block px-3 py-1 rounded-md border font-['Sniglet'] text-[12px] ${getActionColor(
-                      selectedLog.action,
-                    )}`}
+                    className={`inline-block px-2 py-0.5 rounded-md border font-['Sniglet'] text-[12px] ${getActionColor(selectedLog.action)}`}
                   >
                     {selectedLog.action}
                   </span>
                 </div>
+              </div>
 
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <h3 className="label-muted mb-1">Entity</h3>
-                  <p className="font-['Sniglet'] text-[14px]">
-                    {selectedLog.entityType}: {selectedLog.entityId}
+                  <p className="label-muted mb-0.5">User</p>
+                  <p className="font-['Sniglet'] text-[13px]">
+                    {selectedLog.userEmail}
+                  </p>
+                  <p className="font-['Sniglet'] text-[11px] text-black/40 dark:text-white/40 mt-0.5 break-all">
+                    {selectedLog.userId}
                   </p>
                 </div>
-
                 <div>
-                  <h3 className="label-muted mb-1">Changes</h3>
-                  <ul className="list-disc pl-5 space-y-1">
+                  <p className="label-muted mb-0.5">Entity</p>
+                  <p className="font-['Sniglet'] text-[13px] capitalize">
+                    {selectedLog.entityType}
+                  </p>
+                  <p className="font-['Sniglet'] text-[11px] text-black/40 dark:text-white/40 mt-0.5 break-all">
+                    {selectedLog.entityId}
+                  </p>
+                </div>
+              </div>
+
+              {selectedLog.changes.length > 0 && (
+                <div>
+                  <p className="label-muted mb-1">Changes</p>
+                  <ul className="list-disc pl-5 space-y-0.5">
                     {selectedLog.changes.map((change, idx) => (
                       <li key={idx} className="font-['Sniglet'] text-[12px]">
                         {change}
@@ -557,46 +571,37 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
                     ))}
                   </ul>
                 </div>
+              )}
 
-                {selectedLog.before && (
-                  <div>
-                    <h3 className="label-muted mb-1">Before</h3>
-                    <pre className="bg-[#e8f4f8] dark:bg-[#2d2b28] p-3 rounded-md font-['Sniglet'] text-xs overflow-x-auto">
-                      {JSON.stringify(selectedLog.before, null, 2)}
-                    </pre>
-                  </div>
-                )}
+              {selectedLog.before && (
+                <div>
+                  <p className="label-muted mb-1">Before</p>
+                  <pre className="bg-[#f0f0f0] dark:bg-[#1a1917] p-3 rounded-lg font-mono text-[11px] overflow-x-auto max-h-60 border border-[#211f1c]/10 dark:border-white/10">
+                    {JSON.stringify(selectedLog.before, null, 2)}
+                  </pre>
+                </div>
+              )}
 
-                {selectedLog.after && (
-                  <div>
-                    <h3 className="label-muted mb-1">After</h3>
-                    <pre className="bg-[#e8f4f8] dark:bg-[#2d2b28] p-3 rounded-md font-['Sniglet'] text-xs overflow-x-auto">
-                      {JSON.stringify(selectedLog.after, null, 2)}
-                    </pre>
-                  </div>
-                )}
+              {selectedLog.after && (
+                <div>
+                  <p className="label-muted mb-1">After</p>
+                  <pre className="bg-[#f0f0f0] dark:bg-[#1a1917] p-3 rounded-lg font-mono text-[11px] overflow-x-auto max-h-60 border border-[#211f1c]/10 dark:border-white/10">
+                    {JSON.stringify(selectedLog.after, null, 2)}
+                  </pre>
+                </div>
+              )}
 
-                {selectedLog.ipAddress && (
-                  <div>
-                    <h3 className="label-muted mb-1">IP Address</h3>
-                    <p className="font-['Sniglet'] text-[12px]">
-                      {selectedLog.ipAddress}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              <div className="mt-6 flex justify-end">
-                <button
-                  onClick={() => setSelectedLog(null)}
-                  className="px-4 py-2 bg-waste-reuse dark:bg-[#2d2b28] rounded-lg border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet'] text-[12px]"
-                >
-                  Close
-                </button>
-              </div>
+              {selectedLog.ipAddress && (
+                <div>
+                  <p className="label-muted mb-0.5">IP Address</p>
+                  <p className="font-['Sniglet'] text-[12px]">
+                    {selectedLog.ipAddress}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
-        </div>
+        </Modal>
       )}
     </div>
   );
