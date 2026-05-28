@@ -433,7 +433,7 @@ export function SearchResultsView({
                         onChange={(e) =>
                           setMinRecyclability(parseInt(e.target.value))
                         }
-                        className="w-full h-2 bg-(--waste-recycle)/30 rounded-lg appearance-none cursor-pointer accent-waste-recycle"
+                        className="w-full h-2 bg-waste-recycle/30 rounded-lg appearance-none cursor-pointer accent-waste-recycle"
                       />
                     </div>
                     {/* Reusability */}
