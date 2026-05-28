@@ -7443,64 +7443,159 @@ app.put(
 
       await kv.set(`submission:${id}`, updatedSubmission);
 
-      // If approved, apply the content to the material
+      // If approved, apply content changes to Postgres (source of truth for reads).
       if (updates.status === "approved" && existing.content_data) {
         try {
           const type = existing.type as string;
           const data = existing.content_data;
+          const supabase = createClient(
+            Deno.env.get("SUPABASE_URL") ?? "",
+            Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+          );
 
-          if (
-            type === "new_article" &&
-            data.material_id &&
-            data.sustainability_category
-          ) {
-            const material = await kv.get(`material:${data.material_id}`);
-            if (material) {
-              const category = data.sustainability_category as string;
-              const articles = material.articles?.[category] ?? [];
-              const newArticle = {
-                ...data,
-                id: data.id || String(Date.now()),
-                status: "published",
-                author_id: data.author_id || existing.submitted_by,
-                created_by: data.created_by || existing.submitted_by,
-                updated_at: new Date().toISOString(),
-              };
-              material.articles = {
-                ...material.articles,
-                [category]: [...articles, newArticle],
-              };
-              await kv.set(`material:${data.material_id}`, material);
+          const normalizeCategory = (value: unknown) => {
+            const raw = String(value ?? "")
+              .trim()
+              .toLowerCase();
+            if (!raw) return null;
+            if (raw === "compostability" || raw === "composting") {
+              return "compostability";
             }
-          } else if (
-            type === "update_article" &&
-            data.material_id &&
-            data.sustainability_category &&
-            data.id
-          ) {
-            const material = await kv.get(`material:${data.material_id}`);
-            if (material) {
-              const category = data.sustainability_category as string;
-              const articles: any[] = material.articles?.[category] ?? [];
-              const idx = articles.findIndex((a: any) => a.id === data.id);
-              if (idx !== -1) {
-                articles[idx] = {
-                  ...articles[idx],
-                  ...data,
-                  status: "published",
-                  updated_at: new Date().toISOString(),
-                };
-              }
-              material.articles = {
-                ...material.articles,
-                [category]: articles,
-              };
-              await kv.set(`material:${data.material_id}`, material);
+            if (raw === "recyclability" || raw === "recycling") {
+              return "recyclability";
             }
+            if (raw === "reusability" || raw === "reuse") {
+              return "reusability";
+            }
+            return null;
+          };
+
+          const buildSlug = (title: string, explicit?: string) => {
+            const base = (explicit || title)
+              .toLowerCase()
+              .trim()
+              .replace(/[^a-z0-9]+/g, "-")
+              .replace(/^-+|-+$/g, "");
+            return base || `article-${Date.now()}`;
+          };
+
+          const now = new Date().toISOString();
+
+          if (type === "new_article") {
+            const materialId = data.material_id;
+            const category = normalizeCategory(
+              data.sustainability_category || data.category,
+            );
+            if (!materialId || !category) {
+              throw new Error("Missing material/category for new_article");
+            }
+
+            const title = String(data.title || "Untitled Article").trim();
+            const row: Record<string, unknown> = {
+              title,
+              slug: buildSlug(title, data.slug),
+              article_type: data.article_type || "DIY",
+              sustainability_category: category,
+              cover_image_url: data.cover_image_url ?? null,
+              content: data.content || {
+                type: "doc",
+                content: [{ type: "paragraph" }],
+              },
+              legacy_material_kv_id: materialId,
+              created_by:
+                data.created_by || data.author_id || existing.submitted_by,
+              edited_by: null,
+              writer_name: data.writer_name ?? null,
+              editor_name: data.editor_name ?? null,
+              version: Number.isFinite(Number(data.version))
+                ? Number(data.version)
+                : 1,
+              status: "published",
+              date_added: data.dateAdded || data.created_at || now,
+              created_at: data.created_at || now,
+              updated_at: now,
+            };
+
+            if (data.id) {
+              row.id = data.id;
+              const { error: upsertErr } = await supabase
+                .from("articles")
+                .upsert(row, { onConflict: "id" });
+              if (upsertErr) throw upsertErr;
+            } else {
+              const { error: insertErr } = await supabase
+                .from("articles")
+                .insert(row);
+              if (insertErr) throw insertErr;
+            }
+          } else if (type === "update_article") {
+            const articleId =
+              existing.original_content_id || data.article_id || data.id;
+            if (!articleId) {
+              throw new Error("Missing article id for update_article");
+            }
+
+            const category = normalizeCategory(
+              data.sustainability_category || data.category,
+            );
+
+            const articleUpdates: Record<string, unknown> = {
+              updated_at: now,
+              status: "published",
+              edited_by: userId,
+            };
+
+            if (data.title !== undefined) articleUpdates.title = data.title;
+            if (data.slug !== undefined) articleUpdates.slug = data.slug;
+            if (data.article_type !== undefined) {
+              articleUpdates.article_type = data.article_type;
+            }
+            if (data.cover_image_url !== undefined) {
+              articleUpdates.cover_image_url = data.cover_image_url;
+            }
+            if (data.content !== undefined)
+              articleUpdates.content = data.content;
+            if (data.material_id !== undefined) {
+              articleUpdates.legacy_material_kv_id = data.material_id;
+            }
+            if (category) {
+              articleUpdates.sustainability_category = category;
+            }
+            if (Number.isFinite(Number(data.version))) {
+              articleUpdates.version = Number(data.version);
+            }
+            if (data.writer_name !== undefined) {
+              articleUpdates.writer_name = data.writer_name;
+            }
+            if (data.editor_name !== undefined) {
+              articleUpdates.editor_name = data.editor_name;
+            }
+
+            const { data: updatedRows, error: updateErr } = await supabase
+              .from("articles")
+              .update(articleUpdates)
+              .eq("id", articleId)
+              .select("id");
+            if (updateErr) throw updateErr;
+            if (!updatedRows || updatedRows.length === 0) {
+              throw new Error(`Article not found for update: ${articleId}`);
+            }
+          } else if (type === "delete_article") {
+            const articleId =
+              existing.original_content_id || data.article_id || data.id;
+            if (!articleId) {
+              throw new Error("Missing article id for delete_article");
+            }
+
+            const { error: deleteErr } = await supabase
+              .from("articles")
+              .delete()
+              .eq("id", articleId);
+            if (deleteErr) throw deleteErr;
           }
         } catch (applyErr) {
           log.error(
-            "Error applying approved submission to material:",
+            "Error applying approved submission to Postgres:",
             applyErr,
           );
           // Non-fatal — submission is still marked approved

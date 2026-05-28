@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { ArrowLeft, Plus } from "lucide-react";
+import { toast } from "sonner";
 import { Material } from "../../types/material";
 import { Article, CategoryType } from "../../types/article";
+import * as api from "../../utils/api";
 import {
   getArticlesByCategory,
   addArticleToMaterial,
@@ -60,6 +62,29 @@ export function ArticlesView({
     articleData: Omit<Article, "id" | "dateAdded">,
     options?: { onBehalfOf?: string },
   ) => {
+    const canPublishDirectly = isAdminModeActive || userRole === "admin";
+
+    if (!canPublishDirectly) {
+      void (async () => {
+        try {
+          await api.createSubmission({
+            type: "new_article",
+            content_data: {
+              ...articleData,
+              material_id: material.id,
+              sustainability_category: category,
+              category,
+            },
+          });
+          toast.success("Article submitted for admin review.");
+          setShowForm(false);
+        } catch {
+          toast.error("Failed to submit article for review");
+        }
+      })();
+      return;
+    }
+
     // If admin is posting on behalf of another user, use that user's ID
     const creatorId = options?.onBehalfOf || user?.id;
 
@@ -67,6 +92,7 @@ export function ArticlesView({
       ...articleData,
       id: Date.now().toString(),
       dateAdded: new Date().toISOString(),
+      status: "published",
       // Set created_by and author_id to the target user (or current user)
       created_by: creatorId || articleData.created_by,
       author_id: creatorId || articleData.author_id,
@@ -87,6 +113,40 @@ export function ArticlesView({
   ) => {
     if (!editingArticle) return;
 
+    const canPublishDirectly = isAdminModeActive || userRole === "admin";
+    if (!canPublishDirectly) {
+      const changeReason = prompt(
+        "Briefly explain your suggested article changes (required):",
+      );
+      if (!changeReason?.trim()) {
+        toast.error("A reason is required to submit an edit request");
+        return;
+      }
+
+      void (async () => {
+        try {
+          await api.createSubmission({
+            type: "update_article",
+            original_content_id: editingArticle.id,
+            content_data: {
+              ...articleData,
+              article_id: editingArticle.id,
+              material_id: material.id,
+              sustainability_category: category,
+              category,
+              change_reason: changeReason.trim(),
+            },
+          });
+          toast.success("Edit suggestion submitted for admin review.");
+          setEditingArticle(null);
+          setShowForm(false);
+        } catch {
+          toast.error("Failed to submit edit suggestion");
+        }
+      })();
+      return;
+    }
+
     const updatedMaterial = updateArticleInMaterial(
       material,
       category,
@@ -105,6 +165,40 @@ export function ArticlesView({
   };
 
   const handleDeleteArticle = (id: string) => {
+    const canPublishDirectly = isAdminModeActive || userRole === "admin";
+
+    if (!canPublishDirectly) {
+      const existingArticle = articles.find((article) => article.id === id);
+      const changeReason = prompt(
+        "Briefly explain why this article should be deleted (required):",
+      );
+      if (!changeReason?.trim()) {
+        toast.error("A reason is required to submit a delete request");
+        return;
+      }
+
+      void (async () => {
+        try {
+          await api.createSubmission({
+            type: "delete_article",
+            original_content_id: id,
+            content_data: {
+              article_id: id,
+              material_id: material.id,
+              sustainability_category: category,
+              category,
+              title: existingArticle?.title,
+              change_reason: changeReason.trim(),
+            },
+          });
+          toast.success("Delete request submitted for admin review.");
+        } catch {
+          toast.error("Failed to submit delete request");
+        }
+      })();
+      return;
+    }
+
     if (confirm("Are you sure you want to delete this article?")) {
       const updatedMaterial = removeArticleFromMaterial(material, category, id);
 
