@@ -615,7 +615,7 @@ export function DataManagementView({
                     value={pasteData}
                     onChange={(e) => setPasteData(e.target.value)}
                     placeholder="name,category,description,compostability,recyclability,reusability&#10;PET Plastic,Plastics,Clear plastic bottles,0,85,40&#10;Aluminum Can,Metals,Beverage container,0,95,75"
-                    className="text-sm min-h-[120px] border-[#211f1c] dark:border-white/20 dark:bg-[#1a1917] dark:text-white"
+                    className="text-sm min-h-30 border-[#211f1c] dark:border-white/20 dark:bg-[#1a1917] dark:text-white"
                   />
                   <button
                     onClick={handlePasteImport}

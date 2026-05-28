@@ -341,7 +341,7 @@ export function DataRetentionManager({
                 <h4 className="font-['Sniglet'] text-[12px] font-semibold">
                   Expired Screenshots:
                 </h4>
-                <div className="max-h-[200px] overflow-y-auto space-y-2">
+                <div className="max-h-50 overflow-y-auto space-y-2">
                   {stats.screenshots.expiredSources.map((source) => (
                     <div
                       key={source.id}
@@ -578,7 +578,7 @@ export function DataRetentionManager({
                       <h5 className="font-['Sniglet'] text-sm font-semibold">
                         Dependent Evidence:
                       </h5>
-                      <div className="max-h-[150px] overflow-y-auto space-y-2">
+                      <div className="max-h-37.5 overflow-y-auto space-y-2">
                         {integrityCheck.dependentEvidence.map((evidence) => (
                           <div
                             key={evidence.id}

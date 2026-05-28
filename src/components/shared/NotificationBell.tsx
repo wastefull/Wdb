@@ -203,7 +203,7 @@ export function NotificationBell({
         </div>
 
         {/* Notifications List */}
-        <ScrollArea className="h-[400px]">
+        <ScrollArea className="h-100">
           {loading ? (
             <div className="flex items-center justify-center p-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#211f1c] dark:border-white"></div>

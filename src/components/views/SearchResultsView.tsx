@@ -410,7 +410,7 @@ export function SearchResultsView({
                         onChange={(e) =>
                           setMinCompostability(parseInt(e.target.value))
                         }
-                        className="w-full h-2 bg-(--waste-compost)/30 rounded-lg appearance-none cursor-pointer accent-(--waste-compost)"
+                        className="w-full h-2 bg-(--waste-compost)/30 rounded-lg appearance-none cursor-pointer accent-waste-compost"
                       />
                     </div>
                     {/* Recyclability */}
@@ -433,7 +433,7 @@ export function SearchResultsView({
                         onChange={(e) =>
                           setMinRecyclability(parseInt(e.target.value))
                         }
-                        className="w-full h-2 bg-(--waste-recycle)/30 rounded-lg appearance-none cursor-pointer accent-(--waste-recycle)"
+                        className="w-full h-2 bg-(--waste-recycle)/30 rounded-lg appearance-none cursor-pointer accent-waste-recycle"
                       />
                     </div>
                     {/* Reusability */}
@@ -456,7 +456,7 @@ export function SearchResultsView({
                         onChange={(e) =>
                           setMinReusability(parseInt(e.target.value))
                         }
-                        className="w-full h-2 bg-(--waste-reuse)/30 rounded-lg appearance-none cursor-pointer accent-(--waste-reuse)"
+                        className="w-full h-2 bg-waste-reuse/30 rounded-lg appearance-none cursor-pointer accent-waste-reuse"
                       />
                     </div>
                   </div>

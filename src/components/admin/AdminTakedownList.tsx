@@ -112,7 +112,7 @@ export function AdminTakedownList() {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
-        }
+        },
       );
 
       if (response.ok) {
@@ -127,7 +127,7 @@ export function AdminTakedownList() {
           data.requests?.reduce(
             (acc: TakedownRequest[], request: TakedownRequest) => {
               const existingIndex = acc.findIndex(
-                (r) => r.requestID === request.requestID
+                (r) => r.requestID === request.requestID,
               );
               if (existingIndex === -1) {
                 // No duplicate found, add this record
@@ -139,14 +139,14 @@ export function AdminTakedownList() {
                 const newFieldCount = Object.keys(request).length;
                 if (newFieldCount > existingFieldCount) {
                   log.info(
-                    `🔄 Replacing duplicate ${request.requestID}: ${existingFieldCount} fields → ${newFieldCount} fields`
+                    `🔄 Replacing duplicate ${request.requestID}: ${existingFieldCount} fields → ${newFieldCount} fields`,
                   );
                   acc[existingIndex] = request;
                 }
               }
               return acc;
             },
-            []
+            [],
           ) || [];
 
         log.info("🔍 Unique requests after dedup:", uniqueRequests.length);
@@ -198,7 +198,7 @@ export function AdminTakedownList() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(reviewData),
-        }
+        },
       );
 
       if (response.ok) {

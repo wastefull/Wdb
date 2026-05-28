@@ -460,13 +460,13 @@ export default function ContentEditor({
         <textarea
           value={sourceText}
           onChange={(e) => setSourceText(e.target.value)}
-          className="retro-card p-4 w-full font-mono text-[12px] text-black dark:text-white bg-transparent min-h-[500px] resize-y outline-none"
+          className="retro-card p-4 w-full font-mono text-[12px] text-black dark:text-white bg-transparent min-h-125 resize-y outline-none"
           spellCheck={false}
         />
       ) : (
         <EditorContent
           editor={editor}
-          className="retro-card p-6 min-h-[500px] prose prose-sm max-w-none"
+          className="retro-card p-6 min-h-125 prose prose-sm max-w-none"
         />
       )}
     </div>

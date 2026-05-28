@@ -45,7 +45,7 @@ export function PermalinkSelectionPrompt({
               <button
                 type="button"
                 onClick={() => handleSelectCandidate(candidate)}
-                className="w-full text-left px-3 py-2 rounded-[8px] border border-[#211f1c]/20 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                className="w-full text-left px-3 py-2 rounded-xl border border-[#211f1c]/20 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
               >
                 <span className="text-[13px] block">{candidate.name}</span>
                 <span className="text-xs text-black/50 dark:text-white/50">

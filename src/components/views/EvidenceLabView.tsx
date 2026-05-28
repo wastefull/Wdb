@@ -1186,7 +1186,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                               </Badge>
                             )}
                             {result.journal && (
-                              <span className="label-muted-xs truncate max-w-[150px]">
+                              <span className="label-muted-xs truncate max-w-37.5">
                                 {result.journal}
                               </span>
                             )}

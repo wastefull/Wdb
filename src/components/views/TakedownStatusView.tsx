@@ -19,7 +19,6 @@ import {
 } from "lucide-react";
 import { projectId, publicAnonKey } from "../../utils/supabase/info";
 import { useNavigationContext } from "../../contexts/NavigationContext";
-import { text } from "stream/consumers";
 import { styles, classes, classBank } from "../ui/classBank";
 import { logger } from "../../utils/logger";
 interface TakedownStatusViewProps {
@@ -64,7 +63,7 @@ export function TakedownStatusView({
           headers: {
             Authorization: `Bearer ${publicAnonKey}`,
           },
-        }
+        },
       );
 
       if (response.ok) {

@@ -513,7 +513,7 @@ export function PDFViewer({
         <p className="font-['Sniglet'] text-[12px] text-red-600 dark:text-red-400 mb-1">
           Failed to load PDF
         </p>
-        <p className="font-['Sniglet'] text-xs text-red-500/80 dark:text-red-400/80 max-w-[300px] text-center">
+        <p className="font-['Sniglet'] text-xs text-red-500/80 dark:text-red-400/80 max-w-75 text-center">
           {error}
         </p>
       </div>
@@ -550,7 +550,7 @@ export function PDFViewer({
         <div className="flex items-center gap-2 min-w-0">
           <FileText className="w-4 h-4 text-black/60 dark:text-white/60 shrink-0" />
           {title && (
-            <span className="font-['Sniglet'] text-sm text-black/80 dark:text-white/80 truncate max-w-[150px]">
+            <span className="font-['Sniglet'] text-sm text-black/80 dark:text-white/80 truncate max-w-37.5">
               {title}
             </span>
           )}
@@ -682,7 +682,7 @@ export function PDFViewer({
             <span className="font-['Sniglet'] text-xs text-black/60 dark:text-white/60 shrink-0">
               Selected:
             </span>
-            <span className="font-['Sniglet'] text-sm text-black/80 dark:text-white/80 truncate max-w-[300px]">
+            <span className="font-['Sniglet'] text-sm text-black/80 dark:text-white/80 truncate max-w-75">
               "{selectedText.substring(0, 100)}
               {selectedText.length > 100 ? "..." : ""}"
             </span>

@@ -484,7 +484,7 @@ export function EvidenceListViewer({
       </div>
 
       {/* MIU List */}
-      <ScrollArea className="h-[600px] rounded-md border-2 border-[#211f1c] dark:border-white/20">
+      <ScrollArea className="h-150 rounded-md border-2 border-[#211f1c] dark:border-white/20">
         <div className="space-y-3 p-4">
           {loading ? (
             <div className="text-center py-12">
@@ -739,7 +739,7 @@ export function EvidenceListViewer({
                 <CardContent>
                   <div className="space-y-2">
                     <div className="flex items-start gap-2">
-                      <span className="font-['Sniglet'] text-[12px] font-semibold min-w-[60px]">
+                      <span className="font-['Sniglet'] text-[12px] font-semibold min-w-15">
                         Value:
                       </span>
                       <span className="font-['Sniglet'] text-[12px]">
@@ -747,7 +747,7 @@ export function EvidenceListViewer({
                       </span>
                     </div>
                     <div className="flex items-start gap-2">
-                      <span className="font-['Sniglet'] text-[12px] font-semibold min-w-[60px]">
+                      <span className="font-['Sniglet'] text-[12px] font-semibold min-w-15">
                         Snippet:
                       </span>
                       <p className="font-['Sniglet'] text-[12px] text-muted-foreground line-clamp-2">
@@ -755,7 +755,7 @@ export function EvidenceListViewer({
                       </p>
                     </div>
                     <div className="flex items-start gap-2">
-                      <span className="font-['Sniglet'] text-[12px] font-semibold min-w-[60px]">
+                      <span className="font-['Sniglet'] text-[12px] font-semibold min-w-15">
                         Source:
                       </span>
                       <div className="flex items-center gap-1.5 flex-1 min-w-0">

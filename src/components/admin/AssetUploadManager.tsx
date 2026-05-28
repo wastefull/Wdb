@@ -44,7 +44,7 @@ export function AssetUploadManager({ accessToken }: AssetUploadManagerProps) {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -98,7 +98,7 @@ export function AssetUploadManager({ accessToken }: AssetUploadManagerProps) {
             Authorization: `Bearer ${accessToken}`,
           },
           body: formData,
-        }
+        },
       );
 
       if (!response.ok) {
@@ -117,7 +117,7 @@ export function AssetUploadManager({ accessToken }: AssetUploadManagerProps) {
     } catch (error) {
       log.error("Upload error:", error);
       toast.error(
-        error instanceof Error ? error.message : "Failed to upload file"
+        error instanceof Error ? error.message : "Failed to upload file",
       );
     } finally {
       setUploading(false);
@@ -130,14 +130,14 @@ export function AssetUploadManager({ accessToken }: AssetUploadManagerProps) {
     try {
       const response = await fetch(
         `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/assets/${encodeURIComponent(
-          fileName
+          fileName,
         )}`,
         {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {

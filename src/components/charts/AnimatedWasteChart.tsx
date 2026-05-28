@@ -135,7 +135,7 @@ export function AnimatedWasteChart({
                 width="500"
                 height="140"
                 viewBox="0 0 500 140"
-                className="overflow-visible w-full max-w-[500px]"
+                className="overflow-visible w-full max-w-125"
               >
                 <defs>
                   {/* Define the curve path for the text */}

@@ -1223,7 +1223,7 @@ export function SourceLibraryManager({
             {/* Tag Filter */}
             <div>
               <Label className="text-sm mb-2 block">Tags</Label>
-              <div className="flex flex-wrap gap-1 max-h-[100px] overflow-y-auto p-2 bg-white dark:bg-[#1a1918] border border-[#211f1c] dark:border-white/20 rounded-md">
+              <div className="flex flex-wrap gap-1 max-h-25 overflow-y-auto p-2 bg-white dark:bg-[#1a1918] border border-[#211f1c] dark:border-white/20 rounded-md">
                 {allTags.map((tag) => (
                   <Badge
                     key={tag}
@@ -1655,7 +1655,7 @@ export function SourceLibraryManager({
                         </span>
                       </TableCell>
                       <TableCell>
-                        <div className="flex flex-wrap gap-1 max-w-[200px]">
+                        <div className="flex flex-wrap gap-1 max-w-50">
                           {source.tags?.slice(0, 3).map((tag) => (
                             <Badge
                               key={tag}

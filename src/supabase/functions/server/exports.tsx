@@ -115,7 +115,7 @@ export async function handlePublicExport(c: Context) {
     log.error("Error exporting public data:", error);
     return c.json(
       { error: "Failed to export data", details: String(error) },
-      500
+      500,
     );
   }
 }
@@ -265,7 +265,7 @@ export async function handleResearchExport(c: Context) {
         log.log(
           "💡 Gzip compression requested for CSV. Export size:",
           csv.length,
-          "bytes"
+          "bytes",
         );
       }
 
@@ -422,10 +422,10 @@ export async function handleResearchExport(c: Context) {
       log.log(
         "💡 Gzip compression requested. Export size:",
         jsonString.length,
-        "bytes"
+        "bytes",
       );
       log.log(
-        "⚠️ Compression available but requires additional library - documented for future implementation"
+        "⚠️ Compression available but requires additional library - documented for future implementation",
       );
     }
 
@@ -438,7 +438,7 @@ export async function handleResearchExport(c: Context) {
     log.error("Error exporting research data:", error);
     return c.json(
       { error: "Failed to export data", details: String(error) },
-      500
+      500,
     );
   }
 }

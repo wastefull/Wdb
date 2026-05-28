@@ -435,7 +435,7 @@ function StressTest() {
             </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[600px] overflow-y-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-150 overflow-y-auto">
             {charts.map((chart, i) => (
               <div
                 key={i}

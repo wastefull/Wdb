@@ -43,7 +43,7 @@ export function TakedownDebugPanel() {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
-        }
+        },
       );
 
       if (response.ok) {

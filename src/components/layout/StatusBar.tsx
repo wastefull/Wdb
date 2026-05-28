@@ -102,7 +102,7 @@ export function StatusBar({
             {/* X appears on hover */}
             <X
               size={10}
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-black opacity-0 group-hover:opacity-100 transition-[opacity]"
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-black opacity-0 group-hover:opacity-100 transition-opacity"
               style={{ willChange: "opacity" }}
               strokeWidth={2.5}
             />
@@ -161,7 +161,7 @@ export function StatusBar({
                     <SheetHeader className="border-b border-[#211f1c]/20 dark:border-white/20 pb-4">
                       <div className="flex items-center justify-between">
                         {/* Sync Status - left side */}
-                        <div className="flex items-center gap-1.5 text-sm text-black/50 dark:text-white/50 min-w-[70px]">
+                        <div className="flex items-center gap-1.5 text-sm text-black/50 dark:text-white/50 min-w-17.5">
                           {syncStatus && (
                             <>
                               {syncStatus === "synced" && (
@@ -196,7 +196,7 @@ export function StatusBar({
                         {/* Title - center */}
                         <SheetTitle className="font-display">Menu</SheetTitle>
                         {/* Spacer to balance the X button on right */}
-                        <div className="min-w-[70px]" />
+                        <div className="min-w-17.5" />
                       </div>
                     </SheetHeader>
                     <div className="flex flex-col gap-2 p-4">
@@ -307,7 +307,7 @@ export function StatusBar({
                         className="flex items-center gap-1 px-2 py-1 bg-white/50 dark:bg-black/20 rounded-md border border-[#211f1c]/20 dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all cursor-pointer"
                       >
                         <User className="w-3 h-3 normal" />
-                        <span className="text-xs normal max-w-[100px] truncate">
+                        <span className="text-xs normal max-w-25 truncate">
                           {user.name || user.email.split("@")[0]}
                         </span>
                       </button>

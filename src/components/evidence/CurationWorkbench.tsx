@@ -466,7 +466,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
       {/* Main Split-Pane Layout */}
       <div className="flex-1 flex overflow-hidden">
         {/* Left Pane: Source Viewer */}
-        <div className="flex-1 min-w-[500px] bg-white dark:bg-[#2a2825] flex flex-col border-r border-[#211f1c]/20 dark:border-white/20">
+        <div className="flex-1 min-w-125 bg-white dark:bg-[#2a2825] flex flex-col border-r border-[#211f1c]/20 dark:border-white/20">
           <div className="panel-bordered">
             <h3 className="font-['Tilt_Warp'] text-[16px] normal mb-1">
               Source Viewer
@@ -596,7 +596,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                           </h4>
                           <div className="flex flex-wrap items-center gap-2 mt-1">
                             {selectedSource.authors && (
-                              <span className="font-['Sniglet'] text-[9px] text-black/60 dark:text-white/60 truncate max-w-[150px]">
+                              <span className="font-['Sniglet'] text-[9px] text-black/60 dark:text-white/60 truncate max-w-37.5">
                                 {selectedSource.authors}
                               </span>
                             )}
@@ -735,7 +735,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                               )}
                             </button>
                             {matchesExpanded && (
-                              <div className="max-h-[150px] overflow-y-auto border-t border-[#211f1c]/10 dark:border-white/10">
+                              <div className="max-h-37.5 overflow-y-auto border-t border-[#211f1c]/10 dark:border-white/10">
                                 {Array.from(
                                   groupMatchesByPage(keywordMatches).entries(),
                                 ).map(([pageNum, pageMatches]) => (
@@ -942,7 +942,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
         </div>
 
         {/* Right Pane: Evidence Wizard */}
-        <div className="w-[380px] min-w-[320px] max-w-[420px] bg-white dark:bg-[#2a2825] flex flex-col">
+        <div className="w-95 min-w-[320px] max-w-105 bg-white dark:bg-[#2a2825] flex flex-col">
           <div className="panel-bordered">
             <h3 className="font-['Tilt_Warp'] text-[16px] normal mb-1">
               Evidence Wizard

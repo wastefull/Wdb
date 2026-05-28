@@ -775,7 +775,7 @@ export function UserProfileView({
                       </button>
                     )}
                   </h4>
-                  <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
+                  <div className="space-y-2 max-h-100 overflow-y-auto pr-1">
                     {recentContributions.map((contrib, idx) => {
                       const handleClick = () => {
                         if (contrib.type === "material" && onViewMaterial) {

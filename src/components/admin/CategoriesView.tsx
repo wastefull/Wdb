@@ -458,7 +458,7 @@ export function CategoriesView({ onBack }: CategoriesViewProps) {
               <button
                 onClick={handleDelete}
                 disabled={deleting}
-                className="retro-btn-primary flex-1 !bg-red-500 !border-red-700 disabled:opacity-50"
+                className="retro-btn-primary flex-1 bg-red-500! border-red-700! disabled:opacity-50"
               >
                 {deleting ? "Deleting…" : "Delete"}
               </button>

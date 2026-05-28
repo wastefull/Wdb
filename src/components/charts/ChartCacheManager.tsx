@@ -50,7 +50,7 @@ export function ChartCacheManager() {
   const handleClearAll = async () => {
     if (
       !confirm(
-        "Are you sure you want to clear all cached charts? This cannot be undone."
+        "Are you sure you want to clear all cached charts? This cannot be undone.",
       )
     ) {
       return;
@@ -74,7 +74,7 @@ export function ChartCacheManager() {
     try {
       const deletedCount = await clearExpiredCaches();
       toast.success(
-        `Cleared ${deletedCount} expired chart${deletedCount !== 1 ? "s" : ""}`
+        `Cleared ${deletedCount} expired chart${deletedCount !== 1 ? "s" : ""}`,
       );
       await loadStats();
     } catch (error) {

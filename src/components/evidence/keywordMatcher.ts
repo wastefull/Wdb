@@ -146,7 +146,7 @@ const DIMENSION_KEYWORDS: Record<Dimension, Record<ParameterCode, string[]>> = {
  */
 export function getKeywordsForParameter(
   parameterCode: ParameterCode,
-  dimension?: Dimension
+  dimension?: Dimension,
 ): string[] {
   const baseKeywords = PARAMETER_KEYWORDS[parameterCode] || [];
 
@@ -164,7 +164,7 @@ export function findKeywordMatches(
   pageText: string,
   pageNumber: number,
   parameterCode: ParameterCode,
-  dimension?: Dimension
+  dimension?: Dimension,
 ): KeywordMatch[] {
   const keywords = getKeywordsForParameter(parameterCode, dimension);
   const matches: KeywordMatch[] = [];
@@ -179,7 +179,7 @@ export function findKeywordMatches(
       const contextStart = Math.max(0, startIndex - 50);
       const contextEnd = Math.min(
         pageText.length,
-        startIndex + keyword.length + 50
+        startIndex + keyword.length + 50,
       );
       const context = pageText.substring(contextStart, contextEnd);
 
@@ -187,7 +187,7 @@ export function findKeywordMatches(
       const snippetStart = Math.max(0, startIndex - 30);
       const snippetEnd = Math.min(
         pageText.length,
-        startIndex + keyword.length + 70
+        startIndex + keyword.length + 70,
       );
       let snippet = pageText.substring(snippetStart, snippetEnd).trim();
 
@@ -214,8 +214,8 @@ export function findKeywordMatches(
       self.findIndex(
         (m) =>
           m.pageNumber === match.pageNumber &&
-          Math.abs(m.startIndex - match.startIndex) < 10
-      )
+          Math.abs(m.startIndex - match.startIndex) < 10,
+      ),
   );
 
   // Sort by position in document
@@ -235,7 +235,7 @@ interface PageTextContent {
 export function scanPdfForMatches(
   pages: PageTextContent[],
   parameterCode: ParameterCode,
-  dimension?: Dimension
+  dimension?: Dimension,
 ): KeywordMatch[] {
   const allMatches: KeywordMatch[] = [];
 
@@ -244,7 +244,7 @@ export function scanPdfForMatches(
       page.text,
       page.pageNumber,
       parameterCode,
-      dimension
+      dimension,
     );
     allMatches.push(...pageMatches);
   }
@@ -256,7 +256,7 @@ export function scanPdfForMatches(
  * Group matches by page for display
  */
 export function groupMatchesByPage(
-  matches: KeywordMatch[]
+  matches: KeywordMatch[],
 ): Map<number, KeywordMatch[]> {
   const grouped = new Map<number, KeywordMatch[]>();
 

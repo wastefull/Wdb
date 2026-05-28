@@ -60,7 +60,7 @@ export function Sidebar({
           hover:bg-[--ring]
           transition-colors cursor-pointer select-none
           ${tabRounding} caption card-muted
-          !pl-1 !pr-1
+          pl-1! pr-1!
         `}
       >
         {isOpen ? (

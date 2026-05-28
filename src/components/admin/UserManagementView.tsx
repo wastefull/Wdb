@@ -222,7 +222,7 @@ export function UserManagementView({
                       }
                       disabled={user.id === currentUserId}
                     >
-                      <SelectTrigger className="w-[100px] h-8 text-sm">
+                      <SelectTrigger className="w-25 h-8 text-sm">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
