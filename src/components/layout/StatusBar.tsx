@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { memo, useState } from "react";
 import {
   User,
   LogOut,
@@ -55,7 +55,7 @@ export interface StatusBarProps {
   onClose?: () => void;
 }
 
-export function StatusBar({
+export const StatusBar = memo(function StatusBar({
   title,
   titlePop,
   version,
@@ -155,10 +155,10 @@ export function StatusBar({
                   </SheetTrigger>
                   <SheetContent
                     side="bottom"
-                    className="bg-[#faf7f2] dark:bg-[#2a2825] border-t-[1.5px] border-[#211f1c] dark:border-white/20 rounded-t-xl px-6"
+                    className="bg-[#faf7f2] dark:bg-[#2a2825] border-t-[1.5px] border-[#211f1c] dark:border-white/20 rounded-t-xl px-6 max-h-[85svh] overflow-hidden"
                     aria-describedby={undefined}
                   >
-                    <SheetHeader className="border-b border-[#211f1c]/20 dark:border-white/20 pb-4">
+                    <SheetHeader className="shrink-0 border-b border-[#211f1c]/20 dark:border-white/20 pb-4">
                       <div className="flex items-center justify-between">
                         {/* Sync Status - left side */}
                         <div className="flex items-center gap-1.5 text-sm text-black/50 dark:text-white/50 min-w-17.5">
@@ -195,11 +195,27 @@ export function StatusBar({
                         </div>
                         {/* Title - center */}
                         <SheetTitle className="font-display">Menu</SheetTitle>
-                        {/* Spacer to balance the X button on right */}
-                        <div className="min-w-17.5" />
+                        {/* Quick logout on the right so it stays accessible without scrolling */}
+                        {onLogout ? (
+                          <button
+                            onClick={() => {
+                              onLogout();
+                              setMobileMenuOpen(false);
+                            }}
+                            className="flex items-center gap-1 px-2 py-1 rounded-md border border-[#211f1c] dark:border-white/20 arcade-bg-red hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                            aria-label="Sign out"
+                          >
+                            <LogOut className="w-3.5 h-3.5 arcade-btn-red" />
+                            <span className="text-[11px] font-medium arcade-btn-red uppercase">
+                              Sign out
+                            </span>
+                          </button>
+                        ) : (
+                          <div className="min-w-17.5" />
+                        )}
                       </div>
                     </SheetHeader>
-                    <div className="flex flex-col gap-2 p-4">
+                    <div className="flex flex-col gap-2 p-4 grow min-h-0 overflow-y-auto pb-[max(1rem,env(safe-area-inset-bottom))]">
                       {/* Profile */}
                       <button
                         onClick={() => {
@@ -442,4 +458,4 @@ export function StatusBar({
       </div>
     </header>
   );
-}
+});

@@ -1,4 +1,11 @@
-import { useState, useEffect, useRef, useMemo, type ReactNode } from "react";
+import {
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  useCallback,
+  type ReactNode,
+} from "react";
 
 import * as api from "./utils/api";
 import { logger, setTestMode, getTestMode, loggerInfo } from "./utils/logger";
@@ -661,7 +668,7 @@ function AppContent() {
     await signIn(userData);
   };
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     signOut();
     // Ensure admin mode is off
     if (settings.adminMode) {
@@ -669,7 +676,7 @@ function AppContent() {
     }
     // Navigate to front page (materials list)
     navigateToMaterials();
-  };
+  }, [signOut, settings.adminMode, toggleAdminMode, navigateToMaterials]);
 
   // Wait briefly before showing the create-material CTA so it doesn't flash while typing.
   useEffect(() => {
