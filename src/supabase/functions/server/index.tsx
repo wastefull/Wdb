@@ -501,7 +501,11 @@ function checkHoneypot(honeypot: any): boolean {
 }
 
 // Enable CORS for all routes and methods
-const ALLOWED_ORIGINS = ["https://db.wastefull.org", "http://localhost:3000"];
+const ALLOWED_ORIGINS = [
+  "https://db.wastefull.org",
+  "http://localhost:3000",
+  "https://down-throb-76669668.figma.site",
+];
 app.use(
   "/*",
   cors({
