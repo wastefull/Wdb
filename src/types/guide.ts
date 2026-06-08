@@ -62,6 +62,10 @@ export interface Guide {
   // SEO
   meta_description?: string;
   meta_keywords?: string[];
+
+  // Computed fields (returned by API, not stored in DB)
+  read_time_estimate?: number; // minutes, based on content word count
+  permalink?: string; // canonical public URL, e.g. https://db.wastefull.org/guides/{slug}
 }
 
 export interface GuideSubmission {

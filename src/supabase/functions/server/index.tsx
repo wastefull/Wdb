@@ -15773,6 +15773,42 @@ app.get("/make-server-17cae920/debug/phase91-status", (c) => {
 
 // ==================== GUIDE ROUTES ====================
 
+// Helper: recursively extract plain text from a Tiptap JSON node
+function extractTiptapText(node: any): string {
+  if (!node) return "";
+  if (node.type === "text") return node.text || "";
+  if (!node.content || !Array.isArray(node.content)) return "";
+  return node.content.map(extractTiptapText).join(" ");
+}
+
+// Helper: estimate read time in minutes from Tiptap JSON content
+// Uses 200 words-per-minute; minimum 1 minute.
+function estimateReadTimeMinutes(content: any): number {
+  try {
+    const parsed = typeof content === "string" ? JSON.parse(content) : content;
+    const text = extractTiptapText(parsed);
+    const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
+    return Math.max(1, Math.ceil(wordCount / 200));
+  } catch {
+    return 1;
+  }
+}
+
+// Helper: build the canonical public permalink for a guide
+const GUIDE_BASE_URL = "https://db.wastefull.org/guides";
+function buildGuidePermalink(slug: string): string {
+  return `${GUIDE_BASE_URL}/${slug}`;
+}
+
+// Helper: annotate a guide record with computed public fields
+function annotateGuide(guide: any): any {
+  return {
+    ...guide,
+    read_time_estimate: estimateReadTimeMinutes(guide.content),
+    permalink: buildGuidePermalink(guide.slug),
+  };
+}
+
 // Get published guides (with optional filters)
 app.get("/make-server-17cae920/guides", rateLimit("API"), async (c) => {
   try {
@@ -15783,6 +15819,10 @@ app.get("/make-server-17cae920/guides", rateLimit("API"), async (c) => {
 
     const status = c.req.query("status") || "published";
     const method = c.req.query("method");
+    const limitParam = c.req.query("limit");
+    const limit = limitParam
+      ? Math.min(parseInt(limitParam, 10), 100)
+      : undefined;
 
     let query = supabase
       .from("guides")
@@ -15792,6 +15832,10 @@ app.get("/make-server-17cae920/guides", rateLimit("API"), async (c) => {
 
     if (method) {
       query = query.eq("method", method);
+    }
+
+    if (limit) {
+      query = query.limit(limit);
     }
 
     const { data, error } = await query;
@@ -15809,7 +15853,7 @@ app.get("/make-server-17cae920/guides", rateLimit("API"), async (c) => {
       );
     }
 
-    return c.json(data || []);
+    return c.json((data || []).map(annotateGuide));
   } catch (error) {
     log.error("Error fetching guides:", error);
     return c.json(
@@ -15840,7 +15884,7 @@ app.get("/make-server-17cae920/guides/:slug", rateLimit("API"), async (c) => {
       return c.json({ error: "Guide not found" }, 404);
     }
 
-    return c.json(data);
+    return c.json(annotateGuide(data));
   } catch (error) {
     log.error("Error fetching guide by slug:", error);
     return c.json(
@@ -15873,7 +15917,7 @@ app.get(
         return c.json({ error: "Guide not found" }, 404);
       }
 
-      return c.json(data);
+      return c.json(annotateGuide(data));
     } catch (error) {
       log.error("Error fetching guide by ID:", error);
       return c.json(
