@@ -505,6 +505,8 @@ const ALLOWED_ORIGINS = [
   "https://db.wastefull.org",
   "http://localhost:3000",
   "https://down-throb-76669668.figma.site",
+  "https://wastefull.org",
+  "https://demo.wastefull.org",
 ];
 app.use(
   "/*",
