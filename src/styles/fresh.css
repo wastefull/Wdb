@@ -989,6 +989,10 @@ body {
   @apply border-b-[1.5px] border-(--surface-border);
   @apply px-4 py-2;
   @apply transition-colors duration-300;
+  display: flex; /* Keeps items inline */
+  overflow-x: auto; /* Enables horizontal scroll only when needed */
+  overflow-y: hidden; /* Prevents accidental vertical shifting */
+  scroll-snap-type: x mandatory; /* Smoothly snaps items into place on swipe */
 }
 
 /* Nav background colors based on active tab */
