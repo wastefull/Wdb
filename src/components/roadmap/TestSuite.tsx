@@ -30,30 +30,32 @@ export function TestSuite() {
     {},
   );
   const [runningAll, setRunningAll] = useState(false);
-  const [selectedPhases, setSelectedPhases] = useState<Set<string>>(new Set());
+  const [selectedStages, setSelectedStages] = useState<Set<string>>(new Set());
 
   // Get all tests from centralized test definitions
   const tests: Test[] = getAllTestDefinitions(user);
+  const getStageLabel = (test: Test) =>
+    test.stage ? `Stage ${test.stage}` : `Legacy ${test.phase}`;
 
-  const togglePhase = (phase: string) => {
-    setSelectedPhases((prev) => {
+  const toggleStage = (stage: string) => {
+    setSelectedStages((prev) => {
       const newSet = new Set(prev);
-      if (newSet.has(phase)) {
-        newSet.delete(phase);
+      if (newSet.has(stage)) {
+        newSet.delete(stage);
       } else {
-        newSet.add(phase);
+        newSet.add(stage);
       }
       return newSet;
     });
   };
 
-  const selectAllPhases = () => {
-    const uniquePhases = Array.from(new Set(tests.map((t) => t.phase)));
-    setSelectedPhases(new Set(uniquePhases));
+  const selectAllStages = () => {
+    const stages = Array.from(new Set(tests.map(getStageLabel)));
+    setSelectedStages(new Set(stages));
   };
 
-  const selectNoPhases = () => {
-    setSelectedPhases(new Set());
+  const selectNoStages = () => {
+    setSelectedStages(new Set());
   };
 
   const runTest = async (
@@ -107,15 +109,15 @@ export function TestSuite() {
     }
 
     setRunningAll(false);
-    const phaseText =
-      selectedPhases.size === 0
+    const stageText =
+      selectedStages.size === 0
         ? ""
-        : selectedPhases.size === uniquePhases.length
+        : selectedStages.size === uniqueStages.length
           ? ""
-          : ` (${selectedPhases.size} phase${
-              selectedPhases.size > 1 ? "s" : ""
+          : ` (${selectedStages.size} stage${
+              selectedStages.size > 1 ? "s" : ""
             })`;
-    toast.success(`All tests completed${phaseText}`);
+    toast.success(`All tests completed${stageText}`);
   };
 
   const getStatusIcon = (status: TestResult["status"]) => {
@@ -148,14 +150,14 @@ export function TestSuite() {
     }
   };
 
-  // Get unique phases for filter
-  const uniquePhases = Array.from(new Set(tests.map((t) => t.phase))).sort();
+  // Get unique current stages for filter.
+  const uniqueStages = Array.from(new Set(tests.map(getStageLabel))).sort();
 
-  // Filter tests by selected phases (if none selected, show all)
+  // Filter tests by selected stages (if none selected, show all).
   const filteredTests =
-    selectedPhases.size === 0
+    selectedStages.size === 0
       ? tests
-      : tests.filter((t) => selectedPhases.has(t.phase));
+      : tests.filter((test) => selectedStages.has(getStageLabel(test)));
 
   const totalTests = filteredTests.length;
   const passedTests = filteredTests.filter(
@@ -172,7 +174,8 @@ export function TestSuite() {
         const result = testResults[test.id];
         return {
           Status: "Failed",
-          Phase: test.phase,
+          Stage: getStageLabel(test),
+          "Legacy Phase": test.legacyPhase || test.phase,
           Category: test.category,
           "Test Name": test.name,
           Description: test.description,
@@ -188,7 +191,8 @@ export function TestSuite() {
     // Create tab-separated text for easy pasting into spreadsheets
     const headers = [
       "Status",
-      "Phase",
+      "Stage",
+      "Legacy Phase",
       "Category",
       "Test Name",
       "Description",
@@ -233,48 +237,48 @@ export function TestSuite() {
             <div className="flex-1">
               <CardTitle>WasteDB Test Suite</CardTitle>
               <p className="text-sm text-muted-foreground mt-2">
-                Regression testing for all infrastructure phases
+                Regression testing mapped to the current roadmap stages
               </p>
 
-              {/* Phase Filter Tabs */}
+              {/* Stage Filter Tabs */}
               <div className="mt-4 flex items-center gap-3 flex-wrap">
                 <span className="text-sm text-muted-foreground font-['Sniglet']">
-                  Phases{" "}
-                  {selectedPhases.size > 0 &&
-                    `(${selectedPhases.size}/${uniquePhases.length})`}
+                  Stages{" "}
+                  {selectedStages.size > 0 &&
+                    `(${selectedStages.size}/${uniqueStages.length})`}
                   :
                 </span>
 
                 {/* Select All/None buttons */}
                 <div className="flex items-center gap-1">
                   <button
-                    onClick={selectAllPhases}
+                    onClick={selectAllStages}
                     className="p-1.5 hover:bg-muted rounded transition-colors"
-                    title="Select all phases"
+                    title="Select all stages"
                   >
                     <CheckSquare className="size-4 text-muted-foreground" />
                   </button>
                   <button
-                    onClick={selectNoPhases}
+                    onClick={selectNoStages}
                     className="p-1.5 hover:bg-muted rounded transition-colors"
-                    title="Select no phases"
+                    title="Select no stages"
                   >
                     <Square className="size-4 text-muted-foreground" />
                   </button>
                 </div>
 
-                {/* Phase toggle buttons */}
-                {uniquePhases.map((phase) => (
+                {/* Stage toggle buttons */}
+                {uniqueStages.map((stage) => (
                   <button
-                    key={phase}
-                    onClick={() => togglePhase(phase)}
+                    key={stage}
+                    onClick={() => toggleStage(stage)}
                     className={`px-3 py-1.5 text-sm font-['Sniglet'] rounded-md border-2 transition-all ${
-                      selectedPhases.has(phase)
+                      selectedStages.has(stage)
                         ? "bg-[#bae1ff] border-[#9dd1ff] text-black shadow-sm translate-y-0"
                         : "bg-background border-border text-muted-foreground hover:border-[#bae1ff] hover:text-foreground translate-y-0 hover:-translate-y-0.5"
                     }`}
                   >
-                    {phase}
+                    {stage}
                   </button>
                 ))}
               </div>
@@ -337,7 +341,7 @@ export function TestSuite() {
                     Status
                   </th>
                   <th className="text-left p-4 font-['Sniglet'] text-[12px]">
-                    Phase
+                    Stage
                   </th>
                   <th className="text-left p-4 font-['Sniglet'] text-[12px]">
                     Category
@@ -376,7 +380,10 @@ export function TestSuite() {
                       </td>
                       <td className="p-4">
                         <span className="font-['Sniglet'] text-sm text-muted-foreground">
-                          {test.phase}
+                          {getStageLabel(test)}
+                          <span className="block text-xs mt-1">
+                            Legacy phase {test.legacyPhase || test.phase}
+                          </span>
                         </span>
                       </td>
                       <td className="p-4">

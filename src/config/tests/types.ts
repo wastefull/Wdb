@@ -10,7 +10,11 @@ export interface Test {
   id: string;
   name: string;
   description: string;
+  /** Legacy implementation phase retained for traceability. */
   phase: string;
+  /** Current roadmap stage assigned by the central test registry. */
+  stage?: number;
+  legacyPhase?: string;
   category: string;
   testFn: () => Promise<{ success: boolean; message: string }>;
 }

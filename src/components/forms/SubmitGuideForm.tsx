@@ -181,7 +181,7 @@ export function SubmitGuideForm({
                   Paste guide JSON to import. This will populate the form with
                   the imported data. See{" "}
                   <a
-                    href="https://github.com/wastefull/Wdb/blob/main/src/docs/roadmap/guides/import-format.md"
+                    href="https://github.com/wastefull/Wdb/blob/main/src/docs/admin/GUIDE_IMPORT_FORMAT.md"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="underline text-blue-600 dark:text-blue-400"

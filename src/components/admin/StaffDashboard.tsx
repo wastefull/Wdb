@@ -352,7 +352,7 @@ export function StaffDashboard({
                         Roadmap
                       </h3>
                       <p className="text-[12px] text-black/60 dark:text-white/60">
-                        View project phases and progress
+                        View development stages and progress
                       </p>
                     </div>
                   </div>

@@ -20,6 +20,7 @@ import { getPhase909Tests } from "./phases/9.0.9";
 import { getPhase91Tests } from "./phases/9.1";
 import { getPhase92Tests } from "./phases/9.2";
 import { Test } from "./types";
+import { getStageNumberForLegacyPhase } from "../roadmap";
 
 /**
  * Build all test definitions
@@ -27,7 +28,7 @@ import { Test } from "./types";
  * @returns Array of all test definitions from all phases
  */
 export function buildAllTests(user: any): Test[] {
-  return [
+  const legacyTests = [
     ...getPhase901Tests(user),
     ...getPhase902Tests(user),
     ...getPhase903Tests(user),
@@ -45,6 +46,12 @@ export function buildAllTests(user: any): Test[] {
     // Future phases will be added here:
     // etc.
   ];
+
+  return legacyTests.map((test) => ({
+    ...test,
+    stage: getStageNumberForLegacyPhase(test.phase),
+    legacyPhase: test.phase,
+  }));
 }
 
 /**
@@ -56,6 +63,11 @@ export function buildAllTests(user: any): Test[] {
 export function getTestsByPhase(phase: string, user: any): Test[] {
   const allTests = buildAllTests(user);
   return allTests.filter((test) => test.phase === phase);
+}
+
+export function getTestsByStage(stage: number, user: any): Test[] {
+  const allTests = buildAllTests(user);
+  return allTests.filter((test) => test.stage === stage);
 }
 
 /**

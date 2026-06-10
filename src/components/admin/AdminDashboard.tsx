@@ -23,7 +23,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "../ui/accordion";
-import { PHASE_TABS } from "../roadmap/SimplifiedRoadmap";
+import { ACTIVE_STAGE_TAB_ID } from "../../config/roadmap";
 import * as api from "../../utils/api";
 import { logger as log } from "../../utils/logger";
 interface AdminDashboardProps {
@@ -43,7 +43,6 @@ interface AdminDashboardProps {
   onNavigateToCategoriesManagement?: () => void;
   onNavigateToMath?: () => void;
   onNavigateToCharts?: () => void;
-  onNavigateToRoadmap?: () => void;
   onNavigateToRoadmapOverview?: (section?: string) => void;
   onNavigateToSourceLibrary?: () => void;
   onNavigateToSourceComparison?: () => void;
@@ -70,7 +69,6 @@ export function AdminDashboard({
   onNavigateToCategoriesManagement,
   onNavigateToMath,
   onNavigateToCharts,
-  onNavigateToRoadmap,
   onNavigateToRoadmapOverview,
   onNavigateToSourceLibrary,
   onNavigateToSourceComparison,
@@ -361,12 +359,12 @@ export function AdminDashboard({
                     </button>
                   </div>
                 )}
-                {(onNavigateToRoadmap || onNavigateToRoadmapOverview) && (
+                {onNavigateToRoadmapOverview && (
                   <div className="space-y-2">
                     <div className="menu-subheader">Roadmap</div>
                     {onNavigateToRoadmapOverview && (
                       <button
-                        onClick={() => onNavigateToRoadmapOverview}
+                        onClick={() => onNavigateToRoadmapOverview("overview")}
                         className="menu-item-nested"
                       >
                         Overview
@@ -383,11 +381,11 @@ export function AdminDashboard({
                     {onNavigateToRoadmapOverview && (
                       <button
                         onClick={() =>
-                          onNavigateToRoadmapOverview(PHASE_TABS[0].id)
+                          onNavigateToRoadmapOverview(ACTIVE_STAGE_TAB_ID)
                         }
                         className="menu-item-deep"
                       >
-                        ↳ Active Phase
+                        ↳ Active Stage
                       </button>
                     )}
                   </div>
@@ -623,7 +621,7 @@ export function AdminDashboard({
                         Roadmap
                       </h3>
                       <p className="text-[12px] text-black/60 dark:text-white/60">
-                        View project phases, tests, and progress
+                        View development stages, tests, and progress
                       </p>
                     </div>
                   </div>

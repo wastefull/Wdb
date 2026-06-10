@@ -1,6 +1,6 @@
 # WasteDB 🌍
 
-**Updated:** December 18, 2025
+**Updated:** June 10, 2026
 
 **A comprehensive CMS for managing material sustainability data with retro Wastefull brand design and Apple Liquid Glass inspired elements.**
 
@@ -14,7 +14,7 @@ WasteDB helps organizations track and curate sustainability scores for materials
 
 Visit the live app at **https://db.wastefull.org** and sign in with a magic link.
 
-📖 See [QUICK_START.md](/docs/QUICK_START.md) for usage guide.
+See the [admin guide](docs/admin/ADMIN_GUIDE.md) for current usage guidance.
 
 ### For Developers (Local Setup)
 
@@ -36,7 +36,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-📖 See [LOCAL_DEVELOPMENT_SETUP.md](/docs/LOCAL_DEVELOPMENT_SETUP.md) for complete setup guide.
+See [development setup](docs/setup/DEVELOPMENT.md) for the current setup guide.
 
 ---
 
@@ -80,7 +80,7 @@ wastedb/
 ├── /data/                # Static data
 │   ├── sources.ts        # Source library (peer-reviewed papers)
 │   └── transforms.ts     # Transform formulas for calculations
-├── /docs/                # Documentation (50+ files)
+├── /docs/                # Current engineering and admin documentation
 ├── /ontologies/          # Ontology definitions
 │   ├── units.json        # Parameter units & validation rules
 │   └── context.json      # Controlled vocabularies
@@ -167,8 +167,11 @@ You need either:
 # .env.local
 VITE_SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co
 VITE_SUPABASE_ANON_KEY=your_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 ```
+
+Only public `VITE_*` values belong in the client environment. Configure
+service-role, database, and email credentials as server-side Supabase secrets;
+never place them in `.env.local` or any client-visible configuration.
 
 **Option B: Local Supabase**
 
@@ -189,10 +192,6 @@ npm run dev
 # Deploy edge functions (production)
 supabase functions deploy make-server-17cae920
 
-# Initialize ontologies
-curl -X POST https://YOUR_PROJECT.supabase.co/functions/v1/make-server-17cae920/ontologies/initialize \
-  -H "Authorization: Bearer YOUR_ANON_KEY"
-
 # Check local Supabase status
 supabase status
 
@@ -202,8 +201,8 @@ supabase functions logs make-server-17cae920
 
 ### Testing
 
-1. Navigate to **Roadmap** tab
-2. Select a phase (e.g., **Phase 9.2**)
+1. Navigate to the **Roadmap** tab
+2. Select a development stage
 3. Click **Run Tests**
 4. View results in real-time
 
@@ -219,19 +218,13 @@ Tests verify:
 
 ## Documentation
 
-| Document                                                       | Description                |
-| -------------------------------------------------------------- | -------------------------- |
-| [LOCAL_DEVELOPMENT_SETUP.md](/docs/LOCAL_DEVELOPMENT_SETUP.md) | Complete local setup guide |
-| [QUICK_START.md](/docs/QUICK_START.md)                         | End-user guide             |
-| [PHASE_9_ROADMAP.md](/docs/PHASE_9_ROADMAP.md)                 | Phase 9 development plan   |
-| [SUPABASE_INTEGRATION.md](/docs/SUPABASE_INTEGRATION.md)       | Database architecture      |
-| [SECURITY.md](/docs/SECURITY.md)                               | Security features & RBAC   |
-| [DATA_PIPELINE.md](/docs/DATA_PIPELINE.md)                     | Scientific methodology     |
-| [LOGGER_USAGE_GUIDE.md](/docs/LOGGER_USAGE_GUIDE.md)           | Logging system             |
-| [API_SECURITY_LOGGING.md](/docs/API_SECURITY_LOGGING.md)       | API security               |
-| [ASSET_STORAGE_GUIDE.md](/docs/ASSET_STORAGE_GUIDE.md)         | File uploads               |
-
-📁 See `/docs/` directory for 50+ additional guides.
+| Document | Description |
+| --- | --- |
+| [Documentation index](docs/README.md) | Canonical documentation set |
+| [Development setup](docs/setup/DEVELOPMENT.md) | Local development |
+| [System overview](docs/architecture/SYSTEM_OVERVIEW.md) | Current architecture |
+| [Admin operations](docs/admin/OPERATIONS.md) | Backup, restore, and audit |
+| [Roadmap conventions](docs/roadmap/README.md) | Canonical roadmap workflow |
 
 ---
 
@@ -297,12 +290,8 @@ Tests are organized by phase in `/config/tests/phases/`:
 
 ### "Failed to load units ontology"
 
-**Solution**: Initialize ontologies via API:
-
-```bash
-curl -X POST <SUPABASE_URL>/functions/v1/make-server-17cae920/ontologies/initialize \
-  -H "Authorization: Bearer <ANON_KEY>"
-```
+**Solution**: Ask an authorized administrator to initialize ontologies using
+the protected admin workflow.
 
 ### "CORS error"
 
@@ -329,7 +318,7 @@ rm -rf node_modules
 npm install
 ```
 
-📖 See [LOCAL_DEVELOPMENT_SETUP.md](/docs/LOCAL_DEVELOPMENT_SETUP.md) for more troubleshooting.
+See [development setup](docs/setup/DEVELOPMENT.md) for more troubleshooting.
 
 ---
 
@@ -355,15 +344,14 @@ npm install
 
 ## 📝 Environment Variables
 
-| Variable                    | Required    | Description                  |
-| --------------------------- | ----------- | ---------------------------- |
-| `VITE_SUPABASE_URL`         | Yes (local) | Supabase API URL             |
-| `VITE_SUPABASE_ANON_KEY`    | Yes (local) | Public anon key              |
-| `SUPABASE_SERVICE_ROLE_KEY` | Yes         | Admin key for edge functions |
-| `SUPABASE_DB_URL`           | Yes         | PostgreSQL connection string |
-| `RESEND_API_KEY`            | Optional    | Email service API key        |
+| Variable | Location | Description |
+| --- | --- | --- |
+| `VITE_SUPABASE_URL` | Client environment | Public Supabase API URL |
+| `VITE_SUPABASE_ANON_KEY` | Client environment | Public anonymous key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase Edge Function secrets only | Privileged server key |
+| `RESEND_API_KEY` | Supabase Edge Function secrets only | Email provider key |
 
-See `.env.example` for template.
+Never commit populated environment files or secret values.
 
 ---
 
@@ -405,7 +393,6 @@ See `.env.example` for template.
 ## 📞 Support
 
 - **Production URL**: https://db.wastefull.org
-- **Email**: natto@wastefull.org
 - **Documentation**: `/docs/` directory
 - **Issues**: [GitHub Issues](your-github-repo/issues)
 
@@ -415,6 +402,6 @@ See `.env.example` for template.
 
 **For Users**: Visit https://db.wastefull.org and sign in with your email.
 
-**For Developers**: Follow [LOCAL_DEVELOPMENT_SETUP.md](/docs/LOCAL_DEVELOPMENT_SETUP.md) to get started locally.
+**For Developers**: Follow [development setup](docs/setup/DEVELOPMENT.md) to get started locally.
 
 **Questions?** Check the `/docs/` directory or reach out to the team!

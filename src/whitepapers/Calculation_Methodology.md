@@ -104,8 +104,8 @@ The methodology is versioned to track changes over time:
 
 For a complete description of the methodology and validation studies, see:
 - Recyclability.md - Full technical whitepaper
-- DATA_PIPELINE.md - Data processing pipeline documentation
-- ROADMAP.md - Future enhancements and methodology updates
+- src/docs/data/EVIDENCE_CURATION.md - Evidence processing documentation
+- src/docs/roadmap/README.md - Future enhancements and roadmap conventions
 
 ---
 

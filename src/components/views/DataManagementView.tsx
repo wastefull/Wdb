@@ -270,7 +270,7 @@ export function DataManagementView({
     toast.success("Data exported successfully");
   };
 
-  // Full site backup — calls API to include KV store + Postgres (guides, blog, changelog)
+  // Full site backup includes remaining KV namespaces and all current Postgres domain tables.
   const handleFullSiteBackup = async () => {
     setIsFullBackupLoading(true);
     try {
@@ -539,8 +539,8 @@ export function DataManagementView({
                 <div>
                   <h3 className="text-[14px] normal">Full Site Backup</h3>
                   <p className="text-sm text-black/60 dark:text-white/60">
-                    Export all site data: materials, evidence, sources, guides,
-                    blog posts, changelogs, user profiles, and audit trails
+                    Export application tables, raw KV data, Auth metadata, and
+                    audit trails with a validated manifest
                   </p>
                 </div>
                 <button
@@ -557,8 +557,8 @@ export function DataManagementView({
                 </button>
               </div>
               <p className="text-xs text-black/50 dark:text-white/50">
-                Includes both KV store and Postgres tables (all statuses). Use
-                this before migrations or for offsite archiving.
+                Storage binaries require a separate provider-level backup. Use
+                both before migrations that could affect stored files.
               </p>
             </div>
           )}

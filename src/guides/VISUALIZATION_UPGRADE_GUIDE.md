@@ -416,8 +416,8 @@ Full ARIA labels describe:
 
 ## Further Reading
 
-- `/docs/VIZ_UNIFIED.md` - Technical visualization details
-- `/docs/UI_ACCESS_GUIDE.md` - Where to find features
+- `/docs/visualization/VISUALIZATION.md` - Current visualization details
+- `/guides/UI_ACCESS_GUIDE.md` - Where to find features
 - `/whitepapers/VIZ-v1.md` - Visualization methodology
 - `/whitepapers/Calculation_Methodology.md` - Score calculation
 

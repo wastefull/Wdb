@@ -2,7 +2,7 @@
  * WasteDB Material Type Definition
  *
  * Includes both public-facing sustainability scores and scientific metadata
- * as specified in DATA_PIPELINE.md and ROADMAP.md
+ * as described in docs/architecture/DATA_MODEL.md and docs/data/EVIDENCE_CURATION.md
  */
 
 import { Article, CategoryType } from "./article";

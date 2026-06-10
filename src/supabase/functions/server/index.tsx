@@ -265,10 +265,8 @@ function rateLimit(
           } = await supabase.auth.getUser(token);
           if (user) {
             const userRole = await getUserRole(user.id);
-            if (userRole === "admin" || user.email === "natto@wastefull.org") {
-              log.log(
-                `✓ Admin user ${user.email} bypassing ${type} rate limit`,
-              );
+            if (userRole === "admin") {
+              log.log(`✓ Admin user bypassing ${type} rate limit`);
               await next();
               return;
             }
@@ -386,9 +384,21 @@ function validateEmail(email: string): {
 
 // Determine initial role for a user based on email
 function getInitialRole(email: string): "user" | "staff" | "admin" {
-  if (email === "natto@wastefull.org") return "admin";
   if (/@wastefull\.org$/i.test(email)) return "staff";
   return "user";
+}
+
+function getPublicContactEmail(): string {
+  return Deno.env.get("PUBLIC_CONTACT_EMAIL")?.trim() || "admin@wastefull.org";
+}
+
+function getAdminNotificationEmails(): string[] {
+  return (
+    Deno.env.get("ADMIN_NOTIFICATION_EMAILS") || getPublicContactEmail()
+  )
+    .split(",")
+    .map((email) => email.trim())
+    .filter(Boolean);
 }
 
 async function findAuthUserByEmail(supabase: any, email: string) {
@@ -663,10 +673,7 @@ initializeStorage();
 async function verifyAuth(c: any, next: any) {
   // Check for custom session token in X-Session-Token header
   const sessionToken = c.req.header("X-Session-Token");
-  log.log(
-    "verifyAuth: X-Session-Token header:",
-    sessionToken ? `${sessionToken.substring(0, 8)}...` : "missing",
-  );
+  log.log("verifyAuth: Custom session token present:", Boolean(sessionToken));
 
   // Also accept persistent session cookie as a token source
   const cookieToken = getSessionCookieToken(c);
@@ -674,12 +681,7 @@ async function verifyAuth(c: any, next: any) {
   // If no session token or cookie, check Authorization header for backward compatibility
   if (!sessionToken && !cookieToken) {
     const authHeader = c.req.header("Authorization");
-    log.log(
-      "verifyAuth: Authorization header:",
-      authHeader
-        ? `Bearer ${authHeader.split(" ")[1]?.substring(0, 8)}...`
-        : "missing",
-    );
+    log.log("verifyAuth: Authorization header present:", Boolean(authHeader));
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       log.log("verifyAuth: Missing or invalid Authorization header");
@@ -687,14 +689,10 @@ async function verifyAuth(c: any, next: any) {
     }
 
     const token = authHeader.split(" ")[1];
-    log.log("verifyAuth: Token extracted:", token.substring(0, 8) + "...");
-
-    // Skip verification for public anon key (for backward compatibility during development)
     const publicAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
     if (token === publicAnonKey) {
-      log.log("verifyAuth: Using public anon key (skipping verification)");
-      await next();
-      return;
+      log.log("verifyAuth: Public anonymous key is not user authentication");
+      return c.json({ error: "Unauthorized - user authentication required" }, 401);
     }
   }
 
@@ -707,7 +705,6 @@ async function verifyAuth(c: any, next: any) {
   try {
     // First, check if this is a custom session token (magic link)
     log.log("verifyAuth: Checking for custom session token in KV...");
-    log.log(`verifyAuth: Looking up key: session:${token}`);
     const sessionData = (await kv.get(`session:${token}`)) as {
       userId: string;
       email: string;
@@ -715,14 +712,7 @@ async function verifyAuth(c: any, next: any) {
       createdAt: number;
     } | null;
 
-    log.log(
-      "verifyAuth: Session data found:",
-      sessionData
-        ? `userId: ${sessionData.userId}, email: ${
-            sessionData.email
-          }, expiry: ${new Date(sessionData.expiry).toISOString()}`
-        : "null",
-    );
+    log.log("verifyAuth: Session data found:", Boolean(sessionData));
     if (!sessionData) {
       log.log("verifyAuth: No session found in KV for this token");
     }
@@ -761,7 +751,7 @@ async function verifyAuth(c: any, next: any) {
     }
 
     // Store user ID and email in context for use in route handlers
-    log.log("verifyAuth: Supabase JWT valid, user:", user.email);
+    log.log("verifyAuth: Supabase JWT valid");
     c.set("userId", user.id);
     c.set("userEmail", user.email);
     await next();
@@ -801,9 +791,8 @@ async function setUserRole(userId: string, role: string): Promise<void> {
 // NOTE: User roles are stored in user_profiles.role (Postgres) — see getUserRole().
 async function verifyAdmin(c: any, next: any) {
   const userId = c.get("userId");
-  const userEmail = c.get("userEmail");
 
-  log.log("verifyAdmin check:", { userId, userEmail });
+  log.log("verifyAdmin: Checking explicit role for authenticated user");
 
   if (!userId) {
     log.log("verifyAdmin: No userId found in context");
@@ -813,16 +802,6 @@ async function verifyAdmin(c: any, next: any) {
   try {
     const userRole = await getUserRole(userId);
     log.log("verifyAdmin: User role from Postgres:", userRole);
-
-    // Bootstrap: if the account has never had a role written and is the
-    // owner email, promote it now so the first sign-in works.
-    if (userRole === "user" && userEmail === "natto@wastefull.org") {
-      log.log("verifyAdmin: Bootstrapping admin role for natto@wastefull.org");
-      await setUserRole(userId, "admin");
-      c.set("userRole", "admin");
-      await next();
-      return;
-    }
 
     if (userRole !== "admin") {
       return c.json({ error: "Forbidden - admin role required" }, 403);
@@ -4761,37 +4740,6 @@ app.get(
   },
 );
 
-// Initialize admin user on startup
-async function initializeAdminUser() {
-  try {
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-    );
-
-    // Check if admin user exists
-    const { data: users } = await supabase.auth.admin.listUsers();
-    const adminExists = users?.users?.some(
-      (u) => u.email === "natto@wastefull.org",
-    );
-
-    if (!adminExists) {
-      const { data, error } = await supabase.auth.admin.createUser({
-        email: "natto@wastefull.org",
-        password: "admin123",
-        user_metadata: { name: "Nao" },
-        email_confirm: true,
-      });
-
-      if (!error && data) {
-        await setUserRole(data.user.id, "admin");
-      }
-    }
-  } catch (error) {
-    // Silently fail - admin can be created manually if needed
-  }
-}
-
 // Initialize default whitepapers on startup
 async function initializeWhitepapers() {
   try {
@@ -5118,8 +5066,8 @@ The methodology is versioned to track changes over time:
 
 For a complete description of the methodology and validation studies, see:
 - Recyclability.md - Full technical whitepaper
-- DATA_PIPELINE.md - Data processing pipeline documentation
-- ROADMAP.md - Future enhancements and methodology updates
+- src/docs/data/EVIDENCE_CURATION.md - Evidence processing documentation
+- src/docs/roadmap/README.md - Future enhancements and roadmap conventions
 
 ---
 
@@ -9121,7 +9069,7 @@ app.get("/make-server-17cae920/sources/search", async (c) => {
 
     const response = await fetch(crossrefUrl, {
       headers: {
-        "User-Agent": "WasteDB/1.0 (mailto:natto@wastefull.org)",
+        "User-Agent": `WasteDB/1.0 (mailto:${getPublicContactEmail()})`,
       },
     });
 
@@ -9194,7 +9142,7 @@ app.get("/make-server-17cae920/sources/lookup-doi", async (c) => {
 
     const response = await fetch(crossrefUrl, {
       headers: {
-        "User-Agent": "WasteDB/1.0 (mailto:natto@wastefull.org)",
+        "User-Agent": `WasteDB/1.0 (mailto:${getPublicContactEmail()})`,
       },
     });
 
@@ -9266,7 +9214,7 @@ app.get("/make-server-17cae920/sources/check-oa", async (c) => {
     // Free API, no key required, just need to provide email
     const unpaywallUrl = `https://api.unpaywall.org/v2/${encodeURIComponent(
       normalizedDoi,
-    )}?email=natto@wastefull.org`;
+    )}?email=${encodeURIComponent(getPublicContactEmail())}`;
 
     const response = await fetch(unpaywallUrl);
 
@@ -9650,7 +9598,7 @@ app.delete(
       const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
       if (RESEND_API_KEY) {
         try {
-          const adminEmails = ["natto@wastefull.org"];
+          const adminEmails = getAdminNotificationEmails();
           const html = `
             <!DOCTYPE html>
             <html>
@@ -9887,7 +9835,7 @@ app.delete(
       const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
       if (RESEND_API_KEY && deletedCount > 0) {
         try {
-          const adminEmails = ["natto@wastefull.org"];
+          const adminEmails = getAdminNotificationEmails();
           const html = `
             <!DOCTYPE html>
             <html>
@@ -10581,11 +10529,9 @@ app.post(
           } = await supabase.auth.getUser(token);
           if (user) {
             const userRole = await getUserRole(user.id);
-            if (userRole === "admin" || user.email === "natto@wastefull.org") {
+            if (userRole === "admin") {
               isAdmin = true;
-              log.log(
-                `✓ Admin user ${user.email} submitting takedown request - anti-abuse checks bypassed`,
-              );
+              log.log("✓ Admin user bypassing takedown anti-abuse checks");
             }
           }
         } catch (error) {
@@ -14400,8 +14346,7 @@ async function sendAuditEmailNotification(entry: AuditLogEntry) {
   }
 
   try {
-    // For now, hardcode admin email (in production, query user_profiles.role)
-    const adminEmails = ["natto@wastefull.org"];
+    const adminEmails = getAdminNotificationEmails();
 
     // Format changes for email
     const changesHtml = entry.changes.map((c) => `<li>${c}</li>`).join("");
@@ -15163,6 +15108,145 @@ app.get(
 
 // ==================== BACKUP & RECOVERY ENDPOINTS ====================
 
+const FULL_BACKUP_POSTGRES_TABLES = [
+  "user_profiles",
+  "material_categories",
+  "materials",
+  "articles",
+  "sources",
+  "material_sources",
+  "material_links",
+  "evidence_points",
+  "audit_log",
+  "guides",
+  "blog_posts",
+  "changelog_entries",
+] as const;
+
+const FULL_BACKUP_KV_SECTIONS = [
+  "materials",
+  "sources",
+  "whitepapers",
+  "evidence",
+  "user_profiles",
+  "user_roles",
+  "audit_logs",
+  "notifications",
+  "takedown_requests",
+  "recompute_jobs",
+  "submissions",
+] as const;
+
+const BACKUP_PAGE_SIZE = 1000;
+
+async function checksumJson(value: unknown): Promise<string> {
+  const bytes = new TextEncoder().encode(JSON.stringify(value));
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return Array.from(new Uint8Array(digest))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+async function fetchAllPostgresRows(
+  client: any,
+  table: string,
+): Promise<Record<string, unknown>[]> {
+  const rows: Record<string, unknown>[] = [];
+  let offset = 0;
+
+  while (true) {
+    const { data, error } = await client
+      .from(table)
+      .select("*")
+      .order("id", { ascending: true })
+      .range(offset, offset + BACKUP_PAGE_SIZE - 1);
+    if (error) {
+      throw new Error(
+        `Failed to fetch required backup table '${table}': ${error.message}`,
+      );
+    }
+
+    const page = JSON.parse(
+      JSON.stringify(data ?? []),
+    ) as Record<string, unknown>[];
+    rows.push(...page);
+    if (page.length < BACKUP_PAGE_SIZE) break;
+    offset += BACKUP_PAGE_SIZE;
+  }
+
+  return rows;
+}
+
+async function fetchAllAuthUsers(
+  client: any,
+): Promise<Record<string, unknown>[]> {
+  const users: Record<string, unknown>[] = [];
+  let page = 1;
+
+  while (true) {
+    const { data, error } = await client.auth.admin.listUsers({
+      page,
+      perPage: BACKUP_PAGE_SIZE,
+    });
+    if (error) {
+      throw new Error(`Failed to fetch auth user metadata: ${error.message}`);
+    }
+
+    const batch = JSON.parse(
+      JSON.stringify(data?.users ?? []),
+    ) as Record<string, unknown>[];
+    users.push(...batch);
+    if (batch.length < BACKUP_PAGE_SIZE) break;
+    page++;
+  }
+
+  return users;
+}
+
+async function fetchAllKvEntries(
+  client: any,
+): Promise<Array<{ key: string; value: unknown }>> {
+  const entries: Array<{ key: string; value: unknown }> = [];
+  let offset = 0;
+
+  while (true) {
+    const { data, error } = await client
+      .from("kv_store_17cae920")
+      .select("key, value")
+      .order("key", { ascending: true })
+      .range(offset, offset + BACKUP_PAGE_SIZE - 1);
+    if (error) {
+      throw new Error(`Failed to fetch raw KV backup: ${error.message}`);
+    }
+
+    const page = (data ?? []) as Array<{ key: string; value: unknown }>;
+    entries.push(...page);
+    if (page.length < BACKUP_PAGE_SIZE) break;
+    offset += BACKUP_PAGE_SIZE;
+  }
+
+  return entries;
+}
+
+function kvValuesForPrefix(
+  entries: Array<{ key: string; value: unknown }>,
+  prefix: string,
+): unknown[] {
+  return entries
+    .filter((entry) => entry.key.startsWith(prefix))
+    .map((entry) => entry.value);
+}
+
+function serializeSectionMap(
+  sections: Record<string, readonly unknown[]>,
+): string {
+  return `{${Object.entries(sections)
+    .map(
+      ([name, rows]) => `${JSON.stringify(name)}:${JSON.stringify(rows)}`,
+    )
+    .join(",")}}`;
+}
+
 // Export all data as JSON backup (admin only)
 app.post(
   "/make-server-17cae920/backup/export",
@@ -15172,26 +15256,25 @@ app.post(
     try {
       const startTime = Date.now();
       log.log("📦 Starting backup export...");
+      const backupClient = _roleClient();
+      const allKvEntries = await fetchAllKvEntries(backupClient);
 
       // Export all data categories from KV store
-      const materials = await kv.getByPrefix("material:");
-      const sources = await kv.getByPrefix("source:");
-      const whitepapers = await kv.getByPrefix("whitepaper:");
-      const evidence = await kv.getByPrefix("evidence:");
-      const userProfiles = await kv.getByPrefix("user_profile:");
-      // Use getEntriesByPrefix so the userId (in the key) is preserved alongside the role string
-      const { data: _roleRows } = await pgClient
-        .from("user_profiles")
-        .select("id, role");
-      const userRoles = (_roleRows ?? []).map((r: any) => ({
+      const materials = kvValuesForPrefix(allKvEntries, "material:");
+      const sources = kvValuesForPrefix(allKvEntries, "source:");
+      const whitepapers = kvValuesForPrefix(allKvEntries, "whitepaper:");
+      const evidence = kvValuesForPrefix(allKvEntries, "evidence:");
+      const userProfiles = kvValuesForPrefix(allKvEntries, "user_profile:");
+      const auditLogs = kvValuesForPrefix(allKvEntries, "audit:");
+      const notifications = kvValuesForPrefix(allKvEntries, "notification:");
+      const takedownRequests = kvValuesForPrefix(allKvEntries, "takedown:");
+      const recomputeJobs = kvValuesForPrefix(allKvEntries, "recompute-job:");
+      const submissions = kvValuesForPrefix(allKvEntries, "submission:");
+      const roleRows = await fetchAllPostgresRows(backupClient, "user_profiles");
+      const userRoles = roleRows.map((r: any) => ({
         key: `user_role:${r.id}`,
         value: r.role,
       }));
-      const auditLogs = await kv.getByPrefix("audit:");
-      const notifications = await kv.getByPrefix("notification:");
-      const takedownRequests = await kv.getByPrefix("takedown:");
-      const recomputeJobs = await kv.getByPrefix("recompute-job:");
-      const submissions = await kv.getByPrefix("submission:");
 
       // Create backup manifest
       const backup = {
@@ -15294,6 +15377,11 @@ app.post(
       let importedCount = 0;
       let skippedCount = 0;
       let errorCount = 0;
+      const unresolvedRecords: Array<{
+        category: string;
+        reason: string;
+        record: unknown;
+      }> = [];
 
       // If replace mode, we would need to clear existing data first
       // For safety, we'll only support merge mode for now
@@ -15325,6 +15413,11 @@ app.post(
           name: "evidence",
           data: backup.data.evidence || [],
           prefix: "evidence:",
+        },
+        {
+          name: "user_profiles",
+          data: backup.data.user_profiles || [],
+          prefix: "user_profile:",
         },
         { name: "users", data: backup.data.users || [], prefix: "user:" },
         {
@@ -15370,10 +15463,70 @@ app.post(
                 record,
               );
               skippedCount++;
+              unresolvedRecords.push({
+                category: category.name,
+                reason: "Record is missing an id",
+                record,
+              });
             }
           } catch (err) {
             log.error(`❌ Error importing record in ${category.name}:`, err);
             errorCount++;
+            unresolvedRecords.push({
+              category: category.name,
+              reason: String(err),
+              record,
+            });
+          }
+        }
+      }
+
+      // Preserve role records in the legacy KV namespace. The existing,
+      // idempotent admin role-seed action applies them to Postgres after review.
+      for (const record of backup.data.user_roles || []) {
+        try {
+          if (
+            record &&
+            typeof record.key === "string" &&
+            record.key.startsWith("user_role:") &&
+            typeof record.value === "string"
+          ) {
+            await kv.set(record.key, record.value);
+            importedCount++;
+          } else {
+            skippedCount++;
+            unresolvedRecords.push({
+              category: "user_roles",
+              reason:
+                "Role record must contain a user_role:* key and string value",
+              record,
+            });
+          }
+        } catch (err) {
+          errorCount++;
+          unresolvedRecords.push({
+            category: "user_roles",
+            reason: String(err),
+            record,
+          });
+        }
+      }
+
+      const supportedCategories = new Set([
+        ...categories.map((category) => category.name),
+        "user_roles",
+      ]);
+      for (const [category, records] of Object.entries(backup.data)) {
+        if (!supportedCategories.has(category)) {
+          const values = Array.isArray(records) ? records : [records];
+          skippedCount += values.length;
+          for (const record of values) {
+            unresolvedRecords.push({
+              category,
+              reason:
+                "Unsupported legacy category; original payload remains in the source backup",
+              record,
+            });
           }
         }
       }
@@ -15398,6 +15551,7 @@ app.post(
           imported_count: importedCount,
           skipped_count: skippedCount,
           error_count: errorCount,
+          unresolved_count: unresolvedRecords.length,
           duration_ms: duration,
           backup_metadata: backup.metadata,
         },
@@ -15408,10 +15562,16 @@ app.post(
       });
 
       return c.json({
-        success: true,
+        success: errorCount === 0 && unresolvedRecords.length === 0,
+        complete: errorCount === 0 && unresolvedRecords.length === 0,
         imported: importedCount,
         skipped: skippedCount,
         errors: errorCount,
+        unresolved_records: unresolvedRecords,
+        next_action:
+          unresolvedRecords.length > 0
+            ? "Review unresolved_records before considering recovery complete."
+            : "Run the idempotent admin role-seed action if user_roles were restored.",
         duration_ms: duration,
         backup_info: {
           version: backup.metadata.version,
@@ -15451,12 +15611,231 @@ app.post(
       if (!backup.metadata) {
         issues.push("Backup metadata is missing");
       } else {
-        if (!backup.metadata.version)
+        if (!backup.metadata.version && !backup.metadata.schema_version)
           warnings.push("Backup version not specified");
         if (!backup.metadata.timestamp)
           warnings.push("Backup timestamp not specified");
         if (!backup.metadata.exported_by)
           warnings.push("Export user not specified");
+      }
+
+      if (backup.kv_data && backup.postgres_data) {
+        const rowCounts = backup.manifest?.row_counts ?? {};
+        const checksums = backup.manifest?.checksums ?? {};
+        const sectionStats: Record<string, number> = {};
+        const requiresCompleteManifest =
+          backup.metadata?.schema_version === "3.0" ||
+          backup.metadata?.format === "wastedb-full-site";
+        if (requiresCompleteManifest) {
+          if (
+            !backup.metadata?.export_started_at ||
+            !backup.metadata?.export_completed_at
+          ) {
+            issues.push("Full backup export start/completion timestamps are missing");
+          }
+          if (backup.manifest?.consistency?.writes_must_be_paused !== true) {
+            issues.push("Full backup consistency contract is missing");
+          } else {
+            warnings.push(
+              "Validator cannot prove writes were paused; confirm the pause window in the migration report",
+            );
+          }
+        }
+
+        for (const [namespace, sections] of Object.entries({
+          kv: backup.kv_data,
+          postgres: backup.postgres_data,
+        })) {
+          for (const [name, records] of Object.entries(
+            sections as Record<string, unknown>,
+          )) {
+            const manifestName = `${namespace}.${name}`;
+            if (!Array.isArray(records)) {
+              issues.push(
+                `Full backup section '${manifestName}' is not an array`,
+              );
+              continue;
+            }
+
+            sectionStats[manifestName] = records.length;
+            const expectedCount = rowCounts[manifestName] ?? rowCounts[name];
+            if (expectedCount === undefined) {
+              const message = `Full backup section '${manifestName}' has no manifest row count`;
+              if (requiresCompleteManifest) issues.push(message);
+              else warnings.push(message);
+            } else if (expectedCount !== records.length) {
+              issues.push(
+                `Full backup count mismatch for '${manifestName}': manifest says ${expectedCount}, found ${records.length}`,
+              );
+            }
+
+            const expectedChecksum =
+              checksums[manifestName] ?? checksums[name];
+            if (expectedChecksum) {
+              const actualChecksum = await checksumJson(records);
+              if (actualChecksum !== expectedChecksum) {
+                issues.push(
+                  `Full backup checksum mismatch for '${manifestName}'`,
+                );
+              }
+            } else {
+              const message = `Full backup section '${manifestName}' has no checksum`;
+              if (requiresCompleteManifest) issues.push(message);
+              else warnings.push(message);
+            }
+          }
+        }
+
+        for (const table of FULL_BACKUP_POSTGRES_TABLES) {
+          if (!Array.isArray(backup.postgres_data[table])) {
+            issues.push(`Required Postgres table '${table}' is missing`);
+          }
+          if (
+            requiresCompleteManifest &&
+            !backup.manifest?.postgres_tables?.includes(table)
+          ) {
+            issues.push(`Required Postgres table '${table}' is not in manifest`);
+          }
+        }
+        for (const section of FULL_BACKUP_KV_SECTIONS) {
+          if (!Array.isArray(backup.kv_data[section])) {
+            issues.push(`Required compatibility KV section '${section}' is missing`);
+          }
+          if (
+            requiresCompleteManifest &&
+            !backup.manifest?.kv_sections?.includes(section)
+          ) {
+            issues.push(
+              `Required compatibility KV section '${section}' is not in manifest`,
+            );
+          }
+        }
+        if (Array.isArray(backup.kv_all_entries)) {
+          sectionStats.kv_all_entries = backup.kv_all_entries.length;
+          const invalidRawEntries = backup.kv_all_entries.filter(
+            (entry: any) => !entry || typeof entry.key !== "string",
+          );
+          if (invalidRawEntries.length > 0) {
+            issues.push(
+              `Raw KV snapshot has ${invalidRawEntries.length} entries without valid keys`,
+            );
+          }
+          const rawKeys = backup.kv_all_entries.map((entry: any) => entry.key);
+          if (new Set(rawKeys).size !== rawKeys.length) {
+            issues.push("Raw KV snapshot contains duplicate keys");
+          }
+          const expectedCount = rowCounts.kv_all_entries;
+          if (expectedCount === undefined) {
+            if (requiresCompleteManifest) {
+              issues.push(
+                "Full backup section 'kv_all_entries' has no manifest row count",
+              );
+            }
+          } else if (expectedCount !== backup.kv_all_entries.length) {
+            issues.push(
+              `Full backup count mismatch for 'kv_all_entries': manifest says ${expectedCount}, found ${backup.kv_all_entries.length}`,
+            );
+          }
+
+          if (checksums.kv_all_entries) {
+            const actualChecksum = await checksumJson(backup.kv_all_entries);
+            if (actualChecksum !== checksums.kv_all_entries) {
+              issues.push("Full backup checksum mismatch for 'kv_all_entries'");
+            }
+          } else if (requiresCompleteManifest) {
+            issues.push("Full backup section 'kv_all_entries' has no checksum");
+          }
+        } else if (requiresCompleteManifest) {
+          issues.push(
+            "Full backup raw KV snapshot 'kv_all_entries' is missing",
+          );
+        } else {
+          warnings.push(
+            "Older full backup has no raw KV snapshot; use categorized KV recovery",
+          );
+        }
+
+        if (Array.isArray(backup.auth_users)) {
+          sectionStats.auth_users = backup.auth_users.length;
+          const invalidAuthUsers = backup.auth_users.filter(
+            (user: any) => !user || typeof user.id !== "string",
+          );
+          if (invalidAuthUsers.length > 0) {
+            issues.push(
+              `Auth user metadata has ${invalidAuthUsers.length} records without valid ids`,
+            );
+          }
+          const expectedCount = rowCounts.auth_users;
+          if (expectedCount === undefined) {
+            if (requiresCompleteManifest) {
+              issues.push(
+                "Full backup section 'auth_users' has no manifest row count",
+              );
+            }
+          } else if (expectedCount !== backup.auth_users.length) {
+            issues.push(
+              `Full backup count mismatch for 'auth_users': manifest says ${expectedCount}, found ${backup.auth_users.length}`,
+            );
+          }
+
+          if (checksums.auth_users) {
+            const actualChecksum = await checksumJson(backup.auth_users);
+            if (actualChecksum !== checksums.auth_users) {
+              issues.push("Full backup checksum mismatch for 'auth_users'");
+            }
+          } else if (requiresCompleteManifest) {
+            issues.push("Full backup section 'auth_users' has no checksum");
+          }
+        } else if (requiresCompleteManifest) {
+          issues.push("Full backup auth user metadata 'auth_users' is missing");
+        } else {
+          warnings.push(
+            "Older full backup has no auth user metadata; reconcile attribution manually",
+          );
+        }
+
+        const postgresTotal = Object.entries(sectionStats)
+          .filter(([name]) => name.startsWith("postgres."))
+          .reduce((total, [, count]) => total + count, 0);
+        const fallbackKvTotal = Object.entries(sectionStats)
+          .filter(([name]) => name.startsWith("kv."))
+          .reduce((total, [, count]) => total + count, 0);
+        const totalRecords =
+          (Array.isArray(backup.kv_all_entries)
+            ? backup.kv_all_entries.length
+            : fallbackKvTotal) +
+          postgresTotal +
+          (Array.isArray(backup.auth_users) ? backup.auth_users.length : 0);
+        if (
+          backup.metadata?.total_records !== undefined &&
+          backup.metadata.total_records !== totalRecords
+        ) {
+          issues.push(
+            `Full backup total mismatch: metadata says ${backup.metadata.total_records}, found ${totalRecords}`,
+          );
+        }
+
+        return c.json({
+          valid: issues.length === 0,
+          issues,
+          warnings,
+          stats: {
+            total_records: totalRecords,
+            categories: sectionStats,
+            metadata: backup.metadata,
+          },
+          restore_support: {
+            automatic: false,
+            reason:
+              "Full-site relational restores require ordered, reviewed merge operations. Use the documented manual recovery procedure.",
+            manual_requirements: [
+              "Reconcile Auth user metadata; credentials and sessions are not restorable from JSON.",
+              "Use a separately verified provider-level backup for storage object binaries.",
+            ],
+            manual_document:
+              "src/docs/admin/OPERATIONS.md#full-site-manual-recovery",
+          },
+        });
       }
 
       if (!backup.data) {
@@ -15470,13 +15849,17 @@ app.post(
         "sources",
         "whitepapers",
         "evidence",
-        "users",
         "audit_logs",
         "notifications",
         "takedown_requests",
         "recompute_jobs",
         "submissions",
       ];
+      const userProfileCategory = backup.data.user_profiles
+        ? "user_profiles"
+        : "users";
+      expectedCategories.push(userProfileCategory);
+      if (backup.data.user_roles) expectedCategories.push("user_roles");
 
       let totalRecords = 0;
       const categoryStats: Record<string, number> = {};
@@ -15492,15 +15875,33 @@ app.post(
           categoryStats[category] = backup.data[category].length;
           totalRecords += backup.data[category].length;
 
-          // Validate that each record has an ID
-          const invalidRecords = backup.data[category].filter(
-            (r: any) => !r || !r.id,
+          const invalidRecords = backup.data[category].filter((r: any) =>
+            category === "user_roles"
+              ? !r ||
+                typeof r.key !== "string" ||
+                !r.key.startsWith("user_role:") ||
+                typeof r.value !== "string"
+              : !r || !r.id,
           );
           if (invalidRecords.length > 0) {
             warnings.push(
-              `Category '${category}' has ${invalidRecords.length} records without IDs`,
+              `Category '${category}' has ${invalidRecords.length} records without valid identifiers`,
             );
           }
+        }
+      }
+
+      const knownCategories = new Set([
+        ...expectedCategories,
+        "users",
+        "user_profiles",
+        "user_roles",
+      ]);
+      for (const category of Object.keys(backup.data)) {
+        if (!knownCategories.has(category)) {
+          warnings.push(
+            `Unsupported category '${category}' requires manual recovery; its payload remains in the backup`,
+          );
         }
       }
 
@@ -15541,7 +15942,7 @@ app.post(
   },
 );
 
-// Full site backup: KV store + Postgres tables (guides, blog, changelog) — admin only
+// Full site backup: every current Postgres domain table plus remaining KV data.
 app.get(
   "/make-server-17cae920/backup/full-export",
   verifyAuth,
@@ -15549,174 +15950,122 @@ app.get(
   async (c) => {
     try {
       const startTime = Date.now();
+      const exportStartedAt = new Date().toISOString();
       log.log("📦 Starting full site backup export...");
 
-      // Use the admin user's own JWT to call SECURITY DEFINER RPC functions.
-      // Use the anon key client — identical to the existing /guides GET route
-      // which is proven to work. RLS implicitly filters to status='published'.
-      const pgClient = createClient(
-        Deno.env.get("SUPABASE_URL") ?? "",
-        Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      );
+      // Service role is required so drafts and restricted audit records are
+      // included. This route is protected by verifyAdmin.
+      const pgClient = _roleClient();
+      const allKvEntries = await fetchAllKvEntries(pgClient);
+      const authUsers = await fetchAllAuthUsers(pgClient);
 
-      // Fetch all KV store data
-      const [
+      // Keep the categorized projection for old consumers while preserving
+      // every raw key/value entry, including unknown namespaces.
+      const materials = kvValuesForPrefix(allKvEntries, "material:");
+      const sources = kvValuesForPrefix(allKvEntries, "source:");
+      const whitepapers = kvValuesForPrefix(allKvEntries, "whitepaper:");
+      const evidence = kvValuesForPrefix(allKvEntries, "evidence:");
+      const userProfiles = kvValuesForPrefix(allKvEntries, "user_profile:");
+      const auditLogs = kvValuesForPrefix(allKvEntries, "audit:");
+      const notifications = kvValuesForPrefix(allKvEntries, "notification:");
+      const takedownRequests = kvValuesForPrefix(allKvEntries, "takedown:");
+      const recomputeJobs = kvValuesForPrefix(allKvEntries, "recompute-job:");
+      const submissions = kvValuesForPrefix(allKvEntries, "submission:");
+
+      const postgresData: Record<string, Record<string, unknown>[]> = {};
+      for (const table of FULL_BACKUP_POSTGRES_TABLES) {
+        postgresData[table] = await fetchAllPostgresRows(pgClient, table);
+      }
+      const userRoles = postgresData.user_profiles.map((record: any) => ({
+        key: `user_role:${record.id}`,
+        value: record.role,
+      }));
+
+      const kvTotal = allKvEntries.length;
+      const postgresTotal = Object.values(postgresData).reduce(
+        (total, rows) => total + rows.length,
+        0,
+      );
+      const authTotal = authUsers.length;
+      const kvData = {
         materials,
         sources,
         whitepapers,
         evidence,
-        userProfiles,
-        userRoles,
-        auditLogs,
+        user_profiles: userProfiles,
+        user_roles: userRoles,
+        audit_logs: auditLogs,
         notifications,
-        takedownRequests,
-        recomputeJobs,
+        takedown_requests: takedownRequests,
+        recompute_jobs: recomputeJobs,
         submissions,
-      ] = await Promise.all([
-        kv.getByPrefix("material:"),
-        kv.getByPrefix("source:"),
-        kv.getByPrefix("whitepaper:"),
-        kv.getByPrefix("evidence:"),
-        kv.getByPrefix("user_profile:"),
-        // Roles now come from Postgres user_profiles.role (Step 19)
-        pgClient
-          .from("user_profiles")
-          .select("id, role")
-          .then(({ data }) =>
-            (data ?? []).map((r: any) => ({
-              key: `user_role:${r.id}`,
-              value: r.role,
-            })),
-          ),
-        kv.getByPrefix("audit:"),
-        kv.getByPrefix("notification:"),
-        kv.getByPrefix("takedown:"),
-        kv.getByPrefix("recompute-job:"),
-        kv.getByPrefix("submission:"),
-      ]);
-
-      // Fetch all Postgres table data
-      // Use same pattern as the working /guides GET route (anon key + explicit status filter)
-      const [guidesResult, blogResult, changelogResult] = await Promise.all([
-        pgClient
-          .from("guides")
-          .select("*")
-          .eq("status", "published")
-          .order("created_at", { ascending: false }),
-        pgClient
-          .from("blog_posts")
-          .select("*")
-          .order("published_at", { ascending: false }),
-        pgClient
-          .from("changelog_entries")
-          .select("*")
-          .order("entry_date", { ascending: false }),
-      ]);
-
-      log.log(
-        `[backup] guidesResult: error=${JSON.stringify(guidesResult.error)} count=${guidesResult.data?.length ?? "null"}`,
-      );
-      if (guidesResult.error) {
-        log.error("Error fetching guides for backup:", guidesResult.error);
-        return c.json(
-          {
-            error: "Failed to fetch guides",
-            details: guidesResult.error.message,
-          },
-          500,
-        );
+      };
+      const rowCounts: Record<string, number> = {};
+      const checksums: Record<string, string> = {};
+      for (const [name, rows] of Object.entries(kvData)) {
+        rowCounts[`kv.${name}`] = rows.length;
+        checksums[`kv.${name}`] = await checksumJson(rows);
       }
-      if (blogResult.error) {
-        log.error("Error fetching blog posts for backup:", blogResult.error);
-        return c.json(
-          {
-            error: "Failed to fetch blog posts",
-            details: blogResult.error.message,
-          },
-          500,
-        );
+      for (const [name, rows] of Object.entries(postgresData)) {
+        rowCounts[`postgres.${name}`] = rows.length;
+        checksums[`postgres.${name}`] = await checksumJson(rows);
       }
-      if (changelogResult.error) {
-        log.error(
-          "Error fetching changelog for backup:",
-          changelogResult.error,
-        );
-        return c.json(
-          {
-            error: "Failed to fetch changelog",
-            details: changelogResult.error.message,
-          },
-          500,
-        );
-      }
-
-      // JSON.parse(JSON.stringify(...)) is the only reliable way to get a
-      // truly plain JS array from supabase-js PostgrestResponse in Deno —
-      // every other approach (Array.from, spread, index loop) still produces
-      // an object that JSON.stringify collapses to [] when nested in a large parent.
-      const allGuides = JSON.parse(
-        JSON.stringify(guidesResult.data ?? []),
-      ) as Record<string, unknown>[];
-      const allBlogPosts = JSON.parse(
-        JSON.stringify(blogResult.data ?? []),
-      ) as Record<string, unknown>[];
-      const allChangelogEntries = JSON.parse(
-        JSON.stringify(changelogResult.data ?? []),
-      ) as Record<string, unknown>[];
-
-      const kvTotal =
-        materials.length +
-        sources.length +
-        whitepapers.length +
-        evidence.length +
-        userProfiles.length +
-        userRoles.length +
-        auditLogs.length +
-        notifications.length +
-        takedownRequests.length +
-        recomputeJobs.length +
-        submissions.length;
-      const postgresTotal =
-        allGuides.length + allBlogPosts.length + allChangelogEntries.length;
+      rowCounts.kv_all_entries = allKvEntries.length;
+      checksums.kv_all_entries = await checksumJson(allKvEntries);
+      rowCounts.auth_users = authUsers.length;
+      checksums.auth_users = await checksumJson(authUsers);
 
       const backup = {
         metadata: {
-          schema_version: "2.1",
-          timestamp: new Date().toISOString(),
+          schema_version: "3.0",
+          format: "wastedb-full-site",
+          timestamp: exportStartedAt,
+          export_started_at: exportStartedAt,
+          export_completed_at: "",
           exported_by: c.get("userId"),
           database_name: "WasteDB",
           kv_record_count: kvTotal,
           postgres_record_count: postgresTotal,
-          total_records: kvTotal + postgresTotal,
+          auth_record_count: authTotal,
+          total_records: kvTotal + postgresTotal + authTotal,
           export_duration_ms: 0,
         },
-        kv_data: {
-          materials,
-          sources,
-          whitepapers,
-          evidence,
-          user_profiles: userProfiles,
-          user_roles: userRoles,
-          audit_logs: auditLogs,
-          notifications,
-          takedown_requests: takedownRequests,
-          recompute_jobs: recomputeJobs,
-          submissions,
+        manifest: {
+          postgres_tables: [...FULL_BACKUP_POSTGRES_TABLES],
+          kv_sections: [...FULL_BACKUP_KV_SECTIONS],
+          row_counts: rowCounts,
+          checksums,
+          checksum_algorithm: "SHA-256",
+          consistency: {
+            transactional_snapshot: false,
+            writes_must_be_paused: true,
+          },
+          compatibility: {
+            legacy_kv_import_supported: true,
+            automatic_full_restore_supported: false,
+            auth_credentials_restore_supported: false,
+            storage_binaries_included: false,
+            provider_storage_backup_required: true,
+            manual_recovery_document:
+              "src/docs/admin/OPERATIONS.md#full-site-manual-recovery",
+          },
         },
-        postgres_data: {
-          guides: allGuides,
-          blog_posts: allBlogPosts,
-          changelog_entries: allChangelogEntries,
-        },
+        auth_users: authUsers,
+        kv_all_entries: allKvEntries,
+        kv_data: kvData,
+        postgres_data: postgresData,
         transforms: TRANSFORMS_DATA,
       };
 
       backup.metadata.export_duration_ms = Date.now() - startTime;
+      backup.metadata.export_completed_at = new Date().toISOString();
 
       log.log(
         `✓ Full site backup completed in ${backup.metadata.export_duration_ms}ms`,
       );
-      log.log(`✓ KV records: ${kvTotal}, Postgres records: ${postgresTotal}`);
+      log.log(
+        `✓ KV records: ${kvTotal}, Postgres records: ${postgresTotal}, Auth metadata records: ${authTotal}`,
+      );
 
       await createAuditLog({
         entity_type: "backup",
@@ -15725,9 +16074,10 @@ app.get(
         user_id: c.get("userId"),
         user_email: c.get("userEmail"),
         changes: {
-          schema_version: "2.0",
+          schema_version: backup.metadata.schema_version,
           kv_record_count: kvTotal,
           postgres_record_count: postgresTotal,
+          auth_record_count: authTotal,
           total_records: backup.metadata.total_records,
           duration_ms: backup.metadata.export_duration_ms,
         },
@@ -15737,17 +16087,15 @@ app.get(
           "unknown",
       });
 
-      log.log(
-        `[backup] pre-send: guides=${backup.postgres_data.guides.length} blog=${backup.postgres_data.blog_posts.length} changelog=${backup.postgres_data.changelog_entries.length} postgresTotal=${postgresTotal}`,
-      );
-      // Build the response JSON with postgres sections serialized independently.
-      // JSON.stringify on the full backup object silently drops guides items (length=7 → [])
-      // for unknown reasons, but JSON.stringify on each section in isolation works correctly
-      // (confirmed by earlier diagnostic log showing real guide data).
+      // Serialize large sections independently to avoid the nested-array issue
+      // previously observed in the edge runtime.
       const responseBody =
         `{"metadata":${JSON.stringify(backup.metadata)}` +
-        `,"kv_data":${JSON.stringify(backup.kv_data)}` +
-        `,"postgres_data":{"guides":${JSON.stringify(allGuides)},"blog_posts":${JSON.stringify(allBlogPosts)},"changelog_entries":${JSON.stringify(allChangelogEntries)}}` +
+        `,"manifest":${JSON.stringify(backup.manifest)}` +
+        `,"auth_users":${JSON.stringify(backup.auth_users)}` +
+        `,"kv_all_entries":${JSON.stringify(backup.kv_all_entries)}` +
+        `,"kv_data":${serializeSectionMap(backup.kv_data)}` +
+        `,"postgres_data":${serializeSectionMap(backup.postgres_data)}` +
         `,"transforms":${JSON.stringify(backup.transforms)}}`;
       return new Response(responseBody, {
         headers: { "Content-Type": "application/json" },
@@ -16906,7 +17254,6 @@ app.get("/make-server-17cae920/blog/search", rateLimit("API"), async (c) => {
 app.all("*", (c) => {
   log.log(`❌ 404 - Unmatched route: ${c.req.method} ${c.req.url}`);
   log.log(`❌ Path: ${c.req.path}`);
-  log.log(`❌ Headers:`, JSON.stringify(c.req.header()));
   return c.json({ error: "Not found", path: c.req.path }, 404);
 });
 
@@ -16915,7 +17262,6 @@ log.log(
 );
 
 // Run initialization
-initializeAdminUser();
 initializeWhitepapers();
 
 Deno.serve(app.fetch);

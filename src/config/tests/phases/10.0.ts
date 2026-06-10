@@ -14,6 +14,33 @@ import { Test, getPublicHeaders } from "../types";
 
 const REST_URL = `https://${projectId}.supabase.co/rest/v1`;
 const EDGE_URL = `https://${projectId}.supabase.co/functions/v1/make-server-17cae920`;
+const FULL_BACKUP_TABLES = [
+  "user_profiles",
+  "material_categories",
+  "materials",
+  "articles",
+  "sources",
+  "material_sources",
+  "material_links",
+  "evidence_points",
+  "audit_log",
+  "guides",
+  "blog_posts",
+  "changelog_entries",
+];
+const FULL_BACKUP_KV_NAMESPACES = [
+  "materials",
+  "sources",
+  "whitepapers",
+  "evidence",
+  "user_profiles",
+  "user_roles",
+  "audit_logs",
+  "notifications",
+  "takedown_requests",
+  "recompute_jobs",
+  "submissions",
+];
 
 /** Perform a PostgREST SELECT. Returns the parsed JSON array or throws. */
 async function pgRest(
@@ -2070,6 +2097,149 @@ export function getPhase100Tests(user: any): Test[] {
             message: `PostgREST query failed: ${err.message}`,
           };
         }
+      },
+    },
+
+    // ─── Data-safe backup compatibility ──────────────────────────────────────
+
+    {
+      id: "schema-10.0-full-backup-coverage",
+      name: "Full backup covers every current Postgres domain table",
+      description:
+        "Downloads the versioned full-site backup and confirms its manifest, row counts, " +
+        "checksums, and Postgres sections include every current domain table.",
+      phase: "10.0",
+      category: "Backup & Recovery",
+      testFn: async () => {
+        const accessToken = sessionStorage.getItem("wastedb_access_token");
+        if (!accessToken) {
+          return {
+            success: true,
+            message: "Skipped — sign in as admin to verify full backup coverage",
+          };
+        }
+        const res = await fetch(`${EDGE_URL}/backup/full-export`, {
+          headers: {
+            Authorization: `Bearer ${publicAnonKey}`,
+            "X-Session-Token": accessToken,
+          },
+        });
+        if (!res.ok) {
+          return {
+            success: false,
+            message: `Full backup returned HTTP ${res.status}`,
+          };
+        }
+        const backup = await res.json();
+        const missing = FULL_BACKUP_TABLES.filter(
+          (table) =>
+            !Array.isArray(backup.postgres_data?.[table]) ||
+            !backup.manifest?.postgres_tables?.includes(table) ||
+            backup.manifest?.row_counts?.[`postgres.${table}`] === undefined ||
+            !backup.manifest?.checksums?.[`postgres.${table}`],
+        );
+        const missingKv = FULL_BACKUP_KV_NAMESPACES.filter(
+          (namespace) =>
+            !Array.isArray(backup.kv_data?.[namespace]) ||
+            !backup.manifest?.kv_sections?.includes(namespace) ||
+            backup.manifest?.row_counts?.[`kv.${namespace}`] === undefined ||
+            !backup.manifest?.checksums?.[`kv.${namespace}`],
+        );
+        const rawKvMissing =
+          !Array.isArray(backup.kv_all_entries) ||
+          backup.manifest?.row_counts?.kv_all_entries === undefined ||
+          !backup.manifest?.checksums?.kv_all_entries;
+        const authUsersMissing =
+          !Array.isArray(backup.auth_users) ||
+          backup.manifest?.row_counts?.auth_users === undefined ||
+          !backup.manifest?.checksums?.auth_users;
+        const consistencyContractMissing =
+          !backup.metadata?.export_started_at ||
+          !backup.metadata?.export_completed_at ||
+          backup.manifest?.consistency?.writes_must_be_paused !== true;
+        return {
+          success:
+            missing.length === 0 &&
+            missingKv.length === 0 &&
+            !rawKvMissing &&
+            !authUsersMissing &&
+            !consistencyContractMissing,
+          message:
+            missing.length === 0 &&
+            missingKv.length === 0 &&
+            !rawKvMissing &&
+            !authUsersMissing &&
+            !consistencyContractMissing
+              ? `Full backup ${backup.metadata?.schema_version} covers ${FULL_BACKUP_TABLES.length} Postgres tables, auth user metadata, the raw KV snapshot, and ${FULL_BACKUP_KV_NAMESPACES.length} compatibility namespaces with counts and checksums`
+              : `Full backup is missing required coverage: ${[...missing.map((name) => `postgres.${name}`), ...missingKv.map((name) => `kv.${name}`), ...(rawKvMissing ? ["kv_all_entries"] : []), ...(authUsersMissing ? ["auth_users"] : []), ...(consistencyContractMissing ? ["consistency_contract"] : [])].join(", ")}`,
+        };
+      },
+    },
+
+    {
+      id: "schema-10.0-full-backup-validation",
+      name: "Full backup validates before recovery use",
+      description:
+        "Passes a newly exported full-site backup through the compatibility-aware validator.",
+      phase: "10.0",
+      category: "Backup & Recovery",
+      testFn: async () => {
+        const accessToken = sessionStorage.getItem("wastedb_access_token");
+        if (!accessToken) {
+          return {
+            success: true,
+            message: "Skipped — sign in as admin to validate a full backup",
+          };
+        }
+        const headers = {
+          Authorization: `Bearer ${publicAnonKey}`,
+          "X-Session-Token": accessToken,
+          "Content-Type": "application/json",
+        };
+        const exportRes = await fetch(`${EDGE_URL}/backup/full-export`, {
+          headers,
+        });
+        if (!exportRes.ok) {
+          return {
+            success: false,
+            message: `Full backup returned HTTP ${exportRes.status}`,
+          };
+        }
+        const backup = await exportRes.json();
+        const validateRes = await fetch(`${EDGE_URL}/backup/validate`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ backup }),
+        });
+        const validation = await validateRes.json();
+        return {
+          success: validateRes.ok && validation.valid === true,
+          message:
+            validateRes.ok && validation.valid === true
+              ? `Full backup validation passed with ${validation.stats?.total_records ?? 0} records`
+              : `Full backup validation failed: ${JSON.stringify(validation.issues ?? validation)}`,
+        };
+      },
+    },
+
+    {
+      id: "schema-10.0-auth-anon-key-rejected",
+      name: "Public anonymous key is not accepted as user authentication",
+      description:
+        "Calls a protected user endpoint with only the public Supabase anonymous key and expects an authentication failure.",
+      phase: "10.0",
+      category: "Authentication & Authorization",
+      testFn: async () => {
+        const res = await fetch(`${EDGE_URL}/users/me/role`, {
+          headers: getPublicHeaders(),
+        });
+        return {
+          success: res.status === 401,
+          message:
+            res.status === 401
+              ? "Protected endpoint correctly rejected the public anonymous key"
+              : `Expected HTTP 401, received HTTP ${res.status}`,
+        };
       },
     },
   ];

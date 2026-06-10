@@ -51,7 +51,6 @@ import {
   MySubmissionsView,
   LicensesView,
   TakedownStatusView,
-  RoadmapView,
   MathView,
   ChartsPerformanceView,
   EvidenceLabView,
@@ -188,7 +187,6 @@ function AppContent() {
     navigateToCategoriesManagement,
     navigateToMathTools,
     navigateToChartsPerformance,
-    navigateToRoadmap,
     navigateToRoadmapOverview,
     navigateToSourceLibrary,
     navigateToSourceComparison,
@@ -1166,7 +1164,6 @@ function AppContent() {
         onNavigateToCategoriesManagement={navigateToCategoriesManagement}
         onNavigateToMath={navigateToMathTools}
         onNavigateToCharts={navigateToChartsPerformance}
-        onNavigateToRoadmap={navigateToRoadmap}
         onNavigateToRoadmapOverview={
           navigateToRoadmapOverview as (section?: string) => void
         }
@@ -1363,7 +1360,6 @@ function AppContent() {
     "charts-performance": () => (
       <ChartsPerformanceView onBack={navigateToAdminHome} />
     ),
-    roadmap: () => <RoadmapView onBack={navigateToAdminHome} />,
     "roadmap-overview": (view) => (
       <SimplifiedRoadmap
         onBack={navigateToAdminHome}

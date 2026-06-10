@@ -7,7 +7,7 @@
  * - PhaseFilteredTests.tsx (for phase-specific test tabs)
  */
 
-import { buildAllTests, getTestsByPhase } from "./all";
+import { buildAllTests, getTestsByPhase, getTestsByStage } from "./all";
 import { Test } from "./types";
 
 /**
@@ -29,6 +29,10 @@ export function getAllTestDefinitions(user: any): Test[] {
  */
 export function getTestDefinitionsByPhase(phase: string, user: any): Test[] {
   return getTestsByPhase(phase, user);
+}
+
+export function getTestDefinitionsByStage(stage: number, user: any): Test[] {
+  return getTestsByStage(stage, user);
 }
 
 /**

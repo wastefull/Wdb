@@ -32,7 +32,6 @@ export { LicensesView } from "./LicensesView";
 export { MathView } from "./MathView";
 export { MySubmissionsView } from "./MySubmissionsView";
 export { PublicExportView } from "./PublicExportView";
-export { RoadmapView } from "./RoadmapView";
 export { ScientificMetadataView } from "./ScientificMetadataView";
 export { SearchResultsView } from "./SearchResultsView";
 export { TakedownStatusView } from "./TakedownStatusView";

@@ -197,10 +197,8 @@ Scientific Data (click to expand)
    - **Method A:** Click the user icon in header → Toggle "Admin Mode" switch
    - **Method B:** Red accessibility button → Admin Mode toggle
 
-### Current Admin Account:
-
-- **Email:** natto@wastefull.org
-- **Role:** Admin (configured in backend)
+Admin access is assigned through server-side role management. Do not document
+or share privileged account identifiers in this repository.
 
 ### What Admin Mode Unlocks:
 
@@ -269,7 +267,7 @@ Composite Scores Section:
 
 ### Test Scenario 1: Edit Individual Material
 
-1. Sign in as admin (natto@wastefull.org)
+1. Sign in with an authorized admin account
 2. Enable Admin Mode
 3. Click on "Aluminum Can" material
 4. Scroll to green "Scientific Data" panel
@@ -318,7 +316,7 @@ Composite Scores Section:
 ### "Database Management" Button Not Showing
 
 **Cause:** Not signed in as admin  
-**Solution:** Sign in with admin account (natto@wastefull.org)
+**Solution:** Sign in with an authorized admin account
 
 ### Scientific Data Panel Empty
 
@@ -339,11 +337,10 @@ Composite Scores Section:
 
 ## Related Documentation
 
-- `/docs/SCIENTIFIC_EDITOR_REFACTOR.md` - ScientificDataEditor details
-- `/docs/DATA_PROCESSING_VIEW_UPDATE.md` - DataProcessingView details
-- `/docs/BATCH_OPERATIONS_UPDATE.md` - BatchScientificOperations details
-- `/docs/BACKEND_MULTI_DIMENSIONAL.md` - API reference
-- `/docs/PHASE_5_80_PERCENT_MILESTONE.md` - Overall progress
+- `/docs/admin/ADMIN_GUIDE.md` - Current admin workflows
+- `/docs/architecture/DATA_MODEL.md` - Current data model
+- `/docs/data/EVIDENCE_CURATION.md` - Evidence curation workflow
+- `/docs/roadmap/README.md` - Current roadmap conventions
 
 ---
 

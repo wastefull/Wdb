@@ -28,6 +28,7 @@ import { toast } from "sonner";
 import { useAuthContext } from "../../contexts/AuthContext";
 import {
   getTestDefinitionsByPhase,
+  getTestDefinitionsByStage,
   Test,
 } from "../../config/tests/testDefinitions";
 
@@ -37,13 +38,15 @@ interface TestResult {
 }
 
 interface PhaseFilteredTestsProps {
-  phase: string; // e.g., '9.1', '9.2', '10'
+  phase?: string; // Legacy phase identifier, e.g. '9.1'
+  stage?: number; // Current roadmap stage
   title?: string; // Optional custom title
   description?: string; // Optional custom description
 }
 
 export function PhaseFilteredTests({
   phase,
+  stage,
   title,
   description,
 }: PhaseFilteredTestsProps) {
@@ -84,8 +87,11 @@ export function PhaseFilteredTests({
     }
   };
 
-  // Get tests for the requested phase
-  const allTests: Test[] = getTestDefinitionsByPhase(phase, user) || [];
+  const allTests: Test[] =
+    (stage !== undefined
+      ? getTestDefinitionsByStage(stage, user)
+      : getTestDefinitionsByPhase(phase ?? "", user)) || [];
+  const scopeLabel = stage !== undefined ? `Stage ${stage}` : `Phase ${phase}`;
 
   const runAllTests = async () => {
     setRunningAll(true);
@@ -101,7 +107,7 @@ export function PhaseFilteredTests({
     }
 
     setRunningAll(false);
-    toast.success(`All Phase ${phase} tests completed`);
+    toast.success(`All ${scopeLabel} tests completed`);
   };
 
   const getStatusIcon = (status: TestResult["status"]) => {
@@ -205,7 +211,7 @@ export function PhaseFilteredTests({
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="font-['Sniglet']">
-                {title || `Phase ${phase} Tests`}
+                {title || `${scopeLabel} Tests`}
               </CardTitle>
               <CardDescription>
                 {description || "Automated API tests for this phase"}
@@ -219,7 +225,7 @@ export function PhaseFilteredTests({
             No tests created yet
           </p>
           <p className="text-sm text-muted-foreground text-center max-w-md">
-            Tests for Phase {phase} will be added as backend endpoints are
+            Tests for {scopeLabel} will be added as backend endpoints are
             implemented. Check the unified test suite on the{" "}
             <strong>Tests</strong> tab for all available tests.
           </p>
@@ -234,7 +240,7 @@ export function PhaseFilteredTests({
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="font-['Sniglet']">
-              {title || `Phase ${phase} Tests`}
+              {title || `${scopeLabel} Tests`}
             </CardTitle>
             <CardDescription>
               {description || "Automated API tests for this phase"}
@@ -302,6 +308,11 @@ export function PhaseFilteredTests({
                         <div className="font-['Sniglet'] font-semibold">
                           {test.name}
                         </div>
+                        {test.legacyPhase && (
+                          <div className="text-xs text-muted-foreground mt-0.5">
+                            Legacy phase {test.legacyPhase}
+                          </div>
+                        )}
                         <div className="text-sm text-muted-foreground mt-0.5">
                           {test.description}
                         </div>

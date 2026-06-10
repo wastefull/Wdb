@@ -14,6 +14,7 @@ import React, {
 import { DiscardChangesDialog } from "../components/shared/DiscardChangesDialog";
 import { navigationLogger } from "../utils/loggerFactories";
 import { CategoryType, ArticleType } from "../types/article";
+import type { RoadmapTabId } from "../config/roadmap";
 
 // View types that the app can navigate to
 export type ViewType =
@@ -73,19 +74,9 @@ export type ViewType =
   | { type: "categories-management" }
   | { type: "math-tools"; defaultTab?: "overview" | "transform-manager" }
   | { type: "charts-performance" }
-  | { type: "roadmap" }
   | {
       type: "roadmap-overview";
-      defaultTab?:
-        | "overview"
-        | "9.1"
-        | "9.2"
-        | "9.3"
-        | "9.4"
-        | "9.5"
-        | "10"
-        | "tests"
-        | "backlog";
+      defaultTab?: RoadmapTabId;
     }
   | { type: "guides" }
   | { type: "guide-detail"; guideId: string }
@@ -121,7 +112,6 @@ export const ADMIN_VIEW_TYPES = new Set<ViewType["type"]>([
   "categories-management",
   "math-tools",
   "charts-performance",
-  "roadmap",
   "roadmap-overview",
   "maintenance-mode",
   "one-time-actions",
@@ -146,7 +136,6 @@ const STATIC_VIEW_HASH_TO_TYPE: Partial<Record<string, ViewType["type"]>> = {
   "review-center": "review-center",
   "source-library": "source-library",
   "source-comparison": "source-comparison",
-  roadmap: "roadmap",
   "phase9-testing": "phase9-testing",
   "phase9-day10-testing": "phase9-day10-testing",
 };
@@ -181,17 +170,7 @@ function getInitialViewFromUrlHash(): ViewType {
     rawHash === "roadmap-overview" ||
     rawHash.startsWith("roadmap-overview/")
   ) {
-    const tab = rawHash.split("/")[1] as
-      | "overview"
-      | "9.1"
-      | "9.2"
-      | "9.3"
-      | "9.4"
-      | "9.5"
-      | "10"
-      | "tests"
-      | "backlog"
-      | undefined;
+    const tab = rawHash.split("/")[1] as RoadmapTabId | undefined;
     return { type: "roadmap-overview", defaultTab: tab };
   }
 
@@ -260,19 +239,7 @@ interface NavigationContextType {
   navigateToCategoriesManagement: () => void;
   navigateToMathTools: (defaultTab?: "overview" | "transform-manager") => void;
   navigateToChartsPerformance: () => void;
-  navigateToRoadmap: () => void;
-  navigateToRoadmapOverview: (
-    defaultTab?:
-      | "overview"
-      | "9.1"
-      | "9.2"
-      | "9.3"
-      | "9.4"
-      | "9.5"
-      | "10"
-      | "tests"
-      | "backlog",
-  ) => void;
+  navigateToRoadmapOverview: (defaultTab?: RoadmapTabId) => void;
   navigateToGuides: () => void;
   navigateToBlog: () => void;
   navigateToAbout: () => void;
@@ -539,22 +506,7 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
     navigateTo({ type: "charts-performance" });
   };
 
-  const navigateToRoadmap = () => {
-    navigateTo({ type: "roadmap" });
-  };
-
-  const navigateToRoadmapOverview = (
-    defaultTab?:
-      | "overview"
-      | "9.1"
-      | "9.2"
-      | "9.3"
-      | "9.4"
-      | "9.5"
-      | "10"
-      | "tests"
-      | "backlog",
-  ) => {
+  const navigateToRoadmapOverview = (defaultTab?: RoadmapTabId) => {
     navigateTo({ type: "roadmap-overview", defaultTab });
   };
 
@@ -647,7 +599,6 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
     navigateToCategoriesManagement,
     navigateToMathTools,
     navigateToChartsPerformance,
-    navigateToRoadmap,
     navigateToRoadmapOverview,
     navigateToGuides,
     navigateToBlog,
