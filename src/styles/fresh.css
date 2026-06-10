@@ -1087,6 +1087,7 @@ body {
   color: var(--earth);
   font-family: "Genty Demo", sans-serif;
   scale: 1.25;
+  overflow-x: display;
   text-shadow:
     var(--background) 1px 0.5px 0px,
     var(--background) 1px 0px 0px,
