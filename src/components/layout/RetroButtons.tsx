@@ -148,11 +148,12 @@ export function RetroButtons({ title, titlePop, version }: RetroButtonsProps) {
                       <div className="flex items-center justify-between">
                         <label className="text-[13px] flex items-center gap-2">
                           <Moon size={14} />
-                          Dark Mode
+                          Dark Mode <small>(temporarily not available)</small>
                         </label>
                         <Switch
                           checked={settings.darkMode}
                           onCheckedChange={toggleDarkMode}
+                          disabled={true}
                         />
                       </div>
                       <div className="flex items-center justify-between">
@@ -399,11 +400,13 @@ export function RetroButtons({ title, titlePop, version }: RetroButtonsProps) {
                             <div className="flex items-center justify-between">
                               <label className="text-[12px] flex items-center gap-2">
                                 <Moon size={14} />
-                                Dark Mode
+                                Dark Mode{" "}
+                                <small>(temporarily not available)</small>
                               </label>
                               <Switch
                                 checked={settings.darkMode}
                                 onCheckedChange={toggleDarkMode}
+                                disabled={true}
                               />
                             </div>
                             <div className="flex items-center justify-between">

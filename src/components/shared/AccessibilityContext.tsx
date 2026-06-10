@@ -116,7 +116,8 @@ export function AccessibilityProvider({
 
     // Dark mode
     if (settings.darkMode) {
-      root.classList.add("dark");
+      // Temporarily disable dark mode until we can fix the contrast issues with the current palette
+      // root.classList.add("dark");
     } else {
       root.classList.remove("dark");
     }
@@ -147,8 +148,9 @@ export function AccessibilityProvider({
   const toggleDarkMode = () => {
     setSettings((prev) => ({
       ...prev,
-      darkMode: !prev.darkMode,
-      noPastel: !prev.darkMode ? true : prev.noPastel, // Enable noPastel when turning on dark mode
+      // Temporarily disable dark mode until we can fix the contrast issues with the current palette
+      // darkMode: !prev.darkMode,
+      // noPastel: !prev.darkMode ? true : prev.noPastel, // Enable noPastel when turning on dark mode
     }));
   };
 
