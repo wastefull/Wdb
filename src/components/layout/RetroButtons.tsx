@@ -46,11 +46,20 @@ export function RetroButtons({ title, titlePop, version }: RetroButtonsProps) {
       navigateToMaterials();
     }
   };
-
+  const simpleAccessibilityMenuOuterDivClasses =
+    "basis-0 grow h-full min-h-px min-w-px relative shrink-0";
+  const simpleAccessibilityMenuInnerDivClasses =
+    "flex flex-row items-center justify-start md:justify-center size-full";
+  const simpleAccessibilityMenuContentDivClasses =
+    "box-border content-stretch flex gap-1 md:gap-2.5 items-center justify-start md:justify-center px-0.75 md:px-1.75 py-0.5 relative size-full";
+  const sheetContentClasses =
+    "bg-[#faf7f2] dark:bg-[#2a2825] border-t-[1.5px] border-[#211f1c] dark:border-white/20 rounded-t-xl px-6";
+  const sheetHeaderClasses =
+    "border-b border-[#211f1c]/20 dark:border-white/20 pb-4";
   return (
-    <div className="basis-0 grow h-full min-h-px min-w-px relative shrink-0">
-      <div className="flex flex-row items-center justify-start md:justify-center size-full">
-        <div className="box-border content-stretch flex gap-1 md:gap-2.5 items-center justify-start md:justify-center px-0.75 md:px-1.75 py-0.5 relative size-full">
+    <div className={simpleAccessibilityMenuOuterDivClasses}>
+      <div className={simpleAccessibilityMenuInnerDivClasses}>
+        <div className={simpleAccessibilityMenuContentDivClasses}>
           {/* Mobile: Single accessibility button */}
           <div className="md:hidden">
             <Sheet
@@ -88,11 +97,11 @@ export function RetroButtons({ title, titlePop, version }: RetroButtonsProps) {
                 </button>
               </SheetTrigger>
               <SheetContent
-                side="bottom"
-                className="bg-[#faf7f2] dark:bg-[#2a2825] border-t-[1.5px] border-[#211f1c] dark:border-white/20 rounded-t-xl px-6"
+                side="top"
+                className={sheetContentClasses}
                 aria-describedby={undefined}
               >
-                <SheetHeader className="border-b border-[#211f1c]/20 dark:border-white/20 pb-4">
+                <SheetHeader className={sheetHeaderClasses}>
                   <SheetTitle className="text-center font-display">
                     Accessibility
                   </SheetTitle>
