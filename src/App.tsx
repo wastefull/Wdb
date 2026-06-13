@@ -157,11 +157,9 @@ function AppContent() {
     navigateToSearchResults,
     navigateToMaterialDetail,
     navigateToArticles,
-    navigateToArticleDetail,
     navigateToMethodologyList,
     navigateToWhitepaper,
     navigateToAdminDashboard,
-    navigateToStaffDashboard,
     navigateToDataManagement,
     navigateToUserManagement,
     navigateToScientificEditor,
@@ -172,14 +170,12 @@ function AppContent() {
     navigateToWhitepaperSync,
     navigateToApiDocs,
     navigateToLicenses,
-    navigateToLegalHub,
     navigateToPrivacyPolicy,
     navigateToScienceHub,
     navigateToTakedownForm,
     navigateToAdminTakedownList,
     navigateToAuditLog,
     navigateToDataRetention,
-    navigateToTransformManager,
     navigateToWhitepapersManagement,
     navigateToAssetsManagement,
     navigateToRolePermissions,
@@ -193,15 +189,10 @@ function AppContent() {
     navigateToEvidenceLab,
     navigateToCurationWorkbench,
     navigateToTransformTesting,
-    navigateToGuides,
-    navigateToBlog,
-    navigateToAbout,
-    navigateToDonate,
     navigateToMaintenanceMode,
     navigateToOneTimeActions,
   } = useNavigationContext();
-  const { user, userRole, isAuthenticated, signIn, signOut, updateUserRole } =
-    useAuthContext();
+  const { user, userRole, isAuthenticated, signIn, signOut } = useAuthContext();
 
   // Maintenance mode — fetched once on mount, re-fetched after toggle
   const [maintenanceStatus, setMaintenanceStatus] = useState<{
@@ -226,8 +217,6 @@ function AppContent() {
     bulkImport,
     updateMaterials,
     deleteAllMaterials,
-    retrySync,
-    getMaterialById,
   } = useMaterialsContext();
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -686,16 +675,6 @@ function AppContent() {
       window.clearTimeout(timeoutId);
     };
   }, [searchQuery]);
-
-  const filteredMaterials = materials.filter((m) => {
-    const q = searchQuery.toLowerCase();
-    return (
-      m.name.toLowerCase().includes(q) ||
-      m.description?.toLowerCase().includes(q) ||
-      m.aliases?.some((a) => a.toLowerCase().includes(q)) ||
-      m.wiki?.aliases?.some((a) => a.toLowerCase().includes(q))
-    );
-  });
 
   const materialSearchSuggestions = useMemo<SearchSuggestion[]>(() => {
     const rawQuery = searchQuery.trim();
