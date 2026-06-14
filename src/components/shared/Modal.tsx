@@ -60,19 +60,21 @@ export function Modal({
   }
 
   return createPortal(
-    <div
-      className={cn(DEFAULT_OVERLAY_CLASS_NAME, overlayClassName)}
-      onClick={closeOnBackdropClick ? onClose : undefined}
-    >
+    <>
       <div
-        className={cn(DEFAULT_PANEL_CLASS_NAME, className, panelClassName)}
-        onClick={(event) => event.stopPropagation()}
-        role="dialog"
-        aria-modal="true"
+        className={cn(DEFAULT_OVERLAY_CLASS_NAME, overlayClassName)}
+        onClick={closeOnBackdropClick ? onClose : undefined}
       >
-        {children}
+        <div
+          className={cn(DEFAULT_PANEL_CLASS_NAME, className, panelClassName)}
+          onClick={(event) => event.stopPropagation()}
+          role="dialog"
+          aria-modal="true"
+        >
+          {children}
+        </div>
       </div>
-    </div>,
+    </>,
     portalTarget,
   );
 }

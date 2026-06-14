@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
-import { Mail, ArrowLeft, Link } from "lucide-react";
 import * as api from "../../utils/api";
 import { toast } from "sonner";
 import { logEnvironmentInfo } from "../../utils/environment";
 import { logger } from "../../utils/logger";
-import { StatusBar } from "../layout/StatusBar";
-
+import { LinkSentView } from "./Auth/LinkSentView";
+import { SignUpView } from "./Auth/SignUpView";
+import { Modal } from "../shared";
 interface AuthViewProps {
   onAuthSuccess: (user: { id: string; email: string; name?: string }) => void;
   onClose?: () => void;
@@ -83,108 +83,29 @@ export function AuthView({ onAuthSuccess, onClose }: AuthViewProps) {
   };
 
   return (
-    <div className="flex items-center justify-center p-4">
-      <div className="w-full max-w-100">
-        {/* Auth Window */}
-        <div className="retro-card overflow-hidden backdrop-blur-md bg-white/70! dark:bg-[#2a2825]/70!">
-          {/* Mini Status Bar */}
-          <StatusBar
-            variant="mini"
-            title="Log in or sign up"
-            onClose={onClose}
-          />
-
-          {/* Form Content */}
-          <div className="p-6 bg-[#faf7f2]/90 dark:bg-[#2a2825]/90">
-            {authMode === "magic-link-sent" ? (
-              <div className="text-center space-y-3">
-                <div className="p-5 bg-waste-recycle/30 dark:bg-waste-recycle/10 border border-[#211f1c]/20 dark:border-white/20 rounded-xl">
-                  <Mail size={28} className="mx-auto mb-2 normal" />
-                  <h3 className="text-[14px] normal mb-2">Magic Link Sent!</h3>
-                  <p className="text-[12px] text-black/70 dark:text-white/70 mb-3">
-                    We've sent a secure sign-in link to <strong>{email}</strong>
-                    . Click the link in your email to sign in instantly.
-                  </p>
-                  <p className="text-xs text-black/50 dark:text-white/50">
-                    The link will expire in 1 hour for security.
-                  </p>
-                </div>
-
-                <button
-                  onClick={() => setAuthMode("magic-link")}
-                  className="w-full h-9 retro-btn-primary arcade-bg-cyan arcade-btn-cyan text-[12px] flex items-center justify-center gap-2"
-                >
-                  <ArrowLeft size={14} />
-                  Send Another Link
-                </button>
-              </div>
-            ) : authMode === "magic-link" ? (
-              <div className="space-y-3">
-                <div className="text-center text-xs text-black/50 dark:text-white/50">
-                  Log in or sign up with just your email
-                </div>
-
-                <div>
-                  <label className="text-[12px] normal block mb-1 uppercase tracking-[0.04em] text-black/70 dark:text-white/70">
-                    Email Address:
-                  </label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    onKeyDownCapture={handleKeyDown}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        handleSendMagicLink();
-                      }
-                    }}
-                    placeholder="awesome.person@example.com"
-                    className="retro-input"
-                  />
-                </div>
-
-                {/* Honeypot field - hidden from users, catches bots */}
-                <input
-                  type="text"
-                  value={honeypot}
-                  onChange={(e) => setHoneypot(e.target.value)}
-                  style={{
-                    position: "absolute",
-                    left: "-9999px",
-                    width: "1px",
-                    height: "1px",
-                  }}
-                  tabIndex={-1}
-                  autoComplete="off"
-                  aria-hidden="true"
-                />
-
-                <button
-                  onClick={handleSendMagicLink}
-                  disabled={loading}
-                  className="w-full h-10 retro-btn-primary arcade-bg-amber arcade-btn-amber text-[13px] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
-                >
-                  <Mail size={16} />
-                  {loading ? "Sending..." : "Send Magic Link"}
-                </button>
-                <div className="text-center text-xs text-black/50 dark:text-white/50">
-                  or
-                </div>
-                <button
-                  onClick={handleGoogleSignIn}
-                  disabled={loading}
-                  className="w-full h-10 retro-btn-primary arcade-bg-cyan arcade-btn-cyan text-[13px] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
-                >
-                  <Link size={16} />
-                  {loading
-                    ? "Redirecting to Google..."
-                    : "Staff login (@wastefull.org)"}
-                </button>
-              </div>
-            ) : null}
-          </div>
-        </div>
-      </div>
-    </div>
+    <Modal
+      onClose={onClose || (() => {})}
+      children={
+        <>
+          {authMode === "magic-link-sent" ? (
+            <LinkSentView
+              email={email}
+              onResend={() => setAuthMode("magic-link")}
+            />
+          ) : authMode === "magic-link" ? (
+            <SignUpView
+              email={email}
+              setEmail={setEmail}
+              honeypot={honeypot}
+              setHoneypot={setHoneypot}
+              handleKeyDown={handleKeyDown}
+              handleSendMagicLink={handleSendMagicLink}
+              handleGoogleSignIn={handleGoogleSignIn}
+              loading={loading}
+            />
+          ) : null}
+        </>
+      }
+    ></Modal>
   );
 }

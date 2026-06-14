@@ -877,18 +877,6 @@ function AppContent() {
     navigateTo(getAdminHomeViewByRole(userRole));
   };
 
-  const authModalOverlayStyle: React.CSSProperties = {
-    transform: "scale(calc(1 / var(--a11y-font-scale, 1)))",
-    transformOrigin: "top left",
-    width: "calc(100vw * var(--a11y-font-scale, 1))",
-    height: "calc(100vh * var(--a11y-font-scale, 1))",
-  };
-  const authModalOuterDivClasses =
-    "fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4";
-  const authModalInnerDivClasses = "relative max-w-md w-full";
-  const authModalBackgroundClasses =
-    "min-h-screen p-3 md:p-8 bg-[#faf7f2] dark:bg-[#2a2825] textured";
-
   const viewConfigurations: ViewRendererMap = {
     "permalink-loading": () => (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -1359,17 +1347,13 @@ function AppContent() {
     <>
       {/* Auth Modal — rendered at top level so it works during maintenance mode too */}
       {showAuthModal && (
-        <div className={authModalOuterDivClasses} style={authModalOverlayStyle}>
-          <div className={authModalInnerDivClasses}>
-            <AuthView
-              onAuthSuccess={(userData) => {
-                handleAuthSuccess(userData);
-                setShowAuthModal(false);
-              }}
-              onClose={() => setShowAuthModal(false)}
-            />
-          </div>
-        </div>
+        <AuthView
+          onAuthSuccess={(userData) => {
+            handleAuthSuccess(userData);
+            setShowAuthModal(false);
+          }}
+          onClose={() => setShowAuthModal(false)}
+        />
       )}
 
       {/* Maintenance gate — shown to non-admins when maintenance is active */}
@@ -1383,7 +1367,7 @@ function AppContent() {
       {/* Normal app — always rendered for admins; hidden behind the gate otherwise */}
       {(!maintenanceStatus?.enabled || userRole === "admin") && (
         <>
-          <div className={authModalBackgroundClasses}>
+          <div className="min-h-screen p-3 md:p-8 bg-[#faf7f2] dark:bg-[#2a2825] textured">
             {/* Main layout container - allows window to grow past 1000px with sidebar */}
             <div className="max-w-500 mx-auto">
               {/* Simulated window with optional sidebar inside */}
