@@ -81,6 +81,7 @@ export function ResourcesPanel() {
             <br />
             <br />
             <button
+              className="card retro-card liquid "
               onClick={() => {
                 document.getElementById("main-search-input")?.focus();
               }}

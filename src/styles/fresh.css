@@ -1504,10 +1504,9 @@ body {
 }
 
 .resource-panel > aside > div {
-  @apply card mt-12 p-3 rounded-lg border-[1.5px] border-[#211f1c]  text-center text-sm text-gray-800 dark:text-white/80;
+  @apply mt-12 p-3 rounded-lg border-[1.5px] border-[#211f1c]  text-center text-sm text-gray-800 dark:text-white/80;
 }
 
 .resource-panel button {
-  @apply card retro-card liquid text-sm inline-flex items-center gap-2 whitespace-nowrap px-3 py-2 m-auto border-border! border-[1.5px]! cursor-pointer;
-  background-color: red !important;
+  @apply text-sm inline-flex items-center gap-2 whitespace-nowrap px-3 py-2 m-auto border-border! border-[1.5px]! cursor-pointer;
 }
