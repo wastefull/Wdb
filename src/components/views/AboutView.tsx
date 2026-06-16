@@ -9,6 +9,9 @@ interface AboutViewProps {
 
 export function AboutView({ onBack }: AboutViewProps) {
   const { settings } = useAccessibility();
+  // Diable dark mode temporarily
+  // const dm = settings.darkMode;
+  const dm = false;
 
   return (
     <PageTemplate
@@ -42,15 +45,13 @@ export function AboutView({ onBack }: AboutViewProps) {
                 <div className="col-span-1 flex justify-end">
                   <img
                     src={
-                      settings.darkMode
+                      dm
                         ? "https://bdvfwjmaufjeqmxphmtv.supabase.co/storage/v1/object/public/make-17cae920-assets/logo_darkmode-1763068549938.png"
                         : "https://bdvfwjmaufjeqmxphmtv.supabase.co/storage/v1/object/public/make-17cae920-assets/uplogo_transparent-1761169051994.png"
                     }
                     alt="Wastefull Logo"
                     className={
-                      settings.darkMode
-                        ? "h-44 lg:h-56 w-auto"
-                        : "h-32 lg:h-44 w-auto"
+                      dm ? "h-44 lg:h-56 w-auto" : "h-32 lg:h-44 w-auto"
                     }
                   />
                 </div>
