@@ -15,333 +15,18 @@
    Design Tokens - Light Mode
    ========================================================================== */
 :root {
-  /* Colors */
-  --white: oklch(1 0 0);
-  --whitish: oklch(0.92 0.02 95);
-  --imaginary: rgba(255, 255, 255, 0.2);
-  --conceptual: rgba(255, 255, 255, 0.4);
-  --black: oklch(0 0 0);
-  --blackish: oklch(27.788% 0.00613 78.167);
-  --grey: oklch(55.458% 0.02621 285.488);
-  --red: oklch(55.798% 0.21367 19.385);
-  --quicksilver: oklch(0.708 0 0);
-  --wisp: oklch(100% 0.00011 271.152 / 0.2);
-  --cyan: oklch(0.65 0.15 195);
-  --depressionblue: oklch(0.2 0.05 195);
-  --yellowy: oklch(0.85 0.15 85);
-  --idk: oklch(0.25 0.08 85);
-  --iron: #4a5861;
-  --kbd: #e5e1d8;
-  --temp-green: #bae1c3;
-  --neon-green: oklch(0.75 0.18 145);
-  --another-black: #211f1c;
-
-  /* Typography scale */
-  --font-size: 16px;
-  --a11y-font-scale: 1;
-  --font-weight-normal: 400;
-  --font-weight-medium: 600;
-  --text-base: 16px;
-
-  /* Surface colors */
-  --background: var(--white);
-  --foreground: var(--black);
-  --card: var(--white);
-  --card-foreground: var(--black);
-  --popover: var(--white);
-  --popover-foreground: var(--black);
-
-  /* Interactive colors */
-  --primary: var(--black);
-  --primary-foreground: var(--white);
-  --secondary: var(--white);
-  --secondary-foreground: var(--black);
-  --muted: var(--white);
-  --muted-foreground: var(--grey);
-  --accent: var(--white);
-  --accent-foreground: var(--black);
-  --destructive: var(--red);
-  --destructive-foreground: var(--white);
-  --hover-shadow: 2px 2px 0px 0px #000000;
-  --retro-hover-shadow: 2px 3px 0px -1px #000000;
-
-  /* Form colors */
-  --border: var(--blackish);
-  --input: transparent;
-  --input-background: #f3f3f5;
-  --switch-background: #cbced4;
-  --ring: var(--quicksilver);
-
-  /* Chart palette */
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-
-  /* Layout */
-  --radius: 0.625rem;
-
-  /* Sidebar */
-  --sidebar: var(--white);
-  --sidebar-foreground: var(--black);
-  --sidebar-primary: var(--black);
-  --sidebar-primary-foreground: var(--white);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-
-  /* WasteDB brand colors (pastel) */
-  --waste-compost: #e6beb5;
-  --waste-recycle: #e4e3ac;
-  --waste-reuse: #b8c8cb;
-  --waste-science: #bdd4b7;
-  --stem: rgb(132, 181, 39);
-  --leaf: rgb(146, 210, 34);
-  --earth: rgb(91, 79, 91);
-  --texture: url("https://www.transparenttextures.com/patterns/scribble-light.png");
-  --texture-size: 100px 100px;
-  --texture-color: var(--color-primary-foreground);
-
-  /* Cards */
-  --retro-rounding: 11.464px;
-  --retro-bg: var(--white);
-  --retro-text: var(--black);
-  --retro-shadow: 3px 4px 0px -1px #000000;
-  --retro-thick-shadow: 3px 3px 0px 0px #000000;
-  --retro-thin-shadow: 1px 1px 0px 0px #000000;
-  --retro-border-width: 1.5px;
-  --retro-border: var(--retro-border-width) var(--blackish);
-
-  /* WYSIWYG editor */
-  --wysiwyg-text: oklch(0% 0 0 / 0.4);
-  --wysiwyg-icon-box-border: var(--blackish);
-  --wysiwyg-icon-button-border: var(--blackish);
-  --wysiwyg-icon-button-text: var(--black);
-  --wysiwyg-icon-button-text-active: var(--white);
-  --wysiwyg-icon-button-bg: var(--white);
-  --wysiwyg-icon-button-bg-active: var(--black);
-  /* Heading sizes for WYSIWYG editor */
-  --wysiwygh1: 1.5rem;
-  --wysiwygh2: 1.25rem;
-  --wysiwygh3: 1.1rem;
-  --font-weight-hack: 700; /* Sniglet only has 400 and 800, so we use 700 to approximate a "semi-bold" weight for headings in the WYSIWYG editor */
-  --wysiwygh1-margin-bottom: 0.5rem;
-  --wysiwygh2-margin-bottom: 0.4rem;
-  --wysiwygh3-margin-bottom: 0.3rem;
-
-  /* Markdown */
-  --markdown-h1: 2rem;
-  --markdown-h-lineheight: 1.3;
-  --markdown-p-lineheight: 1.6;
-  --markdown-blockquote-font-style: italic;
-  --markdown-table-border-color: #211f1c;
-
-  /* Arcade colors */
-  --arcade-red: #3a1a1a;
-  --arcade-green: #1a3a1a;
-  --arcade-cyan: #1a2a3a;
-  --arcade-amber: #3a2a1a;
-
-  /* Arcade fill tokens */
-  --arcade-fill-red-fill: rgba(230, 188, 181, 1);
-  --arcade-fill-red-stroke: rgba(33, 31, 28, 1);
-  --arcade-fill-amber-fill: rgba(228, 227, 172, 1);
-  --arcade-fill-amber-stroke: rgba(33, 31, 28, 1);
-  --arcade-fill-cyan-fill: rgba(184, 200, 203, 1);
-  --arcade-fill-cyan-stroke: rgba(33, 31, 28, 1);
-  --arcade-fill-green-fill: rgba(189, 212, 183, 1);
-  --arcade-fill-green-stroke: rgba(33, 31, 28, 1);
-
-  /* Tag tokens */
-  --tag-cyan-text: var(--black);
-  --tag-cyan-bg: var(--waste-reuse);
-  --tag-yellow-text: var(--black);
-  --tag-yellow-bg: var(--waste-recycle);
-  --tag-pink-text: var(--black);
-  --tag-pink-bg: var(--waste-compost);
-  --tag-green-text: var(--black);
-  --tag-green-bg: var(--temp-green);
-
-  /* Menu item tokens */
-  --menu-text: rgb(0 0 0 / 0.7);
-  --menu-text-hover: var(--black);
-  --menu-text-dim: rgb(0 0 0 / 0.6);
-  --menu-text-muted: rgb(0 0 0 / 0.4);
-  --menu-bg-hover: rgb(0 0 0 / 0.05);
-
-  /* Prose & scrollbar tokens */
-  --prose-border: var(--markdown-table-border-color);
-  --prose-thead-bg: var(--waste-recycle);
-  --prose-row-even-bg: rgba(228, 227, 172, 0.1);
-  --scrollbar-track-bg: #f5f5f5;
-  --scrollbar-track-border: #211f1c;
-  --scrollbar-thumb-bg: var(--waste-reuse);
-  --scrollbar-thumb-hover-bg: #a0b5b8;
-
-  /* Guide editor tokens */
-  --guide-table-border-color: var(--blackish);
-  --guide-selected-cell-bg: var(--conceptual);
-
-  /* Surface tokens */
-  --surface-bg: var(--white);
-  --surface-bg-subtle: var(--whitish);
-  --surface-border: var(--blackish);
-  --surface-border-muted: color-mix(in srgb, var(--blackish) 20%, transparent);
+  --background: #fff;
+  --foreground: #000;
+  --muted: #f0f0f0;
+  --accent: #bdd4b7;
 }
 
-.textured {
-  background-image: var(--texture);
-  background-color: var(--texture-color);
-  background-size: var(--texture-size);
-}
 /* ==========================================================================
-   Design Tokens - Dark Mode (Space Invaders / CRT Arcade Era)
-   Deep blacks with phosphor-glow accents, easy on the eyes
+   Design Tokens - Dark Mode
    ========================================================================== */
 .dark {
-  /* General color overrides */
-  --conceptual: rgba(0, 0, 0, 0.4);
-
-  /* Near-black background - like a CRT off-state */
-  --background: oklch(0.08 0.01 260);
-  --foreground: oklch(0.92 0.02 95); /* Warm phosphor white, not harsh */
-  --hover-shadow: 2px 2px 0px 0px rgba(255, 255, 255, 0.2);
-
-  /* Cards slightly lifted from background */
-  --card: oklch(0.12 0.01 260);
-  --card-foreground: oklch(0.92 0.02 95);
-
-  /* Popovers/dropdowns */
-  --popover: oklch(0.1 0.015 260);
-  --popover-foreground: oklch(0.92 0.02 95);
-
-  /* Primary - arcade green phosphor glow */
-  --primary: oklch(0.75 0.18 145);
-  --primary-foreground: oklch(0.12 0.01 145);
-
-  /* Secondary - muted screen glow */
-  --secondary: oklch(0.22 0.02 260);
-  --secondary-foreground: oklch(0.88 0.02 95);
-
-  /* Muted - scanline gray */
-  --muted: oklch(0.2 0.015 260);
-  --muted-foreground: oklch(0.65 0.02 95);
-
-  /* Accent - electric cyan (player ship vibes) */
-  --accent: oklch(0.65 0.15 195);
-  --accent-foreground: oklch(0.12 0.01 195);
-
-  /* Destructive - arcade red (game over) */
-  --destructive: oklch(0.55 0.22 25);
-  --destructive-foreground: oklch(0.95 0.03 25);
-
-  /* Borders - subtle CRT bezel */
-  --border: oklch(0.28 0.02 260);
-  --input: oklch(0.18 0.015 260);
-  --ring: oklch(0.6 0.15 145); /* Green focus ring */
-
-  /* Chart palette - arcade neon but softened */
-  --chart-1: oklch(0.7 0.2 145); /* Phosphor green */
-  --chart-2: oklch(0.65 0.18 195); /* Cyan */
-  --chart-3: oklch(0.72 0.18 85); /* Amber/yellow */
-  --chart-4: oklch(0.65 0.2 320); /* Magenta */
-  --chart-5: oklch(0.6 0.18 25); /* Orange-red */
-
-  /* Sidebar */
-  --sidebar: oklch(0.1 0.01 260);
-  --sidebar-foreground: oklch(0.92 0.02 95);
-  --sidebar-primary: oklch(0.75 0.18 145);
-  --sidebar-primary-foreground: oklch(0.12 0.01 145);
-  --sidebar-accent: oklch(0.18 0.015 260);
-  --sidebar-accent-foreground: oklch(0.88 0.02 95);
-  --sidebar-border: oklch(0.25 0.02 260);
-  --sidebar-ring: oklch(0.6 0.15 145);
-
-  /* WasteDB brand colors - neon versions for dark mode */
-  --waste-compost: oklch(0.65 0.18 25); /* Warm orange-red glow */
-  --waste-recycle: oklch(0.78 0.15 95); /* Amber screen glow */
-  --waste-reuse: oklch(0.7 0.15 220); /* Cool blue phosphor */
-  --waste-science: oklch(0.72 0.18 145); /* Green terminal */
-  --stem: rgb(71, 101, 40);
-  --leaf: rgb(109, 165, 0);
-  --earth: rgb(229, 225, 216);
-
-  --texture-color: black;
-
-  /* Cards */
-  --retro-bg: var(--black);
-  --retro-text: var(--white);
-  --retro-shadow: 3px 4px 0px -1px rgba(255, 255, 255, 0.2);
-  --retro-thick-shadow: 3px 3px 0px 0px rgba(255, 255, 255, 0.15);
-  --retro-thick-shadow-hc: 3px 3px 0px 0px #ffffff;
-  --retro-thin-shadow: 1px 1px 0px 0px rgba(255, 255, 255, 0.2);
-  --retro-hover-shadow: 2px 3px 0px -1px rgba(255, 255, 255, 0.2);
-  --retro-border-white: color-mix(in oklab, var(--white) 20%, transparent);
-  --retro-border: var(--retro-border-width) var(--retro-border-white);
-
-  /* WYSIWYG editor */
-  --wysiwyg-text: oklch(1 0 0 / 0.4);
-  --wysiwyg-icon-box-border: var(--imaginary);
-
-  --wysiwyg-icon-button-border: var(--imaginary);
-  --wysiwyg-icon-button-text: var(--white);
-  --wysiwyg-icon-button-text-active: var(--black);
-  --wysiwyg-icon-button-bg: var(--blackish);
-  --wysiwyg-icon-button-bg-active: var(--white);
-
-  /* Arcade colors */
-  --arcade-red: #ff9999;
-  --arcade-green: #7fff7f;
-  /* --arcade-cyan: #7fdfff; */
-  --arcade-amber: #ffd77f;
-
-  /* Arcade fill tokens */
-  --arcade-fill-red-fill: rgba(255, 100, 100, 0.8);
-  --arcade-fill-red-stroke: rgba(255, 153, 153, 0.5);
-  --arcade-fill-amber-fill: rgba(255, 215, 100, 0.8);
-  --arcade-fill-amber-stroke: rgba(255, 215, 127, 0.5);
-  --arcade-fill-cyan-fill: rgba(100, 200, 255, 0.8);
-  --arcade-fill-cyan-stroke: rgba(127, 223, 255, 0.5);
-  --arcade-fill-green-fill: rgba(100, 255, 100, 0.8);
-  --arcade-fill-green-stroke: rgba(127, 255, 127, 0.5);
-
-  /* Tag tokens */
-  --tag-cyan-text: var(--cyan);
-  --tag-cyan-bg: var(--depressionblue);
-  --tag-yellow-text: var(--yellowy);
-  --tag-yellow-bg: var(--idk);
-  --tag-pink-text: oklch(0.75 0.12 15);
-  --tag-pink-bg: oklch(0.22 0.06 15);
-  --tag-green-text: var(--neon-green);
-  --tag-green-bg: var(--blackish);
-
-  /* Menu item tokens */
-  --menu-text: rgb(255 255 255 / 0.7);
-  --menu-text-hover: var(--white);
-  --menu-text-dim: rgb(255 255 255 / 0.6);
-  --menu-text-muted: rgb(255 255 255 / 0.4);
-  --menu-bg-hover: rgb(255 255 255 / 0.1);
-
-  /* Prose & scrollbar tokens */
-  --prose-border: var(--imaginary);
-  --prose-thead-bg: #3a3825;
-  --prose-row-even-bg: rgba(255, 255, 255, 0.03);
-  --scrollbar-track-bg: var(--blackish);
-  --scrollbar-track-border: var(--imaginary);
-  --scrollbar-thumb-bg: var(--iron);
-  --scrollbar-thumb-hover-bg: #5a6871;
-
-  /* Guide editor tokens */
-  --guide-table-border-color: var(--imaginary);
-  --guide-selected-cell-bg: var(--imaginary);
-
-  /* Surface tokens */
-  --surface-bg: var(--blackish);
-  --surface-bg-subtle: var(--blackish);
-  --surface-border: var(--imaginary);
-  --surface-border-muted: var(--imaginary);
+  --background: #000;
+  --foreground: #fff;
 }
 
 /* ==========================================================================
@@ -358,39 +43,29 @@ b:not(h1 b, h2 b, h3 b, h4 b, h5 b, h6 b),
   font-weight: 400; /* Tilt Warp only has one weight */
 }
 
-/* Reference numbers [1], [2], etc. rendered as superscript */
-.ref-sup {
-  font-size: 0.75em;
-  vertical-align: super;
-  line-height: 0;
-  color: var(--waste-science);
-}
-
 /* ==========================================================================
    Tailwind Theme Extensions
    ========================================================================== */
 @theme inline {
-  /* Font families - use via font-sniglet, font-pixel, etc. */
-  --font-sniglet: "Sniglet", sans-serif;
+  /* Font families */
+  --font-body: "Sniglet", sans-serif;
   --font-pixel: "Press Start 2P", cursive;
-  --font-display: "Tilt Warp", cursive;
+  --font-fancy: "Tilt Warp", cursive;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
-  /* Map CSS vars to Tailwind colors */
+  /* Map CSS vars to Tailwind colors - allows dark mode and accessibility config */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--background);
+  --color-popover-foreground: var(--foreground);
   --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
+  --color-primary-foreground: var(--background);
+  --color-secondary: var(--background);
+  --color-secondary-foreground: var(--foreground);
+  --color-muted: var(--background);
+  --color-muted-foreground: var(--muted);
   --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-foreground: var(--foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
@@ -483,6 +158,88 @@ b:not(h1 b, h2 b, h3 b, h4 b, h5 b, h6 b),
       font-size: var(--text-base);
       line-height: 1.5;
       cursor: pointer;
+      padding: calc(var(--spacing) * 4);
+      position: relative;
+      border-radius: var(--retro-rounding);
+      --tw-shadow: 3px 4px 0px -1px var(--tw-shadow-color, #000000);
+      box-shadow:
+        var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
+        var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+
+      @property --tw-shadow {
+        syntax: "*";
+        inherits: false;
+        initial-value: 0 0 #0000;
+      }
+      @property --tw-shadow-color {
+        syntax: "*";
+        inherits: false;
+      }
+      @property --tw-shadow-alpha {
+        syntax: "<percentage>";
+        inherits: false;
+        initial-value: 100%;
+      }
+      @property --tw-inset-shadow {
+        syntax: "*";
+        inherits: false;
+        initial-value: 0 0 #000000;
+      }
+      @property --tw-inset-shadow-color {
+        syntax: "*";
+        inherits: false;
+      }
+      @property --tw-inset-shadow-alpha {
+        syntax: "<percentage>";
+        inherits: false;
+        initial-value: 100%;
+      }
+      @property --tw-ring-color {
+        syntax: "*";
+        inherits: false;
+      }
+      @property --tw-ring-shadow {
+        syntax: "*";
+        inherits: false;
+        initial-value: 0 0 #000000;
+      }
+      @property --tw-inset-ring-color {
+        syntax: "*";
+        inherits: false;
+      }
+      @property --tw-inset-ring-shadow {
+        syntax: "*";
+        inherits: false;
+        initial-value: 0 0 #000000;
+      }
+      @property --tw-ring-inset {
+        syntax: "*";
+        inherits: false;
+      }
+      @property --tw-ring-offset-width {
+        syntax: "<length>";
+        inherits: false;
+        initial-value: 0px;
+      }
+      @property --tw-ring-offset-color {
+        syntax: "*";
+        inherits: false;
+        initial-value: #fff;
+      }
+      @property --tw-ring-offset-shadow {
+        syntax: "*";
+        inherits: false;
+        initial-value: 0 0 #000000;
+      }
+      border-style: var(--tw-border-style);
+      border-width: 1.5px;
+
+      @property --tw-border-style {
+        syntax: "*";
+        inherits: false;
+        initial-value: solid;
+      }
+      border-color: var(--another-black);
     }
     input {
       font-size: var(--text-base);
@@ -493,7 +250,23 @@ b:not(h1 b, h2 b, h3 b, h4 b, h5 b, h6 b),
 }
 
 kbd {
-  @apply text-xs px-1.5 py-0.5 rounded border border-(--kbd) text-(--iron);
+  font-size: var(--text-xs) /* 0.75rem = 12px */;
+  line-height: var(
+    --tw-leading,
+    var(--text-xs--line-height) /* calc(1 / 0.75) ≈ 1.333333 */
+  );
+  padding-inline: calc(var(--spacing) * 1.5) /* 0.375rem = 6px */;
+  padding-block: calc(var(--spacing) * 0.5) /* 0.125rem = 2px */;
+  border-radius: 0.25rem /* 4px */;
+  border-style: var(--tw-border-style);
+  border-width: 1px;
+  @property --tw-border-style {
+    syntax: "*";
+    inherits: false;
+    initial-value: solid;
+  }
+  border-color: var(--kbd);
+  color: var(--iron);
 }
 
 .promo {
