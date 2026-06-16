@@ -460,7 +460,7 @@ export function RetroButtons({ title, titlePop, version }: RetroButtonsProps) {
             </div>
           </TooltipProvider>
 
-          <div className="pt-4 pb-2 pl-1 basis-0 grow min-h-px min-w-px flex items-center justify-center">
+          <div className="pt-4 pb-2 pl-1 basis-0 grow min-h-px min-w-px flex items-center justify-center sm:overflow-visible">
             <h1
               className={`pr-2 z-1 title-pop ${isLogo ? "cursor-pointer" : ""}`}
               onClick={handleLogoClick}
