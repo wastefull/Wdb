@@ -1,10 +1,10 @@
-import { ExternalLink, FileText, Mail, Code, Banana } from "lucide-react";
+import { ExternalLink, FileText, Mail, Code, Leaf } from "lucide-react";
 import { LogoLink } from "./LogoLink";
 
 const resources = [
   {
     label: "Wastefull, Inc.",
-    Icon: Banana,
+    Icon: Leaf,
     hidden: false,
     url: "https://wastefull.org",
   },
@@ -17,6 +17,30 @@ const resources = [
     Icon: ExternalLink,
     hidden: false,
     url: "https://en.wikipedia.org/wiki/Recycling_codes",
+  },
+  {
+    label: "Appropapedia",
+    Icon: ExternalLink,
+    hidden: false,
+    url: "https://www.appropedia.org",
+  },
+  {
+    label: "Sustainability Wiki",
+    Icon: ExternalLink,
+    hidden: false,
+    url: "https://sustainabilitymethods.org/index.php/Main_Page",
+  },
+  {
+    label: "The Sustainability Management Wiki",
+    Icon: ExternalLink,
+    hidden: false,
+    url: "https://www.sustainability-management.wiki",
+  },
+  {
+    label: "Sustainability Methods Wiki",
+    Icon: ExternalLink,
+    hidden: false,
+    url: "https://sustainabilitymethods.org/index.php/Main_Page",
   },
 ];
 
@@ -61,7 +85,7 @@ export function ResourcesPanel() {
             <br />
             <br />
             <button
-              className={`retro-card-hover liquid text-sm inline-flex items-center gap-2 whitespace-nowrap px-3 py-2 m-auto bg-white cursor-pointer`}
+              className={`card retro-card liquid text-sm inline-flex items-center gap-2 whitespace-nowrap px-3 py-2 m-auto border-border! border-[1.5px]! cursor-pointer`}
               onClick={() => {
                 document.getElementById("main-search-input")?.focus();
               }}
