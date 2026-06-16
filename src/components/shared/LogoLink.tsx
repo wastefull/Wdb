@@ -16,6 +16,9 @@ export function LogoLink({ onNavigateHome }: LogoLinkProps) {
       navigateTo({ type: "materials" });
     }
   };
+  // Temporarily disabling dark mode
+  // const dm = settings.darkMode;
+  const dm = false;
 
   return (
     <button
@@ -25,14 +28,12 @@ export function LogoLink({ onNavigateHome }: LogoLinkProps) {
     >
       <img
         src={
-          settings.darkMode
+          dm
             ? "https://bdvfwjmaufjeqmxphmtv.supabase.co/storage/v1/object/public/make-17cae920-assets/logo_darkmode-1763068549938.png"
             : "https://bdvfwjmaufjeqmxphmtv.supabase.co/storage/v1/object/public/make-17cae920-assets/uplogo_transparent-1761169051994.png"
         }
         alt="Wastefull Logo"
-        className={
-          settings.darkMode ? "h-52 lg:h-64 w-auto" : "h-36 lg:h-48 w-auto"
-        }
+        className={dm ? "h-52 lg:h-64 w-auto" : "h-36 lg:h-48 w-auto"}
       />
     </button>
   );

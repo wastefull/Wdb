@@ -1359,7 +1359,7 @@ function AppContent() {
       {/* Normal app — always rendered for admins; hidden behind the gate otherwise */}
       {(!maintenanceStatus?.enabled || userRole === "admin") && (
         <>
-          <div className="min-h-screen p-3 md:p-8 bg-[#faf7f2] dark:bg-[#2a2825] textured">
+          <div className="min-h-screen pt-1 px-0.5 xl:px-8 bg-[#faf7f2] dark:bg-[#2a2825] textured">
             {/* Main layout container - allows window to grow past 1000px with sidebar */}
             <div className="max-w-500 mx-auto">
               {/* Simulated window with optional sidebar inside */}
