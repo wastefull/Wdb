@@ -1597,3 +1597,26 @@ body {
 .mobile-leaderboard {
   @apply md:hidden mt-4 mx-4 md:mx-6 rounded-2xl border-[1.5px] border-[#211f1c] bg-[#f5f4ef] overflow-hidden;
 }
+
+/* ==========================================================================
+       Donation Page Styles
+       ========================================================================== */
+.donation-page {
+  @apply max-w-4xl mx-auto;
+}
+.donation-intro {
+  @apply mb-8 text-center;
+}
+.donation-intro p {
+  @apply text-[14px] text-black/70 leading-relaxed mb-4;
+}
+.project-grid {
+  @apply grid grid-cols-1 md:grid-cols-3 gap-6 mb-8;
+}
+.donation-thank-you {
+  @apply p-6 text-sm text-black/70 leading-relaxed;
+}
+
+.donation-footer {
+  @apply p-4 border border-[#211f1c]/20 rounded-lg text-center text-sm text-black/60;
+}
