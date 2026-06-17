@@ -1088,6 +1088,9 @@ body {
   color: var(--earth);
   font-family: "Genty Demo", sans-serif;
   scale: 1.25;
+  /* let's see if this fixes the mobile bug */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
   overflow-x: display;
   text-shadow:
     var(--background) 1px 0.5px 0px,
@@ -1509,4 +1512,81 @@ body {
 
 .resource-panel button {
   @apply text-sm inline-flex items-center gap-2 whitespace-nowrap px-3 py-2 m-auto border-border! border-[1.5px]! cursor-pointer;
+}
+
+/* Accessibility Popover */
+.access-menu-outer {
+  @apply basis-0 grow h-full min-h-px min-w-px relative shrink-0;
+}
+.access-menu-inner {
+  @apply flex flex-row items-center justify-start md:justify-center size-full;
+}
+.access-menu-content {
+  @apply box-border content-stretch flex gap-1 md:gap-2.5 items-center justify-start md:justify-center px-0.75 md:px-1.75 py-0.5 relative size-full;
+}
+.sheet-content {
+  @apply bg-[#faf7f2] dark:bg-[#2a2825] border-t-[1.5px] border-[#211f1c] dark:border-white/20 rounded-t-xl px-6;
+}
+.sheet-header {
+  @apply border-b border-[#211f1c]/20 dark:border-white/20 pb-4;
+}
+/* Accessibility Config Buttons */
+.access-btn {
+  @apply relative shrink-0 w-4 h-4 overflow-visible flex items-center justify-center;
+}
+
+.access-reset-btn {
+  @apply w-full bg-waste-compost h-9 rounded-[6px] border border-[#211f1c] shadow-[2px_2px_0px_0px_#000000] text-[12px] text-black hover:translate-y-px hover:shadow-[1px_1px_0px_0px_#000000] transition-all flex items-center justify-center;
+}
+
+.access-popover {
+  @apply w-64 p-4 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] rounded-(--retro-rounding) shadow-[3px_4px_0px_-1px_#000000];
+}
+
+.access-popover:first-child div {
+  @apply space-y-3;
+}
+
+.access-header {
+  @apply flex items-center gap-2;
+}
+
+.access-header h3 {
+  @apply text-[14px];
+}
+
+.access-helptext {
+  @apply text-sm text-black/70 dark:text-white/70;
+}
+
+.access-trigger {
+  @apply relative block size-full leading-none hover:scale-110 transition-transform cursor-pointer;
+}
+
+.access-trigger div {
+  @apply absolute inset-[-6.25%];
+}
+
+.access-trigger div svg {
+  @apply block size-full;
+}
+
+.access-btn-group {
+  @apply hidden md:flex flex-row gap-2.5 items-center h-full;
+}
+.fontsize-button {
+  @apply w-full h-9 rounded-[6px] border border-[#211f1c] dark:text-white transition-all flex items-center justify-center;
+}
+.fontsize-button-active {
+  @apply bg-waste-recycle text-black shadow-[2px_2px_0px_0px_#000000];
+}
+.fontsize-button-inactive {
+  @apply bg-white dark:bg-[#2a2825] hover:bg-waste-recycle/20;
+}
+
+/* ==========================================================================
+   Window Styles
+   ========================================================================== */
+.window-title {
+  @apply pt-4 pb-2 pl-1 basis-0 grow min-h-px min-w-px flex items-center justify-center sm:overflow-visible;
 }

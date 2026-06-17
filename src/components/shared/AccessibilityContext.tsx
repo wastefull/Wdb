@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 
-interface AccessibilitySettings {
+export interface AccessibilitySettings {
   fontSize: "normal" | "large" | "xlarge";
   highContrast: boolean;
   noPastel: boolean;
