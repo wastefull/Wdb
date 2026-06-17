@@ -59,6 +59,12 @@ const planned = (title: string, description?: string): RoadmapDeliverable => ({
   status: "planned",
 });
 
+const active = (title: string, description?: string): RoadmapDeliverable => ({
+  title,
+  description,
+  status: "active",
+});
+
 const acceptance = (
   id: string,
   title: string,
@@ -194,10 +200,10 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
     summary:
       "Restructure material pages as clear educational journeys while preserving every existing workflow and data surface.",
     deliverables: [
-      planned("Material Overview and Material Intelligence hierarchy"),
-      planned("Key Insights and recommended learning sections using current data"),
-      planned("Stable contracts and honest empty states for graph-powered sections"),
-      planned("Preserve evidence, attribution, export, and contribution workflows"),
+      active("Material Overview and Material Intelligence hierarchy"),
+      active("Key Insights and recommended learning sections using current data"),
+      active("Stable contracts and honest empty states for graph-powered sections"),
+      active("Preserve evidence, attribution, export, and contribution workflows"),
     ],
     acceptanceTests: [
       acceptance(

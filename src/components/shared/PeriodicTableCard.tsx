@@ -2,19 +2,13 @@ import { ExternalLink } from "lucide-react";
 
 interface PeriodicTableCardProps {
   isElementHub: boolean;
-  hasCoverImage: boolean;
 }
 
 export function PeriodicTableCard({
   isElementHub,
-  hasCoverImage,
 }: PeriodicTableCardProps) {
   return (
-    <div
-      className={`flex items-center gap-4 pl-4 mb-6 ${
-        hasCoverImage ? "-mt-16 relative" : ""
-      }`}
-    >
+    <div className="mb-6 flex items-center gap-4">
       {isElementHub && (
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>

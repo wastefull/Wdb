@@ -6,7 +6,6 @@ import { useNavigationContext } from "../../contexts/NavigationContext";
 
 interface MaterialDetailSidebarProps {
   isElementHub: boolean;
-  hasCoverImage: boolean;
   isHub: boolean;
   linkedMaterials: Material[];
   parentHubs: Material[];
@@ -17,7 +16,6 @@ interface MaterialDetailSidebarProps {
 
 export function MaterialDetailSidebar({
   isElementHub,
-  hasCoverImage,
   isHub,
   linkedMaterials,
   parentHubs,
@@ -29,12 +27,9 @@ export function MaterialDetailSidebar({
 
   return (
     <div
-      className={`${isHub ? "bg-black/5 dark:bg-white/10 transition-colors rounded-md" : ""} pl-4 pt-4 col-start-1 col-end-3 min-w-67 cursor-pointer`}
+      className={`${isHub ? "bg-black/5 dark:bg-white/10" : "bg-white/60 dark:bg-white/5"} rounded-(--retro-rounding) border-[1.5px] border-[#211f1c]/20 p-5 transition-colors dark:border-white/20`}
     >
-      <PeriodicTableCard
-        isElementHub={isElementHub}
-        hasCoverImage={hasCoverImage}
-      />
+      <PeriodicTableCard isElementHub={isElementHub} />
 
       {/* Parent hub hierarchy */}
       {parentHubs.length > 0 && (
@@ -68,7 +63,7 @@ export function MaterialDetailSidebar({
       )}
 
       {isHub && <LinkedMaterialsCard linkedMaterials={linkedMaterials} />}
-      {isHub && <hr className="border-black/10 dark:border-white/10 w-auto" />}
+      {isHub && <hr className="w-auto border-black/10 dark:border-white/10" />}
       <CopyPermalinkButton
         copied={copied}
         onClick={onCopyMaterialLink}

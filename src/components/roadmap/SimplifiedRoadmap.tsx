@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  CheckCircle2,
-  Circle,
-  Clock,
-  ShieldCheck,
-} from "lucide-react";
+import { CheckCircle2, Circle, Clock, ShieldCheck } from "lucide-react";
 import {
   ACTIVE_STAGE,
   ROADMAP_BACKLOG,
@@ -108,13 +103,11 @@ function RoadmapOverview({
             <Badge className="bg-blue-600 hover:bg-blue-700">
               {ROADMAP_PROGRESS.active} Active
             </Badge>
-            <Badge variant="outline">
-              {ROADMAP_PROGRESS.planned} Planned
-            </Badge>
+            <Badge variant="outline">{ROADMAP_PROGRESS.planned} Planned</Badge>
           </div>
           <p className="text-sm text-muted-foreground">
-            Stages 9 and 10 are intentionally the final sequence: Privacy,
-            Audit & Revision History, followed by Scale.
+            Stages 9 and 10 are intentionally the final sequence: Privacy, Audit
+            & Revision History, followed by Scale.
           </p>
         </CardContent>
       </Card>
@@ -154,7 +147,9 @@ function RoadmapOverview({
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground">{stage.summary}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {stage.summary}
+                  </p>
                   <p className="text-xs text-muted-foreground mt-3">
                     {stage.deliverables.length} deliverables ·{" "}
                     {stage.acceptanceTests.length} acceptance tests
@@ -182,7 +177,9 @@ function StageDetail({ stage }: { stage: RoadmapStage }) {
                 Stage {stage.number}
               </div>
               <CardTitle className="text-2xl">{stage.title}</CardTitle>
-              <CardDescription className="mt-2">{stage.summary}</CardDescription>
+              <CardDescription className="mt-2">
+                {stage.summary}
+              </CardDescription>
             </div>
             <StageStatusBadge status={stage.status} />
           </div>
@@ -290,7 +287,10 @@ function Backlog() {
           </CardHeader>
           <CardContent className="space-y-4">
             {category.items.map((item) => (
-              <div key={item.title} className="border-b last:border-b-0 pb-4 last:pb-0">
+              <div
+                key={item.title}
+                className="border-b last:border-b-0 pb-4 last:pb-0"
+              >
                 <div className="font-medium">{item.title}</div>
                 <div className="text-sm text-muted-foreground mt-1">
                   {item.description}
@@ -349,7 +349,13 @@ export function SimplifiedRoadmap({
       return;
     }
 
-    setActiveTab(defaultTab ?? "overview");
+    setActiveTab(
+      defaultTab === "overview" ||
+        defaultTab === "tests" ||
+        defaultTab === "backlog"
+        ? defaultTab
+        : "overview",
+    );
   }, [defaultTab, staffMode]);
 
   const selectedStage =
@@ -402,7 +408,9 @@ export function SimplifiedRoadmap({
         </>
       )}
 
-      {activeTab === "overview" && <RoadmapOverview onSelectStage={selectStage} />}
+      {activeTab === "overview" && (
+        <RoadmapOverview onSelectStage={selectStage} />
+      )}
 
       {activeTab === "stages" && (
         <div className="space-y-6">

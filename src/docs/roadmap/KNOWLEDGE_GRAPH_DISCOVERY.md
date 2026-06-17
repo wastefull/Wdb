@@ -29,6 +29,29 @@ and governed tags. Videos are first-class knowledge objects, not attachments.
 Existing material metrics, evidence, attribution, exports, and contribution
 workflows must remain available throughout the redesign.
 
+## Stage 5 UI Contract
+
+The material experience reads from the existing `Material` and article models.
+It must not query or infer graph relationships before the migration and
+reconciliation gates pass.
+
+The `stage-5-v1` graph-facing contract contains three independently available
+sections:
+
+- Knowledge Feed
+- Related Entities
+- Discovery Paths
+
+Each section exposes an availability state and a typed item collection. During
+Stage 5, the default adapter returns `awaiting-graph-data` with an empty
+collection. The interface must explain that state explicitly rather than
+showing fabricated recommendations or treating legacy links as verified graph
+relationships.
+
+Current articles may populate Recommended Learning, with direct material
+articles ranked before linked-material articles. This current-data ranking is
+separate from the future graph-ranked Knowledge Feed.
+
 ## Purpose
 
 The Knowledge Graph & Educational Discovery Roadmap defines how WasteDB organizes knowledge.

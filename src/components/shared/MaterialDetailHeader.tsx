@@ -4,12 +4,10 @@ import { AliasDisplay } from "./AliasDisplay";
 import { MaterialArticleCount } from "./MaterialArticleCount";
 import { MaterialCategoryButton } from "./MaterialCategoryButton";
 import { MaterialHubButton } from "./MaterialHubButton";
-import { MaterialName } from "./MaterialName";
 
 interface MaterialDetailHeaderProps {
   coverImage?: string;
   onBack: () => void;
-  materialId: string;
   materialName: string;
   aliases: string[];
   category: Material["category"];
@@ -20,7 +18,6 @@ interface MaterialDetailHeaderProps {
 export function MaterialDetailHeader({
   coverImage,
   onBack,
-  materialId,
   materialName,
   aliases,
   category,
@@ -30,7 +27,10 @@ export function MaterialDetailHeader({
   return (
     <>
       {coverImage && (
-        <div className="relative -mx-6 -mt-6 mb-6 h-32 overflow-hidden">
+        <div
+          className="relative -mx-6 -mt-6 mb-6 h-40 overflow-hidden"
+          aria-hidden="true"
+        >
           <div
             className="absolute inset-0"
             style={{
@@ -42,25 +42,30 @@ export function MaterialDetailHeader({
           <div className="absolute inset-0 bg-linear-to-b from-transparent via-white/70 to-white dark:via-[#1a1917]/70 dark:to-[#1a1917]" />
         </div>
       )}
-      <div className="grid grid-cols-12 items-center gap-4 mb-4 pr- overflow-x-clip">
+      <div className="mx-auto mb-10 max-w-7xl">
         <button
+          type="button"
           onClick={onBack}
-          className="card-interactive w-10 col-span-5 md:col-span-3"
+          className="card-interactive mb-6 flex size-10 items-center justify-center"
+          aria-label="Back to previous page"
         >
-          <ArrowLeft size={16} className="text-black" />
+          <ArrowLeft
+            size={16}
+            className="text-black dark:text-white"
+            aria-hidden="true"
+          />
         </button>
-        <div className="hidden md:block col-span-2">&nbsp;</div>
-        <div className="col-span-3 md:col-span-4 inline-flex gap-1 items-center">
-          <MaterialName materialId={materialId} mode="hero" />
-          <AliasDisplay aliases={aliases} />
-        </div>
-        <div className="hidden md:block col-span-1">&nbsp;</div>
-        <div className="col-span-4 md:col-span-2 md:min-w-45 justify-self-end md:justify-self-center">
-          <div className="grid grid-cols-1 grid-rows-4 md:grid-cols-[max-content_max-content] md:grid-rows-2 md:w-fit md:justify-start gap-1">
+
+        <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
+          <div className="min-w-0">
+            <h1 className="text-4xl leading-tight text-black text-shadow-lg dark:text-white md:text-[42px]">
+              {materialName}
+            </h1>
+            <AliasDisplay aliases={aliases} />
+          </div>
+          <div className="flex flex-wrap items-center gap-2 md:max-w-sm md:justify-end">
             {isHub && <MaterialHubButton materialName={materialName} />}
-            {!isHub && <div>&nbsp;</div>}
             <MaterialCategoryButton category={category} />
-            <div> &nbsp;</div>
             <MaterialArticleCount totalArticles={totalArticles} />
           </div>
         </div>

@@ -20,6 +20,7 @@ interface MaterialArticlesGridProps {
   currentUserId?: string;
   onViewArticles?: (category: CategoryType) => void;
   onViewMaterial?: (materialId: string) => void;
+  showHeading?: boolean;
 }
 
 const categoryLabels = {
@@ -45,6 +46,7 @@ export function MaterialArticlesGrid({
   currentUserId,
   onViewArticles,
   onViewMaterial,
+  showHeading = true,
 }: MaterialArticlesGridProps) {
   const categoriesWithArticles = new Set(articles.map((a) => a.category));
   const emptyCategories = ALL_CATEGORIES.filter(
@@ -55,9 +57,11 @@ export function MaterialArticlesGrid({
     <div>
       {articles.length > 0 && (
         <>
-          <h3 className="text-[16px] text-black dark:text-white mb-4">
-            All Articles
-          </h3>
+          {showHeading && (
+            <h3 className="text-[16px] text-black dark:text-white mb-4">
+              All Articles
+            </h3>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             {articles.map(
               ({ article, category, linkedMaterialName, linkedMaterialId }) => (

@@ -27,8 +27,11 @@ import {
   MaterialDetailHeader,
   MaterialDetailSidebar,
   MaterialDescriptionCard,
-  RasterizedQuantileArticleCategories,
 } from "../shared";
+import { MaterialExperienceSections } from "../material-experience/MaterialExperienceSections";
+import { buildMaterialExperienceModel } from "../../utils/materialExperience";
+import { getArticleCount } from "../../utils/materialArticles";
+import { useNavigationContext } from "../../contexts/NavigationContext";
 
 interface MaterialDetailViewProps {
   material: Material;
@@ -67,16 +70,15 @@ export function MaterialDetailView({
   onViewArticles,
   onViewMaterial,
 }: MaterialDetailViewProps) {
+  const {
+    navigateToEvidenceLab,
+    navigateToExport,
+    navigateToScienceHub,
+    navigateToScientificEditor,
+    navigateToSourceLibrary,
+  } = useNavigationContext();
   const isElementHub = material.category === "Elements";
   const isHub = material.isHub || isElementHub;
-
-  const allArticles = getAllArticles(material).sort(
-    (a, b) =>
-      new Date(b.article.dateAdded).getTime() -
-      new Date(a.article.dateAdded).getTime(),
-  );
-
-  const totalArticles = allArticles.length;
 
   const isArticleAuthor = (article: Article) =>
     !!(
@@ -177,6 +179,28 @@ export function MaterialDetailView({
     return [...ownArticles.sort(byDate), ...linkedArticles.sort(byDate)];
   }, [material, isHub, linkedMaterials]);
 
+  const experienceModel = useMemo(
+    () => buildMaterialExperienceModel(material, displayArticles),
+    [displayArticles, material],
+  );
+
+  const articleCounts = useMemo(
+    () => ({
+      compostability:
+        displayArticles.filter(
+          (entry) => entry.category === "compostability",
+        ).length || getArticleCount(material, "compostability"),
+      recyclability:
+        displayArticles.filter(
+          (entry) => entry.category === "recyclability",
+        ).length || getArticleCount(material, "recyclability"),
+      reusability:
+        displayArticles.filter((entry) => entry.category === "reusability")
+          .length || getArticleCount(material, "reusability"),
+    }),
+    [displayArticles, material],
+  );
+
   const parentHubs = useMemo(
     () =>
       allMaterials.filter(
@@ -264,7 +288,7 @@ export function MaterialDetailView({
   );
 
   return (
-    <div
+    <main
       className={`p-6 ${
         isElementHub
           ? "bg-[linear-gradient(180deg,rgba(228,227,172,0.22)_0%,rgba(255,255,255,0)_45%)] dark:bg-[linear-gradient(180deg,rgba(228,227,172,0.08)_0%,rgba(26,25,23,0)_45%)]"
@@ -274,84 +298,162 @@ export function MaterialDetailView({
       <MaterialDetailHeader
         coverImage={coverImage}
         onBack={onBack}
-        materialId={material.id}
         materialName={material.name}
         aliases={combinedAliases}
         category={material.category}
         isHub={isHub}
         totalArticles={displayArticles.length}
       />
-      {canShowEditAction && (
-        <div className="mb-4 flex justify-end">
-          <button
-            type="button"
-            onClick={() => {
-              if (isAdminModeActive && onEditMaterial) {
-                onEditMaterial(material);
-                return;
-              }
+      <div className="mx-auto max-w-7xl space-y-12">
+        <section aria-labelledby="material-overview-heading" className="space-y-5">
+          <div className="space-y-2">
+            <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">
+              1 · Orient
+            </p>
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <h2 id="material-overview-heading" className="text-2xl">
+                  Material Overview
+                </h2>
+                <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
+                  What this material is, how WasteDB classifies it, and the
+                  current material links that remain available while connected
+                  discovery is being prepared.
+                </p>
+              </div>
+              {canShowEditAction && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (isAdminModeActive && onEditMaterial) {
+                      onEditMaterial(material);
+                      return;
+                    }
 
-              if (isAuthenticated && onSuggestEdit) {
-                onSuggestEdit(material);
+                    if (isAuthenticated && onSuggestEdit) {
+                      onSuggestEdit(material);
+                    }
+                  }}
+                  className="retro-btn-primary inline-flex items-center gap-2 bg-white px-3 py-2 hover:bg-black/5 dark:bg-[#2a2825] dark:hover:bg-white/10"
+                  aria-label={
+                    isAdminModeActive
+                      ? `Edit ${material.name}`
+                      : `Suggest edit for ${material.name}`
+                  }
+                >
+                  <Edit2 size={14} aria-hidden="true" />
+                  {isAdminModeActive ? "Edit Material" : "Suggest Edit"}
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
+            <MaterialDescriptionCard
+              description={
+                material.description ||
+                "No plain-language description has been added yet."
               }
+              category={material.category}
+              aliases={combinedAliases}
+              onViewCategory={() =>
+                onViewCategoryMaterials(material.category)
+              }
+            />
+            <MaterialDetailSidebar
+              isElementHub={isElementHub}
+              isHub={isHub}
+              linkedMaterials={linkedMaterials}
+              parentHubs={parentHubs}
+              materialName={material.name}
+              copied={copied}
+              onCopyMaterialLink={handleCopyMaterialLink}
+            />
+          </div>
+        </section>
+
+        {showForm && editingArticle && (
+          <ArticleForm
+            article={editingArticle.article}
+            onSave={handleUpdateArticle}
+            onCancel={() => {
+              setShowForm(false);
+              setEditingArticle(null);
             }}
-            className="retro-btn-primary inline-flex items-center gap-2 p-1 px-2 cursor-pointer  bg-white dark:bg-[#2a2825] hover:bg-black/5 dark:hover:bg-white/10"
-            aria-label={
-              isAdminModeActive
-                ? `Edit ${material.name}`
-                : `Suggest edit for ${material.name}`
-            }
-          >
-            <Edit2 size={14} aria-hidden="true" />
-            {isAdminModeActive ? "Edit Material" : "Suggest Edit"}
-          </button>
-        </div>
-      )}
-      <div className="grid grid-cols-10">
-        <MaterialDetailSidebar
-          isElementHub={isElementHub}
-          hasCoverImage={Boolean(coverImage)}
-          isHub={isHub}
-          linkedMaterials={linkedMaterials}
-          parentHubs={parentHubs}
-          materialName={material.name}
-          copied={copied}
-          onCopyMaterialLink={handleCopyMaterialLink}
-        />
-
-        {material.description && (
-          <MaterialDescriptionCard description={material.description} />
+          />
         )}
-      </div>
-      {/* Enable once this feature is ready */}
-      {false && <RasterizedQuantileArticleCategories material={material} />}
 
-      {showForm && editingArticle && (
-        <ArticleForm
-          article={editingArticle.article}
-          onSave={handleUpdateArticle}
-          onCancel={() => {
-            setShowForm(false);
-            setEditingArticle(null);
+        <MaterialExperienceSections
+          material={material}
+          model={experienceModel}
+          articleCounts={articleCounts}
+          onViewArticles={(category) => onViewArticles?.(category)}
+          onReadArticle={(articleId, category, materialId) =>
+            onViewArticleStandalone(articleId, category, materialId)
+          }
+          onViewMaterial={onViewMaterial}
+          onOpenScienceHub={navigateToScienceHub}
+          onOpenExport={navigateToExport}
+          onOpenScientificEditor={
+            isAdminModeActive
+              ? () => navigateToScientificEditor(material.id)
+              : undefined
+          }
+          onOpenSourceLibrary={
+            isAdminModeActive ? navigateToSourceLibrary : undefined
+          }
+          onOpenEvidenceLab={
+            isAdminModeActive ? navigateToEvidenceLab : undefined
+          }
+          onSuggestEdit={() => {
+            if (isAdminModeActive && onEditMaterial) {
+              onEditMaterial(material);
+              return;
+            }
+            onSuggestEdit?.(material);
           }}
+          canSuggestEdit={Boolean(
+            (isAdminModeActive && onEditMaterial) ||
+              (isAuthenticated && onSuggestEdit),
+          )}
+          isAdminModeActive={isAdminModeActive}
+          learningLibrary={
+            <section
+              aria-labelledby="learning-library-heading"
+              className="space-y-5"
+            >
+              <div>
+                <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">
+                  Current collection
+                </p>
+                <h2 id="learning-library-heading" className="mt-2 text-xl">
+                  Learning Library
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                  All current articles remain available, including edit and
+                  delete controls for authorized contributors.
+                </p>
+              </div>
+              <MaterialArticlesGrid
+                articles={displayArticles}
+                onEditArticle={(article, category) => {
+                  setEditingArticle({ article, category });
+                  setShowForm(true);
+                }}
+                onDeleteArticle={handleDeleteArticle}
+                onReadMore={(articleId, category, materialId) =>
+                  onViewArticleStandalone(articleId, category, materialId)
+                }
+                isAdminModeActive={isAdminModeActive}
+                currentUserId={currentUserId}
+                onViewArticles={onViewArticles}
+                onViewMaterial={onViewMaterial}
+                showHeading={false}
+              />
+            </section>
+          }
         />
-      )}
-
-      <MaterialArticlesGrid
-        articles={displayArticles}
-        onEditArticle={(article, category) => {
-          setEditingArticle({ article, category });
-          setShowForm(true);
-        }}
-        onDeleteArticle={handleDeleteArticle}
-        onReadMore={(articleId, category, materialId) =>
-          onViewArticleStandalone(articleId, category, materialId)
-        }
-        isAdminModeActive={isAdminModeActive}
-        currentUserId={currentUserId}
-        onViewArticles={onViewArticles}
-        onViewMaterial={onViewMaterial}
-      />
+      </div>
 
       <AlertDialog
         open={!!articleToDelete}
@@ -383,6 +485,6 @@ export function MaterialDetailView({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </main>
   );
 }
