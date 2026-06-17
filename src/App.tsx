@@ -429,7 +429,7 @@ function AppContent() {
     }
   }, [isAuthenticated, settings.adminMode, toggleAdminMode]);
 
-  // OLD CODE REMOVED: MaterialsContext now handles loading materials from Supabase/localStorage
+  // MaterialsContext handles loading materials from Supabase/localStorage
   // Check for article permalink in URL
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -504,7 +504,7 @@ function AppContent() {
       }
     } else {
       // Check if multiple materials match — show disambiguation picker
-      // rather than a dead-end error.
+
       const candidates = findMaterialCandidatesByPermalink(
         materials,
         pendingMaterialPermalink,
@@ -1359,11 +1359,11 @@ function AppContent() {
       {/* Normal app — always rendered for admins; hidden behind the gate otherwise */}
       {(!maintenanceStatus?.enabled || userRole === "admin") && (
         <>
-          <div className="min-h-screen pt-1 px-0.5 xl:px-8 bg-[#faf7f2] dark:bg-[#2a2825] textured">
+          <div>
             {/* Main layout container - allows window to grow past 1000px with sidebar */}
-            <div className="max-w-500 mx-auto">
-              {/* Simulated window with optional sidebar inside */}
-              <div className="bg-[#faf7f2] dark:bg-[#1a1917] rounded-(--retro-rounding) border-[1.5px] border-[#211f1c] dark:border-white/20 overflow-visible mb-6">
+            <div>
+              {/* Simulated window with optional sidebars */}
+              <div className="main">
                 <StatusBar
                   title="Waste"
                   titlePop="DB"
@@ -1382,7 +1382,7 @@ function AppContent() {
 
                 {/* Content area with optional sidebar */}
                 <div className="flex">
-                  {/* Left panel - always rendered on front page; tab visible even when collapsed */}
+                  {/* Left panel */}
                   {showLeftPanel && (
                     <Sidebar
                       side="left"
@@ -1410,7 +1410,7 @@ function AppContent() {
                     )}
                   </div>
 
-                  {/* Right panel - always rendered when leaderboard is active; tab visible even when collapsed */}
+                  {/* Right panel */}
                   {showLeaderboardPanel && (
                     <Sidebar
                       side="right"
@@ -1428,7 +1428,7 @@ function AppContent() {
               {showLeaderboardPanel && (
                 <motion.div
                   ref={leaderboardRef}
-                  className="md:hidden mt-4 mx-4 md:mx-6 rounded-2xl border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#f5f4ef] dark:bg-[#1a1917] overflow-hidden"
+                  className="mobile-leaderboard"
                   initial={{ opacity: 0, y: 20 }}
                   animate={
                     leaderboardVisible

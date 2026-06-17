@@ -1590,3 +1590,10 @@ body {
 .window-title {
   @apply pt-4 pb-2 pl-1 basis-0 grow min-h-px min-w-px flex items-center justify-center sm:overflow-visible;
 }
+.main {
+  @apply m-0.5 bg-background rounded-(--retro-rounding) border-[1.5px] border-[#211f1c] overflow-visible mb-6;
+}
+
+.mobile-leaderboard {
+  @apply md:hidden mt-4 mx-4 md:mx-6 rounded-2xl border-[1.5px] border-[#211f1c] bg-[#f5f4ef] overflow-hidden;
+}
