@@ -36,6 +36,8 @@ export function TestSuite() {
   const tests: Test[] = getAllTestDefinitions(user);
   const getStageLabel = (test: Test) =>
     test.stage ? `Stage ${test.stage}` : `Legacy ${test.phase}`;
+  const canRunTest = (test: Test) =>
+    Boolean(user) || test.requiresAuth !== true;
 
   const toggleStage = (stage: string) => {
     setSelectedStages((prev) => {
@@ -97,7 +99,7 @@ export function TestSuite() {
 
   const runAllTests = async () => {
     setRunningAll(true);
-    const testIds = filteredTests.map((t) => t.id);
+    const testIds = filteredTests.filter(canRunTest).map((t) => t.id);
 
     for (const testId of testIds) {
       const test = tests.find((t) => t.id === testId);
@@ -422,7 +424,9 @@ export function TestSuite() {
                           size="sm"
                           variant="outline"
                           onClick={() => runTest(test.id, test.testFn)}
-                          disabled={result.status === "loading"}
+                          disabled={
+                            result.status === "loading" || !canRunTest(test)
+                          }
                         >
                           {result.status === "loading" ? (
                             <Loader2 className="size-3 animate-spin" />

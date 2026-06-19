@@ -165,7 +165,7 @@ function RoadmapOverview({
 }
 
 function StageDetail({ stage }: { stage: RoadmapStage }) {
-  const hasRunnableTests = stage.number >= 2 && stage.number <= 5;
+  const hasRunnableTests = stage.number >= 2 && stage.number <= 6;
 
   return (
     <div className="space-y-6">
@@ -262,7 +262,9 @@ function StageDetail({ stage }: { stage: RoadmapStage }) {
           description={
             stage.number === 5
               ? "Executable acceptance checks for the material experience contracts"
-              : "Executable tests mapped from legacy phase identifiers"
+              : stage.number === 6
+                ? "Executable checks for graph schema, RLS, compatibility, and backup coverage"
+                : "Executable tests mapped from legacy phase identifiers"
           }
         />
       )}

@@ -5,7 +5,7 @@ takes priority over convenience.
 
 ## Backup Formats
 
-### Full-site backup, schema version 3.0
+### Full-site backup, schema versions 3.0 and 4.0
 
 Admin > Database > Materials > Full Site Backup calls
 `GET /backup/full-export`.
@@ -20,6 +20,19 @@ The export contains:
 - transform definitions
 - a manifest with table names, row counts, SHA-256 checksums, schema version,
   and export timestamp
+
+Schema version 3.0 is the pre-graph full-site format. Schema version 4.0 adds
+the complete graph layer:
+
+- governed graph vocabularies
+- videos, entities, canonical bindings, relationships, tags, and content
+  mappings
+- migration runs, checkpoints, unresolved-issue payloads, and sync outbox
+  records
+
+The exporter probes graph tables as one atomic schema group. If none exist, it
+produces version 3.0. If all exist, it produces version 4.0. If only some graph
+tables exist, export fails rather than producing an incomplete backup.
 
 Both Postgres tables and the raw KV snapshot are fetched in deterministic,
 paginated batches so the export does not silently stop at an API row limit.
@@ -40,9 +53,9 @@ available for backward compatibility. Import supports merge mode only and does
 not delete existing records.
 
 Legacy import is not a full relational restore. Do not use it to restore a
-schema-version 3.0 full-site backup. It accepts both historical `users` and
-current `user_profiles` payloads. Restored `user_roles` are preserved in the
-legacy KV namespace and then applied to Postgres with the idempotent admin
+schema-version 3.0 or 4.0 full-site backup. It accepts both historical `users`
+and current `user_profiles` payloads. Restored `user_roles` are preserved in
+the legacy KV namespace and then applied to Postgres with the idempotent admin
 role-seed action. Unsupported or invalid records are returned as
 `unresolved_records` for manual recovery, and the import is not marked complete
 until that list is empty.
@@ -73,6 +86,13 @@ For manual recovery:
    `user_profiles`, `material_categories`, `materials`, `sources`, `articles`,
    `guides`, `blog_posts`, `changelog_entries`, `material_sources`,
    `material_links`, `evidence_points`, then `audit_log`.
+   For schema version 4.0, continue with:
+   `entity_types`, `relationship_types`, `tag_types`, `content_roles`,
+   `lifecycle_focuses`, `evidence_uses`, `videos`, `entities`,
+   `entity_canonical_bindings`, `entity_relationships`, `tags`, `entity_tags`,
+   `content_entities`, `graph_migration_runs`,
+   `graph_migration_checkpoints`, `graph_migration_issues`, then
+   `graph_sync_outbox`.
 5. Use upserts only where the primary-key and conflict policy have been
    reviewed. Never truncate production tables as part of recovery.
 6. Reconcile `auth_users` with the recovery project's Auth users before
@@ -84,6 +104,10 @@ For manual recovery:
 9. Record conflicts and unresolved records in a recovery report; preserve their
    original JSON payloads.
 10. Switch traffic only after acceptance tests and reconciliation pass.
+
+When recovering a schema-version 3.0 backup into a graph-capable release,
+restore and reconcile the domain data first, then run the reviewed idempotent
+graph backfill. Do not fabricate graph rows during restore.
 
 If direct import is not possible, retain the record in a quarantine/review
 dataset and document the manual mapping required. Silent omission is not an

@@ -21,6 +21,7 @@ walk(sourceRoot);
 
 const broken = [];
 const potentialSecrets = [];
+const malformedSql = [];
 const linkPattern = /\[[^\]]*\]\(([^)]+)\)/g;
 const secretPatterns = [
   {
@@ -62,6 +63,20 @@ const secretPatterns = [
       /\b(?:SUPABASE_SERVICE_ROLE_KEY|SUPABASE_DB_URL|RESEND_API_KEY)\s*=\s*(?!<|your_|YOUR_|example\b)[^\s`]+/i,
   },
 ];
+const malformedSqlPatterns = [
+  {
+    label: "escaped count wildcard",
+    pattern: /\bcount\(\\\*\)/i,
+  },
+  {
+    label: "underscore used instead of count wildcard",
+    pattern: /\bcount\(\s*_\s*\)/i,
+  },
+  {
+    label: "asterisk embedded in SQL identifier",
+    pattern: /\b[a-z_][a-z0-9_]*\*[a-z_][a-z0-9_]*\b/i,
+  },
+];
 
 for (const file of markdownFiles) {
   const content = readFileSync(file, "utf8");
@@ -71,6 +86,11 @@ for (const file of markdownFiles) {
     for (const { label, pattern } of secretPatterns) {
       if (pattern.test(line)) {
         potentialSecrets.push(`${fileLabel}:${index + 1} (${label})`);
+      }
+    }
+    for (const { label, pattern } of malformedSqlPatterns) {
+      if (pattern.test(line)) {
+        malformedSql.push(`${fileLabel}:${index + 1} (${label})`);
       }
     }
   }
@@ -100,7 +120,11 @@ for (const file of markdownFiles) {
   }
 }
 
-if (broken.length > 0 || potentialSecrets.length > 0) {
+if (
+  broken.length > 0 ||
+  potentialSecrets.length > 0 ||
+  malformedSql.length > 0
+) {
   if (broken.length > 0) {
     console.error("Broken documentation links:");
     for (const item of broken) console.error(`- ${item}`);
@@ -108,6 +132,10 @@ if (broken.length > 0 || potentialSecrets.length > 0) {
   if (potentialSecrets.length > 0) {
     console.error("Potential secrets in public Markdown:");
     for (const item of potentialSecrets) console.error(`- ${item}`);
+  }
+  if (malformedSql.length > 0) {
+    console.error("Malformed SQL-like documentation snippets:");
+    for (const item of malformedSql) console.error(`- ${item}`);
   }
   process.exit(1);
 }

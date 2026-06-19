@@ -59,6 +59,11 @@ enums only for small, fixed sets that are unlikely to change, and notes that
 removing enum values is unsafe. Stable implementation states may continue to
 use text checks where the existing schema already follows that convention.
 
+Production vocabulary additions require a description, intended use, example,
+and curator/admin approval. Relationship types additionally require forward
+and inverse labels where applicable, example source and target entities, and a
+clear “when not to use” rule. New values remain inactive until approved.
+
 Reference:
 [Managing Enums in Postgres](https://supabase.com/docs/guides/database/postgres/enums)
 
@@ -73,6 +78,18 @@ Initial policy model:
 - owners may update their own unreviewed records where applicable
 - staff and admins may review and mutate governed graph data
 - service-role operations remain server-only
+
+Tests must cover every graph table and meaningful application role, not only
+representative policy sets. The current role mapping is:
+
+- anonymous → `anon`
+- authenticated user/contributor proposals → `authenticated`
+- editor/curator → authenticated profile with `staff`
+- admin → authenticated profile with `admin`
+- server workers → `service_role`
+
+No untrusted actor may make a relationship, tag, mapping, video, metadata
+record, or vocabulary term appear authoritative without explicit review.
 
 Create role-check helpers in a non-exposed `private` schema as
 `security definer` functions with a fixed `search_path`. RLS policies should

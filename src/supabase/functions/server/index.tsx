@@ -15108,7 +15108,7 @@ app.get(
 
 // ==================== BACKUP & RECOVERY ENDPOINTS ====================
 
-const FULL_BACKUP_POSTGRES_TABLES = [
+const FULL_BACKUP_BASE_POSTGRES_TABLES = [
   "user_profiles",
   "material_categories",
   "materials",
@@ -15122,6 +15122,42 @@ const FULL_BACKUP_POSTGRES_TABLES = [
   "blog_posts",
   "changelog_entries",
 ] as const;
+
+const FULL_BACKUP_GRAPH_POSTGRES_TABLES = [
+  "entity_types",
+  "relationship_types",
+  "tag_types",
+  "content_roles",
+  "lifecycle_focuses",
+  "evidence_uses",
+  "videos",
+  "entities",
+  "entity_canonical_bindings",
+  "entity_relationships",
+  "tags",
+  "entity_tags",
+  "content_entities",
+  "graph_migration_runs",
+  "graph_migration_checkpoints",
+  "graph_migration_issues",
+  "graph_sync_outbox",
+] as const;
+
+const FULL_BACKUP_POSTGRES_TABLES = [
+  ...FULL_BACKUP_BASE_POSTGRES_TABLES,
+  ...FULL_BACKUP_GRAPH_POSTGRES_TABLES,
+] as const;
+
+const FULL_BACKUP_ORDER_COLUMNS: Record<string, readonly string[]> = {
+  entity_types: ["slug"],
+  relationship_types: ["slug"],
+  tag_types: ["slug"],
+  content_roles: ["slug"],
+  lifecycle_focuses: ["slug"],
+  evidence_uses: ["slug"],
+  entity_canonical_bindings: ["entity_id"],
+  entity_tags: ["entity_id", "tag_id"],
+};
 
 const FULL_BACKUP_KV_SECTIONS = [
   "materials",
@@ -15150,20 +15186,26 @@ async function checksumJson(value: unknown): Promise<string> {
 async function fetchAllPostgresRows(
   client: any,
   table: string,
+  orderColumns: readonly string[] = ["id"],
 ): Promise<Record<string, unknown>[]> {
   const rows: Record<string, unknown>[] = [];
   let offset = 0;
 
   while (true) {
-    const { data, error } = await client
-      .from(table)
-      .select("*")
-      .order("id", { ascending: true })
-      .range(offset, offset + BACKUP_PAGE_SIZE - 1);
+    let query = client.from(table).select("*");
+    for (const column of orderColumns) {
+      query = query.order(column, { ascending: true });
+    }
+    const { data, error } = await query.range(
+      offset,
+      offset + BACKUP_PAGE_SIZE - 1,
+    );
     if (error) {
-      throw new Error(
+      const fetchError = new Error(
         `Failed to fetch required backup table '${table}': ${error.message}`,
       );
+      (fetchError as Error & { code?: string }).code = error.code;
+      throw fetchError;
     }
 
     const page = JSON.parse(
@@ -15175,6 +15217,53 @@ async function fetchAllPostgresRows(
   }
 
   return rows;
+}
+
+function isMissingPostgresTableError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  const code = (error as Error & { code?: string }).code;
+  return (
+    code === "42P01" ||
+    code === "PGRST205" ||
+    error.message.includes("Could not find the table") ||
+    error.message.includes("does not exist")
+  );
+}
+
+async function fetchGraphBackupRows(client: any): Promise<{
+  enabled: boolean;
+  rows: Record<string, Record<string, unknown>[]>;
+}> {
+  const rows: Record<string, Record<string, unknown>[]> = {};
+  const present: string[] = [];
+  const missing: string[] = [];
+
+  for (const table of FULL_BACKUP_GRAPH_POSTGRES_TABLES) {
+    try {
+      rows[table] = await fetchAllPostgresRows(
+        client,
+        table,
+        FULL_BACKUP_ORDER_COLUMNS[table],
+      );
+      present.push(table);
+    } catch (error) {
+      if (!isMissingPostgresTableError(error)) throw error;
+      missing.push(table);
+    }
+  }
+
+  if (present.length > 0 && missing.length > 0) {
+    throw new Error(
+      `Partial graph schema detected. Present: ${present.join(
+        ", ",
+      )}. Missing: ${missing.join(", ")}. Refusing to create an incomplete backup.`,
+    );
+  }
+
+  return {
+    enabled: present.length === FULL_BACKUP_GRAPH_POSTGRES_TABLES.length,
+    rows: present.length > 0 ? rows : {},
+  };
 }
 
 async function fetchAllAuthUsers(
@@ -15623,9 +15712,24 @@ app.post(
         const rowCounts = backup.manifest?.row_counts ?? {};
         const checksums = backup.manifest?.checksums ?? {};
         const sectionStats: Record<string, number> = {};
-        const requiresCompleteManifest =
-          backup.metadata?.schema_version === "3.0" ||
+        const schemaVersion = backup.metadata?.schema_version;
+        const isFullSiteBackup =
           backup.metadata?.format === "wastedb-full-site";
+        const supportedSchemaVersions = new Set(["3.0", "4.0"]);
+        if (
+          isFullSiteBackup &&
+          !supportedSchemaVersions.has(schemaVersion)
+        ) {
+          issues.push(
+            `Unsupported full-site backup schema version '${schemaVersion ?? "missing"}'`,
+          );
+        }
+        const requiresCompleteManifest =
+          supportedSchemaVersions.has(schemaVersion) || isFullSiteBackup;
+        const requiredPostgresTables =
+          schemaVersion === "4.0"
+            ? FULL_BACKUP_POSTGRES_TABLES
+            : FULL_BACKUP_BASE_POSTGRES_TABLES;
         if (requiresCompleteManifest) {
           if (
             !backup.metadata?.export_started_at ||
@@ -15686,7 +15790,7 @@ app.post(
           }
         }
 
-        for (const table of FULL_BACKUP_POSTGRES_TABLES) {
+        for (const table of requiredPostgresTables) {
           if (!Array.isArray(backup.postgres_data[table])) {
             issues.push(`Required Postgres table '${table}' is missing`);
           }
@@ -15834,6 +15938,11 @@ app.post(
             ],
             manual_document:
               "src/docs/admin/OPERATIONS.md#full-site-manual-recovery",
+            schema_version: schemaVersion,
+            recovery_path:
+              schemaVersion === "4.0"
+                ? "Restore domain tables first, then graph tables, and reconcile both layers."
+                : "Restore domain tables, then rerun the idempotent graph backfill if graph support is required.",
           },
         });
       }
@@ -15973,9 +16082,19 @@ app.get(
       const submissions = kvValuesForPrefix(allKvEntries, "submission:");
 
       const postgresData: Record<string, Record<string, unknown>[]> = {};
-      for (const table of FULL_BACKUP_POSTGRES_TABLES) {
-        postgresData[table] = await fetchAllPostgresRows(pgClient, table);
+      for (const table of FULL_BACKUP_BASE_POSTGRES_TABLES) {
+        postgresData[table] = await fetchAllPostgresRows(
+          pgClient,
+          table,
+          FULL_BACKUP_ORDER_COLUMNS[table],
+        );
       }
+      const graphBackup = await fetchGraphBackupRows(pgClient);
+      Object.assign(postgresData, graphBackup.rows);
+      const schemaVersion = graphBackup.enabled ? "4.0" : "3.0";
+      const postgresTables = graphBackup.enabled
+        ? FULL_BACKUP_POSTGRES_TABLES
+        : FULL_BACKUP_BASE_POSTGRES_TABLES;
       const userRoles = postgresData.user_profiles.map((record: any) => ({
         key: `user_role:${record.id}`,
         value: record.role,
@@ -16017,7 +16136,7 @@ app.get(
 
       const backup = {
         metadata: {
-          schema_version: "3.0",
+          schema_version: schemaVersion,
           format: "wastedb-full-site",
           timestamp: exportStartedAt,
           export_started_at: exportStartedAt,
@@ -16031,7 +16150,7 @@ app.get(
           export_duration_ms: 0,
         },
         manifest: {
-          postgres_tables: [...FULL_BACKUP_POSTGRES_TABLES],
+          postgres_tables: [...postgresTables],
           kv_sections: [...FULL_BACKUP_KV_SECTIONS],
           row_counts: rowCounts,
           checksums,
@@ -16042,6 +16161,8 @@ app.get(
           },
           compatibility: {
             legacy_kv_import_supported: true,
+            pre_graph_schema_3_restore_supported: true,
+            graph_schema_4_restore_supported: graphBackup.enabled,
             automatic_full_restore_supported: false,
             auth_credentials_restore_supported: false,
             storage_binaries_included: false,

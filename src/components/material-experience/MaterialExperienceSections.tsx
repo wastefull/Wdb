@@ -19,6 +19,7 @@ import type { Material } from "../../types/material";
 import type {
   MaterialExperienceModel,
   MaterialGraphSection,
+  MaterialInsightStatus,
 } from "../../types/materialExperience";
 import { MATERIAL_EXPERIENCE_SECTIONS } from "../../config/materialExperience";
 import { RasterizedQuantileVisualization } from "../charts/RasterizedQuantileVisualization";
@@ -217,6 +218,14 @@ function KeyInsightsSection({
 }: {
   insights: MaterialExperienceModel["keyInsights"];
 }) {
+  const statusLabels: Record<MaterialInsightStatus, string> = {
+    draft: "Draft",
+    needs_review: "Needs review",
+    approved: "Approved",
+    rejected: "Rejected",
+    needs_update: "Needs update",
+  };
+
   return (
     <section
       id={MATERIAL_EXPERIENCE_SECTIONS[2].id}
@@ -227,21 +236,50 @@ function KeyInsightsSection({
         id="key-insights-heading"
         eyebrow="3 · Understand"
         title="Key Insights"
-        description="A short, deterministic summary of the scores and provenance currently stored for this material."
+        description="Scoped editorial claims drafted from current scores and provenance. They remain non-authoritative until a human editor approves them."
       />
       <Card className="border-[1.5px] border-[#211f1c]/25 bg-[linear-gradient(135deg,color-mix(in_oklch,var(--waste-recycle)_22%,transparent),color-mix(in_oklch,var(--waste-reuse)_12%,transparent))] shadow-none dark:border-white/20">
         <CardContent className="pt-6">
           <ul className="grid gap-4 md:grid-cols-3">
             {insights.map((insight) => (
               <li
-                key={insight}
+                key={insight.id}
                 className="flex items-start gap-3 text-sm leading-6"
               >
                 <Sparkles
                   className="mt-0.5 size-4 shrink-0 text-amber-700 dark:text-amber-300"
                   aria-hidden="true"
                 />
-                <span>{insight}</span>
+                <div className="space-y-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge variant="outline">
+                      {statusLabels[insight.status]}
+                    </Badge>
+                    {insight.confidence && (
+                      <Badge variant="outline">
+                        Confidence: {insight.confidence}
+                      </Badge>
+                    )}
+                  </div>
+                  <p>{insight.claim}</p>
+                  {insight.scopeNotes && (
+                    <p className="text-xs text-muted-foreground">
+                      Scope: {insight.scopeNotes}
+                    </p>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    Supports:{" "}
+                    {insight.supportingReferences
+                      .map((reference) => reference.label)
+                      .join(", ")}
+                  </p>
+                  {insight.reviewer && insight.reviewedAt && (
+                    <p className="text-xs text-muted-foreground">
+                      Reviewed by {insight.reviewer} on{" "}
+                      {formatTimestamp(insight.reviewedAt)}
+                    </p>
+                  )}
+                </div>
               </li>
             ))}
           </ul>
@@ -409,19 +447,19 @@ function GraphDiscoverySection({
       <div className="grid gap-4 lg:grid-cols-3">
         <GraphEmptyState
           title="Knowledge Feed"
-          description="No verified graph-ranked content is connected yet. The current-data recommendations above are intentionally separate."
+          description="Graph-ranked content is not available yet for this material. Existing articles, metrics, and evidence remain available elsewhere on this page."
           icon={<Library className="size-4" aria-hidden="true" />}
           section={graph.knowledgeFeed}
         />
         <GraphEmptyState
           title="Related Entities"
-          description="No verified processes, products, policies, impacts, organizations, or technologies are connected yet."
+          description="Related-entity discovery is not available yet for this material. This does not mean that no relationships exist."
           icon={<Network className="size-4" aria-hidden="true" />}
           section={graph.relatedEntities}
         />
         <GraphEmptyState
           title="Discovery Paths"
-          description="No curated learning journey is available yet. Paths will appear only after their entity relationships are verified."
+          description="Discovery paths are not available yet for this material. Existing articles, metrics, and evidence are still shown below."
           icon={<Route className="size-4" aria-hidden="true" />}
           section={graph.discoveryPaths}
         />

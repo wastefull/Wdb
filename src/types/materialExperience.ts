@@ -72,6 +72,30 @@ export interface MaterialResearchParameterGroup {
   parameters: MaterialResearchParameter[];
 }
 
+export type MaterialInsightStatus =
+  | "draft"
+  | "needs_review"
+  | "approved"
+  | "rejected"
+  | "needs_update";
+
+export interface MaterialInsightReference {
+  type: "score-field" | "source" | "article" | "evidence";
+  id: string;
+  label: string;
+}
+
+export interface MaterialKeyInsight {
+  id: string;
+  claim: string;
+  status: MaterialInsightStatus;
+  reviewer?: string;
+  reviewedAt?: string;
+  confidence?: "High" | "Medium" | "Low";
+  scopeNotes?: string;
+  supportingReferences: MaterialInsightReference[];
+}
+
 export interface MaterialExperienceModel {
   intelligence: {
     confidenceLevel?: "High" | "Medium" | "Low";
@@ -80,7 +104,7 @@ export interface MaterialExperienceModel {
     qualityMessage: string;
     dimensions: MaterialIntelligenceDimension[];
   };
-  keyInsights: string[];
+  keyInsights: MaterialKeyInsight[];
   recommendedLearning: MaterialLearningItem[];
   graph: MaterialGraphExperience;
   research: {

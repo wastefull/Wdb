@@ -25,6 +25,9 @@ Stages 9 and 10 must remain the final sequence.
 - Attach executable tests as behavior becomes available.
 - Existing Phase 9.x and 10.0 tests appear under Stages 2-4 while retaining
   legacy phase metadata.
+- Stage 5 avoids known accessibility regressions through semantic structure,
+  visible focus, keyboard reachability, reduced-motion compatibility, and
+  non-color-only state communication.
 - Full browser acceptance for the Stage 5-7 experience is the final Stage 7
   completion gate.
 - Do not duplicate current stage status in Markdown.

@@ -2,6 +2,7 @@ import type { Material } from "../types/material";
 import type {
   MaterialExperienceModel,
   MaterialGraphExperience,
+  MaterialKeyInsight,
   MaterialLearningItem,
   MaterialResearchParameter,
 } from "../types/materialExperience";
@@ -83,10 +84,23 @@ export function buildMaterialExperienceModel(
   const strongestDimension = [...dimensions].sort(
     (left, right) => right.score - left.score,
   )[0];
-  const insights = [
-    `${strongestDimension.label} is the strongest current WasteDB dimension at ${Math.round(
-      strongestDimension.score,
-    )}/100 (${scoreLabel(strongestDimension.score)}).`,
+  const insights: MaterialKeyInsight[] = [
+    {
+      id: `strongest-${strongestDimension.id}`,
+      claim: `${strongestDimension.label} is the strongest current WasteDB dimension at ${Math.round(
+        strongestDimension.score,
+      )}/100 (${scoreLabel(strongestDimension.score)}).`,
+      status: "needs_review",
+      scopeNotes:
+        "Compares the three current WasteDB score fields only; it is not an absolute material judgment.",
+      supportingReferences: [
+        {
+          type: "score-field",
+          id: strongestDimension.id,
+          label: `${strongestDimension.label} score`,
+        },
+      ],
+    },
   ];
 
   const dimensionsWithGaps = dimensions
@@ -110,15 +124,43 @@ export function buildMaterialExperienceModel(
       largestGap.gap > 0
         ? "below its theoretical score"
         : "above its theoretical score";
-    insights.push(
-      `${largestGap.label}'s practical score is ${Math.abs(
+    insights.push({
+      id: `practical-gap-${largestGap.id}`,
+      claim: `${largestGap.label}'s practical score is ${Math.abs(
         largestGap.gap,
       ).toFixed(0)} points ${direction}.`,
-    );
+      status: "needs_review",
+      scopeNotes:
+        "The practical and theoretical values depend on the current model version, geography, infrastructure, and material condition.",
+      supportingReferences: [
+        {
+          type: "score-field",
+          id: `${largestGap.id}-practical`,
+          label: `${largestGap.label} practical mean`,
+        },
+        {
+          type: "score-field",
+          id: `${largestGap.id}-theoretical`,
+          label: `${largestGap.label} theoretical mean`,
+        },
+      ],
+    });
   } else {
-    insights.push(
-      "A practical-versus-theoretical comparison is not yet available for this material.",
-    );
+    insights.push({
+      id: "practical-gap-unavailable",
+      claim:
+        "A practical-versus-theoretical comparison is not yet available for this material.",
+      status: "needs_review",
+      scopeNotes:
+        "This is a missing-data statement, not a conclusion about real-world performance.",
+      supportingReferences: [
+        {
+          type: "score-field",
+          id: "practical-theoretical-availability",
+          label: "Practical and theoretical score fields",
+        },
+      ],
+    });
   }
 
   const sourceCount = material.sources?.length ?? 0;
@@ -143,15 +185,32 @@ export function buildMaterialExperienceModel(
               sourceCount === 1 ? "" : "s"
             }.`;
 
-  insights.push(
-    confidenceLevel
+  insights.push({
+    id: "confidence-and-sources",
+    claim: confidenceLevel
       ? `This record reports ${confidenceLevel.toLowerCase()} confidence and lists ${sourceCount} cited source${
           sourceCount === 1 ? "" : "s"
         }.`
       : `Confidence has not been rated; ${sourceCount} cited source${
           sourceCount === 1 ? " is" : "s are"
         } currently listed.`,
-  );
+    status: "needs_review",
+    confidence: confidenceLevel,
+    scopeNotes:
+      "A confidence label and citation count do not by themselves establish evidence quality or applicability.",
+    supportingReferences: [
+      {
+        type: "score-field",
+        id: "confidence_level",
+        label: "Material confidence level",
+      },
+      ...((material.sources ?? []).map((source, index) => ({
+        type: "source" as const,
+        id: source.doi ?? source.url ?? `source-${index + 1}`,
+        label: source.title,
+      }))),
+    ],
+  });
 
   const recommendedLearning = learningItems
     .filter(

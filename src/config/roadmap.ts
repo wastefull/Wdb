@@ -59,6 +59,12 @@ const planned = (title: string, description?: string): RoadmapDeliverable => ({
   status: "planned",
 });
 
+const active = (title: string, description?: string): RoadmapDeliverable => ({
+  title,
+  description,
+  status: "active",
+});
+
 const acceptance = (
   id: string,
   title: string,
@@ -196,7 +202,7 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
       "Restructure material pages as clear educational journeys while preserving every existing workflow and data surface.",
     deliverables: [
       complete("Material Overview and Material Intelligence hierarchy"),
-      complete("Key Insights and recommended learning sections using current data"),
+      complete("Review-aware Key Insight drafts and recommended learning using current data"),
       complete("Stable contracts and honest empty states for graph-powered sections"),
       complete("Preserve evidence, attribution, export, and contribution workflows"),
     ],
@@ -210,7 +216,19 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
       acceptance(
         "stage-5-empty-states",
         "Graph-dependent sections fail honestly",
-        "Knowledge Feed, Related Entities, and Discovery Paths show explicit empty states until graph data exists.",
+        "Knowledge Feed, Related Entities, and Discovery Paths say verified graph reads are not available yet without implying that no relationships exist.",
+        "automated",
+      ),
+      acceptance(
+        "stage-5-editorial-insights",
+        "Key Insights remain review-aware",
+        "Generated claims carry review status, scope notes, and supporting references and are not presented as authoritative before human approval.",
+        "automated",
+      ),
+      acceptance(
+        "stage-5-accessibility-baseline",
+        "Stage 5 avoids known accessibility regressions",
+        "New material components preserve semantic structure, visible focus, keyboard reachability, reduced-motion compatibility, and non-color-only state communication while full browser acceptance remains deferred.",
         "automated",
       ),
       acceptance(
@@ -236,11 +254,29 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
       "Add the graph data layer through additive, observable, and recoverable migrations without replacing authoritative domain tables.",
     deliverables: [
       complete("Resolve schema ADRs for canonical references, enums, and RLS"),
-      planned("Add graph tables, indexes, policies, and compatibility adapters"),
+      active("Add graph tables, indexes, policies, and compatibility adapters"),
       planned("Backfill entities, relationships, tags, content mappings, and evidence links"),
       planned("Provide dry-run, reconciliation, quarantine, resume, and manual repair tools"),
     ],
     acceptanceTests: [
+      acceptance(
+        "stage-6-schema-contract",
+        "Graph foundation schema is additive and governed",
+        "Graph tables, governed vocabulary seeds, evidence linkage columns, indexes, and RLS policies are present without replacing domain tables.",
+        "automated",
+      ),
+      acceptance(
+        "stage-6-rls-matrix",
+        "Every knowledge-shaping surface has explicit authorization",
+        "All graph tables are covered across anonymous, authenticated contributor, staff/curator, admin, and service-role capabilities; untrusted actors cannot make draft graph knowledge authoritative.",
+        "automated",
+      ),
+      acceptance(
+        "stage-6-backup-v4",
+        "Graph-era backups are complete and backward compatible",
+        "Schema version 4.0 includes every graph table with counts and checksums while the validator continues to recognize schema version 3.0.",
+        "automated",
+      ),
       acceptance(
         "stage-6-backup-gate",
         "Verified backup exists before migration",
@@ -282,6 +318,7 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
       "Add governed graph content, first-class videos, and graph-aware contributor and admin workflows.",
     deliverables: [
       planned("Relationship, entity, tag, and video curation tools"),
+      planned("Human review workflow for scoped Key Insights"),
       planned("Review and authorization workflows for graph mutations"),
       planned("Compatibility-aware dual writes during migration"),
       planned("Audit summaries that preserve existing audit consumers"),
@@ -297,6 +334,11 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
         "stage-7-audit",
         "Graph mutations preserve audit compatibility",
         "Graph changes create summary audit records without breaking existing list, detail, statistics, or filtering interfaces.",
+      ),
+      acceptance(
+        "stage-7-insight-review",
+        "Key Insights require editorial approval",
+        "Insight status, reviewer, review timestamp, supporting evidence, confidence or review status, and scope notes are preserved through approval and update workflows.",
       ),
       acceptance(
         "stage-7-browser-acceptance",

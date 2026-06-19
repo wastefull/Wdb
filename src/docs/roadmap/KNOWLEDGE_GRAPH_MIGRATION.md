@@ -24,6 +24,9 @@ changes.
 Operational recovery procedures:
 [Operations](../admin/OPERATIONS.md)
 
+Stage 6 foundation deployment procedure:
+[Knowledge Graph Foundation Runbook](./guides/KNOWLEDGE_GRAPH_FOUNDATION_RUNBOOK.md)
+
 ## Migration Execution Contract
 
 Every automated or manual migration package must include:
@@ -166,7 +169,36 @@ lifecycle_focuses
 evidence_uses
 
 Each vocabulary table should use a stable text slug as its primary key and
-include a label, description, active flag, and timestamps where useful.
+include a label, required description, inactive-by-default flag, approval
+metadata, and timestamps. An active value requires an approval timestamp.
+
+### Vocabulary governance workflow
+
+New entity types, relationship types, tag types, content roles, lifecycle
+focuses, and evidence-use values require a reviewed change proposal before
+production use. The proposal must include:
+
+- stable slug
+- display label
+- description
+- intended use
+- at least one concrete example
+- proposer
+- curator or admin approval
+
+New terms remain inactive until approval. Renaming or retiring a term requires
+an impact review covering existing rows, read adapters, exports, and recovery
+procedures.
+
+A relationship-type proposal must additionally include:
+
+- forward display label
+- inverse display label when applicable
+- example source entity
+- example target entity
+- when not to use the relationship
+
+This review prevents vocabulary sprawl and keeps graph meaning interpretable.
 
 ⸻
 
@@ -247,6 +279,15 @@ explains
 compares_with
 
 Avoid adding many narrow relationship types early. Use metadata and tags for nuance.
+
+The `discusses` relationship only means that one entity meaningfully addresses
+another entity. It does not mean that the source supports a score, validates a
+claim, agrees with WasteDB’s interpretation, or provides high-quality
+evidence.
+
+Evidence support remains governed by structured evidence tables, source
+linkage, evidence points, review status, and score-specific metadata. Do not
+infer evidentiary strength from a discovery relationship.
 
 ⸻
 
@@ -720,6 +761,10 @@ metadata = {
 
 Recommendation: use broad discusses initially unless a stricter evidence relationship is clearly needed.
 
+The same evidence-integrity rule applies here: `discusses` supports discovery,
+not evidentiary attribution. A material score may cite a source only through
+the reviewed evidence and source-linkage workflow.
+
 ⸻
 
 9.2 Backfill evidence_points.source_id
@@ -773,27 +818,72 @@ Potentially keep material_sources permanently if it remains useful as a structur
 
 ⸻
 
+1. Graph Authorization and Abuse Resistance
+
+Relationships, tags, metadata, mappings, videos, and vocabularies shape what
+WasteDB appears to know. Treat every graph mutation as a knowledge-shaping
+operation.
+
+RLS acceptance must cover every graph table and every meaningful actor:
+
+- anonymous
+- authenticated user
+- contributor
+- editor/curator
+- admin
+- service role
+
+WasteDB currently maps authenticated users and contributors to the
+`authenticated` database role for draft/proposal operations. Editors and
+curators map to the `staff` profile role, admins map to `admin`, and server-only
+workers use `service_role`. If those application roles diverge later, the RLS
+matrix and tests must be updated before deployment.
+
+At minimum, test:
+
+- `entities`
+- `entity_relationships`
+- `entity_tags`
+- `tags`
+- `content_entities`
+- `videos`
+- every governed vocabulary table
+- migration run, checkpoint, issue/quarantine, and outbox tables
+
+For each actor and table, ask:
+
+> Can this actor create, alter, or delete information that changes what
+> WasteDB appears to know?
+
+Any permitted capability must be explicit, tested, reviewable, and auditable.
+Anonymous users cannot mutate graph data. Contributors may submit only
+non-public draft or pending-review records owned by themselves. Only
+editor/curator or admin review may make knowledge-shaping records public.
+Migration and quarantine tables remain restricted to staff/admin and
+service-role operations.
+
+⸻
+
 1. Suggested Indexes
 
+Unique canonical-binding columns and the leading `entity_tags.entity_id`
+primary-key column are already indexed by their constraints; do not duplicate
+those indexes.
+
+```sql
 create index idx_entities_type on entities(entity_type);
 create index idx_entities_slug on entities(slug);
-create index idx_entity_bindings_material on entity_canonical_bindings(material_id);
-create index idx_entity_bindings_article on entity_canonical_bindings(article_id);
-create index idx_entity_bindings_guide on entity_canonical_bindings(guide_id);
-create index idx_entity_bindings_blog_post on entity_canonical_bindings(blog_post_id);
-create index idx_entity_bindings_source on entity_canonical_bindings(source_id);
-create index idx_entity_bindings_video on entity_canonical_bindings(video_id);
 create index idx_entity_relationships_source on entity_relationships(source_entity_id);
 create index idx_entity_relationships_target on entity_relationships(target_entity_id);
 create index idx_entity_relationships_type on entity_relationships(relationship_type);
 create index idx_content_entities_content on content_entities(content_entity_id);
 create index idx_content_entities_subject on content_entities(subject_entity_id);
 create index idx_content_entities_role on content_entities(role);
-create index idx_entity_tags_entity on entity_tags(entity_id);
 create index idx_entity_tags_tag on entity_tags(tag_id);
 create index idx_evidence_points_source_id on evidence_points(source_id);
 create index idx_evidence_points_entity_id on evidence_points(entity_id);
 create index idx_evidence_points_score_category on evidence_points(score_category);
+```
 
 ⸻
 
@@ -801,15 +891,17 @@ create index idx_evidence_points_score_category on evidence_points(score_categor
 
    12.1 Confirm all materials have entities
 
-select count(\*) as missing_material_entities
+```sql
+select count(*) as missing_material_entities
 from materials m
 left join entity_canonical_bindings b
-on b.material_id = m.id
+  on b.material_id = m.id
 left join entities e
-on e.id = b.entity_id
+  on e.id = b.entity_id
 where b.entity_id is null
-or e.id is null
-or e.entity_type <> 'material';
+   or e.id is null
+   or e.entity_type <> 'material';
+```
 
 Expected:
 
@@ -819,15 +911,17 @@ Expected:
 
 12.2 Confirm all articles have entities
 
-select count(\*) as missing_article_entities
+```sql
+select count(*) as missing_article_entities
 from articles a
 left join entity_canonical_bindings b
-on b.article_id = a.id
+  on b.article_id = a.id
 left join entities e
-on e.id = b.entity_id
+  on e.id = b.entity_id
 where b.entity_id is null
-or e.id is null
-or e.entity_type <> 'article';
+   or e.id is null
+   or e.entity_type <> 'article';
+```
 
 Expected:
 
@@ -837,25 +931,29 @@ Expected:
 
 12.3 Check migrated material relationships
 
-select relationship*type, count(*)
-from entity*relationships
+```sql
+select relationship_type, count(*)
+from entity_relationships
 group by relationship_type
 order by count(*) desc;
+```
 
 ⸻
 
 12.4 Check content-to-material mappings
 
-select ce.role, count(_)
+```sql
+select ce.role, count(*)
 from content_entities ce
 join entities content
-on content.id = ce.content_entity_id
+  on content.id = ce.content_entity_id
 join entities subject
-on subject.id = ce.subject_entity_id
+  on subject.id = ce.subject_entity_id
 where content.entity_type in ('article', 'guide', 'blog_post', 'video')
-and subject.entity_type = 'material'
+  and subject.entity_type = 'material'
 group by ce.role
-order by count(_) desc;
+order by count(*) desc;
+```
 
 ⸻
 

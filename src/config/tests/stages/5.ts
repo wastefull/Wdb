@@ -149,8 +149,38 @@ export function getStage5Tests(): Test[] {
           );
 
         return isHonestEmptyState
-          ? pass("All graph-dependent sections report verified empty states.")
+          ? pass("All graph-dependent sections report not-yet-wired states.")
           : fail("A graph-dependent section implied unavailable data exists.");
+      },
+    },
+    {
+      id: "stage-5-key-insight-editorial-bridge",
+      name: "Generated Key Insights remain editorial drafts",
+      description:
+        "Current-data insight claims carry review status, scope notes, and supporting references instead of presenting unsupported synthesis as authoritative.",
+      phase: "stage-5",
+      stage: 5,
+      category: "Editorial Integrity",
+      requiresAuth: false,
+      testFn: async () => {
+        const insights = buildMaterialExperienceModel(
+          createMaterial(),
+          [],
+        ).keyInsights;
+        const hasEditorialBridge = insights.every(
+          (insight) =>
+            insight.status === "needs_review" &&
+            insight.supportingReferences.length > 0 &&
+            Boolean(insight.scopeNotes),
+        );
+
+        return hasEditorialBridge
+          ? pass(
+              "Every generated insight is scoped, evidence-aware, and marked for human review.",
+            )
+          : fail(
+              "A generated insight lacks review status, scope, or supporting references.",
+            );
       },
     },
     {

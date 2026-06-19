@@ -19,6 +19,16 @@ Paths rather than a large force-directed graph.
 Relationships should remain broad and stable, with nuance stored in metadata
 and governed tags. Videos are first-class knowledge objects, not attachments.
 
+Discovery and evidence are separate concerns. A relationship can help a user
+find relevant knowledge without establishing that the connected content
+supports a score or validates a claim.
+
+Do not build a graph for spectacle. Use graph visualization only when it
+clarifies a user task, and do not expose raw graph complexity merely because
+the backend is graph-shaped. The product should use the graph to help people
+understand systems while preserving human review anywhere a claim could
+mislead.
+
 ## Stage Boundaries
 
 - **Stage 5:** Ship the redesigned material-page hierarchy using current data,
@@ -49,6 +59,16 @@ collection. The interface must explain that state explicitly rather than
 showing fabricated recommendations or treating legacy links as verified graph
 relationships.
 
+An unavailable graph section means that verified graph reads are not wired
+yet. It does not mean WasteDB searched a complete graph and found no
+relationships. Preferred wording is:
+
+> Discovery paths are not available yet for this material. Existing articles,
+> metrics, and evidence are still shown below.
+
+Avoid wording such as “No related entities found” until a verified graph query
+has actually completed.
+
 Current articles may populate Recommended Learning, with direct material
 articles ranked before linked-material articles. This current-data ranking is
 separate from the future graph-ranked Knowledge Feed.
@@ -68,6 +88,13 @@ reduced-motion browser acceptance is intentionally deferred to the final Stage
 7 completion gate. This allows the material redesign and graph curation
 surfaces to be tested together as one cross-stage experience before Stage 8
 wires verified graph reads into discovery.
+
+Stage 5 does not complete full accessibility acceptance, but new components
+must avoid known accessibility regressions. They should preserve semantic
+structure, visible focus behavior, keyboard reachability, reduced-motion
+compatibility, and non-color-only state communication wherever practical.
+Stage 7 remains the full cross-browser and assistive-technology acceptance
+gate.
 
 ## Purpose
 
@@ -194,6 +221,31 @@ Purpose:
 Reduce cognitive load.
 
 Provide a short editorial summary generated from the underlying evidence base.
+
+Key Insights are editorial claims, not automatically authoritative
+conclusions. They may be drafted from material data, article summaries, and
+evidence points, but publication as approved guidance requires human review.
+
+Each insight must carry:
+
+- status: `draft`, `needs_review`, `approved`, `rejected`, or `needs_update`
+- reviewer/editor and review timestamp when approved
+- confidence or review status
+- linked supporting evidence, article, source, or score field where available
+- scope notes for relevant conditions such as region, process, contamination,
+  material condition, or infrastructure dependency
+
+A Key Insight should be written as a scoped, evidence-aware claim rather than
+an absolute material judgment.
+
+Prefer:
+
+> Aluminum is highly recyclable when clean, separated, and routed through
+> established metal recovery infrastructure.
+
+Avoid:
+
+> Aluminum is infinitely recyclable.
 
 Example:
 
