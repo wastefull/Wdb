@@ -286,7 +286,7 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
       acceptance(
         "stage-6-backup-gate",
         "Verified backup exists before migration",
-        "A versioned full backup includes schema manifest, row counts, checksums, and export timestamp before writes begin; storage has a separately verified provider backup when affected.",
+        "Before writes begin, a versioned full backup includes a schema manifest, row counts, checksums, and export timestamp; it is validated and stored outside the repository with operator-only access, and storage has a separately verified provider backup when affected.",
       ),
       acceptance(
         "stage-6-idempotent",

@@ -8,7 +8,9 @@ changes.
 
 - Domain tables remain authoritative; graph tables are additive.
 - No legacy field or table is dropped during the initial migration.
-- Create and validate a versioned full-site backup before migration writes.
+- Create and validate a versioned full-site backup before migration writes;
+  store it outside the repository with restricted access and a recorded
+  checksum and location.
 - Dry runs report inserts, updates, conflicts, unresolved references, and
   prospective removals without mutation.
 - Backfills are idempotent, resumable, and safe to rerun.
@@ -32,8 +34,9 @@ Stage 6 foundation deployment procedure:
 Every automated or manual migration package must include:
 
 1. A unique version and a statement of source and destination schemas.
-2. Preconditions, including a validated backup and required provider-level
-   storage backup when storage could be affected.
+2. Preconditions, including a validated backup stored with restricted access
+   outside the repository and a required provider-level storage backup when
+   storage could be affected.
 3. A dry-run report with inserts, updates, conflicts, unresolved references,
    and prospective removals.
 4. An idempotent apply operation with checkpoints and resume instructions.
@@ -50,7 +53,9 @@ must never treat a skipped record as a successful migration.
 
 A migration is not complete until all of the following are true:
 
-- The pre-migration backup and any required storage backup have been verified.
+- The pre-migration backup is validated and stored outside the repository with
+  restricted access; its checksum and location are recorded. Any required
+  storage backup is also verified.
 - Dry-run conflicts and unresolved records have an owner and recovery path.
 - Repeated execution and resume after partial failure produce no duplicates.
 - Source and destination counts, identifiers, relationships, and checksums

@@ -17,12 +17,19 @@ migration report:
 1. Pause application writes for the backup window.
 2. Generate a full-site schema-version 3.0 backup and pass it through
    `POST /backup/validate`.
-3. Verify row counts and checksums, retain the exported JSON outside the
-   application, and record its location.
+3. Verify row counts and checksums. Retain the exported JSON outside the
+   repository in an operator-only location, restrict its file permissions, and
+   record its checksum and location.
 4. Verify a provider-level storage backup when storage objects could be
    affected.
 5. Confirm that the target has no partial graph schema. The full-site exporter
    must either find none of the graph tables or all of them.
+
+The production export requires the operator to be present to approve the
+maintenance window. If export, validation, or restricted storage fails, restore
+the prior maintenance state, remove any incomplete artifact, and do not apply
+migrations. After migration verification, securely archive or remove the
+temporary backup according to the retention plan.
 
 ## Local Validation
 
@@ -66,6 +73,8 @@ and legacy compatibility functions rather than WasteDB schema defects.
    ```
 
 4. Generate and validate a schema-version 4.0 full-site backup.
+   Apply the same restricted-storage, permission, checksum, and retention
+   requirements used for the pre-migration backup.
 5. Run the Stage 6 roadmap tests. The graph schema, vocabulary, evidence
    linkage, anonymous-write denial, and backup-v4 checks must pass.
 6. Resume writes only after the migration, backup, and schema checks pass.
@@ -107,6 +116,8 @@ rows, outbox events, or audit dependencies exist.
 Stop deployment and preserve diagnostics if:
 
 - the pre-migration backup does not validate
+- the backup cannot be stored outside the repository with operator-only access
+- the recorded backup checksum does not match
 - only some graph tables exist
 - local pgTAP or database lint checks fail
 - domain counts or checksums change

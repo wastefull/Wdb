@@ -43,8 +43,18 @@ The HTTP export is not a transactional database snapshot. Pause application
 writes before creating the migration backup, keep them paused until export
 validation completes, and record the pause window in the migration report.
 
-Validate a downloaded full backup with `POST /backup/validate` before relying
-on it.
+Production full-site exports contain private application records and Auth user
+metadata. Validate a downloaded full backup with `POST /backup/validate` before
+relying on it. Store migration backups outside the repository in an
+operator-only location, restrict local file permissions to the operator (for
+example, mode `0600`), and record the file checksum and location. After
+migration verification, move the backup to approved secure archival storage or
+securely remove the temporary copy according to the retention plan.
+
+Encrypted-at-rest backup tooling is desirable operational hardening, but it is
+an outer storage concern rather than a backup schema change. It must preserve
+the existing JSON byte-for-byte after decryption and does not block Stage 6
+product testing.
 
 ### Legacy KV backup
 
@@ -63,14 +73,18 @@ until that list is empty.
 ## Before Any Migration
 
 1. Pause application writes and record the pause start.
-2. Download a full-site backup.
+2. Download a full-site backup to an operator-only location outside the
+   repository and restrict its permissions.
 3. Validate the backup and retain the validation result.
-4. Record source row counts and migration version.
+4. Record its checksum, location, source row counts, and migration version.
 5. Run the migration in dry-run mode when available.
 6. Resolve or explicitly quarantine ambiguous records.
 7. Run the migration.
 8. Reconcile row counts, identifiers, relationships, and checksums.
-9. Keep legacy reads and backups until the completion gate is approved.
+9. Securely archive or remove the temporary backup according to the retention
+   plan after verification.
+10. Keep legacy reads and required backups until the completion gate is
+    approved.
 
 ## Full-Site Manual Recovery
 
