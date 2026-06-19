@@ -86,6 +86,15 @@ export interface MaterialExperienceModel {
   research: {
     sources: Source[];
     parameterGroups: MaterialResearchParameterGroup[];
+    attribution: {
+      writerName?: string;
+      editorName?: string;
+      wikiSourceUrl?: string;
+      wikiSourceRevisionId?: number;
+      imageAttributionText?: string;
+      imageLicenseName?: string;
+      imageLicenseUrl?: string;
+    };
     methodVersion?: string;
     whitepaperVersion?: string;
     calculationTimestamp?: string;

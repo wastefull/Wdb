@@ -1339,21 +1339,23 @@ body {
 
 .search-chip {
   @apply text-xs px-2.5 py-1 rounded-full
-            border border-[#211f1c]/20 dark:border-white/15
-            shadow-[1.5px_1.5px_0px_0px_#211f1c] dark:shadow-[1.5px_1.5px_0px_0px_rgba(255,255,255,0.12)]
-            hover:shadow-[0.5px_0.5px_0px_0px_#211f1c] dark:hover:shadow-[0.5px_0.5px_0px_0px_rgba(255,255,255,0.12)]
-            hover:translate-y-px hover:opacity-80
-            active:translate-y-0.5 active:shadow-none
-            transition-all duration-100 cursor-pointer;
-}
-/* Primary action button with press effect */
-.retro-btn-primary {
-  @apply rounded-xl border border-(--blackish) dark:border-(--retro-border-white);
-  @apply shadow-(--hover-shadow) dark:shadow-(--retro-hover-shadow);
-  @apply hover:translate-y-px hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all;
-  @apply hover:cursor-pointer;
+      border border-[#211f1c]/20 dark:border-white/15
+      shadow-[1.5px_1.5px_0px_0px_#211f1c] dark:shadow-[1.5px_1.5px_0px_0px_rgba(255,255,255,0.12)]
+      hover:shadow-[0.5px_0.5px_0px_0px_#211f1c] dark:hover:shadow-[0.5px_0.5px_0px_0px_rgba(255,255,255,0.12)]
+      hover:translate-y-px hover:opacity-80
+      active:translate-y-0.5 active:shadow-none
+      transition-all duration-100 cursor-pointer;
 }
 
+/* Primary action button with press effect */
+@utility retro-btn-primary {
+  .retro-btn-primary {
+    @apply rounded-xl border border-(--blackish) dark:border-(--retro-border-white);
+    @apply shadow-(--hover-shadow) dark:shadow-(--retro-hover-shadow);
+    @apply hover:translate-y-px hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all;
+    @apply hover:cursor-pointer;
+  }
+}
 /* Card with subtle hover effect (2x2 -> 3x3 shadow on hover) */
 .retro-card-hover {
   @apply bg-(--surface-bg) rounded-(--retro-rounding) border-(--retro-border) dark:border-(--imaginary);
@@ -1619,4 +1621,217 @@ body {
 
 .donation-footer {
   @apply p-4 border border-[#211f1c]/20 rounded-lg text-center text-sm text-black/60;
+}
+
+/* ==========================================================================
+       Material Page Styles
+       ========================================================================== */
+
+@utility element-gradient {
+  @apply bg-[linear-gradient(180deg,rgba(228,227,172,0.22)_0%,rgba(255,255,255,0)_45%)] dark:bg-[linear-gradient(180deg,rgba(228,227,172,0.08)_0%,rgba(26,25,23,0)_45%)];
+}
+
+@utility detail-gradient {
+  @apply bg-[linear-gradient(135deg,color-mix(in_oklch,var(--waste-recycle)_25%,transparent),color-mix(in_oklch,var(--waste-reuse)_15%,transparent))];
+}
+main.material-detail-view {
+  @apply p-6;
+
+  & .section-container {
+    @apply mx-auto max-w-7xl space-y-12;
+    & section {
+      @apply scroll-mt-24 space-y-5 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4;
+      & .overview-container {
+        @apply space-y-2;
+        & .eyebrow {
+          @apply text-xs uppercase tracking-[0.14em] text-muted-foreground;
+        }
+        & .overview {
+          @apply flex flex-wrap items-start justify-between gap-4;
+          & h2 {
+            @apply text-2xl;
+          }
+          & p {
+            @apply mt-2 max-w-3xl text-sm leading-6 text-muted-foreground;
+          }
+          & [type="button"] {
+            @apply retro-btn-primary inline-flex items-center gap-2 bg-white px-3 py-2 hover:bg-black/5;
+          }
+        }
+      }
+      & .material-description {
+        @apply grid gap-5 lg:grid-cols-[minmax(0,1fr)_20rem];
+
+        & .material-description-card {
+          @apply rounded-(--retro-rounding) border-[1.5px] border-accent detail-gradient p-5;
+
+          & p:first-child {
+            @apply text-[13px] uppercase tracking-[0.08em] text-black/60;
+          }
+
+          & p:last-child {
+            @apply mt-2 max-w-3xl leading-7 text-black/80 dark:text-white/80;
+          }
+
+          & dl {
+            @apply mt-6 grid gap-4 border-t border-black/10 pt-4 text-sm sm:grid-cols-2;
+            & dt {
+              @apply text-black/50;
+            }
+            & dd {
+              @apply mt-1;
+            }
+          }
+        }
+
+        & .sidebar {
+          @apply rounded-(--retro-rounding) border-[1.5px] border-[#211f1c]/20 p-5 transition-colors;
+          &.normal {
+            @apply bg-white/60;
+          }
+          & .hub-container {
+            @apply mb-5;
+
+            & p {
+              @apply text-sm uppercase tracking-[0.08em] text-black/50 mb-2;
+            }
+            & .parents {
+              @apply flex flex-col gap-1;
+              & .parent {
+                @apply flex flex-col items-start;
+                & button {
+                  @apply retro-btn-primary px-2 py-1 rounded-md border border-[#211f1c] text-sm text-black/80 bg-white  hover:bg-black/5 transition-colors cursor-pointer;
+                }
+                & .connector {
+                  @apply ml-3 flex flex-col items-center;
+                  & .line {
+                    @apply w-px h-3 bg-black/20;
+                  }
+                  & .dot {
+                    @apply w-1.5 h-1.5 rounded-full bg-black/20;
+                  }
+                }
+              }
+              .material-label {
+                @apply ml-1 text-sm text-black/60 font-medium;
+                border: 2px dashed red !important;
+                border-radius: 4px !important;
+              }
+            }
+          }
+          &.hub-sidebar {
+            @apply bg-black/5;
+            & .periodic-table {
+              @apply mb-6 flex items-center gap-4;
+              & .element-nav {
+                @apply flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between;
+
+                & p {
+                  @apply text-[13px] uppercase tracking-[0.08em] text-black/60;
+                }
+                & a {
+                  @apply retro-btn-primary inline-flex items-center gap-2 whitespace-nowrap px-4 py-2;
+                }
+              }
+            }
+            & hr {
+              @apply w-full border-black/10;
+            }
+          }
+        }
+      }
+      & dt {
+        @apply text-muted-foreground;
+      }
+      & dd {
+        @apply tabular-nums;
+      }
+    }
+  }
+
+  & .section-heading {
+    @apply space-y-2;
+
+    & h2 {
+      @apply text-2xl text-foreground;
+    }
+    & p:first-child {
+      @apply text-xs uppercase tracking-[0.14em] text-muted-foreground;
+    }
+    & p:last-child {
+      @apply max-w-3xl text-sm leading-6 text-muted-foreground;
+    }
+  }
+
+  #material-intelligence {
+    & .quality {
+      @apply flex flex-wrap gap-2;
+
+      & [data-slot="badge"] {
+        @apply gap-1.5;
+      }
+
+      /* Shield icon inside badge */
+      & svg {
+        @apply size-3.5;
+      }
+    }
+
+    & .review-check {
+      @apply flex items-start gap-2 rounded-md border px-3 py-2 text-sm;
+
+      & .needs-review {
+        @apply border-amber-400/60 bg-amber-50 text-amber-950 dark:bg-amber-950/20 dark:text-amber-100;
+
+        /* Alert Triangle Icon */
+        & svg {
+          @apply mt-0.5 size-4 shrink-0;
+        }
+      }
+      & .reviewed {
+        @apply border-border bg-muted/30 text-muted-foreground;
+
+        /* Shield Check Icon */
+        & svg {
+          @apply mt-0.5 size-4 shrink-0;
+        }
+      }
+    }
+
+    .score-cards {
+      @apply grid gap-4 lg:grid-cols-3;
+
+      & [data-slot="card"] {
+        @apply border-[1.5px] border-[#211f1c]/25 bg-white/80 shadow-none;
+      }
+
+      & [data-slot="card-header"] {
+        @apply pb-0;
+
+        & div:first-child {
+          @apply flex items-start justify-between gap-3;
+
+          & [data-slot="card-title"] {
+            @apply text-lg;
+          }
+          & [data-slot="card-description"] {
+            @apply mt-1;
+          }
+        }
+
+        & span {
+          @apply text-3xl tabular-nums;
+        }
+      }
+
+      & [data-slot="card-content"] {
+        & dl {
+          @apply mt-4 grid gap-2 border-t pt-4 text-xs;
+          & div {
+            @apply flex items-center justify-between gap-3;
+          }
+        }
+      }
+    }
+  }
 }

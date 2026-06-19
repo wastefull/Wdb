@@ -16,6 +16,8 @@ export interface Test {
   stage?: number;
   legacyPhase?: string;
   category: string;
+  /** Tests that are safe to execute without an authenticated session. */
+  requiresAuth?: boolean;
   testFn: () => Promise<{ success: boolean; message: string }>;
 }
 

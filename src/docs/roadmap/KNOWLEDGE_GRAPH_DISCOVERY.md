@@ -52,6 +52,18 @@ Current articles may populate Recommended Learning, with direct material
 articles ranked before linked-material articles. This current-data ranking is
 separate from the future graph-ranked Knowledge Feed.
 
+The Stage 5 page exposes an ordered in-page navigator for Overview,
+Intelligence, Insights, Learning, Discovery, Research, and Contribution. Its
+targets must not use the URL hash because the application reserves hashes for
+view routing. Navigation respects reduced-motion preferences and moves focus
+to the selected section.
+
+Executable Stage 5 contract checks live in the roadmap test registry. They
+cover current-data preservation, graph empty states, learning ranking,
+missing-data behavior, and stable section targets. Full keyboard,
+screen-reader, high-contrast, dark-mode, responsive, and reduced-motion browser
+acceptance remains a separate completion gate.
+
 ## Purpose
 
 The Knowledge Graph & Educational Discovery Roadmap defines how WasteDB organizes knowledge.

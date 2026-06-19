@@ -20,6 +20,7 @@ import type {
   MaterialExperienceModel,
   MaterialGraphSection,
 } from "../../types/materialExperience";
+import { MATERIAL_EXPERIENCE_SECTIONS } from "../../config/materialExperience";
 import { RasterizedQuantileVisualization } from "../charts/RasterizedQuantileVisualization";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -47,13 +48,14 @@ function formatPercentage(value?: number): string {
   return value === undefined ? "Not recorded" : `${(value * 100).toFixed(1)}%`;
 }
 
-function formatConfidenceInterval(
-  interval?: { lower: number; upper: number },
-): string {
+function formatConfidenceInterval(interval?: {
+  lower: number;
+  upper: number;
+}): string {
   return interval
-    ? `${(interval.lower * 100).toFixed(1)}%–${(
-        interval.upper * 100
-      ).toFixed(1)}%`
+    ? `${(interval.lower * 100).toFixed(1)}%–${(interval.upper * 100).toFixed(
+        1,
+      )}%`
     : "Not recorded";
 }
 
@@ -91,13 +93,9 @@ function SectionHeading({
   description: string;
 }) {
   return (
-    <div className="space-y-2">
-      <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">
-        {eyebrow}
-      </p>
-      <h2 id={id} className="text-2xl text-foreground">
-        {title}
-      </h2>
+    <div className="section-heading">
+      <p>{eyebrow}</p>
+      <h2 id={id}>{title}</h2>
       <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
         {description}
       </p>
@@ -115,7 +113,11 @@ function MaterialIntelligenceSection({
   "material" | "model" | "articleCounts" | "onViewArticles"
 >) {
   return (
-    <section aria-labelledby="material-intelligence-heading" className="space-y-5">
+    <section
+      id={MATERIAL_EXPERIENCE_SECTIONS[1].id}
+      aria-labelledby="material-intelligence-heading"
+      tabIndex={-1}
+    >
       <SectionHeading
         id="material-intelligence-heading"
         eyebrow="2 · Decide"
@@ -123,9 +125,9 @@ function MaterialIntelligenceSection({
         description="Current sustainability scores, practical-versus-theoretical comparisons, and the quality signals behind them."
       />
 
-      <div className="flex flex-wrap gap-2" aria-label="Data quality summary">
-        <Badge variant="outline" className="gap-1.5">
-          <ShieldCheck className="size-3.5" aria-hidden="true" />
+      <div className="quality" aria-label="Data quality summary">
+        <Badge variant="outline">
+          <ShieldCheck aria-hidden="true" />
           Confidence: {model.intelligence.confidenceLevel ?? "Not rated"}
         </Badge>
         <Badge variant="outline">
@@ -134,41 +136,30 @@ function MaterialIntelligenceSection({
         </Badge>
       </div>
       <div
-        className={`flex items-start gap-2 rounded-md border px-3 py-2 text-sm ${
+        className={`review-check ${
           model.intelligence.qualityStatus === "review-needed"
-            ? "border-amber-400/60 bg-amber-50 text-amber-950 dark:bg-amber-950/20 dark:text-amber-100"
-            : "border-border bg-muted/30 text-muted-foreground"
+            ? "needs-review"
+            : "reviewed"
         }`}
       >
         {model.intelligence.qualityStatus === "review-needed" ? (
-          <AlertTriangle
-            className="mt-0.5 size-4 shrink-0"
-            aria-hidden="true"
-          />
+          <AlertTriangle aria-hidden="true" />
         ) : (
-          <ShieldCheck className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+          <ShieldCheck aria-hidden="true" />
         )}
         <p>{model.intelligence.qualityMessage}</p>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="score-cards">
         {model.intelligence.dimensions.map((dimension) => (
-          <Card
-            key={dimension.id}
-            className="border-[1.5px] border-[#211f1c]/25 bg-white/80 shadow-none dark:border-white/20 dark:bg-[#2a2825]"
-          >
-            <CardHeader className="pb-0">
+          <Card key={dimension.id}>
+            <CardHeader>
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <CardTitle className="text-lg">{dimension.label}</CardTitle>
-                  <CardDescription className="mt-1">
-                    Current score
-                  </CardDescription>
+                  <CardTitle>{dimension.label}</CardTitle>
+                  <CardDescription>Current score</CardDescription>
                 </div>
-                <span
-                  className="text-3xl tabular-nums"
-                  aria-label={`${dimension.score} out of 100`}
-                >
+                <span aria-label={`${dimension.score} out of 100`}>
                   {Math.round(dimension.score)}
                 </span>
               </div>
@@ -195,32 +186,22 @@ function MaterialIntelligenceSection({
                 articleCount={articleCounts[dimension.id]}
                 showScores
               />
-              <dl className="mt-4 grid gap-2 border-t pt-4 text-xs">
-                <div className="flex items-center justify-between gap-3">
-                  <dt className="text-muted-foreground">Practical mean</dt>
-                  <dd className="tabular-nums">
-                    {formatPercentage(dimension.practicalMean)}
-                  </dd>
+              <dl>
+                <div>
+                  <dt>Practical mean</dt>
+                  <dd>{formatPercentage(dimension.practicalMean)}</dd>
                 </div>
-                <div className="flex items-center justify-between gap-3">
-                  <dt className="text-muted-foreground">Theoretical mean</dt>
-                  <dd className="tabular-nums">
-                    {formatPercentage(dimension.theoreticalMean)}
-                  </dd>
+                <div>
+                  <dt>Theoretical mean</dt>
+                  <dd>{formatPercentage(dimension.theoreticalMean)}</dd>
                 </div>
-                <div className="flex items-center justify-between gap-3">
-                  <dt className="text-muted-foreground">Practical 95% CI</dt>
-                  <dd className="tabular-nums">
-                    {formatConfidenceInterval(dimension.practicalCI95)}
-                  </dd>
+                <div>
+                  <dt>Practical 95% CI</dt>
+                  <dd>{formatConfidenceInterval(dimension.practicalCI95)}</dd>
                 </div>
-                <div className="flex items-center justify-between gap-3">
-                  <dt className="text-muted-foreground">
-                    Theoretical 95% CI
-                  </dt>
-                  <dd className="tabular-nums">
-                    {formatConfidenceInterval(dimension.theoreticalCI95)}
-                  </dd>
+                <div>
+                  <dt>Theoretical 95% CI</dt>
+                  <dd>{formatConfidenceInterval(dimension.theoreticalCI95)}</dd>
                 </div>
               </dl>
             </CardContent>
@@ -237,7 +218,11 @@ function KeyInsightsSection({
   insights: MaterialExperienceModel["keyInsights"];
 }) {
   return (
-    <section aria-labelledby="key-insights-heading" className="space-y-5">
+    <section
+      id={MATERIAL_EXPERIENCE_SECTIONS[2].id}
+      aria-labelledby="key-insights-heading"
+      tabIndex={-1}
+    >
       <SectionHeading
         id="key-insights-heading"
         eyebrow="3 · Understand"
@@ -275,7 +260,11 @@ function RecommendedLearningSection({
   "model" | "onReadArticle" | "onViewMaterial"
 >) {
   return (
-    <section aria-labelledby="recommended-learning-heading" className="space-y-5">
+    <section
+      id={MATERIAL_EXPERIENCE_SECTIONS[3].id}
+      aria-labelledby="recommended-learning-heading"
+      tabIndex={-1}
+    >
       <SectionHeading
         id="recommended-learning-heading"
         eyebrow="4 · Learn"
@@ -348,7 +337,9 @@ function RecommendedLearningSection({
           <CardContent className="flex items-start gap-3 pt-6">
             <Library className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
             <div>
-              <p className="font-medium">No learning content is published yet.</p>
+              <p className="font-medium">
+                No learning content is published yet.
+              </p>
               <p className="mt-1 text-sm text-muted-foreground">
                 Contribution options below remain available for the current
                 material.
@@ -404,7 +395,11 @@ function GraphDiscoverySection({
   graph: MaterialExperienceModel["graph"];
 }) {
   return (
-    <section aria-labelledby="connected-discovery-heading" className="space-y-5">
+    <section
+      id={MATERIAL_EXPERIENCE_SECTIONS[4].id}
+      aria-labelledby="connected-discovery-heading"
+      tabIndex={-1}
+    >
       <SectionHeading
         id="connected-discovery-heading"
         eyebrow="5 · Explore"
@@ -445,7 +440,6 @@ function formatTimestamp(timestamp?: string): string | null {
 }
 
 function DeepResearchSection({
-  material,
   model,
   onOpenScienceHub,
   onOpenExport,
@@ -455,7 +449,6 @@ function DeepResearchSection({
   isAdminModeActive,
 }: Pick<
   MaterialExperienceSectionsProps,
-  | "material"
   | "model"
   | "onOpenScienceHub"
   | "onOpenExport"
@@ -468,9 +461,14 @@ function DeepResearchSection({
     (group) => group.parameters.length > 0,
   );
   const calculatedOn = formatTimestamp(model.research.calculationTimestamp);
+  const attribution = model.research.attribution;
 
   return (
-    <section aria-labelledby="deep-research-heading" className="space-y-5">
+    <section
+      id={MATERIAL_EXPERIENCE_SECTIONS[5].id}
+      aria-labelledby="deep-research-heading"
+      tabIndex={-1}
+    >
       <SectionHeading
         id="deep-research-heading"
         eyebrow="6 · Verify"
@@ -547,51 +545,53 @@ function DeepResearchSection({
               </p>
             )}
 
-            {(material.writer_name || material.editor_name) && (
+            {(attribution.writerName || attribution.editorName) && (
               <div className="border-t pt-4 text-sm">
                 <p className="font-medium">Content attribution</p>
                 <p className="mt-1 text-muted-foreground">
-                  {material.writer_name && `Written by ${material.writer_name}`}
-                  {material.writer_name && material.editor_name && " · "}
-                  {material.editor_name && `Edited by ${material.editor_name}`}
+                  {attribution.writerName &&
+                    `Written by ${attribution.writerName}`}
+                  {attribution.writerName && attribution.editorName && " · "}
+                  {attribution.editorName &&
+                    `Edited by ${attribution.editorName}`}
                 </p>
               </div>
             )}
 
-            {material.wiki?.sourceUrl && (
+            {attribution.wikiSourceUrl && (
               <div className="border-t pt-4 text-sm">
                 <p className="font-medium">Wikimedia attribution</p>
                 <a
-                  href={material.wiki.sourceUrl}
+                  href={attribution.wikiSourceUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-1 inline-flex items-center gap-1 text-muted-foreground underline hover:text-foreground"
                 >
                   Source article
-                  {material.wiki.sourceRevisionId
-                    ? ` · revision ${material.wiki.sourceRevisionId}`
+                  {attribution.wikiSourceRevisionId
+                    ? ` · revision ${attribution.wikiSourceRevisionId}`
                     : ""}
                   <ExternalLink className="size-3" aria-hidden="true" />
                 </a>
-                {material.wiki.imageAttributionText && (
+                {attribution.imageAttributionText && (
                   <p className="mt-2 text-xs text-muted-foreground">
-                    Image: {material.wiki.imageAttributionText}
+                    Image: {attribution.imageAttributionText}
                   </p>
                 )}
-                {material.wiki.imageLicenseName && (
+                {attribution.imageLicenseName && (
                   <p className="mt-1 text-xs text-muted-foreground">
                     License:{" "}
-                    {material.wiki.imageLicenseUrl ? (
+                    {attribution.imageLicenseUrl ? (
                       <a
-                        href={material.wiki.imageLicenseUrl}
+                        href={attribution.imageLicenseUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="underline hover:text-foreground"
                       >
-                        {material.wiki.imageLicenseName}
+                        {attribution.imageLicenseName}
                       </a>
                     ) : (
-                      material.wiki.imageLicenseName
+                      attribution.imageLicenseName
                     )}
                   </p>
                 )}
@@ -607,8 +607,8 @@ function DeepResearchSection({
               Scientific model
             </CardTitle>
             <CardDescription>
-              Normalized parameters and calculation metadata currently stored
-              on the material
+              Normalized parameters and calculation metadata currently stored on
+              the material
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-5">
@@ -624,12 +624,10 @@ function DeepResearchSection({
                             key={`${group.id}-${parameter.code}`}
                             className="flex items-center justify-between gap-3 rounded-md border px-3 py-2 text-sm"
                           >
-                            <dt className="text-muted-foreground">
+                            <dt>
                               {parameter.label} ({parameter.code})
                             </dt>
-                            <dd className="tabular-nums">
-                              {parameter.value.toFixed(2)}
-                            </dd>
+                            <dd>{parameter.value.toFixed(2)}</dd>
                           </div>
                         ))}
                       </dl>
@@ -644,15 +642,15 @@ function DeepResearchSection({
 
             <dl className="grid gap-2 border-t pt-4 text-sm sm:grid-cols-2">
               <div>
-                <dt className="text-muted-foreground">Method version</dt>
+                <dt>Method version</dt>
                 <dd>{model.research.methodVersion ?? "Not recorded"}</dd>
               </div>
               <div>
-                <dt className="text-muted-foreground">Whitepaper version</dt>
+                <dt>Whitepaper version</dt>
                 <dd>{model.research.whitepaperVersion ?? "Not recorded"}</dd>
               </div>
               <div>
-                <dt className="text-muted-foreground">Last calculated</dt>
+                <dt>Last calculated</dt>
                 <dd>{calculatedOn ?? "Not recorded"}</dd>
               </div>
             </dl>
@@ -706,7 +704,11 @@ function ContributionSection({
   "onViewArticles" | "onSuggestEdit" | "canSuggestEdit" | "isAdminModeActive"
 >) {
   return (
-    <section aria-labelledby="contribution-heading" className="space-y-5">
+    <section
+      id={MATERIAL_EXPERIENCE_SECTIONS[6].id}
+      aria-labelledby="contribution-heading"
+      tabIndex={-1}
+    >
       <SectionHeading
         id="contribution-heading"
         eyebrow="7 · Contribute"
@@ -803,7 +805,6 @@ export function MaterialExperienceSections({
       {learningLibrary}
       <GraphDiscoverySection graph={model.graph} />
       <DeepResearchSection
-        material={material}
         model={model}
         onOpenScienceHub={onOpenScienceHub}
         onOpenExport={onOpenExport}

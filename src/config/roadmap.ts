@@ -210,11 +210,25 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
         "stage-5-current-data",
         "Existing material data remains visible",
         "The redesigned page exposes all current scores, evidence, sources, attribution, and contribution actions without loss.",
+        "automated",
       ),
       acceptance(
         "stage-5-empty-states",
         "Graph-dependent sections fail honestly",
         "Knowledge Feed, Related Entities, and Discovery Paths show explicit empty states until graph data exists.",
+        "automated",
+      ),
+      acceptance(
+        "stage-5-learning-ranking",
+        "Current-data learning remains deterministic",
+        "Published direct-material content ranks before linked-material content, while drafts and archived content are excluded.",
+        "automated",
+      ),
+      acceptance(
+        "stage-5-section-navigation",
+        "The educational journey has stable navigation targets",
+        "Overview, Intelligence, Insights, Learning, Discovery, Research, and Contribution expose unique ordered targets without changing application routes.",
+        "automated",
       ),
       acceptance(
         "stage-5-accessibility",

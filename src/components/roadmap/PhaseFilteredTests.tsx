@@ -92,10 +92,14 @@ export function PhaseFilteredTests({
       ? getTestDefinitionsByStage(stage, user)
       : getTestDefinitionsByPhase(phase ?? "", user)) || [];
   const scopeLabel = stage !== undefined ? `Stage ${stage}` : `Phase ${phase}`;
+  const canRunTest = (test: Test) =>
+    Boolean(user) || test.requiresAuth === false;
+  const runnableTests = allTests.filter(canRunTest);
+  const blockedTests = allTests.length - runnableTests.length;
 
   const runAllTests = async () => {
     setRunningAll(true);
-    const testIds = allTests.map((t) => t.id);
+    const testIds = runnableTests.map((t) => t.id);
 
     for (const testId of testIds) {
       const test = allTests.find((t) => t.id === testId);
@@ -259,7 +263,7 @@ export function PhaseFilteredTests({
             </div>
             <Button
               onClick={runAllTests}
-              disabled={runningAll || !user}
+              disabled={runningAll || runnableTests.length === 0}
               className="bg-[#bae1ff] hover:bg-[#9dd1ff] text-black font-['Sniglet']"
             >
               {runningAll ? (
@@ -335,7 +339,9 @@ export function PhaseFilteredTests({
                         size="sm"
                         variant="outline"
                         onClick={() => runTest(test.id, test.testFn)}
-                        disabled={result.status === "loading" || !user}
+                        disabled={
+                          result.status === "loading" || !canRunTest(test)
+                        }
                         className="font-['Sniglet']"
                       >
                         {result.status === "loading" ? (
@@ -352,10 +358,11 @@ export function PhaseFilteredTests({
           </div>
         ))}
 
-        {!user && (
+        {blockedTests > 0 && (
           <div className="mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
             <p className="text-sm text-yellow-800 dark:text-yellow-200 font-['Sniglet']">
-              ⚠️ Please sign in as admin to run tests
+              ⚠️ Sign in as admin to run the remaining {blockedTests} test
+              {blockedTests === 1 ? "" : "s"}.
             </p>
           </div>
         )}

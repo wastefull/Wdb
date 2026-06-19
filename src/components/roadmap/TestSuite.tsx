@@ -175,7 +175,7 @@ export function TestSuite() {
         return {
           Status: "Failed",
           Stage: getStageLabel(test),
-          "Legacy Phase": test.legacyPhase || test.phase,
+          "Legacy Phase": test.legacyPhase ?? "—",
           Category: test.category,
           "Test Name": test.name,
           Description: test.description,
@@ -381,9 +381,11 @@ export function TestSuite() {
                       <td className="p-4">
                         <span className="font-['Sniglet'] text-sm text-muted-foreground">
                           {getStageLabel(test)}
-                          <span className="block text-xs mt-1">
-                            Legacy phase {test.legacyPhase || test.phase}
-                          </span>
+                          {test.legacyPhase && (
+                            <span className="block text-xs mt-1">
+                              Legacy phase {test.legacyPhase}
+                            </span>
+                          )}
                         </span>
                       </td>
                       <td className="p-4">

@@ -19,6 +19,7 @@ import { getPhase908Tests } from "./phases/9.0.8";
 import { getPhase909Tests } from "./phases/9.0.9";
 import { getPhase91Tests } from "./phases/9.1";
 import { getPhase92Tests } from "./phases/9.2";
+import { getStage5Tests } from "./stages/5";
 import { Test } from "./types";
 import { getStageNumberForLegacyPhase } from "../roadmap";
 
@@ -47,11 +48,13 @@ export function buildAllTests(user: any): Test[] {
     // etc.
   ];
 
-  return legacyTests.map((test) => ({
+  const mappedLegacyTests = legacyTests.map((test) => ({
     ...test,
     stage: getStageNumberForLegacyPhase(test.phase),
     legacyPhase: test.phase,
   }));
+
+  return [...mappedLegacyTests, ...getStage5Tests()];
 }
 
 /**

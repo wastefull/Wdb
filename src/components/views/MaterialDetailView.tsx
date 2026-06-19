@@ -29,9 +29,11 @@ import {
   MaterialDescriptionCard,
 } from "../shared";
 import { MaterialExperienceSections } from "../material-experience/MaterialExperienceSections";
+import { MaterialSectionNavigator } from "../material-experience/MaterialSectionNavigator";
 import { buildMaterialExperienceModel } from "../../utils/materialExperience";
 import { getArticleCount } from "../../utils/materialArticles";
 import { useNavigationContext } from "../../contexts/NavigationContext";
+import { MATERIAL_EXPERIENCE_SECTIONS } from "../../config/materialExperience";
 
 interface MaterialDetailViewProps {
   material: Material;
@@ -187,13 +189,11 @@ export function MaterialDetailView({
   const articleCounts = useMemo(
     () => ({
       compostability:
-        displayArticles.filter(
-          (entry) => entry.category === "compostability",
-        ).length || getArticleCount(material, "compostability"),
+        displayArticles.filter((entry) => entry.category === "compostability")
+          .length || getArticleCount(material, "compostability"),
       recyclability:
-        displayArticles.filter(
-          (entry) => entry.category === "recyclability",
-        ).length || getArticleCount(material, "recyclability"),
+        displayArticles.filter((entry) => entry.category === "recyclability")
+          .length || getArticleCount(material, "recyclability"),
       reusability:
         displayArticles.filter((entry) => entry.category === "reusability")
           .length || getArticleCount(material, "reusability"),
@@ -289,11 +289,7 @@ export function MaterialDetailView({
 
   return (
     <main
-      className={`p-6 ${
-        isElementHub
-          ? "bg-[linear-gradient(180deg,rgba(228,227,172,0.22)_0%,rgba(255,255,255,0)_45%)] dark:bg-[linear-gradient(180deg,rgba(228,227,172,0.08)_0%,rgba(26,25,23,0)_45%)]"
-          : ""
-      }`}
+      className={`material-detail-view ${isElementHub ? "element-gradient" : ""}`}
     >
       <MaterialDetailHeader
         coverImage={coverImage}
@@ -304,18 +300,19 @@ export function MaterialDetailView({
         isHub={isHub}
         totalArticles={displayArticles.length}
       />
-      <div className="mx-auto max-w-7xl space-y-12">
-        <section aria-labelledby="material-overview-heading" className="space-y-5">
-          <div className="space-y-2">
-            <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">
-              1 · Orient
-            </p>
-            <div className="flex flex-wrap items-start justify-between gap-4">
+      <MaterialSectionNavigator />
+      <div className="section-container">
+        <section
+          id={MATERIAL_EXPERIENCE_SECTIONS[0].id}
+          aria-labelledby="material-overview-heading"
+          tabIndex={-1}
+        >
+          <div className="overview-container">
+            <p className="eyebrow">1 · Orient</p>
+            <div className="overview">
               <div>
-                <h2 id="material-overview-heading" className="text-2xl">
-                  Material Overview
-                </h2>
-                <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
+                <h2 id="material-overview-heading">Material Overview</h2>
+                <p>
                   What this material is, how WasteDB classifies it, and the
                   current material links that remain available while connected
                   discovery is being prepared.
@@ -334,7 +331,6 @@ export function MaterialDetailView({
                       onSuggestEdit(material);
                     }
                   }}
-                  className="retro-btn-primary inline-flex items-center gap-2 bg-white px-3 py-2 hover:bg-black/5 dark:bg-[#2a2825] dark:hover:bg-white/10"
                   aria-label={
                     isAdminModeActive
                       ? `Edit ${material.name}`
@@ -348,7 +344,7 @@ export function MaterialDetailView({
             </div>
           </div>
 
-          <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
+          <div className="material-description">
             <MaterialDescriptionCard
               description={
                 material.description ||
@@ -356,9 +352,7 @@ export function MaterialDetailView({
               }
               category={material.category}
               aliases={combinedAliases}
-              onViewCategory={() =>
-                onViewCategoryMaterials(material.category)
-              }
+              onViewCategory={() => onViewCategoryMaterials(material.category)}
             />
             <MaterialDetailSidebar
               isElementHub={isElementHub}
@@ -414,7 +408,7 @@ export function MaterialDetailView({
           }}
           canSuggestEdit={Boolean(
             (isAdminModeActive && onEditMaterial) ||
-              (isAuthenticated && onSuggestEdit),
+            (isAuthenticated && onSuggestEdit),
           )}
           isAdminModeActive={isAdminModeActive}
           learningLibrary={
