@@ -260,6 +260,12 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
     ],
     acceptanceTests: [
       acceptance(
+        "stage-6-fresh-bootstrap",
+        "Fresh databases replay the complete migration history",
+        "A clean local Supabase database creates the legacy KV compatibility table before historical seeds and reaches the Stage 6 migration without manual schema setup.",
+        "automated",
+      ),
+      acceptance(
         "stage-6-schema-contract",
         "Graph foundation schema is additive and governed",
         "Graph tables, governed vocabulary seeds, evidence linkage columns, indexes, and RLS policies are present without replacing domain tables.",

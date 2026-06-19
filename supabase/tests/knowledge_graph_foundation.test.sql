@@ -2,9 +2,10 @@ BEGIN;
 
 CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 
-SELECT plan(63);
+SELECT plan(64);
 
--- Graph and migration-support tables.
+-- Legacy replay prerequisite plus graph and migration-support tables.
+SELECT has_table('public'::name, 'kv_store_17cae920'::name);
 SELECT has_table('public'::name, 'entity_types'::name);
 SELECT has_table('public'::name, 'relationship_types'::name);
 SELECT has_table('public'::name, 'tag_types'::name);

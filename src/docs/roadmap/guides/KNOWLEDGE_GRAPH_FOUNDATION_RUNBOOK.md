@@ -1,9 +1,13 @@
 # Stage 6 Knowledge Graph Foundation Runbook
 
-Use this runbook to validate and deploy
-`20260619000000_create_knowledge_graph_foundation.sql`. The migration is
-additive: domain tables remain authoritative, no graph backfill runs, and no
-read or write cutover occurs.
+Use this runbook to validate and deploy the Stage 6 prerequisite and foundation
+migrations:
+
+- `20260618000000_ensure_legacy_kv_store.sql`
+- `20260619000000_create_knowledge_graph_foundation.sql`
+
+Both are additive: domain tables remain authoritative, no graph backfill runs,
+and no read or write cutover occurs.
 
 ## Preconditions
 
@@ -22,22 +26,28 @@ migration report:
 
 ## Local Validation
 
-Start the local Supabase stack, then run:
+Start from a clean local Supabase stack and replay the complete migration
+history:
 
 ```sh
-supabase migration up --local
-supabase db lint --local --fail-on error
+supabase db reset --local --no-seed
+supabase db lint --local --schema public,private --fail-on error
 supabase test db
 npm run docs:check
 npx tsc --noEmit
 npm run build
 ```
 
-The 63-assertion pgTAP suite in
+The 64-assertion pgTAP suite in
 `supabase/tests/knowledge_graph_foundation.test.sql` verifies the tables,
-evidence linkage, critical indexes, governed vocabulary seeds, exact policy
-sets for every graph table, and the role/capability matrix for anonymous,
-authenticated contributor, staff/curator, admin, and service-role actors.
+the legacy KV replay prerequisite, evidence linkage, critical indexes,
+governed vocabulary seeds, exact policy sets for every graph table, and the
+role/capability matrix for anonymous, authenticated contributor, staff/curator,
+admin, and service-role actors.
+
+Lint is intentionally scoped to project-owned schemas. Linting the
+`extensions` schema reports false errors from pgTAP's temporary test objects
+and legacy compatibility functions rather than WasteDB schema defects.
 
 ## Deployment
 

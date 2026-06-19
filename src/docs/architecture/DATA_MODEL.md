@@ -23,6 +23,9 @@ maintained orientation guide, not a replacement for migration SQL.
 ## Remaining KV Responsibilities
 
 `kv_store_17cae920` remains for sessions and legacy operational namespaces.
+It was originally provisioned outside migration history; the replay guard and
+forward prerequisite migration now make clean local reconstruction
+deterministic.
 Its presence does not mean materials, evidence, or audit history should be read
 from KV. Before removing any namespace, inventory active reads and writes,
 create a verified backup, migrate additively, reconcile, and retain a manual
