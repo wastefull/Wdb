@@ -23,7 +23,8 @@ and governed tags. Videos are first-class knowledge objects, not attachments.
 
 - **Stage 5:** Ship the redesigned material-page hierarchy using current data,
   stable contracts, and explicit empty states for graph-dependent sections.
-- **Stage 7:** Add graph-aware content and curation workflows.
+- **Stage 7:** Add graph-aware content and curation workflows, then complete
+  full browser acceptance across the Stage 5-7 experience.
 - **Stage 8:** Wire verified graph reads into discovery and learning paths.
 
 Existing material metrics, evidence, attribution, exports, and contribution
@@ -60,9 +61,13 @@ to the selected section.
 
 Executable Stage 5 contract checks live in the roadmap test registry. They
 cover current-data preservation, graph empty states, learning ranking,
-missing-data behavior, and stable section targets. Full keyboard,
-screen-reader, high-contrast, dark-mode, responsive, and reduced-motion browser
-acceptance remains a separate completion gate.
+missing-data behavior, and stable section targets.
+
+Full keyboard, screen-reader, high-contrast, dark-mode, responsive, and
+reduced-motion browser acceptance is intentionally deferred to the final Stage
+7 completion gate. This allows the material redesign and graph curation
+surfaces to be tested together as one cross-stage experience before Stage 8
+wires verified graph reads into discovery.
 
 ## Purpose
 

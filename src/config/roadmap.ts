@@ -59,12 +59,6 @@ const planned = (title: string, description?: string): RoadmapDeliverable => ({
   status: "planned",
 });
 
-const active = (title: string, description?: string): RoadmapDeliverable => ({
-  title,
-  description,
-  status: "active",
-});
-
 const acceptance = (
   id: string,
   title: string,
@@ -196,14 +190,15 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
     number: 5,
     slug: "stage-5",
     title: "Material Experience Redesign",
-    status: "active",
+    status: "complete",
+    completedDate: "June 18, 2026",
     summary:
       "Restructure material pages as clear educational journeys while preserving every existing workflow and data surface.",
     deliverables: [
-      active("Material Overview and Material Intelligence hierarchy"),
-      active("Key Insights and recommended learning sections using current data"),
-      active("Stable contracts and honest empty states for graph-powered sections"),
-      active("Preserve evidence, attribution, export, and contribution workflows"),
+      complete("Material Overview and Material Intelligence hierarchy"),
+      complete("Key Insights and recommended learning sections using current data"),
+      complete("Stable contracts and honest empty states for graph-powered sections"),
+      complete("Preserve evidence, attribution, export, and contribution workflows"),
     ],
     acceptanceTests: [
       acceptance(
@@ -230,22 +225,17 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
         "Overview, Intelligence, Insights, Learning, Discovery, Research, and Contribution expose unique ordered targets without changing application routes.",
         "automated",
       ),
-      acceptance(
-        "stage-5-accessibility",
-        "Redesigned hierarchy remains accessible",
-        "Keyboard, screen-reader, high-contrast, dark-mode, and reduced-motion behavior remains functional.",
-      ),
     ],
   },
   {
     number: 6,
     slug: "stage-6",
     title: "Knowledge Graph Foundation",
-    status: "planned",
+    status: "active",
     summary:
       "Add the graph data layer through additive, observable, and recoverable migrations without replacing authoritative domain tables.",
     deliverables: [
-      planned("Resolve schema ADRs for canonical references, enums, and RLS"),
+      complete("Resolve schema ADRs for canonical references, enums, and RLS"),
       planned("Add graph tables, indexes, policies, and compatibility adapters"),
       planned("Backfill entities, relationships, tags, content mappings, and evidence links"),
       planned("Provide dry-run, reconciliation, quarantine, resume, and manual repair tools"),
@@ -295,6 +285,7 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
       planned("Review and authorization workflows for graph mutations"),
       planned("Compatibility-aware dual writes during migration"),
       planned("Audit summaries that preserve existing audit consumers"),
+      planned("Cross-stage browser accessibility and responsive acceptance"),
     ],
     acceptanceTests: [
       acceptance(
@@ -306,6 +297,11 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
         "stage-7-audit",
         "Graph mutations preserve audit compatibility",
         "Graph changes create summary audit records without breaking existing list, detail, statistics, or filtering interfaces.",
+      ),
+      acceptance(
+        "stage-7-browser-acceptance",
+        "Stages 5-7 pass full browser acceptance",
+        "Material and graph curation experiences pass keyboard, screen-reader, high-contrast, dark-mode, responsive, and reduced-motion browser testing before Stage 7 completes.",
       ),
     ],
   },

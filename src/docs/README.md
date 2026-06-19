@@ -12,6 +12,7 @@ for stage status, deliverables, acceptance tests, and backlog items.
 - [Deployment](./setup/DEPLOYMENT.md)
 - [System overview](./architecture/SYSTEM_OVERVIEW.md)
 - [Current data model](./architecture/DATA_MODEL.md)
+- [ADR 001: Knowledge graph foundation](./architecture/ADR_001_KNOWLEDGE_GRAPH_FOUNDATION.md)
 - [Security](./security/SECURITY.md)
 - [Visualization](./visualization/VISUALIZATION.md)
 

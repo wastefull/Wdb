@@ -32,7 +32,9 @@ recovery path.
 
 Stage 6 plans additive graph tables for entities, relationships, normalized
 tags, content-to-subject mappings, and videos. Domain tables will remain
-authoritative. See [Knowledge Graph Migration](../roadmap/KNOWLEDGE_GRAPH_MIGRATION.md).
+authoritative. See
+[ADR 001: Knowledge Graph Foundation](./ADR_001_KNOWLEDGE_GRAPH_FOUNDATION.md)
+and [Knowledge Graph Migration](../roadmap/KNOWLEDGE_GRAPH_MIGRATION.md).
 
 ## Data-Loss Prevention
 

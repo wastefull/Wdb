@@ -62,24 +62,22 @@ Destructive cleanup always requires a later, separately approved migration.
 
 ## Stage 6 Architecture Decisions
 
-These questions must be resolved through architecture decision records before
-schema implementation:
+The Stage 6 architecture questions are resolved in
+[ADR 001: Knowledge Graph Foundation](../architecture/ADR_001_KNOWLEDGE_GRAPH_FOUNDATION.md).
 
-1. Sanity check whether `canonical_table` + `canonical_id` is acceptable for
-   our Supabase/RLS conventions or whether we should prefer one explicit
-   nullable foreign key per entity type.
+In summary:
 
-2. Could we benefit from Supabase's Database Enumerated Types?
-
-3. Are there other modern Supabase features we are missing out on even on the Free tier in June 2026?
-
-4. How will unresolved migration records be represented and repaired?
-
-5. Which writes require temporary dual-write compatibility, and how will they
-   be reconciled?
-
-6. Which old and new backup formats must each release restore or manually
-   recover?
+1. Use an `entity_canonical_bindings` table with explicit nullable foreign
+   keys rather than `canonical_table` plus `canonical_id`.
+2. Use governed lookup tables for evolving graph vocabularies rather than
+   Postgres enums.
+3. Use RLS, pgTAP, and optional JSON Schema validation; keep Queues and Cron
+   optional rather than migration dependencies.
+4. Preserve unresolved payloads in versioned migration issue tables.
+5. Use transactional database sync plus an idempotent outbox, not unrelated
+   application-layer double writes.
+6. Add graph-era full-site backup schema version 4.0 while preserving 3.0 and
+   legacy merge-recovery paths.
 
 ## Purpose
 
@@ -150,6 +148,28 @@ Legacy fields should remain until graph reads are verified in production.
 
 1. New Tables
 
+3.0 governed graph vocabularies
+
+Purpose:
+
+Keep evolving entity types, relationship types, tag types, content roles,
+lifecycle focuses, and evidence uses in reviewed lookup tables rather than
+Postgres enums.
+
+At minimum, create:
+
+entity_types
+relationship_types
+tag_types
+content_roles
+lifecycle_focuses
+evidence_uses
+
+Each vocabulary table should use a stable text slug as its primary key and
+include a label, description, active flag, and timestamps where useful.
+
+⸻
+
 3.1 entities
 
 Purpose:
@@ -158,9 +178,7 @@ Create a universal graph node table for materials, articles, guides, videos, sou
 
 create table entities (
 id uuid primary key default gen_random_uuid(),
-entity_type text not null,
-canonical_table text null,
-canonical_id uuid null,
+entity_type text not null references entity_types(slug),
 name text not null,
 slug text null,
 description text null,
@@ -198,7 +216,7 @@ create table entity_relationships (
 id uuid primary key default gen_random_uuid(),
 source_entity_id uuid not null references entities(id) on delete cascade,
 target_entity_id uuid not null references entities(id) on delete cascade,
-relationship_type text not null,
+relationship_type text not null references relationship_types(slug),
 metadata jsonb not null default '{}',
 confidence numeric null,
 created_by uuid null references user_profiles(id),
@@ -242,7 +260,7 @@ create table tags (
 id uuid primary key default gen_random_uuid(),
 slug text not null unique,
 label text not null,
-tag_type text null,
+tag_type text null references tag_types(slug),
 description text null,
 created_at timestamptz not null default now()
 );
@@ -289,9 +307,9 @@ create table content_entities (
 id uuid primary key default gen_random_uuid(),
 content_entity_id uuid not null references entities(id) on delete cascade,
 subject_entity_id uuid not null references entities(id) on delete cascade,
-role text not null default 'mentioned',
-lifecycle_focus text null,
-evidence_use text null,
+role text not null default 'mentioned' references content_roles(slug),
+lifecycle_focus text null references lifecycle_focuses(slug),
+evidence_use text null references evidence_uses(slug),
 created_at timestamptz not null default now(),
 constraint no_self_content_entity
 check (content_entity_id <> subject_entity_id),
@@ -362,7 +380,40 @@ created_at timestamptz not null default now(),
 updated_at timestamptz not null default now()
 );
 
-Each video should also receive a corresponding entities row.
+Each video should also receive a corresponding entities row and canonical
+binding.
+
+⸻
+
+3.7 entity_canonical_bindings
+
+Purpose:
+
+Connect domain-backed entities to authoritative rows with real foreign keys.
+Create this table after the videos table exists, or add the video foreign key
+in a later statement in the same migration.
+
+create table entity_canonical_bindings (
+entity_id uuid primary key references entities(id) on delete cascade,
+material_id uuid unique null references materials(id) on delete restrict,
+article_id uuid unique null references articles(id) on delete restrict,
+guide_id uuid unique null references guides(id) on delete restrict,
+blog_post_id uuid unique null references blog_posts(id) on delete restrict,
+source_id uuid unique null references sources(id) on delete restrict,
+video_id uuid unique null references videos(id) on delete restrict,
+constraint exactly_one_canonical_reference check (
+num_nonnulls(
+material_id,
+article_id,
+guide_id,
+blog_post_id,
+source_id,
+video_id
+) = 1
+)
+);
+
+Graph-native entities do not receive a canonical binding.
 
 ⸻
 
@@ -391,71 +442,66 @@ Eventually, entity_id can support evidence for non-material entities such as pro
 
 5.1 Backfill material entities
 
-For every row in materials, create one entities row:
+For every row in materials, create one entities row and one canonical binding:
 
 entity_type = material
-canonical_table = materials
-canonical_id = materials.id
 name = materials.name
 slug = materials.slug
 description = materials.description
 status = materials.status
+entity_canonical_bindings.material_id = materials.id
 
 ⸻
 
 5.2 Backfill article entities
 
-For every row in articles, create one entities row:
+For every row in articles, create one entities row and one canonical binding:
 
 entity_type = article
-canonical_table = articles
-canonical_id = articles.id
 name = articles.title
 slug = articles.slug
 description = null
 status = articles.status
+entity_canonical_bindings.article_id = articles.id
 
 ⸻
 
 5.3 Backfill guide entities
 
-For every row in guides, create one entities row:
+For every row in guides, create one entities row and one canonical binding:
 
 entity_type = guide
-canonical_table = guides
-canonical_id = guides.id
 name = guides.title
 slug = guides.slug
 description = guides.description
 status = guides.status
+entity_canonical_bindings.guide_id = guides.id
 
 ⸻
 
 5.4 Backfill blog post entities
 
-For every row in blog_posts, create one entities row:
+For every row in blog_posts, create one entities row and one canonical binding:
 
 entity_type = blog_post
-canonical_table = blog_posts
-canonical_id = blog_posts.id
 name = blog_posts.title
 slug = blog_posts.slug
 description = blog_posts.excerpt
 status = blog_posts.status
+entity_canonical_bindings.blog_post_id = blog_posts.id
 
 ⸻
 
 5.5 Backfill source entities
 
-For every row in sources, create one entities row:
+For every row in sources, create one entities row and one canonical binding:
 
 entity_type = source
-canonical_table = sources
-canonical_id = sources.id
 name = sources.title
 slug = null
 description = authors/year/doi/url summary if desired
 status = active
+entity_canonical_bindings.source_id = sources.id
 
 ⸻
 
@@ -730,8 +776,13 @@ Potentially keep material_sources permanently if it remains useful as a structur
 1. Suggested Indexes
 
 create index idx_entities_type on entities(entity_type);
-create index idx_entities_canonical on entities(canonical_table, canonical_id);
 create index idx_entities_slug on entities(slug);
+create index idx_entity_bindings_material on entity_canonical_bindings(material_id);
+create index idx_entity_bindings_article on entity_canonical_bindings(article_id);
+create index idx_entity_bindings_guide on entity_canonical_bindings(guide_id);
+create index idx_entity_bindings_blog_post on entity_canonical_bindings(blog_post_id);
+create index idx_entity_bindings_source on entity_canonical_bindings(source_id);
+create index idx_entity_bindings_video on entity_canonical_bindings(video_id);
 create index idx_entity_relationships_source on entity_relationships(source_entity_id);
 create index idx_entity_relationships_target on entity_relationships(target_entity_id);
 create index idx_entity_relationships_type on entity_relationships(relationship_type);
@@ -752,10 +803,13 @@ create index idx_evidence_points_score_category on evidence_points(score_categor
 
 select count(\*) as missing_material_entities
 from materials m
+left join entity_canonical_bindings b
+on b.material_id = m.id
 left join entities e
-on e.canonical_table = 'materials'
-and e.canonical_id = m.id
-where e.id is null;
+on e.id = b.entity_id
+where b.entity_id is null
+or e.id is null
+or e.entity_type <> 'material';
 
 Expected:
 
@@ -767,10 +821,13 @@ Expected:
 
 select count(\*) as missing_article_entities
 from articles a
+left join entity_canonical_bindings b
+on b.article_id = a.id
 left join entities e
-on e.canonical_table = 'articles'
-and e.canonical_id = a.id
-where e.id is null;
+on e.id = b.entity_id
+where b.entity_id is null
+or e.id is null
+or e.entity_type <> 'article';
 
 Expected:
 
@@ -832,6 +889,13 @@ and m_name.id is null;
 
 1. Application Migration Plan
 
+Step 0: Backup Compatibility
+
+Update full-site export and validation to recognize graph-era schema version
+4.0 before graph rows are created.
+
+Keep schema version 3.0 validation and manual recovery supported.
+
 Step 1: Schema Additions
 
 Add new tables and indexes.
@@ -883,9 +947,9 @@ evidence_points.source_id
 evidence_points.entity_id
 evidence_points.score_category
 
-Step 6: UI Read Migration
+Step 6: UI Read Adapter Preparation
 
-Update material page queries to read from:
+Prepare read adapters for:
 
 entities
 entity_relationships
@@ -904,9 +968,13 @@ Related Entities
 Deep Research
 Contribution Tools
 
-Step 7: Write Path Migration
+Do not enable graph reads in Stage 6. Stage 8 may enable them only after
+reconciliation gates pass.
 
-Update admin/contributor tools so new submissions write to graph tables.
+Step 7: Compatibility Write Preparation
+
+Add transactional database synchronization and an idempotent graph outbox.
+Stage 7 may enable governed graph mutation workflows after reconciliation.
 
 Examples:
 
@@ -916,7 +984,7 @@ Examples:
 
 - Adding tags writes to entity_tags.
 
-- Adding video creates both videos row and entities row.
+- Adding video creates a videos row, an entities row, and a canonical binding.
 
 Step 8: Legacy Deprecation
 
