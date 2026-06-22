@@ -291,17 +291,28 @@ export function DataManagementView({
       }
       const text = await response.text();
       const meta = JSON.parse(text)?.metadata;
+
+      const digest = await crypto.subtle.digest(
+        "SHA-256",
+        new TextEncoder().encode(text),
+      );
+      const sha256 = Array.from(new Uint8Array(digest))
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("");
+
+      const filename = `wastedb-full-backup-${new Date().toISOString().split("T")[0]}.json`;
       const blob = new Blob([text], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `wastedb-full-backup-${new Date().toISOString().split("T")[0]}.json`;
+      a.download = filename;
       a.click();
       URL.revokeObjectURL(url);
       toast.success(
         meta
-          ? `Full backup downloaded: ${meta.total_records} records (${meta.kv_record_count} KV + ${meta.postgres_record_count} Postgres)`
-          : "Full site backup downloaded",
+          ? `Full backup downloaded (${meta.total_records} records). Recovery artifact SHA-256: ${sha256}`
+          : `Full site backup downloaded. Recovery artifact SHA-256: ${sha256}`,
+        { duration: 20000 },
       );
     } catch (error) {
       toast.error("Failed to download full site backup");
