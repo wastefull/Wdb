@@ -259,7 +259,10 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
         "The additive foundation was deployed to production on June 22, 2026, with validated schema-version 3.0 and 4.0 backups, unchanged domain-table counts and checksums, clean database lint, and 64 passing production pgTAP assertions.",
       ),
       planned("Backfill entities, relationships, tags, content mappings, and evidence links"),
-      active("Provide dry-run, reconciliation, quarantine, resume, and manual repair tools"),
+      active(
+        "Provide dry-run, reconciliation, quarantine, resume, and manual repair tools",
+        "The admin-only entity-backfill preview is deployed and reports deterministic counts, checksums, conflicts, unresolved rows, and unchanged graph snapshots. Apply, persisted issue handling, checkpoints, resume, and manual correction remain in progress.",
+      ),
     ],
     acceptanceTests: [
       acceptance(
@@ -295,6 +298,12 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
         "stage-6-idempotent",
         "Graph migration is idempotent and resumable",
         "Dry run, repeated execution, partial failure, and resume produce no duplicate or unexplained lost records.",
+      ),
+      acceptance(
+        "stage-6-entity-backfill-dry-run",
+        "Entity backfill is previewed without mutation",
+        "The canonical material, article, guide, blog-post, and source mapping reports inserts, updates, reconciled rows, conflicts, unresolved rows, deterministic checksums, and unchanged graph snapshots before any apply operation.",
+        "automated",
       ),
       acceptance(
         "stage-6-rollback",

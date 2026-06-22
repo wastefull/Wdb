@@ -114,6 +114,10 @@ The two JSON backups and validation reports remain outside the repository with
 operator-only permissions. They must be moved to approved archival storage or
 securely removed after the Stage 6 retention window.
 
-The next Stage 6 implementation slice is dry-run and reconciliation tooling for
-the first entity backfill. Graph reads, graph writes, and destructive cleanup
-remain disabled.
+The non-mutating dry-run and reconciliation contract for the first entity
+backfill was completed after this foundation deployment. Its implementation
+guide and production evidence are:
+[Entity Backfill Dry Run](./KNOWLEDGE_GRAPH_ENTITY_BACKFILL_RUNBOOK.md).
+The next slice is transactional apply, checkpoint, resume, issue persistence,
+and post-apply reconciliation tooling. Graph reads, compatibility writes, and
+destructive cleanup remain disabled.

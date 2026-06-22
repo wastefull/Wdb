@@ -12,6 +12,9 @@ and no read or write cutover occurs.
 Production deployment evidence:
 [June 22, 2026 deployment report](./KNOWLEDGE_GRAPH_FOUNDATION_DEPLOYMENT_2026-06-22.md)
 
+Next non-mutating migration step:
+[Entity Backfill Dry Run](./KNOWLEDGE_GRAPH_ENTITY_BACKFILL_RUNBOOK.md)
+
 ## Preconditions
 
 Do not apply the migration until all of these conditions are recorded in the

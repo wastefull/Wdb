@@ -330,5 +330,85 @@ export function getStage6Tests(): Test[] {
         };
       },
     },
+    {
+      id: "stage-6-entity-backfill-dry-run",
+      name: "Entity backfill dry run is non-mutating",
+      description:
+        "Builds the canonical entity and binding plan, reports inserts, updates, reconciled rows, conflicts, and unresolved rows, and proves that graph snapshots are unchanged.",
+      phase: "stage-6",
+      stage: 6,
+      category: "Migration Safety",
+      requiresAuth: true,
+      testFn: async () => {
+        const accessToken = sessionStorage.getItem("wastedb_access_token");
+        if (!accessToken) {
+          return {
+            success: false,
+            message: "Sign in as admin to run the entity backfill dry run.",
+          };
+        }
+
+        const response = await fetch(
+          `${EDGE_URL}/graph/migrations/entity-backfill/dry-run`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${publicAnonKey}`,
+              "X-Session-Token": accessToken,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ sample_limit: 5 }),
+          },
+        );
+        const payload = await response.json();
+        if (!response.ok || payload.success !== true) {
+          return {
+            success: false,
+            message: `Entity dry run failed with HTTP ${response.status}: ${JSON.stringify(payload)}`,
+          };
+        }
+
+        const report = payload.report;
+        const phases = Object.values(report?.phases ?? {}) as Array<{
+          source_count?: number;
+          summary?: { processed?: number };
+        }>;
+        const sourceCount = phases.reduce(
+          (total, phase) => total + (phase.source_count ?? 0),
+          0,
+        );
+        const phaseProcessed = phases.reduce(
+          (total, phase) => total + (phase.summary?.processed ?? 0),
+          0,
+        );
+        const summary = report?.summary;
+        const prospective = report?.prospective_writes;
+        const snapshotStable =
+          JSON.stringify(report?.graph_snapshot_before) ===
+          JSON.stringify(report?.graph_snapshot_after);
+        const totalsReconcile =
+          summary?.processed === sourceCount &&
+          phaseProcessed === sourceCount &&
+          prospective?.entity_inserts === summary?.inserts &&
+          prospective?.canonical_binding_inserts === summary?.inserts &&
+          prospective?.entity_updates === summary?.updates &&
+          prospective?.total === summary?.inserts * 2 + summary?.updates;
+        const valid =
+          report?.mode === "dry_run" &&
+          report?.mutation_performed === false &&
+          report?.mutation_detected === false &&
+          snapshotStable &&
+          totalsReconcile &&
+          typeof report?.report_checksum === "string" &&
+          /^[a-f0-9]{64}$/.test(report.report_checksum);
+
+        return {
+          success: valid,
+          message: valid
+            ? `Dry run reconciled ${sourceCount} canonical rows without graph writes; ${report.blocking_issue_count} blocking issue(s) reported.`
+            : "Entity dry-run report did not satisfy the non-mutation or reconciliation contract.",
+        };
+      },
+    },
   ];
 }

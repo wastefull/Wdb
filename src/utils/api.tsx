@@ -9,6 +9,7 @@ import {
 } from "./loggerFactories";
 import { toast } from "sonner";
 import { Material } from "../types/material";
+import type { EntityBackfillDryRunResponse } from "../types/graphMigration";
 
 // Export projectId and publicAnonKey for use in other modules
 export { projectId, publicAnonKey };
@@ -1620,5 +1621,17 @@ export async function setMaintenanceMode(
   return await apiCall("/maintenance", {
     method: "POST",
     body: JSON.stringify({ enabled }),
+  });
+}
+
+// ==================== GRAPH MIGRATION DRY RUNS ====================
+
+/** Admin only — computes the entity backfill plan without writing graph data. */
+export async function runEntityBackfillDryRun(
+  sampleLimit = 25,
+): Promise<EntityBackfillDryRunResponse> {
+  return await apiCall("/graph/migrations/entity-backfill/dry-run", {
+    method: "POST",
+    body: JSON.stringify({ sample_limit: sampleLimit }),
   });
 }

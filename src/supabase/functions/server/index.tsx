@@ -10,6 +10,7 @@ import {
   areTitlesSimilar,
 } from "./string-utils.tsx";
 import { handlePublicExport, handleResearchExport } from "./exports.tsx";
+import { buildEntityBackfillDryRun } from "./graph-migration.tsx";
 
 // REMOVED: import * as evidenceRoutes from "./evidence-routes.tsx";
 // This import was causing the entire server to fail because evidence-routes.tsx
@@ -15098,6 +15099,46 @@ app.get(
       return c.json(
         {
           error: "Failed to check referential integrity",
+          details: String(error),
+        },
+        500,
+      );
+    }
+  },
+);
+
+// ==================== GRAPH MIGRATION DRY RUNS ====================
+
+// Non-mutating entity-backfill preview. This intentionally does not create a
+// graph_migration_runs row or audit entry: callers can compare repeated reports
+// without the dry run changing the source or destination snapshots.
+app.post(
+  "/make-server-17cae920/graph/migrations/entity-backfill/dry-run",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const body = await c.req.json().catch(() => ({}));
+      const requestedLimit = Number(body?.sample_limit);
+      const sampleLimit = Number.isFinite(requestedLimit)
+        ? Math.trunc(requestedLimit)
+        : undefined;
+      const report = await buildEntityBackfillDryRun(_roleClient(), {
+        sampleLimit,
+      });
+
+      return c.json({
+        success: true,
+        ready_to_apply: report.blocking_issue_count === 0,
+        report,
+      });
+    } catch (error) {
+      log.error("Entity backfill dry run failed:", error);
+      return c.json(
+        {
+          success: false,
+          ready_to_apply: false,
+          error: "Entity backfill dry run failed",
           details: String(error),
         },
         500,

@@ -32,6 +32,9 @@ Stage 6 foundation deployment procedure:
 Production foundation deployment:
 [June 22, 2026 Deployment Report](./guides/KNOWLEDGE_GRAPH_FOUNDATION_DEPLOYMENT_2026-06-22.md)
 
+First entity-backfill preview:
+[June 22, 2026 Dry-Run Report](./guides/KNOWLEDGE_GRAPH_ENTITY_BACKFILL_DRY_RUN_2026-06-22.md)
+
 ## Migration Execution Contract
 
 Every automated or manual migration package must include:
@@ -489,6 +492,40 @@ Eventually, entity_id can support evidence for non-material entities such as pro
 
 1. Backfill Strategy
 
+5.0 Preview the entity backfill
+
+The admin-only
+`POST /graph/migrations/entity-backfill/dry-run` endpoint must run before any
+entity apply operation. It is non-mutating: it does not create entities,
+bindings, migration-run rows, issues, checkpoints, outbox events, or audit
+rows.
+
+The report classifies every canonical source row as:
+
+- `insert`: no binding or conflicting entity exists
+- `update`: a binding exists but mapped entity fields differ
+- `reconciled`: the binding and mapped fields already match
+- `conflict`: applying automatically could attach or overwrite the wrong entity
+- `unresolved`: the source row lacks a required identifier, name, slug, or
+  supported status
+
+The report includes per-table source and mapped checksums, prospective write
+counts, bounded samples, orphan-binding diagnostics, and graph snapshots before
+and after execution. Any graph snapshot change invalidates the report.
+
+Entity statuses use this explicit compatibility mapping:
+
+- `published` becomes `active`
+- `draft` remains `draft`
+- `pending_review` remains `pending_review`
+- `archived` remains `archived`
+- source entities are `active`
+
+Case-insensitive duplicate slugs within an entity type are blocking conflicts.
+This is especially important for articles, whose domain-table slug uniqueness
+is scoped to a material while graph entity slug uniqueness is scoped to an
+entity type.
+
 5.1 Backfill material entities
 
 For every row in materials, create one entities row and one canonical binding:
@@ -497,7 +534,7 @@ entity_type = material
 name = materials.name
 slug = materials.slug
 description = materials.description
-status = materials.status
+status = mapped materials.status
 entity_canonical_bindings.material_id = materials.id
 
 ⸻
@@ -510,7 +547,7 @@ entity_type = article
 name = articles.title
 slug = articles.slug
 description = null
-status = articles.status
+status = mapped articles.status
 entity_canonical_bindings.article_id = articles.id
 
 ⸻
@@ -523,7 +560,7 @@ entity_type = guide
 name = guides.title
 slug = guides.slug
 description = guides.description
-status = guides.status
+status = mapped guides.status
 entity_canonical_bindings.guide_id = guides.id
 
 ⸻
@@ -536,7 +573,7 @@ entity_type = blog_post
 name = blog_posts.title
 slug = blog_posts.slug
 description = blog_posts.excerpt
-status = blog_posts.status
+status = mapped blog_posts.status
 entity_canonical_bindings.blog_post_id = blog_posts.id
 
 ⸻
@@ -548,7 +585,8 @@ For every row in sources, create one entities row and one canonical binding:
 entity_type = source
 name = sources.title
 slug = null
-description = authors/year/doi/url summary if desired
+description = null during the initial backfill; citation metadata remains
+authoritative in sources
 status = active
 entity_canonical_bindings.source_id = sources.id
 
@@ -1018,7 +1056,12 @@ guides
 blog_posts
 sources
 
-Add automated tests to confirm every canonical row has an entity.
+Run and retain the non-mutating entity-backfill report first. Resolve every
+reported conflict or unresolved row before apply. Repeated dry runs against an
+unchanged source and graph snapshot must produce the same counts and report
+checksum.
+
+Add automated tests to confirm every canonical row has an entity after apply.
 
 Step 3: Relationship Backfill
 
