@@ -10,7 +10,15 @@ import {
   areTitlesSimilar,
 } from "./string-utils.tsx";
 import { handlePublicExport, handleResearchExport } from "./exports.tsx";
-import { buildEntityBackfillDryRun } from "./graph-migration.tsx";
+import {
+  buildEntityBackfillDryRun,
+  ENTITY_BACKFILL_APPLY_CONFIRMATION,
+  ENTITY_BACKFILL_PHASES,
+  ENTITY_BACKFILL_VERSION,
+  parseEntityBackfillRecoveryArtifact,
+  resumeEntityBackfillApply,
+  startEntityBackfillApply,
+} from "./graph-migration.tsx";
 
 // REMOVED: import * as evidenceRoutes from "./evidence-routes.tsx";
 // This import was causing the entire server to fail because evidence-routes.tsx
@@ -15139,6 +15147,207 @@ app.post(
           success: false,
           ready_to_apply: false,
           error: "Entity backfill dry run failed",
+          details: String(error),
+        },
+        500,
+      );
+    }
+  },
+);
+
+app.get(
+  "/make-server-17cae920/graph/migrations/entity-backfill/capabilities",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    return c.json({
+      migration_version: ENTITY_BACKFILL_VERSION,
+      apply_enabled:
+        Deno.env.get("GRAPH_MIGRATION_APPLY_ENABLED") === "true",
+      apply_confirmation: ENTITY_BACKFILL_APPLY_CONFIRMATION,
+      phases: ENTITY_BACKFILL_PHASES,
+      graph_reads_enabled: false,
+      compatibility_writes_enabled: false,
+    });
+  },
+);
+
+app.post(
+  "/make-server-17cae920/graph/migrations/entity-backfill/apply",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    if (Deno.env.get("GRAPH_MIGRATION_APPLY_ENABLED") !== "true") {
+      return c.json(
+        {
+          success: false,
+          error:
+            "Entity-backfill apply is disabled. Enable it only for an approved migration window.",
+        },
+        503,
+      );
+    }
+
+    try {
+      const body = await c.req.json();
+      if (body?.confirmation !== ENTITY_BACKFILL_APPLY_CONFIRMATION) {
+        return c.json(
+          {
+            success: false,
+            error: "Exact entity-backfill confirmation text is required",
+          },
+          400,
+        );
+      }
+      const expectedReportChecksum =
+        typeof body?.expected_report_checksum === "string"
+          ? body.expected_report_checksum.trim().toLowerCase()
+          : "";
+      if (!/^[a-f0-9]{64}$/.test(expectedReportChecksum)) {
+        return c.json(
+          {
+            success: false,
+            error: "A reviewed dry-run SHA-256 checksum is required",
+          },
+          400,
+        );
+      }
+      const recoveryArtifact = parseEntityBackfillRecoveryArtifact(
+        body?.recovery_artifact,
+      );
+      if (!recoveryArtifact) {
+        return c.json(
+          {
+            success: false,
+            error:
+              "A schema-version 4.0 recovery artifact checksum and location are required",
+          },
+          400,
+        );
+      }
+
+      const result = await startEntityBackfillApply(_roleClient(), {
+        startedBy: c.get("userId"),
+        expectedReportChecksum,
+        recoveryArtifact,
+      });
+      return c.json(result, result.status as any);
+    } catch (error) {
+      log.error("Entity backfill apply failed:", error);
+      return c.json(
+        {
+          success: false,
+          error: "Entity backfill apply failed",
+          details: String(error),
+        },
+        500,
+      );
+    }
+  },
+);
+
+app.post(
+  "/make-server-17cae920/graph/migrations/entity-backfill/runs/:runId/resume",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    if (Deno.env.get("GRAPH_MIGRATION_APPLY_ENABLED") !== "true") {
+      return c.json(
+        {
+          success: false,
+          error:
+            "Entity-backfill resume is disabled. Enable it only for an approved migration window.",
+        },
+        503,
+      );
+    }
+
+    try {
+      const body = await c.req.json();
+      if (body?.confirmation !== ENTITY_BACKFILL_APPLY_CONFIRMATION) {
+        return c.json(
+          {
+            success: false,
+            error: "Exact entity-backfill confirmation text is required",
+          },
+          400,
+        );
+      }
+      const expectedReportChecksum =
+        typeof body?.expected_report_checksum === "string"
+          ? body.expected_report_checksum.trim().toLowerCase()
+          : "";
+      if (!/^[a-f0-9]{64}$/.test(expectedReportChecksum)) {
+        return c.json(
+          {
+            success: false,
+            error: "The original reviewed dry-run checksum is required",
+          },
+          400,
+        );
+      }
+
+      const result = await resumeEntityBackfillApply(_roleClient(), {
+        runId: c.req.param("runId"),
+        expectedReportChecksum,
+      });
+      return c.json(result, result.status as any);
+    } catch (error) {
+      log.error("Entity backfill resume failed:", error);
+      return c.json(
+        {
+          success: false,
+          error: "Entity backfill resume failed",
+          details: String(error),
+        },
+        500,
+      );
+    }
+  },
+);
+
+app.get(
+  "/make-server-17cae920/graph/migrations/entity-backfill/runs/:runId",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const client = _roleClient();
+      const runId = c.req.param("runId");
+      const [runResult, checkpointResult, issueResult] = await Promise.all([
+        client
+          .from("graph_migration_runs")
+          .select("*")
+          .eq("id", runId)
+          .maybeSingle(),
+        client
+          .from("graph_migration_checkpoints")
+          .select("*")
+          .eq("run_id", runId)
+          .order("created_at", { ascending: true }),
+        client
+          .from("graph_migration_issues")
+          .select("*")
+          .eq("run_id", runId)
+          .order("created_at", { ascending: true }),
+      ]);
+      if (runResult.error) throw runResult.error;
+      if (!runResult.data) {
+        return c.json({ error: "Entity-backfill run not found" }, 404);
+      }
+      if (checkpointResult.error) throw checkpointResult.error;
+      if (issueResult.error) throw issueResult.error;
+
+      return c.json({
+        run: runResult.data,
+        checkpoints: checkpointResult.data ?? [],
+        issues: issueResult.data ?? [],
+      });
+    } catch (error) {
+      log.error("Failed to load entity-backfill run:", error);
+      return c.json(
+        {
+          error: "Failed to load entity-backfill run",
           details: String(error),
         },
         500,

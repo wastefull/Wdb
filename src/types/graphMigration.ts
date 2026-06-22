@@ -55,3 +55,30 @@ export interface EntityBackfillDryRunResponse {
   ready_to_apply: boolean;
   report: EntityBackfillDryRunReport;
 }
+
+export interface EntityBackfillCapabilities {
+  migration_version: string;
+  apply_enabled: boolean;
+  apply_confirmation: string;
+  phases: string[];
+  graph_reads_enabled: false;
+  compatibility_writes_enabled: false;
+}
+
+export interface EntityBackfillRecoveryArtifact {
+  schema_version: "4.0";
+  sha256: string;
+  location: string;
+}
+
+export interface EntityBackfillApplyRequest {
+  confirmation: string;
+  expected_report_checksum: string;
+  recovery_artifact: EntityBackfillRecoveryArtifact;
+}
+
+export interface EntityBackfillRunDetail {
+  run: Record<string, unknown>;
+  checkpoints: Array<Record<string, unknown>>;
+  issues: Array<Record<string, unknown>>;
+}

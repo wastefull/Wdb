@@ -1,5 +1,14 @@
-const ENTITY_BACKFILL_VERSION = "stage-6-entity-backfill-v1";
+export const ENTITY_BACKFILL_VERSION = "stage-6-entity-backfill-v1";
 const PAGE_SIZE = 1000;
+export const ENTITY_BACKFILL_PHASES = [
+  "materials",
+  "articles",
+  "guides",
+  "blog_posts",
+  "sources",
+] as const;
+export const ENTITY_BACKFILL_APPLY_CONFIRMATION =
+  "APPLY STAGE 6 ENTITY BACKFILL";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -331,7 +340,7 @@ function sampleRecords(records: ClassifiedRecord[], limit: number) {
   };
 }
 
-export async function buildEntityBackfillDryRun(
+async function analyzeEntityBackfill(
   client: any,
   options: { sampleLimit?: number } = {},
 ) {
@@ -339,12 +348,18 @@ export async function buildEntityBackfillDryRun(
   const generatedAt = new Date().toISOString();
 
   const sourceRowsByTable: Record<string, JsonRecord[]> = {};
+  const sourceRowByKey = new Map<string, JsonRecord>();
   for (const config of SOURCE_CONFIGS) {
     sourceRowsByTable[config.table] = await fetchAllRows(
       client,
       config.table,
       config.select,
     );
+    for (const row of sourceRowsByTable[config.table]) {
+      if (typeof row.id === "string") {
+        sourceRowByKey.set(bindingKey(config.table, row.id), row);
+      }
+    }
   }
 
   const entitiesBefore = await fetchAllRows(
@@ -628,10 +643,462 @@ export async function buildEntityBackfillDryRun(
     phases,
   };
 
-  return {
+  const report = {
     ...reportCore,
     generated_at: generatedAt,
     sample_limit: sampleLimit,
     report_checksum: await checksumJson(reportCore),
   };
+
+  const applyPlan: Record<string, DesiredEntity[]> = {};
+  for (const config of SOURCE_CONFIGS) {
+    applyPlan[config.table] = records
+      .filter(
+        (record) =>
+          record.source_table === config.table &&
+          (record.classification === "insert" ||
+            record.classification === "update" ||
+            record.classification === "reconciled") &&
+          record.desired_entity,
+      )
+      .map((record) => record.desired_entity as DesiredEntity);
+  }
+
+  return {
+    report,
+    applyPlan,
+    blockingRecords: records.filter(
+      (record) =>
+        record.classification === "conflict" ||
+        record.classification === "unresolved",
+    ).map((record) => ({
+      ...record,
+      original_payload:
+        sourceRowByKey.get(
+          bindingKey(record.source_table, record.source_id),
+        ) ?? null,
+    })),
+  };
+}
+
+export async function buildEntityBackfillDryRun(
+  client: any,
+  options: { sampleLimit?: number } = {},
+) {
+  return (await analyzeEntityBackfill(client, options)).report;
+}
+
+export async function buildEntityBackfillApplyAnalysis(
+  client: any,
+  options: { sampleLimit?: number } = {},
+) {
+  return await analyzeEntityBackfill(client, options);
+}
+
+export type EntityBackfillRecoveryArtifact = {
+  schema_version: "4.0";
+  sha256: string;
+  location: string;
+};
+
+export function parseEntityBackfillRecoveryArtifact(
+  value: unknown,
+): EntityBackfillRecoveryArtifact | null {
+  if (!value || typeof value !== "object") return null;
+  const record = value as JsonRecord;
+  const schemaVersion = record.schema_version;
+  const sha256 =
+    typeof record.sha256 === "string" ? record.sha256.trim().toLowerCase() : "";
+  const location =
+    typeof record.location === "string" ? record.location.trim() : "";
+  if (
+    schemaVersion !== "4.0" ||
+    !/^[a-f0-9]{64}$/.test(sha256) ||
+    location.length === 0 ||
+    location.length > 500
+  ) {
+    return null;
+  }
+  return {
+    schema_version: "4.0",
+    sha256,
+    location,
+  };
+}
+
+function compactReconciliation(report: any) {
+  return {
+    report_checksum: report.report_checksum,
+    generated_at: report.generated_at,
+    summary: report.summary,
+    prospective_writes: report.prospective_writes,
+    blocking_issue_count: report.blocking_issue_count,
+    orphan_binding_count: report.orphan_bindings.length,
+    graph_snapshot_before: report.graph_snapshot_before,
+    graph_snapshot_after: report.graph_snapshot_after,
+    phase_checksums: Object.fromEntries(
+      ENTITY_BACKFILL_PHASES.map((phase) => [
+        phase,
+        {
+          source_checksum: report.phases[phase].source_checksum,
+          mapped_checksum: report.phases[phase].mapped_checksum,
+        },
+      ]),
+    ),
+  };
+}
+
+function persistedIssueRows(
+  runId: string,
+  analysis: Awaited<ReturnType<typeof analyzeEntityBackfill>>,
+) {
+  const rows = analysis.blockingRecords.map((record: any) => ({
+    run_id: runId,
+    source_table: record.source_table,
+    source_identifier: record.source_id,
+    issue_category: record.classification,
+    reason: record.reason,
+    original_payload: record.original_payload ?? {},
+    candidate_matches:
+      record.candidate_entity_ids ??
+      record.candidate_source_identifiers ??
+      [],
+    diagnostic_metadata: {
+      desired_entity: record.desired_entity ?? null,
+      existing_entity_id: record.existing_entity_id ?? null,
+      changed_fields: record.changed_fields ?? [],
+    },
+  }));
+
+  rows.push(
+    ...analysis.report.orphan_bindings.map((binding: any) => ({
+      run_id: runId,
+      source_table: binding.source_table ?? "entity_canonical_bindings",
+      source_identifier:
+        binding.source_id ?? String(binding.entity_id ?? "unknown"),
+      issue_category: "orphan_binding",
+      reason: binding.reason,
+      original_payload: binding,
+      candidate_matches: [],
+      diagnostic_metadata: {
+        entity_id: binding.entity_id ?? null,
+      },
+    })),
+  );
+
+  return rows;
+}
+
+async function markRunFailed(
+  client: any,
+  runId: string,
+  message: string,
+) {
+  await client
+    .from("graph_migration_runs")
+    .update({
+      status: "failed",
+      error_message: message,
+      completed_at: new Date().toISOString(),
+    })
+    .eq("id", runId);
+}
+
+async function finalizeEntityBackfill(
+  client: any,
+  runId: string,
+  status: "completed" | "blocked" | "failed",
+  reconciliation: unknown,
+  errorMessage: string | null = null,
+) {
+  const { data, error } = await client.rpc(
+    "finalize_graph_entity_backfill_run",
+    {
+      p_run_id: runId,
+      p_status: status,
+      p_reconciliation: reconciliation,
+      p_error_message: errorMessage,
+    },
+  );
+  if (error) {
+    throw new Error(`Failed to finalize entity backfill: ${error.message}`);
+  }
+  return data;
+}
+
+async function executeEntityBackfillPhases(
+  client: any,
+  runId: string,
+  analysis: Awaited<ReturnType<typeof analyzeEntityBackfill>>,
+) {
+  const phaseResults: Record<string, unknown> = {};
+  for (const phase of ENTITY_BACKFILL_PHASES) {
+    const { data, error } = await client.rpc(
+      "apply_graph_entity_backfill_phase",
+      {
+        p_run_id: runId,
+        p_phase: phase,
+        p_records: analysis.applyPlan[phase],
+        p_plan_checksum: analysis.report.phases[phase].mapped_checksum,
+      },
+    );
+    if (error) {
+      await markRunFailed(client, runId, error.message);
+      throw new Error(`Entity backfill phase '${phase}' failed: ${error.message}`);
+    }
+    phaseResults[phase] = data;
+    if (data?.success !== true) {
+      throw new Error(
+        `Entity backfill phase '${phase}' failed: ${data?.error ?? "unknown error"}`,
+      );
+    }
+  }
+  return phaseResults;
+}
+
+function reconciliationIsComplete(report: any, expectedCount: number) {
+  return (
+    report.blocking_issue_count === 0 &&
+    report.summary.processed === expectedCount &&
+    report.summary.inserts === 0 &&
+    report.summary.updates === 0 &&
+    report.summary.conflicts === 0 &&
+    report.summary.unresolved === 0 &&
+    report.summary.reconciled === expectedCount &&
+    report.prospective_writes.total === 0
+  );
+}
+
+export async function startEntityBackfillApply(
+  client: any,
+  input: {
+    startedBy: string;
+    expectedReportChecksum: string;
+    recoveryArtifact: EntityBackfillRecoveryArtifact;
+  },
+) {
+  const analysis = await analyzeEntityBackfill(client, { sampleLimit: 25 });
+  if (analysis.report.report_checksum !== input.expectedReportChecksum) {
+    return {
+      success: false,
+      status: 409,
+      error: "Dry-run checksum changed",
+      current_report: analysis.report,
+    };
+  }
+
+  const initialReport = {
+    expected_report_checksum: input.expectedReportChecksum,
+    recovery_artifact: input.recoveryArtifact,
+    dry_run: compactReconciliation(analysis.report),
+    execution_contract: {
+      migration_version: ENTITY_BACKFILL_VERSION,
+      phases: ENTITY_BACKFILL_PHASES,
+      domain_tables_authoritative: true,
+      graph_reads_enabled: false,
+      compatibility_writes_enabled: false,
+    },
+  };
+  const blocked = analysis.report.blocking_issue_count > 0;
+  const { data: run, error: runError } = await client
+    .from("graph_migration_runs")
+    .insert({
+      migration_version: ENTITY_BACKFILL_VERSION,
+      mode: "apply",
+      status: blocked ? "blocked" : "running",
+      started_by: input.startedBy,
+      started_at: new Date().toISOString(),
+      completed_at: blocked ? new Date().toISOString() : null,
+      report: initialReport,
+      error_message: blocked
+        ? `${analysis.report.blocking_issue_count} blocking issue(s) require review`
+        : null,
+    })
+    .select("*")
+    .single();
+  if (runError) {
+    throw new Error(`Failed to create entity-backfill run: ${runError.message}`);
+  }
+
+  if (blocked) {
+    const issues = persistedIssueRows(run.id, analysis);
+    if (issues.length > 0) {
+      const { error } = await client
+        .from("graph_migration_issues")
+        .insert(issues);
+      if (error) {
+        throw new Error(
+          `Failed to preserve entity-backfill issues: ${error.message}`,
+        );
+      }
+    }
+    return {
+      success: false,
+      status: 409,
+      run_id: run.id,
+      error: "Entity backfill is blocked by unresolved migration issues",
+      report: analysis.report,
+    };
+  }
+
+  try {
+    const phaseResults = await executeEntityBackfillPhases(
+      client,
+      run.id,
+      analysis,
+    );
+    const reconciliationAnalysis = await analyzeEntityBackfill(client, {
+      sampleLimit: 25,
+    });
+    const reconciliation = compactReconciliation(
+      reconciliationAnalysis.report,
+    );
+    const complete = reconciliationIsComplete(
+      reconciliationAnalysis.report,
+      analysis.report.summary.processed,
+    );
+    const finalStatus = complete ? "completed" : "blocked";
+    const finalError = complete
+      ? null
+      : "Post-apply reconciliation did not reach a fully reconciled state";
+    const finalizedRun = await finalizeEntityBackfill(
+      client,
+      run.id,
+      finalStatus,
+      reconciliation,
+      finalError,
+    );
+    return {
+      success: complete,
+      status: complete ? 200 : 409,
+      run: finalizedRun,
+      phase_results: phaseResults,
+      reconciliation: reconciliationAnalysis.report,
+    };
+  } catch (error) {
+    await markRunFailed(client, run.id, String(error));
+    throw error;
+  }
+}
+
+export async function resumeEntityBackfillApply(
+  client: any,
+  input: { runId: string; expectedReportChecksum: string },
+) {
+  const { data: run, error: runError } = await client
+    .from("graph_migration_runs")
+    .select("*")
+    .eq("id", input.runId)
+    .maybeSingle();
+  if (runError || !run) {
+    return {
+      success: false,
+      status: 404,
+      error: "Entity-backfill run was not found",
+    };
+  }
+  if (
+    run.migration_version !== ENTITY_BACKFILL_VERSION ||
+    run.mode !== "apply"
+  ) {
+    return {
+      success: false,
+      status: 409,
+      error: "Run is not an entity-backfill apply operation",
+    };
+  }
+  if (!["failed", "running"].includes(run.status)) {
+    return {
+      success: false,
+      status: 409,
+      error: `Run cannot resume from status '${run.status}'`,
+    };
+  }
+  if (
+    run.report?.expected_report_checksum !== input.expectedReportChecksum
+  ) {
+    return {
+      success: false,
+      status: 409,
+      error: "Resume checksum does not match the original reviewed dry run",
+    };
+  }
+
+  const analysis = await analyzeEntityBackfill(client, { sampleLimit: 25 });
+  const originalChecksums = run.report?.dry_run?.phase_checksums ?? {};
+  const changedPhases = ENTITY_BACKFILL_PHASES.filter((phase) => {
+    const original = originalChecksums[phase];
+    const current = analysis.report.phases[phase];
+    return (
+      !original ||
+      original.source_checksum !== current.source_checksum ||
+      original.mapped_checksum !== current.mapped_checksum
+    );
+  });
+  if (changedPhases.length > 0) {
+    return {
+      success: false,
+      status: 409,
+      error: `Source or mapping checksums changed for: ${changedPhases.join(", ")}`,
+      current_report: analysis.report,
+    };
+  }
+  if (analysis.report.blocking_issue_count > 0) {
+    return {
+      success: false,
+      status: 409,
+      error: "Current graph state contains blocking migration issues",
+      current_report: analysis.report,
+    };
+  }
+
+  const { error: updateError } = await client
+    .from("graph_migration_runs")
+    .update({
+      status: "running",
+      completed_at: null,
+      error_message: null,
+    })
+    .eq("id", input.runId);
+  if (updateError) {
+    throw new Error(`Failed to resume entity-backfill run: ${updateError.message}`);
+  }
+
+  try {
+    const phaseResults = await executeEntityBackfillPhases(
+      client,
+      input.runId,
+      analysis,
+    );
+    const reconciliationAnalysis = await analyzeEntityBackfill(client, {
+      sampleLimit: 25,
+    });
+    const expectedCount = run.report?.dry_run?.summary?.processed ?? 0;
+    const complete = reconciliationIsComplete(
+      reconciliationAnalysis.report,
+      expectedCount,
+    );
+    const reconciliation = compactReconciliation(
+      reconciliationAnalysis.report,
+    );
+    const finalizedRun = await finalizeEntityBackfill(
+      client,
+      input.runId,
+      complete ? "completed" : "blocked",
+      reconciliation,
+      complete
+        ? null
+        : "Post-resume reconciliation did not reach a fully reconciled state",
+    );
+    return {
+      success: complete,
+      status: complete ? 200 : 409,
+      run: finalizedRun,
+      phase_results: phaseResults,
+      reconciliation: reconciliationAnalysis.report,
+    };
+  } catch (error) {
+    await markRunFailed(client, input.runId, String(error));
+    throw error;
+  }
 }

@@ -32,13 +32,13 @@ source and graph state. Both runs produced this report checksum:
 The preview classified 228 canonical rows:
 
 | Source table | Processed | Inserts | Updates | Reconciled | Conflicts | Unresolved |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| `materials` | 213 | 213 | 0 | 0 | 0 | 0 |
-| `articles` | 8 | 8 | 0 | 0 | 0 | 0 |
-| `guides` | 7 | 7 | 0 | 0 | 0 | 0 |
-| `blog_posts` | 0 | 0 | 0 | 0 | 0 | 0 |
-| `sources` | 0 | 0 | 0 | 0 | 0 | 0 |
-| **Total** | **228** | **228** | **0** | **0** | **0** | **0** |
+| ------------ | --------: | ------: | ------: | ---------: | --------: | ---------: |
+| `materials`  |       213 |     213 |       0 |          0 |         0 |          0 |
+| `articles`   |         8 |       8 |       0 |          0 |         0 |          0 |
+| `guides`     |         7 |       7 |       0 |          0 |         0 |          0 |
+| `blog_posts` |         0 |       0 |       0 |          0 |         0 |          0 |
+| `sources`    |         0 |       0 |       0 |          0 |         0 |          0 |
+| **Total**    |   **228** | **228** |   **0** |      **0** |     **0** |      **0** |
 
 Prospective apply writes:
 
@@ -73,11 +73,25 @@ The current canonical dataset is eligible for apply-tool implementation: the
 preview is deterministic, counts reconcile, and no source rows require manual
 resolution.
 
-This report does not authorize apply. The next implementation must add:
+This report does not authorize apply. Transactional phase, checkpoint, resume,
+issue-persistence, and post-apply reconciliation tooling is implemented in the
+next migration slice, but production execution remains disabled until a
+separate operator-approved window.
 
-- persisted migration runs and immutable issue payloads
-- transactional entity and binding writes
-- checkpoints and resume behavior
-- repeated-apply idempotency tests
-- post-apply reconciliation and rollback limits
-- explicit operator approval before production execution
+## Apply Tooling Status (June 22, 2026)
+
+Guarded apply tooling was implemented and deployed later on June 22, 2026:
+
+- `20260622000000_create_entity_backfill_apply_functions.sql` pushed to
+  production — adds `apply_graph_entity_backfill_phase` and
+  `finalize_graph_entity_backfill_run` (service-role-only).
+- Edge Function updated with capabilities, apply, resume, and run-detail
+  endpoints (all admin-only, apply and resume additionally gated by
+  `GRAPH_MIGRATION_APPLY_ENABLED=true`).
+- 20 pgTAP assertions covering transactional phase apply, idempotency,
+  concurrent-run prevention, failed-phase rollback, and finalization all pass.
+- Anonymous apply attempt returns HTTP 401; capabilities endpoint returns 401
+  confirming endpoints are live and correctly gated.
+
+Production apply remains disabled (`GRAPH_MIGRATION_APPLY_ENABLED` is absent).
+A separate operator-approved window is required before apply can run.

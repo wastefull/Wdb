@@ -35,6 +35,9 @@ Production foundation deployment:
 First entity-backfill preview:
 [June 22, 2026 Dry-Run Report](./guides/KNOWLEDGE_GRAPH_ENTITY_BACKFILL_DRY_RUN_2026-06-22.md)
 
+Guarded apply tooling deployment:
+[June 22, 2026 Apply Tooling Report](./guides/KNOWLEDGE_GRAPH_ENTITY_BACKFILL_RUNBOOK.md)
+
 ## Migration Execution Contract
 
 Every automated or manual migration package must include:
@@ -1062,6 +1065,18 @@ unchanged source and graph snapshot must produce the same counts and report
 checksum.
 
 Add automated tests to confirm every canonical row has an entity after apply.
+
+Apply tooling must execute one canonical source table per database transaction.
+It persists a checkpoint for each phase, rolls back failed phase mutations,
+skips completed phases only when the mapped-plan checksum matches, and prevents
+concurrent active entity-backfill runs. Final completion requires all five
+phases plus a fresh reconciliation report in which every source row is
+reconciled.
+
+The production apply and resume endpoints remain disabled unless a separately
+approved migration window sets `GRAPH_MIGRATION_APPLY_ENABLED=true`. The flag,
+exact confirmation text, reviewed dry-run checksum, and schema-version 4.0
+recovery artifact metadata are all required before writes begin.
 
 Step 3: Relationship Backfill
 

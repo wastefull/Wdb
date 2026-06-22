@@ -9,7 +9,12 @@ import {
 } from "./loggerFactories";
 import { toast } from "sonner";
 import { Material } from "../types/material";
-import type { EntityBackfillDryRunResponse } from "../types/graphMigration";
+import type {
+  EntityBackfillApplyRequest,
+  EntityBackfillCapabilities,
+  EntityBackfillDryRunResponse,
+  EntityBackfillRunDetail,
+} from "../types/graphMigration";
 
 // Export projectId and publicAnonKey for use in other modules
 export { projectId, publicAnonKey };
@@ -1634,4 +1639,47 @@ export async function runEntityBackfillDryRun(
     method: "POST",
     body: JSON.stringify({ sample_limit: sampleLimit }),
   });
+}
+
+/** Admin only — reports whether the production apply gate is enabled. */
+export async function getEntityBackfillCapabilities(): Promise<EntityBackfillCapabilities> {
+  return await apiCall(
+    "/graph/migrations/entity-backfill/capabilities",
+  );
+}
+
+/** Admin only — executes the separately approved canonical entity backfill. */
+export async function applyEntityBackfill(
+  request: EntityBackfillApplyRequest,
+): Promise<Record<string, unknown>> {
+  return await apiCall("/graph/migrations/entity-backfill/apply", {
+    method: "POST",
+    body: JSON.stringify(request),
+  });
+}
+
+/** Admin only — resumes a failed or interrupted entity-backfill run. */
+export async function resumeEntityBackfill(
+  runId: string,
+  request: Pick<
+    EntityBackfillApplyRequest,
+    "confirmation" | "expected_report_checksum"
+  >,
+): Promise<Record<string, unknown>> {
+  return await apiCall(
+    `/graph/migrations/entity-backfill/runs/${runId}/resume`,
+    {
+      method: "POST",
+      body: JSON.stringify(request),
+    },
+  );
+}
+
+/** Admin only — loads persisted run, checkpoint, and issue state. */
+export async function getEntityBackfillRun(
+  runId: string,
+): Promise<EntityBackfillRunDetail> {
+  return await apiCall(
+    `/graph/migrations/entity-backfill/runs/${runId}`,
+  );
 }

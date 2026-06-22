@@ -306,6 +306,12 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
         "automated",
       ),
       acceptance(
+        "stage-6-entity-backfill-apply-tooling",
+        "Entity apply tooling is transactional and resumable",
+        "Service-role-only phase functions atomically create or reconcile entities and bindings, persist checkpoints and failures, skip completed phases safely, and require all five phases before finalization; production execution remains separately gated.",
+        "automated",
+      ),
+      acceptance(
         "stage-6-rollback",
         "Rollback limits and recovery are tested",
         "Every migration category has tested rollback instructions or an explicit manual recovery action when rollback is not safe.",

@@ -1,7 +1,7 @@
-# Stage 6 Entity Backfill Dry-Run Runbook
+# Stage 6 Entity Backfill Runbook
 
-This runbook covers the preview and reconciliation contract for canonical
-entities. It does not authorize an entity backfill apply operation.
+This runbook covers preview, guarded apply tooling, resume, and reconciliation
+for canonical entities. It does not authorize production execution.
 
 Production evidence:
 [June 22, 2026 Dry-Run Report](./KNOWLEDGE_GRAPH_ENTITY_BACKFILL_DRY_RUN_2026-06-22.md)
@@ -87,16 +87,57 @@ Blocking issues are conflicts, unresolved rows, and orphan canonical bindings.
 5. Review all conflicts and unresolved rows.
 6. Repeat the dry run without source changes and confirm the report checksum is
    unchanged.
-7. Do not implement or run apply mode until issue resolution, persistence,
-   checkpoint, resume, and rollback behavior have separate tests and approval.
+7. Confirm apply functions, issue persistence, checkpoints, resume, and
+   rollback behavior pass their separate tests.
+
+## Guarded Apply Tooling
+
+Migration `20260622000000_create_entity_backfill_apply_functions.sql` adds:
+
+- a service-role-only transactional phase function
+- one checkpoint per canonical source table
+- phase-level rollback with a persisted failed checkpoint
+- safe completed-phase skipping when plan checksums match
+- run finalization that requires all five completed phases
+- a partial unique index preventing concurrent active entity-backfill runs
+
+The Edge Function adds admin-only apply, resume, capability, and run-detail
+endpoints. Apply and resume are unavailable unless the server environment
+contains:
+
+```text
+GRAPH_MIGRATION_APPLY_ENABLED=true
+```
+
+The normal production value is absent or false. Enabling the flag is a
+separately approved migration-window action.
+
+Apply additionally requires:
+
+- exact confirmation text returned by the capability endpoint
+- the reviewed dry-run report checksum
+- a schema-version 4.0 recovery artifact SHA-256 and location
+- a fresh dry run with no blocking issues
+
+Each phase writes entities and canonical bindings in one database transaction.
+A failed phase rolls back its graph writes, marks its checkpoint and run failed,
+and can later be resumed. Resume verifies that every source and mapped-plan
+checksum still matches the original reviewed report.
+
+After all phases, the system runs the preview again. Completion requires every
+canonical row to classify as reconciled, with no inserts, updates, conflicts,
+unresolved rows, prospective writes, or orphan bindings.
 
 ## Stop Conditions
 
 Do not proceed to apply when:
 
+- `GRAPH_MIGRATION_APPLY_ENABLED` is not explicitly enabled for an approved
+  window
 - the endpoint reports a graph mutation or concurrent graph snapshot change
 - any conflict, unresolved row, or orphan binding remains
 - a repeated dry run changes without an explained source change
 - source counts do not reconcile with processed classifications
 - prospective entity and binding insert counts differ
 - the schema-version 4.0 recovery artifact is unavailable
+- the transactional apply pgTAP suite or capability-gate test fails

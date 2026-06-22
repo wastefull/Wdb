@@ -410,5 +410,88 @@ export function getStage6Tests(): Test[] {
         };
       },
     },
+    {
+      id: "stage-6-entity-backfill-apply-gate",
+      name: "Entity backfill apply remains explicitly gated",
+      description:
+        "Confirms the admin capability contract reports graph reads and compatibility writes disabled and requires a separate apply-window flag.",
+      phase: "stage-6",
+      stage: 6,
+      category: "Migration Safety",
+      requiresAuth: true,
+      testFn: async () => {
+        const accessToken = sessionStorage.getItem("wastedb_access_token");
+        if (!accessToken) {
+          return {
+            success: false,
+            message: "Sign in as admin to verify the entity apply gate.",
+          };
+        }
+
+        const response = await fetch(
+          `${EDGE_URL}/graph/migrations/entity-backfill/capabilities`,
+          {
+            headers: {
+              Authorization: `Bearer ${publicAnonKey}`,
+              "X-Session-Token": accessToken,
+            },
+          },
+        );
+        const payload = await response.json();
+        const valid =
+          response.ok &&
+          payload.migration_version === "stage-6-entity-backfill-v1" &&
+          payload.apply_enabled === false &&
+          payload.graph_reads_enabled === false &&
+          payload.compatibility_writes_enabled === false &&
+          Array.isArray(payload.phases) &&
+          payload.phases.length === 5 &&
+          typeof payload.apply_confirmation === "string";
+
+        return {
+          success: valid,
+          message: valid
+            ? "Entity apply tooling is deployed but production execution, graph reads, and compatibility writes remain disabled."
+            : `Entity apply capability contract is unsafe or incomplete: ${JSON.stringify(payload)}`,
+        };
+      },
+    },
+    {
+      id: "stage-6-entity-backfill-rpc-private",
+      name: "Entity backfill RPC rejects anonymous execution",
+      description:
+        "Attempts to invoke the transactional phase function through PostgREST with the anonymous role and requires authorization denial.",
+      phase: "stage-6",
+      stage: 6,
+      category: "RLS",
+      requiresAuth: false,
+      testFn: async () => {
+        const response = await fetch(
+          `${REST_URL}/rpc/apply_graph_entity_backfill_phase`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${publicAnonKey}`,
+              apikey: publicAnonKey,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              p_run_id: "00000000-0000-0000-0000-000000000001",
+              p_phase: "materials",
+              p_records: [],
+              p_plan_checksum: "0".repeat(64),
+            }),
+          },
+        );
+
+        return {
+          success: response.status === 401 || response.status === 403,
+          message:
+            response.status === 401 || response.status === 403
+              ? "Anonymous execution of the entity-backfill RPC was denied."
+              : `Entity-backfill RPC returned unexpected HTTP ${response.status}: ${await response.text()}`,
+        };
+      },
+    },
   ];
 }
