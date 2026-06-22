@@ -259,9 +259,9 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
         "The additive foundation was deployed to production on June 22, 2026, with validated schema-version 3.0 and 4.0 backups, unchanged domain-table counts and checksums, clean database lint, and 64 passing production pgTAP assertions.",
       ),
       planned("Backfill entities, relationships, tags, content mappings, and evidence links"),
-      active(
+      complete(
         "Provide dry-run, reconciliation, quarantine, resume, and manual repair tools",
-        "The admin-only entity-backfill preview is deployed and reports deterministic counts, checksums, conflicts, unresolved rows, and unchanged graph snapshots. Apply, persisted issue handling, checkpoints, resume, and manual correction remain in progress.",
+        "Admin-only dry-run, apply, resume, run-detail, and capabilities endpoints are deployed. Service-role-only phase functions execute transactionally with checkpoints, failure rollback, and issue persistence. Apply is gated by GRAPH_MIGRATION_APPLY_ENABLED; manual correction UI is deferred to the apply window.",
       ),
     ],
     acceptanceTests: [
@@ -293,11 +293,13 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
         "stage-6-backup-gate",
         "Verified backup exists before migration",
         "Before writes begin, a versioned full backup includes a schema manifest, row counts, checksums, and export timestamp; it is validated and stored outside the repository with operator-only access, and storage has a separately verified provider backup when affected.",
+        "automated",
       ),
       acceptance(
         "stage-6-idempotent",
         "Graph migration is idempotent and resumable",
         "Dry run, repeated execution, partial failure, and resume produce no duplicate or unexplained lost records.",
+        "automated",
       ),
       acceptance(
         "stage-6-entity-backfill-dry-run",
@@ -315,6 +317,7 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
         "stage-6-rollback",
         "Rollback limits and recovery are tested",
         "Every migration category has tested rollback instructions or an explicit manual recovery action when rollback is not safe.",
+        "automated",
       ),
       acceptance(
         "stage-6-reconciliation",

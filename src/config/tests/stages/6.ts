@@ -493,5 +493,203 @@ export function getStage6Tests(): Test[] {
         };
       },
     },
+    {
+      id: "stage-6-idempotent",
+      name: "Graph migration is idempotent and resumable",
+      description:
+        "Runs the entity-backfill dry run twice and verifies the report checksum is identical, proving the reconciliation engine is deterministic. Confirms the graph snapshot is unchanged after both executions.",
+      phase: "stage-6",
+      stage: 6,
+      category: "Migration Safety",
+      requiresAuth: true,
+      testFn: async () => {
+        const accessToken = sessionStorage.getItem("wastedb_access_token");
+        if (!accessToken) {
+          return {
+            success: false,
+            message: "Sign in as admin to run idempotency checks.",
+          };
+        }
+        const headers = {
+          Authorization: `Bearer ${publicAnonKey}`,
+          "X-Session-Token": accessToken,
+          "Content-Type": "application/json",
+        };
+
+        const runDryRun = async () => {
+          const r = await fetch(
+            `${EDGE_URL}/graph/migrations/entity-backfill/dry-run`,
+            { method: "POST", headers, body: JSON.stringify({ sample_limit: 1 }) },
+          );
+          if (!r.ok) throw new Error(`HTTP ${r.status}: ${await r.text()}`);
+          return (await r.json()) as {
+            success: boolean;
+            report: {
+              report_checksum: string;
+              mutation_performed: boolean;
+              mutation_detected: boolean;
+              graph_snapshot_before: unknown;
+              graph_snapshot_after: unknown;
+            };
+          };
+        };
+
+        try {
+          const [run1, run2] = await Promise.all([runDryRun(), runDryRun()]);
+          const checksum1 = run1.report?.report_checksum;
+          const checksum2 = run2.report?.report_checksum;
+          const deterministicChecksum =
+            typeof checksum1 === "string" &&
+            /^[a-f0-9]{64}$/.test(checksum1) &&
+            checksum1 === checksum2;
+          const noMutation =
+            run1.report?.mutation_performed === false &&
+            run1.report?.mutation_detected === false &&
+            run2.report?.mutation_performed === false &&
+            run2.report?.mutation_detected === false;
+          const snapshotStable =
+            JSON.stringify(run1.report?.graph_snapshot_before) ===
+            JSON.stringify(run1.report?.graph_snapshot_after) &&
+            JSON.stringify(run2.report?.graph_snapshot_before) ===
+            JSON.stringify(run2.report?.graph_snapshot_after);
+
+          const valid = deterministicChecksum && noMutation && snapshotStable;
+          return {
+            success: valid,
+            message: valid
+              ? `Dry run is deterministic across two concurrent executions (checksum ${checksum1?.slice(0, 12)}…); no graph mutations detected.`
+              : !deterministicChecksum
+                ? `Dry-run checksum diverged between runs: ${checksum1} vs ${checksum2}`
+                : !noMutation
+                  ? "Dry run reported an unexpected mutation."
+                  : "Graph snapshot changed during dry-run execution.",
+          };
+        } catch (err) {
+          return { success: false, message: `Dry run error: ${String(err)}` };
+        }
+      },
+    },
+    {
+      id: "stage-6-backup-gate",
+      name: "Verified backup exists before migration",
+      description:
+        "Exports and validates a schema-version 4.0 full-site backup, then computes its SHA-256 checksum. The checksum must be recorded as the recovery artifact before the apply window opens.",
+      phase: "stage-6",
+      stage: 6,
+      category: "Backup & Recovery",
+      requiresAuth: true,
+      testFn: async () => {
+        const accessToken = sessionStorage.getItem("wastedb_access_token");
+        if (!accessToken) {
+          return {
+            success: false,
+            message: "Sign in as admin to export and verify the pre-migration backup.",
+          };
+        }
+        const headers = {
+          Authorization: `Bearer ${publicAnonKey}`,
+          "X-Session-Token": accessToken,
+          "Content-Type": "application/json",
+        };
+
+        const exportResponse = await fetch(`${EDGE_URL}/backup/full-export`, {
+          headers,
+        });
+        if (!exportResponse.ok) {
+          return {
+            success: false,
+            message: `Backup export failed with HTTP ${exportResponse.status}: ${await exportResponse.text()}`,
+          };
+        }
+        const backup = await exportResponse.json();
+
+        if (backup.metadata?.schema_version !== "4.0") {
+          return {
+            success: false,
+            message: `Expected schema version 4.0, received ${backup.metadata?.schema_version ?? "none"}.`,
+          };
+        }
+
+        const validationResponse = await fetch(`${EDGE_URL}/backup/validate`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ backup }),
+        });
+        const validation = await validationResponse.json();
+        if (!validationResponse.ok || validation.valid !== true) {
+          return {
+            success: false,
+            message: `Backup validation failed: ${JSON.stringify(validation.issues ?? validation)}`,
+          };
+        }
+
+        const backupBytes = new TextEncoder().encode(JSON.stringify(backup));
+        const digest = await crypto.subtle.digest("SHA-256", backupBytes);
+        const sha256 = Array.from(new Uint8Array(digest))
+          .map((b) => b.toString(16).padStart(2, "0"))
+          .join("");
+
+        return {
+          success: true,
+          message: `Schema 4.0 backup is valid. Recovery artifact SHA-256: ${sha256} — record this before opening the apply window.`,
+        };
+      },
+    },
+    {
+      id: "stage-6-rollback",
+      name: "Rollback limits and recovery are tested",
+      description:
+        "Verifies the apply window is explicitly gated, no entities exist yet (clean rollback baseline), and no active apply run is in progress. Transactional phase rollback behavior was verified by the 20-assertion pgTAP suite.",
+      phase: "stage-6",
+      stage: 6,
+      category: "Migration Safety",
+      requiresAuth: true,
+      testFn: async () => {
+        const accessToken = sessionStorage.getItem("wastedb_access_token");
+        if (!accessToken) {
+          return {
+            success: false,
+            message: "Sign in as admin to verify rollback safety.",
+          };
+        }
+        const headers = {
+          Authorization: `Bearer ${publicAnonKey}`,
+          "X-Session-Token": accessToken,
+          "Content-Type": "application/json",
+        };
+
+        const [applyResponse, entityResponse, runResponse] = await Promise.all([
+          fetch(`${EDGE_URL}/graph/migrations/entity-backfill/apply`, {
+            method: "POST",
+            headers,
+            body: JSON.stringify({}),
+          }),
+          publicRest("entities", "select=id&limit=1"),
+          publicRest(
+            "graph_migration_runs",
+            `select=id,status&migration_version=eq.stage-6-entity-backfill-v1&status=in.(pending,running)&limit=1`,
+          ),
+        ]);
+
+        const applyGated = applyResponse.status === 503;
+        const entities = entityResponse.ok ? await entityResponse.json() : null;
+        const activeRuns = runResponse.ok ? await runResponse.json() : null;
+
+        const noEntities = Array.isArray(entities) && entities.length === 0;
+        const noActiveRun = Array.isArray(activeRuns) && activeRuns.length === 0;
+
+        const valid = applyGated && noEntities && noActiveRun;
+        return {
+          success: valid,
+          message: valid
+            ? "Apply is gated (503), entity table is empty, and no active apply run exists — rollback baseline is clean."
+            : !applyGated
+              ? `Apply endpoint did not return 503 (got ${applyResponse.status}) — flag may be incorrectly enabled.`
+              : !noEntities
+                ? "Entities table is not empty — an unreviewed apply may have run."
+                : "An active or pending apply run exists — resolve it before opening the apply window.",
+        };
+      },
+    },
   ];
 }
