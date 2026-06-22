@@ -186,14 +186,11 @@ export function getStage6Tests(): Test[] {
           }>;
           const returned = new Set(rows.map((row) => row.slug));
           const missingSlugs = slugs.filter((slug) => !returned.has(slug));
-          missing.push(
-            ...missingSlugs.map((slug) => `${table}.${slug}`),
-          );
+          missing.push(...missingSlugs.map((slug) => `${table}.${slug}`));
           missing.push(
             ...rows
               .filter(
-                (row) =>
-                  !row.description || !row.active || !row.approved_at,
+                (row) => !row.description || !row.active || !row.approved_at,
               )
               .map((row) => `${table}.${row.slug} (not approved)`),
           );
@@ -357,7 +354,7 @@ export function getStage6Tests(): Test[] {
               "X-Session-Token": accessToken,
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ sample_limit: 5 }),
+            body: JSON.stringify({ sample_limit: 25 }),
           },
         );
         const payload = await response.json();
@@ -405,7 +402,7 @@ export function getStage6Tests(): Test[] {
         return {
           success: valid,
           message: valid
-            ? `Dry run reconciled ${sourceCount} canonical rows without graph writes; ${report.blocking_issue_count} blocking issue(s) reported.`
+            ? `Dry run reconciled ${sourceCount} canonical rows without graph writes; ${report.blocking_issue_count} blocking issue(s) reported. Report checksum (use as expected_report_checksum): ${report.report_checksum}`
             : "Entity dry-run report did not satisfy the non-mutation or reconciliation contract.",
         };
       },
@@ -519,7 +516,11 @@ export function getStage6Tests(): Test[] {
         const runDryRun = async () => {
           const r = await fetch(
             `${EDGE_URL}/graph/migrations/entity-backfill/dry-run`,
-            { method: "POST", headers, body: JSON.stringify({ sample_limit: 1 }) },
+            {
+              method: "POST",
+              headers,
+              body: JSON.stringify({ sample_limit: 1 }),
+            },
           );
           if (!r.ok) throw new Error(`HTTP ${r.status}: ${await r.text()}`);
           return (await r.json()) as {
@@ -549,9 +550,9 @@ export function getStage6Tests(): Test[] {
             run2.report?.mutation_detected === false;
           const snapshotStable =
             JSON.stringify(run1.report?.graph_snapshot_before) ===
-            JSON.stringify(run1.report?.graph_snapshot_after) &&
+              JSON.stringify(run1.report?.graph_snapshot_after) &&
             JSON.stringify(run2.report?.graph_snapshot_before) ===
-            JSON.stringify(run2.report?.graph_snapshot_after);
+              JSON.stringify(run2.report?.graph_snapshot_after);
 
           const valid = deterministicChecksum && noMutation && snapshotStable;
           return {
@@ -583,7 +584,8 @@ export function getStage6Tests(): Test[] {
         if (!accessToken) {
           return {
             success: false,
-            message: "Sign in as admin to export and verify the pre-migration backup.",
+            message:
+              "Sign in as admin to export and verify the pre-migration backup.",
           };
         }
         const headers = {
@@ -676,7 +678,8 @@ export function getStage6Tests(): Test[] {
         const activeRuns = runResponse.ok ? await runResponse.json() : null;
 
         const noEntities = Array.isArray(entities) && entities.length === 0;
-        const noActiveRun = Array.isArray(activeRuns) && activeRuns.length === 0;
+        const noActiveRun =
+          Array.isArray(activeRuns) && activeRuns.length === 0;
 
         const valid = applyGated && noEntities && noActiveRun;
         return {
