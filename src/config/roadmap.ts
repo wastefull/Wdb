@@ -254,9 +254,12 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
       "Add the graph data layer through additive, observable, and recoverable migrations without replacing authoritative domain tables.",
     deliverables: [
       complete("Resolve schema ADRs for canonical references, enums, and RLS"),
-      active("Add graph tables, indexes, policies, and compatibility adapters"),
+      complete(
+        "Add graph tables, indexes, policies, and compatibility adapters",
+        "The additive foundation was deployed to production on June 22, 2026, with validated schema-version 3.0 and 4.0 backups, unchanged domain-table counts and checksums, clean database lint, and 64 passing production pgTAP assertions.",
+      ),
       planned("Backfill entities, relationships, tags, content mappings, and evidence links"),
-      planned("Provide dry-run, reconciliation, quarantine, resume, and manual repair tools"),
+      active("Provide dry-run, reconciliation, quarantine, resume, and manual repair tools"),
     ],
     acceptanceTests: [
       acceptance(

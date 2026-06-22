@@ -1,6 +1,8 @@
 BEGIN;
 
 CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
+SET LOCAL ROLE postgres;
+SET LOCAL search_path = public, extensions;
 
 SELECT plan(64);
 
@@ -621,6 +623,7 @@ SELECT lives_ok(
 );
 RESET ROLE;
 
+SET LOCAL ROLE postgres;
 SELECT * FROM finish();
 
 ROLLBACK;

@@ -9,6 +9,9 @@ migrations:
 Both are additive: domain tables remain authoritative, no graph backfill runs,
 and no read or write cutover occurs.
 
+Production deployment evidence:
+[June 22, 2026 deployment report](./KNOWLEDGE_GRAPH_FOUNDATION_DEPLOYMENT_2026-06-22.md)
+
 ## Preconditions
 
 Do not apply the migration until all of these conditions are recorded in the

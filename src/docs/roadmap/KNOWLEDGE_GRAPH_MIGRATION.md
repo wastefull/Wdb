@@ -29,6 +29,9 @@ Operational recovery procedures:
 Stage 6 foundation deployment procedure:
 [Knowledge Graph Foundation Runbook](./guides/KNOWLEDGE_GRAPH_FOUNDATION_RUNBOOK.md)
 
+Production foundation deployment:
+[June 22, 2026 Deployment Report](./guides/KNOWLEDGE_GRAPH_FOUNDATION_DEPLOYMENT_2026-06-22.md)
+
 ## Migration Execution Contract
 
 Every automated or manual migration package must include:
