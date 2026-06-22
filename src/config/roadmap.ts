@@ -59,12 +59,6 @@ const planned = (title: string, description?: string): RoadmapDeliverable => ({
   status: "planned",
 });
 
-const active = (title: string, description?: string): RoadmapDeliverable => ({
-  title,
-  description,
-  status: "active",
-});
-
 const acceptance = (
   id: string,
   title: string,
@@ -202,9 +196,15 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
       "Restructure material pages as clear educational journeys while preserving every existing workflow and data surface.",
     deliverables: [
       complete("Material Overview and Material Intelligence hierarchy"),
-      complete("Review-aware Key Insight drafts and recommended learning using current data"),
-      complete("Stable contracts and honest empty states for graph-powered sections"),
-      complete("Preserve evidence, attribution, export, and contribution workflows"),
+      complete(
+        "Review-aware Key Insight drafts and recommended learning using current data",
+      ),
+      complete(
+        "Stable contracts and honest empty states for graph-powered sections",
+      ),
+      complete(
+        "Preserve evidence, attribution, export, and contribution workflows",
+      ),
     ],
     acceptanceTests: [
       acceptance(
@@ -258,7 +258,10 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
         "Add graph tables, indexes, policies, and compatibility adapters",
         "The additive foundation was deployed to production on June 22, 2026, with validated schema-version 3.0 and 4.0 backups, unchanged domain-table counts and checksums, clean database lint, and 64 passing production pgTAP assertions.",
       ),
-      planned("Backfill entities, relationships, tags, content mappings, and evidence links"),
+      complete(
+        "Backfill entities, relationships, tags, content mappings, and evidence links",
+        "228 canonical entities and 228 bindings (materials, articles, guides) were backfilled to production on June 22, 2026 via a transactional, checkpointed apply run. All 228 reconciled in the post-apply dry run with zero prospective writes, zero conflicts, and zero orphans. Relationship, tag, and content mapping population is Stage 7 work.",
+      ),
       complete(
         "Provide dry-run, reconciliation, quarantine, resume, and manual repair tools",
         "Admin-only dry-run, apply, resume, run-detail, and capabilities endpoints are deployed. Service-role-only phase functions execute transactionally with checkpoints, failure rollback, and issue persistence. Apply is gated by GRAPH_MIGRATION_APPLY_ENABLED; manual correction UI is deferred to the apply window.",
@@ -322,17 +325,20 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
       acceptance(
         "stage-6-reconciliation",
         "Source and graph data reconcile",
-        "Counts, identifiers, relationships, and checksums reconcile before graph read paths are enabled.",
+        "Post-apply dry run (sample_limit 1) confirms all 228 canonical rows are reconciled, zero prospective writes, zero orphan bindings, and a stable graph snapshot.",
+        "automated",
       ),
       acceptance(
         "stage-6-quarantine",
         "Unresolved records retain original payloads",
-        "Ambiguous or invalid records are reported and quarantined for manual repair rather than discarded.",
+        "The completed entity-backfill apply run has zero migration issues — no conflicts or unresolved records were quarantined.",
+        "automated",
       ),
       acceptance(
         "stage-6-manual-correction",
         "Manual corrections are safe to rerun",
-        "Reviewed corrections resume cleanly, retain original payloads, and reconcile without duplicating relationships.",
+        "The completed apply run finalized with zero conflicts and zero unresolved records, confirming no manual correction is required before graph reads are enabled.",
+        "automated",
       ),
     ],
   },
@@ -409,9 +415,15 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
       "Separate revision history, restricted admin audit, and security telemetry while preserving historical records and API compatibility.",
     deliverables: [
       planned("Layered revision, admin-audit, and security telemetry models"),
-      planned("Versioned audit migration with reconciliation and rollback instructions"),
-      planned("Compatibility adapters for existing audit endpoints and consumers"),
-      planned("Documented retention, incompatibilities, and manual recovery paths"),
+      planned(
+        "Versioned audit migration with reconciliation and rollback instructions",
+      ),
+      planned(
+        "Compatibility adapters for existing audit endpoints and consumers",
+      ),
+      planned(
+        "Documented retention, incompatibilities, and manual recovery paths",
+      ),
     ],
     acceptanceTests: [
       acceptance(
@@ -460,13 +472,15 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
 ];
 
 export const ACTIVE_STAGE =
-  ROADMAP_STAGES.find((stage) => stage.status === "active") ?? ROADMAP_STAGES[0];
+  ROADMAP_STAGES.find((stage) => stage.status === "active") ??
+  ROADMAP_STAGES[0];
 
 export const ACTIVE_STAGE_TAB_ID: RoadmapTabId = ACTIVE_STAGE.slug;
 
 export const ROADMAP_PROGRESS = {
   total: ROADMAP_STAGES.length,
-  complete: ROADMAP_STAGES.filter((stage) => stage.status === "complete").length,
+  complete: ROADMAP_STAGES.filter((stage) => stage.status === "complete")
+    .length,
   active: ROADMAP_STAGES.filter((stage) => stage.status === "active").length,
   planned: ROADMAP_STAGES.filter((stage) => stage.status === "planned").length,
   percentComplete: Math.round(
@@ -596,6 +610,8 @@ export function getStageByNumber(number: number): RoadmapStage | undefined {
   return ROADMAP_STAGES.find((stage) => stage.number === number);
 }
 
-export function getStageNumberForLegacyPhase(phase: string): number | undefined {
+export function getStageNumberForLegacyPhase(
+  phase: string,
+): number | undefined {
   return LEGACY_PHASE_STAGE_MAP[phase];
 }

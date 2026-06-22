@@ -15,6 +15,7 @@ interface OneTimeAction {
   title: string;
   description: string;
   warning?: string;
+  disabled?: boolean;
   run: () => Promise<unknown>;
 }
 
@@ -27,6 +28,7 @@ interface GraphMigrationField {
 }
 
 interface GraphMigrationAction {
+  disabled?: boolean;
   id: string;
   title: string;
   description: string;
@@ -44,6 +46,7 @@ const ACTIONS: OneTimeAction[] = [
       "Restores the reusability article for Toothbrush that was direct-published by an admin on 2026-05-28 but never persisted to Postgres (the content was recovered from the audit log). Safe to run once — will create a duplicate if run again.",
     warning:
       "Run only once. Check that the article does not already exist before running.",
+    disabled: true,
     run: api.recoverToothbrushArticle,
   },
   {
@@ -53,6 +56,7 @@ const ACTIONS: OneTimeAction[] = [
       "Scans all KV material blobs and inserts any articles with numeric (pre-UUID) IDs into the Postgres articles table. These are articles that were direct-published by admins before the Postgres persistence fix. Safe to run multiple times — articles already in Postgres (matched by title + material + category) are skipped.",
     warning:
       "Admin only. Run this once to recover articles that were added directly through the admin article editor before today's fix.",
+    disabled: true,
     run: api.migrateKvArticlesToPostgres,
   },
   {
@@ -62,6 +66,7 @@ const ACTIONS: OneTimeAction[] = [
       "Scans all approved article submissions in KV and re-inserts any that are missing from the Postgres articles table. Safe to run multiple times — articles already in Postgres are skipped.",
     warning:
       "Admin only. Run this once after deploying the article persistence fix to restore any articles that were approved but never saved.",
+    disabled: true,
     run: api.recoverApprovedArticles,
   },
   {
@@ -71,6 +76,7 @@ const ACTIONS: OneTimeAction[] = [
       "Reads all material:* KV blobs and migrates embedded evidence (MIU) data into the evidence_points Postgres table. Safe to run multiple times — already-seeded entries are skipped.",
     warning:
       "Admin only. Check the response for errors before marking Step 15 complete.",
+    disabled: true,
     run: api.seedEvidenceFromKV,
   },
   {
@@ -80,6 +86,7 @@ const ACTIONS: OneTimeAction[] = [
       "Reads all audit:* KV entries and migrates them into the audit_log Postgres table. Safe to run multiple times — already-seeded entries are skipped. Does NOT trigger audit email notifications.",
     warning:
       "Admin only. Run after deploying the audit_log table migration (Step 17).",
+    disabled: true,
     run: api.seedAuditLogFromKV,
   },
   {
@@ -89,6 +96,7 @@ const ACTIONS: OneTimeAction[] = [
       "Reads all user_role:* KV entries and updates user_profiles.role in Postgres. Safe to run multiple times — KV value wins if it differs from 'user'. Does NOT trigger audit emails.",
     warning:
       "Admin only. Run after deploying the role column migration (Step 19).",
+    disabled: true,
     run: api.seedRolesFromKV,
   },
 ];
@@ -134,6 +142,7 @@ const GRAPH_MIGRATION_ACTIONS: GraphMigrationAction[] = [
         },
       });
     },
+    disabled: true,
   },
 ];
 
@@ -235,11 +244,15 @@ export function OneTimeActionsPanel({ onBack }: OneTimeActionsPanelProps) {
             const state = states[action.id] ?? { status: "idle" };
             return (
               <button
+                disabled={action.disabled}
                 key={action.id}
-                onClick={() =>
-                  document
-                    .getElementById(`action-${action.id}`)
-                    ?.scrollIntoView({ behavior: "smooth" })
+                onClick={
+                  action.disabled
+                    ? () => void 0
+                    : () =>
+                        document
+                          .getElementById(`action-${action.id}`)
+                          ?.scrollIntoView({ behavior: "smooth" })
                 }
                 className="w-full text-left px-3 py-2 rounded-lg text-[13px] hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex items-center gap-2"
               >
@@ -274,11 +287,15 @@ export function OneTimeActionsPanel({ onBack }: OneTimeActionsPanelProps) {
               const state = graphStates[action.id] ?? { status: "idle" };
               return (
                 <button
+                  disabled={action.disabled}
                   key={action.id}
-                  onClick={() =>
-                    document
-                      .getElementById(`action-${action.id}`)
-                      ?.scrollIntoView({ behavior: "smooth" })
+                  onClick={
+                    action.disabled
+                      ? () => void 0
+                      : () =>
+                          document
+                            .getElementById(`action-${action.id}`)
+                            ?.scrollIntoView({ behavior: "smooth" })
                   }
                   className="w-full text-left px-3 py-2 rounded-lg text-[13px] hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex items-center gap-2"
                 >
@@ -337,8 +354,10 @@ export function OneTimeActionsPanel({ onBack }: OneTimeActionsPanelProps) {
                   </div>
 
                   <button
-                    onClick={() => runAction(action)}
-                    disabled={isRunning}
+                    onClick={
+                      action.disabled ? () => void 0 : () => runAction(action)
+                    }
+                    disabled={isRunning || action.disabled}
                     className="retro-btn-primary flex items-center gap-2 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isRunning ? (
@@ -399,8 +418,7 @@ export function OneTimeActionsPanel({ onBack }: OneTimeActionsPanelProps) {
             const sha256Valid = /^[a-f0-9]{64}$/.test(
               (formValues.recovery_sha256 ?? "").trim(),
             );
-            const canRun =
-              confirmationMatches && sha256Valid && !isRunning;
+            const canRun = confirmationMatches && sha256Valid && !isRunning;
 
             return (
               <div

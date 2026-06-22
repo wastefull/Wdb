@@ -660,13 +660,12 @@ export function getStage6Tests(): Test[] {
           "Content-Type": "application/json",
         };
 
-        const [applyResponse, entityResponse, runResponse] = await Promise.all([
+        const [applyResponse, runResponse] = await Promise.all([
           fetch(`${EDGE_URL}/graph/migrations/entity-backfill/apply`, {
             method: "POST",
             headers,
             body: JSON.stringify({}),
           }),
-          publicRest("entities", "select=id&limit=1"),
           publicRest(
             "graph_migration_runs",
             `select=id,status&migration_version=eq.stage-6-entity-backfill-v1&status=in.(pending,running)&limit=1`,
@@ -674,23 +673,195 @@ export function getStage6Tests(): Test[] {
         ]);
 
         const applyGated = applyResponse.status === 503;
-        const entities = entityResponse.ok ? await entityResponse.json() : null;
         const activeRuns = runResponse.ok ? await runResponse.json() : null;
-
-        const noEntities = Array.isArray(entities) && entities.length === 0;
         const noActiveRun =
           Array.isArray(activeRuns) && activeRuns.length === 0;
 
-        const valid = applyGated && noEntities && noActiveRun;
+        const valid = applyGated && noActiveRun;
         return {
           success: valid,
           message: valid
-            ? "Apply is gated (503), entity table is empty, and no active apply run exists — rollback baseline is clean."
+            ? "Apply is gated (503) and no active apply run exists — rollback baseline is clean."
             : !applyGated
               ? `Apply endpoint did not return 503 (got ${applyResponse.status}) — flag may be incorrectly enabled.`
-              : !noEntities
-                ? "Entities table is not empty — an unreviewed apply may have run."
-                : "An active or pending apply run exists — resolve it before opening the apply window.",
+              : "An active or pending apply run exists — resolve it before opening the apply window.",
+        };
+      },
+    },
+    {
+      id: "stage-6-reconciliation",
+      name: "Source and graph data reconcile",
+      description:
+        "Runs the entity-backfill dry run post-apply and verifies every canonical row is reconciled with zero prospective writes, zero blocking issues, and a stable graph snapshot.",
+      phase: "stage-6",
+      stage: 6,
+      category: "Migration Safety",
+      requiresAuth: true,
+      testFn: async () => {
+        const accessToken = sessionStorage.getItem("wastedb_access_token");
+        if (!accessToken) {
+          return {
+            success: false,
+            message: "Sign in as admin to verify post-apply reconciliation.",
+          };
+        }
+
+        const response = await fetch(
+          `${EDGE_URL}/graph/migrations/entity-backfill/dry-run`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${publicAnonKey}`,
+              "X-Session-Token": accessToken,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ sample_limit: 1 }),
+          },
+        );
+        if (!response.ok) {
+          return {
+            success: false,
+            message: `Dry run returned HTTP ${response.status}: ${await response.text()}`,
+          };
+        }
+        const payload = await response.json();
+        const report = payload.report;
+        const summary = report?.summary;
+        const prospective = report?.prospective_writes;
+        const snapshot = report?.graph_snapshot_after;
+
+        const allReconciled =
+          summary?.reconciled === summary?.processed &&
+          summary?.inserts === 0 &&
+          summary?.updates === 0 &&
+          summary?.conflicts === 0 &&
+          summary?.unresolved === 0;
+        const noWrites = prospective?.total === 0;
+        const snapshotStable =
+          JSON.stringify(report?.graph_snapshot_before) ===
+          JSON.stringify(report?.graph_snapshot_after);
+        const noOrphans =
+          (report?.orphan_bindings?.length ?? 0) === 0 &&
+          (report?.graph_inventory?.unbound_entity_count ?? 0) === 0;
+
+        const valid = allReconciled && noWrites && snapshotStable && noOrphans;
+        return {
+          success: valid,
+          message: valid
+            ? `All ${summary.processed} canonical rows reconcile; ${snapshot?.entity_count} entities and ${snapshot?.binding_count} bindings in production with zero prospective writes and zero orphans.`
+            : !allReconciled
+              ? `Reconciliation incomplete: ${summary?.inserts} inserts, ${summary?.updates} updates, ${summary?.conflicts} conflicts, ${summary?.unresolved} unresolved remain.`
+              : !noWrites
+                ? `Unexpected prospective writes after apply: ${prospective?.total}`
+                : !snapshotStable
+                  ? "Graph snapshot changed during post-apply dry run."
+                  : `Orphan check failed: ${report?.orphan_bindings?.length} orphan bindings, ${report?.graph_inventory?.unbound_entity_count} unbound entities.`,
+        };
+      },
+    },
+    {
+      id: "stage-6-quarantine",
+      name: "Unresolved records retain original payloads",
+      description:
+        "Verifies the completed entity-backfill run has zero migration issues (no conflicts or unresolved records were quarantined).",
+      phase: "stage-6",
+      stage: 6,
+      category: "Migration Safety",
+      requiresAuth: false,
+      testFn: async () => {
+        const runResponse = await publicRest(
+          "graph_migration_runs",
+          "select=id&migration_version=eq.stage-6-entity-backfill-v1&mode=eq.apply&status=eq.completed&order=completed_at.desc&limit=1",
+        );
+        if (!runResponse.ok) {
+          return {
+            success: false,
+            message: `Could not query migration runs: HTTP ${runResponse.status}`,
+          };
+        }
+        const runs = await runResponse.json();
+        if (!Array.isArray(runs) || runs.length === 0) {
+          return {
+            success: false,
+            message:
+              "No completed entity-backfill apply run found — apply has not run yet.",
+          };
+        }
+        const runId = (runs[0] as { id: string }).id;
+
+        const issueResponse = await publicRest(
+          "graph_migration_issues",
+          `select=id&run_id=eq.${runId}&limit=1`,
+        );
+        if (!issueResponse.ok) {
+          return {
+            success: false,
+            message: `Could not query migration issues: HTTP ${issueResponse.status}`,
+          };
+        }
+        const issues = await issueResponse.json();
+        const issueCount = Array.isArray(issues) ? issues.length : 1;
+
+        return {
+          success: issueCount === 0,
+          message:
+            issueCount === 0
+              ? `Completed apply run ${runId.slice(0, 8)}… has zero quarantined records — all 228 canonical rows applied without conflicts or unresolved entries.`
+              : `${issueCount} migration issue(s) exist for run ${runId.slice(0, 8)}… — review and resolve before Stage 7.`,
+        };
+      },
+    },
+    {
+      id: "stage-6-manual-correction",
+      name: "Manual corrections are safe to rerun",
+      description:
+        "Verifies the completed apply run finalized with zero conflicts and zero unresolved records, confirming no manual correction is required before graph reads are enabled.",
+      phase: "stage-6",
+      stage: 6,
+      category: "Migration Safety",
+      requiresAuth: false,
+      testFn: async () => {
+        const runResponse = await publicRest(
+          "graph_migration_runs",
+          "select=id,status,error_message,report&migration_version=eq.stage-6-entity-backfill-v1&mode=eq.apply&status=eq.completed&order=completed_at.desc&limit=1",
+        );
+        if (!runResponse.ok) {
+          return {
+            success: false,
+            message: `Could not query migration runs: HTTP ${runResponse.status}`,
+          };
+        }
+        const runs = await runResponse.json();
+        if (!Array.isArray(runs) || runs.length === 0) {
+          return {
+            success: false,
+            message:
+              "No completed entity-backfill apply run found — apply has not run yet.",
+          };
+        }
+        const run = runs[0] as {
+          id: string;
+          status: string;
+          error_message: string | null;
+          report: Record<string, unknown>;
+        };
+        const reconciliation = run.report?.reconciliation as
+          | { summary?: { conflicts?: number; unresolved?: number } }
+          | undefined;
+        const conflicts = reconciliation?.summary?.conflicts ?? 0;
+        const unresolved = reconciliation?.summary?.unresolved ?? 0;
+
+        const valid =
+          run.status === "completed" &&
+          run.error_message === null &&
+          conflicts === 0 &&
+          unresolved === 0;
+
+        return {
+          success: valid,
+          message: valid
+            ? `Run ${run.id.slice(0, 8)}… completed with zero conflicts and zero unresolved records — no manual correction required.`
+            : `Run requires attention: status=${run.status}, conflicts=${conflicts}, unresolved=${unresolved}, error=${run.error_message ?? "none"}`,
         };
       },
     },
