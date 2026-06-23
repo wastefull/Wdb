@@ -3477,6 +3477,13 @@ function getAssetStoragePath(fileName: string, destination: string): string {
   return prefix ? `${prefix}/${fileName}` : fileName;
 }
 
+function sanitizeAssetFileName(fileName: string): string {
+  const fallbackName = `asset-${Date.now()}`;
+  const baseName = fileName.split(/[/\\]/).pop()?.trim() || fallbackName;
+  const sanitized = baseName.replace(/[^a-zA-Z0-9._-]/g, "-");
+  return sanitized.replace(/-+/g, "-").replace(/^-+|-+$/g, "") || fallbackName;
+}
+
 // Upload asset to Supabase Storage
 app.post(
   "/make-server-17cae920/assets/upload",
@@ -3521,9 +3528,16 @@ app.post(
         return c.json({ error: "Invalid upload destination" }, 400);
       }
 
-      // Generate filename with timestamp to avoid collisions
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${file.name.split(".")[0]}-${Date.now()}.${fileExt}`;
+      const safeFileName = sanitizeAssetFileName(file.name);
+      const shouldPreserveFileName = destination === "material-doodles";
+
+      // General assets keep timestamped names to avoid accidental collisions.
+      // Doodles preserve spreadsheet filenames like image51.png for direct manifest use.
+      const fileExt = safeFileName.split(".").pop();
+      const fileStem = safeFileName.replace(/\.[^.]+$/, "");
+      const fileName = shouldPreserveFileName
+        ? safeFileName
+        : `${fileStem}-${Date.now()}.${fileExt}`;
       const storagePath = getAssetStoragePath(fileName, destination);
 
       // Convert File to ArrayBuffer then to Uint8Array
@@ -3535,7 +3549,7 @@ app.post(
         .from(ASSET_BUCKET_NAME)
         .upload(storagePath, uint8Array, {
           contentType: file.type,
-          upsert: false,
+          upsert: shouldPreserveFileName,
         });
 
       if (error) {
