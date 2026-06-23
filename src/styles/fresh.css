@@ -1835,3 +1835,27 @@ main.material-detail-view {
     }
   }
 }
+.material-card-header {
+  @apply relative mb-3 grid items-start gap-3;
+  grid-template-columns: minmax(0, 1fr) 2.5rem auto;
+}
+
+.material-card-title {
+  @apply min-w-0;
+}
+
+.material-card-actions {
+  @apply flex gap-2;
+}
+
+.doodle {
+  @apply flex h-10 w-10 items-start justify-center overflow-hidden;
+}
+
+.doodle .material-doodle {
+  @apply m-0 flex h-full w-full items-start justify-center;
+}
+
+.doodle .material-doodle img {
+  @apply h-full max-h-10 w-full max-w-10 object-contain;
+}

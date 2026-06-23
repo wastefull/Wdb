@@ -359,15 +359,15 @@ export const MATERIAL_DOODLES: Record<string, MaterialDoodleManifestEntry> = {
 };
 
 export function getMaterialDoodle(
-  materialId: string,
+  materialId?: string,
   materialName?: string,
 ): MaterialDoodle | undefined {
+  const nameKey = materialName ? slugifyMaterialName(materialName) : undefined;
   const lookupKey =
-    MATERIAL_DOODLES[materialId] || !materialName
-      ? materialId
-      : slugifyMaterialName(materialName);
-  const entry = MATERIAL_DOODLES[lookupKey];
-  if (!entry) return undefined;
+    (materialId && MATERIAL_DOODLES[materialId] ? materialId : undefined) ||
+    (nameKey && MATERIAL_DOODLES[nameKey] ? nameKey : undefined);
+  const entry = !lookupKey ? undefined : MATERIAL_DOODLES[lookupKey];
+  if (!entry || !lookupKey) return undefined;
 
   return {
     materialId: lookupKey,

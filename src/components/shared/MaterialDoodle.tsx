@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { getMaterialDoodle } from "../../config/materialDoodles";
 import { cn } from "../ui/utils";
 
@@ -13,7 +14,7 @@ interface MaterialDoodleProps {
 
 const variantClassNames: Record<MaterialDoodleVariant, string> = {
   sidebar: "mb-2 flex justify-center",
-  inline: "inline-flex align-middle",
+  inline: "flex items-center justify-center",
 };
 
 export function MaterialDoodle({
@@ -23,10 +24,11 @@ export function MaterialDoodle({
   className,
   variant = "sidebar",
 }: MaterialDoodleProps) {
+  const [hasImageError, setHasImageError] = useState(false);
   const doodle = getMaterialDoodle(materialId, materialName);
-  if (!doodle) return null;
+  if (!doodle || hasImageError) return null;
 
-  const imageAlt = alt ?? doodle.alt ?? "";
+  const imageAlt = doodle.alt ?? alt ?? "";
 
   return (
     <figure
@@ -37,6 +39,7 @@ export function MaterialDoodle({
         alt={imageAlt}
         loading="lazy"
         decoding="async"
+        onError={() => setHasImageError(true)}
         className="max-h-40 w-auto max-w-full object-contain"
       />
     </figure>

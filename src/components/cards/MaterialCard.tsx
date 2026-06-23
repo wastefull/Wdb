@@ -5,6 +5,7 @@ import { CategoryType } from "../../types/article";
 import { RasterizedQuantileVisualization } from "../charts/RasterizedQuantileVisualization";
 import { ScientificMetadataView } from "../views/ScientificMetadataView";
 import { getFirstCoverImage } from "../../utils/materialArticles";
+import { MaterialDoodle } from "../shared";
 
 export interface MaterialCardProps {
   material: Material;
@@ -53,8 +54,8 @@ export function MaterialCard({
           }}
         />
       )}
-      <div className="flex justify-between items-start mb-3 relative">
-        <div className="flex-1">
+      <div className="material-card-header">
+        <div className="material-card-title">
           <button
             onClick={onViewMaterial}
             className="text-[18px] text-black dark:text-white mb-1 hover:underline cursor-pointer text-left block"
@@ -88,8 +89,16 @@ export function MaterialCard({
             {material.category}
           </button>
         </div>
+        <div className="doodle">
+          <MaterialDoodle
+            materialName={material.name}
+            materialId={material.id}
+            alt={`${material.name} doodle`}
+          />
+        </div>
+
         {isAdminModeActive ? (
-          <div className="flex gap-2">
+          <div className="material-card-actions">
             <button
               onClick={onEdit}
               className="icon-box-sm bg-waste-recycle"
