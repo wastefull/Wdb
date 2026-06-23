@@ -21,7 +21,14 @@ import type {
   MaterialGraphSection,
   MaterialInsightStatus,
 } from "../../types/materialExperience";
-import { MATERIAL_EXPERIENCE_SECTIONS } from "../../config/materialExperience";
+import { isDevelopment } from "../../utils/environment";
+import {
+  getMaterialSectionCardinality,
+  getVisibleMaterialExperienceSections,
+  hasMaterialSectionId,
+  MATERIAL_EXPERIENCE_SECTIONS,
+  type ActiveId,
+} from "../../config/materialExperience";
 import { RasterizedQuantileVisualization } from "../charts/RasterizedQuantileVisualization";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -83,22 +90,34 @@ interface MaterialExperienceSectionsProps {
 }
 
 function SectionHeading({
-  id,
-  eyebrow,
-  title,
-  description,
+  section,
+  showDisabledSections,
+  variable,
 }: {
-  id: string;
-  eyebrow: string;
-  title: string;
-  description: string;
+  section: (typeof MATERIAL_EXPERIENCE_SECTIONS)[number];
+  showDisabledSections: boolean;
+  variable?: string;
 }) {
+  const heading = section.heading;
+  const number = getMaterialSectionCardinality(section.id, {
+    includeDisabled: showDisabledSections,
+  });
   return (
     <div className="section-heading">
-      <p>{eyebrow}</p>
-      <h2 id={id}>{title}</h2>
+      <p>{`${number} · ${section.verb}`}</p>
+      <h2 id={section.heading.id}>
+        {number}. {section.title}
+      </h2>
       <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
-        {description}
+        {heading.hasVariables ? (
+          <span
+            dangerouslySetInnerHTML={{
+              __html: heading.description.replace("{}", variable ?? ""),
+            }}
+          />
+        ) : (
+          heading.description
+        )}
       </p>
     </div>
   );
@@ -114,18 +133,7 @@ function MaterialIntelligenceSection({
   "material" | "model" | "articleCounts" | "onViewArticles"
 >) {
   return (
-    <section
-      id={MATERIAL_EXPERIENCE_SECTIONS[1].id}
-      aria-labelledby="material-intelligence-heading"
-      tabIndex={-1}
-    >
-      <SectionHeading
-        id="material-intelligence-heading"
-        eyebrow="2 · Decide"
-        title="Material Intelligence"
-        description="Current sustainability scores, practical-versus-theoretical comparisons, and the quality signals behind them."
-      />
-
+    <>
       <div className="quality" aria-label="Data quality summary">
         <Badge variant="outline">
           <ShieldCheck aria-hidden="true" />
@@ -209,7 +217,7 @@ function MaterialIntelligenceSection({
           </Card>
         ))}
       </div>
-    </section>
+    </>
   );
 }
 
@@ -227,17 +235,7 @@ function KeyInsightsSection({
   };
 
   return (
-    <section
-      id={MATERIAL_EXPERIENCE_SECTIONS[2].id}
-      aria-labelledby="key-insights-heading"
-      tabIndex={-1}
-    >
-      <SectionHeading
-        id="key-insights-heading"
-        eyebrow="3 · Understand"
-        title="Key Insights"
-        description="Scoped editorial claims drafted from current scores and provenance. They remain non-authoritative until a human editor approves them."
-      />
+    <>
       <Card className="border-[1.5px] border-[#211f1c]/25 bg-[linear-gradient(135deg,color-mix(in_oklch,var(--waste-recycle)_22%,transparent),color-mix(in_oklch,var(--waste-reuse)_12%,transparent))] shadow-none dark:border-white/20">
         <CardContent className="pt-6">
           <ul className="grid gap-4 md:grid-cols-3">
@@ -285,7 +283,7 @@ function KeyInsightsSection({
           </ul>
         </CardContent>
       </Card>
-    </section>
+    </>
   );
 }
 
@@ -298,18 +296,7 @@ function RecommendedLearningSection({
   "model" | "onReadArticle" | "onViewMaterial"
 >) {
   return (
-    <section
-      id={MATERIAL_EXPERIENCE_SECTIONS[3].id}
-      aria-labelledby="recommended-learning-heading"
-      tabIndex={-1}
-    >
-      <SectionHeading
-        id="recommended-learning-heading"
-        eyebrow="4 · Learn"
-        title="Recommended Learning"
-        description="Starting points from the current article collection. Direct material articles are prioritized before linked-material content; graph-aware educational ranking is not active yet."
-      />
-
+    <>
       {model.recommendedLearning.length > 0 ? (
         <div className="grid gap-4 md:grid-cols-3">
           {model.recommendedLearning.map(
@@ -386,7 +373,7 @@ function RecommendedLearningSection({
           </CardContent>
         </Card>
       )}
-    </section>
+    </>
   );
 }
 
@@ -433,17 +420,7 @@ function GraphDiscoverySection({
   graph: MaterialExperienceModel["graph"];
 }) {
   return (
-    <section
-      id={MATERIAL_EXPERIENCE_SECTIONS[4].id}
-      aria-labelledby="connected-discovery-heading"
-      tabIndex={-1}
-    >
-      <SectionHeading
-        id="connected-discovery-heading"
-        eyebrow="5 · Explore"
-        title="Connected Discovery"
-        description={`Graph contract ${graph.contractVersion} is active, but these sections stay empty until migrated relationships pass reconciliation and read verification.`}
-      />
+    <>
       <div className="grid gap-4 lg:grid-cols-3">
         <GraphEmptyState
           title="Knowledge Feed"
@@ -464,7 +441,7 @@ function GraphDiscoverySection({
           section={graph.discoveryPaths}
         />
       </div>
-    </section>
+    </>
   );
 }
 
@@ -502,18 +479,7 @@ function DeepResearchSection({
   const attribution = model.research.attribution;
 
   return (
-    <section
-      id={MATERIAL_EXPERIENCE_SECTIONS[5].id}
-      aria-labelledby="deep-research-heading"
-      tabIndex={-1}
-    >
-      <SectionHeading
-        id="deep-research-heading"
-        eyebrow="6 · Verify"
-        title="Deep Research"
-        description="Sources, normalized parameters, methodology metadata, attribution, and export access remain available behind the educational summary."
-      />
-
+    <>
       <div className="grid gap-4 lg:grid-cols-2">
         <Card className="shadow-none">
           <CardHeader>
@@ -728,7 +694,7 @@ function DeepResearchSection({
           </Button>
         )}
       </div>
-    </section>
+    </>
   );
 }
 
@@ -742,17 +708,7 @@ function ContributionSection({
   "onViewArticles" | "onSuggestEdit" | "canSuggestEdit" | "isAdminModeActive"
 >) {
   return (
-    <section
-      id={MATERIAL_EXPERIENCE_SECTIONS[6].id}
-      aria-labelledby="contribution-heading"
-      tabIndex={-1}
-    >
-      <SectionHeading
-        id="contribution-heading"
-        eyebrow="7 · Contribute"
-        title="Help Improve This Material"
-        description="Use the existing contribution workflows to add learning content or correct the current record."
-      />
+    <>
       <Card className="shadow-none">
         <CardContent className="grid gap-4 pt-6 md:grid-cols-2">
           <div>
@@ -805,7 +761,7 @@ function ContributionSection({
           </div>
         </CardContent>
       </Card>
-    </section>
+    </>
   );
 }
 
@@ -826,37 +782,124 @@ export function MaterialExperienceSections({
   isAdminModeActive,
   learningLibrary,
 }: MaterialExperienceSectionsProps) {
+  const showDisabledSections = isDevelopment();
+  const sectionProps = {
+    material,
+    model,
+    articleCounts,
+    onViewArticles,
+    onReadArticle,
+    onViewMaterial,
+    onOpenScienceHub,
+    onOpenExport,
+    onOpenScientificEditor,
+    onOpenSourceLibrary,
+    onOpenEvidenceLab,
+    onSuggestEdit,
+    canSuggestEdit,
+    isAdminModeActive,
+    learningLibrary,
+  };
+  const displaySections = getVisibleMaterialExperienceSections({
+    includeDisabled: showDisabledSections,
+  }).filter((section) => section.id !== "material-overview");
+
   return (
     <div className="space-y-12">
-      <MaterialIntelligenceSection
-        material={material}
-        model={model}
-        articleCounts={articleCounts}
-        onViewArticles={onViewArticles}
-      />
-      <KeyInsightsSection insights={model.keyInsights} />
-      <RecommendedLearningSection
-        model={model}
-        onReadArticle={onReadArticle}
-        onViewMaterial={onViewMaterial}
-      />
-      {learningLibrary}
-      <GraphDiscoverySection graph={model.graph} />
-      <DeepResearchSection
-        model={model}
-        onOpenScienceHub={onOpenScienceHub}
-        onOpenExport={onOpenExport}
-        onOpenScientificEditor={onOpenScientificEditor}
-        onOpenSourceLibrary={onOpenSourceLibrary}
-        onOpenEvidenceLab={onOpenEvidenceLab}
-        isAdminModeActive={isAdminModeActive}
-      />
-      <ContributionSection
-        onViewArticles={onViewArticles}
-        onSuggestEdit={onSuggestEdit}
-        canSuggestEdit={canSuggestEdit}
-        isAdminModeActive={isAdminModeActive}
-      />
+      {displaySections.map((section) => (
+        <GenericSection
+          key={section.id}
+          sectionId={section.id}
+          showDisabledSections={showDisabledSections}
+          {...sectionProps}
+        />
+      ))}
     </div>
+  );
+}
+
+function GenericSection({
+  sectionId,
+  showDisabledSections,
+  ...msep
+}: MaterialExperienceSectionsProps & {
+  sectionId: ActiveId;
+  showDisabledSections: boolean;
+}) {
+  if (!hasMaterialSectionId(sectionId)) return <></>;
+  const section = MATERIAL_EXPERIENCE_SECTIONS.find(
+    (section) => section.id === sectionId,
+  );
+  if (!section || (!showDisabledSections && section.enabled === false)) {
+    return null;
+  }
+
+  return (
+    <section
+      id={section.id}
+      aria-labelledby={section.heading.id}
+      tabIndex={-1}
+    >
+      <SectionHeading
+        section={section}
+        showDisabledSections={showDisabledSections}
+        variable={
+          section.id === "connected-discovery"
+            ? msep.model.graph.contractVersion
+            : undefined
+        }
+      />
+      {(() => {
+        switch (sectionId) {
+          case "material-intelligence":
+            return (
+              <MaterialIntelligenceSection
+                material={msep.material}
+                model={msep.model}
+                articleCounts={msep.articleCounts}
+                onViewArticles={msep.onViewArticles}
+              />
+            );
+          case "key-insights":
+            return <KeyInsightsSection insights={msep.model.keyInsights} />;
+          case "recommended-learning":
+            return (
+              <>
+                <RecommendedLearningSection
+                  model={msep.model}
+                  onReadArticle={msep.onReadArticle}
+                  onViewMaterial={msep.onViewMaterial}
+                />
+                {msep.learningLibrary}
+              </>
+            );
+          case "connected-discovery":
+            return <GraphDiscoverySection graph={msep.model.graph} />;
+          case "deep-research":
+            return (
+              <DeepResearchSection
+                model={msep.model}
+                onOpenScienceHub={msep.onOpenScienceHub}
+                onOpenExport={msep.onOpenExport}
+                onOpenScientificEditor={msep.onOpenScientificEditor}
+                onOpenSourceLibrary={msep.onOpenSourceLibrary}
+                onOpenEvidenceLab={msep.onOpenEvidenceLab}
+                isAdminModeActive={msep.isAdminModeActive}
+              />
+            );
+          case "material-contribution":
+            return (
+              <ContributionSection
+                onViewArticles={msep.onViewArticles}
+                onSuggestEdit={msep.onSuggestEdit}
+                canSuggestEdit={msep.canSuggestEdit}
+                isAdminModeActive={msep.isAdminModeActive}
+              />
+            );
+          default:
+            return null;
+        }
+      })()}
+    </section>
   );
 }

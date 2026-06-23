@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  MATERIAL_EXPERIENCE_SECTIONS,
+  getVisibleMaterialExperienceSections,
   type MaterialExperienceSectionId,
 } from "../../config/materialExperience";
+import { isDevelopment } from "../../utils/environment";
 import { useAccessibility } from "../shared/AccessibilityContext";
 
 export function MaterialSectionNavigator() {
   const { settings } = useAccessibility();
+  const showDisabledSections = isDevelopment();
   const [activeSection, setActiveSection] =
     useState<MaterialExperienceSectionId>("material-overview");
   const visibleSections = useRef(
@@ -16,9 +18,11 @@ export function MaterialSectionNavigator() {
   useEffect(() => {
     if (typeof IntersectionObserver === "undefined") return;
 
-    const sections = MATERIAL_EXPERIENCE_SECTIONS.map(({ id }) =>
-      document.getElementById(id),
-    ).filter((section): section is HTMLElement => section !== null);
+    const sections = getVisibleMaterialExperienceSections({
+      includeDisabled: showDisabledSections,
+    })
+      .map(({ id }) => document.getElementById(id))
+      .filter((section): section is HTMLElement => section !== null);
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -55,7 +59,7 @@ export function MaterialSectionNavigator() {
       observer.disconnect();
       visibleSections.current.clear();
     };
-  }, []);
+  }, [showDisabledSections]);
 
   const navigateToSection = (sectionId: MaterialExperienceSectionId) => {
     const section = document.getElementById(sectionId);
@@ -75,7 +79,9 @@ export function MaterialSectionNavigator() {
       className="sticky top-2 z-20 mx-auto mb-8 max-w-7xl rounded-(--retro-rounding) border-[1.5px] border-[#211f1c]/20 bg-white/90 p-2 shadow-sm backdrop-blur dark:border-white/20 dark:bg-[#1a1917]/90"
     >
       <div className="flex gap-1 overflow-x-auto">
-        {MATERIAL_EXPERIENCE_SECTIONS.map((section, index) => {
+        {getVisibleMaterialExperienceSections({
+          includeDisabled: showDisabledSections,
+        }).map((section, index) => {
           const isActive = activeSection === section.id;
           return (
             <button
