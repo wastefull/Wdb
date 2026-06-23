@@ -60,7 +60,11 @@ export function MaterialDetailSidebar({
 
       {isHub && <LinkedMaterialsCard linkedMaterials={linkedMaterials} />}
       {isHub && <hr />}
-      <MaterialDoodle materialId={materialId} alt={`${materialName} doodle`} />
+      <MaterialDoodle
+        materialId={materialId}
+        materialName={materialName}
+        alt={`${materialName} doodle`}
+      />
       <CopyPermalinkButton
         copied={copied}
         onClick={onCopyMaterialLink}

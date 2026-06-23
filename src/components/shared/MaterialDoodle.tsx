@@ -5,6 +5,7 @@ type MaterialDoodleVariant = "sidebar" | "inline";
 
 interface MaterialDoodleProps {
   materialId: string;
+  materialName?: string;
   alt?: string;
   className?: string;
   variant?: MaterialDoodleVariant;
@@ -17,11 +18,12 @@ const variantClassNames: Record<MaterialDoodleVariant, string> = {
 
 export function MaterialDoodle({
   materialId,
+  materialName,
   alt,
   className,
   variant = "sidebar",
 }: MaterialDoodleProps) {
-  const doodle = getMaterialDoodle(materialId);
+  const doodle = getMaterialDoodle(materialId, materialName);
   if (!doodle) return null;
 
   const imageAlt = alt ?? doodle.alt ?? "";

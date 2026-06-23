@@ -31,6 +31,11 @@ export function AssetUploadManager({ accessToken }: AssetUploadManagerProps) {
   const [assets, setAssets] = useState<Asset[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const getAssetAuthHeaders = () => ({
+    Authorization: `Bearer ${publicAnonKey}`,
+    ...(accessToken ? { "X-Session-Token": accessToken } : {}),
+  });
+
   useEffect(() => {
     if (accessToken) {
       fetchAssets();
@@ -42,9 +47,7 @@ export function AssetUploadManager({ accessToken }: AssetUploadManagerProps) {
       const response = await fetch(
         `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/assets`,
         {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
+          headers: getAssetAuthHeaders(),
         },
       );
 
@@ -96,9 +99,7 @@ export function AssetUploadManager({ accessToken }: AssetUploadManagerProps) {
         `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/assets/upload`,
         {
           method: "POST",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
+          headers: getAssetAuthHeaders(),
           body: formData,
         },
       );
@@ -137,9 +138,7 @@ export function AssetUploadManager({ accessToken }: AssetUploadManagerProps) {
         `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/assets/${deletePath}`,
         {
           method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
+          headers: getAssetAuthHeaders(),
         },
       );
 

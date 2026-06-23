@@ -1,4 +1,5 @@
 import { projectId } from "../utils/supabase/info";
+import { slugifyMaterialName } from "../utils/permalinks";
 
 const MATERIAL_DOODLE_BUCKET = "make-17cae920-assets";
 const MATERIAL_DOODLE_PREFIX = "material-doodles";
@@ -31,21 +32,29 @@ export const buildMaterialDoodlePublicUrl = (imageFile: string) => {
   )}`;
 };
 
-export const MATERIAL_DOODLES: Record<
-  string,
-  MaterialDoodleManifestEntry
-> = {
+export const MATERIAL_DOODLES: Record<string, MaterialDoodleManifestEntry> = {
   // Add generated Excel/CSV mappings here:
   // "material-id": { imageFile: "material-id.webp", alt: "Doodle of material name" },
   // Prefixed paths copied from admin also work: "material-doodles/material-id.webp"
+  "3d-printing-filament": {
+    imageFile: "material-doodles/image1-1782251808325.png",
+    alt: "Line drawing of a spool of 3D printing filament",
+  },
 };
 
-export function getMaterialDoodle(materialId: string): MaterialDoodle | undefined {
-  const entry = MATERIAL_DOODLES[materialId];
+export function getMaterialDoodle(
+  materialId: string,
+  materialName?: string,
+): MaterialDoodle | undefined {
+  const lookupKey =
+    MATERIAL_DOODLES[materialId] || !materialName
+      ? materialId
+      : slugifyMaterialName(materialName);
+  const entry = MATERIAL_DOODLES[lookupKey];
   if (!entry) return undefined;
 
   return {
-    materialId,
+    materialId: lookupKey,
     ...entry,
     publicUrl: buildMaterialDoodlePublicUrl(entry.imageFile),
   };
