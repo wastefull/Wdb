@@ -16,6 +16,7 @@ export const MATERIAL_EXPERIENCE_SECTIONS: readonly {
     title: "Material Overview",
     label: "Overview",
     verb: "Orient",
+    enabled: true, // must stay true
     heading: {
       id: "material-overview-heading",
       title: "Material Overview",
@@ -28,6 +29,7 @@ export const MATERIAL_EXPERIENCE_SECTIONS: readonly {
     title: "Material Intelligence",
     label: "Intelligence",
     verb: "Decide",
+    enabled: false,
     heading: {
       id: "material-intelligence-heading",
       title: "Material Intelligence",
@@ -40,6 +42,8 @@ export const MATERIAL_EXPERIENCE_SECTIONS: readonly {
     title: "Key Insights",
     label: "Insights",
     verb: "Learn",
+    enabled: false,
+
     heading: {
       id: "key-insights-heading",
       title: "Key Insights",
@@ -52,6 +56,8 @@ export const MATERIAL_EXPERIENCE_SECTIONS: readonly {
     title: "Recommended Learning",
     label: "Learning",
     verb: "Apply",
+    enabled: false,
+
     heading: {
       id: "recommended-learning-heading",
       title: "Recommended Learning",
@@ -64,6 +70,7 @@ export const MATERIAL_EXPERIENCE_SECTIONS: readonly {
     title: "Connected Discovery",
     label: "Discovery",
     verb: "Explore",
+    enabled: false,
     heading: {
       id: "connected-discovery-heading",
       title: "Connected Discovery",
@@ -76,6 +83,7 @@ export const MATERIAL_EXPERIENCE_SECTIONS: readonly {
     title: "Deep Research",
     label: "Research",
     verb: "Investigate",
+    enabled: false,
     heading: {
       id: "deep-research-heading",
       title: "Deep Research",
@@ -88,6 +96,7 @@ export const MATERIAL_EXPERIENCE_SECTIONS: readonly {
     title: "Material Contribution",
     label: "Contribute",
     verb: "Contribute",
+    enabled: true,
     heading: {
       id: "material-contribution-heading",
       title: "Material Contribution",

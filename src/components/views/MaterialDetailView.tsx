@@ -28,12 +28,16 @@ import {
   MaterialDetailSidebar,
   MaterialDescriptionCard,
 } from "../shared";
-import { MaterialExperienceSections } from "../material-experience/MaterialExperienceSections";
+import {
+  MaterialExperienceSections,
+  SectionHeading,
+} from "../material-experience/MaterialExperienceSections";
 import { MaterialSectionNavigator } from "../material-experience/MaterialSectionNavigator";
 import { buildMaterialExperienceModel } from "../../utils/materialExperience";
 import { getArticleCount } from "../../utils/materialArticles";
 import { useNavigationContext } from "../../contexts/NavigationContext";
 import { MATERIAL_EXPERIENCE_SECTIONS } from "../../config/materialExperience";
+import { isDevelopment } from "../../utils/environment";
 
 interface MaterialDetailViewProps {
   material: Material;
@@ -308,16 +312,11 @@ export function MaterialDetailView({
           tabIndex={-1}
         >
           <div className="overview-container">
-            <p className="eyebrow">1 · Orient</p>
             <div className="overview">
-              <div>
-                <h2 id="material-overview-heading">Material Overview</h2>
-                <p>
-                  What this material is, how WasteDB classifies it, and the
-                  current material links that remain available while connected
-                  discovery is being prepared.
-                </p>
-              </div>
+              <SectionHeading
+                section={MATERIAL_EXPERIENCE_SECTIONS[0]}
+                showDisabledSections={isDevelopment()}
+              />
               {canShowEditAction && (
                 <button
                   type="button"

@@ -46,11 +46,7 @@ const CATEGORY_LABELS: Record<CategoryType, string> = {
   reusability: "Reusability",
 };
 
-const CATEGORY_COLORS: Record<CategoryType, string> = {
-  recyclability: "#e4e3ac",
-  compostability: "#e6beb5",
-  reusability: "#b8c8cb",
-};
+import { CATEGORY_COLORS } from "../../utils/colors";
 
 function formatPercentage(value?: number): string {
   return value === undefined ? "Not recorded" : `${(value * 100).toFixed(1)}%`;
@@ -89,7 +85,7 @@ interface MaterialExperienceSectionsProps {
   learningLibrary: ReactNode;
 }
 
-function SectionHeading({
+export function SectionHeading({
   section,
   showDisabledSections,
   variable,
@@ -103,8 +99,10 @@ function SectionHeading({
     includeDisabled: showDisabledSections,
   });
   return (
-    <div className="section-heading">
-      <p>{`${number} · ${section.verb}`}</p>
+    <div
+      className={`${section.id === "material-overview" ? "" : "section-heading"} `}
+    >
+      <p className="eyebrow">{`${number} · ${section.verb}`}</p>
       <h2 id={section.heading.id}>
         {number}. {section.title}
       </h2>
@@ -712,7 +710,7 @@ function ContributionSection({
       <Card className="shadow-none">
         <CardContent className="grid gap-4 pt-6 md:grid-cols-2">
           <div>
-            <h3 className="flex items-center gap-2 font-medium">
+            <h3 className="flex items-center gap-2">
               <FilePlus2 className="size-4" aria-hidden="true" />
               Add learning content
             </h3>
@@ -722,24 +720,30 @@ function ContributionSection({
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               {(Object.keys(CATEGORY_LABELS) as CategoryType[]).map(
-                (category) => (
-                  <Button
-                    key={category}
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onViewArticles(category)}
-                  >
-                    {CATEGORY_LABELS[category]}
-                  </Button>
-                ),
+                (category) => {
+                  const color =
+                    CATEGORY_COLORS[category.toLowerCase() as CategoryType];
+                  return (
+                    <Button
+                      key={category}
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onViewArticles(category)}
+                      style={{ backgroundColor: color }}
+                      className="liquid"
+                    >
+                      {CATEGORY_LABELS[category]}
+                    </Button>
+                  );
+                },
               )}
             </div>
           </div>
           <div>
-            <h3 className="flex items-center gap-2 font-medium">
+            <h3 className="flex items-center gap-2">
               <Pencil className="size-4" aria-hidden="true" />
-              Correct the record
+              Suggest corrections
             </h3>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
               {canSuggestEdit
@@ -835,11 +839,7 @@ function GenericSection({
   }
 
   return (
-    <section
-      id={section.id}
-      aria-labelledby={section.heading.id}
-      tabIndex={-1}
-    >
+    <section id={section.id} aria-labelledby={section.heading.id} tabIndex={-1}>
       <SectionHeading
         section={section}
         showDisabledSections={showDisabledSections}
