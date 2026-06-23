@@ -56,7 +56,7 @@ export const MATERIAL_EXPERIENCE_SECTIONS: readonly {
     title: "Recommended Learning",
     label: "Learning",
     verb: "Apply",
-    enabled: false,
+    enabled: true,
 
     heading: {
       id: "recommended-learning-heading",
