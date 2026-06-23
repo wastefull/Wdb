@@ -1,10 +1,12 @@
 import { Material } from "../../types/material";
 import { CopyPermalinkButton } from "./CopyPermalinkButton";
 import { LinkedMaterialsCard } from "./LinkedMaterialsCard";
+import { MaterialDoodle } from "./MaterialDoodle";
 import { PeriodicTableCard } from "./PeriodicTableCard";
 import { useNavigationContext } from "../../contexts/NavigationContext";
 
 interface MaterialDetailSidebarProps {
+  materialId: string;
   isElementHub: boolean;
   isHub: boolean;
   linkedMaterials: Material[];
@@ -15,6 +17,7 @@ interface MaterialDetailSidebarProps {
 }
 
 export function MaterialDetailSidebar({
+  materialId,
   isElementHub,
   isHub,
   linkedMaterials,
@@ -57,6 +60,7 @@ export function MaterialDetailSidebar({
 
       {isHub && <LinkedMaterialsCard linkedMaterials={linkedMaterials} />}
       {isHub && <hr />}
+      <MaterialDoodle materialId={materialId} alt={`${materialName} doodle`} />
       <CopyPermalinkButton
         copied={copied}
         onClick={onCopyMaterialLink}

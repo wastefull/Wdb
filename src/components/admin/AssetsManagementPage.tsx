@@ -26,6 +26,7 @@ interface Asset {
 export function AssetsManagementPage() {
   const { navigateToAdminDashboard } = useNavigationContext();
   const [uploading, setUploading] = useState(false);
+  const [uploadDestination, setUploadDestination] = useState("root");
   const [assets, setAssets] = useState<Asset[]>([]);
   const [loading, setLoading] = useState(true);
   const accessToken = sessionStorage.getItem("wastedb_access_token");
@@ -89,6 +90,7 @@ export function AssetsManagementPage() {
     try {
       const formData = new FormData();
       formData.append("file", file);
+      formData.append("destination", uploadDestination);
 
       const response = await fetch(
         `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/assets/upload`,
@@ -107,7 +109,7 @@ export function AssetsManagementPage() {
       }
 
       const data = await response.json();
-      toast.success("Asset uploaded successfully");
+      toast.success(`Uploaded: ${data.fileName || file.name}`);
 
       // Refresh asset list
       await fetchAssets();
@@ -128,10 +130,11 @@ export function AssetsManagementPage() {
     }
 
     try {
+      const deletePath = assetName.includes("/")
+        ? `_?path=${encodeURIComponent(assetName)}`
+        : encodeURIComponent(assetName);
       const response = await fetch(
-        `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/assets/${encodeURIComponent(
-          assetName,
-        )}`,
+        `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/assets/${deletePath}`,
         {
           method: "DELETE",
           headers: {
@@ -215,6 +218,23 @@ export function AssetsManagementPage() {
                   disabled={uploading || !accessToken}
                   className="cursor-pointer"
                 />
+              </div>
+              <div>
+                <Label htmlFor="asset-destination">Upload Destination</Label>
+                <select
+                  id="asset-destination"
+                  value={uploadDestination}
+                  onChange={(event) => setUploadDestination(event.target.value)}
+                  disabled={uploading || !accessToken}
+                  className="mt-2 w-full rounded-md border border-[#211f1c]/20 bg-white px-3 py-2 text-sm text-black dark:border-white/20 dark:bg-[#2a2825] dark:text-white"
+                >
+                  <option value="root">General assets</option>
+                  <option value="material-doodles">Material doodles</option>
+                </select>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Material doodles upload to material-doodles/ for use in
+                  materialDoodles.ts.
+                </p>
               </div>
               {uploading && (
                 <p className="text-sm text-muted-foreground">Uploading...</p>

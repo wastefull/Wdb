@@ -27,6 +27,7 @@ interface AssetUploadManagerProps {
 
 export function AssetUploadManager({ accessToken }: AssetUploadManagerProps) {
   const [uploading, setUploading] = useState(false);
+  const [uploadDestination, setUploadDestination] = useState("root");
   const [assets, setAssets] = useState<Asset[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -89,6 +90,7 @@ export function AssetUploadManager({ accessToken }: AssetUploadManagerProps) {
     try {
       const formData = new FormData();
       formData.append("file", file);
+      formData.append("destination", uploadDestination);
 
       const response = await fetch(
         `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/assets/upload`,
@@ -107,7 +109,7 @@ export function AssetUploadManager({ accessToken }: AssetUploadManagerProps) {
       }
 
       const data = await response.json();
-      toast.success(`Uploaded: ${data.fileName}`);
+      toast.success(`Uploaded: ${data.fileName || file.name}`);
 
       // Refresh asset list
       await fetchAssets();
@@ -128,10 +130,11 @@ export function AssetUploadManager({ accessToken }: AssetUploadManagerProps) {
     if (!confirm(`Delete ${fileName}?`)) return;
 
     try {
+      const deletePath = fileName.includes("/")
+        ? `_?path=${encodeURIComponent(fileName)}`
+        : encodeURIComponent(fileName);
       const response = await fetch(
-        `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/assets/${encodeURIComponent(
-          fileName,
-        )}`,
+        `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/assets/${deletePath}`,
         {
           method: "DELETE",
           headers: {
@@ -225,6 +228,19 @@ export function AssetUploadManager({ accessToken }: AssetUploadManagerProps) {
                 Uploading...
               </span>
             )}
+          </div>
+          <div>
+            <Label htmlFor="asset-destination-compact">Destination</Label>
+            <select
+              id="asset-destination-compact"
+              value={uploadDestination}
+              onChange={(event) => setUploadDestination(event.target.value)}
+              disabled={uploading}
+              className="mt-2 w-full rounded-md border border-[#211f1c]/20 bg-white px-3 py-2 text-sm text-black dark:border-white/20 dark:bg-[#2a2825] dark:text-white"
+            >
+              <option value="root">General assets</option>
+              <option value="material-doodles">Material doodles</option>
+            </select>
           </div>
           <p className="text-xs text-muted-foreground">
             Supported: PNG, JPG, SVG, WebP • Max 5MB

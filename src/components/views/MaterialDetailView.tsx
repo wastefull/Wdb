@@ -354,6 +354,7 @@ export function MaterialDetailView({
               onViewCategory={() => onViewCategoryMaterials(material.category)}
             />
             <MaterialDetailSidebar
+              materialId={material.id}
               isElementHub={isElementHub}
               isHub={isHub}
               linkedMaterials={linkedMaterials}

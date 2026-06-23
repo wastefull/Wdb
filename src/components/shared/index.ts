@@ -27,6 +27,7 @@ export { MaterialCategoryButton } from "./MaterialCategoryButton";
 export { MaterialDescriptionCard } from "./MaterialDescriptionCard";
 export { MaterialDetailHeader } from "./MaterialDetailHeader";
 export { MaterialDetailSidebar } from "./MaterialDetailSidebar";
+export { MaterialDoodle } from "./MaterialDoodle";
 export { MaterialHubButton } from "./MaterialHubButton";
 export { MaterialName } from "./MaterialName";
 export { MaterialsDonutChart } from "./MaterialsDonutChart";

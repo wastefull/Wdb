@@ -20,9 +20,8 @@ import {
   startEntityBackfillApply,
 } from "./graph-migration.tsx";
 
-// REMOVED: import * as evidenceRoutes from "./evidence-routes.tsx";
-// This import was causing the entire server to fail because evidence-routes.tsx
-// tries to import from /utils/supabase/* which is not accessible in Edge Functions
+// Evidence routes are implemented inline here because the previous split module
+// depended on app-only utilities that are not accessible in Edge Functions.
 // Phase 9.1 routes are now implemented inline in this file instead
 
 // WasteDB Server - v1.1.0 (Hardened Security)
@@ -3463,6 +3462,21 @@ app.put(
 
 // ==================== ASSET STORAGE ROUTES ====================
 
+const ASSET_BUCKET_NAME = "make-17cae920-assets";
+const ASSET_UPLOAD_DESTINATIONS: Record<string, string> = {
+  root: "",
+  "material-doodles": "material-doodles",
+};
+
+function getAssetStoragePath(fileName: string, destination: string): string {
+  const prefix = ASSET_UPLOAD_DESTINATIONS[destination];
+  if (prefix === undefined) {
+    throw new Error("Invalid upload destination");
+  }
+
+  return prefix ? `${prefix}/${fileName}` : fileName;
+}
+
 // Upload asset to Supabase Storage
 app.post(
   "/make-server-17cae920/assets/upload",
@@ -3502,11 +3516,15 @@ app.post(
         Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       );
 
-      const bucketName = "make-17cae920-assets";
+      const destination = String(formData.get("destination") || "root");
+      if (ASSET_UPLOAD_DESTINATIONS[destination] === undefined) {
+        return c.json({ error: "Invalid upload destination" }, 400);
+      }
 
       // Generate filename with timestamp to avoid collisions
       const fileExt = file.name.split(".").pop();
       const fileName = `${file.name.split(".")[0]}-${Date.now()}.${fileExt}`;
+      const storagePath = getAssetStoragePath(fileName, destination);
 
       // Convert File to ArrayBuffer then to Uint8Array
       const arrayBuffer = await file.arrayBuffer();
@@ -3514,8 +3532,8 @@ app.post(
 
       // Upload to Supabase Storage
       const { data, error } = await supabase.storage
-        .from(bucketName)
-        .upload(fileName, uint8Array, {
+        .from(ASSET_BUCKET_NAME)
+        .upload(storagePath, uint8Array, {
           contentType: file.type,
           upsert: false,
         });
@@ -3531,13 +3549,13 @@ app.post(
       // Get public URL
       const {
         data: { publicUrl },
-      } = supabase.storage.from(bucketName).getPublicUrl(fileName);
+      } = supabase.storage.from(ASSET_BUCKET_NAME).getPublicUrl(storagePath);
 
-      log.log(`✅ Asset uploaded: ${fileName} -> ${publicUrl}`);
+      log.log(`✅ Asset uploaded: ${storagePath} -> ${publicUrl}`);
 
       return c.json({
         success: true,
-        fileName,
+        fileName: storagePath,
         publicUrl,
         size: file.size,
         type: file.type,
@@ -3564,9 +3582,7 @@ app.get(
         Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       );
 
-      const bucketName = "make-17cae920-assets";
-
-      const { data, error } = await supabase.storage.from(bucketName).list();
+      const { data, error } = await supabase.storage.from(ASSET_BUCKET_NAME).list();
 
       if (error) {
         log.error("Error listing assets:", error);
@@ -3576,14 +3592,37 @@ app.get(
         );
       }
 
+      const { data: doodleFiles, error: doodleError } = await supabase.storage
+        .from(ASSET_BUCKET_NAME)
+        .list("material-doodles");
+
+      if (doodleError) {
+        log.error("Error listing material doodles:", doodleError);
+        return c.json(
+          { error: "Failed to list assets", details: doodleError.message },
+          500,
+        );
+      }
+
       // Get public URLs for all files
-      const assets = data.map((file) => {
+      const rootAssets = data
+        .filter((file) => file.name !== "material-doodles")
+        .map((file) => ({
+          file,
+          storagePath: file.name,
+        }));
+      const doodleAssets = (doodleFiles || []).map((file) => ({
+        file,
+        storagePath: `material-doodles/${file.name}`,
+      }));
+
+      const assets = [...rootAssets, ...doodleAssets].map(({ file, storagePath }) => {
         const {
           data: { publicUrl },
-        } = supabase.storage.from(bucketName).getPublicUrl(file.name);
+        } = supabase.storage.from(ASSET_BUCKET_NAME).getPublicUrl(storagePath);
 
         return {
-          name: file.name,
+          name: storagePath,
           publicUrl,
           size: file.metadata?.size,
           createdAt: file.created_at,
@@ -3609,17 +3648,15 @@ app.delete(
   requirePermission("assets.delete"),
   async (c) => {
     try {
-      const fileName = c.req.param("fileName");
+      const fileName = c.req.query("path") || c.req.param("fileName");
 
       const supabase = createClient(
         Deno.env.get("SUPABASE_URL") ?? "",
         Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       );
 
-      const bucketName = "make-17cae920-assets";
-
       const { error } = await supabase.storage
-        .from(bucketName)
+        .from(ASSET_BUCKET_NAME)
         .remove([fileName]);
 
       if (error) {
