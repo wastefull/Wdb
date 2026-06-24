@@ -1853,9 +1853,13 @@ main.material-detail-view {
 }
 
 .doodle .material-doodle {
-  @apply m-0 flex h-full w-full items-start justify-center;
+  @apply flex h-full w-full items-start justify-center;
 }
 
 .doodle .material-doodle img {
   @apply h-full max-h-10 w-full max-w-10 object-contain;
+}
+
+.material-doodle-container {
+  @apply mr-[50px!];
 }

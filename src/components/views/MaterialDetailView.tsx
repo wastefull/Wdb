@@ -27,6 +27,7 @@ import {
   MaterialDetailHeader,
   MaterialDetailSidebar,
   MaterialDescriptionCard,
+  MaterialDoodle,
 } from "../shared";
 import {
   MaterialExperienceSections,
@@ -317,6 +318,14 @@ export function MaterialDetailView({
                 section={MATERIAL_EXPERIENCE_SECTIONS[0]}
                 showDisabledSections={isDevelopment()}
               />
+              <div className="sidebar doodle-container">
+                <MaterialDoodle
+                  materialId={material.id}
+                  materialName={material.name}
+                  alt={`${material.name} doodle`}
+                  variant="sidebar"
+                />
+              </div>
               {canShowEditAction && (
                 <button
                   type="button"
@@ -344,25 +353,31 @@ export function MaterialDetailView({
           </div>
 
           <div className="material-description">
-            <MaterialDescriptionCard
-              description={
-                material.description ||
-                "No plain-language description has been added yet."
-              }
-              category={material.category}
-              aliases={combinedAliases}
-              onViewCategory={() => onViewCategoryMaterials(material.category)}
-            />
-            <MaterialDetailSidebar
-              materialId={material.id}
-              isElementHub={isElementHub}
-              isHub={isHub}
-              linkedMaterials={linkedMaterials}
-              parentHubs={parentHubs}
-              materialName={material.name}
-              copied={copied}
-              onCopyMaterialLink={handleCopyMaterialLink}
-            />
+            <div>
+              <MaterialDescriptionCard
+                description={
+                  material.description ||
+                  "No plain-language description has been added yet, but you could suggest one!"
+                }
+                category={material.category}
+                aliases={combinedAliases}
+                onViewCategory={() =>
+                  onViewCategoryMaterials(material.category)
+                }
+              />
+            </div>
+            <div>
+              <MaterialDetailSidebar
+                materialId={material.id}
+                isElementHub={isElementHub}
+                isHub={isHub}
+                linkedMaterials={linkedMaterials}
+                parentHubs={parentHubs}
+                materialName={material.name}
+                copied={copied}
+                onCopyMaterialLink={handleCopyMaterialLink}
+              />
+            </div>
           </div>
         </section>
 
