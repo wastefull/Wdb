@@ -353,10 +353,10 @@ export const MATERIAL_DOODLES: Record<string, MaterialDoodleManifestEntry> = {
   yttrium: { imageFile: "image211.png", alt: "yttrium" },
   zinc: { imageFile: "image212.png", alt: "zinc" },
   "zipper-storage-bag": {
-    imageFile: "image213.png",
+    imageFile: "image214.png",
     alt: "zipper-storage-bag",
   },
-  zirconium: { imageFile: "image214.png", alt: "zirconium" },
+  zirconium: { imageFile: "image215.png", alt: "zirconium" },
 };
 
 export function getMaterialDoodle(
