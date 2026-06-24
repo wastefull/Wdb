@@ -162,7 +162,7 @@ export const MATERIAL_DOODLES: Record<string, MaterialDoodleManifestEntry> = {
   drywall: { imageFile: "image57.png", alt: "drywall" },
   dubnium: { imageFile: "image58.png", alt: "dubnium" },
   dysprosium: { imageFile: "image59.png", alt: "dysprosium" },
-  "egg-carton-(paper)": { imageFile: "image60.png", alt: "egg-carton-(paper)" },
+  "egg-carton-paper": { imageFile: "image60.png", alt: "egg-carton-(paper)" },
   eggshells: { imageFile: "image61.png", alt: "eggshells" },
   einsteinium: { imageFile: "image62.png", alt: "einsteinium" },
   "electronics-cables": { imageFile: "image63.png", alt: "electronics-cables" },
