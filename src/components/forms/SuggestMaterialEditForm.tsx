@@ -2,7 +2,8 @@ import { useState, useEffect, useMemo } from "react";
 import { X } from "lucide-react";
 import { toast } from "sonner";
 import * as api from "../../utils/api";
-import { Material, MATERIAL_CATEGORIES } from "../../types/material";
+import { Material } from "../../types/material";
+import { useCategoryContext } from "../../contexts/CategoryContext";
 import {
   buildMaterialPermalinkPath,
   parseMaterialPermalinkPath,
@@ -36,6 +37,7 @@ export function SuggestMaterialEditForm({
   onSubmitSuccess,
   isAdminMode = false,
 }: SuggestMaterialEditFormProps) {
+  const { categories } = useCategoryContext();
   const [name, setName] = useState(material.name);
   const [category, setCategory] = useState<string>(material.category);
   const [description, setDescription] = useState(material.description || "");
@@ -146,10 +148,14 @@ export function SuggestMaterialEditForm({
 
       if (isAdminMode) {
         const normalizedLinks = normalizeIds(linkedMaterialIds);
+        const selectedCategory = categories.find(
+          (cat) => cat.name === category,
+        );
         const updatedMaterial: Material = {
           ...material,
           name: name.trim(),
           category: category as Material["category"],
+          categoryId: selectedCategory?.id,
           description: description.trim() || undefined,
           aliases: parsedAliases.length > 0 ? parsedAliases : undefined,
           isHub: isHub || undefined,
@@ -176,12 +182,16 @@ export function SuggestMaterialEditForm({
         toast.success(`Updated ${name.trim()} successfully`);
       } else {
         const normalizedLinks = normalizeIds(linkedMaterialIds);
+        const selectedCategory = categories.find(
+          (cat) => cat.name === category,
+        );
         // Regular user: create a submission for review
         await api.createSubmission({
           type: "edit_material",
           content_data: {
             name: name.trim(),
             category,
+            categoryId: selectedCategory?.id,
             description: description.trim() || undefined,
             aliases: parsedAliases.length > 0 ? parsedAliases : undefined,
             isHub: isHub || undefined,
@@ -209,6 +219,14 @@ export function SuggestMaterialEditForm({
       setSubmitting(false);
     }
   };
+
+  const categoryOptions = useMemo(() => {
+    const activeNames = categories.map((cat) => cat.name);
+    if (!category || activeNames.includes(category)) {
+      return activeNames;
+    }
+    return [category, ...activeNames];
+  }, [categories, category]);
 
   return (
     <Modal
@@ -265,9 +283,12 @@ export function SuggestMaterialEditForm({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {MATERIAL_CATEGORIES.map((cat) => (
+                    {categoryOptions.map((cat) => (
                       <SelectItem key={cat} value={cat} className="">
                         {cat}
+                        {!categories.some((active) => active.name === cat)
+                          ? " (current)"
+                          : ""}
                       </SelectItem>
                     ))}
                   </SelectContent>
