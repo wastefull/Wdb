@@ -61,7 +61,7 @@ export function MaterialDetailHeader({
             <h1 className="text-4xl leading-tight text-black text-shadow-lg dark:text-white md:text-[42px]">
               {materialName}
             </h1>
-            <AliasDisplay aliases={aliases} />
+            {/* <AliasDisplay aliases={aliases} /> */}
           </div>
           <div className="flex flex-wrap items-center gap-2 md:max-w-sm md:justify-end">
             {isHub && <MaterialHubButton materialName={materialName} />}
