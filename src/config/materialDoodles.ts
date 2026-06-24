@@ -281,10 +281,10 @@ export const MATERIAL_DOODLES: Record<string, MaterialDoodleManifestEntry> = {
     imageFile: "image150.png",
     alt: "polyester-clothing",
   },
-  "polyethylene-(PE)": { imageFile: "image151.png", alt: "polyethylene-(PE)" },
-  "polypropylene-(PP)": {
+  "polyethylene-pe": { imageFile: "image151.png", alt: "polyethylene (PE)" },
+  "polypropylene-pp": {
     imageFile: "image152.png",
-    alt: "polypropylene-(PP)",
+    alt: "polypropylene (PP)",
   },
   "polypropylene-container": {
     imageFile: "image153.png",
