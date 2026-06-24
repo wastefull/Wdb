@@ -439,8 +439,10 @@ export function MaterialDetailView({
                   Learning Library
                 </h2>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  All current articles remain available, including edit and
-                  delete controls for authorized contributors.
+                  Articles are contributed by volunteers like you and reviewed
+                  for accuracy. If you feel that the featured article is
+                  inaccurate or biased, please suggest corrections or upload
+                  your own, superior article on the topic.
                 </p>
               </div>
               <MaterialArticlesGrid
