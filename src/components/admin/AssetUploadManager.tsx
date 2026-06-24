@@ -28,6 +28,7 @@ interface AssetUploadManagerProps {
 export function AssetUploadManager({ accessToken }: AssetUploadManagerProps) {
   const [uploading, setUploading] = useState(false);
   const [uploadDestination, setUploadDestination] = useState("root");
+  const [uploadProgress, setUploadProgress] = useState<string | null>(null);
   const [assets, setAssets] = useState<Asset[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -35,6 +36,52 @@ export function AssetUploadManager({ accessToken }: AssetUploadManagerProps) {
     Authorization: `Bearer ${publicAnonKey}`,
     ...(accessToken ? { "X-Session-Token": accessToken } : {}),
   });
+
+  const uploadDelay = () =>
+    new Promise((resolve) => {
+      window.setTimeout(resolve, 250);
+    });
+
+  const validateAssetFile = (file: File): string | null => {
+    const allowedTypes = [
+      "image/png",
+      "image/jpeg",
+      "image/jpg",
+      "image/svg+xml",
+      "image/webp",
+    ];
+    if (!allowedTypes.includes(file.type)) {
+      return `${file.name}: invalid file type`;
+    }
+
+    if (file.size > 5242880) {
+      return `${file.name}: file too large`;
+    }
+
+    return null;
+  };
+
+  const uploadAssetFile = async (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("destination", uploadDestination);
+
+    const response = await fetch(
+      `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/assets/upload`,
+      {
+        method: "POST",
+        headers: getAssetAuthHeaders(),
+        body: formData,
+      },
+    );
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.error || "Upload failed");
+    }
+
+    return response.json();
+  };
 
   useEffect(() => {
     if (accessToken) {
@@ -66,51 +113,65 @@ export function AssetUploadManager({ accessToken }: AssetUploadManagerProps) {
   };
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
 
-    // Validate file type
-    const allowedTypes = [
-      "image/png",
-      "image/jpeg",
-      "image/jpg",
-      "image/svg+xml",
-      "image/webp",
-    ];
-    if (!allowedTypes.includes(file.type)) {
-      toast.error("Invalid file type. Only images are allowed.");
-      return;
+    const validFiles: File[] = [];
+    const validationErrors: string[] = [];
+    for (const file of files) {
+      const error = validateAssetFile(file);
+      if (error) {
+        validationErrors.push(error);
+      } else {
+        validFiles.push(file);
+      }
     }
 
-    // Validate file size (5MB)
-    if (file.size > 5242880) {
-      toast.error("File too large. Maximum size is 5MB.");
+    if (validationErrors.length > 0) {
+      toast.error(validationErrors.slice(0, 3).join("; "));
+    }
+
+    if (validFiles.length === 0) {
+      e.target.value = "";
       return;
     }
 
     setUploading(true);
+    let uploadedCount = 0;
+    const failedUploads: string[] = [];
 
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("destination", uploadDestination);
+      for (const [index, file] of validFiles.entries()) {
+        setUploadProgress(
+          `Uploading ${index + 1} of ${validFiles.length}: ${file.name}`,
+        );
 
-      const response = await fetch(
-        `https://${projectId}.supabase.co/functions/v1/make-server-17cae920/assets/upload`,
-        {
-          method: "POST",
-          headers: getAssetAuthHeaders(),
-          body: formData,
-        },
-      );
+        try {
+          await uploadAssetFile(file);
+          uploadedCount += 1;
+        } catch (error) {
+          failedUploads.push(file.name);
+          log.error("Upload error:", error);
+        }
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Upload failed");
+        if (index < validFiles.length - 1) {
+          await uploadDelay();
+        }
       }
 
-      const data = await response.json();
-      toast.success(`Uploaded: ${data.fileName || file.name}`);
+      if (uploadedCount > 0) {
+        toast.success(
+          `Uploaded ${uploadedCount} asset${uploadedCount === 1 ? "" : "s"}`,
+        );
+      }
+
+      if (failedUploads.length > 0) {
+        toast.error(
+          `Failed ${failedUploads.length}: ${failedUploads
+            .slice(0, 3)
+            .join(", ")}`,
+        );
+      }
 
       // Refresh asset list
       await fetchAssets();
@@ -123,6 +184,7 @@ export function AssetUploadManager({ accessToken }: AssetUploadManagerProps) {
         error instanceof Error ? error.message : "Failed to upload file",
       );
     } finally {
+      setUploadProgress(null);
       setUploading(false);
     }
   };
@@ -219,12 +281,13 @@ export function AssetUploadManager({ accessToken }: AssetUploadManagerProps) {
               id="asset-upload"
               type="file"
               accept="image/*"
+              multiple
               onChange={handleUpload}
               disabled={uploading}
             />
             {uploading && (
               <span className="text-sm text-muted-foreground">
-                Uploading...
+                {uploadProgress || "Uploading..."}
               </span>
             )}
           </div>
