@@ -1,6 +1,7 @@
 import { FormEvent, useState } from "react";
 import {
   CheckCircle,
+  Download,
   ExternalLink,
   ListVideo,
   Loader2,
@@ -12,6 +13,11 @@ import type {
   VideoPlaylistCandidateClassification,
   VideoPlaylistPreview,
 } from "../../types/videoPlaylist";
+import {
+  buildVideoTriageCsv,
+  isSuggested3dPrintingVideo,
+  videoTriageCsvFilename,
+} from "../../utils/videoPlaylistCsv";
 
 const CLASSIFICATION_LABELS: Record<
   VideoPlaylistCandidateClassification,
@@ -36,6 +42,9 @@ function formatDuration(seconds: number | null): string {
 }
 
 function PreviewSummary({ preview }: { preview: VideoPlaylistPreview }) {
+  const suggested3dPrintingCount = preview.candidates.filter(
+    isSuggested3dPrintingVideo,
+  ).length;
   const summary = [
     ["Playlist items", preview.counts.playlist_items],
     ["Unique candidates", preview.counts.unique_candidates],
@@ -45,7 +54,22 @@ function PreviewSummary({ preview }: { preview: VideoPlaylistPreview }) {
     ["Private", preview.counts.private],
     ["Deleted", preview.counts.deleted],
     ["Duplicates", preview.counts.duplicate_playlist_items],
+    ["3D printing suggestions", suggested3dPrintingCount],
   ] as const;
+
+  const downloadTriageCsv = () => {
+    const blob = new Blob([buildVideoTriageCsv(preview)], {
+      type: "text/csv;charset=utf-8",
+    });
+    const objectUrl = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = objectUrl;
+    link.download = videoTriageCsvFilename(preview.fetched_at);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(objectUrl);
+  };
 
   return (
     <div className="space-y-4">
@@ -89,6 +113,27 @@ function PreviewSummary({ preview }: { preview: VideoPlaylistPreview }) {
         <code className="mt-1 block break-all text-black/60 dark:text-white/60">
           {preview.preview_checksum}
         </code>
+      </div>
+
+      <div className="rounded-lg border border-black/10 p-4 dark:border-white/10">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="text-[13px] font-medium">Triage worksheet</p>
+            <p className="mt-1 max-w-xl text-[11px] text-black/60 dark:text-white/60">
+              Export all candidates with provider status, issues, suggested 3D
+              printing tags, and blank columns for disposition, materials,
+              reviewed topics, editorial targets, and notes.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={downloadTriageCsv}
+            className="retro-btn-primary flex items-center gap-2"
+          >
+            <Download className="size-4" />
+            Download triage CSV
+          </button>
+        </div>
       </div>
 
       <details className="rounded-lg border border-black/10 dark:border-white/10">

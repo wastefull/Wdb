@@ -359,7 +359,7 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
     deliverables: [
       active(
         "Bulk YouTube playlist intake and four-way triage",
-        "Preview and deduplicate playlist candidates, then classify each as a material video, editorial lead, both, or ignored without publishing automatically.",
+        "Preview and deduplicate playlist candidates, export a review-safe triage worksheet, then classify each as a material video, editorial lead, both, or ignored without publishing automatically.",
       ),
       planned(
         "Transactional draft video creation",
@@ -413,6 +413,12 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
         "stage-7-video-playlist-preview",
         "Playlist intake is complete and non-mutating",
         "The production preview reconciles all 370 playlist items as 366 new and four private candidates with no duplicates, deleted or unavailable items, or graph writes; fixture tests cover deterministic parsing, classification, snapshots, and checksums.",
+        "automated",
+      ),
+      acceptance(
+        "stage-7-video-triage-export",
+        "Playlist candidates export to a review-safe worksheet",
+        "The preview downloads as formula-injection-safe CSV with provenance, provider status, issues, non-authoritative 3D-printing suggestions, and blank human-review fields for disposition, materials, topics, editorial targets, and notes.",
         "automated",
       ),
       acceptance(

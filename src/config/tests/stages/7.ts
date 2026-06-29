@@ -1,5 +1,10 @@
 import { EMPTY_MATERIAL_GRAPH_EXPERIENCE } from "../../../utils/materialExperience";
 import { projectId, publicAnonKey } from "../../../utils/supabase/info";
+import {
+  isSuggested3dPrintingVideo,
+  VIDEO_TRIAGE_CSV_COLUMNS,
+} from "../../../utils/videoPlaylistCsv";
+import type { VideoPlaylistCandidate } from "../../../types/videoPlaylist";
 import type { Test } from "../types";
 
 const REST_URL = `https://${projectId}.supabase.co/rest/v1`;
@@ -162,6 +167,44 @@ export function getStage7Tests(): Test[] {
           message: valid
             ? "YouTube playlist preview is configured server-side with all write and read-cutover capabilities disabled."
             : `Playlist preview capability contract is unsafe or incomplete: ${JSON.stringify(payload)}`,
+        };
+      },
+    },
+    {
+      id: "stage-7-video-triage-export",
+      name: "Video triage worksheet preserves review fields",
+      description:
+        "Verifies the CSV contract includes disposition, material, topic, editorial-target, and notes fields plus a non-authoritative 3D-printing suggestion.",
+      phase: "stage-7",
+      stage: 7,
+      category: "Video Curation",
+      requiresAuth: false,
+      testFn: async () => {
+        const requiredColumns = [
+          "preview_checksum",
+          "disposition",
+          "material_ids_or_slugs",
+          "suggested_topic_tags",
+          "reviewed_topic_tags",
+          "editorial_targets",
+          "review_notes",
+        ];
+        const candidate = {
+          title: "Recycling filament for 3D printing",
+          description: "An additive manufacturing example.",
+          channel_name: "Fixture channel",
+        } as VideoPlaylistCandidate;
+        const valid =
+          requiredColumns.every((column) =>
+            VIDEO_TRIAGE_CSV_COLUMNS.includes(
+              column as (typeof VIDEO_TRIAGE_CSV_COLUMNS)[number],
+            ),
+          ) && isSuggested3dPrintingVideo(candidate);
+        return {
+          success: valid,
+          message: valid
+            ? "The triage CSV preserves human review fields and marks 3D printing only as a suggestion."
+            : "The triage CSV contract is missing review fields or topic suggestion behavior.",
         };
       },
     },

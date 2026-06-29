@@ -15,7 +15,8 @@ It does not enable graph-powered discovery reads; that remains a Stage 8 gate.
   unavailable-item classification, stable checksums, existing-video matching,
   and concurrent-state detection.
 - The admin one-time-actions area includes a playlist URL form, summary counts,
-  checksum output, and an inspectable candidate table.
+  checksum output, an inspectable candidate table, and a safe triage CSV
+  download.
 - Anonymous requests to both playlist endpoints return HTTP 401.
 - The first signed-in production preview reconciled all 370 playlist items as
   366 new candidates and four private candidates, with no duplicates, deleted
@@ -158,6 +159,9 @@ remain private to authorized contributors, editors, and admins.
   credential or enabling draft apply, triage persistence, or graph reads.
 - Full playlist preview is complete, deterministic, non-mutating, and covered
   by fixture regression tests plus recorded production reconciliation.
+- Playlist candidates export to a spreadsheet-injection-safe worksheet with
+  provenance, issues, suggested `3d_printing` tags, and blank human-review
+  fields; suggestions do not constitute approval.
 
 ## Planned Video Acceptance Contracts
 
