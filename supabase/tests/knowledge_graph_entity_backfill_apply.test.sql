@@ -4,7 +4,7 @@ CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 SET LOCAL ROLE postgres;
 SET LOCAL search_path = public, extensions;
 
-SELECT plan(20);
+SELECT plan(24);
 
 SELECT has_function(
   'public',
@@ -339,6 +339,79 @@ SELECT results_eq(
   $$,
   $$ VALUES (1::bigint) $$,
   'The failed retry preserves the previously reconciled canonical binding'
+);
+
+INSERT INTO public.graph_migration_issues (
+  run_id,
+  source_table,
+  source_identifier,
+  issue_category,
+  reason,
+  original_payload,
+  candidate_matches,
+  diagnostic_metadata
+)
+VALUES (
+  '00000000-0000-0000-0000-000000000224',
+  'materials',
+  '00000000-0000-0000-0000-000000000221',
+  'manual_correction_test',
+  'Synthetic issue used to verify correction idempotency.',
+  '{"name":"Original material payload"}'::jsonb,
+  '[]'::jsonb,
+  '{"test":true}'::jsonb
+);
+
+UPDATE public.graph_migration_issues
+SET resolution_status = 'resolved',
+    resolution_notes = 'Reviewed synthetic correction',
+    resolved_at = now()
+WHERE run_id = '00000000-0000-0000-0000-000000000224'
+  AND issue_category = 'manual_correction_test';
+
+SELECT results_eq(
+  $$
+    SELECT count(*)::bigint, min(resolution_status)
+    FROM public.graph_migration_issues
+    WHERE run_id = '00000000-0000-0000-0000-000000000224'
+      AND issue_category = 'manual_correction_test'
+  $$,
+  $$ VALUES (1::bigint, 'resolved') $$,
+  'A reviewed correction resolves one durable issue record'
+);
+
+SELECT results_eq(
+  $$
+    SELECT original_payload
+    FROM public.graph_migration_issues
+    WHERE run_id = '00000000-0000-0000-0000-000000000224'
+      AND issue_category = 'manual_correction_test'
+  $$,
+  $$ VALUES ('{"name":"Original material payload"}'::jsonb) $$,
+  'Resolving an issue preserves its original source payload'
+);
+
+SELECT throws_ok(
+  $$
+    UPDATE public.graph_migration_issues
+    SET original_payload = '{"name":"Mutated payload"}'::jsonb
+    WHERE run_id = '00000000-0000-0000-0000-000000000224'
+      AND issue_category = 'manual_correction_test'
+  $$,
+  'P0001',
+  'graph_migration_issues.original_payload is immutable',
+  'Manual correction cannot overwrite the quarantined original payload'
+);
+
+SELECT lives_ok(
+  $$
+    UPDATE public.graph_migration_issues
+    SET resolution_status = 'resolved',
+        resolution_notes = 'Reviewed synthetic correction'
+    WHERE run_id = '00000000-0000-0000-0000-000000000224'
+      AND issue_category = 'manual_correction_test'
+  $$,
+  'Repeating the same reviewed correction is idempotent'
 );
 
 SELECT * FROM finish();

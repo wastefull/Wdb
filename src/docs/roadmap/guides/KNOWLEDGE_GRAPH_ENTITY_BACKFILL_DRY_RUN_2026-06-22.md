@@ -93,5 +93,6 @@ Guarded apply tooling was implemented and deployed later on June 22, 2026:
 - Anonymous apply attempt returns HTTP 401; capabilities endpoint returns 401
   confirming endpoints are live and correctly gated.
 
-Production apply remains disabled (`GRAPH_MIGRATION_APPLY_ENABLED` is absent).
-A separate operator-approved window is required before apply can run.
+At this checkpoint, production apply remained disabled pending a separate
+operator-approved window. That later execution completed successfully; see the
+[Entity Backfill Apply Report](./KNOWLEDGE_GRAPH_ENTITY_BACKFILL_APPLY_2026-06-22.md).

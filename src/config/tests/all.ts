@@ -21,6 +21,7 @@ import { getPhase91Tests } from "./phases/9.1";
 import { getPhase92Tests } from "./phases/9.2";
 import { getStage5Tests } from "./stages/5";
 import { getStage6Tests } from "./stages/6";
+import { getStage7Tests } from "./stages/7";
 import { Test } from "./types";
 import { getStageNumberForLegacyPhase } from "../roadmap";
 
@@ -55,7 +56,12 @@ export function buildAllTests(user: any): Test[] {
     legacyPhase: test.phase,
   }));
 
-  return [...mappedLegacyTests, ...getStage5Tests(), ...getStage6Tests()];
+  return [
+    ...mappedLegacyTests,
+    ...getStage5Tests(),
+    ...getStage6Tests(),
+    ...getStage7Tests(),
+  ];
 }
 
 /**

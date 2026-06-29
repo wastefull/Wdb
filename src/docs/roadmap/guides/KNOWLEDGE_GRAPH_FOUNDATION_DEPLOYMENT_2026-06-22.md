@@ -118,6 +118,8 @@ The non-mutating dry-run and reconciliation contract for the first entity
 backfill was completed after this foundation deployment. Its implementation
 guide and production evidence are:
 [Entity Backfill Dry Run](./KNOWLEDGE_GRAPH_ENTITY_BACKFILL_RUNBOOK.md).
-The next slice is transactional apply, checkpoint, resume, issue persistence,
-and post-apply reconciliation tooling. Graph reads, compatibility writes, and
-destructive cleanup remain disabled.
+Transactional apply, checkpoint, resume, issue persistence, and post-apply
+reconciliation were subsequently completed for canonical entities. Stage 7 is
+now active for governed relationships, tags, content mappings, videos, review,
+and compatibility writes. Graph-powered reads and destructive cleanup remain
+disabled.

@@ -53,6 +53,12 @@ const complete = (title: string, description?: string): RoadmapDeliverable => ({
   status: "complete",
 });
 
+const active = (title: string, description?: string): RoadmapDeliverable => ({
+  title,
+  description,
+  status: "active",
+});
+
 const planned = (title: string, description?: string): RoadmapDeliverable => ({
   title,
   description,
@@ -249,7 +255,8 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
     number: 6,
     slug: "stage-6",
     title: "Knowledge Graph Foundation",
-    status: "active",
+    status: "complete",
+    completedDate: "June 22, 2026",
     summary:
       "Add the graph data layer through additive, observable, and recoverable migrations without replacing authoritative domain tables.",
     deliverables: [
@@ -337,7 +344,7 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
       acceptance(
         "stage-6-manual-correction",
         "Manual corrections are safe to rerun",
-        "The completed apply run finalized with zero conflicts and zero unresolved records, confirming no manual correction is required before graph reads are enabled.",
+        "Synthetic correction tests preserve immutable original payloads and allow the same reviewed resolution to rerun idempotently; the production apply run required no correction.",
         "automated",
       ),
     ],
@@ -346,11 +353,11 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
     number: 7,
     slug: "stage-7",
     title: "Graph Content & Curation",
-    status: "planned",
+    status: "active",
     summary:
       "Add governed graph content, first-class videos, and graph-aware contributor and admin workflows.",
     deliverables: [
-      planned("Relationship, entity, tag, and video curation tools"),
+      active("Relationship, entity, tag, and video curation tools"),
       planned("Human review workflow for scoped Key Insights"),
       planned("Review and authorization workflows for graph mutations"),
       planned("Compatibility-aware dual writes during migration"),
@@ -358,6 +365,24 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
       planned("Cross-stage browser accessibility and responsive acceptance"),
     ],
     acceptanceTests: [
+      acceptance(
+        "stage-7-canonical-entry-baseline",
+        "Curation starts from reconciled canonical entities",
+        "Canonical entities and bindings remain available before relationship, tag, content, and video curation begins.",
+        "automated",
+      ),
+      acceptance(
+        "stage-7-discusses-semantics",
+        "Discovery relationships remain evidence-neutral",
+        "The governed discusses relationship remains broad and explicitly does not imply evidentiary support.",
+        "automated",
+      ),
+      acceptance(
+        "stage-7-read-cutover-disabled",
+        "Graph-powered material reads remain disabled",
+        "Stage 7 curation work leaves material graph sections in their honest pre-cutover state until Stage 8.",
+        "automated",
+      ),
       acceptance(
         "stage-7-dual-write",
         "Dual writes remain reconcilable",
@@ -502,10 +527,10 @@ export const ROADMAP_BACKLOG: RoadmapBacklogCategory[] = [
         origin: "Data-safe migration requirements",
       },
       {
-        title: "Migration dry-run and quarantine tooling",
+        title: "Relationship, tag, and content migration tooling",
         description:
-          "Report conflicts and unresolved records while preserving original payloads for manual repair.",
-        origin: "Stage 6",
+          "Extend the proven dry-run, checkpoint, quarantine, and reconciliation pattern to Stage 7 relationship, tag, and content population.",
+        origin: "Stage 7",
       },
       {
         title: "Retention dashboard enhancements",

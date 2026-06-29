@@ -38,6 +38,9 @@ First entity-backfill preview:
 Guarded apply tooling deployment:
 [June 22, 2026 Apply Tooling Report](./guides/KNOWLEDGE_GRAPH_ENTITY_BACKFILL_RUNBOOK.md)
 
+Entity backfill execution:
+[June 22, 2026 Apply Report](./guides/KNOWLEDGE_GRAPH_ENTITY_BACKFILL_APPLY_2026-06-22.md)
+
 ## Migration Execution Contract
 
 Every automated or manual migration package must include:

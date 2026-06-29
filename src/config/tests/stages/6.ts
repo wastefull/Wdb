@@ -111,6 +111,32 @@ async function publicRest(
   });
 }
 
+async function latestEntityBackfillRun(accessToken: string) {
+  const response = await fetch(
+    `${EDGE_URL}/graph/migrations/entity-backfill/runs/latest`,
+    {
+      headers: {
+        Authorization: `Bearer ${publicAnonKey}`,
+        "X-Session-Token": accessToken,
+      },
+    },
+  );
+  const payload = await response.json();
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}: ${JSON.stringify(payload)}`);
+  }
+  return payload as {
+    run: {
+      id: string;
+      status: string;
+      error_message: string | null;
+      report: Record<string, unknown>;
+    };
+    checkpoints: Array<Record<string, unknown>>;
+    issues: Array<Record<string, unknown>>;
+  };
+}
+
 export function getStage6Tests(): Test[] {
   return [
     {
@@ -641,7 +667,7 @@ export function getStage6Tests(): Test[] {
       id: "stage-6-rollback",
       name: "Rollback limits and recovery are tested",
       description:
-        "Verifies the apply window is explicitly gated, no entities exist yet (clean rollback baseline), and no active apply run is in progress. Transactional phase rollback behavior was verified by the 20-assertion pgTAP suite.",
+        "Verifies the apply window is explicitly gated and the protected latest apply run is completed. Transactional rollback and correction behavior are covered by the 24-assertion apply pgTAP suite.",
       phase: "stage-6",
       stage: 6,
       category: "Migration Safety",
@@ -660,32 +686,33 @@ export function getStage6Tests(): Test[] {
           "Content-Type": "application/json",
         };
 
-        const [applyResponse, runResponse] = await Promise.all([
-          fetch(`${EDGE_URL}/graph/migrations/entity-backfill/apply`, {
-            method: "POST",
-            headers,
-            body: JSON.stringify({}),
-          }),
-          publicRest(
-            "graph_migration_runs",
-            `select=id,status&migration_version=eq.stage-6-entity-backfill-v1&status=in.(pending,running)&limit=1`,
-          ),
-        ]);
+        try {
+          const [applyResponse, { run }] = await Promise.all([
+            fetch(`${EDGE_URL}/graph/migrations/entity-backfill/apply`, {
+              method: "POST",
+              headers,
+              body: JSON.stringify({}),
+            }),
+            latestEntityBackfillRun(accessToken),
+          ]);
 
-        const applyGated = applyResponse.status === 503;
-        const activeRuns = runResponse.ok ? await runResponse.json() : null;
-        const noActiveRun =
-          Array.isArray(activeRuns) && activeRuns.length === 0;
-
-        const valid = applyGated && noActiveRun;
-        return {
-          success: valid,
-          message: valid
-            ? "Apply is gated (503) and no active apply run exists — rollback baseline is clean."
-            : !applyGated
-              ? `Apply endpoint did not return 503 (got ${applyResponse.status}) — flag may be incorrectly enabled.`
-              : "An active or pending apply run exists — resolve it before opening the apply window.",
-        };
+          const applyGated = applyResponse.status === 503;
+          const noActiveRun = run.status === "completed";
+          const valid = applyGated && noActiveRun;
+          return {
+            success: valid,
+            message: valid
+              ? "Apply is gated (503) and the latest protected apply run is completed."
+              : !applyGated
+                ? `Apply endpoint did not return 503 (got ${applyResponse.status}) — flag may be incorrectly enabled.`
+                : `Latest apply run is ${run.status} — resolve it before further migration work.`,
+          };
+        } catch (error) {
+          return {
+            success: false,
+            message: `Rollback-state verification failed: ${String(error)}`,
+          };
+        }
       },
     },
     {
@@ -767,102 +794,69 @@ export function getStage6Tests(): Test[] {
       phase: "stage-6",
       stage: 6,
       category: "Migration Safety",
-      requiresAuth: false,
+      requiresAuth: true,
       testFn: async () => {
-        const runResponse = await publicRest(
-          "graph_migration_runs",
-          "select=id&migration_version=eq.stage-6-entity-backfill-v1&mode=eq.apply&status=eq.completed&order=completed_at.desc&limit=1",
-        );
-        if (!runResponse.ok) {
+        const accessToken = sessionStorage.getItem("wastedb_access_token");
+        if (!accessToken) {
           return {
             success: false,
-            message: `Could not query migration runs: HTTP ${runResponse.status}`,
+            message: "Sign in as admin to verify migration quarantine state.",
           };
         }
-        const runs = await runResponse.json();
-        if (!Array.isArray(runs) || runs.length === 0) {
+        try {
+          const { run, issues } = await latestEntityBackfillRun(accessToken);
+          const valid = run.status === "completed" && issues.length === 0;
           return {
-            success: false,
-            message:
-              "No completed entity-backfill apply run found — apply has not run yet.",
+            success: valid,
+            message: valid
+              ? `Completed apply run ${run.id.slice(0, 8)}… has zero quarantined records.`
+              : `Latest run status=${run.status} with ${issues.length} migration issue(s).`,
           };
+        } catch (error) {
+          return { success: false, message: String(error) };
         }
-        const runId = (runs[0] as { id: string }).id;
-
-        const issueResponse = await publicRest(
-          "graph_migration_issues",
-          `select=id&run_id=eq.${runId}&limit=1`,
-        );
-        if (!issueResponse.ok) {
-          return {
-            success: false,
-            message: `Could not query migration issues: HTTP ${issueResponse.status}`,
-          };
-        }
-        const issues = await issueResponse.json();
-        const issueCount = Array.isArray(issues) ? issues.length : 1;
-
-        return {
-          success: issueCount === 0,
-          message:
-            issueCount === 0
-              ? `Completed apply run ${runId.slice(0, 8)}… has zero quarantined records — all 228 canonical rows applied without conflicts or unresolved entries.`
-              : `${issueCount} migration issue(s) exist for run ${runId.slice(0, 8)}… — review and resolve before Stage 7.`,
-        };
       },
     },
     {
       id: "stage-6-manual-correction",
-      name: "Manual corrections are safe to rerun",
+      name: "Production run requires no manual correction",
       description:
-        "Verifies the completed apply run finalized with zero conflicts and zero unresolved records, confirming no manual correction is required before graph reads are enabled.",
+        "Verifies the protected completed run has no conflicts or unresolved records; correction idempotency and immutable original payloads are covered by pgTAP.",
       phase: "stage-6",
       stage: 6,
       category: "Migration Safety",
-      requiresAuth: false,
+      requiresAuth: true,
       testFn: async () => {
-        const runResponse = await publicRest(
-          "graph_migration_runs",
-          "select=id,status,error_message,report&migration_version=eq.stage-6-entity-backfill-v1&mode=eq.apply&status=eq.completed&order=completed_at.desc&limit=1",
-        );
-        if (!runResponse.ok) {
+        const accessToken = sessionStorage.getItem("wastedb_access_token");
+        if (!accessToken) {
           return {
             success: false,
-            message: `Could not query migration runs: HTTP ${runResponse.status}`,
+            message: "Sign in as admin to verify manual-correction status.",
           };
         }
-        const runs = await runResponse.json();
-        if (!Array.isArray(runs) || runs.length === 0) {
+        try {
+          const { run, issues } = await latestEntityBackfillRun(accessToken);
+          const reconciliation = run.report?.reconciliation as
+            | { summary?: { conflicts?: number; unresolved?: number } }
+            | undefined;
+          const conflicts = reconciliation?.summary?.conflicts ?? 0;
+          const unresolved = reconciliation?.summary?.unresolved ?? 0;
+          const valid =
+            run.status === "completed" &&
+            run.error_message === null &&
+            conflicts === 0 &&
+            unresolved === 0 &&
+            issues.length === 0;
+
           return {
-            success: false,
-            message:
-              "No completed entity-backfill apply run found — apply has not run yet.",
+            success: valid,
+            message: valid
+              ? `Run ${run.id.slice(0, 8)}… completed cleanly; no production correction is required.`
+              : `Run requires attention: status=${run.status}, conflicts=${conflicts}, unresolved=${unresolved}, issues=${issues.length}.`,
           };
+        } catch (error) {
+          return { success: false, message: String(error) };
         }
-        const run = runs[0] as {
-          id: string;
-          status: string;
-          error_message: string | null;
-          report: Record<string, unknown>;
-        };
-        const reconciliation = run.report?.reconciliation as
-          | { summary?: { conflicts?: number; unresolved?: number } }
-          | undefined;
-        const conflicts = reconciliation?.summary?.conflicts ?? 0;
-        const unresolved = reconciliation?.summary?.unresolved ?? 0;
-
-        const valid =
-          run.status === "completed" &&
-          run.error_message === null &&
-          conflicts === 0 &&
-          unresolved === 0;
-
-        return {
-          success: valid,
-          message: valid
-            ? `Run ${run.id.slice(0, 8)}… completed with zero conflicts and zero unresolved records — no manual correction required.`
-            : `Run requires attention: status=${run.status}, conflicts=${conflicts}, unresolved=${unresolved}, error=${run.error_message ?? "none"}`,
-        };
       },
     },
   ];

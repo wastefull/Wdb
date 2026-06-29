@@ -15358,6 +15358,59 @@ app.post(
 );
 
 app.get(
+  "/make-server-17cae920/graph/migrations/entity-backfill/runs/latest",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const client = _roleClient();
+      const { data: run, error: runError } = await client
+        .from("graph_migration_runs")
+        .select("*")
+        .eq("migration_version", ENTITY_BACKFILL_VERSION)
+        .eq("mode", "apply")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (runError) throw runError;
+      if (!run) {
+        return c.json({ error: "No entity-backfill run found" }, 404);
+      }
+
+      const [checkpointResult, issueResult] = await Promise.all([
+        client
+          .from("graph_migration_checkpoints")
+          .select("*")
+          .eq("run_id", run.id)
+          .order("created_at", { ascending: true }),
+        client
+          .from("graph_migration_issues")
+          .select("*")
+          .eq("run_id", run.id)
+          .order("created_at", { ascending: true }),
+      ]);
+      if (checkpointResult.error) throw checkpointResult.error;
+      if (issueResult.error) throw issueResult.error;
+
+      return c.json({
+        run,
+        checkpoints: checkpointResult.data ?? [],
+        issues: issueResult.data ?? [],
+      });
+    } catch (error) {
+      log.error("Failed to load latest entity-backfill run:", error);
+      return c.json(
+        {
+          error: "Failed to load latest entity-backfill run",
+          details: String(error),
+        },
+        500,
+      );
+    }
+  },
+);
+
+app.get(
   "/make-server-17cae920/graph/migrations/entity-backfill/runs/:runId",
   verifyAuth,
   verifyAdmin,

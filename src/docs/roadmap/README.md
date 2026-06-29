@@ -11,8 +11,8 @@ test mapping, and backlog items.
 3. Curation Lab - Complete at revised scope
 4. Data Migration - Complete
 5. Material Experience Redesign - Complete
-6. Knowledge Graph Foundation - Active
-7. Graph Content & Curation - Planned
+6. Knowledge Graph Foundation - Complete
+7. Graph Content & Curation - Active
 8. Discovery & Learning Paths - Planned
 9. Privacy, Audit & Revision History - Planned
 10. Scale - Planned
@@ -37,3 +37,6 @@ Stages 9 and 10 must remain the final sequence.
 All future migrations must be additive, data-preserving, idempotent where
 practical, and backed by verified recovery procedures. See
 [Knowledge Graph Migration](./KNOWLEDGE_GRAPH_MIGRATION.md).
+
+Active Stage 7 implementation contract:
+[Graph Content and Curation](./KNOWLEDGE_GRAPH_CURATION.md).
