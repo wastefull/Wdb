@@ -3,6 +3,7 @@ import { projectId, publicAnonKey } from "../../../utils/supabase/info";
 import type { Test } from "../types";
 
 const REST_URL = `https://${projectId}.supabase.co/rest/v1`;
+const EDGE_URL = `https://${projectId}.supabase.co/functions/v1/make-server-17cae920`;
 
 async function publicRest(table: string, query: string): Promise<Response> {
   return fetch(`${REST_URL}/${table}?${query}`, {
@@ -116,6 +117,51 @@ export function getStage7Tests(): Test[] {
           message: valid
             ? "Material graph reads remain in the honest pre-cutover state."
             : "A graph-powered material section was enabled before Stage 8.",
+        };
+      },
+    },
+    {
+      id: "stage-7-video-preview-capabilities",
+      name: "Video playlist preview is safely configured",
+      description:
+        "Confirms the YouTube credential is server-side, read-only preview is enabled, and draft apply, triage persistence, and graph reads remain disabled.",
+      phase: "stage-7",
+      stage: 7,
+      category: "Video Curation",
+      requiresAuth: true,
+      testFn: async () => {
+        const accessToken = sessionStorage.getItem("wastedb_access_token");
+        if (!accessToken) {
+          return {
+            success: false,
+            message: "Sign in as admin to verify playlist preview capabilities.",
+          };
+        }
+        const response = await fetch(
+          `${EDGE_URL}/graph/videos/playlist/capabilities`,
+          {
+            headers: {
+              Authorization: `Bearer ${publicAnonKey}`,
+              "X-Session-Token": accessToken,
+            },
+          },
+        );
+        const payload = await response.json();
+        const valid =
+          response.ok &&
+          payload.contract_version === "stage-7-youtube-playlist-preview-v1" &&
+          payload.provider === "youtube" &&
+          payload.youtube_api_configured === true &&
+          payload.preview_enabled === true &&
+          payload.maximum_playlist_items >= 370 &&
+          payload.draft_apply_enabled === false &&
+          payload.triage_persistence_enabled === false &&
+          payload.graph_reads_enabled === false;
+        return {
+          success: valid,
+          message: valid
+            ? "YouTube playlist preview is configured server-side with all write and read-cutover capabilities disabled."
+            : `Playlist preview capability contract is unsafe or incomplete: ${JSON.stringify(payload)}`,
         };
       },
     },

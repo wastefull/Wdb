@@ -15,6 +15,7 @@ import type {
   EntityBackfillDryRunResponse,
   EntityBackfillRunDetail,
 } from "../types/graphMigration";
+import type { VideoPlaylistPreviewResponse } from "../types/videoPlaylist";
 
 // Export projectId and publicAnonKey for use in other modules
 export { projectId, publicAnonKey };
@@ -1626,6 +1627,18 @@ export async function setMaintenanceMode(
   return await apiCall("/maintenance", {
     method: "POST",
     body: JSON.stringify({ enabled }),
+  });
+}
+
+// ==================== GRAPH CONTENT PREVIEWS ====================
+
+/** Admin only — previews a YouTube playlist without creating video data. */
+export async function previewYouTubePlaylist(
+  playlistUrl: string,
+): Promise<VideoPlaylistPreviewResponse> {
+  return await apiCall("/graph/videos/playlist/preview", {
+    method: "POST",
+    body: JSON.stringify({ playlist_url: playlistUrl }),
   });
 }
 

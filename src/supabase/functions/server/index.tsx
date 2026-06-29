@@ -19,6 +19,16 @@ import {
   resumeEntityBackfillApply,
   startEntityBackfillApply,
 } from "./graph-migration.tsx";
+import {
+  buildYouTubePlaylistPreview,
+  fetchYouTubePlaylistProviderData,
+  loadExistingVideos,
+  loadVideoDatabaseSnapshot,
+  parseYouTubePlaylistId,
+  YOUTUBE_PLAYLIST_MAX_ITEMS,
+  YOUTUBE_PLAYLIST_PREVIEW_VERSION,
+  YouTubePlaylistPreviewError,
+} from "./video-playlist.ts";
 
 // Evidence routes are implemented inline here because the previous split module
 // depended on app-only utilities that are not accessible in Edge Functions.
@@ -15159,6 +15169,107 @@ app.get(
         {
           error: "Failed to check referential integrity",
           details: String(error),
+        },
+        500,
+      );
+    }
+  },
+);
+
+// ==================== GRAPH CONTENT PREVIEWS ====================
+
+app.get(
+  "/make-server-17cae920/graph/videos/playlist/capabilities",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    return c.json({
+      contract_version: YOUTUBE_PLAYLIST_PREVIEW_VERSION,
+      provider: "youtube",
+      youtube_api_configured: Boolean(Deno.env.get("YOUTUBE_API_KEY")?.trim()),
+      preview_enabled: true,
+      maximum_playlist_items: YOUTUBE_PLAYLIST_MAX_ITEMS,
+      draft_apply_enabled: false,
+      triage_persistence_enabled: false,
+      graph_reads_enabled: false,
+    });
+  },
+);
+
+// This preview is deliberately read-only. It contacts YouTube with a
+// server-held credential, compares provider items with WasteDB videos, and
+// verifies that video/entity/binding counts are unchanged before returning.
+app.post(
+  "/make-server-17cae920/graph/videos/playlist/preview",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const body = await c.req.json().catch(() => ({}));
+      const playlistId = parseYouTubePlaylistId(body?.playlist_url);
+      const apiKey = Deno.env.get("YOUTUBE_API_KEY")?.trim();
+      if (!apiKey) {
+        return c.json(
+          {
+            success: false,
+            ready_for_triage: false,
+            error: "YouTube playlist preview is not configured.",
+            code: "youtube_api_not_configured",
+          },
+          503,
+        );
+      }
+
+      const client = _roleClient();
+      const databaseSnapshotBefore = await loadVideoDatabaseSnapshot(client);
+      const providerData = await fetchYouTubePlaylistProviderData(
+        playlistId,
+        apiKey,
+      );
+      const existingVideos = await loadExistingVideos(client);
+      const databaseSnapshotAfter = await loadVideoDatabaseSnapshot(client);
+      const preview = await buildYouTubePlaylistPreview({
+        provider_data: providerData,
+        existing_videos: existingVideos,
+        database_snapshot_before: databaseSnapshotBefore,
+        database_snapshot_after: databaseSnapshotAfter,
+      });
+
+      const readyForTriage = !preview.mutation_detected;
+      return c.json(
+        {
+          success: readyForTriage,
+          ready_for_triage: readyForTriage,
+          preview,
+          ...(readyForTriage
+            ? {}
+            : {
+                error:
+                  "Video graph state changed during preview. Review and rerun before triage.",
+                code: "video_state_changed_during_preview",
+              }),
+        },
+        (readyForTriage ? 200 : 409) as any,
+      );
+    } catch (error) {
+      if (error instanceof YouTubePlaylistPreviewError) {
+        return c.json(
+          {
+            success: false,
+            ready_for_triage: false,
+            error: error.message,
+            code: error.code,
+          },
+          error.status as any,
+        );
+      }
+      log.error("YouTube playlist preview failed:", error);
+      return c.json(
+        {
+          success: false,
+          ready_for_triage: false,
+          error: "YouTube playlist preview failed.",
+          code: "playlist_preview_failed",
         },
         500,
       );

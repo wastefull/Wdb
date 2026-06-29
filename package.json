@@ -81,6 +81,7 @@
       "scripts": {
             "dev": "vite",
             "build": "vite build",
-            "docs:check": "node scripts/check-docs.mjs"
+            "docs:check": "node scripts/check-docs.mjs",
+            "test:video-playlist": "tsx --test src/supabase/functions/server/video-playlist.test.ts"
       }
 }

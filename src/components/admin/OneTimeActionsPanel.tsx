@@ -7,8 +7,10 @@ import {
   Loader2,
   Terminal,
   GitMerge,
+  ListVideo,
 } from "lucide-react";
 import * as api from "../../utils/api";
+import { VideoPlaylistPreviewPanel } from "./VideoPlaylistPreviewPanel";
 
 interface OneTimeAction {
   id: string;
@@ -240,6 +242,23 @@ export function OneTimeActionsPanel({ onBack }: OneTimeActionsPanelProps) {
         </p>
 
         <div className="mt-6 space-y-1">
+          <div className="pb-3 mb-3 border-b border-black/10 dark:border-white/10">
+            <p className="text-[11px] uppercase tracking-wide text-black/40 dark:text-white/40 px-3 pb-2 flex items-center gap-1">
+              <ListVideo size={10} /> Graph Content
+            </p>
+            <button
+              onClick={() =>
+                document
+                  .getElementById("video-playlist-preview")
+                  ?.scrollIntoView({ behavior: "smooth" })
+              }
+              className="w-full text-left px-3 py-2 rounded-lg text-[13px] hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex items-center gap-2"
+            >
+              <span className="w-3 h-3 shrink-0 rounded-full border border-black/20 dark:border-white/20" />
+              <span className="truncate">YouTube Playlist Preview</span>
+            </button>
+          </div>
+
           {ACTIONS.map((action) => {
             const state = states[action.id] ?? { status: "idle" };
             return (
@@ -328,6 +347,8 @@ export function OneTimeActionsPanel({ onBack }: OneTimeActionsPanelProps) {
       {/* Main content */}
       <main className="flex-1 p-8 overflow-y-auto">
         <div className="max-w-3xl mx-auto space-y-6">
+          <VideoPlaylistPreviewPanel />
+
           {ACTIONS.map((action) => {
             const state = states[action.id] ?? { status: "idle" };
             const isRunning = state.status === "running";

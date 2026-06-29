@@ -355,9 +355,29 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
     title: "Graph Content & Curation",
     status: "active",
     summary:
-      "Add governed graph content, first-class videos, and graph-aware contributor and admin workflows.",
+      "Add governed graph content, first-class videos, editorial leads, and graph-aware contributor and admin workflows.",
     deliverables: [
-      active("Relationship, entity, tag, and video curation tools"),
+      active(
+        "Bulk YouTube playlist intake and four-way triage",
+        "Preview and deduplicate playlist candidates, then classify each as a material video, editorial lead, both, or ignored without publishing automatically.",
+      ),
+      planned(
+        "Transactional draft video creation",
+        "Create each accepted video, graph entity, and canonical binding atomically while preserving playlist provenance and resumable import decisions.",
+      ),
+      planned(
+        "Reviewed video-to-material mapping tools",
+        "Map draft videos as primary subjects, meaningful mentions, or explicitly reviewed evidence without inferring support from playlist membership.",
+      ),
+      planned(
+        "Governed video topic classification",
+        "Assign reviewed topic tags independently from material mappings, beginning with 3D printing and leaving incidental mentions untagged.",
+      ),
+      planned(
+        "Private editorial lead queue",
+        "Retain mission-aligned general videos as candidates for articles, blog posts, or guides, with triage status, notes, assignment, and conversion linkage.",
+      ),
+      planned("Relationship, entity, tag, and video curation tools"),
       planned("Human review workflow for scoped Key Insights"),
       planned("Review and authorization workflows for graph mutations"),
       planned("Compatibility-aware dual writes during migration"),
@@ -382,6 +402,43 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
         "Graph-powered material reads remain disabled",
         "Stage 7 curation work leaves material graph sections in their honest pre-cutover state until Stage 8.",
         "automated",
+      ),
+      acceptance(
+        "stage-7-video-preview-capabilities",
+        "Playlist preview is configured without write authority",
+        "The YouTube credential remains server-side, read-only preview is enabled, and draft apply, triage persistence, and graph reads remain disabled.",
+        "automated",
+      ),
+      acceptance(
+        "stage-7-video-playlist-preview",
+        "Playlist intake is complete and non-mutating",
+        "The production preview reconciles all 370 playlist items as 366 new and four private candidates with no duplicates, deleted or unavailable items, or graph writes; fixture tests cover deterministic parsing, classification, snapshots, and checksums.",
+        "automated",
+      ),
+      acceptance(
+        "stage-7-video-triage",
+        "Every playlist candidate has an explicit disposition",
+        "Reviewers can classify a candidate as a material video, editorial lead, both, or ignored; reruns preserve those decisions and do not recreate dismissed candidates.",
+      ),
+      acceptance(
+        "stage-7-video-draft-apply",
+        "Accepted videos are created atomically as drafts",
+        "A reviewed apply creates one video, one video entity, and one canonical binding without duplication or automatic publication, and is safe to resume after interruption.",
+      ),
+      acceptance(
+        "stage-7-video-material-mapping",
+        "Video material mappings require review",
+        "Primary-subject, mentioned, and evidence mappings preserve reviewer state; evidence use cannot be inferred from playlist membership, title, description, or automated classification.",
+      ),
+      acceptance(
+        "stage-7-video-topic-classification",
+        "Video topics remain governed and composable",
+        "Reviewers can assign the 3D printing topic independently from material mappings and editorial disposition; automated suggestions remain pending review and incidental mentions do not create tags.",
+      ),
+      acceptance(
+        "stage-7-editorial-leads",
+        "Mission-aligned videos can become private editorial leads",
+        "General educational videos may be retained as private article, blog-post, or guide candidates with notes, assignment, status, and explicit linkage when converted, without becoming public videos or graph claims implicitly.",
       ),
       acceptance(
         "stage-7-dual-write",
