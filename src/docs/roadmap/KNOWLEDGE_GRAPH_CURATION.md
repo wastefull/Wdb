@@ -24,6 +24,68 @@ It does not enable graph-powered discovery reads; that remains a Stage 8 gate.
   [Playlist Preview Report](./guides/KNOWLEDGE_GRAPH_VIDEO_PLAYLIST_PREVIEW_2026-06-29.md).
 - Draft apply and triage persistence remain disabled.
 
+## Implementation Checkpoint — June 30, 2026
+
+- An additive local migration defines private `video_import_batches`,
+  `video_import_items`, and `editorial_leads` tables without importing data.
+- Provider facts, original worksheet payloads, checksums, and automated topic
+  suggestions are immutable; disposition, reviewed topics, material
+  identifiers, editorial targets, and notes remain separately editable.
+- Anonymous users and contributors cannot read or write the private tables.
+  Staff and admins may read, insert, and update but cannot delete preserved
+  records through RLS; service-role workers retain explicit recovery access.
+- Forty pgTAP assertions cover table and policy sets, role behavior,
+  immutability, false-positive suggestion rejection, external playback,
+  editorial targets, conversion rules, and non-destructive retention.
+- The admin panel can validate a reviewed worksheet entirely in the browser.
+  It reports structural errors and review readiness without uploading or
+  staging the file.
+- Fourteen playlist/worksheet fixture tests pass. An untouched worksheet is
+  valid for future staging but remains ineligible for draft apply until its
+  available rows receive explicit dispositions.
+- Full backups remain compatible with schema 4.0 and advance to schema 4.1
+  only when all three video-curation tables are present. Partial table groups
+  cause backup refusal rather than silent omission.
+- Edge Function version 287 deploys this backward-compatible backup support
+  before the database migration; production continues exporting schema 4.0
+  until the complete Stage 7 table group is deployed.
+- The additive migration is deployed in production. All three private tables
+  reconcile at zero rows, production schema lint passes, and the post-migration
+  schema-4.1 backup covers all 32 Postgres tables with valid counts and
+  checksums. See the
+  [Deployment Report](./guides/KNOWLEDGE_GRAPH_VIDEO_TRIAGE_FOUNDATION_DEPLOYMENT_2026-06-30.md)
+  and [Runbook](./guides/KNOWLEDGE_GRAPH_VIDEO_TRIAGE_FOUNDATION_RUNBOOK.md).
+- A follow-up increment adds a service-role-only transactional worksheet
+  staging function and an admin staging endpoint guarded by
+  `VIDEO_TRIAGE_PERSISTENCE_ENABLED`. The edge layer rechecks the exact CSV
+  checksum, normalized row shape, provenance, classifications, dispositions,
+  and editorial targets before invoking the database transaction.
+- Exact worksheet reruns return the existing batch. Invalid or duplicate input
+  rolls back without partial rows, and staging cannot create videos, video
+  entities, mappings, tags, or editorial leads. Seventeen pgTAP assertions and
+  four additional staging fixtures cover these boundaries.
+- Edge Function version 288 and migration `20260630010000` are deployed in
+  production. The private-staging gate is enabled, anonymous Edge and RPC
+  access remain denied, draft apply and graph reads remain disabled, and all
+  video, graph-content, and triage tables remained empty at deployment
+  reconciliation.
+- The admin panel provides an explicit, confirmed private-staging action only
+  when the worksheet matches the displayed preview and the server gate is
+  enabled. First-workbook staging, its idempotent rerun, and the post-stage
+  backup remain the completion gate. See the
+  [Worksheet Staging Runbook](./guides/KNOWLEDGE_GRAPH_VIDEO_TRIAGE_STAGING_RUNBOOK.md)
+  and [Deployment Report](./guides/KNOWLEDGE_GRAPH_VIDEO_TRIAGE_STAGING_DEPLOYMENT_2026-06-30.md).
+- Worksheet validation normalizes the spreadsheet-safety apostrophe used for
+  valid YouTube IDs beginning with `-`. A regression fixture preserves both
+  formula-injection protection and identifier round-tripping; older worksheets
+  must still match the currently displayed preview checksum before staging.
+- The first production worksheet staged as batch
+  `ed633c3b-89c0-45f0-9456-f6a3d0af3c1f` with 371 private candidate rows and
+  status `needs_review`. An exact rerun returned the same batch without new
+  rows. Production counts show no videos, editorial leads, relationships,
+  mappings, or tags. The post-stage schema-4.1 backup validates all 371
+  candidate rows and completes the private worksheet-staging deployment gate.
+
 ## Entry State
 
 - 228 canonical entities and 228 bindings reconcile in production.
@@ -39,7 +101,8 @@ It does not enable graph-powered discovery reads; that remains a Stage 8 gate.
    import provenance.
 2. Add four-way playlist triage: material video, editorial lead, both, or
    ignore. Preserve triage decisions so an idempotent rerun does not recreate
-   dismissed candidates.
+   dismissed candidates. Transactional private worksheet staging is prepared;
+   completing and editing dispositions remains active work.
 3. Create accepted videos as drafts through a transactional video, entity, and
    canonical-binding workflow. Add reviewed material mappings separately.
 4. Build non-mutating relationship and content-mapping previews for
@@ -58,10 +121,11 @@ It does not enable graph-powered discovery reads; that remains a Stage 8 gate.
 ## YouTube Playlist Intake
 
 The initial operator source is an unlisted, link-accessible playlist of about
-370 videos. The playlist URL is runtime input and must not be embedded in
-public source code. A YouTube API credential must be supplied through a
-deployment secret and must never be stored in the repository, browser, import
-report, or audit payload.
+370 videos. Its URL may be prefilled in the admin-only interface for operator
+convenience, but it must be treated as publicly discoverable frontend
+configuration rather than a secret. A YouTube API credential must be supplied
+through a deployment secret and must never be stored in the repository,
+browser, import report, or audit payload.
 
 Playlist import begins as a preview and performs no database writes. The
 preview must:
@@ -162,6 +226,11 @@ remain private to authorized contributors, editors, and admins.
 - Playlist candidates export to a spreadsheet-injection-safe worksheet with
   provenance, issues, suggested `3d_printing` tags, and blank human-review
   fields; suggestions do not constitute approval.
+- Reviewed worksheets are parsed and validated locally before staging;
+  inaccurate suggestions may be rejected without altering provider facts.
+- Validated staging is separately gated, transactional, and idempotent for an
+  exact worksheet checksum. It persists private review records only and leaves
+  all content and graph tables unchanged.
 
 ## Planned Video Acceptance Contracts
 

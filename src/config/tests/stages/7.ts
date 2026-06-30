@@ -4,11 +4,17 @@ import {
   isSuggested3dPrintingVideo,
   VIDEO_TRIAGE_CSV_COLUMNS,
 } from "../../../utils/videoPlaylistCsv";
+import { previewVideoTriageCsv } from "../../../utils/videoTriageCsvImport";
 import type { VideoPlaylistCandidate } from "../../../types/videoPlaylist";
 import type { Test } from "../types";
 
 const REST_URL = `https://${projectId}.supabase.co/rest/v1`;
 const EDGE_URL = `https://${projectId}.supabase.co/functions/v1/make-server-17cae920`;
+const VIDEO_CURATION_TABLES = [
+  "video_import_batches",
+  "video_import_items",
+  "editorial_leads",
+] as const;
 
 async function publicRest(table: string, query: string): Promise<Response> {
   return fetch(`${REST_URL}/${table}?${query}`, {
@@ -129,7 +135,7 @@ export function getStage7Tests(): Test[] {
       id: "stage-7-video-preview-capabilities",
       name: "Video playlist preview is safely configured",
       description:
-        "Confirms the YouTube credential is server-side, read-only preview is enabled, and draft apply, triage persistence, and graph reads remain disabled.",
+        "Confirms the YouTube credential is server-side, read-only preview is enabled, private staging is explicitly reported, and draft apply and graph reads remain disabled.",
       phase: "stage-7",
       stage: 7,
       category: "Video Curation",
@@ -160,12 +166,12 @@ export function getStage7Tests(): Test[] {
           payload.preview_enabled === true &&
           payload.maximum_playlist_items >= 370 &&
           payload.draft_apply_enabled === false &&
-          payload.triage_persistence_enabled === false &&
+          typeof payload.triage_persistence_enabled === "boolean" &&
           payload.graph_reads_enabled === false;
         return {
           success: valid,
           message: valid
-            ? "YouTube playlist preview is configured server-side with all write and read-cutover capabilities disabled."
+            ? `YouTube playlist preview is server-side; private triage staging is ${payload.triage_persistence_enabled ? "enabled" : "disabled"}, while draft apply and graph reads remain disabled.`
             : `Playlist preview capability contract is unsafe or incomplete: ${JSON.stringify(payload)}`,
         };
       },
@@ -205,6 +211,95 @@ export function getStage7Tests(): Test[] {
           message: valid
             ? "The triage CSV preserves human review fields and marks 3D printing only as a suggestion."
             : "The triage CSV contract is missing review fields or topic suggestion behavior.",
+        };
+      },
+    },
+    {
+      id: "stage-7-video-curation-backup",
+      name: "Video curation records are fully backed up",
+      description:
+        "Exports and validates schema 4.1 with import batches, immutable triage items, and private editorial leads represented in the manifest.",
+      phase: "stage-7",
+      stage: 7,
+      category: "Backup & Recovery",
+      requiresAuth: true,
+      testFn: async () => {
+        const accessToken = sessionStorage.getItem("wastedb_access_token");
+        if (!accessToken) {
+          return {
+            success: false,
+            message: "Sign in as admin to verify Stage 7 backup coverage.",
+          };
+        }
+        const headers = {
+          Authorization: `Bearer ${publicAnonKey}`,
+          "X-Session-Token": accessToken,
+          "Content-Type": "application/json",
+        };
+        const exportResponse = await fetch(`${EDGE_URL}/backup/full-export`, {
+          headers,
+        });
+        if (!exportResponse.ok) {
+          return {
+            success: false,
+            message: `Schema 4.1 backup returned HTTP ${exportResponse.status}: ${await exportResponse.text()}`,
+          };
+        }
+        const backup = await exportResponse.json();
+        const missing = VIDEO_CURATION_TABLES.filter(
+          (table) =>
+            !Array.isArray(backup.postgres_data?.[table]) ||
+            !backup.manifest?.postgres_tables?.includes(table) ||
+            backup.manifest?.row_counts?.[`postgres.${table}`] === undefined ||
+            !backup.manifest?.checksums?.[`postgres.${table}`],
+        );
+        if (backup.metadata?.schema_version !== "4.1" || missing.length > 0) {
+          return {
+            success: false,
+            message:
+              backup.metadata?.schema_version !== "4.1"
+                ? `Expected schema version 4.1, received ${backup.metadata?.schema_version ?? "none"}.`
+                : `Backup is missing video-curation coverage: ${missing.join(", ")}`,
+          };
+        }
+        const validationResponse = await fetch(`${EDGE_URL}/backup/validate`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ backup }),
+        });
+        const validation = await validationResponse.json();
+        const valid = validationResponse.ok && validation.valid === true;
+        return {
+          success: valid,
+          message: valid
+            ? "Schema 4.1 backup covers and validates all private video-curation tables."
+            : `Schema 4.1 validation failed: ${JSON.stringify(validation.issues ?? validation)}`,
+        };
+      },
+    },
+    {
+      id: "stage-7-video-triage-validation",
+      name: "Malformed triage worksheets fail closed",
+      description:
+        "Confirms local worksheet validation refuses incomplete contracts rather than staging partial review data.",
+      phase: "stage-7",
+      stage: 7,
+      category: "Video Curation",
+      requiresAuth: false,
+      testFn: async () => {
+        const result = await previewVideoTriageCsv(
+          '"disposition","review_notes"\r\n"publish_now","unsafe"\r\n',
+        );
+        const valid =
+          result.validForStaging === false &&
+          result.readyForDraftApply === false &&
+          result.counts.errors > 0 &&
+          result.rows.length === 0;
+        return {
+          success: valid,
+          message: valid
+            ? "Malformed worksheets fail closed without staging partial rows."
+            : "Worksheet validation accepted an incomplete or unsafe contract.",
         };
       },
     },

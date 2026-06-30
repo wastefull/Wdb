@@ -15,7 +15,12 @@ import type {
   EntityBackfillDryRunResponse,
   EntityBackfillRunDetail,
 } from "../types/graphMigration";
-import type { VideoPlaylistPreviewResponse } from "../types/videoPlaylist";
+import type {
+  VideoPlaylistCapabilities,
+  VideoPlaylistPreviewResponse,
+  VideoTriageStageRequest,
+  VideoTriageStageResponse,
+} from "../types/videoPlaylist";
 
 // Export projectId and publicAnonKey for use in other modules
 export { projectId, publicAnonKey };
@@ -1632,6 +1637,11 @@ export async function setMaintenanceMode(
 
 // ==================== GRAPH CONTENT PREVIEWS ====================
 
+/** Admin only — reports video playlist preview and staging capabilities. */
+export async function getVideoPlaylistCapabilities(): Promise<VideoPlaylistCapabilities> {
+  return await apiCall("/graph/videos/playlist/capabilities");
+}
+
 /** Admin only — previews a YouTube playlist without creating video data. */
 export async function previewYouTubePlaylist(
   playlistUrl: string,
@@ -1639,6 +1649,16 @@ export async function previewYouTubePlaylist(
   return await apiCall("/graph/videos/playlist/preview", {
     method: "POST",
     body: JSON.stringify({ playlist_url: playlistUrl }),
+  });
+}
+
+/** Admin only — transactionally stages a locally validated triage worksheet. */
+export async function stageVideoTriageWorksheet(
+  request: VideoTriageStageRequest,
+): Promise<VideoTriageStageResponse> {
+  return await apiCall("/graph/videos/playlist/triage/stage", {
+    method: "POST",
+    body: JSON.stringify(request),
   });
 }
 

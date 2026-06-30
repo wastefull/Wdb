@@ -359,7 +359,15 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
     deliverables: [
       active(
         "Bulk YouTube playlist intake and four-way triage",
-        "Preview and deduplicate playlist candidates, export a review-safe triage worksheet, then classify each as a material video, editorial lead, both, or ignored without publishing automatically.",
+        "Preview and deduplicate playlist candidates, export and validate a review-safe worksheet, then stage private triage records transactionally behind a server safety gate without publishing automatically. Completing every candidate disposition remains active work.",
+      ),
+      complete(
+        "Private triage persistence and worksheet validation",
+        "Preserve immutable provider facts separately from editable human decisions, validate reviewed CSVs locally before staging, and cover every private table in backup schema 4.1.",
+      ),
+      complete(
+        "Idempotent private worksheet staging",
+        "Stage one validated worksheet and all candidate rows atomically, return the existing batch for an exact rerun, retain partial review safely, and create no videos, graph records, tags, mappings, or editorial leads.",
       ),
       planned(
         "Transactional draft video creation",
@@ -406,7 +414,7 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
       acceptance(
         "stage-7-video-preview-capabilities",
         "Playlist preview is configured without write authority",
-        "The YouTube credential remains server-side, read-only preview is enabled, and draft apply, triage persistence, and graph reads remain disabled.",
+        "The YouTube credential remains server-side, read-only preview is enabled, private worksheet staging is controlled by an explicit server gate, and draft apply and graph reads remain disabled.",
         "automated",
       ),
       acceptance(
@@ -419,6 +427,30 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
         "stage-7-video-triage-export",
         "Playlist candidates export to a review-safe worksheet",
         "The preview downloads as formula-injection-safe CSV with provenance, provider status, issues, non-authoritative 3D-printing suggestions, and blank human-review fields for disposition, materials, topics, editorial targets, and notes.",
+        "automated",
+      ),
+      acceptance(
+        "stage-7-video-triage-validation",
+        "Reviewed worksheets are validated before staging",
+        "Local validation rejects malformed contracts, mixed preview provenance, invalid dispositions, and unsafe provider classifications while keeping rejected topic suggestions separate from reviewed tags.",
+        "automated",
+      ),
+      acceptance(
+        "stage-7-video-triage-foundation",
+        "Private triage records preserve provenance and authorization",
+        "Import batches, candidate rows, and editorial leads retain immutable source data; contributors and anonymous users have no access, staff cannot delete records, and reviewed fields remain editable and auditable.",
+        "automated",
+      ),
+      acceptance(
+        "stage-7-video-curation-backup",
+        "Video curation records are included in recovery artifacts",
+        "Backup schema 4.1 includes import batches, candidate rows, and editorial leads with counts and checksums while schema 4.0 backups remain valid.",
+        "automated",
+      ),
+      acceptance(
+        "stage-7-video-triage-staging",
+        "Validated worksheets stage atomically without content writes",
+        "A service-role-only transaction stages one private batch and all candidates, rejects malformed or duplicate inputs without partial rows, and returns the existing batch on an exact rerun while leaving videos, entities, mappings, tags, and editorial leads unchanged.",
         "automated",
       ),
       acceptance(

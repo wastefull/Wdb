@@ -82,6 +82,6 @@
             "dev": "vite",
             "build": "vite build",
             "docs:check": "node scripts/check-docs.mjs",
-            "test:video-playlist": "tsx --test src/supabase/functions/server/video-playlist.test.ts src/utils/videoPlaylistCsv.test.ts"
+            "test:video-playlist": "tsx --test src/supabase/functions/server/video-playlist.test.ts src/supabase/functions/server/video-triage-staging.test.ts src/utils/videoPlaylistCsv.test.ts"
       }
 }

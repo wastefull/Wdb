@@ -1,4 +1,4 @@
-import { FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import {
   CheckCircle,
   Download,
@@ -6,18 +6,23 @@ import {
   ListVideo,
   Loader2,
   Search,
+  Upload,
   XCircle,
 } from "lucide-react";
 import * as api from "../../utils/api";
 import type {
   VideoPlaylistCandidateClassification,
+  VideoPlaylistCapabilities,
   VideoPlaylistPreview,
+  VideoTriageCsvPreview,
+  VideoTriageStageResponse,
 } from "../../types/videoPlaylist";
 import {
   buildVideoTriageCsv,
   isSuggested3dPrintingVideo,
   videoTriageCsvFilename,
 } from "../../utils/videoPlaylistCsv";
+import { previewVideoTriageCsv } from "../../utils/videoTriageCsvImport";
 
 const CLASSIFICATION_LABELS: Record<
   VideoPlaylistCandidateClassification,
@@ -30,6 +35,9 @@ const CLASSIFICATION_LABELS: Record<
   unavailable: "Unavailable",
   malformed: "Malformed",
 };
+
+const DEFAULT_YOUTUBE_PLAYLIST_URL =
+  "https://youtube.com/playlist?list=PL4ln_sfE3QCLplcay8knoxMnbm1mpaJek&si=I8Y0FrAaj2ZROvKd";
 
 function formatDuration(seconds: number | null): string {
   if (seconds === null) return "—";
@@ -211,8 +219,245 @@ function PreviewSummary({ preview }: { preview: VideoPlaylistPreview }) {
   );
 }
 
+function TriageCsvValidationPanel({
+  currentPreview,
+}: {
+  currentPreview: VideoPlaylistPreview | null;
+}) {
+  const [filename, setFilename] = useState<string | null>(null);
+  const [validation, setValidation] =
+    useState<VideoTriageCsvPreview | null>(null);
+  const [worksheetCsv, setWorksheetCsv] = useState<string | null>(null);
+  const [capabilities, setCapabilities] =
+    useState<VideoPlaylistCapabilities | null>(null);
+  const [stageResult, setStageResult] =
+    useState<VideoTriageStageResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isReading, setIsReading] = useState(false);
+  const [isStaging, setIsStaging] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    api
+      .getVideoPlaylistCapabilities()
+      .then((result) => {
+        if (active) setCapabilities(result);
+      })
+      .catch(() => {
+        if (active) setCapabilities(null);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const validateFile = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setFilename(file.name);
+    setValidation(null);
+    setWorksheetCsv(null);
+    setStageResult(null);
+    setError(null);
+    setIsReading(true);
+    try {
+      const csv = await file.text();
+      setWorksheetCsv(csv);
+      setValidation(await previewVideoTriageCsv(csv));
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : String(caught));
+    } finally {
+      setIsReading(false);
+    }
+  };
+
+  const matchesCurrentPreview =
+    !currentPreview ||
+    !validation ||
+    (validation.sourcePreviewChecksum === currentPreview.preview_checksum &&
+      validation.playlistId === currentPreview.source.playlist_id);
+
+  const canStage = Boolean(
+    capabilities?.triage_persistence_enabled &&
+      currentPreview &&
+      validation?.validForStaging &&
+      matchesCurrentPreview &&
+      worksheetCsv &&
+      filename,
+  );
+
+  const stageWorksheet = async () => {
+    if (
+      !canStage ||
+      !currentPreview ||
+      !validation ||
+      !worksheetCsv ||
+      !filename
+    ) {
+      return;
+    }
+    const confirmed = window.confirm(
+      `Stage ${validation.counts.rows} private triage records? This will not create or publish videos.`,
+    );
+    if (!confirmed) return;
+
+    setIsStaging(true);
+    setError(null);
+    setStageResult(null);
+    try {
+      setStageResult(
+        await api.stageVideoTriageWorksheet({
+          source_filename: filename,
+          source_playlist_title: currentPreview.source.title,
+          worksheet_csv: worksheetCsv,
+          worksheet: validation,
+        }),
+      );
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : String(caught));
+    } finally {
+      setIsStaging(false);
+    }
+  };
+
+  return (
+    <div className="rounded-lg border border-black/10 p-4 dark:border-white/10">
+      <div className="flex items-start gap-3">
+        <Upload className="mt-0.5 size-4 shrink-0" />
+        <div className="flex-1">
+          <p className="text-[13px] font-medium">Validate reviewed worksheet</p>
+          <p className="mt-1 text-[11px] text-black/60 dark:text-white/60">
+            Select an exported CSV to check its structure and review state in
+            this browser. The file is not uploaded or saved to WasteDB.
+          </p>
+          <label className="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-lg border border-black/15 px-3 py-2 text-[12px] hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/5">
+            <Upload className="size-3.5" />
+            {isReading ? "Reading…" : "Choose triage CSV"}
+            <input
+              type="file"
+              accept=".csv,text/csv"
+              onChange={validateFile}
+              disabled={isReading}
+              className="sr-only"
+            />
+          </label>
+          {filename && (
+            <span className="ml-3 text-[11px] text-black/50 dark:text-white/50">
+              {filename}
+            </span>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-4" aria-live="polite">
+        {error && (
+          <p className="text-[12px] text-red-600 dark:text-red-300">{error}</p>
+        )}
+        {validation && (
+          <div className="space-y-3">
+            <div
+              className={`rounded-lg border p-3 text-[12px] ${
+                validation.validForStaging && matchesCurrentPreview
+                  ? "border-waste-compost/30 bg-waste-compost/5"
+                  : "border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30"
+              }`}
+            >
+              <p className="font-medium">
+                {validation.validForStaging && matchesCurrentPreview
+                  ? "Worksheet is structurally valid"
+                  : "Worksheet needs attention"}
+              </p>
+              <p className="mt-1 text-[11px] text-black/60 dark:text-white/60">
+                {validation.counts.rows} rows · {validation.counts.errors} errors
+                · {validation.counts.warnings} warnings ·{" "}
+                {validation.counts.reviewed} reviewed ·{" "}
+                {validation.counts.unreviewedAvailable} available rows still
+                unreviewed
+              </p>
+              {!matchesCurrentPreview && (
+                <p className="mt-2 text-[11px] font-medium text-amber-700 dark:text-amber-300">
+                  This worksheet does not match the currently displayed playlist
+                  preview and must not be staged from this screen.
+                </p>
+              )}
+              <p className="mt-2 text-[11px]">
+                Draft apply readiness: {validation.readyForDraftApply ? "yes" : "no"}
+              </p>
+            </div>
+
+            {validation.issues.length > 0 && (
+              <details className="rounded-lg border border-black/10 dark:border-white/10">
+                <summary className="cursor-pointer px-3 py-2 text-[12px] font-medium">
+                  Inspect validation findings ({validation.issues.length})
+                </summary>
+                <ul className="max-h-64 space-y-2 overflow-auto border-t border-black/10 p-3 text-[11px] dark:border-white/10">
+                  {validation.issues.slice(0, 100).map((issue, index) => (
+                    <li key={`${issue.row}-${issue.column}-${index}`}>
+                      <span className="font-medium uppercase">
+                        {issue.severity}
+                      </span>{" "}
+                      {issue.row ? `row ${issue.row}` : "worksheet"}
+                      {issue.column ? ` · ${issue.column}` : ""}: {issue.message}
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            )}
+
+            <div className="rounded-lg border border-black/10 p-3 dark:border-white/10">
+              <p className="text-[11px] text-black/60 dark:text-white/60">
+                Staging saves private triage records only. It does not create
+                videos, graph relationships, tags, mappings, or public content.
+              </p>
+              {!currentPreview && (
+                <p className="mt-2 text-[11px] text-amber-700 dark:text-amber-300">
+                  Run the matching playlist preview before staging this worksheet.
+                </p>
+              )}
+              {capabilities && !capabilities.triage_persistence_enabled && (
+                <p className="mt-2 text-[11px] text-black/50 dark:text-white/50">
+                  Worksheet staging is currently disabled by the server safety gate.
+                </p>
+              )}
+              <button
+                type="button"
+                onClick={stageWorksheet}
+                disabled={!canStage || isStaging}
+                className="retro-btn-primary mt-3 flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isStaging ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Upload className="size-4" />
+                )}
+                {isStaging ? "Staging worksheet…" : "Stage private triage records"}
+              </button>
+            </div>
+
+            {stageResult && (
+              <div className="rounded-lg border border-waste-compost/30 bg-waste-compost/5 p-3 text-[12px]">
+                <p className="font-medium">
+                  {stageResult.created
+                    ? "Worksheet staged"
+                    : "Worksheet was already staged"}
+                </p>
+                <p className="mt-1 text-[11px] text-black/60 dark:text-white/60">
+                  {stageResult.row_count} private records · status {stageResult.status}
+                  {" · batch "}
+                  <code>{stageResult.batch_id}</code>
+                </p>
+                <p className="mt-1 text-[11px]">{stageResult.message}</p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function VideoPlaylistPreviewPanel() {
-  const [playlistUrl, setPlaylistUrl] = useState("");
+  const [playlistUrl, setPlaylistUrl] = useState(DEFAULT_YOUTUBE_PLAYLIST_URL);
   const [preview, setPreview] = useState<VideoPlaylistPreview | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -257,7 +502,8 @@ export function VideoPlaylistPreviewPanel() {
           </h3>
           <p className="mt-1 text-[13px] leading-relaxed text-black/70 dark:text-white/70">
             Enumerate, normalize, and compare a playlist without creating or
-            changing WasteDB records. Triage and import controls remain disabled.
+            changing WasteDB records. A separately gated action can preserve a
+            validated worksheet as private triage records.
           </p>
         </div>
       </div>
@@ -305,6 +551,8 @@ export function VideoPlaylistPreviewPanel() {
         )}
         {preview && <PreviewSummary preview={preview} />}
       </div>
+
+      <TriageCsvValidationPanel currentPreview={preview} />
     </section>
   );
 }

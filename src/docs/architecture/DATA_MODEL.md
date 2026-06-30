@@ -31,11 +31,27 @@ from KV. Before removing any namespace, inventory active reads and writes,
 create a verified backup, migrate additively, reconcile, and retain a manual
 recovery path.
 
-## Planned Graph Layer
+## Additive Graph Layer
 
-Stage 6 plans additive graph tables for entities, relationships, normalized
-tags, content-to-subject mappings, and videos. Domain tables will remain
-authoritative. See
+Stage 6 added graph tables for entities, relationships, normalized tags,
+content-to-subject mappings, videos, migration observability, and compatibility
+outbox events. Domain tables remain authoritative.
+
+Stage 7 adds private, pre-publication workflow tables:
+
+| Table | Purpose |
+| --- | --- |
+| `video_import_batches` | Immutable playlist/worksheet provenance and validation lifecycle |
+| `video_import_items` | Provider candidates, suggestions, reviewed triage, and eventual draft linkage |
+| `editorial_leads` | Private article, blog-post, and guide opportunities sourced from reviewed media |
+
+These tables do not enable graph reads or publish videos. Suggested topics are
+stored separately from reviewed topics so false positives can be rejected
+without rewriting source provenance. The service-role-only
+`stage_video_triage_worksheet` function inserts a validated batch and all of
+its candidate rows in one transaction; an exact worksheet rerun returns the
+existing batch, and the function has no authority to create public content or
+graph records. See
 [ADR 001: Knowledge Graph Foundation](./ADR_001_KNOWLEDGE_GRAPH_FOUNDATION.md)
 and [Knowledge Graph Migration](../roadmap/KNOWLEDGE_GRAPH_MIGRATION.md).
 

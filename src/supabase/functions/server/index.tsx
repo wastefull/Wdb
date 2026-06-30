@@ -29,6 +29,10 @@ import {
   YOUTUBE_PLAYLIST_PREVIEW_VERSION,
   YouTubePlaylistPreviewError,
 } from "./video-playlist.ts";
+import {
+  prepareVideoTriageWorksheet,
+  VideoTriageStagingError,
+} from "./video-triage-staging.ts";
 
 // Evidence routes are implemented inline here because the previous split module
 // depended on app-only utilities that are not accessible in Edge Functions.
@@ -15183,6 +15187,9 @@ app.get(
   verifyAuth,
   verifyAdmin,
   async (c) => {
+    const triagePersistenceEnabled =
+      Deno.env.get("VIDEO_TRIAGE_PERSISTENCE_ENABLED")?.trim().toLowerCase() ===
+      "true";
     return c.json({
       contract_version: YOUTUBE_PLAYLIST_PREVIEW_VERSION,
       provider: "youtube",
@@ -15190,7 +15197,7 @@ app.get(
       preview_enabled: true,
       maximum_playlist_items: YOUTUBE_PLAYLIST_MAX_ITEMS,
       draft_apply_enabled: false,
-      triage_persistence_enabled: false,
+      triage_persistence_enabled: triagePersistenceEnabled,
       graph_reads_enabled: false,
     });
   },
@@ -15270,6 +15277,93 @@ app.post(
           ready_for_triage: false,
           error: "YouTube playlist preview failed.",
           code: "playlist_preview_failed",
+        },
+        500,
+      );
+    }
+  },
+);
+
+// Staging preserves a validated worksheet and its review decisions in private
+// tables. The database RPC is transactional and idempotent; this route cannot
+// create draft videos, graph records, tags, mappings, or editorial leads.
+app.post(
+  "/make-server-17cae920/graph/videos/playlist/triage/stage",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    const enabled =
+      Deno.env.get("VIDEO_TRIAGE_PERSISTENCE_ENABLED")?.trim().toLowerCase() ===
+      "true";
+    if (!enabled) {
+      return c.json(
+        {
+          success: false,
+          error: "Video triage persistence is disabled.",
+          code: "video_triage_persistence_disabled",
+        },
+        503,
+      );
+    }
+
+    try {
+      const userId = c.get("userId");
+      const userEmail = c.get("userEmail") ?? "unknown";
+      const body = await c.req.json().catch(() => ({}));
+      const parameters = await prepareVideoTriageWorksheet(body, userId);
+      const client = _roleClient();
+      const { data, error } = await client.rpc(
+        "stage_video_triage_worksheet",
+        parameters,
+      );
+      if (error) throw error;
+
+      const result = data as {
+        success: boolean;
+        created: boolean;
+        batch_id: string;
+        status: string;
+        row_count: number;
+        reviewed_count: number;
+        unreviewed_available_count?: number;
+        message: string;
+      };
+
+      if (result.created) {
+        await createAuditLog({
+          userId,
+          userEmail,
+          entityType: "video_import_batch",
+          entityId: result.batch_id,
+          action: "create",
+          after: {
+            status: result.status,
+            row_count: result.row_count,
+            reviewed_count: result.reviewed_count,
+            unreviewed_available_count:
+              result.unreviewed_available_count ?? null,
+            source_playlist_id: parameters.p_source_playlist_id,
+            source_preview_checksum: parameters.p_source_preview_checksum,
+            worksheet_checksum: parameters.p_worksheet_checksum,
+          },
+          req: c,
+        });
+      }
+
+      return c.json(result, result.created ? 201 : 200);
+    } catch (error) {
+      if (error instanceof VideoTriageStagingError) {
+        return c.json(
+          { success: false, error: error.message, code: error.code },
+          error.status as any,
+        );
+      }
+      log.error("Video triage worksheet staging failed:", error);
+      return c.json(
+        {
+          success: false,
+          error: "Video triage worksheet could not be staged.",
+          code: "video_triage_staging_failed",
         },
         500,
       );
@@ -15588,7 +15682,7 @@ const FULL_BACKUP_BASE_POSTGRES_TABLES = [
   "changelog_entries",
 ] as const;
 
-const FULL_BACKUP_GRAPH_POSTGRES_TABLES = [
+const FULL_BACKUP_GRAPH_4_0_POSTGRES_TABLES = [
   "entity_types",
   "relationship_types",
   "tag_types",
@@ -15608,9 +15702,20 @@ const FULL_BACKUP_GRAPH_POSTGRES_TABLES = [
   "graph_sync_outbox",
 ] as const;
 
-const FULL_BACKUP_POSTGRES_TABLES = [
+const FULL_BACKUP_VIDEO_4_1_POSTGRES_TABLES = [
+  "video_import_batches",
+  "video_import_items",
+  "editorial_leads",
+] as const;
+
+const FULL_BACKUP_POSTGRES_TABLES_4_0 = [
   ...FULL_BACKUP_BASE_POSTGRES_TABLES,
-  ...FULL_BACKUP_GRAPH_POSTGRES_TABLES,
+  ...FULL_BACKUP_GRAPH_4_0_POSTGRES_TABLES,
+] as const;
+
+const FULL_BACKUP_POSTGRES_TABLES_4_1 = [
+  ...FULL_BACKUP_POSTGRES_TABLES_4_0,
+  ...FULL_BACKUP_VIDEO_4_1_POSTGRES_TABLES,
 ] as const;
 
 const FULL_BACKUP_ORDER_COLUMNS: Record<string, readonly string[]> = {
@@ -15695,7 +15800,11 @@ function isMissingPostgresTableError(error: unknown): boolean {
   );
 }
 
-async function fetchGraphBackupRows(client: any): Promise<{
+async function fetchOptionalBackupRows(
+  client: any,
+  tables: readonly string[],
+  groupLabel: string,
+): Promise<{
   enabled: boolean;
   rows: Record<string, Record<string, unknown>[]>;
 }> {
@@ -15703,7 +15812,7 @@ async function fetchGraphBackupRows(client: any): Promise<{
   const present: string[] = [];
   const missing: string[] = [];
 
-  for (const table of FULL_BACKUP_GRAPH_POSTGRES_TABLES) {
+  for (const table of tables) {
     try {
       rows[table] = await fetchAllPostgresRows(
         client,
@@ -15719,16 +15828,32 @@ async function fetchGraphBackupRows(client: any): Promise<{
 
   if (present.length > 0 && missing.length > 0) {
     throw new Error(
-      `Partial graph schema detected. Present: ${present.join(
+      `Partial ${groupLabel} schema detected. Present: ${present.join(
         ", ",
       )}. Missing: ${missing.join(", ")}. Refusing to create an incomplete backup.`,
     );
   }
 
   return {
-    enabled: present.length === FULL_BACKUP_GRAPH_POSTGRES_TABLES.length,
+    enabled: present.length === tables.length,
     rows: present.length > 0 ? rows : {},
   };
+}
+
+async function fetchGraphBackupRows(client: any) {
+  return await fetchOptionalBackupRows(
+    client,
+    FULL_BACKUP_GRAPH_4_0_POSTGRES_TABLES,
+    "graph 4.0",
+  );
+}
+
+async function fetchVideoCurationBackupRows(client: any) {
+  return await fetchOptionalBackupRows(
+    client,
+    FULL_BACKUP_VIDEO_4_1_POSTGRES_TABLES,
+    "video curation 4.1",
+  );
 }
 
 async function fetchAllAuthUsers(
@@ -16180,7 +16305,7 @@ app.post(
         const schemaVersion = backup.metadata?.schema_version;
         const isFullSiteBackup =
           backup.metadata?.format === "wastedb-full-site";
-        const supportedSchemaVersions = new Set(["3.0", "4.0"]);
+        const supportedSchemaVersions = new Set(["3.0", "4.0", "4.1"]);
         if (
           isFullSiteBackup &&
           !supportedSchemaVersions.has(schemaVersion)
@@ -16192,9 +16317,11 @@ app.post(
         const requiresCompleteManifest =
           supportedSchemaVersions.has(schemaVersion) || isFullSiteBackup;
         const requiredPostgresTables =
-          schemaVersion === "4.0"
-            ? FULL_BACKUP_POSTGRES_TABLES
-            : FULL_BACKUP_BASE_POSTGRES_TABLES;
+          schemaVersion === "4.1"
+            ? FULL_BACKUP_POSTGRES_TABLES_4_1
+            : schemaVersion === "4.0"
+              ? FULL_BACKUP_POSTGRES_TABLES_4_0
+              : FULL_BACKUP_BASE_POSTGRES_TABLES;
         if (requiresCompleteManifest) {
           if (
             !backup.metadata?.export_started_at ||
@@ -16405,8 +16532,10 @@ app.post(
               "src/docs/admin/OPERATIONS.md#full-site-manual-recovery",
             schema_version: schemaVersion,
             recovery_path:
-              schemaVersion === "4.0"
-                ? "Restore domain tables first, then graph tables, and reconcile both layers."
+              schemaVersion === "4.1"
+                ? "Restore domain tables first, then graph tables and private video-curation records; reconcile every layer before resuming curation."
+                : schemaVersion === "4.0"
+                  ? "Restore domain tables first, then graph tables, and reconcile both layers."
                 : "Restore domain tables, then rerun the idempotent graph backfill if graph support is required.",
           },
         });
@@ -16556,10 +16685,20 @@ app.get(
       }
       const graphBackup = await fetchGraphBackupRows(pgClient);
       Object.assign(postgresData, graphBackup.rows);
-      const schemaVersion = graphBackup.enabled ? "4.0" : "3.0";
-      const postgresTables = graphBackup.enabled
-        ? FULL_BACKUP_POSTGRES_TABLES
-        : FULL_BACKUP_BASE_POSTGRES_TABLES;
+      const videoCurationBackup = graphBackup.enabled
+        ? await fetchVideoCurationBackupRows(pgClient)
+        : { enabled: false, rows: {} };
+      Object.assign(postgresData, videoCurationBackup.rows);
+      const schemaVersion = videoCurationBackup.enabled
+        ? "4.1"
+        : graphBackup.enabled
+          ? "4.0"
+          : "3.0";
+      const postgresTables = videoCurationBackup.enabled
+        ? FULL_BACKUP_POSTGRES_TABLES_4_1
+        : graphBackup.enabled
+          ? FULL_BACKUP_POSTGRES_TABLES_4_0
+          : FULL_BACKUP_BASE_POSTGRES_TABLES;
       const userRoles = postgresData.user_profiles.map((record: any) => ({
         key: `user_role:${record.id}`,
         value: record.role,

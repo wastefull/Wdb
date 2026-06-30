@@ -9,6 +9,7 @@ import {
   isSuggested3dPrintingVideo,
   videoTriageCsvFilename,
 } from "./videoPlaylistCsv";
+import { previewVideoTriageCsv } from "./videoTriageCsvImport";
 
 function candidate(
   overrides: Partial<VideoPlaylistCandidate> = {},
@@ -113,9 +114,64 @@ test("protects provider text from spreadsheet formula execution", () => {
   assert.match(csv, /"'=HYPERLINK\(""https:\/\/example\.com""\)"/);
 });
 
+test("round-trips spreadsheet-protected YouTube IDs beginning with a hyphen", async () => {
+  const youtubeId = "-GeC1OuJuvY";
+  const csv = buildVideoTriageCsv(
+    preview(
+      candidate({
+        candidate_key: youtubeId,
+        youtube_id: youtubeId,
+        youtube_url: `https://www.youtube.com/watch?v=${youtubeId}`,
+      }),
+    ),
+  );
+  assert.match(csv, /"'-GeC1OuJuvY"/);
+  const result = await previewVideoTriageCsv(csv);
+  assert.equal(result.validForStaging, true);
+  assert.equal(result.rows[0].youtubeId, youtubeId);
+});
+
 test("uses the preview date in the export filename", () => {
   assert.equal(
     videoTriageCsvFilename("2026-06-29T12:00:00Z"),
     "wastedb-video-triage-2026-06-29.csv",
   );
+});
+
+test("validates an untouched worksheet for staging but not draft apply", async () => {
+  const result = await previewVideoTriageCsv(
+    buildVideoTriageCsv(preview(candidate())),
+  );
+  assert.equal(result.validForStaging, true);
+  assert.equal(result.readyForDraftApply, false);
+  assert.equal(result.counts.rows, 1);
+  assert.equal(result.counts.unreviewedAvailable, 1);
+  assert.equal(result.counts.suggested3dPrinting, 1);
+  assert.equal(result.counts.reviewed3dPrinting, 0);
+});
+
+test("keeps rejected suggestions separate from reviewed editorial triage", async () => {
+  const csv = buildVideoTriageCsv(preview(candidate())).replace(
+    '"3d_printing","","","","",""\r\n',
+    '"3d_printing","editorial_lead","","","article","False positive suggestion."\r\n',
+  );
+  const result = await previewVideoTriageCsv(csv);
+  assert.equal(result.validForStaging, true);
+  assert.equal(result.readyForDraftApply, true);
+  assert.equal(result.counts.editorialLead, 1);
+  assert.equal(result.counts.suggested3dPrinting, 1);
+  assert.equal(result.counts.reviewed3dPrinting, 0);
+  assert.deepEqual(result.rows[0].editorialTargets, ["article"]);
+});
+
+test("rejects unknown dispositions without staging partial rows", async () => {
+  const csv = buildVideoTriageCsv(preview(candidate())).replace(
+    '"3d_printing","","","","",""\r\n',
+    '"3d_printing","publish_now","","","",""\r\n',
+  );
+  const result = await previewVideoTriageCsv(csv);
+  assert.equal(result.validForStaging, false);
+  assert.equal(result.readyForDraftApply, false);
+  assert.equal(result.counts.errors, 1);
+  assert.equal(result.rows.length, 0);
 });

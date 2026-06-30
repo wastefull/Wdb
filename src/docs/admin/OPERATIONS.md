@@ -63,7 +63,7 @@ available for backward compatibility. Import supports merge mode only and does
 not delete existing records.
 
 Legacy import is not a full relational restore. Do not use it to restore a
-schema-version 3.0 or 4.0 full-site backup. It accepts both historical `users`
+schema-version 3.0, 4.0, or 4.1 full-site backup. It accepts both historical `users`
 and current `user_profiles` payloads. Restored `user_roles` are preserved in
 the legacy KV namespace and then applied to Postgres with the idempotent admin
 role-seed action. Unsupported or invalid records are returned as
@@ -86,6 +86,25 @@ until that list is empty.
 10. Keep legacy reads and required backups until the completion gate is
     approved.
 
+## Video Triage Worksheet Staging
+
+Stage 7 worksheet staging is controlled by the server-side
+`VIDEO_TRIAGE_PERSISTENCE_ENABLED` gate. Keep it disabled until the staging
+function, Edge Function, local and production acceptance tests, and recovery
+backup have been verified.
+
+When enabled, an admin must run the matching playlist preview, select a locally
+validated CSV, review the counts and checksum, and explicitly confirm staging.
+Staging writes only `video_import_batches` and `video_import_items`; it does not
+create videos, entities, mappings, tags, editorial leads, or public content.
+An exact worksheet rerun returns the existing batch instead of duplicating it.
+
+Leave `draft_apply_enabled` and graph reads disabled. A partially reviewed
+worksheet is allowed and remains in `needs_review`; staging is not approval to
+publish or to create drafts. Follow the
+[Video Triage Worksheet Staging Runbook](../roadmap/guides/KNOWLEDGE_GRAPH_VIDEO_TRIAGE_STAGING_RUNBOOK.md)
+for deployment and reconciliation.
+
 ## Full-Site Manual Recovery
 
 Automatic relational restore is intentionally disabled because table ordering,
@@ -107,6 +126,10 @@ For manual recovery:
    `content_entities`, `graph_migration_runs`,
    `graph_migration_checkpoints`, `graph_migration_issues`, then
    `graph_sync_outbox`.
+   For schema version 4.1, continue with `video_import_batches`,
+   `video_import_items`, then `editorial_leads`. Preserve this order because
+   candidate rows reference their batch and editorial leads reference their
+   source candidate.
 5. Use upserts only where the primary-key and conflict policy have been
    reviewed. Never truncate production tables as part of recovery.
 6. Reconcile `auth_users` with the recovery project's Auth users before

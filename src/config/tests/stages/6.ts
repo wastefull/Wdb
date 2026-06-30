@@ -328,12 +328,15 @@ export function getStage6Tests(): Test[] {
             backup.manifest?.row_counts?.[`postgres.${table}`] === undefined ||
             !backup.manifest?.checksums?.[`postgres.${table}`],
         );
-        if (backup.metadata?.schema_version !== "4.0" || missing.length > 0) {
+        const graphBackupVersion = ["4.0", "4.1"].includes(
+          backup.metadata?.schema_version,
+        );
+        if (!graphBackupVersion || missing.length > 0) {
           return {
             success: false,
             message:
-              backup.metadata?.schema_version !== "4.0"
-                ? `Expected schema version 4.0, received ${backup.metadata?.schema_version ?? "none"}.`
+              !graphBackupVersion
+                ? `Expected graph backup schema 4.0 or 4.1, received ${backup.metadata?.schema_version ?? "none"}.`
                 : `Backup is missing graph coverage: ${missing.join(", ")}`,
           };
         }
@@ -631,10 +634,10 @@ export function getStage6Tests(): Test[] {
         }
         const backup = await exportResponse.json();
 
-        if (backup.metadata?.schema_version !== "4.0") {
+        if (!["4.0", "4.1"].includes(backup.metadata?.schema_version)) {
           return {
             success: false,
-            message: `Expected schema version 4.0, received ${backup.metadata?.schema_version ?? "none"}.`,
+            message: `Expected graph backup schema 4.0 or 4.1, received ${backup.metadata?.schema_version ?? "none"}.`,
           };
         }
 
