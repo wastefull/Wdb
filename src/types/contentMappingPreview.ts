@@ -82,8 +82,7 @@ export interface ContentMappingQuarantineReport {
   total_issues_written: number;
 }
 
-export const CONTENT_MAPPING_APPLY_VERSION =
-  "stage-7-content-mapping-apply-v1";
+export const CONTENT_MAPPING_APPLY_VERSION = "stage-7-content-mapping-apply-v1";
 
 export interface ContentMappingApplyReport {
   contract_version: string;

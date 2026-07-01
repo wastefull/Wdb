@@ -341,8 +341,7 @@ export interface ContentMappingQuarantineReport {
   total_issues_written: number;
 }
 
-export const CONTENT_MAPPING_APPLY_VERSION =
-  "stage-7-content-mapping-apply-v1";
+export const CONTENT_MAPPING_APPLY_VERSION = "stage-7-content-mapping-apply-v1";
 
 export const CONTENT_MAPPING_APPLY_CONFIRMATION =
   "apply content-mapping relationships";
@@ -920,15 +919,11 @@ export async function buildContentMappingApply(
 
   const resolvedRel = analysis.relCandidates.filter(
     (c) =>
-      c.resolution === "resolved" &&
-      c.source.entity_id &&
-      c.target.entity_id,
+      c.resolution === "resolved" && c.source.entity_id && c.target.entity_id,
   );
   const resolvedCe = analysis.ceMappings.filter(
     (c) =>
-      c.resolution === "resolved" &&
-      c.content.entity_id &&
-      c.subject.entity_id,
+      c.resolution === "resolved" && c.content.entity_id && c.subject.entity_id,
   );
 
   // Create the migration run record

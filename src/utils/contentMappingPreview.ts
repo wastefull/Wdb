@@ -3,18 +3,18 @@
 // relationships and content mappings without writing any graph records.
 
 import type {
-  ContentMappingPreviewReport,
-  ContentMappingQuarantineReport,
   ContentMappingApplyReport,
   ContentMappingCapabilities,
+  ContentMappingPreviewReport,
+  ContentMappingQuarantineReport,
 } from "../types/contentMappingPreview";
 import { apiCall } from "./api";
 
 export type {
-  ContentMappingPreviewReport,
-  ContentMappingQuarantineReport,
   ContentMappingApplyReport,
   ContentMappingCapabilities,
+  ContentMappingPreviewReport,
+  ContentMappingQuarantineReport,
 } from "../types/contentMappingPreview";
 
 /**

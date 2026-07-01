@@ -15680,8 +15680,7 @@ app.get(
   verifyAdmin,
   (c) => {
     return c.json({
-      apply_enabled:
-        Deno.env.get("CONTENT_MAPPING_APPLY_ENABLED") === "true",
+      apply_enabled: Deno.env.get("CONTENT_MAPPING_APPLY_ENABLED") === "true",
       apply_version: CONTENT_MAPPING_APPLY_VERSION,
       apply_confirmation: CONTENT_MAPPING_APPLY_CONFIRMATION,
     });
