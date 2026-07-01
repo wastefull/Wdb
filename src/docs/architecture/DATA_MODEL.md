@@ -51,7 +51,9 @@ without rewriting source provenance. The service-role-only
 `stage_video_triage_worksheet` function inserts a validated batch and all of
 its candidate rows in one transaction; an exact worksheet rerun returns the
 existing batch, and the function has no authority to create public content or
-graph records. See
+graph records. The service-role-only `review_video_triage_item` function
+updates one candidate's editable human-review fields and aggregate batch status
+atomically while leaving immutable provider provenance untouched. See
 [ADR 001: Knowledge Graph Foundation](./ADR_001_KNOWLEDGE_GRAPH_FOUNDATION.md)
 and [Knowledge Graph Migration](../roadmap/KNOWLEDGE_GRAPH_MIGRATION.md).
 

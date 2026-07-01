@@ -15198,6 +15198,7 @@ app.get(
       maximum_playlist_items: YOUTUBE_PLAYLIST_MAX_ITEMS,
       draft_apply_enabled: false,
       triage_persistence_enabled: triagePersistenceEnabled,
+      triage_review_enabled: triagePersistenceEnabled,
       graph_reads_enabled: false,
     });
   },
@@ -15367,6 +15368,184 @@ app.post(
         },
         500,
       );
+    }
+  },
+);
+
+app.get(
+  "/make-server-17cae920/graph/videos/playlist/triage/batches",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    if (
+      Deno.env.get("VIDEO_TRIAGE_PERSISTENCE_ENABLED")?.trim().toLowerCase() !==
+      "true"
+    ) {
+      return c.json(
+        { success: false, error: "Video triage review is disabled." },
+        503,
+      );
+    }
+    const { data, error } = await _roleClient()
+      .from("video_import_batches")
+      .select(
+        "id,source_playlist_id,source_playlist_title,source_preview_checksum,worksheet_checksum,row_count,status,validation_summary,created_at,updated_at",
+      )
+      .order("created_at", { ascending: false })
+      .limit(20);
+    if (error) {
+      log.error("Video triage batch listing failed:", error);
+      return c.json({ success: false, error: "Triage batches could not be loaded." }, 500);
+    }
+    return c.json({ success: true, batches: data ?? [] });
+  },
+);
+
+app.get(
+  "/make-server-17cae920/graph/videos/playlist/triage/batches/:batchId/items",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    if (
+      Deno.env.get("VIDEO_TRIAGE_PERSISTENCE_ENABLED")?.trim().toLowerCase() !==
+      "true"
+    ) {
+      return c.json(
+        { success: false, error: "Video triage review is disabled." },
+        503,
+      );
+    }
+    const batchId = c.req.param("batchId");
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(batchId)) {
+      return c.json({ success: false, error: "Invalid triage batch ID." }, 400);
+    }
+    const requestedOffset = Number.parseInt(c.req.query("offset") ?? "0", 10);
+    const requestedLimit = Number.parseInt(c.req.query("limit") ?? "25", 10);
+    const offset = Number.isFinite(requestedOffset)
+      ? Math.max(0, requestedOffset)
+      : 0;
+    const limit = Number.isFinite(requestedLimit)
+      ? Math.min(100, Math.max(1, requestedLimit))
+      : 25;
+    const reviewStatus = c.req.query("review_status");
+    if (
+      reviewStatus &&
+      !["unreviewed", "reviewed", "blocked"].includes(reviewStatus)
+    ) {
+      return c.json({ success: false, error: "Invalid review-status filter." }, 400);
+    }
+
+    let query = _roleClient()
+      .from("video_import_items")
+      .select(
+        "id,batch_id,source_row_number,provider_video_id,provider_url,playlist_positions,title,channel_name,duration_seconds,provider_classification,privacy_status,embeddable,external_playback_only,provider_issues,suggested_topic_tags,disposition,material_identifiers,reviewed_topic_tags,editorial_targets,review_notes,review_status,reviewed_at,updated_at",
+        { count: "exact" },
+      )
+      .eq("batch_id", batchId)
+      .order("source_row_number", { ascending: true })
+      .range(offset, offset + limit - 1);
+    if (reviewStatus) query = query.eq("review_status", reviewStatus);
+    const { data, count, error } = await query;
+    if (error) {
+      log.error("Video triage item listing failed:", error);
+      return c.json({ success: false, error: "Triage candidates could not be loaded." }, 500);
+    }
+    return c.json({
+      success: true,
+      items: data ?? [],
+      total: count ?? 0,
+      offset,
+      limit,
+    });
+  },
+);
+
+app.patch(
+  "/make-server-17cae920/graph/videos/playlist/triage/items/:itemId",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    if (
+      Deno.env.get("VIDEO_TRIAGE_PERSISTENCE_ENABLED")?.trim().toLowerCase() !==
+      "true"
+    ) {
+      return c.json(
+        { success: false, error: "Video triage review is disabled." },
+        503,
+      );
+    }
+    const itemId = c.req.param("itemId");
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(itemId)) {
+      return c.json({ success: false, error: "Invalid triage item ID." }, 400);
+    }
+    try {
+      const body = await c.req.json().catch(() => ({}));
+      const disposition = body.disposition ?? null;
+      if (
+        disposition !== null &&
+        !["material_video", "editorial_lead", "both", "ignore"].includes(
+          disposition,
+        )
+      ) {
+        return c.json({ success: false, error: "Invalid triage disposition." }, 400);
+      }
+      const stringArray = (value: unknown, label: string): string[] => {
+        if (!Array.isArray(value) || value.some((item) => typeof item !== "string")) {
+          throw new VideoTriageStagingError(
+            `${label} must be a string array.`,
+            "invalid_triage_review",
+          );
+        }
+        return Array.from(
+          new Set(value.map((item) => item.trim()).filter(Boolean)),
+        );
+      };
+      const materialIdentifiers = stringArray(
+        body.material_identifiers ?? [],
+        "Material identifiers",
+      );
+      const reviewedTopicTags = stringArray(
+        body.reviewed_topic_tags ?? [],
+        "Reviewed topic tags",
+      );
+      const editorialTargets = stringArray(
+        body.editorial_targets ?? [],
+        "Editorial targets",
+      );
+      if (
+        editorialTargets.some(
+          (target) => !["article", "blog_post", "guide"].includes(target),
+        )
+      ) {
+        return c.json({ success: false, error: "Invalid editorial target." }, 400);
+      }
+      if (body.review_notes !== null && body.review_notes !== undefined && typeof body.review_notes !== "string") {
+        return c.json({ success: false, error: "Review notes must be text." }, 400);
+      }
+
+      const { data, error } = await _roleClient().rpc(
+        "review_video_triage_item",
+        {
+          p_item_id: itemId,
+          p_reviewer_id: c.get("userId"),
+          p_disposition: disposition,
+          p_material_identifiers: materialIdentifiers,
+          p_reviewed_topic_tags: reviewedTopicTags,
+          p_editorial_targets: editorialTargets,
+          p_review_notes: body.review_notes ?? null,
+        },
+      );
+      if (error) throw error;
+      return c.json(data);
+    } catch (error) {
+      if (error instanceof VideoTriageStagingError) {
+        return c.json(
+          { success: false, error: error.message, code: error.code },
+          error.status as any,
+        );
+      }
+      log.error("Video triage review failed:", error);
+      return c.json({ success: false, error: "Triage review could not be saved." }, 500);
     }
   },
 );

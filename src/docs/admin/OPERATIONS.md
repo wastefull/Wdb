@@ -105,6 +105,22 @@ publish or to create drafts. Follow the
 [Video Triage Worksheet Staging Runbook](../roadmap/guides/KNOWLEDGE_GRAPH_VIDEO_TRIAGE_STAGING_RUNBOOK.md)
 for deployment and reconciliation.
 
+Candidate review uses the same server gate and remains admin-only in its first
+increment. A review may change private disposition, material suggestions,
+reviewed topics, editorial targets, and notes, but must not create a video,
+entity, mapping, tag, editorial lead, or public record. Unavailable candidates
+may only be ignored. Reopening an available decision must return its batch to
+`needs_review`; a batch reaches `ready` only when every available candidate has
+an explicit disposition.
+
+For a deployment that only adds or replaces a service-role function and does
+not mutate table data, a recently validated full backup may serve as the
+pre-deployment baseline without being downloaded again only when the sole
+operator confirms there were no intervening writes and live protected/content
+counts reconcile. Create a post-deployment backup and compare manifest counts
+and checksums. Any unexplained difference restores the fresh-backup and paused-
+writes requirement.
+
 ## Full-Site Manual Recovery
 
 Automatic relational restore is intentionally disabled because table ordering,

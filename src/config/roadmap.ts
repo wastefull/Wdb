@@ -369,6 +369,10 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
         "Idempotent private worksheet staging",
         "Stage one validated worksheet and all candidate rows atomically, return the existing batch for an exact rerun, retain partial review safely, and create no videos, graph records, tags, mappings, or editorial leads.",
       ),
+      active(
+        "Private candidate review queue",
+        "The production backend can now page through staged candidates and record explicit material-video, editorial-lead, both, or ignore decisions with notes and governed review metadata; no review action creates content. Frontend rollout and completing dispositions remain active work.",
+      ),
       planned(
         "Transactional draft video creation",
         "Create each accepted video, graph entity, and canonical binding atomically while preserving playlist provenance and resumable import decisions.",
@@ -451,6 +455,12 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
         "stage-7-video-triage-staging",
         "Validated worksheets stage atomically without content writes",
         "A service-role-only transaction stages one private batch and all candidates, rejects malformed or duplicate inputs without partial rows, and returns the existing batch on an exact rerun while leaving videos, entities, mappings, tags, and editorial leads unchanged.",
+        "automated",
+      ),
+      acceptance(
+        "stage-7-video-triage-review",
+        "Human triage decisions remain private and reversible",
+        "Admin review updates one candidate and its aggregate batch status transactionally, restricts unavailable sources to ignore, supports reopening a decision, preserves reviewer attribution, and creates no videos, entities, mappings, tags, or editorial leads.",
         "automated",
       ),
       acceptance(

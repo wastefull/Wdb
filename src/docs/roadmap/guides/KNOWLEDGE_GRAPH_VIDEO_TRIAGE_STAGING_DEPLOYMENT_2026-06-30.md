@@ -106,5 +106,6 @@ items, one import batch, and three restricted audit records. The audit delta is
 explained by two full-backup export summaries and the batch-creation summary.
 No domain or graph-content count changed.
 
-The recovery and reconciliation gates are complete. Maintenance mode may be
-disabled; its verified handback timestamp remains to be recorded.
+The recovery and reconciliation gates are complete. Maintenance mode was
+disabled and independently verified off at `2026-06-30T23:24:19Z`; the
+production health endpoint returned HTTP 200 after handback.

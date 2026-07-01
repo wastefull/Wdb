@@ -89,6 +89,7 @@ export interface VideoPlaylistCapabilities {
   maximum_playlist_items: number;
   draft_apply_enabled: boolean;
   triage_persistence_enabled: boolean;
+  triage_review_enabled: boolean;
   graph_reads_enabled: boolean;
 }
 
@@ -174,4 +175,78 @@ export interface VideoTriageStageResponse {
   reviewed_count: number;
   unreviewed_available_count?: number;
   message: string;
+}
+
+export interface VideoTriageBatch {
+  id: string;
+  source_playlist_id: string;
+  source_playlist_title: string | null;
+  source_preview_checksum: string;
+  worksheet_checksum: string;
+  row_count: number;
+  status: "needs_review" | "ready" | "applying" | "completed" | "failed" | "archived";
+  validation_summary: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface VideoTriageItem {
+  id: string;
+  batch_id: string;
+  source_row_number: number;
+  provider_video_id: string | null;
+  provider_url: string | null;
+  playlist_positions: number[];
+  title: string | null;
+  channel_name: string | null;
+  duration_seconds: number | null;
+  provider_classification: VideoPlaylistCandidateClassification;
+  privacy_status: string | null;
+  embeddable: boolean | null;
+  external_playback_only: boolean;
+  provider_issues: string[];
+  suggested_topic_tags: string[];
+  disposition: VideoTriageDisposition | null;
+  material_identifiers: string[];
+  reviewed_topic_tags: string[];
+  editorial_targets: VideoEditorialTarget[];
+  review_notes: string | null;
+  review_status: "unreviewed" | "reviewed" | "blocked";
+  reviewed_at: string | null;
+  updated_at: string;
+}
+
+export interface VideoTriageBatchListResponse {
+  success: boolean;
+  batches: VideoTriageBatch[];
+}
+
+export interface VideoTriageItemListResponse {
+  success: boolean;
+  items: VideoTriageItem[];
+  total: number;
+  offset: number;
+  limit: number;
+}
+
+export interface VideoTriageReviewRequest {
+  disposition: VideoTriageDisposition | null;
+  material_identifiers: string[];
+  reviewed_topic_tags: string[];
+  editorial_targets: VideoEditorialTarget[];
+  review_notes: string | null;
+}
+
+export interface VideoTriageReviewResponse {
+  success: boolean;
+  item_id: string;
+  batch_id: string;
+  disposition: VideoTriageDisposition | null;
+  review_status: "unreviewed" | "reviewed";
+  reviewed_at: string | null;
+  batch_status: "needs_review" | "ready";
+  available_count: number;
+  reviewed_available_count: number;
+  unreviewed_available_count: number;
+  reviewed_count: number;
 }

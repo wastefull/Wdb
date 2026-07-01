@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import * as api from "../../utils/api";
 import { VideoPlaylistPreviewPanel } from "./VideoPlaylistPreviewPanel";
+import { VideoTriageReviewPanel } from "./VideoTriageReviewPanel";
 
 interface OneTimeAction {
   id: string;
@@ -348,6 +349,7 @@ export function OneTimeActionsPanel({ onBack }: OneTimeActionsPanelProps) {
       <main className="flex-1 p-8 overflow-y-auto">
         <div className="max-w-3xl mx-auto space-y-6">
           <VideoPlaylistPreviewPanel />
+          <VideoTriageReviewPanel />
 
           {ACTIONS.map((action) => {
             const state = states[action.id] ?? { status: "idle" };

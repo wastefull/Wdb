@@ -18,6 +18,10 @@ import type {
 import type {
   VideoPlaylistCapabilities,
   VideoPlaylistPreviewResponse,
+  VideoTriageBatchListResponse,
+  VideoTriageItemListResponse,
+  VideoTriageReviewRequest,
+  VideoTriageReviewResponse,
   VideoTriageStageRequest,
   VideoTriageStageResponse,
 } from "../types/videoPlaylist";
@@ -1660,6 +1664,42 @@ export async function stageVideoTriageWorksheet(
     method: "POST",
     body: JSON.stringify(request),
   });
+}
+
+/** Admin only — lists private staged playlist batches. */
+export async function listVideoTriageBatches(): Promise<VideoTriageBatchListResponse> {
+  return await apiCall("/graph/videos/playlist/triage/batches");
+}
+
+/** Admin only — lists a page of private candidate review records. */
+export async function listVideoTriageItems(
+  batchId: string,
+  options: { offset?: number; limit?: number; reviewStatus?: string } = {},
+): Promise<VideoTriageItemListResponse> {
+  const params = new URLSearchParams({
+    offset: String(options.offset ?? 0),
+    limit: String(options.limit ?? 25),
+  });
+  if (options.reviewStatus && options.reviewStatus !== "all") {
+    params.set("review_status", options.reviewStatus);
+  }
+  return await apiCall(
+    `/graph/videos/playlist/triage/batches/${encodeURIComponent(batchId)}/items?${params}`,
+  );
+}
+
+/** Admin only — records one explicit human triage decision. */
+export async function reviewVideoTriageItem(
+  itemId: string,
+  request: VideoTriageReviewRequest,
+): Promise<VideoTriageReviewResponse> {
+  return await apiCall(
+    `/graph/videos/playlist/triage/items/${encodeURIComponent(itemId)}`,
+    {
+      method: "PATCH",
+      body: JSON.stringify(request),
+    },
+  );
 }
 
 // ==================== GRAPH MIGRATION DRY RUNS ====================

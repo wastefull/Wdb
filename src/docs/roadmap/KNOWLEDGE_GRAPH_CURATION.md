@@ -85,6 +85,21 @@ It does not enable graph-powered discovery reads; that remains a Stage 8 gate.
   rows. Production counts show no videos, editorial leads, relationships,
   mappings, or tags. The post-stage schema-4.1 backup validates all 371
   candidate rows and completes the private worksheet-staging deployment gate.
+- A follow-up increment adds a paginated private review queue and a
+  service-role-only `review_video_triage_item` transaction. Admins can record
+  one of the four dispositions, material identifiers, reviewed topics,
+  editorial targets, and notes; unavailable sources remain limited to ignore.
+  Batch status advances to `ready` only when every available candidate has a
+  disposition and returns to `needs_review` if a decision is reopened.
+- Twenty-two new pgTAP assertions cover permissions, partial and complete batch
+  transitions, reviewer attribution, private-video restrictions, metadata
+  clearing, reversible review, and zero content writes. The review database
+  function and private Edge routes are deployed and reconciled in production;
+  the review panel still needs the normal frontend deployment before operators
+  can use it there. See the
+  [Review Queue Runbook](./guides/KNOWLEDGE_GRAPH_VIDEO_TRIAGE_REVIEW_RUNBOOK.md)
+  and
+  [Deployment Report](./guides/KNOWLEDGE_GRAPH_VIDEO_TRIAGE_REVIEW_DEPLOYMENT_2026-07-01.md).
 
 ## Entry State
 
@@ -101,8 +116,9 @@ It does not enable graph-powered discovery reads; that remains a Stage 8 gate.
    import provenance.
 2. Add four-way playlist triage: material video, editorial lead, both, or
    ignore. Preserve triage decisions so an idempotent rerun does not recreate
-   dismissed candidates. Transactional private worksheet staging is prepared;
-   completing and editing dispositions remains active work.
+   dismissed candidates. Transactional private worksheet staging is deployed;
+   completing dispositions remains active work, and the private review queue
+   backend is deployed for reviewed decision capture.
 3. Create accepted videos as drafts through a transactional video, entity, and
    canonical-binding workflow. Add reviewed material mappings separately.
 4. Build non-mutating relationship and content-mapping previews for
