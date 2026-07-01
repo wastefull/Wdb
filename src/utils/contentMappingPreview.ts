@@ -2,10 +2,16 @@
 // The preview endpoint is read-only and admin-only. It identifies candidate
 // relationships and content mappings without writing any graph records.
 
-import type { ContentMappingPreviewReport } from "../types/contentMappingPreview";
+import type {
+  ContentMappingPreviewReport,
+  ContentMappingQuarantineReport,
+} from "../types/contentMappingPreview";
 import { apiCall } from "./api";
 
-export type { ContentMappingPreviewReport } from "../types/contentMappingPreview";
+export type {
+  ContentMappingPreviewReport,
+  ContentMappingQuarantineReport,
+} from "../types/contentMappingPreview";
 
 /**
  * Fetch a non-mutating preview of candidate relationship and content-mapping
@@ -31,4 +37,23 @@ export async function fetchContentMappingPreview(
   return apiCall(path, {
     method: "GET",
   }) as Promise<ContentMappingPreviewReport>;
+}
+
+/**
+ * Write all awaiting_review content-mapping candidates as immutable
+ * graph_migration_issues records for human review.
+ *
+ * Creates one graph_migration_runs row per invocation; old runs remain
+ * as audit history. Does NOT write entity_relationships or content_entities.
+ *
+ * Requires the exact confirmation string "quarantine content-mapping issues"
+ * to prevent accidental invocation.
+ */
+export async function triggerContentMappingQuarantine(): Promise<
+  ContentMappingQuarantineReport & { success: boolean }
+> {
+  return apiCall("/graph/content-mappings/quarantine", {
+    method: "POST",
+    body: JSON.stringify({ confirmation: "quarantine content-mapping issues" }),
+  }) as Promise<ContentMappingQuarantineReport & { success: boolean }>;
 }

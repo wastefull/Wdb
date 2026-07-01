@@ -302,18 +302,37 @@ export function classifyCeResolution(
 }
 
 // ---------------------------------------------------------------------------
-// Main preview builder — deliberately non-mutating
+// Quarantine
 // ---------------------------------------------------------------------------
 
-export async function buildContentMappingPreview(
-  client: any,
-  options: { sampleLimit?: number } = {},
-): Promise<ContentMappingPreviewReport> {
-  const sampleLimit = Math.min(
-    Math.max(1, options.sampleLimit ?? DEFAULT_SAMPLE_LIMIT),
-    MAX_SAMPLE_LIMIT,
-  );
+export const CONTENT_MAPPING_QUARANTINE_VERSION =
+  "stage-7-content-mapping-quarantine-v1";
 
+export interface ContentMappingQuarantineReport {
+  contract_version: string;
+  run_id: string;
+  generated_at: string;
+  relationship_issues_written: number;
+  content_mapping_issues_written: number;
+  total_issues_written: number;
+}
+
+// ---------------------------------------------------------------------------
+// Internal full analysis — shared by preview and quarantine
+// ---------------------------------------------------------------------------
+
+interface ContentMappingAnalysis {
+  relCandidates: RelationshipCandidate[];
+  ceMappings: ContentMappingCandidate[];
+  relBefore: number;
+  ceBefore: number;
+  relAfter: number;
+  ceAfter: number;
+}
+
+async function analyzeContentMapping(
+  client: any,
+): Promise<ContentMappingAnalysis> {
   // ── Step 1: Capture graph-record counts BEFORE preview ──────────────────
   const [relBefore, ceBefore] = await Promise.all([
     countRows(client, "entity_relationships"),
@@ -644,22 +663,162 @@ export async function buildContentMappingPreview(
     countRows(client, "content_entities"),
   ]);
 
+  return { relCandidates, ceMappings, relBefore, ceBefore, relAfter, ceAfter };
+}
+
+// ---------------------------------------------------------------------------
+// Main preview builder — deliberately non-mutating
+// ---------------------------------------------------------------------------
+
+export async function buildContentMappingPreview(
+  client: any,
+  options: { sampleLimit?: number } = {},
+): Promise<ContentMappingPreviewReport> {
+  const sampleLimit = Math.min(
+    Math.max(1, options.sampleLimit ?? DEFAULT_SAMPLE_LIMIT),
+    MAX_SAMPLE_LIMIT,
+  );
+  const analysis = await analyzeContentMapping(client);
   return {
     contract_version: CONTENT_MAPPING_PREVIEW_VERSION,
     generated_at: new Date().toISOString(),
     is_read_only: true,
     mutation_proof: {
-      entity_relationships_before: relBefore,
-      content_entities_before: ceBefore,
-      entity_relationships_after: relAfter,
-      content_entities_after: ceAfter,
+      entity_relationships_before: analysis.relBefore,
+      content_entities_before: analysis.ceBefore,
+      entity_relationships_after: analysis.relAfter,
+      content_entities_after: analysis.ceAfter,
     },
     summary: {
-      relationship_candidates: summarize(relCandidates),
-      content_mapping_candidates: summarize(ceMappings),
+      relationship_candidates: summarize(analysis.relCandidates),
+      content_mapping_candidates: summarize(analysis.ceMappings),
     },
-    relationship_candidates: relCandidates.slice(0, sampleLimit),
-    content_mapping_candidates: ceMappings.slice(0, sampleLimit),
+    relationship_candidates: analysis.relCandidates.slice(0, sampleLimit),
+    content_mapping_candidates: analysis.ceMappings.slice(0, sampleLimit),
     sample_limit: sampleLimit,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Quarantine writer — writes awaiting_review candidates to
+// graph_migration_issues for human review. Creates one graph_migration_runs
+// row per invocation; old runs remain as audit history.
+// ---------------------------------------------------------------------------
+
+const QUARANTINE_BATCH_SIZE = 200;
+
+export async function buildContentMappingQuarantine(
+  client: any,
+  options: { startedBy: string },
+): Promise<ContentMappingQuarantineReport> {
+  const generatedAt = new Date().toISOString();
+  const analysis = await analyzeContentMapping(client);
+
+  const awaitingRel = analysis.relCandidates.filter(
+    (c) => c.resolution === "awaiting_review",
+  );
+  const awaitingCe = analysis.ceMappings.filter(
+    (c) => c.resolution === "awaiting_review",
+  );
+
+  // Create the migration run record
+  const { data: runData, error: runError } = await client
+    .from("graph_migration_runs")
+    .insert({
+      migration_version: CONTENT_MAPPING_QUARANTINE_VERSION,
+      mode: "apply",
+      status: "running",
+      started_by: options.startedBy,
+      started_at: generatedAt,
+    })
+    .select("id")
+    .single();
+  if (runError) {
+    throw new Error(`Failed to create quarantine run: ${runError.message}`);
+  }
+  const runId = runData.id as string;
+
+  const markFailed = async (message: string) => {
+    await client
+      .from("graph_migration_runs")
+      .update({
+        status: "failed",
+        error_message: message,
+        completed_at: new Date().toISOString(),
+      })
+      .eq("id", runId);
+  };
+
+  // Build issue rows
+  const relIssueRows = awaitingRel.map((c) => ({
+    run_id: runId,
+    source_table: c.provenance,
+    source_identifier: `${c.source.legacy_kv_id}→${c.target.legacy_kv_id}`,
+    issue_category: "awaiting_review",
+    reason: c.resolution_notes ?? "Unresolvable relationship candidate",
+    original_payload: {
+      source: c.source,
+      target: c.target,
+      suggested_relationship_type: c.suggested_relationship_type,
+    },
+    candidate_matches: [] as string[],
+    diagnostic_metadata: {
+      provenance: c.provenance,
+      generated_at: generatedAt,
+    },
+  }));
+
+  const ceIssueRows = awaitingCe.map((c) => ({
+    run_id: runId,
+    source_table: c.provenance,
+    source_identifier: c.content.domain_id,
+    issue_category: "awaiting_review",
+    reason: c.resolution_notes ?? "Unresolvable content mapping candidate",
+    original_payload: {
+      content: c.content,
+      subject: c.subject,
+      suggested_role: c.suggested_role,
+    },
+    candidate_matches: [] as string[],
+    diagnostic_metadata: {
+      provenance: c.provenance,
+      generated_at: generatedAt,
+    },
+  }));
+
+  const allRows = [...relIssueRows, ...ceIssueRows];
+
+  // Batch-insert to stay within request-size limits
+  for (let i = 0; i < allRows.length; i += QUARANTINE_BATCH_SIZE) {
+    const { error } = await client
+      .from("graph_migration_issues")
+      .insert(allRows.slice(i, i + QUARANTINE_BATCH_SIZE));
+    if (error) {
+      await markFailed(error.message);
+      throw new Error(`Failed to insert quarantine issues: ${error.message}`);
+    }
+  }
+
+  // Finalize run as completed
+  await client
+    .from("graph_migration_runs")
+    .update({
+      status: "completed",
+      completed_at: new Date().toISOString(),
+      report: {
+        relationship_issues: relIssueRows.length,
+        content_mapping_issues: ceIssueRows.length,
+        total_issues: allRows.length,
+      },
+    })
+    .eq("id", runId);
+
+  return {
+    contract_version: CONTENT_MAPPING_QUARANTINE_VERSION,
+    run_id: runId,
+    generated_at: generatedAt,
+    relationship_issues_written: relIssueRows.length,
+    content_mapping_issues_written: ceIssueRows.length,
+    total_issues_written: allRows.length,
   };
 }

@@ -67,3 +67,15 @@ export interface ContentMappingPreviewReport {
   content_mapping_candidates: ContentMappingCandidate[];
   sample_limit: number;
 }
+
+export const CONTENT_MAPPING_QUARANTINE_VERSION =
+  "stage-7-content-mapping-quarantine-v1";
+
+export interface ContentMappingQuarantineReport {
+  contract_version: string;
+  run_id: string;
+  generated_at: string;
+  relationship_issues_written: number;
+  content_mapping_issues_written: number;
+  total_issues_written: number;
+}

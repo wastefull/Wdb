@@ -1,15 +1,20 @@
 import { useState } from "react";
 import {
+  Archive,
   CheckCircle,
   GitMerge,
   Loader2,
   RefreshCw,
   XCircle,
 } from "lucide-react";
-import { fetchContentMappingPreview } from "../../utils/contentMappingPreview";
+import {
+  fetchContentMappingPreview,
+  triggerContentMappingQuarantine,
+} from "../../utils/contentMappingPreview";
 import type {
   ContentMappingCandidate,
   ContentMappingPreviewReport,
+  ContentMappingQuarantineReport,
   PreviewResolution,
   RelationshipCandidate,
 } from "../../types/contentMappingPreview";
@@ -304,6 +309,12 @@ export function ContentMappingPreviewPanel() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  const [quarantineResult, setQuarantineResult] = useState<
+    (ContentMappingQuarantineReport & { success: boolean }) | null
+  >(null);
+  const [quarantineError, setQuarantineError] = useState<string | null>(null);
+  const [isQuarantining, setIsQuarantining] = useState(false);
+
   const runPreview = async () => {
     setIsLoading(true);
     setError(null);
@@ -314,6 +325,30 @@ export function ContentMappingPreviewPanel() {
       setError(caught instanceof Error ? caught.message : String(caught));
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const awaitingCount =
+    (report?.summary.relationship_candidates.awaiting_review ?? 0) +
+    (report?.summary.content_mapping_candidates.awaiting_review ?? 0);
+
+  const runQuarantine = async () => {
+    if (awaitingCount === 0) return;
+    const confirmed = window.confirm(
+      `Write ${awaitingCount} awaiting-review candidate(s) as immutable migration issues? This creates a new graph_migration_runs record but does not modify the graph.`,
+    );
+    if (!confirmed) return;
+    setIsQuarantining(true);
+    setQuarantineError(null);
+    setQuarantineResult(null);
+    try {
+      setQuarantineResult(await triggerContentMappingQuarantine());
+    } catch (caught) {
+      setQuarantineError(
+        caught instanceof Error ? caught.message : String(caught),
+      );
+    } finally {
+      setIsQuarantining(false);
     }
   };
 
@@ -392,6 +427,67 @@ export function ContentMappingPreviewPanel() {
         )}
         {report && <ReportDisplay report={report} />}
       </div>
+
+      {/* Quarantine action — only shown after a preview has run */}
+      {report && awaitingCount > 0 && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-4 dark:border-amber-800/50 dark:bg-amber-950/10">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="flex items-start gap-2">
+              <Archive className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400" />
+              <div>
+                <p className="text-[13px] font-medium">Write to quarantine</p>
+                <p className="mt-1 max-w-xl text-[11px] text-black/60 dark:text-white/60">
+                  Preserve all {awaitingCount} awaiting-review candidate
+                  {awaitingCount !== 1 ? "s" : ""} as immutable migration-issue
+                  records for human review. Does not modify entity_relationships
+                  or content_entities.
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={runQuarantine}
+              disabled={isQuarantining}
+              className="retro-btn-primary flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isQuarantining ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <Archive className="size-4" />
+              )}
+              {isQuarantining ? "Writing issues…" : "Write to quarantine"}
+            </button>
+          </div>
+
+          <div className="mt-3" aria-live="polite">
+            {quarantineError && (
+              <p className="text-[12px] text-red-600 dark:text-red-300">
+                {quarantineError}
+              </p>
+            )}
+            {quarantineResult && quarantineResult.success && (
+              <div className="flex items-start gap-2 rounded-lg border border-waste-compost/30 bg-waste-compost/5 p-3 text-[12px]">
+                <CheckCircle className="mt-0.5 size-4 shrink-0 text-waste-compost" />
+                <div>
+                  <p className="font-medium">
+                    {quarantineResult.total_issues_written} issue
+                    {quarantineResult.total_issues_written !== 1
+                      ? "s"
+                      : ""}{" "}
+                    written
+                  </p>
+                  <p className="mt-0.5 text-[11px] text-black/60 dark:text-white/60">
+                    {quarantineResult.relationship_issues_written} relationship
+                    · {quarantineResult.content_mapping_issues_written} content
+                    mapping · run{" "}
+                    <code className="font-mono">{quarantineResult.run_id}</code>
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </section>
   );
 }
