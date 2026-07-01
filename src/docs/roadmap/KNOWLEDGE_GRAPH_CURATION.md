@@ -101,6 +101,40 @@ It does not enable graph-powered discovery reads; that remains a Stage 8 gate.
   and
   [Deployment Report](./guides/KNOWLEDGE_GRAPH_VIDEO_TRIAGE_REVIEW_DEPLOYMENT_2026-07-01.md).
 
+## Implementation Checkpoint — July 1, 2026
+
+- A non-mutating relationship and content-mapping preview is introduced as
+  Step 4 of the Implementation Order, initiated separately from the active
+  video-triage workstream.
+- The preview reads `material_links`, `materials.linked_material_ids`,
+  `articles.legacy_material_kv_id`, and `guides.material_id` to identify
+  candidate graph relationships and content mappings from existing authoritative
+  data.
+- No entity_relationships, content_entities, or other graph records are created.
+  Counts are verified before and after each preview call; a mismatch would be a
+  contract violation.
+- Conservative semantics only: `related_to` for material→material pairs,
+  `discusses` for content→material pairs. Stronger semantics require human
+  review and are not suggested by the preview.
+- Unresolvable candidates (missing material record, missing canonical entity
+  binding) are returned with `resolution: "awaiting_review"` and a
+  human-readable note. They are never silently dropped or labeled as "no
+  relationship exists."
+- Candidates where an equivalent graph record already exists are returned with
+  `resolution: "already_mapped"` so reviewers can identify redundant work.
+- A `sample_limit` parameter caps the candidate sample (1–200, default 50) to
+  keep response sizes practical; the `summary` block covers the full scanned
+  population.
+- Ten automated Stage 7 acceptance tests cover non-mutation, determinism,
+  conservative semantics, quarantine framing, resolution fixtures, sample
+  limits, and summary consistency.
+- The new admin-only route `GET /graph/content-mappings/preview` is defined in
+  `src/supabase/functions/server/content-mapping-preview.ts` and
+  registered in `index.tsx`. The frontend utility is
+  `src/utils/contentMappingPreview.ts`.
+- Draft apply, graph reads, and relationship/mapping write operations remain
+  disabled. This preview does not initiate or schedule any apply step.
+
 ## Entry State
 
 - 228 canonical entities and 228 bindings reconcile in production.
@@ -121,9 +155,11 @@ It does not enable graph-powered discovery reads; that remains a Stage 8 gate.
    backend is deployed for reviewed decision capture.
 3. Create accepted videos as drafts through a transactional video, entity, and
    canonical-binding workflow. Add reviewed material mappings separately.
-4. Build non-mutating relationship and content-mapping previews for
-   `material_links`, `materials.linked_material_ids`, article material links,
-   and guide material links.
+4. **[Active — non-video workstream]** Build non-mutating relationship and
+   content-mapping previews for `material_links`,
+   `materials.linked_material_ids`, article material links, and guide material
+   links. Preview endpoint and ten acceptance tests are implemented; reviewed
+   apply and admin UI remain planned.
 5. Preserve ambiguous records as immutable migration issues; prefer
    `related_to` and `discusses` over stronger inferred semantics.
 6. Add reviewed relationship, tag, entity, and video curation APIs and admin

@@ -33,6 +33,7 @@ import {
   prepareVideoTriageWorksheet,
   VideoTriageStagingError,
 } from "./video-triage-staging.ts";
+import { buildContentMappingPreview } from "./content-mapping-preview.ts";
 
 // Evidence routes are implemented inline here because the previous split module
 // depended on app-only utilities that are not accessible in Edge Functions.
@@ -415,9 +416,7 @@ function getPublicContactEmail(): string {
 }
 
 function getAdminNotificationEmails(): string[] {
-  return (
-    Deno.env.get("ADMIN_NOTIFICATION_EMAILS") || getPublicContactEmail()
-  )
+  return (Deno.env.get("ADMIN_NOTIFICATION_EMAILS") || getPublicContactEmail())
     .split(",")
     .map((email) => email.trim())
     .filter(Boolean);
@@ -714,7 +713,10 @@ async function verifyAuth(c: any, next: any) {
     const publicAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
     if (token === publicAnonKey) {
       log.log("verifyAuth: Public anonymous key is not user authentication");
-      return c.json({ error: "Unauthorized - user authentication required" }, 401);
+      return c.json(
+        { error: "Unauthorized - user authentication required" },
+        401,
+      );
     }
   }
 
@@ -3610,7 +3612,9 @@ app.get(
         Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       );
 
-      const { data, error } = await supabase.storage.from(ASSET_BUCKET_NAME).list();
+      const { data, error } = await supabase.storage
+        .from(ASSET_BUCKET_NAME)
+        .list();
 
       if (error) {
         log.error("Error listing assets:", error);
@@ -3644,19 +3648,23 @@ app.get(
         storagePath: `material-doodles/${file.name}`,
       }));
 
-      const assets = [...rootAssets, ...doodleAssets].map(({ file, storagePath }) => {
-        const {
-          data: { publicUrl },
-        } = supabase.storage.from(ASSET_BUCKET_NAME).getPublicUrl(storagePath);
+      const assets = [...rootAssets, ...doodleAssets].map(
+        ({ file, storagePath }) => {
+          const {
+            data: { publicUrl },
+          } = supabase.storage
+            .from(ASSET_BUCKET_NAME)
+            .getPublicUrl(storagePath);
 
-        return {
-          name: storagePath,
-          publicUrl,
-          size: file.metadata?.size,
-          createdAt: file.created_at,
-          updatedAt: file.updated_at,
-        };
-      });
+          return {
+            name: storagePath,
+            publicUrl,
+            size: file.metadata?.size,
+            createdAt: file.created_at,
+            updatedAt: file.updated_at,
+          };
+        },
+      );
 
       return c.json({ assets });
     } catch (error) {
@@ -15395,7 +15403,10 @@ app.get(
       .limit(20);
     if (error) {
       log.error("Video triage batch listing failed:", error);
-      return c.json({ success: false, error: "Triage batches could not be loaded." }, 500);
+      return c.json(
+        { success: false, error: "Triage batches could not be loaded." },
+        500,
+      );
     }
     return c.json({ success: true, batches: data ?? [] });
   },
@@ -15416,7 +15427,11 @@ app.get(
       );
     }
     const batchId = c.req.param("batchId");
-    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(batchId)) {
+    if (
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+        batchId,
+      )
+    ) {
       return c.json({ success: false, error: "Invalid triage batch ID." }, 400);
     }
     const requestedOffset = Number.parseInt(c.req.query("offset") ?? "0", 10);
@@ -15432,7 +15447,10 @@ app.get(
       reviewStatus &&
       !["unreviewed", "reviewed", "blocked"].includes(reviewStatus)
     ) {
-      return c.json({ success: false, error: "Invalid review-status filter." }, 400);
+      return c.json(
+        { success: false, error: "Invalid review-status filter." },
+        400,
+      );
     }
 
     let query = _roleClient()
@@ -15448,7 +15466,10 @@ app.get(
     const { data, count, error } = await query;
     if (error) {
       log.error("Video triage item listing failed:", error);
-      return c.json({ success: false, error: "Triage candidates could not be loaded." }, 500);
+      return c.json(
+        { success: false, error: "Triage candidates could not be loaded." },
+        500,
+      );
     }
     return c.json({
       success: true,
@@ -15475,7 +15496,11 @@ app.patch(
       );
     }
     const itemId = c.req.param("itemId");
-    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(itemId)) {
+    if (
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+        itemId,
+      )
+    ) {
       return c.json({ success: false, error: "Invalid triage item ID." }, 400);
     }
     try {
@@ -15487,10 +15512,16 @@ app.patch(
           disposition,
         )
       ) {
-        return c.json({ success: false, error: "Invalid triage disposition." }, 400);
+        return c.json(
+          { success: false, error: "Invalid triage disposition." },
+          400,
+        );
       }
       const stringArray = (value: unknown, label: string): string[] => {
-        if (!Array.isArray(value) || value.some((item) => typeof item !== "string")) {
+        if (
+          !Array.isArray(value) ||
+          value.some((item) => typeof item !== "string")
+        ) {
           throw new VideoTriageStagingError(
             `${label} must be a string array.`,
             "invalid_triage_review",
@@ -15517,10 +15548,20 @@ app.patch(
           (target) => !["article", "blog_post", "guide"].includes(target),
         )
       ) {
-        return c.json({ success: false, error: "Invalid editorial target." }, 400);
+        return c.json(
+          { success: false, error: "Invalid editorial target." },
+          400,
+        );
       }
-      if (body.review_notes !== null && body.review_notes !== undefined && typeof body.review_notes !== "string") {
-        return c.json({ success: false, error: "Review notes must be text." }, 400);
+      if (
+        body.review_notes !== null &&
+        body.review_notes !== undefined &&
+        typeof body.review_notes !== "string"
+      ) {
+        return c.json(
+          { success: false, error: "Review notes must be text." },
+          400,
+        );
       }
 
       const { data, error } = await _roleClient().rpc(
@@ -15545,7 +15586,42 @@ app.patch(
         );
       }
       log.error("Video triage review failed:", error);
-      return c.json({ success: false, error: "Triage review could not be saved." }, 500);
+      return c.json(
+        { success: false, error: "Triage review could not be saved." },
+        500,
+      );
+    }
+  },
+);
+
+// ==================== GRAPH CONTENT-MAPPING PREVIEW ====================
+
+// Non-mutating relationship and content-mapping preview. Identifies candidate
+// relationships from material_links and linked_material_ids, and candidate
+// content mappings from articles and guides, without writing any graph records.
+// Ambiguous records are flagged as awaiting_review. Only conservative semantics
+// (related_to, discusses) are suggested. Stronger semantics require review.
+app.get(
+  "/make-server-17cae920/graph/content-mappings/preview",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const rawLimit = c.req.query("sample_limit");
+      const sampleLimit = rawLimit ? Number(rawLimit) : undefined;
+      const report = await buildContentMappingPreview(_roleClient(), {
+        sampleLimit: Number.isFinite(sampleLimit) ? sampleLimit : undefined,
+      });
+      return c.json(report);
+    } catch (error) {
+      log.error("Content-mapping preview failed:", error);
+      return c.json(
+        {
+          success: false,
+          error: "Content-mapping preview could not be generated.",
+        },
+        500,
+      );
     }
   },
 );
@@ -15597,8 +15673,7 @@ app.get(
   async (c) => {
     return c.json({
       migration_version: ENTITY_BACKFILL_VERSION,
-      apply_enabled:
-        Deno.env.get("GRAPH_MIGRATION_APPLY_ENABLED") === "true",
+      apply_enabled: Deno.env.get("GRAPH_MIGRATION_APPLY_ENABLED") === "true",
       apply_confirmation: ENTITY_BACKFILL_APPLY_CONFIRMATION,
       phases: ENTITY_BACKFILL_PHASES,
       graph_reads_enabled: false,
@@ -15957,9 +16032,10 @@ async function fetchAllPostgresRows(
       throw fetchError;
     }
 
-    const page = JSON.parse(
-      JSON.stringify(data ?? []),
-    ) as Record<string, unknown>[];
+    const page = JSON.parse(JSON.stringify(data ?? [])) as Record<
+      string,
+      unknown
+    >[];
     rows.push(...page);
     if (page.length < BACKUP_PAGE_SIZE) break;
     offset += BACKUP_PAGE_SIZE;
@@ -16050,9 +16126,10 @@ async function fetchAllAuthUsers(
       throw new Error(`Failed to fetch auth user metadata: ${error.message}`);
     }
 
-    const batch = JSON.parse(
-      JSON.stringify(data?.users ?? []),
-    ) as Record<string, unknown>[];
+    const batch = JSON.parse(JSON.stringify(data?.users ?? [])) as Record<
+      string,
+      unknown
+    >[];
     users.push(...batch);
     if (batch.length < BACKUP_PAGE_SIZE) break;
     page++;
@@ -16099,9 +16176,7 @@ function serializeSectionMap(
   sections: Record<string, readonly unknown[]>,
 ): string {
   return `{${Object.entries(sections)
-    .map(
-      ([name, rows]) => `${JSON.stringify(name)}:${JSON.stringify(rows)}`,
-    )
+    .map(([name, rows]) => `${JSON.stringify(name)}:${JSON.stringify(rows)}`)
     .join(",")}}`;
 }
 
@@ -16128,7 +16203,10 @@ app.post(
       const takedownRequests = kvValuesForPrefix(allKvEntries, "takedown:");
       const recomputeJobs = kvValuesForPrefix(allKvEntries, "recompute-job:");
       const submissions = kvValuesForPrefix(allKvEntries, "submission:");
-      const roleRows = await fetchAllPostgresRows(backupClient, "user_profiles");
+      const roleRows = await fetchAllPostgresRows(
+        backupClient,
+        "user_profiles",
+      );
       const userRoles = roleRows.map((r: any) => ({
         key: `user_role:${r.id}`,
         value: r.role,
@@ -16485,10 +16563,7 @@ app.post(
         const isFullSiteBackup =
           backup.metadata?.format === "wastedb-full-site";
         const supportedSchemaVersions = new Set(["3.0", "4.0", "4.1"]);
-        if (
-          isFullSiteBackup &&
-          !supportedSchemaVersions.has(schemaVersion)
-        ) {
+        if (isFullSiteBackup && !supportedSchemaVersions.has(schemaVersion)) {
           issues.push(
             `Unsupported full-site backup schema version '${schemaVersion ?? "missing"}'`,
           );
@@ -16506,7 +16581,9 @@ app.post(
             !backup.metadata?.export_started_at ||
             !backup.metadata?.export_completed_at
           ) {
-            issues.push("Full backup export start/completion timestamps are missing");
+            issues.push(
+              "Full backup export start/completion timestamps are missing",
+            );
           }
           if (backup.manifest?.consistency?.writes_must_be_paused !== true) {
             issues.push("Full backup consistency contract is missing");
@@ -16544,8 +16621,7 @@ app.post(
               );
             }
 
-            const expectedChecksum =
-              checksums[manifestName] ?? checksums[name];
+            const expectedChecksum = checksums[manifestName] ?? checksums[name];
             if (expectedChecksum) {
               const actualChecksum = await checksumJson(records);
               if (actualChecksum !== expectedChecksum) {
@@ -16569,12 +16645,16 @@ app.post(
             requiresCompleteManifest &&
             !backup.manifest?.postgres_tables?.includes(table)
           ) {
-            issues.push(`Required Postgres table '${table}' is not in manifest`);
+            issues.push(
+              `Required Postgres table '${table}' is not in manifest`,
+            );
           }
         }
         for (const section of FULL_BACKUP_KV_SECTIONS) {
           if (!Array.isArray(backup.kv_data[section])) {
-            issues.push(`Required compatibility KV section '${section}' is missing`);
+            issues.push(
+              `Required compatibility KV section '${section}' is missing`,
+            );
           }
           if (
             requiresCompleteManifest &&
@@ -16715,7 +16795,7 @@ app.post(
                 ? "Restore domain tables first, then graph tables and private video-curation records; reconcile every layer before resuming curation."
                 : schemaVersion === "4.0"
                   ? "Restore domain tables first, then graph tables, and reconcile both layers."
-                : "Restore domain tables, then rerun the idempotent graph backfill if graph support is required.",
+                  : "Restore domain tables, then rerun the idempotent graph backfill if graph support is required.",
           },
         });
       }
