@@ -6,3 +6,4 @@ package-lock.json
 private.txt
 .vscode
 supabase/.temp/*
+supabase/.temp/cli-latest
