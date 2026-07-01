@@ -81,6 +81,8 @@ export interface ContentMappingPreviewReport {
   relationship_candidates: RelationshipCandidate[];
   content_mapping_candidates: ContentMappingCandidate[];
   sample_limit: number;
+  /** SHA-256 over sorted resolved entity-ID pairs. Pass to the apply route as expected_analysis_checksum. */
+  analysis_checksum: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -176,6 +178,28 @@ function summarize(
     already_mapped: candidates.filter((c) => c.resolution === "already_mapped")
       .length,
   };
+}
+
+function canonicalJson(value: unknown): string {
+  if (Array.isArray(value)) {
+    return `[${value.map(canonicalJson).join(",")}]`;
+  }
+  if (value && typeof value === "object") {
+    const rec = value as Record<string, unknown>;
+    return `{${Object.keys(rec)
+      .sort()
+      .map((k) => `${JSON.stringify(k)}:${canonicalJson(rec[k])}`)
+      .join(",")}}`;
+  }
+  return JSON.stringify(value) ?? "null";
+}
+
+async function checksumJson(value: unknown): Promise<string> {
+  const bytes = new TextEncoder().encode(canonicalJson(value));
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return Array.from(new Uint8Array(digest))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }
 
 // ---------------------------------------------------------------------------
@@ -317,6 +341,24 @@ export interface ContentMappingQuarantineReport {
   total_issues_written: number;
 }
 
+export const CONTENT_MAPPING_APPLY_VERSION =
+  "stage-7-content-mapping-apply-v1";
+
+export const CONTENT_MAPPING_APPLY_CONFIRMATION =
+  "apply content-mapping relationships";
+
+export interface ContentMappingApplyReport {
+  contract_version: string;
+  run_id: string;
+  generated_at: string;
+  analysis_checksum: string;
+  relationships_inserted: number;
+  relationships_skipped: number;
+  content_mappings_inserted: number;
+  content_mappings_skipped: number;
+  outbox_events_written: number;
+}
+
 // ---------------------------------------------------------------------------
 // Internal full analysis — shared by preview and quarantine
 // ---------------------------------------------------------------------------
@@ -328,6 +370,8 @@ interface ContentMappingAnalysis {
   ceBefore: number;
   relAfter: number;
   ceAfter: number;
+  /** SHA-256 over the sorted resolved entity-ID pairs — used by the apply path to verify the data hasn't changed. */
+  analysisChecksum: string;
 }
 
 async function analyzeContentMapping(
@@ -663,7 +707,30 @@ async function analyzeContentMapping(
     countRows(client, "content_entities"),
   ]);
 
-  return { relCandidates, ceMappings, relBefore, ceBefore, relAfter, ceAfter };
+  // Compute a deterministic checksum over the resolved pairs so the apply
+  // path can verify the data hasn't drifted since the preview was taken.
+  const resolvedRelPairs = relCandidates
+    .filter((c) => c.resolution === "resolved")
+    .map((c) => `${c.source.entity_id}:${c.target.entity_id}`)
+    .sort();
+  const resolvedCePairs = ceMappings
+    .filter((c) => c.resolution === "resolved")
+    .map((c) => `${c.content.entity_id}:${c.subject.entity_id}`)
+    .sort();
+  const analysisChecksum = await checksumJson({
+    resolved_rel_pairs: resolvedRelPairs,
+    resolved_ce_pairs: resolvedCePairs,
+  });
+
+  return {
+    relCandidates,
+    ceMappings,
+    relBefore,
+    ceBefore,
+    relAfter,
+    ceAfter,
+    analysisChecksum,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -696,6 +763,7 @@ export async function buildContentMappingPreview(
     relationship_candidates: analysis.relCandidates.slice(0, sampleLimit),
     content_mapping_candidates: analysis.ceMappings.slice(0, sampleLimit),
     sample_limit: sampleLimit,
+    analysis_checksum: analysis.analysisChecksum,
   };
 }
 
@@ -820,5 +888,210 @@ export async function buildContentMappingQuarantine(
     relationship_issues_written: relIssueRows.length,
     content_mapping_issues_written: ceIssueRows.length,
     total_issues_written: allRows.length,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Apply writer — creates entity_relationships and content_entities for all
+// resolved candidates (status: pending_review). Writes graph_sync_outbox
+// events for downstream consumers. Idempotent: UNIQUE constraints on both
+// tables and on outbox event_keys make re-runs safe.
+// ---------------------------------------------------------------------------
+
+const APPLY_BATCH_SIZE = 200;
+
+export async function buildContentMappingApply(
+  client: any,
+  options: {
+    startedBy: string;
+    expectedAnalysisChecksum: string;
+  },
+): Promise<ContentMappingApplyReport> {
+  const generatedAt = new Date().toISOString();
+  const analysis = await analyzeContentMapping(client);
+
+  if (analysis.analysisChecksum !== options.expectedAnalysisChecksum) {
+    throw new Error(
+      `Analysis checksum mismatch: expected ${
+        options.expectedAnalysisChecksum
+      }, got ${analysis.analysisChecksum}. Re-run the preview and use the current analysis_checksum.`,
+    );
+  }
+
+  const resolvedRel = analysis.relCandidates.filter(
+    (c) =>
+      c.resolution === "resolved" &&
+      c.source.entity_id &&
+      c.target.entity_id,
+  );
+  const resolvedCe = analysis.ceMappings.filter(
+    (c) =>
+      c.resolution === "resolved" &&
+      c.content.entity_id &&
+      c.subject.entity_id,
+  );
+
+  // Create the migration run record
+  const { data: runData, error: runError } = await client
+    .from("graph_migration_runs")
+    .insert({
+      migration_version: CONTENT_MAPPING_APPLY_VERSION,
+      mode: "apply",
+      status: "running",
+      started_by: options.startedBy,
+      started_at: generatedAt,
+    })
+    .select("id")
+    .single();
+  if (runError) {
+    throw new Error(`Failed to create apply run: ${runError.message}`);
+  }
+  const runId = runData.id as string;
+
+  const markFailed = async (message: string) => {
+    await client
+      .from("graph_migration_runs")
+      .update({
+        status: "failed",
+        error_message: message,
+        completed_at: new Date().toISOString(),
+      })
+      .eq("id", runId);
+  };
+
+  // ── Relationships ──────────────────────────────────────────────────────────
+  const relRows = resolvedRel.map((c) => ({
+    source_entity_id: c.source.entity_id!,
+    target_entity_id: c.target.entity_id!,
+    relationship_type: "related_to",
+    status: "pending_review",
+    created_by: options.startedBy,
+  }));
+
+  let relInserted = 0;
+  let relSkipped = 0;
+  for (let i = 0; i < relRows.length; i += APPLY_BATCH_SIZE) {
+    const batch = relRows.slice(i, i + APPLY_BATCH_SIZE);
+    const { data, error } = await client
+      .from("entity_relationships")
+      .upsert(batch, {
+        onConflict: "source_entity_id,target_entity_id,relationship_type",
+        ignoreDuplicates: true,
+      })
+      .select("id");
+    if (error) {
+      await markFailed(error.message);
+      throw new Error(
+        `Failed to insert entity_relationships: ${error.message}`,
+      );
+    }
+    const inserted = (data ?? []).length;
+    relInserted += inserted;
+    relSkipped += batch.length - inserted;
+  }
+
+  // ── Content mappings ───────────────────────────────────────────────────────
+  const ceRows = resolvedCe.map((c) => ({
+    content_entity_id: c.content.entity_id!,
+    subject_entity_id: c.subject.entity_id!,
+    role: "discusses",
+    status: "pending_review",
+    created_by: options.startedBy,
+  }));
+
+  let ceInserted = 0;
+  let ceSkipped = 0;
+  for (let i = 0; i < ceRows.length; i += APPLY_BATCH_SIZE) {
+    const batch = ceRows.slice(i, i + APPLY_BATCH_SIZE);
+    const { data, error } = await client
+      .from("content_entities")
+      .upsert(batch, {
+        onConflict: "content_entity_id,subject_entity_id,role",
+        ignoreDuplicates: true,
+      })
+      .select("id");
+    if (error) {
+      await markFailed(error.message);
+      throw new Error(`Failed to insert content_entities: ${error.message}`);
+    }
+    const inserted = (data ?? []).length;
+    ceInserted += inserted;
+    ceSkipped += batch.length - inserted;
+  }
+
+  // ── Outbox events ─────────────────────────────────────────────────────────
+  const outboxRows = [
+    ...resolvedRel.map((c) => ({
+      event_key: `entity_relationships:insert:${c.source.entity_id}:${c.target.entity_id}:related_to`,
+      source_table: "entity_relationships",
+      source_identifier: `${c.source.entity_id}:${c.target.entity_id}`,
+      operation: "insert" as const,
+      payload: {
+        source_entity_id: c.source.entity_id,
+        target_entity_id: c.target.entity_id,
+        relationship_type: "related_to",
+        status: "pending_review",
+        provenance: c.provenance,
+      },
+    })),
+    ...resolvedCe.map((c) => ({
+      event_key: `content_entities:insert:${c.content.entity_id}:${c.subject.entity_id}:discusses`,
+      source_table: "content_entities",
+      source_identifier: `${c.content.entity_id}:${c.subject.entity_id}`,
+      operation: "insert" as const,
+      payload: {
+        content_entity_id: c.content.entity_id,
+        subject_entity_id: c.subject.entity_id,
+        role: "discusses",
+        status: "pending_review",
+        provenance: c.provenance,
+      },
+    })),
+  ];
+
+  let outboxWritten = 0;
+  for (let i = 0; i < outboxRows.length; i += APPLY_BATCH_SIZE) {
+    const { error } = await client
+      .from("graph_sync_outbox")
+      .upsert(outboxRows.slice(i, i + APPLY_BATCH_SIZE), {
+        onConflict: "event_key",
+        ignoreDuplicates: true,
+      });
+    if (error) {
+      // Outbox failure doesn't roll back the graph writes; log and continue.
+      // The apply run will still complete but note the partial outbox.
+      console.warn(`graph_sync_outbox write failed: ${error.message}`);
+    } else {
+      outboxWritten += outboxRows.slice(i, i + APPLY_BATCH_SIZE).length;
+    }
+  }
+
+  // Finalize run as completed
+  await client
+    .from("graph_migration_runs")
+    .update({
+      status: "completed",
+      completed_at: new Date().toISOString(),
+      report: {
+        analysis_checksum: analysis.analysisChecksum,
+        relationships_inserted: relInserted,
+        relationships_skipped: relSkipped,
+        content_mappings_inserted: ceInserted,
+        content_mappings_skipped: ceSkipped,
+        outbox_events_written: outboxWritten,
+      },
+    })
+    .eq("id", runId);
+
+  return {
+    contract_version: CONTENT_MAPPING_APPLY_VERSION,
+    run_id: runId,
+    generated_at: generatedAt,
+    analysis_checksum: analysis.analysisChecksum,
+    relationships_inserted: relInserted,
+    relationships_skipped: relSkipped,
+    content_mappings_inserted: ceInserted,
+    content_mappings_skipped: ceSkipped,
+    outbox_events_written: outboxWritten,
   };
 }

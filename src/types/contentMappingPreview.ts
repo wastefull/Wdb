@@ -66,6 +66,8 @@ export interface ContentMappingPreviewReport {
   relationship_candidates: RelationshipCandidate[];
   content_mapping_candidates: ContentMappingCandidate[];
   sample_limit: number;
+  /** SHA-256 over sorted resolved entity-ID pairs. Pass to apply as expected_analysis_checksum. */
+  analysis_checksum: string;
 }
 
 export const CONTENT_MAPPING_QUARANTINE_VERSION =
@@ -78,4 +80,25 @@ export interface ContentMappingQuarantineReport {
   relationship_issues_written: number;
   content_mapping_issues_written: number;
   total_issues_written: number;
+}
+
+export const CONTENT_MAPPING_APPLY_VERSION =
+  "stage-7-content-mapping-apply-v1";
+
+export interface ContentMappingApplyReport {
+  contract_version: string;
+  run_id: string;
+  generated_at: string;
+  analysis_checksum: string;
+  relationships_inserted: number;
+  relationships_skipped: number;
+  content_mappings_inserted: number;
+  content_mappings_skipped: number;
+  outbox_events_written: number;
+}
+
+export interface ContentMappingCapabilities {
+  apply_enabled: boolean;
+  apply_version: string;
+  apply_confirmation: string;
 }

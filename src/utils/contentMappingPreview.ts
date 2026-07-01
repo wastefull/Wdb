@@ -5,12 +5,16 @@
 import type {
   ContentMappingPreviewReport,
   ContentMappingQuarantineReport,
+  ContentMappingApplyReport,
+  ContentMappingCapabilities,
 } from "../types/contentMappingPreview";
 import { apiCall } from "./api";
 
 export type {
   ContentMappingPreviewReport,
   ContentMappingQuarantineReport,
+  ContentMappingApplyReport,
+  ContentMappingCapabilities,
 } from "../types/contentMappingPreview";
 
 /**
@@ -56,4 +60,31 @@ export async function triggerContentMappingQuarantine(): Promise<
     method: "POST",
     body: JSON.stringify({ confirmation: "quarantine content-mapping issues" }),
   }) as Promise<ContentMappingQuarantineReport & { success: boolean }>;
+}
+
+/** Fetch whether the content-mapping apply gate is enabled. */
+export async function fetchContentMappingCapabilities(): Promise<ContentMappingCapabilities> {
+  return apiCall("/graph/content-mappings/capabilities", {
+    method: "GET",
+  }) as Promise<ContentMappingCapabilities>;
+}
+
+/**
+ * Apply all resolved content-mapping candidates by creating entity_relationships
+ * and content_entities records (status: pending_review) and writing outbox events.
+ *
+ * Requires:
+ * - CONTENT_MAPPING_APPLY_ENABLED=true on the server
+ * - The `analysis_checksum` from the most recent preview report
+ */
+export async function triggerContentMappingApply(
+  analysisChecksum: string,
+): Promise<ContentMappingApplyReport & { success: boolean }> {
+  return apiCall("/graph/content-mappings/apply", {
+    method: "POST",
+    body: JSON.stringify({
+      confirmation: "apply content-mapping relationships",
+      expected_analysis_checksum: analysisChecksum,
+    }),
+  }) as Promise<ContentMappingApplyReport & { success: boolean }>;
 }

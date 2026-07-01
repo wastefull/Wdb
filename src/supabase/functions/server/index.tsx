@@ -33,7 +33,13 @@ import {
   prepareVideoTriageWorksheet,
   VideoTriageStagingError,
 } from "./video-triage-staging.ts";
-import { buildContentMappingPreview } from "./content-mapping-preview.ts";
+import {
+  buildContentMappingPreview,
+  buildContentMappingQuarantine,
+  buildContentMappingApply,
+  CONTENT_MAPPING_APPLY_VERSION,
+  CONTENT_MAPPING_APPLY_CONFIRMATION,
+} from "./content-mapping-preview.ts";
 
 // Evidence routes are implemented inline here because the previous split module
 // depended on app-only utilities that are not accessible in Edge Functions.
@@ -15619,6 +15625,124 @@ app.get(
         {
           success: false,
           error: "Content-mapping preview could not be generated.",
+        },
+        500,
+      );
+    }
+  },
+);
+
+// Writes all awaiting_review content-mapping candidates as immutable
+// graph_migration_issues records for human review. Creates one
+// graph_migration_runs row per invocation; old runs remain as audit history.
+// Does NOT write entity_relationships or content_entities.
+const CONTENT_MAPPING_QUARANTINE_CONFIRMATION =
+  "quarantine content-mapping issues";
+
+app.post(
+  "/make-server-17cae920/graph/content-mappings/quarantine",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const body = await c.req.json().catch(() => ({}));
+      if (body?.confirmation !== CONTENT_MAPPING_QUARANTINE_CONFIRMATION) {
+        return c.json(
+          {
+            success: false,
+            error: `Body must include confirmation: \"${CONTENT_MAPPING_QUARANTINE_CONFIRMATION}\"`,
+          },
+          400,
+        );
+      }
+      const report = await buildContentMappingQuarantine(_roleClient(), {
+        startedBy: c.get("userId"),
+      });
+      return c.json({ success: true, ...report });
+    } catch (error) {
+      log.error("Content-mapping quarantine failed:", error);
+      return c.json(
+        {
+          success: false,
+          error: "Content-mapping quarantine failed.",
+          details: String(error),
+        },
+        500,
+      );
+    }
+  },
+);
+
+// Reports whether the content-mapping apply gate is open.
+app.get(
+  "/make-server-17cae920/graph/content-mappings/capabilities",
+  verifyAuth,
+  verifyAdmin,
+  (c) => {
+    return c.json({
+      apply_enabled:
+        Deno.env.get("CONTENT_MAPPING_APPLY_ENABLED") === "true",
+      apply_version: CONTENT_MAPPING_APPLY_VERSION,
+      apply_confirmation: CONTENT_MAPPING_APPLY_CONFIRMATION,
+    });
+  },
+);
+
+// Creates entity_relationships and content_entities for all resolved
+// candidates (status: pending_review) and writes graph_sync_outbox events.
+// Idempotent via UNIQUE constraints. Gated by CONTENT_MAPPING_APPLY_ENABLED.
+app.post(
+  "/make-server-17cae920/graph/content-mappings/apply",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    if (Deno.env.get("CONTENT_MAPPING_APPLY_ENABLED") !== "true") {
+      return c.json(
+        {
+          success: false,
+          error:
+            "Content-mapping apply is disabled. Set CONTENT_MAPPING_APPLY_ENABLED=true only during an approved apply window.",
+        },
+        503,
+      );
+    }
+    try {
+      const body = await c.req.json().catch(() => ({}));
+      if (body?.confirmation !== CONTENT_MAPPING_APPLY_CONFIRMATION) {
+        return c.json(
+          {
+            success: false,
+            error: `Body must include confirmation: "${CONTENT_MAPPING_APPLY_CONFIRMATION}"`,
+          },
+          400,
+        );
+      }
+      const expectedChecksum =
+        typeof body?.expected_analysis_checksum === "string"
+          ? body.expected_analysis_checksum.trim().toLowerCase()
+          : "";
+      if (!/^[a-f0-9]{64}$/.test(expectedChecksum)) {
+        return c.json(
+          {
+            success: false,
+            error:
+              "A reviewed analysis SHA-256 checksum (expected_analysis_checksum) is required.",
+          },
+          400,
+        );
+      }
+      const report = await buildContentMappingApply(_roleClient(), {
+        startedBy: c.get("userId"),
+        expectedAnalysisChecksum: expectedChecksum,
+      });
+      return c.json({ success: true, ...report });
+    } catch (error) {
+      log.error("Content-mapping apply failed:", error);
+      return c.json(
+        {
+          success: false,
+          error: "Content-mapping apply failed.",
+          details: String(error),
         },
         500,
       );

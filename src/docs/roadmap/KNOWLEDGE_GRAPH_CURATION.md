@@ -161,8 +161,11 @@ It does not enable graph-powered discovery reads; that remains a Stage 8 gate.
    links. Preview endpoint, ten acceptance tests, and admin UI panel
    (`ContentMappingPreviewPanel` in One-Time Actions) are implemented; reviewed
    apply remains planned.
-5. Preserve ambiguous records as immutable migration issues; prefer
-   `related_to` and `discusses` over stronger inferred semantics.
+5. **[Done]** Preserve ambiguous records as immutable migration issues.
+   `buildContentMappingQuarantine` writes all `awaiting_review` candidates
+   to `graph_migration_issues` via a new `graph_migration_runs` entry.
+   Admin panel offers a confirmed quarantine action after a preview run.
+   Route: `POST /graph/content-mappings/quarantine`.
 6. Add reviewed relationship, tag, entity, and video curation APIs and admin
    interfaces.
 7. Add scoped Key Insight review fields and supporting-evidence linkage.

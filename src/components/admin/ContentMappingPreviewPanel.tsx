@@ -1,18 +1,23 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Archive,
   CheckCircle,
   GitMerge,
   Loader2,
   RefreshCw,
+  Zap,
   XCircle,
 } from "lucide-react";
 import {
   fetchContentMappingPreview,
+  fetchContentMappingCapabilities,
   triggerContentMappingQuarantine,
+  triggerContentMappingApply,
 } from "../../utils/contentMappingPreview";
 import type {
+  ContentMappingApplyReport,
   ContentMappingCandidate,
+  ContentMappingCapabilities,
   ContentMappingPreviewReport,
   ContentMappingQuarantineReport,
   PreviewResolution,
@@ -315,6 +320,28 @@ export function ContentMappingPreviewPanel() {
   const [quarantineError, setQuarantineError] = useState<string | null>(null);
   const [isQuarantining, setIsQuarantining] = useState(false);
 
+  const [capabilities, setCapabilities] =
+    useState<ContentMappingCapabilities | null>(null);
+  const [applyResult, setApplyResult] = useState<
+    (ContentMappingApplyReport & { success: boolean }) | null
+  >(null);
+  const [applyError, setApplyError] = useState<string | null>(null);
+  const [isApplying, setIsApplying] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    fetchContentMappingCapabilities()
+      .then((caps) => {
+        if (active) setCapabilities(caps);
+      })
+      .catch(() => {
+        if (active) setCapabilities(null);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const runPreview = async () => {
     setIsLoading(true);
     setError(null);
@@ -349,6 +376,30 @@ export function ContentMappingPreviewPanel() {
       );
     } finally {
       setIsQuarantining(false);
+    }
+  };
+
+  const resolvedCount =
+    (report?.summary.relationship_candidates.resolved ?? 0) +
+    (report?.summary.content_mapping_candidates.resolved ?? 0);
+
+  const runApply = async () => {
+    if (!report?.analysis_checksum || resolvedCount === 0) return;
+    const confirmed = window.confirm(
+      `Create ${resolvedCount} pending-review graph record(s)? Records start as pending_review and require separate activation. This action cannot be undone without a manual delete.`,
+    );
+    if (!confirmed) return;
+    setIsApplying(true);
+    setApplyError(null);
+    setApplyResult(null);
+    try {
+      setApplyResult(
+        await triggerContentMappingApply(report.analysis_checksum),
+      );
+    } catch (caught) {
+      setApplyError(caught instanceof Error ? caught.message : String(caught));
+    } finally {
+      setIsApplying(false);
     }
   };
 
@@ -481,6 +532,69 @@ export function ContentMappingPreviewPanel() {
                     · {quarantineResult.content_mapping_issues_written} content
                     mapping · run{" "}
                     <code className="font-mono">{quarantineResult.run_id}</code>
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Apply action — shown after preview when resolved > 0 */}
+      {report && resolvedCount > 0 && (
+        <div className="rounded-lg border border-waste-science/30 bg-waste-science/5 p-4">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="flex items-start gap-2">
+              <Zap className="mt-0.5 size-4 shrink-0 text-waste-science" />
+              <div>
+                <p className="text-[13px] font-medium">Apply to graph</p>
+                <p className="mt-1 max-w-xl text-[11px] text-black/60 dark:text-white/60">
+                  Create {resolvedCount} pending-review graph record
+                  {resolvedCount !== 1 ? "s" : ""} (entity_relationships +
+                  content_entities). Records remain pending_review until
+                  separately activated. Idempotent — re-runs skip existing
+                  records.
+                  {!capabilities?.apply_enabled && (
+                    <span className="ml-1 font-medium text-amber-600 dark:text-amber-400">
+                      Gate currently disabled (CONTENT_MAPPING_APPLY_ENABLED).
+                    </span>
+                  )}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={runApply}
+              disabled={isApplying || !capabilities?.apply_enabled}
+              className="retro-btn-primary flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isApplying ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <Zap className="size-4" />
+              )}
+              {isApplying ? "Applying…" : "Apply to graph"}
+            </button>
+          </div>
+
+          <div className="mt-3" aria-live="polite">
+            {applyError && (
+              <p className="text-[12px] text-red-600 dark:text-red-300">
+                {applyError}
+              </p>
+            )}
+            {applyResult && applyResult.success && (
+              <div className="flex items-start gap-2 rounded-lg border border-waste-compost/30 bg-waste-compost/5 p-3 text-[12px]">
+                <CheckCircle className="mt-0.5 size-4 shrink-0 text-waste-compost" />
+                <div>
+                  <p className="font-medium">Graph records created</p>
+                  <p className="mt-0.5 text-[11px] text-black/60 dark:text-white/60">
+                    {applyResult.relationships_inserted} rel inserted ·{" "}
+                    {applyResult.relationships_skipped} skipped ·{" "}
+                    {applyResult.content_mappings_inserted} CE inserted ·{" "}
+                    {applyResult.content_mappings_skipped} skipped ·{" "}
+                    {applyResult.outbox_events_written} outbox events · run{" "}
+                    <code className="font-mono">{applyResult.run_id}</code>
                   </p>
                 </div>
               </div>
