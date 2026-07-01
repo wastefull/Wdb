@@ -158,8 +158,9 @@ It does not enable graph-powered discovery reads; that remains a Stage 8 gate.
 4. **[Active — non-video workstream]** Build non-mutating relationship and
    content-mapping previews for `material_links`,
    `materials.linked_material_ids`, article material links, and guide material
-   links. Preview endpoint and ten acceptance tests are implemented; reviewed
-   apply and admin UI remain planned.
+   links. Preview endpoint, ten acceptance tests, and admin UI panel
+   (`ContentMappingPreviewPanel` in One-Time Actions) are implemented; reviewed
+   apply remains planned.
 5. Preserve ambiguous records as immutable migration issues; prefer
    `related_to` and `discusses` over stronger inferred semantics.
 6. Add reviewed relationship, tag, entity, and video curation APIs and admin

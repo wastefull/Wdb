@@ -10,6 +10,7 @@ import {
   ListVideo,
 } from "lucide-react";
 import * as api from "../../utils/api";
+import { ContentMappingPreviewPanel } from "./ContentMappingPreviewPanel";
 import { VideoPlaylistPreviewPanel } from "./VideoPlaylistPreviewPanel";
 import { VideoTriageReviewPanel } from "./VideoTriageReviewPanel";
 
@@ -348,6 +349,7 @@ export function OneTimeActionsPanel({ onBack }: OneTimeActionsPanelProps) {
       {/* Main content */}
       <main className="flex-1 p-8 overflow-y-auto">
         <div className="max-w-3xl mx-auto space-y-6">
+          <ContentMappingPreviewPanel />
           <VideoPlaylistPreviewPanel />
           <VideoTriageReviewPanel />
 

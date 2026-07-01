@@ -17,6 +17,9 @@ export { AssetUploadManager } from "./AssetUploadManager";
 // Permissions
 export { RolePermissionsView } from "./RolePermissionsView";
 
+// Graph curation
+export { ContentMappingPreviewPanel } from "./ContentMappingPreviewPanel";
+
 // Settings
 export { CategoriesView } from "./CategoriesView";
 export { CategoryColorsView } from "./CategoryColorsView";
