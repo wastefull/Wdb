@@ -357,9 +357,9 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
     summary:
       "Add governed graph content, first-class videos, editorial leads, and graph-aware contributor and admin workflows.",
     deliverables: [
-      active(
+      complete(
         "Bulk YouTube playlist intake and four-way triage",
-        "Preview and deduplicate playlist candidates, export and validate a review-safe worksheet, then stage private triage records transactionally behind a server safety gate without publishing automatically. Completing every candidate disposition remains active work.",
+        "Preview and deduplicate playlist candidates, export and validate a review-safe worksheet, and stage private triage records transactionally behind a server safety gate without publishing automatically. The initial production batch was fully reviewed and applied in a controlled window with reconciliation.",
       ),
       complete(
         "Private triage persistence and worksheet validation",
@@ -369,13 +369,13 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
         "Idempotent private worksheet staging",
         "Stage one validated worksheet and all candidate rows atomically, return the existing batch for an exact rerun, retain partial review safely, and create no videos, graph records, tags, mappings, or editorial leads.",
       ),
-      active(
+      complete(
         "Private candidate review queue",
-        "The production backend can now page through staged candidates and record explicit material-video, editorial-lead, both, or ignore decisions with notes and governed review metadata; no review action creates content. Frontend rollout and completing dispositions remain active work.",
+        "The production backend and admin UI page staged candidates and record explicit material-video, editorial-lead, both, or ignore decisions with notes and governed review metadata; no review action creates content.",
       ),
-      planned(
+      complete(
         "Transactional draft video creation",
-        "Create each accepted video, graph entity, and canonical binding atomically while preserving playlist provenance and resumable import decisions.",
+        "Create each accepted video, graph entity, and canonical binding atomically while preserving playlist provenance, idempotency, and resumable apply behavior.",
       ),
       planned(
         "Reviewed video-to-material mapping tools",
@@ -385,9 +385,9 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
         "Governed video topic classification",
         "Assign reviewed topic tags independently from material mappings, beginning with 3D printing and leaving incidental mentions untagged.",
       ),
-      planned(
+      complete(
         "Private editorial lead queue",
-        "Retain mission-aligned general videos as candidates for articles, blog posts, or guides, with triage status, notes, assignment, and conversion linkage.",
+        "Retain mission-aligned general videos as candidates for articles, blog posts, or guides, with triage status and notes captured as private editorial leads during controlled apply.",
       ),
       planned("Relationship, entity, tag, and video curation tools"),
       planned("Human review workflow for scoped Key Insights"),

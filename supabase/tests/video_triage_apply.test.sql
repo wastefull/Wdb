@@ -57,6 +57,8 @@ SELECT
   (SELECT count(*) FROM public.content_entities) AS content_mappings,
   (SELECT count(*) FROM public.tags) AS tags;
 
+GRANT SELECT ON video_triage_apply_snapshot TO service_role;
+
 INSERT INTO public.videos (
   id,
   title,
