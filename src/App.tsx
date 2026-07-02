@@ -82,6 +82,7 @@ import {
   CategoryColorsView,
   CategoriesView,
   MaintenanceModePanel,
+  ContentManagementPage,
   OneTimeActionsPanel,
 } from "./components/admin";
 
@@ -191,6 +192,7 @@ function AppContent() {
     navigateToCurationWorkbench,
     navigateToTransformTesting,
     navigateToMaintenanceMode,
+    navigateToContentManagement,
     navigateToOneTimeActions,
   } = useNavigationContext();
   const { user, userRole, isAuthenticated, signIn, signOut } = useAuthContext();
@@ -1129,6 +1131,7 @@ function AppContent() {
         onNavigateToSourceLibrary={navigateToSourceLibrary}
         onNavigateToSourceComparison={navigateToSourceComparison}
         onNavigateToEvidenceLab={navigateToEvidenceLab}
+        onNavigateToContentManagement={navigateToContentManagement}
         onNavigateToCurationWorkbench={navigateToCurationWorkbench}
         onNavigateToTransformTesting={navigateToTransformTesting}
         onNavigateToMaintenanceMode={navigateToMaintenanceMode}
@@ -1306,6 +1309,9 @@ function AppContent() {
     "assets-management": () => <AssetsManagementPage />,
     "maintenance-mode": () => (
       <MaintenanceModePanel onBack={navigateToAdminDashboard} />
+    ),
+    "content-management": () => (
+      <ContentManagementPage onBack={navigateToAdminDashboard} />
     ),
     "one-time-actions": () => (
       <OneTimeActionsPanel onBack={navigateToAdminDashboard} />

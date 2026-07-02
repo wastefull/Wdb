@@ -47,6 +47,7 @@ interface AdminDashboardProps {
   onNavigateToSourceLibrary?: () => void;
   onNavigateToSourceComparison?: () => void;
   onNavigateToEvidenceLab?: () => void;
+  onNavigateToContentManagement?: () => void;
   onNavigateToCurationWorkbench?: () => void;
   onNavigateToTransformTesting?: () => void;
   onNavigateToMaintenanceMode?: () => void;
@@ -73,6 +74,7 @@ export function AdminDashboard({
   onNavigateToSourceLibrary,
   onNavigateToSourceComparison,
   onNavigateToEvidenceLab,
+  onNavigateToContentManagement,
   onNavigateToCurationWorkbench,
   onNavigateToTransformTesting,
   onNavigateToMaintenanceMode,
@@ -581,10 +583,10 @@ export function AdminDashboard({
                 </button>
               )}
 
-              {/* Evidence Lab Card */}
-              {onNavigateToEvidenceLab && (
+              {/* Content Management Card */}
+              {onNavigateToContentManagement && (
                 <button
-                  onClick={onNavigateToEvidenceLab}
+                  onClick={onNavigateToContentManagement}
                   className="retro-card p-5 text-left hover:bg-black/5 dark:hover:bg-white/5 transition-colors group"
                 >
                   <div className="flex items-start gap-4">
@@ -593,10 +595,10 @@ export function AdminDashboard({
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-sniglet text-[14px] normal mb-1 group-hover:text-waste-recycle transition-colors">
-                        Evidence Lab
+                        Content Management
                       </h3>
                       <p className="text-[12px] text-black/60 dark:text-white/60">
-                        Extract and manage MIU evidence points
+                        Preview, triage, and map graph content
                       </p>
                     </div>
                   </div>
