@@ -128,12 +128,41 @@ It does not enable graph-powered discovery reads; that remains a Stage 8 gate.
 - Ten automated Stage 7 acceptance tests cover non-mutation, determinism,
   conservative semantics, quarantine framing, resolution fixtures, sample
   limits, and summary consistency.
+- Additional reviewed-manifest unit coverage and 21 pgTAP assertions cover
+  explicit selection, authorization, atomic rollback, audit/outbox
+  reconciliation, and exact-rerun idempotency.
 - The new admin-only route `GET /graph/content-mappings/preview` is defined in
   `src/supabase/functions/server/content-mapping-preview.ts` and
   registered in `index.tsx`. The frontend utility is
   `src/utils/contentMappingPreview.ts`.
-- Draft apply, graph reads, and relationship/mapping write operations remain
-  disabled. This preview does not initiate or schedule any apply step.
+- Graph reads remain disabled. Quarantine and reviewed apply implementations
+  now exist locally but require the additive Stage 7 database migration and a
+  normal backend/frontend deployment. The apply environment gate remains off
+  unless an operator deliberately opens an approved apply window.
+
+## Transactional Review Hardening — July 1, 2026
+
+- Merely resolving both entity IDs does not approve a knowledge claim. An
+  administrator must select each visible resolved candidate; only those stable
+  candidate keys enter the approved manifest.
+- The server reruns the complete analysis and rejects stale checksums, unknown
+  keys, duplicate keys, unresolved candidates, and self-referential mappings.
+- `quarantine_content_mapping_candidates` persists the complete unresolved
+  issue set atomically and returns the existing completed run for an exact
+  checksum rerun.
+- `apply_content_mapping_candidates` commits pending-review graph rows,
+  idempotent outbox events, a reconciled migration report, and the existing
+  `audit_log` summary in one PostgreSQL transaction. Any failure rolls the
+  entire operation back.
+- The apply UI is intentionally bounded by the reviewed sample: unseen
+  candidates are never included implicitly. Resolved candidates sort first so
+  later review batches become visible after earlier batches are applied and a
+  fresh preview is run.
+- The new migration and pgTAP coverage are implemented locally. Production
+  deployment, post-deployment backup reconciliation, and browser acceptance
+  remain pending; `CONTENT_MAPPING_APPLY_ENABLED` must remain false until then.
+  Follow the
+  [Content-Mapping Review Runbook](./guides/KNOWLEDGE_GRAPH_CONTENT_MAPPING_REVIEW_RUNBOOK.md).
 
 ## Entry State
 
@@ -155,22 +184,26 @@ It does not enable graph-powered discovery reads; that remains a Stage 8 gate.
    backend is deployed for reviewed decision capture.
 3. Create accepted videos as drafts through a transactional video, entity, and
    canonical-binding workflow. Add reviewed material mappings separately.
-4. **[Active — non-video workstream]** Build non-mutating relationship and
+4. **[Implemented locally — deployment pending]** Build non-mutating relationship and
    content-mapping previews for `material_links`,
    `materials.linked_material_ids`, article material links, and guide material
    links. Preview endpoint, ten acceptance tests, and admin UI panel
-   (`ContentMappingPreviewPanel` in One-Time Actions) are implemented; reviewed
-   apply remains planned.
-5. **[Done]** Preserve ambiguous records as immutable migration issues.
+   (`ContentMappingPreviewPanel` in One-Time Actions) are implemented.
+5. **[Implemented locally — deployment pending]** Preserve ambiguous records as immutable migration issues.
    `buildContentMappingQuarantine` writes all `awaiting_review` candidates
    to `graph_migration_issues` via a new `graph_migration_runs` entry.
    Admin panel offers a confirmed quarantine action after a preview run.
    Route: `POST /graph/content-mappings/quarantine`.
-6. Add reviewed relationship, tag, entity, and video curation APIs and admin
-   interfaces.
+6. **[Active]** Add reviewed relationship, tag, entity, and video curation APIs
+   and admin interfaces. Content-mapping review now uses explicit candidate
+   selection; the other curation domains remain planned.
 7. Add scoped Key Insight review fields and supporting-evidence linkage.
-8. Add transactional compatibility writes and idempotent outbox processing.
-9. Preserve summary audit compatibility for every graph mutation.
+8. **[Active]** Add transactional compatibility writes and idempotent outbox
+   processing. Content-mapping writes now enqueue outbox events atomically;
+   processing those events and covering other domains remain planned.
+9. **[Active]** Preserve summary audit compatibility for every graph mutation.
+   Content-mapping quarantine/apply now write transactional `audit_log`
+   summaries; broader curation coverage remains planned.
 10. Complete keyboard, screen-reader, high-contrast, dark-mode, responsive,
     and reduced-motion browser acceptance before closing Stage 7.
 

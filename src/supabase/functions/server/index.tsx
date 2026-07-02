@@ -15632,10 +15632,8 @@ app.get(
   },
 );
 
-// Writes all awaiting_review content-mapping candidates as immutable
-// graph_migration_issues records for human review. Creates one
-// graph_migration_runs row per invocation; old runs remain as audit history.
-// Does NOT write entity_relationships or content_entities.
+// Writes all awaiting_review candidates atomically as migration issues. Exact
+// checksum reruns return the existing completed run and create no duplicates.
 const CONTENT_MAPPING_QUARANTINE_CONFIRMATION =
   "quarantine content-mapping issues";
 
@@ -15655,8 +15653,23 @@ app.post(
           400,
         );
       }
+      const expectedChecksum =
+        typeof body?.expected_analysis_checksum === "string"
+          ? body.expected_analysis_checksum.trim().toLowerCase()
+          : "";
+      if (!/^[a-f0-9]{64}$/.test(expectedChecksum)) {
+        return c.json(
+          {
+            success: false,
+            error:
+              "A reviewed analysis SHA-256 checksum (expected_analysis_checksum) is required.",
+          },
+          400,
+        );
+      }
       const report = await buildContentMappingQuarantine(_roleClient(), {
         startedBy: c.get("userId"),
+        expectedAnalysisChecksum: expectedChecksum,
       });
       return c.json({ success: true, ...report });
     } catch (error) {
@@ -15683,13 +15696,14 @@ app.get(
       apply_enabled: Deno.env.get("CONTENT_MAPPING_APPLY_ENABLED") === "true",
       apply_version: CONTENT_MAPPING_APPLY_VERSION,
       apply_confirmation: CONTENT_MAPPING_APPLY_CONFIRMATION,
+      requires_explicit_selection: true,
     });
   },
 );
 
-// Creates entity_relationships and content_entities for all resolved
-// candidates (status: pending_review) and writes graph_sync_outbox events.
-// Idempotent via UNIQUE constraints. Gated by CONTENT_MAPPING_APPLY_ENABLED.
+// Applies only explicitly approved resolved candidates. Graph rows, outbox
+// events, migration reconciliation, and audit summary commit transactionally.
+// Gated by CONTENT_MAPPING_APPLY_ENABLED, which remains false by default.
 app.post(
   "/make-server-17cae920/graph/content-mappings/apply",
   verifyAuth,
@@ -15730,9 +15744,30 @@ app.post(
           400,
         );
       }
+      const approvedCandidateKeys = body?.approved_candidate_keys;
+      if (
+        !Array.isArray(approvedCandidateKeys) ||
+        approvedCandidateKeys.length < 1 ||
+        approvedCandidateKeys.length > 1000 ||
+        approvedCandidateKeys.some(
+          (key: unknown) =>
+            typeof key !== "string" || key.length < 1 || key.length > 500,
+        ) ||
+        new Set(approvedCandidateKeys).size !== approvedCandidateKeys.length
+      ) {
+        return c.json(
+          {
+            success: false,
+            error:
+              "approved_candidate_keys must contain 1–1000 unique candidate keys from the reviewed preview.",
+          },
+          400,
+        );
+      }
       const report = await buildContentMappingApply(_roleClient(), {
         startedBy: c.get("userId"),
         expectedAnalysisChecksum: expectedChecksum,
+        approvedCandidateKeys,
       });
       return c.json({ success: true, ...report });
     } catch (error) {

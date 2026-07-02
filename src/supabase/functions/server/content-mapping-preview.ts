@@ -1,10 +1,10 @@
-// Non-mutating relationship and content-mapping preview for Stage 7.
+// Relationship and content-mapping review workflow for Stage 7.
 //
-// This module is deliberately read-only. It identifies candidate relationships
-// and content mappings from existing authoritative data without creating any
-// entity_relationships, content_entities, or other graph records. Ambiguous or
-// unresolvable records are framed as "awaiting_review", never discarded or
-// silently treated as "no relationship exists."
+// Analysis and preview are deliberately read-only. Mutating operations accept
+// checksum-bound reviewed manifests and delegate to service-role-only
+// PostgreSQL functions so graph, outbox, migration, and audit writes are atomic.
+// Ambiguous or unresolvable records are framed as "awaiting_review", never
+// discarded or silently treated as "no relationship exists."
 //
 // Conservative semantics only: related_to for material→material pairs,
 // discusses for content→material pairs. Stronger semantics require human review.
@@ -40,6 +40,7 @@ export interface ContentRef {
 }
 
 export interface RelationshipCandidate {
+  candidate_key: string;
   provenance: "material_links" | "linked_material_ids";
   source: MaterialRef;
   target: MaterialRef;
@@ -49,6 +50,7 @@ export interface RelationshipCandidate {
 }
 
 export interface ContentMappingCandidate {
+  candidate_key: string;
   provenance: "articles.legacy_material_kv_id" | "guides.material_id";
   content: ContentRef;
   subject: MaterialRef;
@@ -81,7 +83,7 @@ export interface ContentMappingPreviewReport {
   relationship_candidates: RelationshipCandidate[];
   content_mapping_candidates: ContentMappingCandidate[];
   sample_limit: number;
-  /** SHA-256 over sorted resolved entity-ID pairs. Pass to the apply route as expected_analysis_checksum. */
+  /** SHA-256 over the complete candidate analysis and resolution state. */
   analysis_checksum: string;
 }
 
@@ -330,18 +332,20 @@ export function classifyCeResolution(
 // ---------------------------------------------------------------------------
 
 export const CONTENT_MAPPING_QUARANTINE_VERSION =
-  "stage-7-content-mapping-quarantine-v1";
+  "stage-7-content-mapping-quarantine-v2";
 
 export interface ContentMappingQuarantineReport {
   contract_version: string;
   run_id: string;
   generated_at: string;
+  analysis_checksum: string;
   relationship_issues_written: number;
   content_mapping_issues_written: number;
   total_issues_written: number;
+  already_quarantined: boolean;
 }
 
-export const CONTENT_MAPPING_APPLY_VERSION = "stage-7-content-mapping-apply-v1";
+export const CONTENT_MAPPING_APPLY_VERSION = "stage-7-content-mapping-apply-v2";
 
 export const CONTENT_MAPPING_APPLY_CONFIRMATION =
   "apply content-mapping relationships";
@@ -351,11 +355,117 @@ export interface ContentMappingApplyReport {
   run_id: string;
   generated_at: string;
   analysis_checksum: string;
+  manifest_checksum: string;
+  approved_candidate_count: number;
   relationships_inserted: number;
   relationships_skipped: number;
   content_mappings_inserted: number;
   content_mappings_skipped: number;
   outbox_events_written: number;
+  outbox_events_skipped: number;
+  already_applied: boolean;
+}
+
+export interface ApprovedContentMappingManifest {
+  relationship_candidates: Array<{
+    candidate_key: string;
+    source_entity_id: string;
+    target_entity_id: string;
+    provenance: RelationshipCandidate["provenance"];
+  }>;
+  content_mapping_candidates: Array<{
+    candidate_key: string;
+    content_entity_id: string;
+    subject_entity_id: string;
+    provenance: ContentMappingCandidate["provenance"];
+  }>;
+  manifest_checksum: string;
+}
+
+export async function buildApprovedContentMappingManifest(
+  relationshipCandidates: RelationshipCandidate[],
+  contentMappingCandidates: ContentMappingCandidate[],
+  approvedCandidateKeys: string[],
+  options: { allowAlreadyMapped?: boolean } = {},
+): Promise<ApprovedContentMappingManifest> {
+  const approvedKeys = [...new Set(approvedCandidateKeys)];
+  if (
+    approvedKeys.length === 0 ||
+    approvedKeys.length !== approvedCandidateKeys.length
+  ) {
+    throw new Error(
+      "At least one unique, explicitly approved candidate key is required.",
+    );
+  }
+
+  const byKey = new Map<string, RelationshipCandidate | ContentMappingCandidate>(
+    [...relationshipCandidates, ...contentMappingCandidates].map((candidate) => [
+      candidate.candidate_key,
+      candidate,
+    ]),
+  );
+  const approved = approvedKeys.map((key) => {
+    const candidate = byKey.get(key);
+    if (!candidate) throw new Error(`Unknown candidate key: ${key}`);
+    if (
+      candidate.resolution !== "resolved" &&
+      !(options.allowAlreadyMapped && candidate.resolution === "already_mapped")
+    ) {
+      throw new Error(`Candidate is not currently resolved: ${key}`);
+    }
+    return candidate;
+  });
+
+  const relationshipManifest = approved
+    .filter((c): c is RelationshipCandidate => "source" in c)
+    .map((c) => ({
+      candidate_key: c.candidate_key,
+      source_entity_id: c.source.entity_id!,
+      target_entity_id: c.target.entity_id!,
+      provenance: c.provenance,
+    }))
+    .sort((a, b) => a.candidate_key.localeCompare(b.candidate_key));
+  const contentManifest = approved
+    .filter((c): c is ContentMappingCandidate => "content" in c)
+    .map((c) => ({
+      candidate_key: c.candidate_key,
+      content_entity_id: c.content.entity_id!,
+      subject_entity_id: c.subject.entity_id!,
+      provenance: c.provenance,
+    }))
+    .sort((a, b) => a.candidate_key.localeCompare(b.candidate_key));
+  if (
+    relationshipManifest.some(
+      (candidate) =>
+        !candidate.source_entity_id ||
+        !candidate.target_entity_id ||
+        candidate.source_entity_id === candidate.target_entity_id,
+    )
+  ) {
+    throw new Error("Approved relationships require two distinct entity IDs.");
+  }
+  if (
+    contentManifest.some(
+      (candidate) =>
+        !candidate.content_entity_id ||
+        !candidate.subject_entity_id ||
+        candidate.content_entity_id === candidate.subject_entity_id,
+    )
+  ) {
+    throw new Error(
+      "Approved content mappings require two distinct entity IDs.",
+    );
+  }
+  const manifestChecksum = await checksumJson({
+    relationship_candidates: relationshipManifest,
+    content_mapping_candidates: contentManifest,
+  });
+
+  return {
+    relationship_candidates: relationshipManifest,
+    content_mapping_candidates: contentManifest,
+    manifest_checksum: manifestChecksum,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -369,7 +479,7 @@ interface ContentMappingAnalysis {
   ceBefore: number;
   relAfter: number;
   ceAfter: number;
-  /** SHA-256 over the sorted resolved entity-ID pairs — used by the apply path to verify the data hasn't changed. */
+  /** SHA-256 over every sorted candidate and resolution state. */
   analysisChecksum: string;
 }
 
@@ -458,6 +568,7 @@ async function analyzeContentMapping(
     if (!seenPairs.has(pairKey)) {
       seenPairs.add(pairKey);
       relCandidates.push({
+        candidate_key: `relationship:${link.id}:${hubKv}:${spokeKv}`,
         provenance: "material_links",
         source,
         target,
@@ -492,6 +603,7 @@ async function analyzeContentMapping(
       );
 
       relCandidates.push({
+        candidate_key: `relationship:linked_material_ids:${hubKv}:${linkedKvId}`,
         provenance: "linked_material_ids",
         source,
         target,
@@ -620,6 +732,7 @@ async function analyzeContentMapping(
     }
 
     ceMappings.push({
+      candidate_key: `content:article:${domainId}:${matKv ?? ""}`,
       provenance: "articles.legacy_material_kv_id",
       content: {
         type: "article",
@@ -654,6 +767,7 @@ async function analyzeContentMapping(
     }
 
     ceMappings.push({
+      candidate_key: `content:guide:${domainId}:${matKv ?? ""}`,
       provenance: "guides.material_id",
       content: {
         type: "guide",
@@ -706,19 +820,29 @@ async function analyzeContentMapping(
     countRows(client, "content_entities"),
   ]);
 
-  // Compute a deterministic checksum over the resolved pairs so the apply
-  // path can verify the data hasn't drifted since the preview was taken.
-  const resolvedRelPairs = relCandidates
-    .filter((c) => c.resolution === "resolved")
-    .map((c) => `${c.source.entity_id}:${c.target.entity_id}`)
-    .sort();
-  const resolvedCePairs = ceMappings
-    .filter((c) => c.resolution === "resolved")
-    .map((c) => `${c.content.entity_id}:${c.subject.entity_id}`)
-    .sort();
+  // Keep review pages deterministic and bring actionable candidates forward.
+  const resolutionRank: Record<PreviewResolution, number> = {
+    resolved: 0,
+    awaiting_review: 1,
+    already_mapped: 2,
+  };
+  relCandidates.sort(
+    (a, b) =>
+      resolutionRank[a.resolution] - resolutionRank[b.resolution] ||
+      a.candidate_key.localeCompare(b.candidate_key),
+  );
+  ceMappings.sort(
+    (a, b) =>
+      resolutionRank[a.resolution] - resolutionRank[b.resolution] ||
+      a.candidate_key.localeCompare(b.candidate_key),
+  );
+
+  // The checksum covers the complete analysis, not only resolved pairs. A
+  // changed source, binding, resolution, or quarantine payload invalidates the
+  // reviewed preview before any mutation can run.
   const analysisChecksum = await checksumJson({
-    resolved_rel_pairs: resolvedRelPairs,
-    resolved_ce_pairs: resolvedCePairs,
+    relationship_candidates: relCandidates,
+    content_mapping_candidates: ceMappings,
   });
 
   return {
@@ -772,14 +896,18 @@ export async function buildContentMappingPreview(
 // row per invocation; old runs remain as audit history.
 // ---------------------------------------------------------------------------
 
-const QUARANTINE_BATCH_SIZE = 200;
-
 export async function buildContentMappingQuarantine(
   client: any,
-  options: { startedBy: string },
+  options: { startedBy: string; expectedAnalysisChecksum: string },
 ): Promise<ContentMappingQuarantineReport> {
   const generatedAt = new Date().toISOString();
   const analysis = await analyzeContentMapping(client);
+
+  if (analysis.analysisChecksum !== options.expectedAnalysisChecksum) {
+    throw new Error(
+      `Analysis checksum mismatch: expected ${options.expectedAnalysisChecksum}, got ${analysis.analysisChecksum}. Re-run the preview before quarantining candidates.`,
+    );
+  }
 
   const awaitingRel = analysis.relCandidates.filter(
     (c) => c.resolution === "awaiting_review",
@@ -788,37 +916,9 @@ export async function buildContentMappingQuarantine(
     (c) => c.resolution === "awaiting_review",
   );
 
-  // Create the migration run record
-  const { data: runData, error: runError } = await client
-    .from("graph_migration_runs")
-    .insert({
-      migration_version: CONTENT_MAPPING_QUARANTINE_VERSION,
-      mode: "apply",
-      status: "running",
-      started_by: options.startedBy,
-      started_at: generatedAt,
-    })
-    .select("id")
-    .single();
-  if (runError) {
-    throw new Error(`Failed to create quarantine run: ${runError.message}`);
-  }
-  const runId = runData.id as string;
-
-  const markFailed = async (message: string) => {
-    await client
-      .from("graph_migration_runs")
-      .update({
-        status: "failed",
-        error_message: message,
-        completed_at: new Date().toISOString(),
-      })
-      .eq("id", runId);
-  };
-
   // Build issue rows
   const relIssueRows = awaitingRel.map((c) => ({
-    run_id: runId,
+    candidate_key: c.candidate_key,
     source_table: c.provenance,
     source_identifier: `${c.source.legacy_kv_id}→${c.target.legacy_kv_id}`,
     issue_category: "awaiting_review",
@@ -836,7 +936,7 @@ export async function buildContentMappingQuarantine(
   }));
 
   const ceIssueRows = awaitingCe.map((c) => ({
-    run_id: runId,
+    candidate_key: c.candidate_key,
     source_table: c.provenance,
     source_identifier: c.content.domain_id,
     issue_category: "awaiting_review",
@@ -854,40 +954,19 @@ export async function buildContentMappingQuarantine(
   }));
 
   const allRows = [...relIssueRows, ...ceIssueRows];
-
-  // Batch-insert to stay within request-size limits
-  for (let i = 0; i < allRows.length; i += QUARANTINE_BATCH_SIZE) {
-    const { error } = await client
-      .from("graph_migration_issues")
-      .insert(allRows.slice(i, i + QUARANTINE_BATCH_SIZE));
-    if (error) {
-      await markFailed(error.message);
-      throw new Error(`Failed to insert quarantine issues: ${error.message}`);
-    }
+  const { data, error } = await client.rpc(
+    "quarantine_content_mapping_candidates",
+    {
+      p_started_by: options.startedBy,
+      p_analysis_checksum: analysis.analysisChecksum,
+      p_issues: allRows,
+    },
+  );
+  if (error) {
+    throw new Error(`Failed to quarantine candidates: ${error.message}`);
   }
 
-  // Finalize run as completed
-  await client
-    .from("graph_migration_runs")
-    .update({
-      status: "completed",
-      completed_at: new Date().toISOString(),
-      report: {
-        relationship_issues: relIssueRows.length,
-        content_mapping_issues: ceIssueRows.length,
-        total_issues: allRows.length,
-      },
-    })
-    .eq("id", runId);
-
-  return {
-    contract_version: CONTENT_MAPPING_QUARANTINE_VERSION,
-    run_id: runId,
-    generated_at: generatedAt,
-    relationship_issues_written: relIssueRows.length,
-    content_mapping_issues_written: ceIssueRows.length,
-    total_issues_written: allRows.length,
-  };
+  return data as ContentMappingQuarantineReport;
 }
 
 // ---------------------------------------------------------------------------
@@ -897,19 +976,64 @@ export async function buildContentMappingQuarantine(
 // tables and on outbox event_keys make re-runs safe.
 // ---------------------------------------------------------------------------
 
-const APPLY_BATCH_SIZE = 200;
-
 export async function buildContentMappingApply(
   client: any,
   options: {
     startedBy: string;
     expectedAnalysisChecksum: string;
+    approvedCandidateKeys: string[];
   },
 ): Promise<ContentMappingApplyReport> {
-  const generatedAt = new Date().toISOString();
   const analysis = await analyzeContentMapping(client);
 
   if (analysis.analysisChecksum !== options.expectedAnalysisChecksum) {
+    // A successful first request changes candidates to already_mapped and thus
+    // changes the analysis checksum. Permit only an exact retry lookup here;
+    // never use already-mapped candidates to create a new migration run.
+    const retryManifest = await buildApprovedContentMappingManifest(
+      analysis.relCandidates,
+      analysis.ceMappings,
+      options.approvedCandidateKeys,
+      { allowAlreadyMapped: true },
+    );
+    const { data: existingRuns, error: retryError } = await client
+      .from("graph_migration_runs")
+      .select("id,completed_at,report")
+      .eq("migration_version", CONTENT_MAPPING_APPLY_VERSION)
+      .eq("status", "completed")
+      .contains("report", {
+        analysis_checksum: options.expectedAnalysisChecksum,
+        manifest_checksum: retryManifest.manifest_checksum,
+      })
+      .limit(1);
+    if (retryError) {
+      throw new Error(`Failed to verify apply retry: ${retryError.message}`);
+    }
+    const existing = existingRuns?.[0];
+    if (existing) {
+      const report = existing.report as Record<string, unknown>;
+      return {
+        contract_version: CONTENT_MAPPING_APPLY_VERSION,
+        run_id: existing.id as string,
+        generated_at: existing.completed_at as string,
+        analysis_checksum: options.expectedAnalysisChecksum,
+        manifest_checksum: retryManifest.manifest_checksum,
+        approved_candidate_count: Number(
+          report.approved_candidate_count ?? 0,
+        ),
+        relationships_inserted: Number(report.relationships_inserted ?? 0),
+        relationships_skipped: Number(report.relationships_skipped ?? 0),
+        content_mappings_inserted: Number(
+          report.content_mappings_inserted ?? 0,
+        ),
+        content_mappings_skipped: Number(
+          report.content_mappings_skipped ?? 0,
+        ),
+        outbox_events_written: Number(report.outbox_events_written ?? 0),
+        outbox_events_skipped: Number(report.outbox_events_skipped ?? 0),
+        already_applied: true,
+      };
+    }
     throw new Error(
       `Analysis checksum mismatch: expected ${
         options.expectedAnalysisChecksum
@@ -917,176 +1041,22 @@ export async function buildContentMappingApply(
     );
   }
 
-  const resolvedRel = analysis.relCandidates.filter(
-    (c) =>
-      c.resolution === "resolved" && c.source.entity_id && c.target.entity_id,
-  );
-  const resolvedCe = analysis.ceMappings.filter(
-    (c) =>
-      c.resolution === "resolved" && c.content.entity_id && c.subject.entity_id,
+  const manifest = await buildApprovedContentMappingManifest(
+    analysis.relCandidates,
+    analysis.ceMappings,
+    options.approvedCandidateKeys,
   );
 
-  // Create the migration run record
-  const { data: runData, error: runError } = await client
-    .from("graph_migration_runs")
-    .insert({
-      migration_version: CONTENT_MAPPING_APPLY_VERSION,
-      mode: "apply",
-      status: "running",
-      started_by: options.startedBy,
-      started_at: generatedAt,
-    })
-    .select("id")
-    .single();
-  if (runError) {
-    throw new Error(`Failed to create apply run: ${runError.message}`);
-  }
-  const runId = runData.id as string;
-
-  const markFailed = async (message: string) => {
-    await client
-      .from("graph_migration_runs")
-      .update({
-        status: "failed",
-        error_message: message,
-        completed_at: new Date().toISOString(),
-      })
-      .eq("id", runId);
-  };
-
-  // ── Relationships ──────────────────────────────────────────────────────────
-  const relRows = resolvedRel.map((c) => ({
-    source_entity_id: c.source.entity_id!,
-    target_entity_id: c.target.entity_id!,
-    relationship_type: "related_to",
-    status: "pending_review",
-    created_by: options.startedBy,
-  }));
-
-  let relInserted = 0;
-  let relSkipped = 0;
-  for (let i = 0; i < relRows.length; i += APPLY_BATCH_SIZE) {
-    const batch = relRows.slice(i, i + APPLY_BATCH_SIZE);
-    const { data, error } = await client
-      .from("entity_relationships")
-      .upsert(batch, {
-        onConflict: "source_entity_id,target_entity_id,relationship_type",
-        ignoreDuplicates: true,
-      })
-      .select("id");
-    if (error) {
-      await markFailed(error.message);
-      throw new Error(
-        `Failed to insert entity_relationships: ${error.message}`,
-      );
-    }
-    const inserted = (data ?? []).length;
-    relInserted += inserted;
-    relSkipped += batch.length - inserted;
+  const { data, error } = await client.rpc("apply_content_mapping_candidates", {
+    p_started_by: options.startedBy,
+    p_analysis_checksum: analysis.analysisChecksum,
+    p_manifest_checksum: manifest.manifest_checksum,
+    p_relationships: manifest.relationship_candidates,
+    p_content_mappings: manifest.content_mapping_candidates,
+  });
+  if (error) {
+    throw new Error(`Failed to apply approved candidates: ${error.message}`);
   }
 
-  // ── Content mappings ───────────────────────────────────────────────────────
-  const ceRows = resolvedCe.map((c) => ({
-    content_entity_id: c.content.entity_id!,
-    subject_entity_id: c.subject.entity_id!,
-    role: "discusses",
-    status: "pending_review",
-    created_by: options.startedBy,
-  }));
-
-  let ceInserted = 0;
-  let ceSkipped = 0;
-  for (let i = 0; i < ceRows.length; i += APPLY_BATCH_SIZE) {
-    const batch = ceRows.slice(i, i + APPLY_BATCH_SIZE);
-    const { data, error } = await client
-      .from("content_entities")
-      .upsert(batch, {
-        onConflict: "content_entity_id,subject_entity_id,role",
-        ignoreDuplicates: true,
-      })
-      .select("id");
-    if (error) {
-      await markFailed(error.message);
-      throw new Error(`Failed to insert content_entities: ${error.message}`);
-    }
-    const inserted = (data ?? []).length;
-    ceInserted += inserted;
-    ceSkipped += batch.length - inserted;
-  }
-
-  // ── Outbox events ─────────────────────────────────────────────────────────
-  const outboxRows = [
-    ...resolvedRel.map((c) => ({
-      event_key: `entity_relationships:insert:${c.source.entity_id}:${c.target.entity_id}:related_to`,
-      source_table: "entity_relationships",
-      source_identifier: `${c.source.entity_id}:${c.target.entity_id}`,
-      operation: "insert" as const,
-      payload: {
-        source_entity_id: c.source.entity_id,
-        target_entity_id: c.target.entity_id,
-        relationship_type: "related_to",
-        status: "pending_review",
-        provenance: c.provenance,
-      },
-    })),
-    ...resolvedCe.map((c) => ({
-      event_key: `content_entities:insert:${c.content.entity_id}:${c.subject.entity_id}:discusses`,
-      source_table: "content_entities",
-      source_identifier: `${c.content.entity_id}:${c.subject.entity_id}`,
-      operation: "insert" as const,
-      payload: {
-        content_entity_id: c.content.entity_id,
-        subject_entity_id: c.subject.entity_id,
-        role: "discusses",
-        status: "pending_review",
-        provenance: c.provenance,
-      },
-    })),
-  ];
-
-  let outboxWritten = 0;
-  for (let i = 0; i < outboxRows.length; i += APPLY_BATCH_SIZE) {
-    const { error } = await client
-      .from("graph_sync_outbox")
-      .upsert(outboxRows.slice(i, i + APPLY_BATCH_SIZE), {
-        onConflict: "event_key",
-        ignoreDuplicates: true,
-      });
-    if (error) {
-      // Outbox failure doesn't roll back the graph writes; log and continue.
-      // The apply run will still complete but note the partial outbox.
-      console.warn(`graph_sync_outbox write failed: ${error.message}`);
-    } else {
-      outboxWritten += outboxRows.slice(i, i + APPLY_BATCH_SIZE).length;
-    }
-  }
-
-  // Finalize run as completed
-  await client
-    .from("graph_migration_runs")
-    .update({
-      status: "completed",
-      completed_at: new Date().toISOString(),
-      report: {
-        analysis_checksum: analysis.analysisChecksum,
-        relationships_inserted: relInserted,
-        relationships_skipped: relSkipped,
-        content_mappings_inserted: ceInserted,
-        content_mappings_skipped: ceSkipped,
-        outbox_events_written: outboxWritten,
-      },
-    })
-    .eq("id", runId);
-
-  return {
-    contract_version: CONTENT_MAPPING_APPLY_VERSION,
-    run_id: runId,
-    generated_at: generatedAt,
-    analysis_checksum: analysis.analysisChecksum,
-    relationships_inserted: relInserted,
-    relationships_skipped: relSkipped,
-    content_mappings_inserted: ceInserted,
-    content_mappings_skipped: ceSkipped,
-    outbox_events_written: outboxWritten,
-  };
+  return data as ContentMappingApplyReport;
 }

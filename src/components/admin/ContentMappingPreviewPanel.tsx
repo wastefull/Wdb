@@ -96,8 +96,12 @@ function SummaryGrid({
 
 function RelationshipTable({
   candidates,
+  selectedKeys,
+  onToggle,
 }: {
   candidates: RelationshipCandidate[];
+  selectedKeys: Set<string>;
+  onToggle: (candidateKey: string, selected: boolean) => void;
 }) {
   return (
     <details className="rounded-lg border border-black/10 dark:border-white/10">
@@ -108,6 +112,9 @@ function RelationshipTable({
         <table className="w-full min-w-[640px] text-left text-[11px]">
           <thead className="sticky top-0 bg-background">
             <tr className="border-b border-black/10 dark:border-white/10">
+              <th scope="col" className="px-3 py-2 font-medium">
+                Approve
+              </th>
               <th scope="col" className="px-3 py-2 font-medium">
                 Provenance
               </th>
@@ -126,11 +133,22 @@ function RelationshipTable({
             </tr>
           </thead>
           <tbody>
-            {candidates.map((c, i) => (
+            {candidates.map((c) => (
               <tr
-                key={i}
+                key={c.candidate_key}
                 className="border-b border-black/5 align-top last:border-b-0 dark:border-white/5"
               >
+                <td className="px-3 py-2.5">
+                  <input
+                    type="checkbox"
+                    checked={selectedKeys.has(c.candidate_key)}
+                    disabled={c.resolution !== "resolved"}
+                    onChange={(event) =>
+                      onToggle(c.candidate_key, event.target.checked)
+                    }
+                    aria-label={`Approve relationship from ${c.source.name ?? c.source.legacy_kv_id} to ${c.target.name ?? c.target.legacy_kv_id}`}
+                  />
+                </td>
                 <td className="px-3 py-2.5 font-mono text-[10px] text-black/60 dark:text-white/60">
                   {c.provenance}
                 </td>
@@ -167,8 +185,12 @@ function RelationshipTable({
 
 function ContentMappingTable({
   candidates,
+  selectedKeys,
+  onToggle,
 }: {
   candidates: ContentMappingCandidate[];
+  selectedKeys: Set<string>;
+  onToggle: (candidateKey: string, selected: boolean) => void;
 }) {
   return (
     <details className="rounded-lg border border-black/10 dark:border-white/10">
@@ -179,6 +201,9 @@ function ContentMappingTable({
         <table className="w-full min-w-[640px] text-left text-[11px]">
           <thead className="sticky top-0 bg-background">
             <tr className="border-b border-black/10 dark:border-white/10">
+              <th scope="col" className="px-3 py-2 font-medium">
+                Approve
+              </th>
               <th scope="col" className="px-3 py-2 font-medium">
                 Provenance
               </th>
@@ -197,11 +222,22 @@ function ContentMappingTable({
             </tr>
           </thead>
           <tbody>
-            {candidates.map((c, i) => (
+            {candidates.map((c) => (
               <tr
-                key={i}
+                key={c.candidate_key}
                 className="border-b border-black/5 align-top last:border-b-0 dark:border-white/5"
               >
+                <td className="px-3 py-2.5">
+                  <input
+                    type="checkbox"
+                    checked={selectedKeys.has(c.candidate_key)}
+                    disabled={c.resolution !== "resolved"}
+                    onChange={(event) =>
+                      onToggle(c.candidate_key, event.target.checked)
+                    }
+                    aria-label={`Approve ${c.content.type} mapping from ${c.content.name ?? c.content.domain_id} to ${c.subject.name ?? c.subject.legacy_kv_id}`}
+                  />
+                </td>
                 <td className="px-3 py-2.5 font-mono text-[10px] text-black/60 dark:text-white/60">
                   {c.provenance}
                 </td>
@@ -236,7 +272,15 @@ function ContentMappingTable({
 // Report display
 // ---------------------------------------------------------------------------
 
-function ReportDisplay({ report }: { report: ContentMappingPreviewReport }) {
+function ReportDisplay({
+  report,
+  selectedKeys,
+  onToggle,
+}: {
+  report: ContentMappingPreviewReport;
+  selectedKeys: Set<string>;
+  onToggle: (candidateKey: string, selected: boolean) => void;
+}) {
   const proof = report.mutation_proof;
   const unchanged =
     proof.entity_relationships_before === proof.entity_relationships_after &&
@@ -285,10 +329,18 @@ function ReportDisplay({ report }: { report: ContentMappingPreviewReport }) {
 
       {/* Candidate tables */}
       {report.relationship_candidates.length > 0 && (
-        <RelationshipTable candidates={report.relationship_candidates} />
+        <RelationshipTable
+          candidates={report.relationship_candidates}
+          selectedKeys={selectedKeys}
+          onToggle={onToggle}
+        />
       )}
       {report.content_mapping_candidates.length > 0 && (
-        <ContentMappingTable candidates={report.content_mapping_candidates} />
+        <ContentMappingTable
+          candidates={report.content_mapping_candidates}
+          selectedKeys={selectedKeys}
+          onToggle={onToggle}
+        />
       )}
 
       {/* Footer */}
@@ -327,6 +379,7 @@ export function ContentMappingPreviewPanel() {
   >(null);
   const [applyError, setApplyError] = useState<string | null>(null);
   const [isApplying, setIsApplying] = useState(false);
+  const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     let active = true;
@@ -346,6 +399,7 @@ export function ContentMappingPreviewPanel() {
     setIsLoading(true);
     setError(null);
     setReport(null);
+    setSelectedKeys(new Set());
     try {
       setReport(await fetchContentMappingPreview({ sampleLimit }));
     } catch (caught) {
@@ -360,16 +414,18 @@ export function ContentMappingPreviewPanel() {
     (report?.summary.content_mapping_candidates.awaiting_review ?? 0);
 
   const runQuarantine = async () => {
-    if (awaitingCount === 0) return;
+    if (awaitingCount === 0 || !report?.analysis_checksum) return;
     const confirmed = window.confirm(
-      `Write ${awaitingCount} awaiting-review candidate(s) as immutable migration issues? This creates a new graph_migration_runs record but does not modify the graph.`,
+      `Write ${awaitingCount} awaiting-review candidate(s) as immutable migration issues? An exact checksum rerun returns the existing migration run and does not modify the graph.`,
     );
     if (!confirmed) return;
     setIsQuarantining(true);
     setQuarantineError(null);
     setQuarantineResult(null);
     try {
-      setQuarantineResult(await triggerContentMappingQuarantine());
+      setQuarantineResult(
+        await triggerContentMappingQuarantine(report.analysis_checksum),
+      );
     } catch (caught) {
       setQuarantineError(
         caught instanceof Error ? caught.message : String(caught),
@@ -382,11 +438,21 @@ export function ContentMappingPreviewPanel() {
   const resolvedCount =
     (report?.summary.relationship_candidates.resolved ?? 0) +
     (report?.summary.content_mapping_candidates.resolved ?? 0);
+  const selectedCount = selectedKeys.size;
+
+  const toggleCandidate = (candidateKey: string, selected: boolean) => {
+    setSelectedKeys((current) => {
+      const next = new Set(current);
+      if (selected) next.add(candidateKey);
+      else next.delete(candidateKey);
+      return next;
+    });
+  };
 
   const runApply = async () => {
-    if (!report?.analysis_checksum || resolvedCount === 0) return;
+    if (!report?.analysis_checksum || selectedCount === 0) return;
     const confirmed = window.confirm(
-      `Create ${resolvedCount} pending-review graph record(s)? Records start as pending_review and require separate activation. This action cannot be undone without a manual delete.`,
+      `Create ${selectedCount} explicitly approved pending-review graph record(s)? The graph rows, outbox events, migration report, and audit summary will be committed atomically.`,
     );
     if (!confirmed) return;
     setIsApplying(true);
@@ -394,8 +460,12 @@ export function ContentMappingPreviewPanel() {
     setApplyResult(null);
     try {
       setApplyResult(
-        await triggerContentMappingApply(report.analysis_checksum),
+        await triggerContentMappingApply(
+          report.analysis_checksum,
+          [...selectedKeys],
+        ),
       );
+      setSelectedKeys(new Set());
     } catch (caught) {
       setApplyError(caught instanceof Error ? caught.message : String(caught));
     } finally {
@@ -476,7 +546,13 @@ export function ContentMappingPreviewPanel() {
             <span>{error}</span>
           </div>
         )}
-        {report && <ReportDisplay report={report} />}
+        {report && (
+          <ReportDisplay
+            report={report}
+            selectedKeys={selectedKeys}
+            onToggle={toggleCandidate}
+          />
+        )}
       </div>
 
       {/* Quarantine action — only shown after a preview has run */}
@@ -521,11 +597,11 @@ export function ContentMappingPreviewPanel() {
                 <CheckCircle className="mt-0.5 size-4 shrink-0 text-waste-compost" />
                 <div>
                   <p className="font-medium">
-                    {quarantineResult.total_issues_written} issue
-                    {quarantineResult.total_issues_written !== 1
-                      ? "s"
-                      : ""}{" "}
-                    written
+                    {quarantineResult.already_quarantined
+                      ? "Quarantine was already complete"
+                      : `${quarantineResult.total_issues_written} issue${
+                          quarantineResult.total_issues_written !== 1 ? "s" : ""
+                        } written`}
                   </p>
                   <p className="mt-0.5 text-[11px] text-black/60 dark:text-white/60">
                     {quarantineResult.relationship_issues_written} relationship
@@ -549,11 +625,11 @@ export function ContentMappingPreviewPanel() {
               <div>
                 <p className="text-[13px] font-medium">Apply to graph</p>
                 <p className="mt-1 max-w-xl text-[11px] text-black/60 dark:text-white/60">
-                  Create {resolvedCount} pending-review graph record
-                  {resolvedCount !== 1 ? "s" : ""} (entity_relationships +
-                  content_entities). Records remain pending_review until
-                  separately activated. Idempotent — re-runs skip existing
-                  records.
+                  Select individual resolved rows in the candidate tables.
+                  Currently {selectedCount} of {resolvedCount} resolved record
+                  {resolvedCount !== 1 ? "s are" : " is"} approved for this
+                  manifest. Graph rows and outbox events commit together and
+                  remain pending_review until separately activated.
                   {!capabilities?.apply_enabled && (
                     <span className="ml-1 font-medium text-amber-600 dark:text-amber-400">
                       Gate currently disabled (CONTENT_MAPPING_APPLY_ENABLED).
@@ -565,7 +641,11 @@ export function ContentMappingPreviewPanel() {
             <button
               type="button"
               onClick={runApply}
-              disabled={isApplying || !capabilities?.apply_enabled}
+              disabled={
+                isApplying ||
+                selectedCount === 0 ||
+                !capabilities?.apply_enabled
+              }
               className="retro-btn-primary flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isApplying ? (
@@ -573,7 +653,9 @@ export function ContentMappingPreviewPanel() {
               ) : (
                 <Zap className="size-4" />
               )}
-              {isApplying ? "Applying…" : "Apply to graph"}
+              {isApplying
+                ? "Applying…"
+                : `Apply ${selectedCount || "selected"} to graph`}
             </button>
           </div>
 
@@ -587,13 +669,19 @@ export function ContentMappingPreviewPanel() {
               <div className="flex items-start gap-2 rounded-lg border border-waste-compost/30 bg-waste-compost/5 p-3 text-[12px]">
                 <CheckCircle className="mt-0.5 size-4 shrink-0 text-waste-compost" />
                 <div>
-                  <p className="font-medium">Graph records created</p>
+                  <p className="font-medium">
+                    {applyResult.already_applied
+                      ? "Reviewed manifest was already applied"
+                      : "Graph records created"}
+                  </p>
                   <p className="mt-0.5 text-[11px] text-black/60 dark:text-white/60">
                     {applyResult.relationships_inserted} rel inserted ·{" "}
                     {applyResult.relationships_skipped} skipped ·{" "}
                     {applyResult.content_mappings_inserted} CE inserted ·{" "}
                     {applyResult.content_mappings_skipped} skipped ·{" "}
-                    {applyResult.outbox_events_written} outbox events · run{" "}
+                    {applyResult.outbox_events_written} outbox events ·{" "}
+                    {applyResult.outbox_events_skipped} outbox skipped ·{" "}
+                    run{" "}
                     <code className="font-mono">{applyResult.run_id}</code>
                   </p>
                 </div>

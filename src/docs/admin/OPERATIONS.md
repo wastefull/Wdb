@@ -121,6 +121,20 @@ counts reconcile. Create a post-deployment backup and compare manifest counts
 and checksums. Any unexplained difference restores the fresh-backup and paused-
 writes requirement.
 
+## Content-Mapping Review and Apply
+
+Keep `CONTENT_MAPPING_APPLY_ENABLED=false` during normal operation and while
+deploying the Stage 7 content-mapping migration. Identifier resolution is not
+editorial approval: an administrator must inspect and select each candidate
+included in an apply manifest.
+
+The service-role-only database function commits pending graph rows, outbox
+events, migration reconciliation, and an `audit_log` summary atomically. Do not
+replace it with sequential REST inserts. Exact manifest and quarantine reruns
+return their existing completed run. Follow the
+[Content-Mapping Review Runbook](../roadmap/guides/KNOWLEDGE_GRAPH_CONTENT_MAPPING_REVIEW_RUNBOOK.md)
+for backup, deployment, gate control, and reconciliation.
+
 ## Full-Site Manual Recovery
 
 Automatic relational restore is intentionally disabled because table ordering,

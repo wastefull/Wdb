@@ -1,4 +1,5 @@
 import {
+  buildApprovedContentMappingManifest,
   CE_ALREADY_MAPPED_NOTE,
   classifyCeResolution,
   classifyRelResolution,
@@ -1000,6 +1001,64 @@ export function getStage7Tests(): Test[] {
           message: valid
             ? `Summary consistent: ${relS?.total} rel (${relS?.resolved} resolved, ${relS?.awaiting_review} awaiting, ${relS?.already_mapped} mapped); ${ceS?.total} content-mapping (${ceS?.resolved} resolved, ${ceS?.awaiting_review} awaiting, ${ceS?.already_mapped} mapped).`
             : `Summary consistency violations: ${issues.join("; ")}`,
+        };
+      },
+    },
+    {
+      id: "stage-7-content-mapping-reviewed-manifest",
+      name: "Only explicitly reviewed candidates enter the apply manifest",
+      description:
+        "Uses local fixtures to verify that selected resolved candidates produce a deterministic manifest while unresolved and unknown candidates are rejected.",
+      phase: "stage-7",
+      stage: 7,
+      category: "Knowledge Governance",
+      requiresAuth: false,
+      testFn: async () => {
+        const resolved = {
+          candidate_key: "relationship:fixture:a:b",
+          provenance: "material_links" as const,
+          source: {
+            legacy_kv_id: "a",
+            material_uuid: "material-a",
+            entity_id: "entity-a",
+            name: "A",
+          },
+          target: {
+            legacy_kv_id: "b",
+            material_uuid: "material-b",
+            entity_id: "entity-b",
+            name: "B",
+          },
+          suggested_relationship_type: "related_to" as const,
+          resolution: "resolved" as const,
+          resolution_notes: null,
+        };
+        const manifest = await buildApprovedContentMappingManifest(
+          [resolved],
+          [],
+          [resolved.candidate_key],
+        );
+        let rejectedUnresolved = false;
+        try {
+          await buildApprovedContentMappingManifest(
+            [{ ...resolved, resolution: "awaiting_review" as const }],
+            [],
+            [resolved.candidate_key],
+          );
+        } catch {
+          rejectedUnresolved = true;
+        }
+        const valid =
+          manifest.relationship_candidates.length === 1 &&
+          manifest.relationship_candidates[0]?.candidate_key ===
+            resolved.candidate_key &&
+          /^[a-f0-9]{64}$/.test(manifest.manifest_checksum) &&
+          rejectedUnresolved;
+        return {
+          success: valid,
+          message: valid
+            ? "The reviewed manifest contains only the selected resolved candidate and rejects unresolved input."
+            : "Reviewed-manifest selection or rejection behavior was invalid.",
         };
       },
     },

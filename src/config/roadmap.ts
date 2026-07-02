@@ -392,12 +392,21 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
       planned("Relationship, entity, tag, and video curation tools"),
       planned("Human review workflow for scoped Key Insights"),
       active(
-        "Non-mutating relationship and content-mapping preview",
-        "Identify candidate relationships from material_links and linked_material_ids, and content mappings from articles and guides, using conservative related_to and discusses semantics. Unresolvable records are preserved as awaiting_review. No graph records are written.",
+        "Reviewed relationship and content-mapping workflow",
+        "Preview candidate relationships and content mappings without mutation, preserve unresolved candidates transactionally, and apply only explicitly selected resolved candidates as pending review. The hardened database functions and tests are implemented locally; deployment and production acceptance remain pending.",
       ),
-      planned("Review and authorization workflows for graph mutations"),
-      planned("Compatibility-aware dual writes during migration"),
-      planned("Audit summaries that preserve existing audit consumers"),
+      active(
+        "Review and authorization workflows for graph mutations",
+        "Admin-only candidate selection now produces a checksum-bound manifest; no merely resolvable candidate is approved automatically.",
+      ),
+      active(
+        "Compatibility-aware dual writes during migration",
+        "The reviewed content-mapping transaction writes pending graph records and idempotent outbox events atomically. Outbox processing and other curation domains remain planned.",
+      ),
+      active(
+        "Audit summaries that preserve existing audit consumers",
+        "Successful quarantine and apply transactions write graph migration reports and existing audit_log summary records in the same transaction; deployment acceptance remains pending.",
+      ),
       planned("Cross-stage browser accessibility and responsive acceptance"),
     ],
     acceptanceTests: [
@@ -550,6 +559,24 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
         "stage-7-content-mapping-preview-summary-consistency",
         "Preview summary counts are internally consistent",
         "summary.total equals resolved + awaiting_review + already_mapped for both relationship and content-mapping candidates; all counts are non-negative.",
+        "automated",
+      ),
+      acceptance(
+        "stage-7-content-mapping-reviewed-manifest",
+        "Only explicitly reviewed content-mapping candidates can be applied",
+        "The admin selects individual resolved candidates; the server rejects unknown, duplicate, unresolved, stale, or self-referential manifest entries.",
+        "automated",
+      ),
+      acceptance(
+        "stage-7-content-mapping-transaction",
+        "Graph rows and compatibility events commit atomically",
+        "The service-role-only database transaction creates pending-review graph rows, outbox events, migration reconciliation, and an audit summary together or rolls everything back.",
+        "automated",
+      ),
+      acceptance(
+        "stage-7-content-mapping-idempotency",
+        "Reviewed apply and quarantine reruns are idempotent",
+        "An exact checksum or manifest rerun returns its completed migration run without duplicating graph rows, outbox events, quarantine issues, or audit summaries.",
         "automated",
       ),
       acceptance(

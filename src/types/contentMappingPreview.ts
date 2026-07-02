@@ -25,6 +25,7 @@ export interface ContentRef {
 }
 
 export interface RelationshipCandidate {
+  candidate_key: string;
   provenance: "material_links" | "linked_material_ids";
   source: MaterialRef;
   target: MaterialRef;
@@ -34,6 +35,7 @@ export interface RelationshipCandidate {
 }
 
 export interface ContentMappingCandidate {
+  candidate_key: string;
   provenance: "articles.legacy_material_kv_id" | "guides.material_id";
   content: ContentRef;
   subject: MaterialRef;
@@ -66,38 +68,45 @@ export interface ContentMappingPreviewReport {
   relationship_candidates: RelationshipCandidate[];
   content_mapping_candidates: ContentMappingCandidate[];
   sample_limit: number;
-  /** SHA-256 over sorted resolved entity-ID pairs. Pass to apply as expected_analysis_checksum. */
+  /** SHA-256 over the complete candidate analysis and resolution state. */
   analysis_checksum: string;
 }
 
 export const CONTENT_MAPPING_QUARANTINE_VERSION =
-  "stage-7-content-mapping-quarantine-v1";
+  "stage-7-content-mapping-quarantine-v2";
 
 export interface ContentMappingQuarantineReport {
   contract_version: string;
   run_id: string;
   generated_at: string;
+  analysis_checksum: string;
   relationship_issues_written: number;
   content_mapping_issues_written: number;
   total_issues_written: number;
+  already_quarantined: boolean;
 }
 
-export const CONTENT_MAPPING_APPLY_VERSION = "stage-7-content-mapping-apply-v1";
+export const CONTENT_MAPPING_APPLY_VERSION = "stage-7-content-mapping-apply-v2";
 
 export interface ContentMappingApplyReport {
   contract_version: string;
   run_id: string;
   generated_at: string;
   analysis_checksum: string;
+  manifest_checksum: string;
+  approved_candidate_count: number;
   relationships_inserted: number;
   relationships_skipped: number;
   content_mappings_inserted: number;
   content_mappings_skipped: number;
   outbox_events_written: number;
+  outbox_events_skipped: number;
+  already_applied: boolean;
 }
 
 export interface ContentMappingCapabilities {
   apply_enabled: boolean;
   apply_version: string;
   apply_confirmation: string;
+  requires_explicit_selection: boolean;
 }

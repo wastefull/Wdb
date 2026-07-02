@@ -53,12 +53,17 @@ export async function fetchContentMappingPreview(
  * Requires the exact confirmation string "quarantine content-mapping issues"
  * to prevent accidental invocation.
  */
-export async function triggerContentMappingQuarantine(): Promise<
+export async function triggerContentMappingQuarantine(
+  analysisChecksum: string,
+): Promise<
   ContentMappingQuarantineReport & { success: boolean }
 > {
   return apiCall("/graph/content-mappings/quarantine", {
     method: "POST",
-    body: JSON.stringify({ confirmation: "quarantine content-mapping issues" }),
+    body: JSON.stringify({
+      confirmation: "quarantine content-mapping issues",
+      expected_analysis_checksum: analysisChecksum,
+    }),
   }) as Promise<ContentMappingQuarantineReport & { success: boolean }>;
 }
 
@@ -70,21 +75,24 @@ export async function fetchContentMappingCapabilities(): Promise<ContentMappingC
 }
 
 /**
- * Apply all resolved content-mapping candidates by creating entity_relationships
- * and content_entities records (status: pending_review) and writing outbox events.
+ * Apply only explicitly selected resolved candidates. Graph records, outbox
+ * events, migration reconciliation, and audit summary commit atomically.
  *
  * Requires:
  * - CONTENT_MAPPING_APPLY_ENABLED=true on the server
  * - The `analysis_checksum` from the most recent preview report
+ * - One or more candidate keys explicitly selected by the reviewer
  */
 export async function triggerContentMappingApply(
   analysisChecksum: string,
+  approvedCandidateKeys: string[],
 ): Promise<ContentMappingApplyReport & { success: boolean }> {
   return apiCall("/graph/content-mappings/apply", {
     method: "POST",
     body: JSON.stringify({
       confirmation: "apply content-mapping relationships",
       expected_analysis_checksum: analysisChecksum,
+      approved_candidate_keys: approvedCandidateKeys,
     }),
   }) as Promise<ContentMappingApplyReport & { success: boolean }>;
 }
