@@ -40,40 +40,45 @@ export const MATERIAL_DOODLES: Record<string, MaterialDoodleManifestEntry> = {
     imageFile: "material-doodles/image1-1782251808325.png",
     alt: "Line drawing of a spool of 3D printing filament",
   },
-
   actinium: { imageFile: "image2-1782254090149.png", alt: "actinium" },
-  "Aerosol-cans": {
-    imageFile: "image3-1782254424666.png",
+  "aerosol-cans": {
+    imageFile: "material-doodles/image3-1782254424666.png",
     alt: "Line drawing of an aerosol can",
   },
   "alkaline-batteries": {
-    imageFile: "image4-1782254586484.png",
+    imageFile: "material-doodles/image4-1782254586484.png",
     alt: "Line drawing of an alkaline battery",
   },
   aluminum: {
-    imageFile: "image5-1782254690322.png",
+    imageFile: "material-doodles/image5-1782254690322.png",
     alt: "Line drawing of aluminum's chemical element symbol",
   },
   "aluminum-can": {
-    imageFile: "image6-1782255011966.png",
+    imageFile: "material-doodles/image6-1782255011966.png",
     alt: "aluminum-can",
   },
   "aluminum-foil": {
-    imageFile: "image7-1782255020032.png",
+    imageFile: "material-doodles/image7-1782255020032.png",
     alt: "aluminum-foil",
   },
   americium: {
-    imageFile: "image8-1782255025440.png",
+    imageFile: "material-doodles/image8-1782255025440.png",
     alt: "Line drawing of americium's chemical element symbol",
   },
   antimony: {
-    imageFile: "image9-1782255031767.png",
+    imageFile: "material-doodles/image9-1782255031767.png",
     alt: "Line drawing of antimony's chemical element symbol",
   },
-  argon: { imageFile: "image10-1782255035873.png", alt: "argon" },
-  arsenic: { imageFile: "image11-1782255041651.png", alt: "arsenic" },
+  argon: {
+    imageFile: "material-doodles/image10-1782255035873.png",
+    alt: "argon",
+  },
+  arsenic: {
+    imageFile: "material-doodles/image11-1782255041651.png",
+    alt: "arsenic",
+  },
   "asphalt-shingle": {
-    imageFile: "image12-1782255046693.png",
+    imageFile: "material-doodles/image12-1782255046693.png",
     alt: "asphalt-shingle",
   },
   astatine: { imageFile: "image13-1782255052029.png", alt: "astatine" },
@@ -257,7 +262,7 @@ export const MATERIAL_DOODLES: Record<string, MaterialDoodleManifestEntry> = {
   oxygen: { imageFile: "image134.png", alt: "oxygen" },
   palladium: { imageFile: "image135.png", alt: "palladium" },
   paper: { imageFile: "image136.png", alt: "paper" },
-  // paper: { imageFile: "image137.png", alt: "paper" },
+  // "paper-shredded": { imageFile: "image needed", alt: "shredded paper" },
   "paper-towel": { imageFile: "image137.png", alt: "paper-towel" },
   "paper-towel-rolls": { imageFile: "image138.png", alt: "paper-towel-rolls" },
   "paraffin-wax": { imageFile: "image139.png", alt: "paraffin-wax" },
