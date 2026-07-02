@@ -16,6 +16,8 @@ import type {
   EntityBackfillRunDetail,
 } from "../types/graphMigration";
 import type {
+  VideoTriageApplyRequest,
+  VideoTriageApplyResponse,
   VideoPlaylistCapabilities,
   VideoPlaylistPreviewResponse,
   VideoTriageBatchListResponse,
@@ -1702,6 +1704,20 @@ export async function reviewVideoTriageItem(
   );
 }
 
+/** Admin only — transactionally creates draft videos from reviewed triage. */
+export async function applyVideoTriageBatch(
+  batchId: string,
+  request: VideoTriageApplyRequest,
+): Promise<VideoTriageApplyResponse> {
+  return await apiCall(
+    `/graph/videos/playlist/triage/batches/${encodeURIComponent(batchId)}/apply`,
+    {
+      method: "POST",
+      body: JSON.stringify(request),
+    },
+  );
+}
+
 // ==================== GRAPH MIGRATION DRY RUNS ====================
 
 /** Admin only — computes the entity backfill plan without writing graph data. */
@@ -1716,9 +1732,7 @@ export async function runEntityBackfillDryRun(
 
 /** Admin only — reports whether the production apply gate is enabled. */
 export async function getEntityBackfillCapabilities(): Promise<EntityBackfillCapabilities> {
-  return await apiCall(
-    "/graph/migrations/entity-backfill/capabilities",
-  );
+  return await apiCall("/graph/migrations/entity-backfill/capabilities");
 }
 
 /** Admin only — executes the separately approved canonical entity backfill. */
@@ -1752,7 +1766,5 @@ export async function resumeEntityBackfill(
 export async function getEntityBackfillRun(
   runId: string,
 ): Promise<EntityBackfillRunDetail> {
-  return await apiCall(
-    `/graph/migrations/entity-backfill/runs/${runId}`,
-  );
+  return await apiCall(`/graph/migrations/entity-backfill/runs/${runId}`);
 }

@@ -184,7 +184,13 @@ export interface VideoTriageBatch {
   source_preview_checksum: string;
   worksheet_checksum: string;
   row_count: number;
-  status: "needs_review" | "ready" | "applying" | "completed" | "failed" | "archived";
+  status:
+    | "needs_review"
+    | "ready"
+    | "applying"
+    | "completed"
+    | "failed"
+    | "archived";
   validation_summary: Record<string, unknown>;
   created_at: string;
   updated_at: string;
@@ -249,4 +255,25 @@ export interface VideoTriageReviewResponse {
   reviewed_available_count: number;
   unreviewed_available_count: number;
   reviewed_count: number;
+}
+
+export interface VideoTriageApplyRequest {
+  confirmation: "apply video triage drafts";
+  include_editorial_leads?: boolean;
+}
+
+export interface VideoTriageApplyResponse {
+  success: boolean;
+  batch_id: string;
+  status: "completed" | "failed";
+  already_applied: boolean;
+  videos_inserted: number;
+  videos_reused: number;
+  entities_inserted: number;
+  bindings_inserted: number;
+  triage_items_applied: number;
+  editorial_leads_inserted: number;
+  pending_draft_items_before_apply: number;
+  target_draft_items: number;
+  target_editorial_items: number;
 }

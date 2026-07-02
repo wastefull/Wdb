@@ -143,7 +143,7 @@ export function getStage7Tests(): Test[] {
       id: "stage-7-video-preview-capabilities",
       name: "Video playlist preview is safely configured",
       description:
-        "Confirms the YouTube credential is server-side, read-only preview is enabled, private staging is explicitly reported, and draft apply and graph reads remain disabled.",
+        "Confirms the YouTube credential is server-side, read-only preview is enabled, private staging is explicitly reported, and draft apply plus graph reads remain disabled.",
       phase: "stage-7",
       stage: 7,
       category: "Video Curation",

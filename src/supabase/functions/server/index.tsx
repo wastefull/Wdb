@@ -15201,6 +15201,9 @@ app.get(
   verifyAuth,
   verifyAdmin,
   async (c) => {
+    const draftApplyEnabled =
+      Deno.env.get("VIDEO_TRIAGE_DRAFT_APPLY_ENABLED")?.trim().toLowerCase() ===
+      "true";
     const triagePersistenceEnabled =
       Deno.env.get("VIDEO_TRIAGE_PERSISTENCE_ENABLED")?.trim().toLowerCase() ===
       "true";
@@ -15210,13 +15213,15 @@ app.get(
       youtube_api_configured: Boolean(Deno.env.get("YOUTUBE_API_KEY")?.trim()),
       preview_enabled: true,
       maximum_playlist_items: YOUTUBE_PLAYLIST_MAX_ITEMS,
-      draft_apply_enabled: false,
+      draft_apply_enabled: draftApplyEnabled,
       triage_persistence_enabled: triagePersistenceEnabled,
       triage_review_enabled: triagePersistenceEnabled,
       graph_reads_enabled: false,
     });
   },
 );
+
+const VIDEO_TRIAGE_DRAFT_APPLY_CONFIRMATION = "apply video triage drafts";
 
 // This preview is deliberately read-only. It contacts YouTube with a
 // server-held credential, compares provider items with WasteDB videos, and
@@ -15594,6 +15599,104 @@ app.patch(
       log.error("Video triage review failed:", error);
       return c.json(
         { success: false, error: "Triage review could not be saved." },
+        500,
+      );
+    }
+  },
+);
+
+app.post(
+  "/make-server-17cae920/graph/videos/playlist/triage/batches/:batchId/apply",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    if (
+      Deno.env.get("VIDEO_TRIAGE_DRAFT_APPLY_ENABLED")?.trim().toLowerCase() !==
+      "true"
+    ) {
+      return c.json(
+        {
+          success: false,
+          error:
+            "Video triage draft apply is disabled. Enable VIDEO_TRIAGE_DRAFT_APPLY_ENABLED only during an approved apply window.",
+        },
+        503,
+      );
+    }
+
+    const batchId = c.req.param("batchId");
+    if (
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+        batchId,
+      )
+    ) {
+      return c.json({ success: false, error: "Invalid triage batch ID." }, 400);
+    }
+
+    try {
+      const body = await c.req.json().catch(() => ({}));
+      if (body?.confirmation !== VIDEO_TRIAGE_DRAFT_APPLY_CONFIRMATION) {
+        return c.json(
+          {
+            success: false,
+            error: `Body must include confirmation: "${VIDEO_TRIAGE_DRAFT_APPLY_CONFIRMATION}"`,
+          },
+          400,
+        );
+      }
+      const includeEditorialLeads =
+        typeof body?.include_editorial_leads === "boolean"
+          ? body.include_editorial_leads
+          : true;
+
+      const { data, error } = await _roleClient().rpc(
+        "apply_video_triage_batch",
+        {
+          p_batch_id: batchId,
+          p_reviewer_id: c.get("userId"),
+          p_include_editorial_leads: includeEditorialLeads,
+        },
+      );
+      if (error) throw error;
+
+      const result = (data ?? {}) as Record<string, unknown>;
+      if (result.success === false) {
+        return c.json(
+          {
+            success: false,
+            error:
+              typeof result.error === "string"
+                ? result.error
+                : "Video triage draft apply failed.",
+            details: result,
+          },
+          500,
+        );
+      }
+
+      await createAuditLog({
+        userId: c.get("userId"),
+        userEmail: c.get("userEmail") ?? "unknown",
+        entityType: "video_import_batch",
+        entityId: batchId,
+        action: "update",
+        after: {
+          operation: "apply_video_triage_batch",
+          include_editorial_leads: includeEditorialLeads,
+          result,
+        },
+        req: c,
+      });
+
+      return c.json(result);
+    } catch (error) {
+      log.error("Video triage draft apply failed:", error);
+      return c.json(
+        {
+          success: false,
+          error: "Video triage draft apply failed.",
+          details: String(error),
+        },
         500,
       );
     }

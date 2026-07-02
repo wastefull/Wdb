@@ -1,7 +1,16 @@
 import { useCallback, useEffect, useState } from "react";
-import { ExternalLink, Loader2, RefreshCw, Save, Video } from "lucide-react";
+import {
+  ExternalLink,
+  Loader2,
+  RefreshCw,
+  Save,
+  Video,
+  WandSparkles,
+} from "lucide-react";
 import * as api from "../../utils/api";
 import type {
+  VideoPlaylistCapabilities,
+  VideoTriageApplyResponse,
   VideoEditorialTarget,
   VideoTriageBatch,
   VideoTriageDisposition,
@@ -28,8 +37,9 @@ function ReviewEditor({
   item: VideoTriageItem;
   onSaved: () => Promise<void>;
 }) {
-  const [disposition, setDisposition] =
-    useState<VideoTriageDisposition | "">(item.disposition ?? "");
+  const [disposition, setDisposition] = useState<VideoTriageDisposition | "">(
+    item.disposition ?? "",
+  );
   const [materials, setMaterials] = useState(
     item.material_identifiers.join("; "),
   );
@@ -121,8 +131,12 @@ function ReviewEditor({
             className="mt-1 w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] dark:border-white/15"
           >
             <option value="">Unreviewed</option>
-            {!unavailable && <option value="material_video">Material video</option>}
-            {!unavailable && <option value="editorial_lead">Editorial lead</option>}
+            {!unavailable && (
+              <option value="material_video">Material video</option>
+            )}
+            {!unavailable && (
+              <option value="editorial_lead">Editorial lead</option>
+            )}
             {!unavailable && <option value="both">Both</option>}
             <option value="ignore">Ignore</option>
           </select>
@@ -195,7 +209,10 @@ function ReviewEditor({
           {isSaving ? "Saving…" : "Save review"}
         </button>
         {message && (
-          <span className="text-[11px] text-black/60 dark:text-white/60" aria-live="polite">
+          <span
+            className="text-[11px] text-black/60 dark:text-white/60"
+            aria-live="polite"
+          >
             {message}
           </span>
         )}
@@ -211,6 +228,11 @@ export function VideoTriageReviewPanel() {
   const [total, setTotal] = useState(0);
   const [offset, setOffset] = useState(0);
   const [reviewStatus, setReviewStatus] = useState("unreviewed");
+  const [capabilities, setCapabilities] =
+    useState<VideoPlaylistCapabilities | null>(null);
+  const [applyResult, setApplyResult] =
+    useState<VideoTriageApplyResponse | null>(null);
+  const [isApplying, setIsApplying] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -235,25 +257,30 @@ export function VideoTriageReviewPanel() {
     setTotal(response.total);
   }, [batchId, offset, reviewStatus]);
 
+  const loadCapabilities = useCallback(async () => {
+    const response = await api.getVideoPlaylistCapabilities();
+    setCapabilities(response);
+  }, []);
+
   const refresh = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      await loadBatches();
-      await loadItems();
+      await Promise.all([loadBatches(), loadItems(), loadCapabilities()]);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : String(caught));
     } finally {
       setIsLoading(false);
     }
-  }, [loadBatches, loadItems]);
+  }, [loadBatches, loadItems, loadCapabilities]);
 
   useEffect(() => {
-    void loadBatches().catch((caught) => {
-      setError(caught instanceof Error ? caught.message : String(caught));
-      setIsLoading(false);
-    });
-  }, [loadBatches]);
+    void Promise.all([loadBatches(), loadCapabilities()])
+      .catch((caught) => {
+        setError(caught instanceof Error ? caught.message : String(caught));
+      })
+      .finally(() => setIsLoading(false));
+  }, [loadBatches, loadCapabilities]);
 
   useEffect(() => {
     setIsLoading(true);
@@ -267,6 +294,35 @@ export function VideoTriageReviewPanel() {
   const batch = batches.find((candidate) => candidate.id === batchId) ?? null;
   const pageStart = total === 0 ? 0 : offset + 1;
   const pageEnd = Math.min(offset + PAGE_SIZE, total);
+  const canApplyDrafts = Boolean(
+    batch &&
+    capabilities?.draft_apply_enabled &&
+    ["ready", "failed", "completed"].includes(batch.status),
+  );
+
+  const applyDrafts = async () => {
+    if (!batchId || !canApplyDrafts || isApplying) return;
+    const confirmation = window.prompt(
+      'Type "apply video triage drafts" to continue draft apply.',
+    );
+    if (confirmation !== "apply video triage drafts") return;
+
+    setIsApplying(true);
+    setError(null);
+    setApplyResult(null);
+    try {
+      const result = await api.applyVideoTriageBatch(batchId, {
+        confirmation: "apply video triage drafts",
+        include_editorial_leads: true,
+      });
+      setApplyResult(result);
+      await refresh();
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : String(caught));
+    } finally {
+      setIsApplying(false);
+    }
+  };
 
   return (
     <section
@@ -278,11 +334,15 @@ export function VideoTriageReviewPanel() {
         <div className="flex items-start gap-3">
           <Video className="mt-0.5 size-5 shrink-0" />
           <div>
-            <h3 id="video-triage-review-title" className="font-sniglet text-[16px]">
+            <h3
+              id="video-triage-review-title"
+              className="font-sniglet text-[16px]"
+            >
               Private Video Triage
             </h3>
             <p className="mt-1 text-[12px] text-black/60 dark:text-white/60">
-              Record human review decisions without creating drafts or public graph content.
+              Record human review decisions without creating drafts or public
+              graph content.
             </p>
           </div>
         </div>
@@ -292,7 +352,9 @@ export function VideoTriageReviewPanel() {
           disabled={isLoading}
           className="flex items-center gap-2 rounded-lg border border-black/15 px-3 py-2 text-[12px] disabled:opacity-50 dark:border-white/15"
         >
-          <RefreshCw className={`size-3.5 ${isLoading ? "animate-spin" : ""}`} />
+          <RefreshCw
+            className={`size-3.5 ${isLoading ? "animate-spin" : ""}`}
+          />
           Refresh
         </button>
       </div>
@@ -317,7 +379,8 @@ export function VideoTriageReviewPanel() {
             >
               {batches.map((entry) => (
                 <option key={entry.id} value={entry.id}>
-                  {entry.source_playlist_title ?? entry.source_playlist_id} · {entry.status}
+                  {entry.source_playlist_title ?? entry.source_playlist_id} ·{" "}
+                  {entry.status}
                 </option>
               ))}
             </select>
@@ -341,8 +404,41 @@ export function VideoTriageReviewPanel() {
       )}
 
       {batch && (
-        <p className="text-[11px] text-black/60 dark:text-white/60">
-          Batch {batch.id} · {batch.row_count} candidates · status {batch.status}
+        <div className="space-y-2">
+          <p className="text-[11px] text-black/60 dark:text-white/60">
+            Batch {batch.id} · {batch.row_count} candidates · status{" "}
+            {batch.status}
+          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => void applyDrafts()}
+              disabled={!canApplyDrafts || isApplying}
+              className="retro-btn-primary flex items-center gap-2 disabled:opacity-50"
+            >
+              {isApplying ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <WandSparkles className="size-4" />
+              )}
+              {isApplying ? "Applying drafts…" : "Apply reviewed drafts"}
+            </button>
+            {!capabilities?.draft_apply_enabled && (
+              <span className="text-[11px] text-black/50 dark:text-white/50">
+                Draft apply gate is closed.
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
+      {applyResult && (
+        <p className="rounded-lg border border-waste-compost/30 bg-waste-compost/5 p-3 text-[12px]">
+          Applied batch {applyResult.batch_id}: {applyResult.videos_inserted}{" "}
+          new draft videos, {applyResult.videos_reused} reused videos,{" "}
+          {applyResult.entities_inserted} new video entities, and{" "}
+          {applyResult.editorial_leads_inserted} editorial leads.
+          {applyResult.already_applied ? " (Idempotent rerun.)" : ""}
         </p>
       )}
 

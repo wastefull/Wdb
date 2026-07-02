@@ -105,6 +105,15 @@ publish or to create drafts. Follow the
 [Video Triage Worksheet Staging Runbook](../roadmap/guides/KNOWLEDGE_GRAPH_VIDEO_TRIAGE_STAGING_RUNBOOK.md)
 for deployment and reconciliation.
 
+Draft apply is a separate reviewed step controlled by
+`VIDEO_TRIAGE_DRAFT_APPLY_ENABLED`. Keep it disabled during normal operation,
+enable it only for an approved apply window, and disable it again after
+reconciliation. Apply is admin-only and requires an explicit confirmation
+phrase in the request body. The apply transaction creates only draft videos,
+draft video entities, canonical bindings, and optional private editorial
+leads from reviewed candidates. It must not publish videos or create public
+graph relationship, content-mapping, or tag records.
+
 Candidate review uses the same server gate and remains admin-only in its first
 increment. A review may change private disposition, material suggestions,
 reviewed topics, editorial targets, and notes, but must not create a video,
