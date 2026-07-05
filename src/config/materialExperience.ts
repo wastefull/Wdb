@@ -21,7 +21,7 @@ export const MATERIAL_EXPERIENCE_SECTIONS: readonly {
       id: "material-overview-heading",
       title: "Material Overview",
       description:
-        "What this material is, how WasteDB classifies it, and the current material links that remain available while connected discovery is being prepared.",
+        "A plain-language introduction to this material, how WasteDB groups it, and the related material links available today.",
     },
   },
   {
@@ -34,7 +34,7 @@ export const MATERIAL_EXPERIENCE_SECTIONS: readonly {
       id: "material-intelligence-heading",
       title: "Material Intelligence",
       description:
-        "Current sustainability scores, practical-versus-theoretical comparisons, and the quality signals behind them.",
+        "A snapshot of current sustainability scores, how real-world and ideal conditions compare, and how strong the underlying evidence is.",
     },
   },
   {
@@ -48,7 +48,7 @@ export const MATERIAL_EXPERIENCE_SECTIONS: readonly {
       id: "key-insights-heading",
       title: "Key Insights",
       description:
-        "Key insights derived from the material, highlighting important findings and trends. Scoped editorial claims drafted from current scores and provenance. They remain non-authoritative until a human editor approves them.",
+        "A short set of takeaways drawn from the current data and sources to help readers quickly understand the most important patterns.",
     },
   },
   {
@@ -62,7 +62,7 @@ export const MATERIAL_EXPERIENCE_SECTIONS: readonly {
       id: "recommended-learning-heading",
       title: "Recommended Learning",
       description:
-        "Starting points from the current article collection. Direct material articles are prioritized before linked-material content; graph-aware educational ranking is not active yet.",
+        "A curated place to start learning more about this material.",
     },
   },
   {
@@ -74,7 +74,7 @@ export const MATERIAL_EXPERIENCE_SECTIONS: readonly {
     heading: {
       id: "connected-discovery-heading",
       title: "Connected Discovery",
-      description: `Graph contract {} is active, but these sections stay empty until migrated relationships pass reconciliation and read verification.`,
+      description: `More ways to explore related materials and ideas are on the way. As this section grows, it will help you discover useful connections across the WasteDB library.`,
       hasVariables: true,
     },
   },
@@ -88,7 +88,7 @@ export const MATERIAL_EXPERIENCE_SECTIONS: readonly {
       id: "deep-research-heading",
       title: "Deep Research",
       description:
-        "Sources, normalized parameters, methodology metadata, attribution, and export access remain available behind the educational summary.",
+        "A deeper look at the evidence behind our conclusions about this material, including sources, methodology details, normalized parameters, attribution, and export access.",
     },
   },
   {
@@ -101,7 +101,7 @@ export const MATERIAL_EXPERIENCE_SECTIONS: readonly {
       id: "material-contribution-heading",
       title: "Material Contribution",
       description:
-        "Opportunities to contribute to the material, including adding new content, editing existing information, and participating in discussions.",
+        "Help us improve this page by adding learning content, suggesting corrections, and contributing clearer, more useful information.",
     },
   },
 ] as const;
