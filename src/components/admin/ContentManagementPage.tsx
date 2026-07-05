@@ -1,9 +1,10 @@
-import { ArrowLeft, GitMerge, Link2, ListChecks, ListVideo, ShieldCheck } from "lucide-react";
+import { ArrowLeft, GitMerge, Link2, ListChecks, ListVideo, ShieldCheck, Tags } from "lucide-react";
 import { ContentMappingReviewPanel } from "./ContentMappingReviewPanel";
 import { ContentMappingPreviewPanel } from "./ContentMappingPreviewPanel";
 import { ManualContentMappingPanel } from "./ManualContentMappingPanel";
 import { VideoPlaylistPreviewPanel } from "./VideoPlaylistPreviewPanel";
 import { VideoTriageReviewPanel } from "./VideoTriageReviewPanel";
+import { VideoTopicClassificationPanel } from "./VideoTopicClassificationPanel";
 
 interface ContentManagementPageProps {
   onBack: () => void;
@@ -19,6 +20,11 @@ const SECTIONS = [
     id: "content-mapping-review",
     label: "Review Content Mappings",
     icon: ShieldCheck,
+  },
+  {
+    id: "video-topic-classification",
+    label: "Reviewed Video Topics",
+    icon: Tags,
   },
   {
     id: "video-playlist-preview",
@@ -80,6 +86,7 @@ export function ContentManagementPage({ onBack }: ContentManagementPageProps) {
         <div className="mx-auto max-w-3xl space-y-6">
           <ManualContentMappingPanel />
           <ContentMappingReviewPanel />
+          <VideoTopicClassificationPanel />
           <VideoPlaylistPreviewPanel />
           <VideoTriageReviewPanel />
           <details className="rounded-xl border border-black/10 p-4 dark:border-white/10">

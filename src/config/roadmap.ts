@@ -381,9 +381,9 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
         "Reviewed video-to-material mapping tools",
         "The local Content Management workflow lets admins map canonical videos and other content to materials as explicit pending-review graph records. Reviewed video-triage material links can also be previewed and promoted in bulk to initial primary-subject mappings, with unresolved identifiers reported rather than guessed. Both paths preserve atomic audit/outbox writes and duplicate protection; production deployment and acceptance remain pending.",
       ),
-      planned(
+      active(
         "Governed video topic classification",
-        "Assign reviewed topic tags independently from material mappings, beginning with 3D printing and leaving incidental mentions untagged.",
+        "Content Management previews and applies only topic values explicitly recorded in reviewed_topic_tags. Missing vocabulary is mechanically normalized from those reviewed decisions without guessing semantic aliases; active entity tags preserve reviewer, audit, and outbox provenance independently from material mappings.",
       ),
       complete(
         "Private editorial lead queue",

@@ -33,6 +33,7 @@ import type {
   CreateManualContentMappingResponse,
   ManualContentMappingOptionsResponse,
   ReviewContentMappingResponse,
+  ReviewedVideoTopicReport,
   ReviewedVideoMappingReport,
 } from "../types/manualContentMapping";
 
@@ -1703,6 +1704,19 @@ export async function applyReviewedVideoMappings(): Promise<ReviewedVideoMapping
   return await apiCall("/graph/content-mappings/manual/videos/apply", {
     method: "POST",
     body: JSON.stringify({ confirmation: "apply reviewed video material mappings" }),
+  });
+}
+
+/** Admin only — previews governed topic tags explicitly reviewed during triage. */
+export async function previewReviewedVideoTopics(): Promise<ReviewedVideoTopicReport> {
+  return await apiCall("/graph/videos/topics/reviewed/preview");
+}
+
+/** Admin only — applies explicitly reviewed video topics as active governed tags. */
+export async function applyReviewedVideoTopics(): Promise<ReviewedVideoTopicReport> {
+  return await apiCall("/graph/videos/topics/reviewed/apply", {
+    method: "POST",
+    body: JSON.stringify({ confirmation: "apply reviewed video topic tags" }),
   });
 }
 

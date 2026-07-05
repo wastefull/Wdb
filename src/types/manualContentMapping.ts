@@ -63,6 +63,9 @@ export interface ReviewedVideoMappingReport {
   success: true;
   mode: "preview" | "apply";
   candidate_count: number;
+  governed_topic_count: number;
+  existing_vocabulary_count: number;
+  new_topic_count: number;
   resolved_count: number;
   unresolved_count: number;
   existing_count: number;
@@ -109,4 +112,22 @@ export interface ReviewContentMappingResponse {
   changed: boolean;
   already_reviewed: boolean;
   outbox_event_written: boolean;
+}
+
+export interface ReviewedVideoTopicReport {
+  success: true;
+  mode: "preview" | "apply";
+  candidate_count: number;
+  resolved_count: number;
+  unresolved_count: number;
+  existing_count: number;
+  creatable_count: number;
+  created_count: number;
+  outbox_count: number;
+  status: "active";
+  unresolved: Array<{
+    import_item_id: string;
+    video_entity_id: string;
+    topic_slug: string;
+  }>;
 }

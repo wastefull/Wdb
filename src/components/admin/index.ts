@@ -22,6 +22,7 @@ export { ContentMappingPreviewPanel } from "./ContentMappingPreviewPanel";
 export { ContentMappingReviewPanel } from "./ContentMappingReviewPanel";
 export { ContentManagementPage } from "./ContentManagementPage";
 export { ManualContentMappingPanel } from "./ManualContentMappingPanel";
+export { VideoTopicClassificationPanel } from "./VideoTopicClassificationPanel";
 
 // Settings
 export { CategoriesView } from "./CategoriesView";

@@ -35,6 +35,12 @@ Private Video Triage includes a full-batch filter for video titles, YouTube
 IDs, channels, reviewed material identifiers, topic tags, and review notes. Use
 it to locate and correct a reviewed decision without paging through the batch.
 
+Use **Reviewed Video Topics** in Content Management to preview and apply only
+topic tags explicitly approved during triage. Automated suggestions are
+excluded. Missing topic vocabulary is created from those reviewed values with
+mechanical slug normalization; similarly named concepts are not silently
+merged.
+
 The normal content-mapping workflow is:
 
 1. Open **Create Content Mapping**.

@@ -16048,6 +16048,44 @@ app.post(
   },
 );
 
+app.get(
+  "/make-server-17cae920/graph/videos/topics/reviewed/preview",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    const { data, error } = await _roleClient().rpc(
+      "process_reviewed_video_topic_tags",
+      { p_admin_id: c.get("userId"), p_apply: false },
+    );
+    if (error) {
+      log.error("Reviewed video topic preview failed:", error);
+      return c.json({ success: false, error: "Video topic preview failed." }, 500);
+    }
+    return c.json(data);
+  },
+);
+
+app.post(
+  "/make-server-17cae920/graph/videos/topics/reviewed/apply",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    const body = await c.req.json().catch(() => ({}));
+    if (body?.confirmation !== "apply reviewed video topic tags") {
+      return c.json({ success: false, error: "Explicit confirmation is required." }, 400);
+    }
+    const { data, error } = await _roleClient().rpc(
+      "process_reviewed_video_topic_tags",
+      { p_admin_id: c.get("userId"), p_apply: true },
+    );
+    if (error) {
+      log.error("Reviewed video topic apply failed:", error);
+      return c.json({ success: false, error: "Video topics could not be applied." }, 500);
+    }
+    return c.json(data);
+  },
+);
+
 // Non-mutating relationship and content-mapping preview. Identifies candidate
 // relationships from material_links and linked_material_ids, and candidate
 // content mappings from articles and guides, without writing any graph records.

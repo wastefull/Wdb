@@ -318,6 +318,14 @@ but only a reviewed decision creates the governed tag. The topic does not by
 itself imply a material relationship, evidentiary support, or editorial
 disposition.
 
+Content Management can preview and apply topic values already recorded in
+`reviewed_topic_tags`. Because these values were explicitly approved during
+triage, apply adds mechanically normalized missing topic vocabulary and creates
+active `entity_tags` with reviewer provenance, idempotent outbox events, and an
+audit summary rather than requiring the same editorial decision a second time.
+Comma-combined values are split, but semantic aliases are not guessed or
+merged. Automated `suggested_topic_tags` are never read by this apply path.
+
 ## Editorial Lead Workflow
 
 Mission-relevant videos that are broader than a specific material belong in a
