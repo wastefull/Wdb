@@ -191,8 +191,10 @@ It does not enable graph-powered discovery reads; that remains a Stage 8 gate.
   reviewed slugs from appearing unresolved merely because a binding was absent.
 - Content Management includes a review queue for pending mappings. Admins can
   search and filter mappings, approve them to `active`, or reject them to
-  `archived`. Each decision records reviewer metadata, an idempotent outbox
-  update, and an audit entry in one database transaction.
+  `archived`. The 25-item review page supports selecting and approving the
+  visible pending mappings in bulk to reduce repetitive input. Each decision
+  records reviewer metadata, an idempotent outbox update, and an audit entry in
+  one database transaction.
 
 ## Entry State
 

@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useState } from "react";
 import {
   Archive,
   Check,
+  CheckCheck,
   ChevronLeft,
   ChevronRight,
   Loader2,
@@ -15,7 +16,8 @@ import type {
 } from "../../types/manualContentMapping";
 import * as api from "../../utils/api";
 
-const PAGE_SIZE = 50;
+const PAGE_SIZE = 25;
+const BULK_REQUEST_SIZE = 5;
 
 const STATUS_LABELS: Record<ContentMappingReviewStatus, string> = {
   pending_review: "Pending review",
@@ -38,6 +40,8 @@ export function ContentMappingReviewPanel() {
   const [offset, setOffset] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [reviewingId, setReviewingId] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isBulkApproving, setIsBulkApproving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const loadItems = async () => {
@@ -52,6 +56,7 @@ export function ContentMappingReviewPanel() {
       });
       setItems(response.items);
       setTotal(response.total);
+      setSelectedIds(new Set());
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : String(caught));
     } finally {
@@ -91,6 +96,55 @@ export function ContentMappingReviewPanel() {
     } finally {
       setReviewingId(null);
     }
+  };
+
+  const pendingItems = items.filter((item) => item.status === "pending_review");
+  const selectedItems = pendingItems.filter((item) => selectedIds.has(item.id));
+  const allPendingSelected =
+    pendingItems.length > 0 && selectedItems.length === pendingItems.length;
+
+  const toggleSelected = (id: string) => {
+    setSelectedIds((current) => {
+      const next = new Set(current);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const togglePage = () => {
+    setSelectedIds(
+      allPendingSelected
+        ? new Set()
+        : new Set(pendingItems.map((item) => item.id)),
+    );
+  };
+
+  const approveSelected = async () => {
+    if (selectedItems.length === 0) return;
+    if (!window.confirm(
+      `Approve ${selectedItems.length} selected content mapping(s)?\n\nEach mapping will become active and receive its own reviewer, audit, and outbox records.`,
+    )) return;
+
+    setIsBulkApproving(true);
+    setError(null);
+    const failed: string[] = [];
+    for (let index = 0; index < selectedItems.length; index += BULK_REQUEST_SIZE) {
+      const batch = selectedItems.slice(index, index + BULK_REQUEST_SIZE);
+      const results = await Promise.allSettled(
+        batch.map((item) => api.reviewContentMapping(item.id, "approve")),
+      );
+      results.forEach((result, resultIndex) => {
+        if (result.status === "rejected") failed.push(batch[resultIndex].content_name);
+      });
+    }
+    await loadItems();
+    if (failed.length > 0) {
+      setError(
+        `${selectedItems.length - failed.length} mapping(s) approved; ${failed.length} failed: ${failed.join(", ")}`,
+      );
+    }
+    setIsBulkApproving(false);
   };
 
   const pageStart = total === 0 ? 0 : offset + 1;
@@ -183,6 +237,34 @@ export function ContentMappingReviewPanel() {
         </p>
       )}
 
+      {!isLoading && pendingItems.length > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-waste-science/25 bg-waste-science/5 p-3">
+          <label className="flex cursor-pointer items-center gap-2 text-[12px]">
+            <input
+              type="checkbox"
+              checked={allPendingSelected}
+              onChange={togglePage}
+              disabled={isBulkApproving || reviewingId !== null}
+              className="size-4 accent-waste-science"
+            />
+            Select all {pendingItems.length} on this page
+          </label>
+          <button
+            type="button"
+            onClick={() => void approveSelected()}
+            disabled={selectedItems.length === 0 || isBulkApproving || reviewingId !== null}
+            className="flex items-center gap-2 rounded-lg bg-waste-science px-4 py-2 text-[12px] text-white disabled:opacity-40"
+          >
+            {isBulkApproving ? (
+              <Loader2 className="size-3.5 animate-spin" />
+            ) : (
+              <CheckCheck className="size-3.5" />
+            )}
+            Approve selected ({selectedItems.length})
+          </button>
+        </div>
+      )}
+
       {isLoading ? (
         <div className="flex items-center justify-center gap-2 py-10 text-[13px] text-black/55 dark:text-white/55">
           <Loader2 className="size-4 animate-spin" /> Loading mappings
@@ -196,6 +278,16 @@ export function ContentMappingReviewPanel() {
           {items.map((item) => (
             <article key={item.id} className="rounded-xl border border-black/10 p-4 dark:border-white/10">
               <div className="flex flex-wrap items-start justify-between gap-4">
+                {item.status === "pending_review" && (
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.has(item.id)}
+                    onChange={() => toggleSelected(item.id)}
+                    disabled={isBulkApproving || reviewingId !== null}
+                    aria-label={`Select ${item.content_name} mapped to ${item.subject_name}`}
+                    className="mt-1 size-4 shrink-0 accent-waste-science"
+                  />
+                )}
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-wide text-black/45 dark:text-white/45">
                     <span>{formatLabel(item.content_type)}</span>
@@ -218,7 +310,7 @@ export function ContentMappingReviewPanel() {
                     <button
                       type="button"
                       onClick={() => void review(item, "reject")}
-                      disabled={reviewingId !== null}
+                      disabled={reviewingId !== null || isBulkApproving}
                       className="flex items-center gap-1.5 rounded-lg border border-black/15 px-3 py-2 text-[12px] disabled:opacity-50 dark:border-white/15"
                     >
                       <Archive className="size-3.5" /> Reject
@@ -226,7 +318,7 @@ export function ContentMappingReviewPanel() {
                     <button
                       type="button"
                       onClick={() => void review(item, "approve")}
-                      disabled={reviewingId !== null}
+                      disabled={reviewingId !== null || isBulkApproving}
                       className="flex items-center gap-1.5 rounded-lg bg-waste-science px-3 py-2 text-[12px] text-white disabled:opacity-50"
                     >
                       {reviewingId === item.id ? <Loader2 className="size-3.5 animate-spin" /> : <Check className="size-3.5" />}

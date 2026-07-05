@@ -47,6 +47,11 @@ claim. Approval changes status to `active`; rejection changes status to
 `archived`. Both decisions write reviewer metadata, an idempotent outbox update,
 and an audit record atomically.
 
+The queue shows 25 mappings per page. **Select all on this page** and **Approve
+selected** reduce repetitive review work while retaining one independently
+audited transaction per mapping. Bulk requests run in bounded groups and report
+partial failures without rolling back mappings that were approved successfully.
+
 Incorrect claims should be rejected and recreated through **Create Content
 Mapping**. The initial review action intentionally cannot rewrite or reverse an
 already reviewed claim.
