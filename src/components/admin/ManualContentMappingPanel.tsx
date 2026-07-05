@@ -213,22 +213,44 @@ export function ManualContentMappingPanel() {
                 placeholder="Search titles…"
                 className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] dark:border-white/15"
               />
-              <select
+              <div
+                role="listbox"
                 aria-label="Content"
-                value={contentEntityId}
-                onChange={(event) => {
-                  setContentEntityId(event.target.value);
-                  setResult(null);
-                }}
-                className="h-36 w-full rounded-lg border border-black/15 bg-background px-2 py-1 text-[12px] dark:border-white/15"
-                size={6}
+                className="h-36 w-full overflow-y-auto rounded-lg border border-black/15 bg-background p-1 text-[12px] dark:border-white/15"
               >
-                {filteredContent.map((candidate) => (
-                  <option key={candidate.id} value={candidate.id}>
-                    {CONTENT_TYPE_LABELS[candidate.entity_type as ManualContentEntityType]} · {candidate.name}
-                  </option>
-                ))}
-              </select>
+                {filteredContent.length === 0 ? (
+                  <p className="px-2 py-3 text-black/45 dark:text-white/45">
+                    No matching content.
+                  </p>
+                ) : (
+                  filteredContent.map((candidate) => {
+                    const selected = candidate.id === contentEntityId;
+                    return (
+                      <button
+                        type="button"
+                        role="option"
+                        aria-selected={selected}
+                        key={candidate.id}
+                        onClick={() => {
+                          setContentEntityId(candidate.id);
+                          setResult(null);
+                          setError(null);
+                        }}
+                        className={`block w-full rounded-md px-2 py-1.5 text-left ${
+                          selected
+                            ? "bg-waste-science/20 font-medium ring-1 ring-waste-science/50"
+                            : "hover:bg-black/5 dark:hover:bg-white/5"
+                        }`}
+                      >
+                        {CONTENT_TYPE_LABELS[
+                          candidate.entity_type as ManualContentEntityType
+                        ]}{" "}
+                        · {candidate.name}
+                      </button>
+                    );
+                  })
+                )}
+              </div>
               <p className="text-[10px] text-black/50 dark:text-white/50">
                 {filteredContent.length} matching canonical item(s)
               </p>
@@ -250,22 +272,41 @@ export function ManualContentMappingPanel() {
                 placeholder="Search materials…"
                 className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] dark:border-white/15"
               />
-              <select
+              <div
+                role="listbox"
                 aria-label="Material"
-                value={subjectEntityId}
-                onChange={(event) => {
-                  setSubjectEntityId(event.target.value);
-                  setResult(null);
-                }}
-                className="h-36 w-full rounded-lg border border-black/15 bg-background px-2 py-1 text-[12px] dark:border-white/15"
-                size={6}
+                className="h-36 w-full overflow-y-auto rounded-lg border border-black/15 bg-background p-1 text-[12px] dark:border-white/15"
               >
-                {filteredMaterials.map((candidate) => (
-                  <option key={candidate.id} value={candidate.id}>
-                    {candidate.name}
-                  </option>
-                ))}
-              </select>
+                {filteredMaterials.length === 0 ? (
+                  <p className="px-2 py-3 text-black/45 dark:text-white/45">
+                    No matching materials.
+                  </p>
+                ) : (
+                  filteredMaterials.map((candidate) => {
+                    const selected = candidate.id === subjectEntityId;
+                    return (
+                      <button
+                        type="button"
+                        role="option"
+                        aria-selected={selected}
+                        key={candidate.id}
+                        onClick={() => {
+                          setSubjectEntityId(candidate.id);
+                          setResult(null);
+                          setError(null);
+                        }}
+                        className={`block w-full rounded-md px-2 py-1.5 text-left ${
+                          selected
+                            ? "bg-waste-compost/20 font-medium ring-1 ring-waste-compost/50"
+                            : "hover:bg-black/5 dark:hover:bg-white/5"
+                        }`}
+                      >
+                        {candidate.name}
+                      </button>
+                    );
+                  })
+                )}
+              </div>
               <p className="text-[10px] text-black/50 dark:text-white/50">
                 {filteredMaterials.length} matching canonical material(s)
               </p>
