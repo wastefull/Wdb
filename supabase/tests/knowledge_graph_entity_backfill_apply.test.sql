@@ -42,6 +42,11 @@ SELECT ok(
   'Service-role workers can execute reviewed entity-backfill phases'
 );
 
+-- Preserve this Stage 6 fixture's original purpose: exercise the backfill's
+-- insert path rather than the Stage 7 material compatibility trigger.
+ALTER TABLE public.materials
+  DISABLE TRIGGER materials_sync_canonical_binding;
+
 INSERT INTO public.materials (
   id,
   name,
@@ -56,6 +61,9 @@ VALUES (
   'Transactional apply test material.',
   'published'
 );
+
+ALTER TABLE public.materials
+  ENABLE TRIGGER materials_sync_canonical_binding;
 
 INSERT INTO public.graph_migration_runs (
   id,

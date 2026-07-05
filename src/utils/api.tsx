@@ -1710,7 +1710,12 @@ export async function listVideoTriageBatches(): Promise<VideoTriageBatchListResp
 /** Admin only — lists a page of private candidate review records. */
 export async function listVideoTriageItems(
   batchId: string,
-  options: { offset?: number; limit?: number; reviewStatus?: string } = {},
+  options: {
+    offset?: number;
+    limit?: number;
+    reviewStatus?: string;
+    search?: string;
+  } = {},
 ): Promise<VideoTriageItemListResponse> {
   const params = new URLSearchParams({
     offset: String(options.offset ?? 0),
@@ -1718,6 +1723,9 @@ export async function listVideoTriageItems(
   });
   if (options.reviewStatus && options.reviewStatus !== "all") {
     params.set("review_status", options.reviewStatus);
+  }
+  if (options.search?.trim()) {
+    params.set("search", options.search.trim());
   }
   return await apiCall(
     `/graph/videos/playlist/triage/batches/${encodeURIComponent(batchId)}/items?${params}`,

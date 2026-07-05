@@ -15463,17 +15463,58 @@ app.get(
         400,
       );
     }
+    const search = (c.req.query("search") ?? "").trim().toLocaleLowerCase();
+    if (search.length > 100) {
+      return c.json(
+        { success: false, error: "Search filter must be 100 characters or fewer." },
+        400,
+      );
+    }
+
+    const selectFields =
+      "id,batch_id,source_row_number,provider_video_id,provider_url,playlist_positions,title,channel_name,duration_seconds,provider_classification,privacy_status,embeddable,external_playback_only,provider_issues,suggested_topic_tags,disposition,material_identifiers,reviewed_topic_tags,editorial_targets,review_notes,review_status,reviewed_at,updated_at";
 
     let query = _roleClient()
       .from("video_import_items")
-      .select(
-        "id,batch_id,source_row_number,provider_video_id,provider_url,playlist_positions,title,channel_name,duration_seconds,provider_classification,privacy_status,embeddable,external_playback_only,provider_issues,suggested_topic_tags,disposition,material_identifiers,reviewed_topic_tags,editorial_targets,review_notes,review_status,reviewed_at,updated_at",
-        { count: "exact" },
-      )
+      .select(selectFields, { count: "exact" })
       .eq("batch_id", batchId)
-      .order("source_row_number", { ascending: true })
-      .range(offset, offset + limit - 1);
+      .order("source_row_number", { ascending: true });
     if (reviewStatus) query = query.eq("review_status", reviewStatus);
+
+    if (search) {
+      const { data, error } = await query;
+      if (error) {
+        log.error("Video triage item search failed:", error);
+        return c.json(
+          { success: false, error: "Triage candidates could not be searched." },
+          500,
+        );
+      }
+      const filtered = (data ?? []).filter((item) =>
+        [
+          item.title,
+          item.provider_video_id,
+          item.channel_name,
+          item.review_notes,
+          ...(item.material_identifiers ?? []),
+          ...(item.reviewed_topic_tags ?? []),
+        ].some(
+          (value) =>
+            typeof value === "string" &&
+            value.toLocaleLowerCase().includes(search),
+        ),
+      );
+      return c.json({
+        success: true,
+        items: filtered.slice(offset, offset + limit),
+        total: filtered.length,
+        offset,
+        limit,
+        search,
+      });
+    }
+
+    query = query.range(offset, offset + limit - 1);
     const { data, count, error } = await query;
     if (error) {
       log.error("Video triage item listing failed:", error);

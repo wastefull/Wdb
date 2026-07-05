@@ -157,6 +157,19 @@ names. The confirmed action creates missing `primary_subject` mappings as
 `pending_review`, skips existing mappings, and reports unresolved or ambiguous
 identifiers without guessing. It is safe to rerun.
 
+If preview reports valid material slugs as unmatched, verify migration
+`20260705020000_sync_material_canonical_bindings.sql` is deployed. Materials
+created after the Stage 6 backfill require this compatibility migration to
+receive canonical entities and bindings. Do not recreate the materials or
+repeat video triage.
+
+Admin-created materials may retain UUID legacy IDs/slugs while triage stores a
+human-readable identifier such as `denim-jeans`. Migration
+`20260705030000_normalize_reviewed_material_identifiers.sql` adds conservative
+normalized-name and alias matching. Case, spaces, underscores, hyphens, and
+punctuation are ignored, but the resolver accepts the result only when exactly
+one material matches.
+
 ## Bulk Content-Mapping Migration
 
 Keep `CONTENT_MAPPING_APPLY_ENABLED=false` during normal operation and while

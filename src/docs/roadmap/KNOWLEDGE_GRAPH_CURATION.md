@@ -185,6 +185,10 @@ It does not enable graph-powered discovery reads; that remains a Stage 8 gate.
   initial `primary_subject` mappings. The action creates only missing
   `pending_review` records, skips exact existing mappings, and reports
   unresolved identifiers for manual cleanup.
+- A material compatibility trigger now creates and synchronizes canonical
+  material entities/bindings for authoritative material writes. Its migration
+  reconciles materials created after the Stage 6 backfill, preventing valid
+  reviewed slugs from appearing unresolved merely because a binding was absent.
 
 ## Entry State
 

@@ -71,6 +71,13 @@ audit record in the same transaction. The Edge Function exposes this only
 through authenticated admin routes; browser clients cannot invoke the database
 function directly.
 
+Materials maintain their graph identity through the
+`materials_sync_canonical_binding` compatibility trigger. It creates a missing
+canonical material entity/binding after authoritative material insertion and
+synchronizes name, slug, description, and lifecycle status on later edits. The
+installing migration also reconciles materials created after the original
+Stage 6 entity backfill.
+
 ## Data-Loss Prevention
 
 - Never drop legacy columns or tables in the initial graph migration.

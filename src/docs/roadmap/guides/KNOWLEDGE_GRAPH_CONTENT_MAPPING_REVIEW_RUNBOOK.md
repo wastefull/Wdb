@@ -51,6 +51,16 @@ identifiers are reported and never guessed. Apply
 `20260705010000_create_reviewed_video_mapping_apply.sql` and run the complete
 pgTAP suite before using this action in production.
 
+Also apply `20260705020000_sync_material_canonical_bindings.sql`. It reconciles
+materials created after the Stage 6 backfill and installs the compatibility
+trigger that maintains canonical material identity on future material writes.
+Without it, valid reviewed slugs may appear as unmatched because the material
+row exists but its canonical binding does not.
+
+Apply `20260705030000_normalize_reviewed_material_identifiers.sql` when triage
+uses normalized names but admin-created materials retain UUID legacy IDs and
+slugs. It resolves normalized names and aliases only when the match is unique.
+
 ## Bulk Migration Safety Contract
 
 - Keep `CONTENT_MAPPING_APPLY_ENABLED=false` during migration deployment and

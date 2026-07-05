@@ -31,6 +31,10 @@ Completed legacy Phase 9.x and 10.0 tests are displayed under current Stages
 Open **Admin Dashboard > Content Management** for playlist intake, private video
 triage, and graph content curation.
 
+Private Video Triage includes a full-batch filter for video titles, YouTube
+IDs, channels, reviewed material identifiers, topic tags, and review notes. Use
+it to locate and correct a reviewed decision without paging through the batch.
+
 The normal content-mapping workflow is:
 
 1. Open **Create Content Mapping**.

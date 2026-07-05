@@ -103,6 +103,36 @@ export function ManualContentMappingPanel() {
     (mapping) => mapping.content_entity_id === contentEntityId,
   );
   const isEvidence = role === "evidence";
+  const unresolvedVideoGroups = Array.from(
+    (videoReport?.unresolved ?? []).reduce(
+      (groups, candidate) => {
+        const key = candidate.material_identifier.trim().toLocaleLowerCase();
+        const existing = groups.get(key);
+        if (existing) {
+          existing.videoLinkCount += 1;
+          existing.matchCount = Math.max(
+            existing.matchCount,
+            candidate.match_count,
+          );
+        } else {
+          groups.set(key, {
+            identifier: candidate.material_identifier,
+            matchCount: candidate.match_count,
+            videoLinkCount: 1,
+          });
+        }
+        return groups;
+      },
+      new Map<
+        string,
+        { identifier: string; matchCount: number; videoLinkCount: number }
+      >(),
+    ).values(),
+  ).sort(
+    (left, right) =>
+      right.videoLinkCount - left.videoLinkCount ||
+      left.identifier.localeCompare(right.identifier),
+  );
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -234,15 +264,21 @@ export function ManualContentMappingPanel() {
         {videoReport && (
           <div className="mt-3 space-y-3 border-t border-black/10 pt-3 dark:border-white/10">
             <p className="text-[12px]">
-              {videoReport.resolved_count} resolved · {videoReport.existing_count}{" "}
-              already mapped · {videoReport.creatable_count} ready to create ·{" "}
-              {videoReport.unresolved_count} unresolved
+              {videoReport.resolved_count} resolved video-material links ·{" "}
+              {videoReport.existing_count} already mapped ·{" "}
+              {videoReport.creatable_count} ready to create ·{" "}
+              {videoReport.unresolved_count} unresolved links across{" "}
+              {unresolvedVideoGroups.length} identifier(s)
             </p>
             {videoReport.unresolved.length > 0 && (
               <div className="max-h-28 overflow-y-auto rounded-md bg-amber-50 p-2 text-[10px] text-amber-800 dark:bg-amber-950/20 dark:text-amber-200">
-                {videoReport.unresolved.map((candidate) => (
-                  <p key={`${candidate.import_item_id}:${candidate.material_identifier}`}>
-                    {candidate.material_identifier} · {candidate.match_count === 0 ? "no material match" : "ambiguous match"}
+                {unresolvedVideoGroups.map((group) => (
+                  <p key={group.identifier.toLocaleLowerCase()}>
+                    {group.identifier} ·{" "}
+                    {group.matchCount === 0
+                      ? "no material match"
+                      : "ambiguous match"}{" "}
+                    · {group.videoLinkCount} video link(s)
                   </p>
                 ))}
               </div>

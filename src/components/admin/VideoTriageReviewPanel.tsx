@@ -4,6 +4,7 @@ import {
   Loader2,
   RefreshCw,
   Save,
+  Search,
   Video,
   WandSparkles,
 } from "lucide-react";
@@ -228,6 +229,8 @@ export function VideoTriageReviewPanel() {
   const [total, setTotal] = useState(0);
   const [offset, setOffset] = useState(0);
   const [reviewStatus, setReviewStatus] = useState("unreviewed");
+  const [searchInput, setSearchInput] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [capabilities, setCapabilities] =
     useState<VideoPlaylistCapabilities | null>(null);
   const [applyResult, setApplyResult] =
@@ -252,10 +255,11 @@ export function VideoTriageReviewPanel() {
       offset,
       limit: PAGE_SIZE,
       reviewStatus,
+      search: searchQuery,
     });
     setItems(response.items);
     setTotal(response.total);
-  }, [batchId, offset, reviewStatus]);
+  }, [batchId, offset, reviewStatus, searchQuery]);
 
   const loadCapabilities = useCallback(async () => {
     const response = await api.getVideoPlaylistCapabilities();
@@ -400,6 +404,53 @@ export function VideoTriageReviewPanel() {
               <option value="all">All</option>
             </select>
           </label>
+          <form
+            className="sm:col-span-2"
+            onSubmit={(event) => {
+              event.preventDefault();
+              setSearchQuery(searchInput.trim());
+              setOffset(0);
+            }}
+          >
+            <label className="text-[11px] font-medium" htmlFor="video-triage-search">
+              Filter candidates
+            </label>
+            <div className="mt-1 flex gap-2">
+              <input
+                id="video-triage-search"
+                type="search"
+                value={searchInput}
+                onChange={(event) => setSearchInput(event.target.value)}
+                placeholder="Title, YouTube ID, material, topic, or notes…"
+                className="min-w-0 flex-1 rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] dark:border-white/15"
+              />
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="flex items-center gap-2 rounded-lg border border-black/15 px-3 py-2 text-[12px] disabled:opacity-50 dark:border-white/15"
+              >
+                <Search className="size-3.5" /> Filter
+              </button>
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchInput("");
+                    setSearchQuery("");
+                    setOffset(0);
+                  }}
+                  className="rounded-lg border border-black/15 px-3 py-2 text-[12px] dark:border-white/15"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+            {searchQuery && (
+              <p className="mt-1 text-[10px] text-black/50 dark:text-white/50">
+                Filtering the complete batch for “{searchQuery}”
+              </p>
+            )}
+          </form>
         </div>
       )}
 

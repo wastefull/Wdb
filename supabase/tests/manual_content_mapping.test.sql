@@ -4,7 +4,7 @@ CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 SET LOCAL ROLE postgres;
 SET LOCAL search_path = public, extensions;
 
-SELECT plan(22);
+SELECT plan(25);
 
 SELECT has_function(
   'public'::name,
@@ -163,6 +163,31 @@ INSERT INTO public.materials (id, legacy_kv_id, name, slug, status) VALUES (
   'video-mapping-material',
   'published'
 );
+SELECT is(
+  (SELECT count(*) FROM public.entity_canonical_bindings
+   WHERE material_id = '00000000-0000-0000-0000-000000000095'),
+  1::BIGINT,
+  'New materials receive a canonical binding automatically'
+);
+SELECT is(
+  (SELECT e.status
+   FROM public.entity_canonical_bindings binding
+   JOIN public.entities e ON e.id = binding.entity_id
+   WHERE binding.material_id = '00000000-0000-0000-0000-000000000095'),
+  'active',
+  'Published materials synchronize to an active canonical entity'
+);
+UPDATE public.materials
+SET name = 'Updated video mapping material'
+WHERE id = '00000000-0000-0000-0000-000000000095';
+SELECT is(
+  (SELECT e.name
+   FROM public.entity_canonical_bindings binding
+   JOIN public.entities e ON e.id = binding.entity_id
+   WHERE binding.material_id = '00000000-0000-0000-0000-000000000095'),
+  'Updated video mapping material',
+  'Material edits synchronize canonical entity metadata'
+);
 INSERT INTO public.videos (id, title, youtube_url, youtube_id, status) VALUES (
   '00000000-0000-0000-0000-000000000096',
   'Reviewed mapping video',
@@ -171,12 +196,7 @@ INSERT INTO public.videos (id, title, youtube_url, youtube_id, status) VALUES (
   'draft'
 );
 INSERT INTO public.entities (id, entity_type, name, status, created_by) VALUES
-  ('00000000-0000-0000-0000-000000000097', 'material', 'Video mapping material', 'active', '00000000-0000-0000-0000-000000000091'),
   ('00000000-0000-0000-0000-000000000098', 'video', 'Reviewed mapping video', 'draft', '00000000-0000-0000-0000-000000000091');
-INSERT INTO public.entity_canonical_bindings (entity_id, material_id) VALUES (
-  '00000000-0000-0000-0000-000000000097',
-  '00000000-0000-0000-0000-000000000095'
-);
 INSERT INTO public.entity_canonical_bindings (entity_id, video_id) VALUES (
   '00000000-0000-0000-0000-000000000098',
   '00000000-0000-0000-0000-000000000096'
@@ -200,7 +220,7 @@ INSERT INTO public.video_import_items (
   '00000000-0000-0000-0000-000000000099', 1, 'manual-map-video',
   'manualMap01', 'https://www.youtube.com/watch?v=manualMap01', ARRAY[1],
   'Reviewed mapping video', 'new', 'material_video',
-  ARRAY['video-mapping-material'], 'reviewed', '{}'::JSONB,
+  ARRAY['updated_video-mapping material'], 'reviewed', '{}'::JSONB,
   '00000000-0000-0000-0000-000000000091',
   '00000000-0000-0000-0000-000000000091', now(),
   '00000000-0000-0000-0000-000000000096', now()
