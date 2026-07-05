@@ -233,6 +233,7 @@ export interface VideoTriageItemListResponse {
   total: number;
   offset: number;
   limit: number;
+  search?: string;
 }
 
 export interface VideoTriageReviewRequest {

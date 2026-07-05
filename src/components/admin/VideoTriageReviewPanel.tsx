@@ -257,6 +257,12 @@ export function VideoTriageReviewPanel() {
       reviewStatus,
       search: searchQuery,
     });
+    const normalizedSearch = searchQuery.trim().toLocaleLowerCase();
+    if (normalizedSearch && response.search !== normalizedSearch) {
+      throw new Error(
+        "The deployed Edge Function does not support video triage search yet. Redeploy make-server-17cae920 and try again.",
+      );
+    }
     setItems(response.items);
     setTotal(response.total);
   }, [batchId, offset, reviewStatus, searchQuery]);
