@@ -97,17 +97,25 @@ export function ManualContentMappingPanel() {
     (mapping) => mapping.content_entity_id === contentEntityId,
   );
   const isEvidence = role === "evidence";
-  const canSave = Boolean(
-    contentEntityId &&
-      subjectEntityId &&
-      role &&
-      (!isEvidence || evidenceUse) &&
-      !isSaving,
-  );
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!canSave) return;
+    if (!contentEntityId) {
+      setError("Choose one content item from the results list.");
+      return;
+    }
+    if (!subjectEntityId) {
+      setError("Choose one material from the results list.");
+      return;
+    }
+    if (!role) {
+      setError("Choose a governed connection.");
+      return;
+    }
+    if (isEvidence && !evidenceUse) {
+      setError("Choose the specific verified evidence use.");
+      return;
+    }
     setIsSaving(true);
     setError(null);
     setResult(null);
@@ -350,17 +358,17 @@ export function ManualContentMappingPanel() {
           <div className="flex flex-wrap items-center gap-3 border-t border-black/10 pt-4 dark:border-white/10">
             <button
               type="submit"
-              disabled={!canSave}
+              disabled={isSaving || isLoading}
               className="retro-btn-primary flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isSaving ? <Loader2 className="size-4 animate-spin" /> : <Link2 className="size-4" />}
               {isSaving ? "Creating mapping…" : "Create pending mapping"}
             </button>
-            {selectedContent && selectedMaterial && (
-              <span className="text-[11px] text-black/55 dark:text-white/55">
-                {selectedContent.name} → {selectedMaterial.name}
-              </span>
-            )}
+            <span className="text-[11px] text-black/55 dark:text-white/55">
+              Content: {selectedContent?.name ?? "not selected"} · Material:{" "}
+              {selectedMaterial?.name ?? "not selected"} · Connection:{" "}
+              {selectedRole?.label ?? "not selected"}
+            </span>
           </div>
         </form>
       )}
