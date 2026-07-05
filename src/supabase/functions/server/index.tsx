@@ -15754,23 +15754,36 @@ app.get(
   async (c) => {
     try {
       const materialId = c.req.param("materialId");
-      if (!MATERIAL_VIDEO_RESOURCE_UUID.test(materialId)) {
+      if (!/^[a-zA-Z0-9_-]{1,200}$/.test(materialId)) {
         return c.json({ success: false, error: "Invalid material ID." }, 400);
       }
       const client = _roleClient();
-      const { data: material, error: materialError } = await client
+      let materialQuery = client
         .from("materials")
         .select("id")
-        .eq("id", materialId)
-        .eq("status", "published")
-        .maybeSingle();
+        .eq("status", "published");
+      materialQuery = MATERIAL_VIDEO_RESOURCE_UUID.test(materialId)
+        ? materialQuery.eq("id", materialId)
+        : materialQuery.eq("legacy_kv_id", materialId);
+      let { data: material, error: materialError } = await materialQuery.maybeSingle();
+      if (!material && !materialError && !MATERIAL_VIDEO_RESOURCE_UUID.test(materialId)) {
+        const slugResult = await client
+          .from("materials")
+          .select("id")
+          .eq("status", "published")
+          .eq("slug", materialId)
+          .maybeSingle();
+        material = slugResult.data;
+        materialError = slugResult.error;
+      }
       if (materialError) throw materialError;
       if (!material) return c.json({ success: true, videos: [] });
+      const resolvedMaterialId = material.id;
 
       const { data: materialBinding, error: materialBindingError } = await client
         .from("entity_canonical_bindings")
         .select("entity_id")
-        .eq("material_id", materialId)
+        .eq("material_id", resolvedMaterialId)
         .maybeSingle();
       if (materialBindingError) throw materialBindingError;
       if (!materialBinding) return c.json({ success: true, videos: [] });
