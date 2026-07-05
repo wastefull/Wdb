@@ -377,9 +377,9 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
         "Transactional draft video creation",
         "Create each accepted video, graph entity, and canonical binding atomically while preserving playlist provenance, idempotency, and resumable apply behavior.",
       ),
-      planned(
+      active(
         "Reviewed video-to-material mapping tools",
-        "Map draft videos as primary subjects, meaningful mentions, or explicitly reviewed evidence without inferring support from playlist membership.",
+        "The local Content Management workflow now lets admins map canonical videos and other content to materials as explicit pending-review graph records, with governed roles, optional lifecycle focus, evidence-use safeguards, atomic audit/outbox writes, and duplicate protection. Production deployment and acceptance remain pending.",
       ),
       planned(
         "Governed video topic classification",
@@ -393,11 +393,11 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
       planned("Human review workflow for scoped Key Insights"),
       active(
         "Reviewed relationship and content-mapping workflow",
-        "Preview candidate relationships and content mappings without mutation, preserve unresolved candidates transactionally, and apply only explicitly selected resolved candidates as pending review. The hardened database functions and tests are implemented locally; deployment and production acceptance remain pending.",
+        "Preview candidate relationships and content mappings without mutation, preserve unresolved candidates transactionally, and apply only explicitly selected resolved candidates as pending review. The hardened database functions, Edge routes, tests, and admin UI are deployed with the apply gate closed; production preview reconciliation and reviewed apply acceptance remain pending.",
       ),
       active(
         "Review and authorization workflows for graph mutations",
-        "Admin-only candidate selection now produces a checksum-bound manifest; no merely resolvable candidate is approved automatically.",
+        "Admins can create one explicit pending-review content mapping through the normal Content Management workflow. Bulk migration candidate selection remains checksum-bound; no merely resolvable candidate is approved automatically.",
       ),
       active(
         "Compatibility-aware dual writes during migration",
@@ -405,7 +405,7 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
       ),
       active(
         "Audit summaries that preserve existing audit consumers",
-        "Successful quarantine and apply transactions write graph migration reports and existing audit_log summary records in the same transaction; deployment acceptance remains pending.",
+        "Successful quarantine and apply transactions write graph migration reports and existing audit_log summary records in the same transaction; the implementation is deployed and production apply acceptance remains pending.",
       ),
       planned("Cross-stage browser accessibility and responsive acceptance"),
     ],

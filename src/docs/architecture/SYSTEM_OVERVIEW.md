@@ -31,3 +31,15 @@ material, article, guide, source, or evidence records.
 Every migration must preserve original data, attribution, evidence, audit
 history, and restorable backups. Unknown or ambiguous records must be retained
 for manual review rather than silently discarded.
+
+## Graph Mutation Boundary
+
+Graph writes are exposed through authenticated Edge routes and governed
+database transactions rather than direct browser table access. For normal
+content-to-material curation, the admin Content Management interface calls the
+service-role-only `create_manual_content_mapping` transaction. It creates one
+pending-review mapping together with its outbox event and audit record.
+
+The checksum-bound content-mapping preview, quarantine, and apply endpoints are
+separate bulk migration tools. Their apply gate is not part of ordinary manual
+curation and remains closed outside an approved migration window.

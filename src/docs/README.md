@@ -25,12 +25,14 @@ for stage status, deliverables, acceptance tests, and backlog items.
 - [Guide import format](./admin/GUIDE_IMPORT_FORMAT.md)
 - [Evidence curation](./data/EVIDENCE_CURATION.md)
 - [Source management](./source/SOURCE_MANAGEMENT.md)
+- [Content-mapping operations](./roadmap/guides/KNOWLEDGE_GRAPH_CONTENT_MAPPING_REVIEW_RUNBOOK.md)
 
 ### Roadmap
 
 - [Roadmap conventions](./roadmap/README.md)
 - [Knowledge graph and discovery](./roadmap/KNOWLEDGE_GRAPH_DISCOVERY.md)
 - [Knowledge graph migration and safety](./roadmap/KNOWLEDGE_GRAPH_MIGRATION.md)
+- [Stage 7 graph content and curation](./roadmap/KNOWLEDGE_GRAPH_CURATION.md)
 - [Stage 6 knowledge graph foundation runbook](./roadmap/guides/KNOWLEDGE_GRAPH_FOUNDATION_RUNBOOK.md)
 
 ## Documentation Rules

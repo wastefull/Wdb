@@ -158,11 +158,29 @@ It does not enable graph-powered discovery reads; that remains a Stage 8 gate.
   candidates are never included implicitly. Resolved candidates sort first so
   later review batches become visible after earlier batches are applied and a
   fresh preview is run.
-- The new migration and pgTAP coverage are implemented locally. Production
-  deployment, post-deployment backup reconciliation, and browser acceptance
-  remain pending; `CONTENT_MAPPING_APPLY_ENABLED` must remain false until then.
+- The migration and Edge routes were deployed to production on July 2, 2026
+  during the Stage 7 video-triage apply release. The production apply gate
+  remains closed. A closed-gate production preview, checksum capture,
+  post-deployment backup reconciliation, and browser acceptance remain pending
+  before any reviewed content-mapping apply window may open;
+  `CONTENT_MAPPING_APPLY_ENABLED` must remain false until then.
   Follow the
   [Content-Mapping Review Runbook](./guides/KNOWLEDGE_GRAPH_CONTENT_MAPPING_REVIEW_RUNBOOK.md).
+
+## Manual Curation Workflow — July 5, 2026
+
+- Content Management now provides a direct manual mapping form as the normal
+  day-to-day curation path. An admin chooses canonical content, a canonical
+  material, and a governed content role without running a migration preview or
+  opening the migration apply gate.
+- Each save creates one `pending_review` content mapping, an idempotent graph
+  outbox event, and an existing-format audit record in one database
+  transaction. Exact duplicate saves return the existing mapping.
+- Evidence mappings require an explicit governed evidence use. Other mappings
+  may optionally record lifecycle focus.
+- The checksum-bound preview, quarantine, and apply workflow remains available
+  for bulk migration of legacy relationships; it is not required for manual
+  curation.
 
 ## Entry State
 
@@ -184,19 +202,21 @@ It does not enable graph-powered discovery reads; that remains a Stage 8 gate.
    backend is deployed for reviewed decision capture.
 3. Create accepted videos as drafts through a transactional video, entity, and
    canonical-binding workflow. Add reviewed material mappings separately.
-4. **[Implemented locally — deployment pending]** Build non-mutating relationship and
+4. **[Deployed — production reconciliation pending]** Build non-mutating relationship and
    content-mapping previews for `material_links`,
    `materials.linked_material_ids`, article material links, and guide material
-   links. Preview endpoint, ten acceptance tests, and admin UI panel
-   (`ContentMappingPreviewPanel` in One-Time Actions) are implemented.
-5. **[Implemented locally — deployment pending]** Preserve ambiguous records as immutable migration issues.
+   links. The preview endpoint, ten acceptance tests, and admin UI panel in
+   Content Management are deployed; production preview counts and checksum
+   still need to be recorded.
+5. **[Deployed — use only after preview review]** Preserve ambiguous records as immutable migration issues.
    `buildContentMappingQuarantine` writes all `awaiting_review` candidates
    to `graph_migration_issues` via a new `graph_migration_runs` entry.
    Admin panel offers a confirmed quarantine action after a preview run.
    Route: `POST /graph/content-mappings/quarantine`.
 6. **[Active]** Add reviewed relationship, tag, entity, and video curation APIs
-   and admin interfaces. Content-mapping review now uses explicit candidate
-   selection; the other curation domains remain planned.
+   and admin interfaces. Manual content-to-material mapping is implemented
+   locally as the normal single-record workflow; bulk migration review remains
+   checksum-bound, and the other curation domains remain planned.
 7. Add scoped Key Insight review fields and supporting-evidence linkage.
 8. **[Active]** Add transactional compatibility writes and idempotent outbox
    processing. Content-mapping writes now enqueue outbox events atomically;

@@ -8,8 +8,8 @@ and role checks still apply on the server.
 
 - **Moderation:** review submissions, takedown requests, audit logs, and data
   retention.
-- **Admin:** manage users, roles, categories, assets, maintenance mode, and
-  one-time actions.
+- **Admin:** manage users, roles, categories, assets, maintenance mode, content,
+  and one-time actions.
 - **Database:** manage materials, sources, whitepapers, evidence, and curation.
 - **Testing:** run transform tests, chart checks, and roadmap regression tests.
 
@@ -25,6 +25,25 @@ The roadmap is the operational source of truth:
 
 Completed legacy Phase 9.x and 10.0 tests are displayed under current Stages
 2-4 while retaining their legacy identifiers for traceability.
+
+## Content Management
+
+Open **Admin Dashboard > Content Management** for playlist intake, private video
+triage, and graph content curation.
+
+The normal content-mapping workflow is:
+
+1. Open **Create Content Mapping**.
+2. Search for canonical content and choose one item.
+3. Search for and choose the subject material.
+4. Choose the governed connection and optional lifecycle focus.
+5. For an Evidence connection, choose the specific verified evidence use.
+6. Create the mapping.
+
+The mapping is saved as `pending_review`; this action does not publish content
+or enable graph reads. An exact duplicate returns the existing mapping. The
+collapsed legacy migration tools are only for bulk import reconciliation and
+are not required for ordinary curation.
 
 ## Safety
 

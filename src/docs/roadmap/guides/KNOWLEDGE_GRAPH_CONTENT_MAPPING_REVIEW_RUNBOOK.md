@@ -1,12 +1,43 @@
-# Knowledge Graph Content-Mapping Review Runbook
+# Knowledge Graph Content-Mapping Runbook
 
 ## Scope
 
-This runbook deploys the Stage 7 transactional quarantine and reviewed apply
-foundation. It does not enable graph-powered reads, activate pending graph
-records, or turn on the apply gate automatically.
+This runbook covers both Stage 7 content-mapping paths:
 
-## Safety Contract
+- **Manual curation:** the normal admin workflow for creating one deliberate
+  pending-review mapping. It does not use the bulk apply gate.
+- **Bulk migration:** advanced preview, quarantine, and checksum-bound apply
+  tooling for reconciling legacy records.
+
+Neither path enables graph-powered reads or activates pending graph records.
+
+## Manual Curation
+
+Use **Content Management > Create Content Mapping** for normal curation. Choose
+canonical content, a canonical material, and a governed role. Lifecycle focus
+is optional. Evidence requires an explicit governed evidence use.
+
+The service-role-only `create_manual_content_mapping` function atomically
+creates the pending mapping, outbox event, and audit record. Exact duplicates
+return the existing mapping. The authenticated Edge route remains admin-only,
+and the database function is not executable by `anon` or `authenticated`.
+
+### Manual Workflow Deployment
+
+1. Apply `20260705000000_create_manual_content_mapping_function.sql`.
+2. Run `supabase/tests/manual_content_mapping.test.sql` with the complete pgTAP
+   suite.
+3. Deploy the Edge Function and frontend.
+4. Sign in as an admin and verify canonical options load.
+5. Create a disposable pending-review fixture mapping, confirm one outbox and
+   audit record, and reconcile the post-deployment backup.
+6. Retain or archive the fixture only through a separately reviewed action; do
+   not manually delete production graph rows as cleanup.
+
+`CONTENT_MAPPING_APPLY_ENABLED` may remain false throughout manual deployment
+and use.
+
+## Bulk Migration Safety Contract
 
 - Keep `CONTENT_MAPPING_APPLY_ENABLED=false` during migration deployment and
   verification.
@@ -22,7 +53,7 @@ records, or turn on the apply gate automatically.
 - Graph rows, outbox events, migration reconciliation, and audit summary must
   commit together or roll back together.
 
-## Deployment Sequence
+## Bulk Migration Deployment Sequence
 
 1. Confirm no other operator is writing data and enable maintenance mode.
 2. Download and record a fresh full backup and SHA-256.
@@ -34,7 +65,7 @@ records, or turn on the apply gate automatically.
 8. Download a post-deployment full backup and reconcile counts/checksums.
 9. Disable maintenance mode after verification.
 
-## Approved Apply Window
+## Bulk Approved Apply Window
 
 Opening an apply window is a separate operator decision:
 

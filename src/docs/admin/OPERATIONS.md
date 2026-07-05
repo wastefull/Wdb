@@ -130,12 +130,33 @@ counts reconcile. Create a post-deployment backup and compare manifest counts
 and checksums. Any unexplained difference restores the fresh-backup and paused-
 writes requirement.
 
-## Content-Mapping Review and Apply
+## Manual Content Mapping
+
+Use **Admin Dashboard > Content Management > Create Content Mapping** for
+normal day-to-day curation. Manual mapping does not use
+`CONTENT_MAPPING_APPLY_ENABLED`; the authenticated admin save is the explicit
+review decision.
+
+Each save calls the service-role-only `create_manual_content_mapping`
+transaction. It validates canonical content and material entities, active
+governed vocabulary, and evidence-use requirements before atomically creating:
+
+- one `content_entities` row with `status = 'pending_review'`
+- one idempotent `graph_sync_outbox` event
+- one existing-format `audit_log` record
+
+Exact duplicate saves return the existing mapping without another graph row,
+outbox event, or audit record. Evidence mappings require a specific governed
+evidence use; do not use Evidence for a merely relevant or mentioned material.
+No manual mapping publishes content or enables graph reads.
+
+## Bulk Content-Mapping Migration
 
 Keep `CONTENT_MAPPING_APPLY_ENABLED=false` during normal operation and while
-deploying the Stage 7 content-mapping migration. Identifier resolution is not
-editorial approval: an administrator must inspect and select each candidate
-included in an apply manifest.
+deploying the Stage 7 bulk content-mapping migration. This advanced workflow is
+for reconciling legacy records, not for ordinary manual curation. Identifier
+resolution is not editorial approval: an administrator must inspect and select
+each candidate included in an apply manifest.
 
 The service-role-only database function commits pending graph rows, outbox
 events, migration reconciliation, and an `audit_log` summary atomically. Do not

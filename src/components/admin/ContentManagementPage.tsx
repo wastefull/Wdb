@@ -1,5 +1,6 @@
-import { ArrowLeft, GitMerge, ListChecks, ListVideo } from "lucide-react";
+import { ArrowLeft, GitMerge, Link2, ListChecks, ListVideo } from "lucide-react";
 import { ContentMappingPreviewPanel } from "./ContentMappingPreviewPanel";
+import { ManualContentMappingPanel } from "./ManualContentMappingPanel";
 import { VideoPlaylistPreviewPanel } from "./VideoPlaylistPreviewPanel";
 import { VideoTriageReviewPanel } from "./VideoTriageReviewPanel";
 
@@ -9,14 +10,14 @@ interface ContentManagementPageProps {
 
 const SECTIONS = [
   {
+    id: "manual-content-mapping",
+    label: "Create Content Mapping",
+    icon: Link2,
+  },
+  {
     id: "video-playlist-preview",
     label: "YouTube Playlist Preview",
     icon: ListVideo,
-  },
-  {
-    id: "content-mapping-preview",
-    label: "Content Mapping Preview",
-    icon: GitMerge,
   },
   {
     id: "video-triage-review",
@@ -71,9 +72,20 @@ export function ContentManagementPage({ onBack }: ContentManagementPageProps) {
 
       <main className="flex-1 overflow-y-auto p-8">
         <div className="mx-auto max-w-3xl space-y-6">
+          <ManualContentMappingPanel />
           <VideoPlaylistPreviewPanel />
-          <ContentMappingPreviewPanel />
           <VideoTriageReviewPanel />
+          <details className="rounded-xl border border-black/10 p-4 dark:border-white/10">
+            <summary className="flex cursor-pointer list-none items-center gap-2 font-sniglet text-[13px] text-black/65 dark:text-white/65">
+              <GitMerge size={15} />
+              Advanced: legacy content-mapping migration tools
+            </summary>
+            <p className="mb-4 mt-2 text-[11px] text-black/50 dark:text-white/50">
+              Bulk preview, quarantine, and checksum-bound apply tools. These
+              are not required for normal manual content mapping.
+            </p>
+            <ContentMappingPreviewPanel />
+          </details>
         </div>
       </main>
     </div>

@@ -15705,6 +15705,163 @@ app.post(
 
 // ==================== GRAPH CONTENT-MAPPING PREVIEW ====================
 
+const MANUAL_CONTENT_ENTITY_TYPES = [
+  "article",
+  "guide",
+  "blog_post",
+  "video",
+] as const;
+const MANUAL_CONTENT_MAPPING_UUID =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+// Day-to-day curation options. Only canonical entities and active governed
+// vocabulary are returned; migration previews remain a separate workflow.
+app.get(
+  "/make-server-17cae920/graph/content-mappings/manual/options",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const client = _roleClient();
+      const [entitiesResult, bindingsResult, rolesResult, focusesResult, evidenceResult, mappingsResult] =
+        await Promise.all([
+          client
+            .from("entities")
+            .select("id, entity_type, name, status")
+            .in("entity_type", [...MANUAL_CONTENT_ENTITY_TYPES, "material"])
+            .order("name"),
+          client
+            .from("entity_canonical_bindings")
+            .select("entity_id"),
+          client
+            .from("content_roles")
+            .select("slug, label, description")
+            .eq("active", true)
+            .order("label"),
+          client
+            .from("lifecycle_focuses")
+            .select("slug, label, description")
+            .eq("active", true)
+            .order("label"),
+          client
+            .from("evidence_uses")
+            .select("slug, label, description")
+            .eq("active", true)
+            .order("label"),
+          client
+            .from("content_entities")
+            .select(
+              "id, content_entity_id, subject_entity_id, role, lifecycle_focus, evidence_use, status, created_at",
+            )
+            .order("created_at", { ascending: false }),
+        ]);
+
+      const firstError = [
+        entitiesResult.error,
+        bindingsResult.error,
+        rolesResult.error,
+        focusesResult.error,
+        evidenceResult.error,
+        mappingsResult.error,
+      ].find(Boolean);
+      if (firstError) throw firstError;
+
+      const canonicalEntityIds = new Set(
+        (bindingsResult.data ?? []).map((binding) => binding.entity_id),
+      );
+      const canonicalEntities = (entitiesResult.data ?? []).filter((entity) =>
+        canonicalEntityIds.has(entity.id),
+      );
+
+      return c.json({
+        content: canonicalEntities.filter((entity) =>
+          MANUAL_CONTENT_ENTITY_TYPES.includes(
+            entity.entity_type as (typeof MANUAL_CONTENT_ENTITY_TYPES)[number],
+          ),
+        ),
+        materials: canonicalEntities.filter(
+          (entity) => entity.entity_type === "material",
+        ),
+        roles: rolesResult.data ?? [],
+        lifecycle_focuses: focusesResult.data ?? [],
+        evidence_uses: evidenceResult.data ?? [],
+        existing_mappings: mappingsResult.data ?? [],
+      });
+    } catch (error) {
+      log.error("Manual content-mapping options failed:", error);
+      return c.json(
+        { success: false, error: "Content-mapping options could not be loaded." },
+        500,
+      );
+    }
+  },
+);
+
+// Each request is one explicit admin curation decision. The database function
+// atomically creates the pending mapping, outbox event, and audit summary.
+app.post(
+  "/make-server-17cae920/graph/content-mappings/manual",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const body = await c.req.json().catch(() => ({}));
+      const contentEntityId = body?.content_entity_id;
+      const subjectEntityId = body?.subject_entity_id;
+      const role = typeof body?.role === "string" ? body.role.trim() : "";
+      const lifecycleFocus =
+        typeof body?.lifecycle_focus === "string" && body.lifecycle_focus.trim()
+          ? body.lifecycle_focus.trim()
+          : null;
+      const evidenceUse =
+        typeof body?.evidence_use === "string" && body.evidence_use.trim()
+          ? body.evidence_use.trim()
+          : null;
+
+      if (
+        typeof contentEntityId !== "string" ||
+        !MANUAL_CONTENT_MAPPING_UUID.test(contentEntityId) ||
+        typeof subjectEntityId !== "string" ||
+        !MANUAL_CONTENT_MAPPING_UUID.test(subjectEntityId) ||
+        !role ||
+        role.length > 100
+      ) {
+        return c.json(
+          {
+            success: false,
+            error: "Canonical content, material, and governed role are required.",
+          },
+          400,
+        );
+      }
+
+      const { data, error } = await _roleClient().rpc(
+        "create_manual_content_mapping",
+        {
+          p_created_by: c.get("userId"),
+          p_content_entity_id: contentEntityId,
+          p_subject_entity_id: subjectEntityId,
+          p_role: role,
+          p_lifecycle_focus: lifecycleFocus,
+          p_evidence_use: evidenceUse,
+        },
+      );
+      if (error) throw error;
+      return c.json(data);
+    } catch (error) {
+      log.error("Manual content-mapping creation failed:", error);
+      return c.json(
+        {
+          success: false,
+          error: "Content mapping could not be created.",
+          details: String(error),
+        },
+        500,
+      );
+    }
+  },
+);
+
 // Non-mutating relationship and content-mapping preview. Identifies candidate
 // relationships from material_links and linked_material_ids, and candidate
 // content mappings from articles and guides, without writing any graph records.

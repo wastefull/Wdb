@@ -37,6 +37,13 @@ Stage 6 added graph tables for entities, relationships, normalized tags,
 content-to-subject mappings, videos, migration observability, and compatibility
 outbox events. Domain tables remain authoritative.
 
+`content_entities` stores reviewed content-to-subject associations. Its
+`content_entity_id` references canonical article, guide, blog-post, or video
+entities; `subject_entity_id` references the subject entity, currently a
+canonical material in the manual admin workflow. Governed `role`, optional
+`lifecycle_focus`, optional `evidence_use`, and review `status` describe the
+association. New manual mappings remain `pending_review`.
+
 Stage 7 adds private, pre-publication workflow tables:
 
 | Table | Purpose |
@@ -56,6 +63,13 @@ updates one candidate's editable human-review fields and aggregate batch status
 atomically while leaving immutable provider provenance untouched. See
 [ADR 001: Knowledge Graph Foundation](./ADR_001_KNOWLEDGE_GRAPH_FOUNDATION.md)
 and [Knowledge Graph Migration](../roadmap/KNOWLEDGE_GRAPH_MIGRATION.md).
+
+The service-role-only `create_manual_content_mapping` function is the atomic
+day-to-day curation write path. It validates an admin reviewer and governed
+vocabulary, inserts one pending mapping, and writes its graph outbox event and
+audit record in the same transaction. The Edge Function exposes this only
+through authenticated admin routes; browser clients cannot invoke the database
+function directly.
 
 ## Data-Loss Prevention
 

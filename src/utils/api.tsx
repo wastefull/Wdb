@@ -27,6 +27,11 @@ import type {
   VideoTriageStageRequest,
   VideoTriageStageResponse,
 } from "../types/videoPlaylist";
+import type {
+  CreateManualContentMappingRequest,
+  CreateManualContentMappingResponse,
+  ManualContentMappingOptionsResponse,
+} from "../types/manualContentMapping";
 
 // Export projectId and publicAnonKey for use in other modules
 export { projectId, publicAnonKey };
@@ -1642,6 +1647,21 @@ export async function setMaintenanceMode(
 }
 
 // ==================== GRAPH CONTENT PREVIEWS ====================
+
+/** Admin only — lists canonical entities and governed mapping vocabulary. */
+export async function getManualContentMappingOptions(): Promise<ManualContentMappingOptionsResponse> {
+  return await apiCall("/graph/content-mappings/manual/options");
+}
+
+/** Admin only — creates one explicit pending-review content mapping. */
+export async function createManualContentMapping(
+  request: CreateManualContentMappingRequest,
+): Promise<CreateManualContentMappingResponse> {
+  return await apiCall("/graph/content-mappings/manual", {
+    method: "POST",
+    body: JSON.stringify(request),
+  });
+}
 
 /** Admin only — reports video playlist preview and staging capabilities. */
 export async function getVideoPlaylistCapabilities(): Promise<VideoPlaylistCapabilities> {

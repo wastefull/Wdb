@@ -1145,7 +1145,10 @@ Stage 7 may enable governed graph mutation workflows after reconciliation.
 
 Examples:
 
-- Adding article material association writes to content_entities.
+- Adding an article, guide, blog-post, or video material association through
+  normal admin curation calls `create_manual_content_mapping`, which writes the
+  pending `content_entities` row, graph outbox event, and audit record
+  transactionally.
 
 - Adding material relationship writes to entity_relationships.
 

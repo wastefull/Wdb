@@ -20,6 +20,7 @@ export { RolePermissionsView } from "./RolePermissionsView";
 // Graph curation
 export { ContentMappingPreviewPanel } from "./ContentMappingPreviewPanel";
 export { ContentManagementPage } from "./ContentManagementPage";
+export { ManualContentMappingPanel } from "./ManualContentMappingPanel";
 
 // Settings
 export { CategoriesView } from "./CategoriesView";
