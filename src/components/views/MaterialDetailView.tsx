@@ -16,6 +16,7 @@ import {
 } from "../ui/alert-dialog";
 import { buildMaterialPermalinkPath } from "../../utils/permalinks";
 import {
+  getDisplayArticles,
   getAllArticles,
   getFirstCoverImage,
   updateArticleInMaterial,
@@ -117,13 +118,17 @@ export function MaterialDetailView({
   } | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [videoResources, setVideoResources] = useState<MaterialVideoResource[]>([]);
-  const [areVideoResourcesLoading, setAreVideoResourcesLoading] = useState(true);
+  const [videoResources, setVideoResources] = useState<MaterialVideoResource[]>(
+    [],
+  );
+  const [areVideoResourcesLoading, setAreVideoResourcesLoading] =
+    useState(true);
 
   useEffect(() => {
     let active = true;
     setAreVideoResourcesLoading(true);
-    void api.getMaterialVideoResources(material.id)
+    void api
+      .getMaterialVideoResources(material.id)
       .then((videos) => {
         if (active) setVideoResources(videos);
       })
@@ -183,29 +188,10 @@ export function MaterialDetailView({
       .filter((candidate): candidate is Material => !!candidate);
   }, [allMaterials, material.linkedMaterialIds]);
 
-  const displayArticles = useMemo(() => {
-    const ownArticles = getAllArticles(material).map((entry) => ({
-      ...entry,
-      linkedMaterialName: undefined as string | undefined,
-      linkedMaterialId: undefined as string | undefined,
-    }));
-    const linkedArticles = isHub
-      ? linkedMaterials.flatMap((linked) =>
-          getAllArticles(linked).map((entry) => ({
-            ...entry,
-            linkedMaterialName: linked.name,
-            linkedMaterialId: linked.id,
-          })),
-        )
-      : [];
-    const byDate = (
-      a: { article: { dateAdded: string } },
-      b: { article: { dateAdded: string } },
-    ) =>
-      new Date(b.article.dateAdded).getTime() -
-      new Date(a.article.dateAdded).getTime();
-    return [...ownArticles.sort(byDate), ...linkedArticles.sort(byDate)];
-  }, [material, isHub, linkedMaterials]);
+  const displayArticles = useMemo(
+    () => getDisplayArticles(material, allMaterials),
+    [allMaterials, material],
+  );
 
   const experienceModel = useMemo(
     () => buildMaterialExperienceModel(material, displayArticles),

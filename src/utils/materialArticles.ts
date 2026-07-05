@@ -13,7 +13,7 @@ import { Material } from "../types/material";
  */
 export function getArticlesByCategory(
   material: Material,
-  category: CategoryType
+  category: CategoryType,
 ): Article[] {
   return material.articles?.[category] || [];
 }
@@ -23,7 +23,7 @@ export function getArticlesByCategory(
  */
 export function getArticleCount(
   material: Material,
-  category: CategoryType
+  category: CategoryType,
 ): number {
   return (material.articles?.[category] || []).length;
 }
@@ -49,7 +49,7 @@ export function getSafeArticles(material: Material): {
 export function addArticleToMaterial(
   material: Material,
   category: CategoryType,
-  article: Article
+  article: Article,
 ): Material {
   return {
     ...material,
@@ -67,10 +67,10 @@ export function updateArticleInMaterial(
   material: Material,
   category: CategoryType,
   articleId: string,
-  updateFn: (article: Article) => Article
+  updateFn: (article: Article) => Article,
 ): Material {
   const updatedArticles = getArticlesByCategory(material, category).map((a) =>
-    a.id === articleId ? updateFn(a) : a
+    a.id === articleId ? updateFn(a) : a,
   );
 
   return {
@@ -88,14 +88,14 @@ export function updateArticleInMaterial(
 export function removeArticleFromMaterial(
   material: Material,
   category: CategoryType,
-  articleId: string
+  articleId: string,
 ): Material {
   return {
     ...material,
     articles: {
       ...getSafeArticles(material),
       [category]: getArticlesByCategory(material, category).filter(
-        (a) => a.id !== articleId
+        (a) => a.id !== articleId,
       ),
     },
   };
@@ -122,6 +122,54 @@ export function getAllArticles(material: Material): Array<{
       category: "reusability" as CategoryType,
     })),
   ];
+}
+
+export function getDisplayArticles(
+  material: Material,
+  allMaterials: Material[],
+): Array<{
+  article: Article;
+  category: CategoryType;
+  linkedMaterialName?: string;
+  linkedMaterialId?: string;
+}> {
+  const ownArticles = getAllArticles(material).map((entry) => ({
+    ...entry,
+    linkedMaterialName: undefined as string | undefined,
+    linkedMaterialId: undefined as string | undefined,
+  }));
+
+  const isHub = material.isHub || material.category === "Elements";
+  const materialsById = new Map(
+    allMaterials.map((candidate) => [candidate.id, candidate]),
+  );
+  const linkedMaterials = isHub
+    ? (material.linkedMaterialIds ?? [])
+        .map((id) => materialsById.get(id))
+        .filter((candidate): candidate is Material => !!candidate)
+    : [];
+  const linkedArticles = linkedMaterials.flatMap((linked) =>
+    getAllArticles(linked).map((entry) => ({
+      ...entry,
+      linkedMaterialName: linked.name,
+      linkedMaterialId: linked.id,
+    })),
+  );
+  const byDate = (
+    a: { article: { dateAdded: string } },
+    b: { article: { dateAdded: string } },
+  ) =>
+    new Date(b.article.dateAdded).getTime() -
+    new Date(a.article.dateAdded).getTime();
+
+  return [...ownArticles.sort(byDate), ...linkedArticles.sort(byDate)];
+}
+
+export function hasLearningLibraryContent(
+  material: Material,
+  allMaterials: Material[],
+): boolean {
+  return getDisplayArticles(material, allMaterials).length > 0;
 }
 
 /**

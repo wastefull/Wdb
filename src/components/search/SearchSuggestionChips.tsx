@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useMaterialsContext } from "../../contexts/MaterialsContext";
 import { useNavigationContext } from "../../contexts/NavigationContext";
 import type { Material, MaterialCategory } from "../../types/material";
+import { hasLearningLibraryContent } from "../../utils/materialArticles";
 import {
   categoryToContrastCssVar,
   categoryToCssVar,
@@ -37,9 +38,15 @@ export function SearchSuggestionChips({
   const { materials } = useMaterialsContext();
   const { navigateToMaterialDetail } = useNavigationContext();
 
-  const eligibleMaterials = materials.filter(
-    (m) =>
-      m.category !== "Elements" || ALLOWED_ELEMENTS.has(m.name.toLowerCase()),
+  const eligibleMaterials = useMemo(
+    () =>
+      materials.filter(
+        (material) =>
+          (material.category !== "Elements" ||
+            ALLOWED_ELEMENTS.has(material.name.toLowerCase())) &&
+          hasLearningLibraryContent(material, materials),
+      ),
+    [materials],
   );
 
   const [chips, setChips] = useState<Material[]>([]);
