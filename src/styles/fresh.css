@@ -1759,7 +1759,7 @@ main.material-detail-view {
       @apply text-xs uppercase tracking-[0.14em] text-muted-foreground;
     }
     & p:last-child {
-      @apply max-w-3xl text-sm leading-6 text-muted-foreground;
+      @apply max-w-3xl lg:max-w-full text-sm leading-6 text-muted-foreground;
     }
   }
 
