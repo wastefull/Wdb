@@ -181,6 +181,10 @@ It does not enable graph-powered discovery reads; that remains a Stage 8 gate.
 - The checksum-bound preview, quarantine, and apply workflow remains available
   for bulk migration of legacy relationships; it is not required for manual
   curation.
+- Reviewed video material identifiers can be previewed and promoted in bulk to
+  initial `primary_subject` mappings. The action creates only missing
+  `pending_review` records, skips exact existing mappings, and reports
+  unresolved identifiers for manual cleanup.
 
 ## Entry State
 

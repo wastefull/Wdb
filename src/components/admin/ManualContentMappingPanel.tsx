@@ -5,6 +5,7 @@ import {
   Link2,
   Loader2,
   RefreshCw,
+  WandSparkles,
 } from "lucide-react";
 import * as api from "../../utils/api";
 import type {
@@ -12,6 +13,7 @@ import type {
   ManualContentEntityType,
   ManualContentMappingEntityOption,
   ManualContentMappingOptionsResponse,
+  ReviewedVideoMappingReport,
 } from "../../types/manualContentMapping";
 
 const CONTENT_TYPE_LABELS: Record<ManualContentEntityType, string> = {
@@ -55,6 +57,10 @@ export function ManualContentMappingPanel() {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] =
     useState<CreateManualContentMappingResponse | null>(null);
+  const [videoReport, setVideoReport] =
+    useState<ReviewedVideoMappingReport | null>(null);
+  const [isPreviewingVideos, setIsPreviewingVideos] = useState(false);
+  const [isApplyingVideos, setIsApplyingVideos] = useState(false);
 
   const loadOptions = async () => {
     setIsLoading(true);
@@ -136,6 +142,37 @@ export function ManualContentMappingPanel() {
     }
   };
 
+  const previewVideoMappings = async () => {
+    setIsPreviewingVideos(true);
+    setError(null);
+    try {
+      setVideoReport(await api.previewReviewedVideoMappings());
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : String(caught));
+    } finally {
+      setIsPreviewingVideos(false);
+    }
+  };
+
+  const applyVideoMappings = async () => {
+    if (!videoReport || videoReport.creatable_count < 1) return;
+    const confirmed = window.confirm(
+      `Create ${videoReport.creatable_count} missing primary-subject mapping(s) from the material links you reviewed during video triage? All mappings will remain pending review.`,
+    );
+    if (!confirmed) return;
+    setIsApplyingVideos(true);
+    setError(null);
+    try {
+      const report = await api.applyReviewedVideoMappings();
+      setVideoReport(report);
+      await loadOptions();
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : String(caught));
+    } finally {
+      setIsApplyingVideos(false);
+    }
+  };
+
   return (
     <section
       id="manual-content-mapping"
@@ -167,6 +204,70 @@ export function ManualContentMappingPanel() {
           <RefreshCw className={`size-3.5 ${isLoading ? "animate-spin" : ""}`} />
           Refresh
         </button>
+      </div>
+
+      <div className="rounded-lg border border-waste-science/25 bg-waste-science/5 p-4">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="font-sniglet text-[13px]">Reviewed video links</p>
+            <p className="mt-1 max-w-xl text-[11px] text-black/60 dark:text-white/60">
+              Reuse the material links already reviewed during video triage as
+              initial primary-subject mappings. Existing mappings are skipped;
+              ambiguous identifiers are reported instead of guessed.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => void previewVideoMappings()}
+            disabled={isPreviewingVideos || isApplyingVideos}
+            className="flex items-center gap-2 rounded-lg border border-black/15 px-3 py-2 text-[12px] disabled:opacity-50 dark:border-white/15"
+          >
+            {isPreviewingVideos ? (
+              <Loader2 className="size-3.5 animate-spin" />
+            ) : (
+              <RefreshCw className="size-3.5" />
+            )}
+            Preview reviewed links
+          </button>
+        </div>
+
+        {videoReport && (
+          <div className="mt-3 space-y-3 border-t border-black/10 pt-3 dark:border-white/10">
+            <p className="text-[12px]">
+              {videoReport.resolved_count} resolved · {videoReport.existing_count}{" "}
+              already mapped · {videoReport.creatable_count} ready to create ·{" "}
+              {videoReport.unresolved_count} unresolved
+            </p>
+            {videoReport.unresolved.length > 0 && (
+              <div className="max-h-28 overflow-y-auto rounded-md bg-amber-50 p-2 text-[10px] text-amber-800 dark:bg-amber-950/20 dark:text-amber-200">
+                {videoReport.unresolved.map((candidate) => (
+                  <p key={`${candidate.import_item_id}:${candidate.material_identifier}`}>
+                    {candidate.material_identifier} · {candidate.match_count === 0 ? "no material match" : "ambiguous match"}
+                  </p>
+                ))}
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={() => void applyVideoMappings()}
+              disabled={
+                videoReport.creatable_count < 1 ||
+                isApplyingVideos ||
+                videoReport.mode === "apply"
+              }
+              className="retro-btn-primary flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isApplyingVideos ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <WandSparkles className="size-4" />
+              )}
+              {videoReport.mode === "apply"
+                ? `${videoReport.created_count} mapping(s) created`
+                : `Create ${videoReport.creatable_count} primary-subject mapping(s)`}
+            </button>
+          </div>
+        )}
       </div>
 
       {isLoading && options.content.length === 0 ? (

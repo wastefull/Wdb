@@ -37,6 +37,20 @@ and the database function is not executable by `anon` or `authenticated`.
 `CONTENT_MAPPING_APPLY_ENABLED` may remain false throughout manual deployment
 and use.
 
+### Reuse Reviewed Video Links
+
+After video triage draft apply, run **Preview reviewed links** in Content
+Management. It reads only reviewed `material_video` and `both` candidates that
+have an applied video and canonical video binding. Material identifiers resolve
+against canonical UUIDs, legacy IDs, slugs, or exact names.
+
+The confirmed action creates missing `primary_subject` mappings with
+`pending_review` status, writes one outbox event per new mapping, writes a
+summary audit record, and skips existing mappings. Unresolved or ambiguous
+identifiers are reported and never guessed. Apply
+`20260705010000_create_reviewed_video_mapping_apply.sql` and run the complete
+pgTAP suite before using this action in production.
+
 ## Bulk Migration Safety Contract
 
 - Keep `CONTENT_MAPPING_APPLY_ENABLED=false` during migration deployment and

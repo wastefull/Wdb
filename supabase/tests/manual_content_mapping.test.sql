@@ -4,7 +4,7 @@ CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 SET LOCAL ROLE postgres;
 SET LOCAL search_path = public, extensions;
 
-SELECT plan(14);
+SELECT plan(22);
 
 SELECT has_function(
   'public'::name,
@@ -142,6 +142,132 @@ SELECT is(
    WHERE content_entity_id = '00000000-0000-0000-0000-000000000093'),
   1::bigint,
   'Rejected mappings leave existing graph state unchanged'
+);
+
+RESET ROLE;
+SET LOCAL ROLE postgres;
+
+SELECT ok(
+  has_function_privilege(
+    'service_role',
+    'public.process_reviewed_video_material_mappings(uuid,boolean)',
+    'EXECUTE'
+  ),
+  'Service role can process reviewed video material mappings'
+);
+
+INSERT INTO public.materials (id, legacy_kv_id, name, slug, status) VALUES (
+  '00000000-0000-0000-0000-000000000095',
+  'manual-video-material',
+  'Video mapping material',
+  'video-mapping-material',
+  'published'
+);
+INSERT INTO public.videos (id, title, youtube_url, youtube_id, status) VALUES (
+  '00000000-0000-0000-0000-000000000096',
+  'Reviewed mapping video',
+  'https://www.youtube.com/watch?v=manualMap01',
+  'manualMap01',
+  'draft'
+);
+INSERT INTO public.entities (id, entity_type, name, status, created_by) VALUES
+  ('00000000-0000-0000-0000-000000000097', 'material', 'Video mapping material', 'active', '00000000-0000-0000-0000-000000000091'),
+  ('00000000-0000-0000-0000-000000000098', 'video', 'Reviewed mapping video', 'draft', '00000000-0000-0000-0000-000000000091');
+INSERT INTO public.entity_canonical_bindings (entity_id, material_id) VALUES (
+  '00000000-0000-0000-0000-000000000097',
+  '00000000-0000-0000-0000-000000000095'
+);
+INSERT INTO public.entity_canonical_bindings (entity_id, video_id) VALUES (
+  '00000000-0000-0000-0000-000000000098',
+  '00000000-0000-0000-0000-000000000096'
+);
+INSERT INTO public.video_import_batches (
+  id, source_playlist_id, preview_contract_version, source_preview_checksum,
+  worksheet_checksum, row_count, status, created_by, reviewed_by, reviewed_at
+) VALUES (
+  '00000000-0000-0000-0000-000000000099', 'PL-manual-map',
+  'stage-7-youtube-playlist-preview-v1', repeat('9', 64), repeat('8', 64),
+  1, 'completed', '00000000-0000-0000-0000-000000000091',
+  '00000000-0000-0000-0000-000000000091', now()
+);
+INSERT INTO public.video_import_items (
+  id, batch_id, source_row_number, candidate_key, provider_video_id,
+  provider_url, playlist_positions, title, provider_classification,
+  disposition, material_identifiers, review_status, original_payload,
+  created_by, reviewed_by, reviewed_at, video_id, applied_at
+) VALUES (
+  '00000000-0000-0000-0000-000000000100',
+  '00000000-0000-0000-0000-000000000099', 1, 'manual-map-video',
+  'manualMap01', 'https://www.youtube.com/watch?v=manualMap01', ARRAY[1],
+  'Reviewed mapping video', 'new', 'material_video',
+  ARRAY['video-mapping-material'], 'reviewed', '{}'::JSONB,
+  '00000000-0000-0000-0000-000000000091',
+  '00000000-0000-0000-0000-000000000091', now(),
+  '00000000-0000-0000-0000-000000000096', now()
+);
+
+SET LOCAL ROLE service_role;
+CREATE TEMP TABLE reviewed_video_mapping_result(payload JSONB);
+GRANT SELECT, INSERT, DELETE, TRUNCATE ON reviewed_video_mapping_result TO service_role;
+INSERT INTO reviewed_video_mapping_result(payload)
+SELECT public.process_reviewed_video_material_mappings(
+  '00000000-0000-0000-0000-000000000091', FALSE
+);
+SELECT results_eq(
+  $$ SELECT (payload->>'resolved_count')::INTEGER,
+            (payload->>'creatable_count')::INTEGER,
+            (payload->>'created_count')::INTEGER
+     FROM reviewed_video_mapping_result $$,
+  $$ VALUES (1, 1, 0) $$,
+  'Preview resolves reviewed material links without creating mappings'
+);
+SELECT is(
+  (SELECT count(*) FROM public.content_entities
+   WHERE content_entity_id = '00000000-0000-0000-0000-000000000098'),
+  0::BIGINT,
+  'Preview is non-mutating'
+);
+
+TRUNCATE reviewed_video_mapping_result;
+INSERT INTO reviewed_video_mapping_result(payload)
+SELECT public.process_reviewed_video_material_mappings(
+  '00000000-0000-0000-0000-000000000091', TRUE
+);
+SELECT is(
+  (SELECT payload->>'created_count' FROM reviewed_video_mapping_result),
+  '1',
+  'Apply creates the missing reviewed video mapping'
+);
+SELECT results_eq(
+  $$ SELECT role, status FROM public.content_entities
+     WHERE content_entity_id = '00000000-0000-0000-0000-000000000098' $$,
+  $$ VALUES ('primary_subject'::TEXT, 'pending_review'::TEXT) $$,
+  'Reviewed video links become pending primary-subject mappings'
+);
+SELECT is(
+  (SELECT count(*) FROM public.graph_sync_outbox
+   WHERE payload->>'provenance' = 'reviewed_video_triage'),
+  1::BIGINT,
+  'Apply writes the reviewed-video outbox event'
+);
+SELECT is(
+  (SELECT count(*) FROM public.audit_log
+   WHERE action = 'video_material_mapping_apply'),
+  1::BIGINT,
+  'Apply writes one summary audit record'
+);
+
+TRUNCATE reviewed_video_mapping_result;
+INSERT INTO reviewed_video_mapping_result(payload)
+SELECT public.process_reviewed_video_material_mappings(
+  '00000000-0000-0000-0000-000000000091', TRUE
+);
+SELECT results_eq(
+  $$ SELECT (payload->>'created_count')::INTEGER,
+            (payload->>'existing_count')::INTEGER
+     FROM reviewed_video_mapping_result $$,
+  $$ VALUES (0, 1) $$,
+  'Rerunning apply skips the existing mapping'
 );
 
 RESET ROLE;

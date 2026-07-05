@@ -379,7 +379,7 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
       ),
       active(
         "Reviewed video-to-material mapping tools",
-        "The local Content Management workflow now lets admins map canonical videos and other content to materials as explicit pending-review graph records, with governed roles, optional lifecycle focus, evidence-use safeguards, atomic audit/outbox writes, and duplicate protection. Production deployment and acceptance remain pending.",
+        "The local Content Management workflow lets admins map canonical videos and other content to materials as explicit pending-review graph records. Reviewed video-triage material links can also be previewed and promoted in bulk to initial primary-subject mappings, with unresolved identifiers reported rather than guessed. Both paths preserve atomic audit/outbox writes and duplicate protection; production deployment and acceptance remain pending.",
       ),
       planned(
         "Governed video topic classification",

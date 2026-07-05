@@ -150,6 +150,13 @@ outbox event, or audit record. Evidence mappings require a specific governed
 evidence use; do not use Evidence for a merely relevant or mentioned material.
 No manual mapping publishes content or enables graph reads.
 
+For videos already reviewed through private triage, use **Preview reviewed
+links** before repeating manual work. The preview resolves each saved material
+identifier against canonical material UUIDs, legacy IDs, slugs, and exact
+names. The confirmed action creates missing `primary_subject` mappings as
+`pending_review`, skips existing mappings, and reports unresolved or ambiguous
+identifiers without guessing. It is safe to rerun.
+
 ## Bulk Content-Mapping Migration
 
 Keep `CONTENT_MAPPING_APPLY_ENABLED=false` during normal operation and while

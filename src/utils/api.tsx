@@ -31,6 +31,7 @@ import type {
   CreateManualContentMappingRequest,
   CreateManualContentMappingResponse,
   ManualContentMappingOptionsResponse,
+  ReviewedVideoMappingReport,
 } from "../types/manualContentMapping";
 
 // Export projectId and publicAnonKey for use in other modules
@@ -1660,6 +1661,19 @@ export async function createManualContentMapping(
   return await apiCall("/graph/content-mappings/manual", {
     method: "POST",
     body: JSON.stringify(request),
+  });
+}
+
+/** Admin only — previews reviewed video-to-material mappings from triage. */
+export async function previewReviewedVideoMappings(): Promise<ReviewedVideoMappingReport> {
+  return await apiCall("/graph/content-mappings/manual/videos/preview");
+}
+
+/** Admin only — creates missing primary-subject mappings from reviewed triage. */
+export async function applyReviewedVideoMappings(): Promise<ReviewedVideoMappingReport> {
+  return await apiCall("/graph/content-mappings/manual/videos/apply", {
+    method: "POST",
+    body: JSON.stringify({ confirmation: "apply reviewed video material mappings" }),
   });
 }
 

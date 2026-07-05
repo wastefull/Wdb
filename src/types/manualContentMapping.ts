@@ -58,3 +58,24 @@ export interface CreateManualContentMappingResponse {
   already_exists: boolean;
   outbox_event_written: boolean;
 }
+
+export interface ReviewedVideoMappingReport {
+  success: true;
+  mode: "preview" | "apply";
+  candidate_count: number;
+  resolved_count: number;
+  unresolved_count: number;
+  existing_count: number;
+  creatable_count: number;
+  created_count: number;
+  outbox_count: number;
+  role: "primary_subject";
+  status: "pending_review";
+  unresolved: Array<{
+    video_id: string;
+    video_entity_id: string;
+    import_item_id: string;
+    material_identifier: string;
+    match_count: number;
+  }>;
+}
