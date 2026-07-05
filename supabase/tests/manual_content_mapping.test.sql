@@ -4,7 +4,7 @@ CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 SET LOCAL ROLE postgres;
 SET LOCAL search_path = public, extensions;
 
-SELECT plan(25);
+SELECT plan(26);
 
 SELECT has_function(
   'public'::name,
@@ -288,6 +288,68 @@ SELECT results_eq(
      FROM reviewed_video_mapping_result $$,
   $$ VALUES (0, 1) $$,
   'Rerunning apply skips the existing mapping'
+);
+
+INSERT INTO public.materials (id, legacy_kv_id, name, slug, aliases, status) VALUES
+  (
+    '00000000-0000-0000-0000-000000000101',
+    'concrete-material',
+    'Concrete',
+    'concrete',
+    ARRAY['concrete rubble'],
+    'published'
+  ),
+  (
+    '00000000-0000-0000-0000-000000000102',
+    'concrete-rubble-material',
+    'Concrete Rubble',
+    '1766171968045azlfi8qem',
+    ARRAY[]::TEXT[],
+    'published'
+  );
+
+INSERT INTO public.videos (id, title, youtube_url, youtube_id, status) VALUES (
+  '00000000-0000-0000-0000-000000000103',
+  'Exact slug precedence video',
+  'https://www.youtube.com/watch?v=manualMap02',
+  'manualMap02',
+  'draft'
+);
+INSERT INTO public.entities (id, entity_type, name, status, created_by) VALUES
+  ('00000000-0000-0000-0000-000000000104', 'video', 'Exact slug precedence video', 'draft', '00000000-0000-0000-0000-000000000091');
+INSERT INTO public.entity_canonical_bindings (entity_id, video_id) VALUES (
+  '00000000-0000-0000-0000-000000000104',
+  '00000000-0000-0000-0000-000000000103'
+);
+INSERT INTO public.video_import_items (
+  id, batch_id, source_row_number, candidate_key, provider_video_id,
+  provider_url, playlist_positions, title, provider_classification,
+  disposition, material_identifiers, review_status, original_payload,
+  created_by, reviewed_by, reviewed_at, video_id, applied_at
+) VALUES (
+  '00000000-0000-0000-0000-000000000105',
+  '00000000-0000-0000-0000-000000000099', 2, 'manual-map-video-2',
+  'manualMap02', 'https://www.youtube.com/watch?v=manualMap02', ARRAY[2],
+  'Exact slug precedence video', 'new', 'material_video',
+  ARRAY['concrete-rubble'], 'reviewed', '{}'::JSONB,
+  '00000000-0000-0000-0000-000000000091',
+  '00000000-0000-0000-0000-000000000091', now(),
+  '00000000-0000-0000-0000-000000000103', now()
+);
+
+TRUNCATE reviewed_video_mapping_result;
+INSERT INTO reviewed_video_mapping_result(payload)
+SELECT public.process_reviewed_video_material_mappings(
+  '00000000-0000-0000-0000-000000000091', FALSE
+);
+SELECT results_eq(
+  $$ SELECT (payload->>'candidate_count')::INTEGER,
+            (payload->>'resolved_count')::INTEGER,
+            (payload->>'unresolved_count')::INTEGER,
+            (payload->>'creatable_count')::INTEGER
+     FROM reviewed_video_mapping_result $$,
+  $$ VALUES (2, 2, 0, 1) $$,
+  'Exact material slug matches are resolved before fuzzy alias matches'
 );
 
 RESET ROLE;

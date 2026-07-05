@@ -4,7 +4,7 @@ CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 SET LOCAL ROLE postgres;
 SET LOCAL search_path = public, extensions;
 
-SELECT plan(22);
+SELECT plan(25);
 
 SELECT has_function(
   'public'::name,
@@ -250,6 +250,37 @@ SELECT is(
   1,
   'Batch validation summary tracks remaining available review work'
 );
+
+UPDATE public.video_import_batches
+SET status = 'completed'
+WHERE id = '00000000-0000-0000-0000-000000000750';
+
+SELECT lives_ok(
+  $$ SELECT public.review_video_triage_item(
+       '00000000-0000-0000-0000-000000000751',
+       '00000000-0000-0000-0000-000000000075',
+       'material_video',
+       ARRAY['wool-sweater'],
+       ARRAY['3d_printing'],
+       '{}'::text[],
+       'Post-apply correction.'
+     ) $$,
+  'A completed batch can still accept corrected review decisions'
+);
+SELECT is(
+  (SELECT status FROM public.video_import_batches
+   WHERE id = '00000000-0000-0000-0000-000000000750'),
+  'ready',
+  'Editing a completed batch re-evaluates status and keeps it ready when review is complete'
+);
+SELECT results_eq(
+  $$ SELECT material_identifiers
+     FROM public.video_import_items
+     WHERE id = '00000000-0000-0000-0000-000000000751' $$,
+  $$ VALUES (ARRAY['wool-sweater']::text[]) $$,
+  'Corrected material identifiers persist after completion'
+);
+
 SELECT is(
   (SELECT count(*) FROM public.videos),
   0::bigint,
