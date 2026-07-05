@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Edit2 } from "lucide-react";
 import { toast } from "sonner";
 import { Material } from "../../types/material";
@@ -39,6 +39,7 @@ import { getArticleCount } from "../../utils/materialArticles";
 import { useNavigationContext } from "../../contexts/NavigationContext";
 import { MATERIAL_EXPERIENCE_SECTIONS } from "../../config/materialExperience";
 import { isDevelopment } from "../../utils/environment";
+import type { MaterialVideoResource } from "../../types/materialExperience";
 
 interface MaterialDetailViewProps {
   material: Material;
@@ -116,6 +117,26 @@ export function MaterialDetailView({
   } | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [videoResources, setVideoResources] = useState<MaterialVideoResource[]>([]);
+  const [areVideoResourcesLoading, setAreVideoResourcesLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    setAreVideoResourcesLoading(true);
+    void api.getMaterialVideoResources(material.id)
+      .then((videos) => {
+        if (active) setVideoResources(videos);
+      })
+      .catch(() => {
+        if (active) setVideoResources([]);
+      })
+      .finally(() => {
+        if (active) setAreVideoResourcesLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [material.id]);
 
   const confirmDeleteArticle = () => {
     if (!articleToDelete) return;
@@ -395,6 +416,8 @@ export function MaterialDetailView({
         <MaterialExperienceSections
           material={material}
           model={experienceModel}
+          videoResources={videoResources}
+          areVideoResourcesLoading={areVideoResourcesLoading}
           articleCounts={articleCounts}
           onViewArticles={(category) => onViewArticles?.(category)}
           onReadArticle={(articleId, category, materialId) =>

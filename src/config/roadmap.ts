@@ -377,6 +377,10 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
         "Transactional draft video creation",
         "Create each accepted video, graph entity, and canonical binding atomically while preserving playlist provenance, idempotency, and resumable apply behavior.",
       ),
+      complete(
+        "Reviewed video publication and material-page resources",
+        "After complete triage and mapping review, publish only applied material-video and both records with audit/outbox provenance, then show their active material links as video cards within the existing Recommended Learning section.",
+      ),
       active(
         "Reviewed video-to-material mapping tools",
         "The local Content Management workflow lets admins map canonical videos and other content to materials as explicit pending-review graph records. Reviewed video-triage material links can also be previewed and promoted in bulk to initial primary-subject mappings, with unresolved identifiers reported rather than guessed. Both paths preserve atomic audit/outbox writes and duplicate protection; production deployment and acceptance remain pending.",

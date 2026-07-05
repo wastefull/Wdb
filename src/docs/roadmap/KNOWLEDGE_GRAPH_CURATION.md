@@ -287,6 +287,18 @@ Applying an approved material-video candidate transactionally creates one
 `videos` row, one `video` entity, and one canonical binding. New videos remain
 `draft`; no playlist import may publish them automatically.
 
+After the initial playlist received complete human review and its material
+mappings were separately approved, the reviewed publication migration promotes
+only applied `material_video` and `both` records to published videos and active
+canonical entities. Ignored, editorial-only, unavailable, unreviewed, and
+unapplied records remain excluded. Publication preserves reviewer metadata and
+writes video/entity outbox events plus one audit entry per published video.
+
+Published videos linked through active content mappings appear as video cards
+inside the existing Recommended Learning section on material pages. This is a
+narrow Stage 7 content-resource read; it does not enable Knowledge Feed,
+Related Entities, Discovery Paths, or the general Stage 8 graph-read cutover.
+
 Material associations use reviewed `content_entities` mappings:
 
 - `primary_subject` when the material is the video's principal subject

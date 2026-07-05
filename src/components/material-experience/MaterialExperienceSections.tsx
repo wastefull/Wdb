@@ -9,6 +9,7 @@ import {
   Library,
   Network,
   Pencil,
+  Play,
   Route,
   ShieldCheck,
   Sparkles,
@@ -20,6 +21,7 @@ import type {
   MaterialExperienceModel,
   MaterialGraphSection,
   MaterialInsightStatus,
+  MaterialVideoResource,
 } from "../../types/materialExperience";
 import { isDevelopment } from "../../utils/environment";
 import {
@@ -83,6 +85,8 @@ interface MaterialExperienceSectionsProps {
   canSuggestEdit: boolean;
   isAdminModeActive?: boolean;
   learningLibrary: ReactNode;
+  videoResources: MaterialVideoResource[];
+  areVideoResourcesLoading: boolean;
 }
 
 export function SectionHeading({
@@ -289,12 +293,75 @@ function RecommendedLearningSection({
   model,
   onReadArticle,
   onViewMaterial,
+  videoResources,
+  areVideoResourcesLoading,
 }: Pick<
   MaterialExperienceSectionsProps,
-  "model" | "onReadArticle" | "onViewMaterial"
+  | "model"
+  | "onReadArticle"
+  | "onViewMaterial"
+  | "videoResources"
+  | "areVideoResourcesLoading"
 >) {
   return (
     <>
+      {(areVideoResourcesLoading || videoResources.length > 0) && (
+        <div className="mb-8 space-y-4">
+          <div>
+            <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">
+              Watch
+            </p>
+            <h3 className="mt-2 text-xl">Video resources</h3>
+          </div>
+          {areVideoResourcesLoading ? (
+            <p className="text-sm text-muted-foreground">Loading linked videos...</p>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {videoResources.map((video) => {
+                const thumbnail = video.thumbnailUrl ||
+                  (video.youtubeId
+                    ? `https://i.ytimg.com/vi/${video.youtubeId}/hqdefault.jpg`
+                    : undefined);
+                return (
+                  <Card key={video.id} className="group overflow-hidden border-[1.5px] border-[#211f1c]/25 shadow-none dark:border-white/20">
+                    {thumbnail && (
+                      <a href={video.youtubeUrl} target="_blank" rel="noreferrer" className="relative block aspect-video overflow-hidden bg-black/5">
+                        <img src={thumbnail} alt="" loading="lazy" className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
+                        <span className="absolute inset-0 grid place-items-center bg-black/10 transition-colors group-hover:bg-black/20">
+                          <span className="grid size-11 place-items-center rounded-full bg-white/90 text-black shadow-sm">
+                            <Play className="ml-0.5 size-5 fill-current" aria-hidden="true" />
+                          </span>
+                        </span>
+                      </a>
+                    )}
+                    <CardHeader>
+                      <div className="flex flex-wrap gap-2">
+                        <Badge variant="outline">{video.role.replaceAll("_", " ")}</Badge>
+                        {video.lifecycleFocus && (
+                          <Badge variant="outline">{video.lifecycleFocus.replaceAll("_", " ")}</Badge>
+                        )}
+                      </div>
+                      <CardTitle className="mt-2 text-base leading-6">
+                        <a href={video.youtubeUrl} target="_blank" rel="noreferrer" className="hover:underline">
+                          {video.title}
+                        </a>
+                      </CardTitle>
+                      {video.channelName && <CardDescription>{video.channelName}</CardDescription>}
+                    </CardHeader>
+                    <CardContent>
+                      <Button asChild variant="outline" size="sm">
+                        <a href={video.youtubeUrl} target="_blank" rel="noreferrer">
+                          <Play className="size-4" aria-hidden="true" /> Watch video
+                        </a>
+                      </Button>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
       {model.recommendedLearning.length > 0 ? (
         <div className="grid gap-4 md:grid-cols-3">
           {model.recommendedLearning.map(
@@ -785,6 +852,8 @@ export function MaterialExperienceSections({
   canSuggestEdit,
   isAdminModeActive,
   learningLibrary,
+  videoResources,
+  areVideoResourcesLoading,
 }: MaterialExperienceSectionsProps) {
   const showDisabledSections = isDevelopment();
   const sectionProps = {
@@ -803,6 +872,8 @@ export function MaterialExperienceSections({
     canSuggestEdit,
     isAdminModeActive,
     learningLibrary,
+    videoResources,
+    areVideoResourcesLoading,
   };
   const displaySections = getVisibleMaterialExperienceSections({
     includeDisabled: showDisabledSections,
@@ -869,6 +940,8 @@ function GenericSection({
                   model={msep.model}
                   onReadArticle={msep.onReadArticle}
                   onViewMaterial={msep.onViewMaterial}
+                  videoResources={msep.videoResources}
+                  areVideoResourcesLoading={msep.areVideoResourcesLoading}
                 />
                 {msep.learningLibrary}
               </>

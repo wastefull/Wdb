@@ -50,6 +50,19 @@ export interface MaterialLearningItem {
   linkedMaterialId?: string;
 }
 
+export interface MaterialVideoResource {
+  id: string;
+  title: string;
+  youtubeUrl: string;
+  youtubeId?: string;
+  description?: string;
+  durationSeconds?: number;
+  channelName?: string;
+  thumbnailUrl?: string;
+  role: string;
+  lifecycleFocus?: string;
+}
+
 export interface MaterialIntelligenceDimension {
   id: CategoryType;
   label: string;

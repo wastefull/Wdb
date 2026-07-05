@@ -15746,6 +15746,100 @@ app.post(
 
 // ==================== GRAPH CONTENT-MAPPING PREVIEW ====================
 
+const MATERIAL_VIDEO_RESOURCE_UUID =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+app.get(
+  "/make-server-17cae920/graph/materials/:materialId/videos",
+  async (c) => {
+    try {
+      const materialId = c.req.param("materialId");
+      if (!MATERIAL_VIDEO_RESOURCE_UUID.test(materialId)) {
+        return c.json({ success: false, error: "Invalid material ID." }, 400);
+      }
+      const client = _roleClient();
+      const { data: material, error: materialError } = await client
+        .from("materials")
+        .select("id")
+        .eq("id", materialId)
+        .eq("status", "published")
+        .maybeSingle();
+      if (materialError) throw materialError;
+      if (!material) return c.json({ success: true, videos: [] });
+
+      const { data: materialBinding, error: materialBindingError } = await client
+        .from("entity_canonical_bindings")
+        .select("entity_id")
+        .eq("material_id", materialId)
+        .maybeSingle();
+      if (materialBindingError) throw materialBindingError;
+      if (!materialBinding) return c.json({ success: true, videos: [] });
+
+      const { data: mappings, error: mappingsError } = await client
+        .from("content_entities")
+        .select("content_entity_id,role,lifecycle_focus")
+        .eq("subject_entity_id", materialBinding.entity_id)
+        .eq("status", "active");
+      if (mappingsError) throw mappingsError;
+      const contentEntityIds = Array.from(new Set(
+        (mappings ?? []).map((mapping) => mapping.content_entity_id),
+      ));
+      if (contentEntityIds.length === 0) {
+        return c.json({ success: true, videos: [] });
+      }
+
+      const { data: videoBindings, error: videoBindingsError } = await client
+        .from("entity_canonical_bindings")
+        .select("entity_id,video_id")
+        .in("entity_id", contentEntityIds)
+        .not("video_id", "is", null);
+      if (videoBindingsError) throw videoBindingsError;
+      const videoIds = (videoBindings ?? []).flatMap((binding) =>
+        binding.video_id ? [binding.video_id] : []
+      );
+      if (videoIds.length === 0) return c.json({ success: true, videos: [] });
+
+      const { data: videos, error: videosError } = await client
+        .from("videos")
+        .select("id,title,youtube_url,youtube_id,description,duration_seconds,channel_name,thumbnail_url")
+        .in("id", videoIds)
+        .eq("status", "published")
+        .order("title");
+      if (videosError) throw videosError;
+
+      const entityByVideoId = new Map(
+        (videoBindings ?? []).map((binding) => [binding.video_id, binding.entity_id]),
+      );
+      const mappingByEntityId = new Map(
+        (mappings ?? []).map((mapping) => [mapping.content_entity_id, mapping]),
+      );
+      return c.json({
+        success: true,
+        videos: (videos ?? []).flatMap((video) => {
+          const entityId = entityByVideoId.get(video.id);
+          const mapping = entityId ? mappingByEntityId.get(entityId) : null;
+          if (!mapping) return [];
+          return [{
+            id: video.id,
+            title: video.title,
+            youtubeUrl: video.youtube_url,
+            youtubeId: video.youtube_id ?? undefined,
+            description: video.description ?? undefined,
+            durationSeconds: video.duration_seconds ?? undefined,
+            channelName: video.channel_name ?? undefined,
+            thumbnailUrl: video.thumbnail_url ?? undefined,
+            role: mapping.role,
+            lifecycleFocus: mapping.lifecycle_focus ?? undefined,
+          }];
+        }),
+      });
+    } catch (error) {
+      log.error("Material video resources failed:", error);
+      return c.json({ success: false, error: "Video resources could not be loaded." }, 500);
+    }
+  },
+);
+
 const MANUAL_CONTENT_ENTITY_TYPES = [
   "article",
   "guide",

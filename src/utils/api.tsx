@@ -36,6 +36,7 @@ import type {
   ReviewedVideoTopicReport,
   ReviewedVideoMappingReport,
 } from "../types/manualContentMapping";
+import type { MaterialVideoResource } from "../types/materialExperience";
 
 // Export projectId and publicAnonKey for use in other modules
 export { projectId, publicAnonKey };
@@ -1651,6 +1652,16 @@ export async function setMaintenanceMode(
 }
 
 // ==================== GRAPH CONTENT PREVIEWS ====================
+
+/** Public — lists published videos linked to one material by active mappings. */
+export async function getMaterialVideoResources(
+  materialId: string,
+): Promise<MaterialVideoResource[]> {
+  const response = await apiCall(
+    `/graph/materials/${encodeURIComponent(materialId)}/videos`,
+  );
+  return response.videos;
+}
 
 /** Admin only — lists canonical entities and governed mapping vocabulary. */
 export async function getManualContentMappingOptions(): Promise<ManualContentMappingOptionsResponse> {

@@ -41,6 +41,11 @@ excluded. Missing topic vocabulary is created from those reviewed values with
 mechanical slug normalization; similarly named concepts are not silently
 merged.
 
+The reviewed-video publication migration publishes only applied triage records
+with a `material_video` or `both` disposition. Published linked videos appear
+under **Recommended Learning > Video resources** on the corresponding material
+pages. Ignored and editorial-only candidates remain excluded.
+
 The normal content-mapping workflow is:
 
 1. Open **Create Content Mapping**.
