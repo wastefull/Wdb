@@ -397,7 +397,7 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
       ),
       active(
         "Review and authorization workflows for graph mutations",
-        "Admins can create one explicit pending-review content mapping through the normal Content Management workflow. Bulk migration candidate selection remains checksum-bound; no merely resolvable candidate is approved automatically.",
+        "Admins can create one explicit pending-review content mapping, then search the review queue and approve it to active or reject it to archived through an atomic reviewer, outbox, and audit transaction. Bulk migration candidate selection remains checksum-bound; no merely resolvable candidate is approved automatically.",
       ),
       active(
         "Compatibility-aware dual writes during migration",

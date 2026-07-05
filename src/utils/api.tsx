@@ -28,9 +28,11 @@ import type {
   VideoTriageStageResponse,
 } from "../types/videoPlaylist";
 import type {
+  ContentMappingReviewListResponse,
   CreateManualContentMappingRequest,
   CreateManualContentMappingResponse,
   ManualContentMappingOptionsResponse,
+  ReviewContentMappingResponse,
   ReviewedVideoMappingReport,
 } from "../types/manualContentMapping";
 
@@ -1662,6 +1664,33 @@ export async function createManualContentMapping(
     method: "POST",
     body: JSON.stringify(request),
   });
+}
+
+/** Admin only — lists governed content mappings for editorial review. */
+export async function listContentMappingsForReview(options: {
+  status?: string;
+  search?: string;
+  offset?: number;
+  limit?: number;
+} = {}): Promise<ContentMappingReviewListResponse> {
+  const params = new URLSearchParams({
+    status: options.status ?? "pending_review",
+    offset: String(options.offset ?? 0),
+    limit: String(options.limit ?? 50),
+  });
+  if (options.search?.trim()) params.set("search", options.search.trim());
+  return await apiCall(`/graph/content-mappings/review?${params}`);
+}
+
+/** Admin only — approves or rejects one pending content mapping. */
+export async function reviewContentMapping(
+  mappingId: string,
+  decision: "approve" | "reject",
+): Promise<ReviewContentMappingResponse> {
+  return await apiCall(
+    `/graph/content-mappings/review/${encodeURIComponent(mappingId)}`,
+    { method: "POST", body: JSON.stringify({ decision }) },
+  );
 }
 
 /** Admin only — previews reviewed video-to-material mappings from triage. */

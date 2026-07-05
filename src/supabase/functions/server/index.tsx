@@ -15755,6 +15755,113 @@ const MANUAL_CONTENT_ENTITY_TYPES = [
 const MANUAL_CONTENT_MAPPING_UUID =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
+app.get(
+  "/make-server-17cae920/graph/content-mappings/review",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const status = c.req.query("status") ?? "pending_review";
+      if (!["all", "pending_review", "active", "archived"].includes(status)) {
+        return c.json({ success: false, error: "Invalid mapping status." }, 400);
+      }
+      const search = (c.req.query("search") ?? "").trim().toLocaleLowerCase();
+      if (search.length > 100) {
+        return c.json({ success: false, error: "Search must be 100 characters or fewer." }, 400);
+      }
+      const requestedOffset = Number.parseInt(c.req.query("offset") ?? "0", 10);
+      const requestedLimit = Number.parseInt(c.req.query("limit") ?? "50", 10);
+      const offset = Number.isFinite(requestedOffset) ? Math.max(0, requestedOffset) : 0;
+      const limit = Number.isFinite(requestedLimit)
+        ? Math.min(100, Math.max(1, requestedLimit))
+        : 50;
+
+      let mappingsQuery = _roleClient()
+        .from("content_entities")
+        .select("id,content_entity_id,subject_entity_id,role,lifecycle_focus,evidence_use,status,created_at,reviewed_by,reviewed_at")
+        .order("created_at", { ascending: false });
+      if (status !== "all") mappingsQuery = mappingsQuery.eq("status", status);
+      const { data: mappings, error: mappingsError } = await mappingsQuery;
+      if (mappingsError) throw mappingsError;
+
+      const entityIds = Array.from(new Set((mappings ?? []).flatMap((mapping) => [
+        mapping.content_entity_id,
+        mapping.subject_entity_id,
+      ])));
+      const { data: entities, error: entitiesError } = entityIds.length
+        ? await _roleClient().from("entities").select("id,name,entity_type").in("id", entityIds)
+        : { data: [], error: null };
+      if (entitiesError) throw entitiesError;
+      const entityById = new Map((entities ?? []).map((entity) => [entity.id, entity]));
+
+      const hydrated = (mappings ?? []).flatMap((mapping) => {
+        const content = entityById.get(mapping.content_entity_id);
+        const subject = entityById.get(mapping.subject_entity_id);
+        if (!content || !subject) return [];
+        return [{
+          ...mapping,
+          content_name: content.name,
+          content_type: content.entity_type,
+          subject_name: subject.name,
+        }];
+      });
+      const filtered = search
+        ? hydrated.filter((mapping) => [
+            mapping.content_name,
+            mapping.content_type,
+            mapping.subject_name,
+            mapping.role,
+            mapping.lifecycle_focus,
+            mapping.evidence_use,
+          ].some((value) => typeof value === "string" && value.toLocaleLowerCase().includes(search)))
+        : hydrated;
+
+      return c.json({
+        success: true,
+        items: filtered.slice(offset, offset + limit),
+        total: filtered.length,
+        offset,
+        limit,
+      });
+    } catch (error) {
+      log.error("Content-mapping review list failed:", error);
+      return c.json({ success: false, error: "Content mappings could not be loaded." }, 500);
+    }
+  },
+);
+
+app.post(
+  "/make-server-17cae920/graph/content-mappings/review/:mappingId",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const mappingId = c.req.param("mappingId");
+      const body = await c.req.json().catch(() => ({}));
+      if (!MANUAL_CONTENT_MAPPING_UUID.test(mappingId)) {
+        return c.json({ success: false, error: "Invalid content-mapping ID." }, 400);
+      }
+      if (!body || !["approve", "reject"].includes(body.decision)) {
+        return c.json({ success: false, error: "Decision must be approve or reject." }, 400);
+      }
+      const { data, error } = await _roleClient().rpc("review_content_mapping", {
+        p_mapping_id: mappingId,
+        p_reviewed_by: c.get("userId"),
+        p_decision: body.decision,
+      });
+      if (error) throw error;
+      return c.json(data);
+    } catch (error) {
+      log.error("Content-mapping review failed:", error);
+      return c.json({
+        success: false,
+        error: "Content mapping could not be reviewed.",
+        details: String(error),
+      }, 500);
+    }
+  },
+);
+
 // Day-to-day curation options. Only canonical entities and active governed
 // vocabulary are returned; migration previews remain a separate workflow.
 app.get(

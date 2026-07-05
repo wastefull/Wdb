@@ -1,4 +1,5 @@
-import { ArrowLeft, GitMerge, Link2, ListChecks, ListVideo } from "lucide-react";
+import { ArrowLeft, GitMerge, Link2, ListChecks, ListVideo, ShieldCheck } from "lucide-react";
+import { ContentMappingReviewPanel } from "./ContentMappingReviewPanel";
 import { ContentMappingPreviewPanel } from "./ContentMappingPreviewPanel";
 import { ManualContentMappingPanel } from "./ManualContentMappingPanel";
 import { VideoPlaylistPreviewPanel } from "./VideoPlaylistPreviewPanel";
@@ -13,6 +14,11 @@ const SECTIONS = [
     id: "manual-content-mapping",
     label: "Create Content Mapping",
     icon: Link2,
+  },
+  {
+    id: "content-mapping-review",
+    label: "Review Content Mappings",
+    icon: ShieldCheck,
   },
   {
     id: "video-playlist-preview",
@@ -73,6 +79,7 @@ export function ContentManagementPage({ onBack }: ContentManagementPageProps) {
       <main className="flex-1 overflow-y-auto p-8">
         <div className="mx-auto max-w-3xl space-y-6">
           <ManualContentMappingPanel />
+          <ContentMappingReviewPanel />
           <VideoPlaylistPreviewPanel />
           <VideoTriageReviewPanel />
           <details className="rounded-xl border border-black/10 p-4 dark:border-white/10">

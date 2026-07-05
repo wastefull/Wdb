@@ -189,6 +189,10 @@ It does not enable graph-powered discovery reads; that remains a Stage 8 gate.
   material entities/bindings for authoritative material writes. Its migration
   reconciles materials created after the Stage 6 backfill, preventing valid
   reviewed slugs from appearing unresolved merely because a binding was absent.
+- Content Management includes a review queue for pending mappings. Admins can
+  search and filter mappings, approve them to `active`, or reject them to
+  `archived`. Each decision records reviewer metadata, an idempotent outbox
+  update, and an audit entry in one database transaction.
 
 ## Entry State
 
@@ -222,9 +226,9 @@ It does not enable graph-powered discovery reads; that remains a Stage 8 gate.
    Admin panel offers a confirmed quarantine action after a preview run.
    Route: `POST /graph/content-mappings/quarantine`.
 6. **[Active]** Add reviewed relationship, tag, entity, and video curation APIs
-   and admin interfaces. Manual content-to-material mapping is implemented
-   locally as the normal single-record workflow; bulk migration review remains
-   checksum-bound, and the other curation domains remain planned.
+   and admin interfaces. Manual content-to-material creation and approval or
+   rejection are implemented; bulk migration review remains checksum-bound,
+   and the other curation domains remain planned.
 7. Add scoped Key Insight review fields and supporting-evidence linkage.
 8. **[Active]** Add transactional compatibility writes and idempotent outbox
    processing. Content-mapping writes now enqueue outbox events atomically;

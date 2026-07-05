@@ -79,3 +79,34 @@ export interface ReviewedVideoMappingReport {
     match_count: number;
   }>;
 }
+
+export type ContentMappingReviewStatus =
+  | "pending_review"
+  | "active"
+  | "archived";
+
+export interface ContentMappingReviewItem extends ExistingManualContentMapping {
+  status: ContentMappingReviewStatus;
+  content_name: string;
+  content_type: ManualContentEntityType;
+  subject_name: string;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+}
+
+export interface ContentMappingReviewListResponse {
+  success: true;
+  items: ContentMappingReviewItem[];
+  total: number;
+  offset: number;
+  limit: number;
+}
+
+export interface ReviewContentMappingResponse {
+  success: true;
+  mapping_id: string;
+  status: "active" | "archived";
+  changed: boolean;
+  already_reviewed: boolean;
+  outbox_event_written: boolean;
+}

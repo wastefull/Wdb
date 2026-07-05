@@ -37,6 +37,20 @@ and the database function is not executable by `anon` or `authenticated`.
 `CONTENT_MAPPING_APPLY_ENABLED` may remain false throughout manual deployment
 and use.
 
+### Mapping Review Queue
+
+Apply `20260706020000_create_content_mapping_review_function.sql`, run
+`supabase/tests/content_mapping_queue.test.sql`, and deploy the Edge Function
+and frontend. In **Content Management > Review Content Mappings**, pending
+mappings can be searched and filtered before an admin approves or rejects each
+claim. Approval changes status to `active`; rejection changes status to
+`archived`. Both decisions write reviewer metadata, an idempotent outbox update,
+and an audit record atomically.
+
+Incorrect claims should be rejected and recreated through **Create Content
+Mapping**. The initial review action intentionally cannot rewrite or reverse an
+already reviewed claim.
+
 ### Reuse Reviewed Video Links
 
 After video triage draft apply, run **Preview reviewed links** in Content
