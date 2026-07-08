@@ -21,6 +21,7 @@ import {
 } from "../ui/accordion";
 import * as api from "../../utils/api";
 import { logger as log } from "../../utils/logger";
+import { BackButton } from "../ui/backButton";
 
 interface StaffDashboardProps {
   onBack: () => void;
@@ -71,28 +72,17 @@ export function StaffDashboard({
   return (
     <div className="flex h-full">
       {/* Left Accordion Menu */}
-      <aside className="w-80 border-r border-[#211f1c]/10 dark:border-white/10 p-6 overflow-y-auto">
-        <div className="mb-6">
-          <button
-            onClick={onBack}
-            className="flex items-center gap-2 normal hover:opacity-70 transition-opacity"
-          >
-            <ArrowLeft size={16} />
-            <span className="font-sniglet text-[14px]">Back</span>
-          </button>
+      <aside className="dashboard-menu">
+        <div>
+          <BackButton onBack={onBack} />
         </div>
 
-        <h2 className="font-display text-[24px] normal mb-6">
-          Staff Dashboard
-        </h2>
+        <h2>Staff Dashboard</h2>
 
-        <Accordion type="multiple" className="w-full">
+        <Accordion type="multiple" className="accordion-menu">
           {/* Database Section */}
-          <AccordionItem
-            value="database"
-            className="border-[#211f1c]/10 dark:border-white/10"
-          >
-            <AccordionTrigger className="font-sniglet text-[14px] normal hover:no-underline">
+          <AccordionItem value="database">
+            <AccordionTrigger>
               <div className="flex items-center gap-2">
                 <Database size={16} />
                 <span>Database</span>
@@ -129,10 +119,7 @@ export function StaffDashboard({
           </AccordionItem>
 
           {/* Testing Section */}
-          <AccordionItem
-            value="testing"
-            className="border-[#211f1c]/10 dark:border-white/10"
-          >
+          <AccordionItem value="testing">
             <AccordionTrigger className="font-sniglet text-[14px] normal hover:no-underline">
               <div className="flex items-center gap-2">
                 <FlaskConical size={16} />

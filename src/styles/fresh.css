@@ -942,45 +942,63 @@ body {
    Sidebar / Accordion Menu Items
    ========================================================================== */
 .menu-item {
-  @apply w-full text-left text-base py-2 px-3 rounded-md transition-colors;
-  color: var(--menu-text);
+  @apply w-full text-left text-sm rounded-md transition-colors;
   @apply hover:bg-(--menu-bg-hover);
+  color: var(--menu-text);
+  &:first-child {
+    margin-top: 4px;
+  }
 }
+
 .menu-item:hover {
   color: var(--menu-text-hover);
+  cursor: pointer;
+}
+.menu-item::before {
+  content: "";
+  display: inline-block;
+  margin-right: 0px;
+}
+.menu-item-nested::before {
+  content: "";
+  display: inline-block;
+  margin-right: 8px;
 }
 
 .menu-item-nested {
-  @apply w-full text-left text-sm py-2 px-3 pl-6 rounded-md transition-colors;
-  color: var(--menu-text-dim);
+  @apply w-full text-left text-sm rounded-md transition-colors;
+  color: var(--menu-text);
   @apply hover:bg-(--menu-bg-hover);
 }
 .menu-item-nested:hover {
   color: var(--menu-text-hover);
+  cursor: pointer;
 }
 
 .menu-item-deep {
-  @apply w-full text-left text-base py-2 px-3 pl-8 rounded-md transition-colors;
+  @apply w-full text-left text-base pl-8 rounded-md transition-colors;
   color: var(--menu-text);
   @apply hover:bg-(--menu-bg-hover);
 }
 .menu-item-deep:hover {
   color: var(--menu-text-hover);
+  cursor: pointer;
 }
 
 .menu-item-disabled {
-  @apply w-full text-left text-base py-2 px-3 rounded-md cursor-not-allowed;
+  @apply w-full text-left text-base rounded-md cursor-not-allowed;
   color: var(--menu-text-muted);
 }
 
 .menu-header {
-  @apply text-base px-3 py-2;
+  @apply text-base;
   @apply text-black dark:text-white;
 }
 
 .menu-subheader {
-  @apply text-sm px-3 py-1;
-  @apply text-black/50 dark:text-white/50;
+  @apply font-display text-sm;
+  @apply text-black/80;
+  margin-bottom: 8px;
 }
 
 /* ==========================================================================
@@ -1115,8 +1133,14 @@ body {
 /* ==========================================================================
    Labels & Text
    ========================================================================== */
-.normal {
-  @apply text-base text-black dark:text-white;
+@utility normal {
+  .normal {
+    @apply text-base text-black dark:text-white;
+  }
+}
+
+@utility arcade-numbers {
+  font-variant-numeric: tabular-nums;
 }
 
 .text-fine-outline {
@@ -1280,7 +1304,7 @@ body {
    Retro Card / Button Base Patterns
    ========================================================================== */
 
-.retro-card {
+@utility retro-card {
   @apply bg-white dark:bg-[#2a2825] relative rounded-(--retro-rounding) p-4 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] border-[1.5px] border-[#211f1c] dark:border-white/20;
 }
 /* Standard retro card with shadow */
@@ -1361,6 +1385,13 @@ body {
   @apply bg-(--surface-bg) rounded-(--retro-rounding) border-(--retro-border) dark:border-(--imaginary);
   @apply shadow-(--hover-shadow);
   @apply hover:shadow-(--retro-thick-shadow) transition-all;
+}
+
+.back-btn {
+  @apply retro-btn-primary w-lg items-center gap-1 normal hover:opacity-70 transition-opacity;
+  & span {
+    @apply font-sniglet text-base;
+  }
 }
 
 /* ==========================================================================
@@ -1714,7 +1745,6 @@ main.material-detail-view {
               }
               .material-label {
                 @apply ml-1 text-sm text-black/60;
-                /* border: 2px dashed red !important; */
                 border-radius: 4px !important;
               }
             }
@@ -1861,5 +1891,87 @@ main.material-detail-view {
 }
 
 .material-doodle-container {
-  @apply mr-[50px!];
+  @apply mr-[50px]!;
+}
+
+/* ============
+Admin/Staff Dashboards
+============ */
+.dashboard-menu {
+  @apply col-span-12 sm:col-span-3 border-r border-[#211f1c]/10  p-6 overflow-y-auto;
+  & div {
+    @apply mb-0 items-center;
+  }
+  & button {
+    @apply flex items-center gap-1 normal hover:opacity-70 transition-opacity;
+  }
+  & h2 {
+    @apply font-display text-lg normal mb-0;
+  }
+  & .accordion-menu {
+    @apply w-full;
+  }
+  & .accordion-item {
+    @apply border-[#211f1c]/10 border-b last:border-b-0;
+    margin-bottom: 0 !important;
+    margin-top: 1px;
+    width: 100% !important;
+  }
+  & .accordion-item:hover {
+    text-decoration: none;
+    cursor: pointer;
+  }
+  & .accordion-trigger {
+    @apply focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50;
+    @apply flex items-center align-middle;
+    @apply [&[data-state=open]>svg]:rotate-180;
+    @apply disabled:pointer-events-none disabled:opacity-50;
+    @apply col-span-4;
+    width: 100%;
+    & span {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      align-items: center;
+      text-align: center;
+      text-overflow: ellipsis;
+    }
+  }
+  & .accordion-trigger:hover {
+    text-decoration: none;
+    cursor: pointer;
+  }
+}
+.accordion-content {
+  margin-bottom: 0;
+}
+
+.dashboard-content {
+  @apply hidden sm:block sm:col-span-9 flex-1 p-6 overflow-y-auto;
+  & div:first-child {
+    @apply max-w-5xl mx-auto space-y-6;
+    & .welcome-header {
+      & h1 {
+        @apply font-display text-2xl normal mb-2;
+      }
+    }
+  }
+}
+
+.numbers-grid {
+  @apply grid grid-cols-2 md:grid-cols-4 gap-4 overflow-hidden;
+  & .numbers-card {
+    @apply retro-card p-4;
+    & .numbers-card-flex {
+      @apply flex items-center gap-3;
+      & .numbers-card-icon {
+        @apply w-10 h-10 rounded-full bg-waste-recycle/20 flex items-center justify-center;
+      }
+      & .numbers-card-content {
+        @apply text-sm text-black/60 dark:text-white/60 uppercase tracking-wide;
+      }
+      & .numbers-card-value {
+        @apply text-sm lg:text-xl arcade-numbers;
+      }
+    }
+  }
 }

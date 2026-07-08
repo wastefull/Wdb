@@ -59,13 +59,17 @@ export function MobileAccessibilityButtons({
           <SheetContent
             side="top"
             className="sheet-content"
-            aria-describedby={undefined}
+            aria-describedby="accessibility-settings-description"
           >
             <SheetHeader className="sheet-header">
               <SheetTitle className="text-center font-display">
                 Accessibility
               </SheetTitle>
             </SheetHeader>
+            <div id="accessibility-settings-description" className="sr-only">
+              Adjust accessibility settings such as font size, contrast, and
+              motion preferences.
+            </div>
             <div className="flex flex-col gap-4 p-4">
               {/* Font Size Section */}
               <div className="space-y-3">

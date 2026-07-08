@@ -26,6 +26,7 @@ import {
 import { ACTIVE_STAGE_TAB_ID } from "../../config/roadmap";
 import * as api from "../../utils/api";
 import { logger as log } from "../../utils/logger";
+import { BackButton } from "../ui/backButton";
 interface AdminDashboardProps {
   onBack: () => void;
   onNavigateToReviewCenter?: () => void;
@@ -108,20 +109,12 @@ export function AdminDashboard({
   return (
     <div className="flex h-full">
       {/* Left Accordion Menu */}
-      <aside className="w-80 border-r border-[#211f1c]/10 dark:border-white/10 p-6 overflow-y-auto">
-        <div className="mb-6">
-          <button
-            onClick={onBack}
-            className="flex items-center gap-2 normal hover:opacity-70 transition-opacity"
-          >
-            <ArrowLeft size={16} />
-            <span className="font-sniglet text-[14px]">Back</span>
-          </button>
+      <aside className="dashboard-menu">
+        <div>
+          <BackButton onBack={onBack} />
         </div>
 
-        <h2 className="font-display text-[24px] normal mb-6">
-          Admin Dashboard
-        </h2>
+        <h2>Admin Dashboard</h2>
 
         <Accordion type="multiple" className="w-full">
           {/* Moderation Section */}
@@ -129,7 +122,7 @@ export function AdminDashboard({
             value="moderation"
             className="border-[#211f1c]/10 dark:border-white/10"
           >
-            <AccordionTrigger className="font-sniglet text-[14px] normal hover:no-underline">
+            <AccordionTrigger>
               <div className="flex items-center gap-2">
                 <AlertTriangle size={16} />
                 <span>Moderation</span>
@@ -399,7 +392,7 @@ export function AdminDashboard({
       </aside>
 
       {/* Main Content Area - Dashboard */}
-      <main className="flex-1 p-6 overflow-y-auto">
+      <main className="hidden sm:block flex-1 p-6 overflow-y-auto">
         <div className="max-w-5xl mx-auto space-y-6">
           {/* Welcome Header */}
           <div className="mb-8">
@@ -410,7 +403,7 @@ export function AdminDashboard({
           </div>
 
           {/* Quick Stats Row */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 overflow-hidden">
             <div className="retro-card p-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-waste-recycle/20 flex items-center justify-center">
@@ -420,7 +413,7 @@ export function AdminDashboard({
                   <p className="text-sm text-black/60 dark:text-white/60 uppercase tracking-wide">
                     Materials
                   </p>
-                  <p className="text-xl font-bold arcade-numbers">
+                  <p className="text-sm lg:text-xl font-bold arcade-numbers">
                     {loadingStats ? "..." : (stats?.materials ?? "—")}
                   </p>
                 </div>

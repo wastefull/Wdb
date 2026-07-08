@@ -75,8 +75,6 @@ import {
   AdminTakedownList,
   AuditLogViewer,
   DataRetentionManager,
-  AdminDashboard,
-  StaffDashboard,
   AssetsManagementPage,
   RolePermissionsView,
   CategoryColorsView,
@@ -85,6 +83,7 @@ import {
   ContentManagementPage,
   OneTimeActionsPanel,
 } from "./components/admin";
+import { GenericDashboard } from "./components/dashboard/genericDashboard";
 
 // Forms
 import {
@@ -1106,7 +1105,8 @@ function AppContent() {
       <WhitepaperView whitepaperSlug={view.whitepaperSlug} onBack={goBack} />
     ),
     "admin-dashboard": () => (
-      <AdminDashboard
+      <GenericDashboard
+        type="admin"
         onBack={navigateToMaterials}
         onNavigateToReviewCenter={navigateToReviewCenter}
         onNavigateToDataManagement={navigateToDataManagement}
@@ -1139,7 +1139,8 @@ function AppContent() {
       />
     ),
     "staff-dashboard": () => (
-      <StaffDashboard
+      <GenericDashboard
+        type="staff"
         onBack={navigateToMaterials}
         onNavigateToDataManagement={navigateToDataManagement}
         onNavigateToSourceLibrary={navigateToSourceLibrary}
