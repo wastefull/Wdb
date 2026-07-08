@@ -11,6 +11,7 @@ import { ROADMAP_STAGES } from "../../config/roadmap";
 import { ContentMappingReviewPanel } from "./ContentMappingReviewPanel";
 import { ContentMappingPreviewPanel } from "./ContentMappingPreviewPanel";
 import { ManualContentMappingPanel } from "./ManualContentMappingPanel";
+import { MaterialRelationshipPanel } from "./MaterialRelationshipPanel";
 import { VideoPlaylistPreviewPanel } from "./VideoPlaylistPreviewPanel";
 import { VideoTriageReviewPanel } from "./VideoTriageReviewPanel";
 import { VideoTopicClassificationPanel } from "./VideoTopicClassificationPanel";
@@ -29,6 +30,11 @@ const SECTIONS = [
     id: "content-mapping-review",
     label: "Review Content Mappings",
     icon: ShieldCheck,
+  },
+  {
+    id: "material-relationship-management",
+    label: "Material Relationships",
+    icon: GitMerge,
   },
   {
     id: "video-topic-classification",
@@ -99,7 +105,9 @@ export function ContentManagementPage({ onBack }: ContentManagementPageProps) {
             <section className="rounded-xl border border-waste-science/25 bg-waste-science/5 p-5 shadow-sm">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                  <p className="font-sniglet text-[13px]">Active roadmap stage</p>
+                  <p className="font-sniglet text-[13px]">
+                    Active roadmap stage
+                  </p>
                   <h3 className="mt-1 font-display text-[22px] normal">
                     Stage 7: {stage7.title}
                   </h3>
@@ -118,6 +126,7 @@ export function ContentManagementPage({ onBack }: ContentManagementPageProps) {
 
           <ManualContentMappingPanel />
           <ContentMappingReviewPanel />
+          <MaterialRelationshipPanel />
           <VideoTopicClassificationPanel />
           <VideoPlaylistPreviewPanel />
           <VideoTriageReviewPanel />

@@ -58,9 +58,11 @@ export function MaterialDetailSidebar({
         </div>
       )}
 
-      {isHub && <LinkedMaterialsCard linkedMaterials={linkedMaterials} />}
-      {isHub && <hr />}
-      
+      {linkedMaterials.length > 0 && (
+        <LinkedMaterialsCard linkedMaterials={linkedMaterials} />
+      )}
+      {(isHub || linkedMaterials.length > 0) && <hr />}
+
       <CopyPermalinkButton
         copied={copied}
         onClick={onCopyMaterialLink}

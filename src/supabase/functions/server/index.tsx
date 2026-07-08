@@ -15466,7 +15466,10 @@ app.get(
     const search = (c.req.query("search") ?? "").trim().toLocaleLowerCase();
     if (search.length > 100) {
       return c.json(
-        { success: false, error: "Search filter must be 100 characters or fewer." },
+        {
+          success: false,
+          error: "Search filter must be 100 characters or fewer.",
+        },
         400,
       );
     }
@@ -15765,8 +15768,13 @@ app.get(
       materialQuery = MATERIAL_VIDEO_RESOURCE_UUID.test(materialId)
         ? materialQuery.eq("id", materialId)
         : materialQuery.eq("legacy_kv_id", materialId);
-      let { data: material, error: materialError } = await materialQuery.maybeSingle();
-      if (!material && !materialError && !MATERIAL_VIDEO_RESOURCE_UUID.test(materialId)) {
+      let { data: material, error: materialError } =
+        await materialQuery.maybeSingle();
+      if (
+        !material &&
+        !materialError &&
+        !MATERIAL_VIDEO_RESOURCE_UUID.test(materialId)
+      ) {
         const slugResult = await client
           .from("materials")
           .select("id")
@@ -15780,11 +15788,12 @@ app.get(
       if (!material) return c.json({ success: true, videos: [] });
       const resolvedMaterialId = material.id;
 
-      const { data: materialBinding, error: materialBindingError } = await client
-        .from("entity_canonical_bindings")
-        .select("entity_id")
-        .eq("material_id", resolvedMaterialId)
-        .maybeSingle();
+      const { data: materialBinding, error: materialBindingError } =
+        await client
+          .from("entity_canonical_bindings")
+          .select("entity_id")
+          .eq("material_id", resolvedMaterialId)
+          .maybeSingle();
       if (materialBindingError) throw materialBindingError;
       if (!materialBinding) return c.json({ success: true, videos: [] });
 
@@ -15792,11 +15801,13 @@ app.get(
         .from("content_entities")
         .select("content_entity_id,role,lifecycle_focus")
         .eq("subject_entity_id", materialBinding.entity_id)
-        .eq("status", "active");
+        .eq("status", "active")
+        .not("reviewed_by", "is", null)
+        .not("reviewed_at", "is", null);
       if (mappingsError) throw mappingsError;
-      const contentEntityIds = Array.from(new Set(
-        (mappings ?? []).map((mapping) => mapping.content_entity_id),
-      ));
+      const contentEntityIds = Array.from(
+        new Set((mappings ?? []).map((mapping) => mapping.content_entity_id)),
+      );
       if (contentEntityIds.length === 0) {
         return c.json({ success: true, videos: [] });
       }
@@ -15808,20 +15819,25 @@ app.get(
         .not("video_id", "is", null);
       if (videoBindingsError) throw videoBindingsError;
       const videoIds = (videoBindings ?? []).flatMap((binding) =>
-        binding.video_id ? [binding.video_id] : []
+        binding.video_id ? [binding.video_id] : [],
       );
       if (videoIds.length === 0) return c.json({ success: true, videos: [] });
 
       const { data: videos, error: videosError } = await client
         .from("videos")
-        .select("id,title,youtube_url,youtube_id,description,duration_seconds,channel_name,thumbnail_url")
+        .select(
+          "id,title,youtube_url,youtube_id,description,duration_seconds,channel_name,thumbnail_url",
+        )
         .in("id", videoIds)
         .eq("status", "published")
         .order("title");
       if (videosError) throw videosError;
 
       const entityByVideoId = new Map(
-        (videoBindings ?? []).map((binding) => [binding.video_id, binding.entity_id]),
+        (videoBindings ?? []).map((binding) => [
+          binding.video_id,
+          binding.entity_id,
+        ]),
       );
       const mappingByEntityId = new Map(
         (mappings ?? []).map((mapping) => [mapping.content_entity_id, mapping]),
@@ -15832,23 +15848,189 @@ app.get(
           const entityId = entityByVideoId.get(video.id);
           const mapping = entityId ? mappingByEntityId.get(entityId) : null;
           if (!mapping) return [];
-          return [{
-            id: video.id,
-            title: video.title,
-            youtubeUrl: video.youtube_url,
-            youtubeId: video.youtube_id ?? undefined,
-            description: video.description ?? undefined,
-            durationSeconds: video.duration_seconds ?? undefined,
-            channelName: video.channel_name ?? undefined,
-            thumbnailUrl: video.thumbnail_url ?? undefined,
-            role: mapping.role,
-            lifecycleFocus: mapping.lifecycle_focus ?? undefined,
-          }];
+          return [
+            {
+              id: video.id,
+              title: video.title,
+              youtubeUrl: video.youtube_url,
+              youtubeId: video.youtube_id ?? undefined,
+              description: video.description ?? undefined,
+              durationSeconds: video.duration_seconds ?? undefined,
+              channelName: video.channel_name ?? undefined,
+              thumbnailUrl: video.thumbnail_url ?? undefined,
+              role: mapping.role,
+              lifecycleFocus: mapping.lifecycle_focus ?? undefined,
+            },
+          ];
         }),
       });
     } catch (error) {
       log.error("Material video resources failed:", error);
-      return c.json({ success: false, error: "Video resources could not be loaded." }, 500);
+      return c.json(
+        { success: false, error: "Video resources could not be loaded." },
+        500,
+      );
+    }
+  },
+);
+
+app.get(
+  "/make-server-17cae920/graph/materials/:materialId/relationships",
+  async (c) => {
+    try {
+      const materialId = c.req.param("materialId");
+      if (!/^[a-zA-Z0-9_-]{1,200}$/.test(materialId)) {
+        return c.json({ success: false, error: "Invalid material ID." }, 400);
+      }
+
+      const client = _roleClient();
+      let materialQuery = client
+        .from("materials")
+        .select("id")
+        .eq("status", "published");
+      materialQuery = MATERIAL_VIDEO_RESOURCE_UUID.test(materialId)
+        ? materialQuery.eq("id", materialId)
+        : materialQuery.eq("legacy_kv_id", materialId);
+
+      let { data: material, error: materialError } =
+        await materialQuery.maybeSingle();
+      if (
+        !material &&
+        !materialError &&
+        !MATERIAL_VIDEO_RESOURCE_UUID.test(materialId)
+      ) {
+        const slugResult = await client
+          .from("materials")
+          .select("id")
+          .eq("status", "published")
+          .eq("slug", materialId)
+          .maybeSingle();
+        material = slugResult.data;
+        materialError = slugResult.error;
+      }
+      if (materialError) throw materialError;
+      if (!material) return c.json({ success: true, relationships: [] });
+
+      const { data: materialBinding, error: materialBindingError } =
+        await client
+          .from("entity_canonical_bindings")
+          .select("entity_id")
+          .eq("material_id", material.id)
+          .maybeSingle();
+      if (materialBindingError) throw materialBindingError;
+      if (!materialBinding) return c.json({ success: true, relationships: [] });
+
+      const [outboundResult, inboundResult] = await Promise.all([
+        client
+          .from("entity_relationships")
+          .select("id,source_entity_id,target_entity_id,relationship_type")
+          .eq("source_entity_id", materialBinding.entity_id)
+          .eq("status", "active")
+          .not("reviewed_by", "is", null)
+          .not("reviewed_at", "is", null),
+        client
+          .from("entity_relationships")
+          .select("id,source_entity_id,target_entity_id,relationship_type")
+          .eq("target_entity_id", materialBinding.entity_id)
+          .eq("status", "active")
+          .not("reviewed_by", "is", null)
+          .not("reviewed_at", "is", null),
+      ]);
+      if (outboundResult.error) throw outboundResult.error;
+      if (inboundResult.error) throw inboundResult.error;
+
+      const rows = [
+        ...(outboundResult.data ?? []),
+        ...(inboundResult.data ?? []),
+      ];
+      const relatedEntityIds = Array.from(
+        new Set(
+          rows.map((row) =>
+            row.source_entity_id === materialBinding.entity_id
+              ? row.target_entity_id
+              : row.source_entity_id,
+          ),
+        ),
+      );
+      if (relatedEntityIds.length === 0) {
+        return c.json({ success: true, relationships: [] });
+      }
+
+      const { data: relatedBindings, error: relatedBindingsError } =
+        await client
+          .from("entity_canonical_bindings")
+          .select("entity_id,material_id")
+          .in("entity_id", relatedEntityIds)
+          .not("material_id", "is", null);
+      if (relatedBindingsError) throw relatedBindingsError;
+
+      const relatedMaterialIds = Array.from(
+        new Set(
+          (relatedBindings ?? []).flatMap((binding) =>
+            binding.material_id ? [binding.material_id] : [],
+          ),
+        ),
+      );
+      if (relatedMaterialIds.length === 0) {
+        return c.json({ success: true, relationships: [] });
+      }
+
+      const { data: relatedMaterials, error: relatedMaterialsError } =
+        await client
+          .from("materials")
+          .select("id,name,slug,legacy_kv_id,status")
+          .in("id", relatedMaterialIds)
+          .eq("status", "published");
+      if (relatedMaterialsError) throw relatedMaterialsError;
+
+      const materialById = new Map(
+        (relatedMaterials ?? []).map((candidate) => [candidate.id, candidate]),
+      );
+      const materialIdByEntityId = new Map(
+        (relatedBindings ?? []).flatMap((binding) =>
+          binding.material_id
+            ? [[binding.entity_id, binding.material_id] as const]
+            : [],
+        ),
+      );
+
+      return c.json({
+        success: true,
+        relationships: rows.flatMap((row) => {
+          const relatedEntityId =
+            row.source_entity_id === materialBinding.entity_id
+              ? row.target_entity_id
+              : row.source_entity_id;
+          const relatedMaterialId = materialIdByEntityId.get(relatedEntityId);
+          const relatedMaterial = relatedMaterialId
+            ? materialById.get(relatedMaterialId)
+            : null;
+          if (!relatedMaterial) return [];
+          return [
+            {
+              id: row.id,
+              relationshipType: row.relationship_type,
+              direction:
+                row.source_entity_id === materialBinding.entity_id
+                  ? "outbound"
+                  : "inbound",
+              materialId: relatedMaterial.id,
+              materialName: relatedMaterial.name,
+              materialSlug: relatedMaterial.slug,
+              materialLegacyKvId: relatedMaterial.legacy_kv_id,
+            },
+          ];
+        }),
+      });
+    } catch (error) {
+      log.error("Material relationship resources failed:", error);
+      return c.json(
+        {
+          success: false,
+          error: "Material relationships could not be loaded.",
+        },
+        500,
+      );
     }
   },
 );
@@ -15870,57 +16052,84 @@ app.get(
     try {
       const status = c.req.query("status") ?? "pending_review";
       if (!["all", "pending_review", "active", "archived"].includes(status)) {
-        return c.json({ success: false, error: "Invalid mapping status." }, 400);
+        return c.json(
+          { success: false, error: "Invalid mapping status." },
+          400,
+        );
       }
       const search = (c.req.query("search") ?? "").trim().toLocaleLowerCase();
       if (search.length > 100) {
-        return c.json({ success: false, error: "Search must be 100 characters or fewer." }, 400);
+        return c.json(
+          { success: false, error: "Search must be 100 characters or fewer." },
+          400,
+        );
       }
       const requestedOffset = Number.parseInt(c.req.query("offset") ?? "0", 10);
       const requestedLimit = Number.parseInt(c.req.query("limit") ?? "50", 10);
-      const offset = Number.isFinite(requestedOffset) ? Math.max(0, requestedOffset) : 0;
+      const offset = Number.isFinite(requestedOffset)
+        ? Math.max(0, requestedOffset)
+        : 0;
       const limit = Number.isFinite(requestedLimit)
         ? Math.min(100, Math.max(1, requestedLimit))
         : 50;
 
       let mappingsQuery = _roleClient()
         .from("content_entities")
-        .select("id,content_entity_id,subject_entity_id,role,lifecycle_focus,evidence_use,status,created_at,reviewed_by,reviewed_at")
+        .select(
+          "id,content_entity_id,subject_entity_id,role,lifecycle_focus,evidence_use,status,created_at,reviewed_by,reviewed_at",
+        )
         .order("created_at", { ascending: false });
       if (status !== "all") mappingsQuery = mappingsQuery.eq("status", status);
       const { data: mappings, error: mappingsError } = await mappingsQuery;
       if (mappingsError) throw mappingsError;
 
-      const entityIds = Array.from(new Set((mappings ?? []).flatMap((mapping) => [
-        mapping.content_entity_id,
-        mapping.subject_entity_id,
-      ])));
+      const entityIds = Array.from(
+        new Set(
+          (mappings ?? []).flatMap((mapping) => [
+            mapping.content_entity_id,
+            mapping.subject_entity_id,
+          ]),
+        ),
+      );
       const { data: entities, error: entitiesError } = entityIds.length
-        ? await _roleClient().from("entities").select("id,name,entity_type").in("id", entityIds)
+        ? await _roleClient()
+            .from("entities")
+            .select("id,name,entity_type")
+            .in("id", entityIds)
         : { data: [], error: null };
       if (entitiesError) throw entitiesError;
-      const entityById = new Map((entities ?? []).map((entity) => [entity.id, entity]));
+      const entityById = new Map(
+        (entities ?? []).map((entity) => [entity.id, entity]),
+      );
 
       const hydrated = (mappings ?? []).flatMap((mapping) => {
         const content = entityById.get(mapping.content_entity_id);
         const subject = entityById.get(mapping.subject_entity_id);
         if (!content || !subject) return [];
-        return [{
-          ...mapping,
-          content_name: content.name,
-          content_type: content.entity_type,
-          subject_name: subject.name,
-        }];
+        return [
+          {
+            ...mapping,
+            content_name: content.name,
+            content_type: content.entity_type,
+            subject_name: subject.name,
+          },
+        ];
       });
       const filtered = search
-        ? hydrated.filter((mapping) => [
-            mapping.content_name,
-            mapping.content_type,
-            mapping.subject_name,
-            mapping.role,
-            mapping.lifecycle_focus,
-            mapping.evidence_use,
-          ].some((value) => typeof value === "string" && value.toLocaleLowerCase().includes(search)))
+        ? hydrated.filter((mapping) =>
+            [
+              mapping.content_name,
+              mapping.content_type,
+              mapping.subject_name,
+              mapping.role,
+              mapping.lifecycle_focus,
+              mapping.evidence_use,
+            ].some(
+              (value) =>
+                typeof value === "string" &&
+                value.toLocaleLowerCase().includes(search),
+            ),
+          )
         : hydrated;
 
       return c.json({
@@ -15932,7 +16141,10 @@ app.get(
       });
     } catch (error) {
       log.error("Content-mapping review list failed:", error);
-      return c.json({ success: false, error: "Content mappings could not be loaded." }, 500);
+      return c.json(
+        { success: false, error: "Content mappings could not be loaded." },
+        500,
+      );
     }
   },
 );
@@ -15946,25 +16158,364 @@ app.post(
       const mappingId = c.req.param("mappingId");
       const body = await c.req.json().catch(() => ({}));
       if (!MANUAL_CONTENT_MAPPING_UUID.test(mappingId)) {
-        return c.json({ success: false, error: "Invalid content-mapping ID." }, 400);
+        return c.json(
+          { success: false, error: "Invalid content-mapping ID." },
+          400,
+        );
       }
       if (!body || !["approve", "reject"].includes(body.decision)) {
-        return c.json({ success: false, error: "Decision must be approve or reject." }, 400);
+        return c.json(
+          { success: false, error: "Decision must be approve or reject." },
+          400,
+        );
       }
-      const { data, error } = await _roleClient().rpc("review_content_mapping", {
-        p_mapping_id: mappingId,
-        p_reviewed_by: c.get("userId"),
-        p_decision: body.decision,
-      });
+      const { data, error } = await _roleClient().rpc(
+        "review_content_mapping",
+        {
+          p_mapping_id: mappingId,
+          p_reviewed_by: c.get("userId"),
+          p_decision: body.decision,
+        },
+      );
       if (error) throw error;
       return c.json(data);
     } catch (error) {
       log.error("Content-mapping review failed:", error);
+      return c.json(
+        {
+          success: false,
+          error: "Content mapping could not be reviewed.",
+          details: String(error),
+        },
+        500,
+      );
+    }
+  },
+);
+
+app.delete(
+  "/make-server-17cae920/graph/content-mappings/:mappingId",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const mappingId = c.req.param("mappingId");
+      if (!MANUAL_CONTENT_MAPPING_UUID.test(mappingId)) {
+        return c.json(
+          { success: false, error: "Invalid content-mapping ID." },
+          400,
+        );
+      }
+      const { data, error } = await _roleClient().rpc(
+        "delete_content_mapping",
+        {
+          p_mapping_id: mappingId,
+          p_deleted_by: c.get("userId"),
+        },
+      );
+      if (error) throw error;
+      return c.json(data);
+    } catch (error) {
+      log.error("Content-mapping delete failed:", error);
+      return c.json(
+        {
+          success: false,
+          error: "Content mapping could not be deleted.",
+          details: String(error),
+        },
+        500,
+      );
+    }
+  },
+);
+
+app.get(
+  "/make-server-17cae920/graph/material-relationships/manual/options",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const client = _roleClient();
+      const [materialsResult, relationshipTypesResult] = await Promise.all([
+        client
+          .from("entities")
+          .select("id,name,status")
+          .eq("entity_type", "material")
+          .order("name"),
+        client
+          .from("relationship_types")
+          .select("slug,label,description")
+          .eq("active", true)
+          .order("label"),
+      ]);
+      if (materialsResult.error) throw materialsResult.error;
+      if (relationshipTypesResult.error) throw relationshipTypesResult.error;
+
       return c.json({
-        success: false,
-        error: "Content mapping could not be reviewed.",
-        details: String(error),
-      }, 500);
+        materials: materialsResult.data ?? [],
+        relationship_types: relationshipTypesResult.data ?? [],
+      });
+    } catch (error) {
+      log.error("Manual material-relationship options failed:", error);
+      return c.json(
+        {
+          success: false,
+          error: "Material-relationship options could not be loaded.",
+        },
+        500,
+      );
+    }
+  },
+);
+
+app.get(
+  "/make-server-17cae920/graph/material-relationships/review",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const status = c.req.query("status") ?? "pending_review";
+      if (!["all", "pending_review", "active", "archived"].includes(status)) {
+        return c.json(
+          { success: false, error: "Invalid relationship status." },
+          400,
+        );
+      }
+      const search = (c.req.query("search") ?? "").trim().toLocaleLowerCase();
+      if (search.length > 100) {
+        return c.json(
+          { success: false, error: "Search must be 100 characters or fewer." },
+          400,
+        );
+      }
+      const requestedOffset = Number.parseInt(c.req.query("offset") ?? "0", 10);
+      const requestedLimit = Number.parseInt(c.req.query("limit") ?? "50", 10);
+      const offset = Number.isFinite(requestedOffset)
+        ? Math.max(0, requestedOffset)
+        : 0;
+      const limit = Number.isFinite(requestedLimit)
+        ? Math.min(100, Math.max(1, requestedLimit))
+        : 50;
+
+      let relationshipsQuery = _roleClient()
+        .from("entity_relationships")
+        .select(
+          "id,source_entity_id,target_entity_id,relationship_type,status,created_at,reviewed_by,reviewed_at",
+        )
+        .order("created_at", { ascending: false });
+      if (status !== "all")
+        relationshipsQuery = relationshipsQuery.eq("status", status);
+      const { data: relationships, error: relationshipsError } =
+        await relationshipsQuery;
+      if (relationshipsError) throw relationshipsError;
+
+      const entityIds = Array.from(
+        new Set(
+          (relationships ?? []).flatMap((relationship) => [
+            relationship.source_entity_id,
+            relationship.target_entity_id,
+          ]),
+        ),
+      );
+      const { data: entities, error: entitiesError } = entityIds.length
+        ? await _roleClient()
+            .from("entities")
+            .select("id,name,entity_type")
+            .in("id", entityIds)
+        : { data: [], error: null };
+      if (entitiesError) throw entitiesError;
+      const entityById = new Map(
+        (entities ?? []).map((entity) => [entity.id, entity]),
+      );
+
+      const hydrated = (relationships ?? []).flatMap((relationship) => {
+        const source = entityById.get(relationship.source_entity_id);
+        const target = entityById.get(relationship.target_entity_id);
+        if (!source || !target) return [];
+        if (
+          source.entity_type !== "material" ||
+          target.entity_type !== "material"
+        ) {
+          return [];
+        }
+        return [
+          {
+            ...relationship,
+            source_name: source.name,
+            target_name: target.name,
+          },
+        ];
+      });
+
+      const filtered = search
+        ? hydrated.filter((relationship) =>
+            [
+              relationship.source_name,
+              relationship.target_name,
+              relationship.relationship_type,
+              relationship.status,
+            ].some(
+              (value) =>
+                typeof value === "string" &&
+                value.toLocaleLowerCase().includes(search),
+            ),
+          )
+        : hydrated;
+
+      return c.json({
+        success: true,
+        items: filtered.slice(offset, offset + limit),
+        total: filtered.length,
+        offset,
+        limit,
+      });
+    } catch (error) {
+      log.error("Material-relationship review list failed:", error);
+      return c.json(
+        {
+          success: false,
+          error: "Material relationships could not be loaded.",
+        },
+        500,
+      );
+    }
+  },
+);
+
+app.post(
+  "/make-server-17cae920/graph/material-relationships/review/:relationshipId",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const relationshipId = c.req.param("relationshipId");
+      const body = await c.req.json().catch(() => ({}));
+      if (!MANUAL_CONTENT_MAPPING_UUID.test(relationshipId)) {
+        return c.json(
+          { success: false, error: "Invalid relationship ID." },
+          400,
+        );
+      }
+      if (!body || !["approve", "reject"].includes(body.decision)) {
+        return c.json(
+          { success: false, error: "Decision must be approve or reject." },
+          400,
+        );
+      }
+
+      const { data, error } = await _roleClient().rpc(
+        "review_material_relationship",
+        {
+          p_relationship_id: relationshipId,
+          p_reviewed_by: c.get("userId"),
+          p_decision: body.decision,
+        },
+      );
+      if (error) throw error;
+      return c.json(data);
+    } catch (error) {
+      log.error("Material-relationship review failed:", error);
+      return c.json(
+        {
+          success: false,
+          error: "Material relationship could not be reviewed.",
+          details: String(error),
+        },
+        500,
+      );
+    }
+  },
+);
+
+app.post(
+  "/make-server-17cae920/graph/material-relationships/manual",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const body = await c.req.json().catch(() => ({}));
+      const sourceEntityId = body?.source_entity_id;
+      const targetEntityId = body?.target_entity_id;
+      const relationshipType =
+        typeof body?.relationship_type === "string" &&
+        body.relationship_type.trim()
+          ? body.relationship_type.trim()
+          : "related_to";
+
+      if (
+        typeof sourceEntityId !== "string" ||
+        !MANUAL_CONTENT_MAPPING_UUID.test(sourceEntityId) ||
+        typeof targetEntityId !== "string" ||
+        !MANUAL_CONTENT_MAPPING_UUID.test(targetEntityId)
+      ) {
+        return c.json(
+          {
+            success: false,
+            error:
+              "Canonical source material and target material are required.",
+          },
+          400,
+        );
+      }
+
+      const { data, error } = await _roleClient().rpc(
+        "create_manual_material_relationship",
+        {
+          p_created_by: c.get("userId"),
+          p_source_entity_id: sourceEntityId,
+          p_target_entity_id: targetEntityId,
+          p_relationship_type: relationshipType,
+        },
+      );
+      if (error) throw error;
+      return c.json(data);
+    } catch (error) {
+      log.error("Manual material-relationship creation failed:", error);
+      return c.json(
+        {
+          success: false,
+          error: "Material relationship could not be created.",
+          details: String(error),
+        },
+        500,
+      );
+    }
+  },
+);
+
+app.delete(
+  "/make-server-17cae920/graph/material-relationships/:relationshipId",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const relationshipId = c.req.param("relationshipId");
+      if (!MANUAL_CONTENT_MAPPING_UUID.test(relationshipId)) {
+        return c.json(
+          { success: false, error: "Invalid relationship ID." },
+          400,
+        );
+      }
+
+      const { data, error } = await _roleClient().rpc(
+        "delete_material_relationship",
+        {
+          p_relationship_id: relationshipId,
+          p_deleted_by: c.get("userId"),
+        },
+      );
+      if (error) throw error;
+      return c.json(data);
+    } catch (error) {
+      log.error("Material-relationship delete failed:", error);
+      return c.json(
+        {
+          success: false,
+          error: "Material relationship could not be deleted.",
+          details: String(error),
+        },
+        500,
+      );
     }
   },
 );
@@ -15978,38 +16529,42 @@ app.get(
   async (c) => {
     try {
       const client = _roleClient();
-      const [entitiesResult, bindingsResult, rolesResult, focusesResult, evidenceResult, mappingsResult] =
-        await Promise.all([
-          client
-            .from("entities")
-            .select("id, entity_type, name, status")
-            .in("entity_type", [...MANUAL_CONTENT_ENTITY_TYPES, "material"])
-            .order("name"),
-          client
-            .from("entity_canonical_bindings")
-            .select("entity_id"),
-          client
-            .from("content_roles")
-            .select("slug, label, description")
-            .eq("active", true)
-            .order("label"),
-          client
-            .from("lifecycle_focuses")
-            .select("slug, label, description")
-            .eq("active", true)
-            .order("label"),
-          client
-            .from("evidence_uses")
-            .select("slug, label, description")
-            .eq("active", true)
-            .order("label"),
-          client
-            .from("content_entities")
-            .select(
-              "id, content_entity_id, subject_entity_id, role, lifecycle_focus, evidence_use, status, created_at",
-            )
-            .order("created_at", { ascending: false }),
-        ]);
+      const [
+        entitiesResult,
+        bindingsResult,
+        rolesResult,
+        focusesResult,
+        evidenceResult,
+        mappingsResult,
+      ] = await Promise.all([
+        client
+          .from("entities")
+          .select("id, entity_type, name, status")
+          .in("entity_type", [...MANUAL_CONTENT_ENTITY_TYPES, "material"])
+          .order("name"),
+        client.from("entity_canonical_bindings").select("entity_id"),
+        client
+          .from("content_roles")
+          .select("slug, label, description")
+          .eq("active", true)
+          .order("label"),
+        client
+          .from("lifecycle_focuses")
+          .select("slug, label, description")
+          .eq("active", true)
+          .order("label"),
+        client
+          .from("evidence_uses")
+          .select("slug, label, description")
+          .eq("active", true)
+          .order("label"),
+        client
+          .from("content_entities")
+          .select(
+            "id, content_entity_id, subject_entity_id, role, lifecycle_focus, evidence_use, status, created_at",
+          )
+          .order("created_at", { ascending: false }),
+      ]);
 
       const firstError = [
         entitiesResult.error,
@@ -16045,7 +16600,10 @@ app.get(
     } catch (error) {
       log.error("Manual content-mapping options failed:", error);
       return c.json(
-        { success: false, error: "Content-mapping options could not be loaded." },
+        {
+          success: false,
+          error: "Content-mapping options could not be loaded.",
+        },
         500,
       );
     }
@@ -16084,7 +16642,8 @@ app.post(
         return c.json(
           {
             success: false,
-            error: "Canonical content, material, and governed role are required.",
+            error:
+              "Canonical content, material, and governed role are required.",
           },
           400,
         );
@@ -16128,7 +16687,10 @@ app.get(
     );
     if (error) {
       log.error("Reviewed video mapping preview failed:", error);
-      return c.json({ success: false, error: "Video mapping preview failed." }, 500);
+      return c.json(
+        { success: false, error: "Video mapping preview failed." },
+        500,
+      );
     }
     return c.json(data);
   },
@@ -16141,7 +16703,10 @@ app.post(
   async (c) => {
     const body = await c.req.json().catch(() => ({}));
     if (body?.confirmation !== "apply reviewed video material mappings") {
-      return c.json({ success: false, error: "Explicit confirmation is required." }, 400);
+      return c.json(
+        { success: false, error: "Explicit confirmation is required." },
+        400,
+      );
     }
     const { data, error } = await _roleClient().rpc(
       "process_reviewed_video_material_mappings",
@@ -16149,7 +16714,10 @@ app.post(
     );
     if (error) {
       log.error("Reviewed video mapping apply failed:", error);
-      return c.json({ success: false, error: "Video mapping apply failed." }, 500);
+      return c.json(
+        { success: false, error: "Video mapping apply failed." },
+        500,
+      );
     }
     return c.json(data);
   },
@@ -16166,7 +16734,10 @@ app.get(
     );
     if (error) {
       log.error("Reviewed video topic preview failed:", error);
-      return c.json({ success: false, error: "Video topic preview failed." }, 500);
+      return c.json(
+        { success: false, error: "Video topic preview failed." },
+        500,
+      );
     }
     return c.json(data);
   },
@@ -16179,7 +16750,10 @@ app.post(
   async (c) => {
     const body = await c.req.json().catch(() => ({}));
     if (body?.confirmation !== "apply reviewed video topic tags") {
-      return c.json({ success: false, error: "Explicit confirmation is required." }, 400);
+      return c.json(
+        { success: false, error: "Explicit confirmation is required." },
+        400,
+      );
     }
     const { data, error } = await _roleClient().rpc(
       "process_reviewed_video_topic_tags",
@@ -16187,7 +16761,10 @@ app.post(
     );
     if (error) {
       log.error("Reviewed video topic apply failed:", error);
-      return c.json({ success: false, error: "Video topics could not be applied." }, 500);
+      return c.json(
+        { success: false, error: "Video topics could not be applied." },
+        500,
+      );
     }
     return c.json(data);
   },

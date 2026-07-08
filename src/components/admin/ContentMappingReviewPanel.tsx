@@ -9,6 +9,7 @@ import {
   RefreshCw,
   Search,
   ShieldCheck,
+  Trash2,
 } from "lucide-react";
 import type {
   ContentMappingReviewItem,
@@ -42,6 +43,7 @@ export function ContentMappingReviewPanel() {
   const [reviewingId, setReviewingId] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isBulkApproving, setIsBulkApproving] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const loadItems = async () => {
@@ -83,7 +85,11 @@ export function ContentMappingReviewPanel() {
       decision === "approve"
         ? "This makes the mapping eligible for governed graph reads."
         : "Rejected mappings are archived. Recreate the mapping if its relationship needs correction.";
-    if (!window.confirm(`${verb[0].toUpperCase()}${verb.slice(1)} ${item.content_name} -> ${item.subject_name}?\n\n${consequence}`)) {
+    if (
+      !window.confirm(
+        `${verb[0].toUpperCase()}${verb.slice(1)} ${item.content_name} -> ${item.subject_name}?\n\n${consequence}`,
+      )
+    ) {
       return;
     }
     setReviewingId(item.id);
@@ -122,20 +128,28 @@ export function ContentMappingReviewPanel() {
 
   const approveSelected = async () => {
     if (selectedItems.length === 0) return;
-    if (!window.confirm(
-      `Approve ${selectedItems.length} selected content mapping(s)?\n\nEach mapping will become active and receive its own reviewer, audit, and outbox records.`,
-    )) return;
+    if (
+      !window.confirm(
+        `Approve ${selectedItems.length} selected content mapping(s)?\n\nEach mapping will become active and receive its own reviewer, audit, and outbox records.`,
+      )
+    )
+      return;
 
     setIsBulkApproving(true);
     setError(null);
     const failed: string[] = [];
-    for (let index = 0; index < selectedItems.length; index += BULK_REQUEST_SIZE) {
+    for (
+      let index = 0;
+      index < selectedItems.length;
+      index += BULK_REQUEST_SIZE
+    ) {
       const batch = selectedItems.slice(index, index + BULK_REQUEST_SIZE);
       const results = await Promise.allSettled(
         batch.map((item) => api.reviewContentMapping(item.id, "approve")),
       );
       results.forEach((result, resultIndex) => {
-        if (result.status === "rejected") failed.push(batch[resultIndex].content_name);
+        if (result.status === "rejected")
+          failed.push(batch[resultIndex].content_name);
       });
     }
     await loadItems();
@@ -145,6 +159,26 @@ export function ContentMappingReviewPanel() {
       );
     }
     setIsBulkApproving(false);
+  };
+
+  const deleteMapping = async (item: ContentMappingReviewItem) => {
+    if (
+      !window.confirm(
+        `Delete ${item.content_name} -> ${item.subject_name}? This permanently removes the mapping.`,
+      )
+    ) {
+      return;
+    }
+    setDeletingId(item.id);
+    setError(null);
+    try {
+      await api.deleteContentMapping(item.id);
+      await loadItems();
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : String(caught));
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   const pageStart = total === 0 ? 0 : offset + 1;
@@ -160,13 +194,16 @@ export function ContentMappingReviewPanel() {
         <div className="flex items-start gap-3">
           <ShieldCheck className="mt-0.5 size-5 shrink-0" />
           <div>
-            <h3 id="content-mapping-review-title" className="font-sniglet text-[16px] normal">
+            <h3
+              id="content-mapping-review-title"
+              className="font-sniglet text-[16px] normal"
+            >
               Content Mapping Review
             </h3>
             <p className="mt-1 max-w-xl text-[13px] leading-relaxed text-black/70 dark:text-white/70">
               Approve deliberate content-to-material claims or reject incorrect
-              ones. Every decision records reviewer metadata, audit history,
-              and a compatibility event in one transaction.
+              ones. Every decision records reviewer metadata, audit history, and
+              a compatibility event in one transaction.
             </p>
           </div>
         </div>
@@ -176,7 +213,9 @@ export function ContentMappingReviewPanel() {
           disabled={isLoading}
           className="flex items-center gap-2 rounded-lg border border-black/15 px-3 py-2 text-[12px] disabled:opacity-50 dark:border-white/15"
         >
-          <RefreshCw className={`size-3.5 ${isLoading ? "animate-spin" : ""}`} />
+          <RefreshCw
+            className={`size-3.5 ${isLoading ? "animate-spin" : ""}`}
+          />
           Refresh
         </button>
       </div>
@@ -187,7 +226,9 @@ export function ContentMappingReviewPanel() {
           <select
             value={status}
             onChange={(event) => {
-              setStatus(event.target.value as "all" | ContentMappingReviewStatus);
+              setStatus(
+                event.target.value as "all" | ContentMappingReviewStatus,
+              );
               setOffset(0);
             }}
             className="rounded-lg border border-black/15 bg-transparent px-3 py-2 text-[13px] text-black dark:border-white/15 dark:text-white"
@@ -198,7 +239,10 @@ export function ContentMappingReviewPanel() {
             <option value="all">All statuses</option>
           </select>
         </label>
-        <form onSubmit={submitSearch} className="flex min-w-64 flex-1 items-end gap-2">
+        <form
+          onSubmit={submitSearch}
+          className="flex min-w-64 flex-1 items-end gap-2"
+        >
           <label className="flex flex-1 flex-col gap-1 text-[11px] text-black/60 dark:text-white/60">
             Filter mappings
             <span className="flex rounded-lg border border-black/15 dark:border-white/15">
@@ -212,7 +256,10 @@ export function ContentMappingReviewPanel() {
               />
             </span>
           </label>
-          <button type="submit" className="rounded-lg border border-black/15 px-3 py-2 text-[12px] dark:border-white/15">
+          <button
+            type="submit"
+            className="rounded-lg border border-black/15 px-3 py-2 text-[12px] dark:border-white/15"
+          >
             Filter
           </button>
           {search && (
@@ -232,7 +279,10 @@ export function ContentMappingReviewPanel() {
       </div>
 
       {error && (
-        <p role="alert" className="rounded-lg border border-red-500/25 bg-red-500/5 p-3 text-[12px] text-red-700 dark:text-red-300">
+        <p
+          role="alert"
+          className="rounded-lg border border-red-500/25 bg-red-500/5 p-3 text-[12px] text-red-700 dark:text-red-300"
+        >
           {error}
         </p>
       )}
@@ -252,7 +302,11 @@ export function ContentMappingReviewPanel() {
           <button
             type="button"
             onClick={() => void approveSelected()}
-            disabled={selectedItems.length === 0 || isBulkApproving || reviewingId !== null}
+            disabled={
+              selectedItems.length === 0 ||
+              isBulkApproving ||
+              reviewingId !== null
+            }
             className="flex items-center gap-2 rounded-lg bg-waste-science px-4 py-2 text-[12px] text-white disabled:opacity-40"
           >
             {isBulkApproving ? (
@@ -276,7 +330,10 @@ export function ContentMappingReviewPanel() {
       ) : (
         <div className="space-y-3">
           {items.map((item) => (
-            <article key={item.id} className="rounded-xl border border-black/10 p-4 dark:border-white/10">
+            <article
+              key={item.id}
+              className="rounded-xl border border-black/10 p-4 dark:border-white/10"
+            >
               <div className="flex flex-wrap items-start justify-between gap-4">
                 {item.status === "pending_review" && (
                   <input
@@ -294,15 +351,29 @@ export function ContentMappingReviewPanel() {
                     <span aria-hidden="true">/</span>
                     <span>{STATUS_LABELS[item.status]}</span>
                   </div>
-                  <p className="mt-1 font-sniglet text-[14px]">{item.content_name}</p>
+                  <p className="mt-1 font-sniglet text-[14px]">
+                    {item.content_name}
+                  </p>
                   <p className="mt-1 text-[13px]">
-                    <span className="text-black/50 dark:text-white/50">maps to</span>{" "}
+                    <span className="text-black/50 dark:text-white/50">
+                      maps to
+                    </span>{" "}
                     <strong>{item.subject_name}</strong>
                   </p>
                   <div className="mt-3 flex flex-wrap gap-2 text-[11px]">
-                    <span className="rounded-full bg-black/5 px-2.5 py-1 dark:bg-white/10">{formatLabel(item.role)}</span>
-                    {item.lifecycle_focus && <span className="rounded-full bg-black/5 px-2.5 py-1 dark:bg-white/10">Lifecycle: {formatLabel(item.lifecycle_focus)}</span>}
-                    {item.evidence_use && <span className="rounded-full bg-black/5 px-2.5 py-1 dark:bg-white/10">Evidence: {formatLabel(item.evidence_use)}</span>}
+                    <span className="rounded-full bg-black/5 px-2.5 py-1 dark:bg-white/10">
+                      {formatLabel(item.role)}
+                    </span>
+                    {item.lifecycle_focus && (
+                      <span className="rounded-full bg-black/5 px-2.5 py-1 dark:bg-white/10">
+                        Lifecycle: {formatLabel(item.lifecycle_focus)}
+                      </span>
+                    )}
+                    {item.evidence_use && (
+                      <span className="rounded-full bg-black/5 px-2.5 py-1 dark:bg-white/10">
+                        Evidence: {formatLabel(item.evidence_use)}
+                      </span>
+                    )}
                   </div>
                 </div>
                 {item.status === "pending_review" && (
@@ -321,11 +392,32 @@ export function ContentMappingReviewPanel() {
                       disabled={reviewingId !== null || isBulkApproving}
                       className="flex items-center gap-1.5 rounded-lg bg-waste-science px-3 py-2 text-[12px] text-white disabled:opacity-50"
                     >
-                      {reviewingId === item.id ? <Loader2 className="size-3.5 animate-spin" /> : <Check className="size-3.5" />}
+                      {reviewingId === item.id ? (
+                        <Loader2 className="size-3.5 animate-spin" />
+                      ) : (
+                        <Check className="size-3.5" />
+                      )}
                       Approve
                     </button>
                   </div>
                 )}
+                <button
+                  type="button"
+                  onClick={() => void deleteMapping(item)}
+                  disabled={
+                    reviewingId !== null ||
+                    isBulkApproving ||
+                    deletingId !== null
+                  }
+                  className="flex items-center gap-1.5 rounded-lg border border-red-500/30 px-3 py-2 text-[12px] text-red-700 disabled:opacity-50 dark:text-red-300"
+                >
+                  {deletingId === item.id ? (
+                    <Loader2 className="size-3.5 animate-spin" />
+                  ) : (
+                    <Trash2 className="size-3.5" />
+                  )}
+                  Delete
+                </button>
               </div>
             </article>
           ))}
@@ -333,12 +425,26 @@ export function ContentMappingReviewPanel() {
       )}
 
       <div className="flex items-center justify-between text-[11px] text-black/55 dark:text-white/55">
-        <span>{pageStart}-{pageEnd} of {total}</span>
+        <span>
+          {pageStart}-{pageEnd} of {total}
+        </span>
         <div className="flex gap-2">
-          <button type="button" onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))} disabled={offset === 0 || isLoading} aria-label="Previous page" className="rounded-lg border border-black/10 p-2 disabled:opacity-30 dark:border-white/10">
+          <button
+            type="button"
+            onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))}
+            disabled={offset === 0 || isLoading}
+            aria-label="Previous page"
+            className="rounded-lg border border-black/10 p-2 disabled:opacity-30 dark:border-white/10"
+          >
             <ChevronLeft className="size-3.5" />
           </button>
-          <button type="button" onClick={() => setOffset(offset + PAGE_SIZE)} disabled={offset + PAGE_SIZE >= total || isLoading} aria-label="Next page" className="rounded-lg border border-black/10 p-2 disabled:opacity-30 dark:border-white/10">
+          <button
+            type="button"
+            onClick={() => setOffset(offset + PAGE_SIZE)}
+            disabled={offset + PAGE_SIZE >= total || isLoading}
+            aria-label="Next page"
+            className="rounded-lg border border-black/10 p-2 disabled:opacity-30 dark:border-white/10"
+          >
             <ChevronRight className="size-3.5" />
           </button>
         </div>

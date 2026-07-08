@@ -31,11 +31,21 @@ import type {
   ContentMappingReviewListResponse,
   CreateManualContentMappingRequest,
   CreateManualContentMappingResponse,
+  DeleteContentMappingResponse,
   ManualContentMappingOptionsResponse,
   ReviewContentMappingResponse,
   ReviewedVideoTopicReport,
   ReviewedVideoMappingReport,
 } from "../types/manualContentMapping";
+import type {
+  CreateManualMaterialRelationshipRequest,
+  CreateManualMaterialRelationshipResponse,
+  DeleteMaterialRelationshipResponse,
+  ManualMaterialRelationshipOptionsResponse,
+  MaterialRelationshipReviewListResponse,
+  PublicMaterialRelationshipResource,
+  ReviewMaterialRelationshipResponse,
+} from "../types/manualMaterialRelationship";
 import type { MaterialVideoResource } from "../types/materialExperience";
 
 // Export projectId and publicAnonKey for use in other modules
@@ -1663,6 +1673,16 @@ export async function getMaterialVideoResources(
   return response.videos;
 }
 
+/** Public - lists active reviewed material relationships for one material. */
+export async function getMaterialRelationshipResources(
+  materialId: string,
+): Promise<PublicMaterialRelationshipResource[]> {
+  const response = await apiCall(
+    `/graph/materials/${encodeURIComponent(materialId)}/relationships`,
+  );
+  return response.relationships;
+}
+
 /** Admin only — lists canonical entities and governed mapping vocabulary. */
 export async function getManualContentMappingOptions(): Promise<ManualContentMappingOptionsResponse> {
   return await apiCall("/graph/content-mappings/manual/options");
@@ -1679,12 +1699,14 @@ export async function createManualContentMapping(
 }
 
 /** Admin only — lists governed content mappings for editorial review. */
-export async function listContentMappingsForReview(options: {
-  status?: string;
-  search?: string;
-  offset?: number;
-  limit?: number;
-} = {}): Promise<ContentMappingReviewListResponse> {
+export async function listContentMappingsForReview(
+  options: {
+    status?: string;
+    search?: string;
+    offset?: number;
+    limit?: number;
+  } = {},
+): Promise<ContentMappingReviewListResponse> {
   const params = new URLSearchParams({
     status: options.status ?? "pending_review",
     offset: String(options.offset ?? 0),
@@ -1705,6 +1727,70 @@ export async function reviewContentMapping(
   );
 }
 
+/** Admin only - deletes one governed content mapping. */
+export async function deleteContentMapping(
+  mappingId: string,
+): Promise<DeleteContentMappingResponse> {
+  return await apiCall(
+    `/graph/content-mappings/${encodeURIComponent(mappingId)}`,
+    { method: "DELETE" },
+  );
+}
+
+/** Admin only - lists canonical materials and governed relationship types. */
+export async function getManualMaterialRelationshipOptions(): Promise<ManualMaterialRelationshipOptionsResponse> {
+  return await apiCall("/graph/material-relationships/manual/options");
+}
+
+/** Admin only - creates one explicit pending-review material relationship. */
+export async function createManualMaterialRelationship(
+  request: CreateManualMaterialRelationshipRequest,
+): Promise<CreateManualMaterialRelationshipResponse> {
+  return await apiCall("/graph/material-relationships/manual", {
+    method: "POST",
+    body: JSON.stringify(request),
+  });
+}
+
+/** Admin only - lists governed material relationships for review. */
+export async function listMaterialRelationshipsForReview(
+  options: {
+    status?: string;
+    search?: string;
+    offset?: number;
+    limit?: number;
+  } = {},
+): Promise<MaterialRelationshipReviewListResponse> {
+  const params = new URLSearchParams({
+    status: options.status ?? "pending_review",
+    offset: String(options.offset ?? 0),
+    limit: String(options.limit ?? 50),
+  });
+  if (options.search?.trim()) params.set("search", options.search.trim());
+  return await apiCall(`/graph/material-relationships/review?${params}`);
+}
+
+/** Admin only - approves or rejects one pending material relationship. */
+export async function reviewMaterialRelationship(
+  relationshipId: string,
+  decision: "approve" | "reject",
+): Promise<ReviewMaterialRelationshipResponse> {
+  return await apiCall(
+    `/graph/material-relationships/review/${encodeURIComponent(relationshipId)}`,
+    { method: "POST", body: JSON.stringify({ decision }) },
+  );
+}
+
+/** Admin only - deletes one governed material relationship. */
+export async function deleteMaterialRelationship(
+  relationshipId: string,
+): Promise<DeleteMaterialRelationshipResponse> {
+  return await apiCall(
+    `/graph/material-relationships/${encodeURIComponent(relationshipId)}`,
+    { method: "DELETE" },
+  );
+}
+
 /** Admin only — previews reviewed video-to-material mappings from triage. */
 export async function previewReviewedVideoMappings(): Promise<ReviewedVideoMappingReport> {
   return await apiCall("/graph/content-mappings/manual/videos/preview");
@@ -1714,7 +1800,9 @@ export async function previewReviewedVideoMappings(): Promise<ReviewedVideoMappi
 export async function applyReviewedVideoMappings(): Promise<ReviewedVideoMappingReport> {
   return await apiCall("/graph/content-mappings/manual/videos/apply", {
     method: "POST",
-    body: JSON.stringify({ confirmation: "apply reviewed video material mappings" }),
+    body: JSON.stringify({
+      confirmation: "apply reviewed video material mappings",
+    }),
   });
 }
 

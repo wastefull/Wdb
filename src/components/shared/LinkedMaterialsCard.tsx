@@ -16,7 +16,7 @@ export function LinkedMaterialsCard({
     <div className="pl-4 mb-6">
       <div className="flex flex-wrap gap-1">
         <p className="text-[13px] uppercase tracking-[0.08em] text-black/60 dark:text-white/60 mb-2">
-          Linked Materials
+          Related Materials
         </p>
         {linkedMaterials.map((linkedMaterial) => (
           <button

@@ -114,6 +114,13 @@ export interface ReviewContentMappingResponse {
   outbox_event_written: boolean;
 }
 
+export interface DeleteContentMappingResponse {
+  success: true;
+  mapping_id: string;
+  deleted: boolean;
+  outbox_event_written: boolean;
+}
+
 export interface ReviewedVideoTopicReport {
   success: true;
   mode: "preview" | "apply";

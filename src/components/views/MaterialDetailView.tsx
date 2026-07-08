@@ -41,6 +41,7 @@ import { useNavigationContext } from "../../contexts/NavigationContext";
 import { MATERIAL_EXPERIENCE_SECTIONS } from "../../config/materialExperience";
 import { isDevelopment } from "../../utils/environment";
 import type { MaterialVideoResource } from "../../types/materialExperience";
+import type { PublicMaterialRelationshipResource } from "../../types/manualMaterialRelationship";
 
 interface MaterialDetailViewProps {
   material: Material;
@@ -121,6 +122,9 @@ export function MaterialDetailView({
   const [videoResources, setVideoResources] = useState<MaterialVideoResource[]>(
     [],
   );
+  const [materialRelationships, setMaterialRelationships] = useState<
+    PublicMaterialRelationshipResource[]
+  >([]);
   const [areVideoResourcesLoading, setAreVideoResourcesLoading] =
     useState(true);
 
@@ -137,6 +141,21 @@ export function MaterialDetailView({
       })
       .finally(() => {
         if (active) setAreVideoResourcesLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [material.id]);
+
+  useEffect(() => {
+    let active = true;
+    void api
+      .getMaterialRelationshipResources(material.id)
+      .then((relationships) => {
+        if (active) setMaterialRelationships(relationships);
+      })
+      .catch(() => {
+        if (active) setMaterialRelationships([]);
       });
     return () => {
       active = false;
@@ -177,7 +196,9 @@ export function MaterialDetailView({
   }, [material.aliases, material.wiki?.aliases]);
 
   const linkedMaterials = useMemo(() => {
-    const linkedIds = material.linkedMaterialIds || [];
+    const linkedIds = materialRelationships.map(
+      (relationship) => relationship.materialId,
+    );
     if (linkedIds.length === 0) return [];
 
     const byId = new Map(
@@ -186,7 +207,7 @@ export function MaterialDetailView({
     return linkedIds
       .map((id) => byId.get(id))
       .filter((candidate): candidate is Material => !!candidate);
-  }, [allMaterials, material.linkedMaterialIds]);
+  }, [allMaterials, materialRelationships]);
 
   const displayArticles = useMemo(
     () => getDisplayArticles(material, allMaterials),
