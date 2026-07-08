@@ -174,7 +174,7 @@ Use:
 
 Defer:
 
-- `pgvector` until Stage 8 demonstrates a semantic-search requirement
+- `pgvector` until Stage 10 demonstrates a semantic-search requirement
 - Database Webhooks for migration correctness
 - Queues and Cron as required infrastructure
 

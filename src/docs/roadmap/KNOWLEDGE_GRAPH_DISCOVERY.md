@@ -1,6 +1,6 @@
 # Knowledge Graph and Educational Discovery
 
-This document defines the product direction for Stages 5, 7, and 8. The
+This document defines the product direction for Stages 5, 7, 8, 9, and 10. The
 admin roadmap is the source of truth for status and acceptance tests.
 
 Companion document:
@@ -33,9 +33,15 @@ mislead.
 
 - **Stage 5:** Ship the redesigned material-page hierarchy using current data,
   stable contracts, and explicit empty states for graph-dependent sections.
-- **Stage 7:** Add graph-aware content and curation workflows, then complete
-  full browser acceptance across the Stage 5-7 experience.
-- **Stage 8:** Wire verified graph reads into discovery and learning paths.
+- **Stage 7:** Complete reviewed material-to-material and educational
+  content-to-material workflows, including admin CRUD, review state, duplicate
+  protection, and public material-page presentation.
+- **Stage 8:** Establish evidence-based scoring methodology and provenance;
+  discovery relationships remain separate from evidentiary support.
+- **Stage 9:** Expose public source browsing and citation links with strict
+  public/restricted field boundaries.
+- **Stage 10:** Enable verified discovery reads, taxonomy governance, related
+  materials, and curated learning paths.
 
 Existing material metrics, evidence, attribution, exports, and contribution
 workflows must remain available throughout the redesign.
@@ -84,17 +90,14 @@ cover current-data preservation, graph empty states, learning ranking,
 missing-data behavior, and stable section targets.
 
 Full keyboard, screen-reader, high-contrast, dark-mode, responsive, and
-reduced-motion browser acceptance is intentionally deferred to the final Stage
-7 completion gate. This allows the material redesign and graph curation
-surfaces to be tested together as one cross-stage experience before Stage 8
-wires verified graph reads into discovery.
+reduced-motion browser acceptance remains required before broad discovery
+read cutover. That cutover occurs in Stage 10, after reviewed relationship,
+taxonomy, and governance gates pass.
 
 Stage 5 does not complete full accessibility acceptance, but new components
 must avoid known accessibility regressions. They should preserve semantic
 structure, visible focus behavior, keyboard reachability, reduced-motion
 compatibility, and non-color-only state communication wherever practical.
-Stage 7 remains the full cross-browser and assistive-technology acceptance
-gate.
 
 ## Purpose
 

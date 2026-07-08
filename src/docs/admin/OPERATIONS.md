@@ -237,7 +237,7 @@ Postgres `audit_log`. New migrations must preserve these response shapes where
 possible. Migration summaries should create one audit event per operation,
 not one notification email per migrated row.
 
-Stage 9 will split revision history, restricted admin audit, and security
+Stage 11 will split revision history, restricted admin audit, and security
 telemetry. Historical audit rows must remain accounted for and recoverable.
 
 ## Known Compatibility Limits

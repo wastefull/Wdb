@@ -135,7 +135,7 @@ export function getStage7Tests(): Test[] {
           success: valid,
           message: valid
             ? "Material graph reads remain in the honest pre-cutover state."
-            : "A graph-powered material section was enabled before Stage 8.",
+            : "A graph-powered material section was enabled before Stage 10.",
         };
       },
     },

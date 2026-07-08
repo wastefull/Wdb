@@ -2,6 +2,11 @@
 
 Execution date: June 22, 2026
 
+Supersession note (July 8, 2026): This report is preserved as historical
+deployment evidence. Its recorded execution facts are unchanged. Future-stage
+references in this file should be interpreted under the current roadmap:
+general discovery read cutover now occurs in Stage 10.
+
 Target: Supabase project `bdvfwjmaufjeqmxphmtv`
 
 Run ID: `dffc4bac-968d-4782-9445-31ddc0741e92`
@@ -42,7 +47,7 @@ did not populate:
 - sync-outbox events
 
 Those are governed Stage 7 concerns. Graph-powered material reads remain
-disabled until Stage 8.
+disabled until Stage 10.
 
 The apply-window flag was temporary; normal production operation keeps entity
 apply and resume disabled.

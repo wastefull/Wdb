@@ -1,7 +1,7 @@
 # Knowledge Graph Migration and Safety Plan
 
 This document defines the Stage 6 migration design and the safety requirements
-that govern Stages 6-10. It is a plan, not permission to run destructive
+that govern Stages 6-12. It is a plan, not permission to run destructive
 changes.
 
 ## Non-Negotiable Safety Rules
@@ -1135,13 +1135,15 @@ Related Entities
 Deep Research
 Contribution Tools
 
-Do not enable graph reads in Stage 6. Stage 8 may enable them only after
+Do not enable graph reads in Stage 6. Stage 10 may enable them only after
 reconciliation gates pass.
 
 Step 7: Compatibility Write Preparation
 
-Add transactional database synchronization and an idempotent graph outbox.
+Add transactional database synchronization and an idempotent graph outbox
+ledger.
 Stage 7 may enable governed graph mutation workflows after reconciliation.
+Outbox processing workers are not a Stage 7 completion requirement.
 
 Examples:
 

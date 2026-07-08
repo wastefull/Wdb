@@ -1,7 +1,28 @@
 # Graph Content and Curation Plan
 
 Stage 7 turns the reconciled canonical entity layer into governed knowledge.
-It does not enable graph-powered discovery reads; that remains a Stage 8 gate.
+It does not enable graph-powered discovery reads; that remains a Stage 10
+gate.
+
+## Supersession Note — July 8, 2026
+
+The roadmap now defines Stage 7 completion around two outcomes:
+
+- reviewed educational content linked to materials with admin CRUD/review and
+  public material-page presentation
+- reviewed material-to-material relationships with admin CRUD/review and
+  public material-page presentation
+
+Completed video intake, triage, mapping, publication, and content-review work
+in this document remains valid implementation history. Those workstreams are no
+longer Stage 7 completion blockers.
+
+Stage 7 no longer requires outbox processing workers, generalized taxonomy
+management, Key Insight and scoring-evidence workflows, broad graph discovery
+surfaces, or broad audit-system redesign to close. Stage 7 continues to write
+transactional audit summaries and outbox records for its own mutations. The
+outbox is treated as an inactive durable ledger until an approved downstream
+consumer exists.
 
 ## Implementation Checkpoint — June 29, 2026
 
@@ -231,15 +252,13 @@ It does not enable graph-powered discovery reads; that remains a Stage 8 gate.
    and admin interfaces. Manual content-to-material creation and approval or
    rejection are implemented; bulk migration review remains checksum-bound,
    and the other curation domains remain planned.
-7. Add scoped Key Insight review fields and supporting-evidence linkage.
-8. **[Active]** Add transactional compatibility writes and idempotent outbox
-   processing. Content-mapping writes now enqueue outbox events atomically;
-   processing those events and covering other domains remain planned.
-9. **[Active]** Preserve summary audit compatibility for every graph mutation.
-   Content-mapping quarantine/apply now write transactional `audit_log`
-   summaries; broader curation coverage remains planned.
-10. Complete keyboard, screen-reader, high-contrast, dark-mode, responsive,
-    and reduced-motion browser acceptance before closing Stage 7.
+7. Preserve transactional compatibility writes with idempotent outbox entries
+   for Stage 7 relationship and content-mapping mutations. Treat the outbox as
+   an inactive durable ledger until a downstream consumer is approved.
+8. Preserve summary audit compatibility for Stage 7 relationship and
+   content-mapping mutations.
+9. Defer generalized taxonomy administration to Stage 10.
+10. Defer Key Insight and scoring-evidence review workflows to Stage 8.
 
 ## YouTube Playlist Intake
 
@@ -297,7 +316,7 @@ writes video/entity outbox events plus one audit entry per published video.
 Published videos linked through active content mappings appear as video cards
 inside the existing Recommended Learning section on material pages. This is a
 narrow Stage 7 content-resource read; it does not enable Knowledge Feed,
-Related Entities, Discovery Paths, or the general Stage 8 graph-read cutover.
+Related Entities, Discovery Paths, or the general Stage 10 graph-read cutover.
 
 Material associations use reviewed `content_entities` mappings:
 
@@ -401,4 +420,4 @@ Do not enable graph reads or apply relationship/content population when:
 - a rerun would duplicate or silently delete a prior video or triage decision
 - an editorial lead would become public content or a graph claim implicitly
 - review, audit, authorization, or rollback behavior is incomplete
-- full Stage 5-7 browser accessibility acceptance has not passed
+- Stage 7 relationship and content-mapping acceptance tests do not pass

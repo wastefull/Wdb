@@ -154,7 +154,8 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
       complete("MIU create, edit, and delete workflows"),
       {
         title: "Scaled evidence curation and public traceability",
-        description: "Carried forward to Stage 10.",
+        description:
+          "Carried forward to Stages 8-9, with scale-dependent expansion in Stage 12.",
         status: "deferred",
       },
     ],
@@ -352,288 +353,256 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
   {
     number: 7,
     slug: "stage-7",
-    title: "Graph Content & Curation",
+    title: "Material Relationships & Educational Content",
     status: "active",
     summary:
-      "Add governed graph content, first-class videos, editorial leads, and graph-aware contributor and admin workflows.",
+      "Complete reviewed material-to-material and content-to-material relationship workflows with focused audit coverage and public material-page presentation.",
     deliverables: [
+      active(
+        "Reviewed educational content-to-material relationships",
+        "Admins can create, review, and manage explicit content-to-material mappings that are presented on public material pages through governed relationship roles.",
+      ),
+      active(
+        "Reviewed material-to-material relationships",
+        "Admins can create, review, and manage explicit material relationships with duplicate protection, explicit review state, and public material-page presentation.",
+      ),
+      active(
+        "Focused relationship audit coverage",
+        "Relationship and mapping mutations record transactional audit summaries for create, review, state-transition, and delete operations required by Stage 7.",
+      ),
+      active(
+        "Outbox retained as inactive durable ledger",
+        "Current relationship and mapping writes keep idempotent outbox records in the same transaction, but downstream outbox consumers are out of Stage 7 scope until a concrete consumer is approved.",
+      ),
       complete(
         "Bulk YouTube playlist intake and four-way triage",
-        "Preview and deduplicate playlist candidates, export and validate a review-safe worksheet, and stage private triage records transactionally behind a server safety gate without publishing automatically. The initial production batch was fully reviewed and applied in a controlled window with reconciliation.",
+        "Implementation history retained: preview and deduplicate playlist candidates, export and validate a review-safe worksheet, and stage private triage records transactionally behind a server safety gate without publishing automatically.",
       ),
       complete(
         "Private triage persistence and worksheet validation",
-        "Preserve immutable provider facts separately from editable human decisions, validate reviewed CSVs locally before staging, and cover every private table in backup schema 4.1.",
+        "Implementation history retained: immutable provider facts remain separate from editable human decisions, reviewed CSV validation is local-first, and private tables are covered in backup schema 4.1.",
       ),
       complete(
         "Idempotent private worksheet staging",
-        "Stage one validated worksheet and all candidate rows atomically, return the existing batch for an exact rerun, retain partial review safely, and create no videos, graph records, tags, mappings, or editorial leads.",
+        "Implementation history retained: one validated worksheet and all candidate rows stage atomically, exact reruns return the same batch, and no public graph reads are enabled.",
       ),
       complete(
         "Private candidate review queue",
-        "The production backend and admin UI page staged candidates and record explicit material-video, editorial-lead, both, or ignore decisions with notes and governed review metadata; no review action creates content.",
+        "Implementation history retained: staged candidates support explicit disposition decisions and governed review metadata without automatic publication.",
       ),
       complete(
         "Transactional draft video creation",
-        "Create each accepted video, graph entity, and canonical binding atomically while preserving playlist provenance, idempotency, and resumable apply behavior.",
+        "Implementation history retained: accepted videos, entities, and canonical bindings can be created transactionally with resumable behavior.",
       ),
       complete(
         "Reviewed video publication and material-page resources",
-        "After complete triage and mapping review, publish only applied material-video and both records with audit/outbox provenance, then show their active material links as video cards within the existing Recommended Learning section.",
-      ),
-      active(
-        "Reviewed video-to-material mapping tools",
-        "The local Content Management workflow lets admins map canonical videos and other content to materials as explicit pending-review graph records. Reviewed video-triage material links can also be previewed and promoted in bulk to initial primary-subject mappings, with unresolved identifiers reported rather than guessed. Both paths preserve atomic audit/outbox writes and duplicate protection; production deployment and acceptance remain pending.",
-      ),
-      active(
-        "Governed video topic classification",
-        "Content Management previews and applies only topic values explicitly recorded in reviewed_topic_tags. Missing vocabulary is mechanically normalized from those reviewed decisions without guessing semantic aliases; active entity tags preserve reviewer, audit, and outbox provenance independently from material mappings.",
+        "Implementation history retained: reviewed material-linked video records can be published with transactional provenance and displayed on material pages.",
       ),
       complete(
         "Private editorial lead queue",
-        "Retain mission-aligned general videos as candidates for articles, blog posts, or guides, with triage status and notes captured as private editorial leads during controlled apply.",
+        "Implementation history retained: mission-aligned general videos can be retained as private editorial leads for future articles, blog posts, or guides.",
       ),
-      planned("Relationship, entity, tag, and video curation tools"),
-      planned("Human review workflow for scoped Key Insights"),
-      active(
-        "Reviewed relationship and content-mapping workflow",
-        "Preview candidate relationships and content mappings without mutation, preserve unresolved candidates transactionally, and apply only explicitly selected resolved candidates as pending review. The hardened database functions, Edge routes, tests, and admin UI are deployed with the apply gate closed; production preview reconciliation and reviewed apply acceptance remain pending.",
+      planned(
+        "Generalized taxonomy administration",
+        "Global CRUD for tag vocabularies, relationship vocabularies, and lifecycle taxonomy moves to Stage 10.",
       ),
-      active(
-        "Review and authorization workflows for graph mutations",
-        "Admins can create one explicit pending-review content mapping, then search the review queue and approve it to active or reject it to archived through an atomic reviewer, outbox, and audit transaction. Bulk migration candidate selection remains checksum-bound; no merely resolvable candidate is approved automatically.",
+      planned(
+        "Key Insight review and evidence-claim workflows",
+        "Structured Key Insight and scoring-evidence editorial workflows move to Stage 8.",
       ),
-      active(
-        "Compatibility-aware dual writes during migration",
-        "The reviewed content-mapping transaction writes pending graph records and idempotent outbox events atomically. Outbox processing and other curation domains remain planned.",
+      planned(
+        "General discovery graph surfaces",
+        "Knowledge Feed, generalized related-entity feeds, and discovery path cutover move to Stage 10.",
       ),
-      active(
-        "Audit summaries that preserve existing audit consumers",
-        "Successful quarantine and apply transactions write graph migration reports and existing audit_log summary records in the same transaction; the implementation is deployed and production apply acceptance remains pending.",
+      planned(
+        "Audit-system redesign",
+        "Broad audit and revision-model redesign is Stage 11 work; Stage 7 requires only focused mutation coverage.",
       ),
-      planned("Cross-stage browser accessibility and responsive acceptance"),
     ],
     acceptanceTests: [
       acceptance(
-        "stage-7-canonical-entry-baseline",
-        "Curation starts from reconciled canonical entities",
-        "Canonical entities and bindings remain available before relationship, tag, content, and video curation begins.",
-        "automated",
+        "stage-7-content-material-create-review",
+        "Educational content links are created and reviewed",
+        "Admins can create pending educational content-to-material mappings, review them to active or archived, and preserve reviewer metadata across transitions.",
       ),
       acceptance(
-        "stage-7-discusses-semantics",
-        "Discovery relationships remain evidence-neutral",
-        "The governed discusses relationship remains broad and explicitly does not imply evidentiary support.",
-        "automated",
+        "stage-7-material-relationship-create-review",
+        "Material relationships are created and reviewed",
+        "Admins can create pending material-to-material relationships, review them to active or archived, and preserve reviewer metadata across transitions.",
       ),
       acceptance(
-        "stage-7-read-cutover-disabled",
-        "Graph-powered material reads remain disabled",
-        "Stage 7 curation work leaves material graph sections in their honest pre-cutover state until Stage 8.",
-        "automated",
+        "stage-7-duplicate-protection",
+        "Duplicate relationship claims are prevented",
+        "Exact duplicate content-to-material and material-to-material records return existing reviewed state or deterministic conflict responses without creating additional rows.",
       ),
       acceptance(
-        "stage-7-video-preview-capabilities",
-        "Playlist preview is configured without write authority",
-        "The YouTube credential remains server-side, read-only preview is enabled, private worksheet staging is controlled by an explicit server gate, and draft apply and graph reads remain disabled.",
-        "automated",
+        "stage-7-relationship-authorization",
+        "Relationship mutation authorization is explicit",
+        "Anonymous and untrusted authenticated users cannot create, review, or delete relationship/mapping records; authorized admins can execute those mutations.",
       ),
       acceptance(
-        "stage-7-video-playlist-preview",
-        "Playlist intake is complete and non-mutating",
-        "The production preview reconciles all 370 playlist items as 366 new and four private candidates with no duplicates, deleted or unavailable items, or graph writes; fixture tests cover deterministic parsing, classification, snapshots, and checksums.",
-        "automated",
+        "stage-7-public-material-reads",
+        "Public material pages present reviewed relationships",
+        "Public material-page surfaces show only active reviewed educational content links and material relationships, excluding pending or archived records.",
       ),
       acceptance(
-        "stage-7-video-triage-export",
-        "Playlist candidates export to a review-safe worksheet",
-        "The preview downloads as formula-injection-safe CSV with provenance, provider status, issues, non-authoritative 3D-printing suggestions, and blank human-review fields for disposition, materials, topics, editorial targets, and notes.",
-        "automated",
-      ),
-      acceptance(
-        "stage-7-video-triage-validation",
-        "Reviewed worksheets are validated before staging",
-        "Local validation rejects malformed contracts, mixed preview provenance, invalid dispositions, and unsafe provider classifications while keeping rejected topic suggestions separate from reviewed tags.",
-        "automated",
-      ),
-      acceptance(
-        "stage-7-video-triage-foundation",
-        "Private triage records preserve provenance and authorization",
-        "Import batches, candidate rows, and editorial leads retain immutable source data; contributors and anonymous users have no access, staff cannot delete records, and reviewed fields remain editable and auditable.",
-        "automated",
-      ),
-      acceptance(
-        "stage-7-video-curation-backup",
-        "Video curation records are included in recovery artifacts",
-        "Backup schema 4.1 includes import batches, candidate rows, and editorial leads with counts and checksums while schema 4.0 backups remain valid.",
-        "automated",
-      ),
-      acceptance(
-        "stage-7-video-triage-staging",
-        "Validated worksheets stage atomically without content writes",
-        "A service-role-only transaction stages one private batch and all candidates, rejects malformed or duplicate inputs without partial rows, and returns the existing batch on an exact rerun while leaving videos, entities, mappings, tags, and editorial leads unchanged.",
-        "automated",
-      ),
-      acceptance(
-        "stage-7-video-triage-review",
-        "Human triage decisions remain private and reversible",
-        "Admin review updates one candidate and its aggregate batch status transactionally, restricts unavailable sources to ignore, supports reopening a decision, preserves reviewer attribution, and creates no videos, entities, mappings, tags, or editorial leads.",
-        "automated",
-      ),
-      acceptance(
-        "stage-7-video-triage",
-        "Every playlist candidate has an explicit disposition",
-        "Reviewers can classify a candidate as a material video, editorial lead, both, or ignored; reruns preserve those decisions and do not recreate dismissed candidates.",
-      ),
-      acceptance(
-        "stage-7-video-draft-apply",
-        "Accepted videos are created atomically as drafts",
-        "A reviewed apply creates one video, one video entity, and one canonical binding without duplication or automatic publication, and is safe to resume after interruption.",
-      ),
-      acceptance(
-        "stage-7-video-material-mapping",
-        "Video material mappings require review",
-        "Primary-subject, mentioned, and evidence mappings preserve reviewer state; evidence use cannot be inferred from playlist membership, title, description, or automated classification.",
-      ),
-      acceptance(
-        "stage-7-video-topic-classification",
-        "Video topics remain governed and composable",
-        "Reviewers can assign the 3D printing topic independently from material mappings and editorial disposition; automated suggestions remain pending review and incidental mentions do not create tags.",
-      ),
-      acceptance(
-        "stage-7-editorial-leads",
-        "Mission-aligned videos can become private editorial leads",
-        "General educational videos may be retained as private article, blog-post, or guide candidates with notes, assignment, status, and explicit linkage when converted, without becoming public videos or graph claims implicitly.",
-      ),
-      acceptance(
-        "stage-7-content-mapping-preview-non-mutating",
-        "Content-mapping preview writes no graph records",
-        "The preview identifies relationship and content-mapping candidates from material_links, linked_material_ids, articles, and guides without creating entity_relationships, content_entities, or any other graph record; mutation_proof counts match before and after.",
-        "automated",
-      ),
-      acceptance(
-        "stage-7-content-mapping-preview-deterministic",
-        "Content-mapping preview is deterministic across repeated calls",
-        "Repeated preview calls return identical candidate totals, confirming the preview does not alter state between runs.",
-        "automated",
-      ),
-      acceptance(
-        "stage-7-content-mapping-preview-semantics",
-        "Preview candidates use only conservative relationship semantics",
-        "All suggested relationship types are related_to; all suggested content roles are discusses. Evidence, primary_subject, and inferred-support semantics are absent from preview output.",
-        "automated",
-      ),
-      acceptance(
-        "stage-7-content-mapping-preview-quarantine",
-        "Unresolvable preview candidates are framed as awaiting_review",
-        "Candidates where entities cannot be resolved carry resolution awaiting_review rather than a null, empty, or misleading label.",
-        "automated",
-      ),
-      acceptance(
-        "stage-7-content-mapping-preview-fixture-resolved",
-        "Resolved candidate contract: both entity IDs present, resolution_notes null",
-        "Fixture verifies that a resolved candidate always has non-null source and target entity_ids, null resolution_notes, and conservative semantics.",
-        "automated",
-      ),
-      acceptance(
-        "stage-7-content-mapping-preview-fixture-awaiting-review",
-        "Awaiting-review candidates carry non-null resolution notes",
-        "Fixture verifies that each awaiting_review candidate provides a non-empty explanation string rather than a null or silent omission.",
-        "automated",
-      ),
-      acceptance(
-        "stage-7-content-mapping-preview-fixture-already-mapped",
-        "Already-mapped candidates retain entity IDs and carry notes",
-        "Fixture verifies that already_mapped candidates still expose both entity_ids and a non-null resolution_notes string explaining the pre-existing mapping.",
-        "automated",
-      ),
-      acceptance(
-        "stage-7-content-mapping-preview-fixture-missing-binding",
-        "Missing entity binding is distinct from missing material record",
-        "Fixture verifies that the missing-binding case (material_uuid present but entity_id null) produces a distinct resolution_notes string from the missing-material case.",
-        "automated",
-      ),
-      acceptance(
-        "stage-7-content-mapping-preview-sample-limit",
-        "sample_limit parameter caps returned candidate arrays",
-        "Calling with sample_limit=2 returns at most 2 candidates per array while summary totals reflect the full scanned population.",
-        "automated",
-      ),
-      acceptance(
-        "stage-7-content-mapping-preview-summary-consistency",
-        "Preview summary counts are internally consistent",
-        "summary.total equals resolved + awaiting_review + already_mapped for both relationship and content-mapping candidates; all counts are non-negative.",
-        "automated",
-      ),
-      acceptance(
-        "stage-7-content-mapping-reviewed-manifest",
-        "Only explicitly reviewed content-mapping candidates can be applied",
-        "The admin selects individual resolved candidates; the server rejects unknown, duplicate, unresolved, stale, or self-referential manifest entries.",
-        "automated",
-      ),
-      acceptance(
-        "stage-7-content-mapping-transaction",
-        "Graph rows and compatibility events commit atomically",
-        "The service-role-only database transaction creates pending-review graph rows, outbox events, migration reconciliation, and an audit summary together or rolls everything back.",
-        "automated",
-      ),
-      acceptance(
-        "stage-7-content-mapping-idempotency",
-        "Reviewed apply and quarantine reruns are idempotent",
-        "An exact checksum or manifest rerun returns its completed migration run without duplicating graph rows, outbox events, quarantine issues, or audit summaries.",
-        "automated",
-      ),
-      acceptance(
-        "stage-7-dual-write",
-        "Dual writes remain reconcilable",
-        "Legacy and graph representations match after create, update, review, and delete workflows.",
-      ),
-      acceptance(
-        "stage-7-audit",
-        "Graph mutations preserve audit compatibility",
-        "Graph changes create summary audit records without breaking existing list, detail, statistics, or filtering interfaces.",
-      ),
-      acceptance(
-        "stage-7-insight-review",
-        "Key Insights require editorial approval",
-        "Insight status, reviewer, review timestamp, supporting evidence, confidence or review status, and scope notes are preserved through approval and update workflows.",
-      ),
-      acceptance(
-        "stage-7-browser-acceptance",
-        "Stages 5-7 pass full browser acceptance",
-        "Material and graph curation experiences pass keyboard, screen-reader, high-contrast, dark-mode, responsive, and reduced-motion browser testing before Stage 7 completes.",
+        "stage-7-focused-audit",
+        "Stage 7 mutations retain focused transactional audit coverage",
+        "Create, review-state transition, and delete mutations for Stage 7 relationship domains write compatible audit summaries in the same transaction as the data change.",
       ),
     ],
   },
   {
     number: 8,
     slug: "stage-8",
-    title: "Discovery & Learning Paths",
+    title: "Evidence-Based Sustainability Scoring",
     status: "planned",
     summary:
-      "Use verified graph data to power meaningful discovery rather than exposing an undifferentiated graph visualization.",
+      "Define authoritative scoring methodology and convert reviewed source observations into published sustainability dimensions with strict provenance and approval boundaries.",
     deliverables: [
-      planned("Knowledge Feed and recommended learning"),
-      planned("Related entities grouped by relationship meaning"),
-      planned("Curated discovery and learning paths"),
-      planned("Verified legacy read/write deprecation process"),
+      planned("Authoritative scoring methodology and parameter governance"),
+      planned(
+        "Reviewer workflow for structured source-PDF observations",
+        "Reviewers can capture parameter observations with source, page, snippet/quote, reviewer identity, confidence, and methodology version.",
+      ),
+      planned(
+        "Volunteer-safe guided review workflow",
+        "Trainable high-school volunteer flow includes instructions, constrained input, and mandatory staff approval before score impact.",
+      ),
+      planned(
+        "Score calculation and publication from approved observations",
+        "Material sustainability dimensions are calculated only from approved observations under a named methodology version.",
+      ),
+      planned(
+        "Separation between discovery relationships and evidentiary support",
+        "Relationship links remain discovery metadata and are not treated as evidence without explicit scoring provenance.",
+      ),
     ],
     acceptanceTests: [
       acceptance(
-        "stage-8-verified-reads",
-        "Discovery reads only verified graph data",
-        "Graph-powered sections do not replace legacy reads until reconciliation gates pass.",
+        "stage-8-evidence-provenance",
+        "Every scoring input preserves provenance",
+        "Each approved observation records source record, page/location, quoted snippet, reviewer, confidence, and methodology version.",
       ),
       acceptance(
-        "stage-8-deprecation",
-        "Legacy deprecation is explicit and reversible",
-        "Legacy writes stop only after verification; legacy reads remain for at least one release cycle.",
+        "stage-8-methodology-versioning",
+        "Methodology changes are versioned and reproducible",
+        "Score outputs can be recalculated by methodology version and retain explainable parameter lineage.",
+      ),
+      acceptance(
+        "stage-8-approval-boundary",
+        "Unapproved observations cannot affect public scores",
+        "Volunteer and reviewer draft observations remain non-authoritative until explicit staff approval is recorded.",
+      ),
+      acceptance(
+        "stage-8-score-calculation",
+        "Published sustainability dimensions come from approved evidence",
+        "Public dimensions are computed from approved observations only and expose methodology metadata for traceability.",
+      ),
+      acceptance(
+        "stage-8-volunteer-workflow",
+        "Guided workflows are safe for trained high-school volunteers",
+        "Review UI provides clear instructions, constrained forms, and safe escalation paths suitable for supervised volunteer use.",
       ),
     ],
   },
   {
     number: 9,
     slug: "stage-9",
+    title: "Public Source Library & Citations",
+    status: "planned",
+    summary:
+      "Expose a safe public source library with citations and reviewed source-material links while keeping restricted operational fields private.",
+    deliverables: [
+      planned("Public source browsing, search, and source detail pages"),
+      planned(
+        "Public metadata and access-availability indicators",
+        "Public users can view bibliographic metadata and open-access or PDF availability without exposing restricted notes or review internals.",
+      ),
+      planned(
+        "Reviewed material-to-source relationship presentation",
+        "Materials show explicit source relationships without implying every linked source contributes to scoring.",
+      ),
+      planned(
+        "Content citation integration via existing footnotes",
+        "Articles, guides, and future content types can cite source-library records through current citation/footnote experiences.",
+      ),
+      planned(
+        "Public/restricted field boundary model",
+        "Restricted files, private notes, review state, and internal moderation fields remain private while public bibliographic records are readable.",
+      ),
+    ],
+    acceptanceTests: [
+      acceptance(
+        "stage-9-public-restricted-separation",
+        "Public and restricted source fields are separated",
+        "Public endpoints expose only safe bibliographic metadata and availability markers; restricted files, notes, and review-state fields remain inaccessible.",
+      ),
+      acceptance(
+        "stage-9-material-source-links",
+        "Material and source links are explicit and reviewed",
+        "Material pages display reviewed source relationships with clear relationship meaning and without automatic evidentiary claims.",
+      ),
+      acceptance(
+        "stage-9-content-citations",
+        "Content can cite Source Library records",
+        "Articles, guides, and supported content forms can attach source-library citations through the existing footnote flow.",
+      ),
+      acceptance(
+        "stage-9-inaccessible-pdf-behavior",
+        "Inaccessible PDFs are handled safely",
+        "Sources without public files still present bibliographic metadata and access status without exposing restricted assets or dead-link failures as hard errors.",
+      ),
+    ],
+  },
+  {
+    number: 10,
+    slug: "stage-10",
+    title: "Taxonomy, Discovery & Learning Paths",
+    status: "planned",
+    summary:
+      "Make taxonomy governance configurable, then power verified discovery reads, related-material experiences, and curated learning paths.",
+    deliverables: [
+      planned("Admin CRUD for taxonomy and governed vocabulary"),
+      planned(
+        "Assignment governance with merge and deprecation workflows",
+        "Reviewed assignment workflows prevent duplicate taxonomy values and support controlled merges/deprecations.",
+      ),
+      planned(
+        "Verified discovery reads from active reviewed graph data",
+        "Related materials, feed surfaces, search, and learning paths read only active reviewed relationships and mappings.",
+      ),
+      planned(
+        "Curated discovery paths and topic browsing",
+        "Discovery focuses on governed educational pathways instead of raw undifferentiated graph visualization.",
+      ),
+    ],
+    acceptanceTests: [
+      acceptance(
+        "stage-10-vocabulary-crud",
+        "Taxonomy vocabulary is governable",
+        "Admins can create, update, merge, deprecate, and retire relationship/tag/topic vocabulary without direct SQL edits.",
+      ),
+      acceptance(
+        "stage-10-assignment-governance",
+        "Assignment workflows prevent duplicate taxonomy drift",
+        "Reviewed assignment and merge/deprecation workflows prevent duplicate active values and preserve auditability of vocabulary changes.",
+      ),
+      acceptance(
+        "stage-10-verified-discovery-reads",
+        "Discovery uses active reviewed graph data only",
+        "Related materials, feed, search, and learning-path reads exclude pending, archived, and unreviewed records.",
+      ),
+      acceptance(
+        "stage-10-related-materials-learning-paths",
+        "Related-material and learning-path experiences are governed",
+        "Public discovery surfaces show reviewed relationship semantics and curated pathway sequencing without exposing raw graph internals.",
+      ),
+    ],
+  },
+  {
+    number: 11,
+    slug: "stage-11",
     title: "Privacy, Audit & Revision History",
     status: "planned",
     summary:
@@ -652,25 +621,25 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
     ],
     acceptanceTests: [
       acceptance(
-        "stage-9-history",
+        "stage-11-history",
         "Historical audit records are preserved",
         "Audit migration accounts for every existing record and retains original payloads where automated conversion is impossible.",
       ),
       acceptance(
-        "stage-9-api-compatibility",
+        "stage-11-api-compatibility",
         "Existing audit interfaces remain functional",
         "Audit list, detail, statistics, filtering, and export response shapes remain compatible or have documented adapters.",
       ),
       acceptance(
-        "stage-9-restore",
+        "stage-11-restore",
         "Old and new backups restore successfully",
         "Representative pre-graph and graph-era backups restore into test environments and reconcile counts and checksums.",
       ),
     ],
   },
   {
-    number: 10,
-    slug: "stage-10",
+    number: 12,
+    slug: "stage-12",
     title: "Scale",
     status: "planned",
     summary:
@@ -683,12 +652,12 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
     ],
     acceptanceTests: [
       acceptance(
-        "stage-10-safety-gate",
+        "stage-12-safety-gate",
         "Migration safety gates pass before scaling",
         "There is zero unexplained row or relationship loss and a documented manual recovery path for every unresolved migration category.",
       ),
       acceptance(
-        "stage-10-backup-scale",
+        "stage-12-backup-scale",
         "Backup and audit systems remain functional at scale",
         "Full backup, validation, restore, audit filtering, and audit statistics remain usable at target data volumes.",
       ),
@@ -729,7 +698,7 @@ export const ROADMAP_BACKLOG: RoadmapBacklogCategory[] = [
       {
         title: "Relationship, tag, and content migration tooling",
         description:
-          "Extend the proven dry-run, checkpoint, quarantine, and reconciliation pattern to Stage 7 relationship, tag, and content population.",
+          "Extend the proven dry-run, checkpoint, quarantine, and reconciliation pattern to Stage 7 relationship and content population while deferring generalized taxonomy governance to Stage 10.",
         origin: "Stage 7",
       },
       {

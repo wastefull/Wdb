@@ -5,20 +5,20 @@ maintained orientation guide, not a replacement for migration SQL.
 
 ## Authoritative Postgres Tables
 
-| Table | Purpose |
-| --- | --- |
-| `user_profiles` | User profile, role, and display preferences |
-| `material_categories` | Material category taxonomy |
-| `materials` | Material identity, public scores, and scientific fields |
-| `articles` | Material-related long-form content |
-| `sources` | Reusable source and citation records |
-| `material_sources` | Material-to-source links and weights |
-| `material_links` | Legacy material-to-material relationship links |
-| `evidence_points` | MIU evidence, values, context, and provenance |
-| `audit_log` | Restricted mutation audit history |
-| `guides` | Community and editorial guides |
-| `blog_posts` | Blog and changelog content |
-| `changelog_entries` | Structured changelog entries |
+| Table                 | Purpose                                                 |
+| --------------------- | ------------------------------------------------------- |
+| `user_profiles`       | User profile, role, and display preferences             |
+| `material_categories` | Material category taxonomy                              |
+| `materials`           | Material identity, public scores, and scientific fields |
+| `articles`            | Material-related long-form content                      |
+| `sources`             | Reusable source and citation records                    |
+| `material_sources`    | Material-to-source links and weights                    |
+| `material_links`      | Legacy material-to-material relationship links          |
+| `evidence_points`     | MIU evidence, values, context, and provenance           |
+| `audit_log`           | Restricted mutation audit history                       |
+| `guides`              | Community and editorial guides                          |
+| `blog_posts`          | Blog and changelog content                              |
+| `changelog_entries`   | Structured changelog entries                            |
 
 ## Remaining KV Responsibilities
 
@@ -46,11 +46,11 @@ association. New manual mappings remain `pending_review`.
 
 Stage 7 adds private, pre-publication workflow tables:
 
-| Table | Purpose |
-| --- | --- |
-| `video_import_batches` | Immutable playlist/worksheet provenance and validation lifecycle |
-| `video_import_items` | Provider candidates, suggestions, reviewed triage, and eventual draft linkage |
-| `editorial_leads` | Private article, blog-post, and guide opportunities sourced from reviewed media |
+| Table                  | Purpose                                                                         |
+| ---------------------- | ------------------------------------------------------------------------------- |
+| `video_import_batches` | Immutable playlist/worksheet provenance and validation lifecycle                |
+| `video_import_items`   | Provider candidates, suggestions, reviewed triage, and eventual draft linkage   |
+| `editorial_leads`      | Private article, blog-post, and guide opportunities sourced from reviewed media |
 
 These tables do not enable graph reads or publish videos. Suggested topics are
 stored separately from reviewed topics so false positives can be rejected
@@ -70,6 +70,10 @@ vocabulary, inserts one pending mapping, and writes its graph outbox event and
 audit record in the same transaction. The Edge Function exposes this only
 through authenticated admin routes; browser clients cannot invoke the database
 function directly.
+
+At the current roadmap scope, `graph_sync_outbox` acts as a durable ledger for
+these transactional writes. Stage 7 does not require a downstream outbox worker
+to close; broad taxonomy/discovery read cutover is deferred to Stage 10.
 
 Materials maintain their graph identity through the
 `materials_sync_canonical_binding` compatibility trigger. It creates a missing

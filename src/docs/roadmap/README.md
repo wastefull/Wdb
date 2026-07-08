@@ -4,7 +4,7 @@ The admin roadmap, backed by `src/config/roadmap.ts`, is the operational source
 of truth for stage status, deliverables, planned acceptance tests, executable
 test mapping, and backlog items.
 
-## Ten-Stage Convention
+## Twelve-Stage Convention
 
 1. Foundation - Complete
 2. Evidence Infrastructure - Complete
@@ -12,12 +12,14 @@ test mapping, and backlog items.
 4. Data Migration - Complete
 5. Material Experience Redesign - Complete
 6. Knowledge Graph Foundation - Complete
-7. Graph Content & Curation - Active
-8. Discovery & Learning Paths - Planned
-9. Privacy, Audit & Revision History - Planned
-10. Scale - Planned
+7. Material Relationships & Educational Content - Active
+8. Evidence-Based Sustainability Scoring - Planned
+9. Public Source Library & Citations - Planned
+10. Taxonomy, Discovery & Learning Paths - Planned
+11. Privacy, Audit & Revision History - Planned
+12. Scale - Planned
 
-Stages 9 and 10 must remain the final sequence.
+Stages 11 and 12 must remain the final sequence.
 
 ## TDD Workflow
 
@@ -28,8 +30,11 @@ Stages 9 and 10 must remain the final sequence.
 - Stage 5 avoids known accessibility regressions through semantic structure,
   visible focus, keyboard reachability, reduced-motion compatibility, and
   non-color-only state communication.
-- Full browser acceptance for the Stage 5-7 experience is the final Stage 7
-  completion gate.
+- Stage 7 completion is defined by reviewed educational-content and
+  material-relationship outcomes, including focused authorization, duplicate
+  protection, public reads, and focused audit behavior.
+- Generalized taxonomy governance and broad discovery read cutover move to
+  Stage 10.
 - Do not duplicate current stage status in Markdown.
 
 ## Migration Standard
@@ -39,4 +44,4 @@ practical, and backed by verified recovery procedures. See
 [Knowledge Graph Migration](./KNOWLEDGE_GRAPH_MIGRATION.md).
 
 Active Stage 7 implementation contract:
-[Graph Content and Curation](./KNOWLEDGE_GRAPH_CURATION.md).
+[Material Relationships and Educational Content](./KNOWLEDGE_GRAPH_CURATION.md).

@@ -32,8 +32,8 @@ for stage status, deliverables, acceptance tests, and backlog items.
 - [Roadmap conventions](./roadmap/README.md)
 - [Knowledge graph and discovery](./roadmap/KNOWLEDGE_GRAPH_DISCOVERY.md)
 - [Knowledge graph migration and safety](./roadmap/KNOWLEDGE_GRAPH_MIGRATION.md)
-- [Stage 7 graph content and curation](./roadmap/KNOWLEDGE_GRAPH_CURATION.md)
-- [Stage 6 knowledge graph foundation runbook](./roadmap/guides/KNOWLEDGE_GRAPH_FOUNDATION_RUNBOOK.md)
+- [Stage 7 material relationships and educational content](./roadmap/KNOWLEDGE_GRAPH_CURATION.md)
+- [Stage 6 knowledge graph foundation runbook (historical)](./roadmap/guides/KNOWLEDGE_GRAPH_FOUNDATION_RUNBOOK.md)
 
 ## Documentation Rules
 

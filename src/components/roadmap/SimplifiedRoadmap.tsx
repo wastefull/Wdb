@@ -106,8 +106,8 @@ function RoadmapOverview({
             <Badge variant="outline">{ROADMAP_PROGRESS.planned} Planned</Badge>
           </div>
           <p className="text-sm text-muted-foreground">
-            Stages 9 and 10 are intentionally the final sequence: Privacy, Audit
-            & Revision History, followed by Scale.
+            Stages 11 and 12 are intentionally the final sequence: Privacy,
+            Audit & Revision History, followed by Scale.
           </p>
         </CardContent>
       </Card>
