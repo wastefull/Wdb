@@ -35,6 +35,52 @@ function formatLabel(value: string): string {
   return value.replaceAll("_", " ");
 }
 
+type RelationshipGuidance = {
+  summary: string;
+  bestFit: string;
+  example: string;
+  avoid: string;
+};
+
+const RELATIONSHIP_GUIDANCE: Record<string, RelationshipGuidance> = {
+  contains: {
+    summary:
+      "Use when the source material is made of, or includes, the target material.",
+    bestFit: "Composition and packaging structure",
+    example: "aluminum_can -> contains -> aluminum",
+    avoid: "Do not use it to describe provenance or processing lineage.",
+  },
+  derived_from: {
+    summary:
+      "Use when the source material was produced from the target material or a closely related precursor.",
+    bestFit: "Source-to-output provenance",
+    example: "recycled cardboard fiberboard -> derived_from -> used cardboard",
+    avoid: "Prefer a more specific composition or feedstock relationship if one applies.",
+  },
+  feedstock_for: {
+    summary:
+      "Use when the source material is an input used to manufacture the target material.",
+    bestFit: "Inputs, intermediates, and manufacturing precursors",
+    example: "bauxite -> feedstock_for -> aluminum",
+    avoid: "Do not use it for the finished product back to its ingredient.",
+  },
+  recycled_by: {
+    summary:
+      "Use this for a material that is recycled by a system, facility, or organization, rather than for one material directly recycled by another material.",
+    bestFit: "Recycling pathway or collection context",
+    example: "PET bottles -> recycled_by -> municipal recycling facility",
+    avoid:
+      "For two materials, prefer contains, derived_from, or feedstock_for instead.",
+  },
+  related_to: {
+    summary:
+      "Use when the relationship is real but does not fit a tighter governed type.",
+    bestFit: "Conservative fallback relationship",
+    example: "aluminum_can -> related_to -> recycled_aluminum",
+    avoid: "Prefer a narrower relationship when the meaning is clear.",
+  },
+};
+
 export function MaterialRelationshipPanel() {
   const [options, setOptions] =
     useState<ManualMaterialRelationshipOptionsResponse>(EMPTY_OPTIONS);
@@ -208,6 +254,19 @@ export function MaterialRelationshipPanel() {
   const targetMaterial = options.materials.find(
     (candidate) => candidate.id === targetEntityId,
   );
+  const selectedRelationshipType = options.relationship_types.find(
+    (candidate) => candidate.slug === relationshipType,
+  );
+  const relationshipGuidance =
+    RELATIONSHIP_GUIDANCE[relationshipType] ??
+    (selectedRelationshipType
+      ? {
+          summary: selectedRelationshipType.description,
+          bestFit: "Governed relationship vocabulary",
+          example: selectedRelationshipType.label,
+          avoid: "Use the most specific broad relationship available.",
+        }
+      : null);
 
   const pageStart = total === 0 ? 0 : offset + 1;
   const pageEnd = Math.min(offset + PAGE_SIZE, total);
@@ -332,8 +391,40 @@ export function MaterialRelationshipPanel() {
                 <option key={candidate.slug} value={candidate.slug}>
                   {candidate.label}
                 </option>
-              ))}
-            </select>
+                ))}
+              </select>
+            {relationshipGuidance && (
+              <div className="mt-2 rounded-lg border border-waste-science/20 bg-waste-science/5 p-3 text-[12px] text-black/70 dark:text-white/70">
+                <p className="font-medium text-black dark:text-white">
+                  {selectedRelationshipType?.label ?? formatLabel(relationshipType)}
+                </p>
+                <p className="mt-1 leading-relaxed">
+                  {relationshipGuidance.summary}
+                </p>
+                <dl className="mt-3 grid gap-2">
+                  <div>
+                    <dt className="text-[10px] uppercase tracking-wide text-black/45 dark:text-white/45">
+                      Best fit
+                    </dt>
+                    <dd>{relationshipGuidance.bestFit}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-[10px] uppercase tracking-wide text-black/45 dark:text-white/45">
+                      Example
+                    </dt>
+                    <dd className="font-mono text-[11px]">
+                      {relationshipGuidance.example}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-[10px] uppercase tracking-wide text-black/45 dark:text-white/45">
+                      Avoid
+                    </dt>
+                    <dd>{relationshipGuidance.avoid}</dd>
+                  </div>
+                </dl>
+              </div>
+            )}
           </label>
         </div>
 
