@@ -16436,7 +16436,7 @@ app.post(
       const body = await c.req.json().catch(() => ({}));
       const sourceEntityId = body?.source_entity_id;
       const targetEntityId = body?.target_entity_id;
-      const relationshipType =
+      const rawRelationshipType =
         typeof body?.relationship_type === "string" &&
         body.relationship_type.trim()
           ? body.relationship_type.trim()
@@ -16458,6 +16458,24 @@ app.post(
         );
       }
 
+      // Accept either a governed slug (used_in) or label (Used in), then
+      // normalize to the canonical slug for RPC validation.
+      const { data: relationshipTypeRows, error: relationshipTypeError } =
+        await _roleClient()
+          .from("relationship_types")
+          .select("slug,label")
+          .eq("active", true);
+      if (relationshipTypeError) throw relationshipTypeError;
+
+      const relationshipTypeMatch = (relationshipTypeRows ?? []).find(
+        (candidate) =>
+          candidate.slug === rawRelationshipType ||
+          candidate.label.toLocaleLowerCase() ===
+            rawRelationshipType.toLocaleLowerCase(),
+      );
+      const relationshipType =
+        relationshipTypeMatch?.slug ?? rawRelationshipType;
+
       const { data, error } = await _roleClient().rpc(
         "create_manual_material_relationship",
         {
@@ -16471,10 +16489,38 @@ app.post(
       return c.json(data);
     } catch (error) {
       log.error("Manual material-relationship creation failed:", error);
+      const errorMessage =
+        error && typeof error === "object" && "message" in error
+          ? String((error as { message?: unknown }).message ?? "")
+          : "";
+      const errorDetails =
+        error && typeof error === "object" && "details" in error
+          ? String((error as { details?: unknown }).details ?? "")
+          : "";
+      const errorHint =
+        error && typeof error === "object" && "hint" in error
+          ? String((error as { hint?: unknown }).hint ?? "")
+          : "";
+      const functionMissing =
+        /create_manual_material_relationship/i.test(errorMessage) &&
+        /(schema cache|does not exist|not find)/i.test(
+          `${errorMessage} ${errorDetails} ${errorHint}`,
+        );
+      const actionableMessage = [
+        "Material relationship could not be created.",
+        errorMessage ? `Database message: ${errorMessage}` : "",
+        errorDetails ? `Details: ${errorDetails}` : "",
+        errorHint ? `Hint: ${errorHint}` : "",
+        functionMissing
+          ? "Likely fix: apply database migrations and refresh schema cache for create_manual_material_relationship."
+          : "",
+      ]
+        .filter(Boolean)
+        .join(" ");
       return c.json(
         {
           success: false,
-          error: "Material relationship could not be created.",
+          error: actionableMessage,
           details: String(error),
         },
         500,

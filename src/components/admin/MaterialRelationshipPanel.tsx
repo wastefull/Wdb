@@ -136,7 +136,15 @@ export function MaterialRelationshipPanel() {
       setCreateResult(response);
       await loadRelationships();
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : String(caught));
+      const baseMessage =
+        caught instanceof Error ? caught.message : String(caught);
+      setError(
+        [
+          baseMessage,
+          `Attempted mapping: ${sourceMaterial?.name ?? sourceEntityId} -> ${targetMaterial?.name ?? targetEntityId}`,
+          `Relationship type: ${relationshipType}`,
+        ].join(" | "),
+      );
     } finally {
       setIsSaving(false);
     }
