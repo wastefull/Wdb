@@ -265,7 +265,7 @@ function StageDetail({ stage }: { stage: RoadmapStage }) {
               : stage.number === 6
                 ? "Executable checks for graph schema, RLS, compatibility, and backup coverage"
                 : stage.number === 7
-                  ? "Executable entry checks for graph curation, evidence-neutral relationships, and the pre-cutover boundary"
+                  ? "Executable checks for reviewed relationships, content mappings, and the pre-cutover boundary"
                   : "Executable tests mapped from legacy phase identifiers"
           }
         />
