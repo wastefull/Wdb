@@ -14,7 +14,7 @@ import {
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import type { CategoryType } from "../../types/article";
 import type { Material } from "../../types/material";
 import type {
@@ -134,6 +134,14 @@ function MaterialIntelligenceSection({
   MaterialExperienceSectionsProps,
   "material" | "model" | "articleCounts" | "onViewArticles"
 >) {
+  const [expandedDimensions, setExpandedDimensions] = useState<
+    Record<CategoryType, boolean>
+  >({
+    recyclability: false,
+    compostability: false,
+    reusability: false,
+  });
+
   return (
     <>
       <div className="quality" aria-label="Data quality summary">
@@ -168,7 +176,7 @@ function MaterialIntelligenceSection({
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <CardTitle>{dimension.label}</CardTitle>
-                  <CardDescription>Current score</CardDescription>
+                  <CardDescription>Pending Score</CardDescription>
                 </div>
                 <span aria-label={`${dimension.score} out of 100`}>
                   {Math.round(dimension.score)}
@@ -197,24 +205,40 @@ function MaterialIntelligenceSection({
                 articleCount={articleCounts[dimension.id]}
                 showScores
               />
-              <dl>
-                <div>
-                  <dt>Practical mean</dt>
-                  <dd>{formatPercentage(dimension.practicalMean)}</dd>
-                </div>
-                <div>
-                  <dt>Theoretical mean</dt>
-                  <dd>{formatPercentage(dimension.theoreticalMean)}</dd>
-                </div>
-                <div>
-                  <dt>Practical 95% CI</dt>
-                  <dd>{formatConfidenceInterval(dimension.practicalCI95)}</dd>
-                </div>
-                <div>
-                  <dt>Theoretical 95% CI</dt>
-                  <dd>{formatConfidenceInterval(dimension.theoreticalCI95)}</dd>
-                </div>
-              </dl>
+              <button
+                type="button"
+                className="mt-2 text-sm text-primary"
+                aria-expanded={expandedDimensions[dimension.id]}
+                aria-controls={`dimension-details-${dimension.id}`}
+                onClick={() =>
+                  setExpandedDimensions((current) => ({
+                    ...current,
+                    [dimension.id]: !current[dimension.id],
+                  }))
+                }
+              >
+                {expandedDimensions[dimension.id] ? "See less" : "See more"}
+              </button>
+              {expandedDimensions[dimension.id] ? (
+                <dl id={`dimension-details-${dimension.id}`}>
+                  <div>
+                    <dt>Practical mean</dt>
+                    <dd>{formatPercentage(dimension.practicalMean)}</dd>
+                  </div>
+                  <div>
+                    <dt>Theoretical mean</dt>
+                    <dd>{formatPercentage(dimension.theoreticalMean)}</dd>
+                  </div>
+                  <div>
+                    <dt>Practical 95% CI</dt>
+                    <dd>{formatConfidenceInterval(dimension.practicalCI95)}</dd>
+                  </div>
+                  <div>
+                    <dt>Theoretical 95% CI</dt>
+                    <dd>{formatConfidenceInterval(dimension.theoreticalCI95)}</dd>
+                  </div>
+                </dl>
+              ) : null}
             </CardContent>
           </Card>
         ))}
@@ -314,44 +338,79 @@ function RecommendedLearningSection({
             <h3 className="mt-2 text-xl">Video resources</h3>
           </div>
           {areVideoResourcesLoading ? (
-            <p className="text-sm text-muted-foreground">Loading linked videos...</p>
+            <p className="text-sm text-muted-foreground">
+              Loading linked videos...
+            </p>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {videoResources.map((video) => {
-                const thumbnail = video.thumbnailUrl ||
+                const thumbnail =
+                  video.thumbnailUrl ||
                   (video.youtubeId
                     ? `https://i.ytimg.com/vi/${video.youtubeId}/hqdefault.jpg`
                     : undefined);
                 return (
-                  <Card key={video.id} className="group overflow-hidden border-[1.5px] border-[#211f1c]/25 shadow-none dark:border-white/20">
+                  <Card
+                    key={video.id}
+                    className="group overflow-hidden border-[1.5px] border-[#211f1c]/25 shadow-none dark:border-white/20"
+                  >
                     {thumbnail && (
-                      <a href={video.youtubeUrl} target="_blank" rel="noreferrer" className="relative block aspect-video overflow-hidden bg-black/5">
-                        <img src={thumbnail} alt="" loading="lazy" className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
+                      <a
+                        href={video.youtubeUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="relative block aspect-video overflow-hidden bg-black/5"
+                      >
+                        <img
+                          src={thumbnail}
+                          alt=""
+                          loading="lazy"
+                          className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                        />
                         <span className="absolute inset-0 grid place-items-center bg-black/10 transition-colors group-hover:bg-black/20">
                           <span className="grid size-11 place-items-center rounded-full bg-white/90 text-black shadow-sm">
-                            <Play className="ml-0.5 size-5 fill-current" aria-hidden="true" />
+                            <Play
+                              className="ml-0.5 size-5 fill-current"
+                              aria-hidden="true"
+                            />
                           </span>
                         </span>
                       </a>
                     )}
                     <CardHeader>
                       <div className="flex flex-wrap gap-2">
-                        <Badge variant="outline">{video.role.replaceAll("_", " ")}</Badge>
+                        <Badge variant="outline">
+                          {video.role.replaceAll("_", " ")}
+                        </Badge>
                         {video.lifecycleFocus && (
-                          <Badge variant="outline">{video.lifecycleFocus.replaceAll("_", " ")}</Badge>
+                          <Badge variant="outline">
+                            {video.lifecycleFocus.replaceAll("_", " ")}
+                          </Badge>
                         )}
                       </div>
                       <CardTitle className="mt-2 text-base leading-6">
-                        <a href={video.youtubeUrl} target="_blank" rel="noreferrer" className="hover:underline">
+                        <a
+                          href={video.youtubeUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="hover:underline"
+                        >
                           {video.title}
                         </a>
                       </CardTitle>
-                      {video.channelName && <CardDescription>{video.channelName}</CardDescription>}
+                      {video.channelName && (
+                        <CardDescription>{video.channelName}</CardDescription>
+                      )}
                     </CardHeader>
                     <CardContent>
                       <Button asChild variant="outline" size="sm">
-                        <a href={video.youtubeUrl} target="_blank" rel="noreferrer">
-                          <Play className="size-4" aria-hidden="true" /> Watch video
+                        <a
+                          href={video.youtubeUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <Play className="size-4" aria-hidden="true" /> Watch
+                          video
                         </a>
                       </Button>
                     </CardContent>
