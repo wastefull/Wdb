@@ -1,6 +1,11 @@
 import { Material } from "../../types/material";
+import type { PublicMaterialRelationshipResource } from "../../types/manualMaterialRelationship";
+import { useMemo } from "react";
 import { CopyPermalinkButton } from "./CopyPermalinkButton";
-import { LinkedMaterialsCard } from "./LinkedMaterialsCard";
+import {
+  LinkedMaterialsCard,
+  type LinkedMaterialLink,
+} from "./LinkedMaterialsCard";
 import { MaterialDoodle } from "./MaterialDoodle";
 import { PeriodicTableCard } from "./PeriodicTableCard";
 import { useNavigationContext } from "../../contexts/NavigationContext";
@@ -9,7 +14,7 @@ interface MaterialDetailSidebarProps {
   materialId: string;
   isElementHub: boolean;
   isHub: boolean;
-  linkedMaterials: Material[];
+  linkedRelationships: PublicMaterialRelationshipResource[];
   parentHubs: Material[];
   materialName: string;
   copied: boolean;
@@ -20,30 +25,92 @@ export function MaterialDetailSidebar({
   materialId,
   isElementHub,
   isHub,
-  linkedMaterials,
+  linkedRelationships,
   parentHubs,
   materialName,
   copied,
   onCopyMaterialLink,
 }: MaterialDetailSidebarProps) {
   const { navigateToMaterialDetail } = useNavigationContext();
+  const linkedMaterials = useMemo<LinkedMaterialLink[]>(() => {
+    const relationshipPriority: Record<string, number> = {
+      contains: 0,
+      feedstock_for: 1,
+      derived_from: 2,
+      recycled_by: 3,
+      related_to: 4,
+    };
+
+    const byMaterialName = new Map<string, LinkedMaterialLink>();
+    const getMaterialKey = (link: LinkedMaterialLink) =>
+      link.materialName.trim().toLowerCase();
+
+    const getPriority = (link: LinkedMaterialLink) => {
+      if (link.source === "hub") return 100;
+      return relationshipPriority[link.relationshipType] ?? 50;
+    };
+
+    const consider = (link: LinkedMaterialLink) => {
+      const key = getMaterialKey(link);
+      const current = byMaterialName.get(key);
+      if (
+        !current ||
+        getPriority(link) < getPriority(current) ||
+        (getPriority(link) === getPriority(current) &&
+          current.source === "hub" &&
+          link.source === "relationship")
+      ) {
+        byMaterialName.set(key, link);
+      }
+    };
+
+    for (const relationship of linkedRelationships) {
+      consider({
+        id: relationship.id,
+        materialId: relationship.materialId,
+        materialName: relationship.materialName,
+        relationshipType: relationship.relationshipType,
+        direction: relationship.direction,
+        source: "relationship",
+      });
+    }
+
+    for (const hub of parentHubs) {
+      consider({
+        id: `hub:${hub.id}`,
+        materialId: hub.id,
+        materialName: hub.name,
+        relationshipType: "related_to",
+        direction: "inbound",
+        source: "hub",
+      });
+    }
+
+    return [...byMaterialName.values()].sort(
+      (left, right) =>
+        getPriority(left) - getPriority(right) ||
+        left.materialName.localeCompare(right.materialName),
+    );
+  }, [linkedRelationships, parentHubs]);
 
   return (
     <div className={`sidebar ${isHub ? "hub-sidebar" : "normal"}`}>
       <PeriodicTableCard isElementHub={isElementHub} />
 
-      {/* Parent hub hierarchy */}
-      {parentHubs.length > 0 && (
+      {linkedMaterials.length > 0 && (
         <div className="hub-container">
-          <p>Linked to</p>
+          <p className="mb-2 text-sm uppercase tracking-[0.08em] text-black/50">
+            Linked To
+          </p>
           <div className="parents">
-            {parentHubs.map((hub) => (
-              <div className="parent" key={hub.id}>
+            {/* TODO: replace this naive stacked graph with a denser layout when more linkages are present. */}
+            {linkedMaterials.map((linkedMaterial) => (
+              <div className="parent" key={linkedMaterial.id}>
                 <button
                   type="button"
-                  onClick={() => navigateToMaterialDetail(hub.id)}
+                  onClick={() => navigateToMaterialDetail(linkedMaterial.id)}
                 >
-                  {hub.name}
+                  {linkedMaterial.materialName}
                 </button>
                 {/* Connector line */}
                 <div className="connector">
@@ -59,9 +126,12 @@ export function MaterialDetailSidebar({
       )}
 
       {linkedMaterials.length > 0 && (
-        <LinkedMaterialsCard linkedMaterials={linkedMaterials} />
+        <LinkedMaterialsCard
+          linkedRelationships={linkedMaterials}
+          currentMaterialName={materialName}
+        />
       )}
-      {(isHub || linkedMaterials.length > 0) && <hr />}
+      {linkedMaterials.length > 0 && <hr />}
 
       <CopyPermalinkButton
         copied={copied}

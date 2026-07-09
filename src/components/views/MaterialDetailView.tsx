@@ -195,20 +195,6 @@ export function MaterialDetailView({
     return deduped;
   }, [material.aliases, material.wiki?.aliases]);
 
-  const linkedMaterials = useMemo(() => {
-    const linkedIds = materialRelationships.map(
-      (relationship) => relationship.materialId,
-    );
-    if (linkedIds.length === 0) return [];
-
-    const byId = new Map(
-      allMaterials.map((candidate) => [candidate.id, candidate]),
-    );
-    return linkedIds
-      .map((id) => byId.get(id))
-      .filter((candidate): candidate is Material => !!candidate);
-  }, [allMaterials, materialRelationships]);
-
   const displayArticles = useMemo(
     () => getDisplayArticles(material, allMaterials),
     [allMaterials, material],
@@ -399,7 +385,7 @@ export function MaterialDetailView({
                 materialId={material.id}
                 isElementHub={isElementHub}
                 isHub={isHub}
-                linkedMaterials={linkedMaterials}
+                linkedRelationships={materialRelationships}
                 parentHubs={parentHubs}
                 materialName={material.name}
                 copied={copied}
