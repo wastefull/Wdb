@@ -15875,6 +15875,211 @@ app.get(
 );
 
 app.get(
+  "/make-server-17cae920/graph/materials/:materialId/content",
+  async (c) => {
+    try {
+      const materialId = c.req.param("materialId");
+      if (!/^[a-zA-Z0-9_-]{1,200}$/.test(materialId)) {
+        return c.json({ success: false, error: "Invalid material ID." }, 400);
+      }
+
+      const client = _roleClient();
+      let materialQuery = client
+        .from("materials")
+        .select("id")
+        .eq("status", "published");
+      materialQuery = MATERIAL_VIDEO_RESOURCE_UUID.test(materialId)
+        ? materialQuery.eq("id", materialId)
+        : materialQuery.eq("legacy_kv_id", materialId);
+
+      let { data: material, error: materialError } =
+        await materialQuery.maybeSingle();
+      if (
+        !material &&
+        !materialError &&
+        !MATERIAL_VIDEO_RESOURCE_UUID.test(materialId)
+      ) {
+        const slugResult = await client
+          .from("materials")
+          .select("id")
+          .eq("status", "published")
+          .eq("slug", materialId)
+          .maybeSingle();
+        material = slugResult.data;
+        materialError = slugResult.error;
+      }
+      if (materialError) throw materialError;
+      if (!material) return c.json({ success: true, content_resources: [] });
+
+      const { data: materialBinding, error: materialBindingError } =
+        await client
+          .from("entity_canonical_bindings")
+          .select("entity_id")
+          .eq("material_id", material.id)
+          .maybeSingle();
+      if (materialBindingError) throw materialBindingError;
+      if (!materialBinding) return c.json({ success: true, content_resources: [] });
+
+      const { data: mappings, error: mappingsError } = await client
+        .from("content_entities")
+        .select("id,content_entity_id,role,lifecycle_focus,status")
+        .eq("subject_entity_id", materialBinding.entity_id)
+        .eq("status", "active")
+        .not("reviewed_by", "is", null)
+        .not("reviewed_at", "is", null);
+      if (mappingsError) throw mappingsError;
+
+      const contentEntityIds = Array.from(
+        new Set((mappings ?? []).map((mapping) => mapping.content_entity_id)),
+      );
+      if (contentEntityIds.length === 0) {
+        return c.json({ success: true, content_resources: [] });
+      }
+
+      const { data: entities, error: entitiesError } = await client
+        .from("entities")
+        .select("id,name,entity_type")
+        .in("id", contentEntityIds);
+      if (entitiesError) throw entitiesError;
+      const entityById = new Map(
+        (entities ?? []).map((entity) => [entity.id, entity]),
+      );
+
+      const { data: bindings, error: bindingsError } = await client
+        .from("entity_canonical_bindings")
+        .select("entity_id,article_id,guide_id,blog_post_id")
+        .in("entity_id", contentEntityIds);
+      if (bindingsError) throw bindingsError;
+      const bindingByEntityId = new Map(
+        (bindings ?? []).map((binding) => [binding.entity_id, binding]),
+      );
+
+      const articleIds = Array.from(
+        new Set(
+          (bindings ?? []).flatMap((binding) =>
+            binding.article_id ? [binding.article_id] : [],
+          ),
+        ),
+      );
+      const guideIds = Array.from(
+        new Set(
+          (bindings ?? []).flatMap((binding) =>
+            binding.guide_id ? [binding.guide_id] : [],
+          ),
+        ),
+      );
+      const blogPostIds = Array.from(
+        new Set(
+          (bindings ?? []).flatMap((binding) =>
+            binding.blog_post_id ? [binding.blog_post_id] : [],
+          ),
+        ),
+      );
+
+      const [articlesResult, guidesResult, blogPostsResult] =
+        await Promise.all([
+          articleIds.length
+            ? client
+                .from("articles")
+                .select("id,sustainability_category,status")
+                .in("id", articleIds)
+            : Promise.resolve({ data: [], error: null }),
+          guideIds.length
+            ? client
+                .from("guides")
+                .select("id,status")
+                .in("id", guideIds)
+            : Promise.resolve({ data: [], error: null }),
+          blogPostIds.length
+            ? client
+                .from("blog_posts")
+                .select("id,status")
+                .in("id", blogPostIds)
+            : Promise.resolve({ data: [], error: null }),
+        ]);
+      if (articlesResult.error) throw articlesResult.error;
+      if (guidesResult.error) throw guidesResult.error;
+      if (blogPostsResult.error) throw blogPostsResult.error;
+
+      const articleById = new Map(
+        (articlesResult.data ?? []).map((article) => [article.id, article]),
+      );
+      const guideById = new Map(
+        (guidesResult.data ?? []).map((guide) => [guide.id, guide]),
+      );
+      const blogPostById = new Map(
+        (blogPostsResult.data ?? []).map((blogPost) => [blogPost.id, blogPost]),
+      );
+
+      const contentResources = (mappings ?? []).flatMap((mapping) => {
+        const entity = entityById.get(mapping.content_entity_id);
+        const binding = bindingByEntityId.get(mapping.content_entity_id);
+        if (!entity || !binding) return [];
+
+        if (entity.entity_type === "article" && binding.article_id) {
+          const article = articleById.get(binding.article_id);
+          if (!article || article.status !== "published") return [];
+          return [
+            {
+              id: mapping.id,
+              title: entity.name,
+              contentType: "article" as const,
+              role: mapping.role,
+              lifecycleFocus: mapping.lifecycle_focus ?? null,
+              articleId: article.id,
+              articleCategory: article.sustainability_category as
+                | "compostability"
+                | "recyclability"
+                | "reusability",
+            },
+          ];
+        }
+
+        if (entity.entity_type === "guide" && binding.guide_id) {
+          const guide = guideById.get(binding.guide_id);
+          if (!guide || guide.status !== "published") return [];
+          return [
+            {
+              id: mapping.id,
+              title: entity.name,
+              contentType: "guide" as const,
+              role: mapping.role,
+              lifecycleFocus: mapping.lifecycle_focus ?? null,
+              guideId: guide.id,
+            },
+          ];
+        }
+
+        if (entity.entity_type === "blog_post" && binding.blog_post_id) {
+          const blogPost = blogPostById.get(binding.blog_post_id);
+          if (!blogPost || blogPost.status !== "published") return [];
+          return [
+            {
+              id: mapping.id,
+              title: entity.name,
+              contentType: "blog_post" as const,
+              role: mapping.role,
+              lifecycleFocus: mapping.lifecycle_focus ?? null,
+              blogPostId: blogPost.id,
+            },
+          ];
+        }
+
+        return [];
+      });
+
+      return c.json({ success: true, content_resources: contentResources });
+    } catch (error) {
+      log.error("Material content resources failed:", error);
+      return c.json(
+        { success: false, error: "Content resources could not be loaded." },
+        500,
+      );
+    }
+  },
+);
+
+app.get(
   "/make-server-17cae920/graph/materials/:materialId/relationships",
   async (c) => {
     try {
@@ -16014,7 +16219,10 @@ app.get(
                 row.source_entity_id === materialBinding.entity_id
                   ? "outbound"
                   : "inbound",
-              materialId: relatedMaterial.id,
+              // Frontend navigation resolves materials by legacy KV id.
+              // Keep relationship clicks on the same ID scheme used by the
+              // material cache instead of exposing the database UUID here.
+              materialId: relatedMaterial.legacy_kv_id ?? relatedMaterial.id,
               materialName: relatedMaterial.name,
               materialSlug: relatedMaterial.slug,
               materialLegacyKvId: relatedMaterial.legacy_kv_id,

@@ -108,7 +108,9 @@ export function MaterialDetailSidebar({
               <div className="parent" key={linkedMaterial.id}>
                 <button
                   type="button"
-                  onClick={() => navigateToMaterialDetail(linkedMaterial.id)}
+                  onClick={() =>
+                    navigateToMaterialDetail(linkedMaterial.materialId)
+                  }
                 >
                   {linkedMaterial.materialName}
                 </button>

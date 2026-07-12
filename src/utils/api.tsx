@@ -47,6 +47,7 @@ import type {
   ReviewMaterialRelationshipResponse,
 } from "../types/manualMaterialRelationship";
 import type { MaterialVideoResource } from "../types/materialExperience";
+import type { MaterialContentResource } from "../types/materialExperience";
 
 // Export projectId and publicAnonKey for use in other modules
 export { projectId, publicAnonKey };
@@ -1671,6 +1672,27 @@ export async function getMaterialVideoResources(
     `/graph/materials/${encodeURIComponent(materialId)}/videos`,
   );
   return response.videos;
+}
+
+/** Public — lists active reviewed educational content linked to one material. */
+export async function getMaterialContentResources(
+  materialId: string,
+): Promise<MaterialContentResource[]> {
+  try {
+    const response = await apiCall(
+      `/graph/materials/${encodeURIComponent(materialId)}/content`,
+    );
+    return response.content_resources;
+  } catch (error) {
+    // This route is additive Stage 7 presentation data. If the edge deployment
+    // has not picked it up yet, keep the material page usable and show the
+    // existing learning content instead of surfacing a hard failure.
+    apiLogger.warn("Material content resources unavailable:", {
+      materialId,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return [];
+  }
 }
 
 /** Public - lists active reviewed material relationships for one material. */

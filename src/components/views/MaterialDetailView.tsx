@@ -40,7 +40,10 @@ import { getArticleCount } from "../../utils/materialArticles";
 import { useNavigationContext } from "../../contexts/NavigationContext";
 import { MATERIAL_EXPERIENCE_SECTIONS } from "../../config/materialExperience";
 import { isDevelopment } from "../../utils/environment";
-import type { MaterialVideoResource } from "../../types/materialExperience";
+import type {
+  MaterialContentResource,
+  MaterialVideoResource,
+} from "../../types/materialExperience";
 import type { PublicMaterialRelationshipResource } from "../../types/manualMaterialRelationship";
 
 interface MaterialDetailViewProps {
@@ -54,6 +57,7 @@ interface MaterialDetailViewProps {
     category: CategoryType,
     materialId?: string,
   ) => void;
+  onViewGuide?: (guideId: string) => void;
   isAdminModeActive?: boolean;
   isAuthenticated?: boolean;
   currentUserId?: string;
@@ -78,11 +82,13 @@ export function MaterialDetailView({
   onEditMaterial,
   onSuggestEdit,
   onViewArticles,
+  onViewGuide,
   onViewMaterial,
 }: MaterialDetailViewProps) {
   const {
     navigateToEvidenceLab,
     navigateToExport,
+    navigateToBlog,
     navigateToScienceHub,
     navigateToScientificEditor,
     navigateToSourceLibrary,
@@ -125,6 +131,9 @@ export function MaterialDetailView({
   const [materialRelationships, setMaterialRelationships] = useState<
     PublicMaterialRelationshipResource[]
   >([]);
+  const [contentResources, setContentResources] = useState<
+    MaterialContentResource[]
+  >([]);
   const [areVideoResourcesLoading, setAreVideoResourcesLoading] =
     useState(true);
 
@@ -156,6 +165,21 @@ export function MaterialDetailView({
       })
       .catch(() => {
         if (active) setMaterialRelationships([]);
+      });
+    return () => {
+      active = false;
+    };
+  }, [material.id]);
+
+  useEffect(() => {
+    let active = true;
+    void api
+      .getMaterialContentResources(material.id)
+      .then((content) => {
+        if (active) setContentResources(content);
+      })
+      .catch(() => {
+        if (active) setContentResources([]);
       });
     return () => {
       active = false;
@@ -442,6 +466,8 @@ export function MaterialDetailView({
             (isAuthenticated && onSuggestEdit),
           )}
           isAdminModeActive={isAdminModeActive}
+          onViewGuide={onViewGuide}
+          onViewBlog={navigateToBlog}
           learningLibrary={
             <section
               aria-labelledby="learning-library-heading"
@@ -479,6 +505,8 @@ export function MaterialDetailView({
               />
             </section>
           }
+          contentResources={contentResources}
+          materialId={material.id}
         />
       </div>
 

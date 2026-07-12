@@ -825,12 +825,33 @@ function AppContent() {
     userRole,
   ]);
 
+  const resolveMaterialForView = (materialId: string): Material | undefined => {
+    const directMatch = materials.find((material) => material.id === materialId);
+    if (directMatch) return directMatch;
+
+    const normalizedMaterialId = materialId.trim().toLowerCase();
+
+    return materials.find((material) => {
+      const identifiers = [
+        material.id,
+        (material as any).legacy_kv_id,
+        (material as any).slug,
+        ...(material.aliases ?? []),
+        ...(material.wiki?.aliases ?? []),
+      ].filter((candidate): candidate is string => typeof candidate === "string");
+
+      return identifiers.some(
+        (candidate) => candidate.trim().toLowerCase() === normalizedMaterialId,
+      );
+    });
+  };
+
   const currentMaterial =
     currentView.type === "articles" ||
     currentView.type === "material-detail" ||
     currentView.type === "article-standalone" ||
     currentView.type === "scientific-editor"
-      ? materials.find((m) => m.id === currentView.materialId)
+      ? resolveMaterialForView(currentView.materialId)
       : null;
 
   const currentArticle =
@@ -918,7 +939,7 @@ function AppContent() {
       />
     ),
     articles: (view) => {
-      const material = materials.find((m) => m.id === view.materialId);
+      const material = resolveMaterialForView(view.materialId);
       if (!material) return null;
       return (
         <ArticlesView
@@ -948,7 +969,7 @@ function AppContent() {
       />
     ),
     "material-detail": (view) => {
-      const material = materials.find((m) => m.id === view.materialId);
+      const material = resolveMaterialForView(view.materialId);
       if (!material) return null;
       return (
         <MaterialDetailView
@@ -970,6 +991,7 @@ function AppContent() {
           userRole={userRole}
           onEditMaterial={setMaterialToEdit}
           onSuggestEdit={setMaterialToEdit}
+          onViewGuide={(guideId) => navigateTo({ type: "guide-detail", guideId })}
           onViewArticles={(category) =>
             handleViewArticles(material.id, category)
           }
@@ -978,7 +1000,7 @@ function AppContent() {
       );
     },
     "article-standalone": (view) => {
-      const material = materials.find((m) => m.id === view.materialId);
+      const material = resolveMaterialForView(view.materialId);
       if (!material) return null;
       const article = getArticlesByCategory(material, view.category).find(
         (a) => a.id === view.articleId,
@@ -1185,7 +1207,7 @@ function AppContent() {
       <WhitepaperSyncTool onBack={navigateToAdminHome} />
     ),
     "scientific-editor": (view) => {
-      const material = materials.find((m) => m.id === view.materialId);
+      const material = resolveMaterialForView(view.materialId);
       if (!material) return null;
       return (
         <ScientificDataEditor

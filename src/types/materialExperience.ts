@@ -63,6 +63,18 @@ export interface MaterialVideoResource {
   lifecycleFocus?: string;
 }
 
+export interface MaterialContentResource {
+  id: string;
+  title: string;
+  contentType: "article" | "guide" | "blog_post";
+  role: string;
+  lifecycleFocus?: string | null;
+  articleId?: string;
+  articleCategory?: CategoryType;
+  guideId?: string;
+  blogPostId?: string;
+}
+
 export interface MaterialIntelligenceDimension {
   id: CategoryType;
   label: string;

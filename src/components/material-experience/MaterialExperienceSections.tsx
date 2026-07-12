@@ -19,6 +19,7 @@ import type { CategoryType } from "../../types/article";
 import type { Material } from "../../types/material";
 import type {
   MaterialExperienceModel,
+  MaterialContentResource,
   MaterialGraphSection,
   MaterialInsightStatus,
   MaterialVideoResource,
@@ -66,6 +67,7 @@ function formatConfidenceInterval(interval?: {
 }
 
 interface MaterialExperienceSectionsProps {
+  materialId: string;
   material: Material;
   model: MaterialExperienceModel;
   articleCounts: Record<CategoryType, number>;
@@ -75,6 +77,8 @@ interface MaterialExperienceSectionsProps {
     category: CategoryType,
     materialId?: string,
   ) => void;
+  onViewGuide?: (guideId: string) => void;
+  onViewBlog?: () => void;
   onViewMaterial?: (materialId: string) => void;
   onOpenScienceHub: () => void;
   onOpenExport: () => void;
@@ -85,6 +89,7 @@ interface MaterialExperienceSectionsProps {
   canSuggestEdit: boolean;
   isAdminModeActive?: boolean;
   learningLibrary: ReactNode;
+  contentResources: MaterialContentResource[];
   videoResources: MaterialVideoResource[];
   areVideoResourcesLoading: boolean;
 }
@@ -314,21 +319,113 @@ function KeyInsightsSection({
 }
 
 function RecommendedLearningSection({
+  materialId,
   model,
   onReadArticle,
+  onViewGuide,
+  onViewBlog,
   onViewMaterial,
+  contentResources,
   videoResources,
   areVideoResourcesLoading,
-}: Pick<
-  MaterialExperienceSectionsProps,
-  | "model"
-  | "onReadArticle"
-  | "onViewMaterial"
-  | "videoResources"
-  | "areVideoResourcesLoading"
->) {
+}: {
+  materialId: string;
+  model: MaterialExperienceModel;
+  onReadArticle: MaterialExperienceSectionsProps["onReadArticle"];
+  onViewGuide?: MaterialExperienceSectionsProps["onViewGuide"];
+  onViewBlog?: MaterialExperienceSectionsProps["onViewBlog"];
+  onViewMaterial?: MaterialExperienceSectionsProps["onViewMaterial"];
+  contentResources: MaterialContentResource[];
+  videoResources: MaterialVideoResource[];
+  areVideoResourcesLoading: boolean;
+}) {
   return (
     <>
+      {contentResources.length > 0 && (
+        <div className="mb-8 space-y-4">
+          <div>
+            <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">
+              Review
+            </p>
+            <h3 className="mt-2 text-xl">Reviewed content links</h3>
+            <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+              These are the active reviewed educational content mappings for
+              this material. They reflect deliberate curation decisions and
+              stay separate from the graph discovery cutover.
+            </p>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {contentResources.map((resource) => {
+              const icon =
+                resource.contentType === "article" ? (
+                  <BookOpen className="size-4" aria-hidden="true" />
+                ) : resource.contentType === "guide" ? (
+                  <FilePlus2 className="size-4" aria-hidden="true" />
+                ) : (
+                  <ExternalLink className="size-4" aria-hidden="true" />
+                );
+              const action =
+                resource.contentType === "article" &&
+                resource.articleId &&
+                resource.articleCategory
+                  ? () =>
+                      onReadArticle(
+                        resource.articleId,
+                        resource.articleCategory,
+                        materialId,
+                      )
+                  : resource.contentType === "guide" && resource.guideId
+                    ? () => onViewGuide?.(resource.guideId!)
+                    : resource.contentType === "blog_post"
+                      ? () => onViewBlog?.()
+                      : undefined;
+
+              return (
+                <Card
+                  key={resource.id}
+                  className="border-[1.5px] border-[#211f1c]/25 shadow-none dark:border-white/20"
+                >
+                  <CardHeader>
+                    <div className="flex items-start gap-3">
+                      <div className="mt-1 flex size-9 items-center justify-center rounded-full border bg-muted/50">
+                        {icon}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap gap-2">
+                          <Badge variant="outline">
+                            {resource.contentType.replaceAll("_", " ")}
+                          </Badge>
+                          <Badge variant="outline">{resource.role}</Badge>
+                        </div>
+                        <CardTitle className="mt-2 text-base leading-6">
+                          {resource.title}
+                        </CardTitle>
+                        {resource.lifecycleFocus && (
+                          <CardDescription className="mt-1">
+                            {resource.lifecycleFocus.replaceAll("_", " ")}
+                          </CardDescription>
+                        )}
+                      </div>
+                    </div>
+                  </CardHeader>
+                  {action && (
+                    <CardContent>
+                      <Button type="button" variant="outline" size="sm" onClick={action}>
+                        <ExternalLink className="size-4" aria-hidden="true" />
+                        {resource.contentType === "article"
+                          ? "Read article"
+                          : resource.contentType === "guide"
+                            ? "Open guide"
+                            : "Browse blog"}
+                      </Button>
+                    </CardContent>
+                  )}
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      )}
       {(areVideoResourcesLoading || videoResources.length > 0) && (
         <div className="mb-8 space-y-4">
           <div>
@@ -896,11 +993,14 @@ function ContributionSection({
 }
 
 export function MaterialExperienceSections({
+  materialId,
   material,
   model,
   articleCounts,
   onViewArticles,
   onReadArticle,
+  onViewGuide,
+  onViewBlog,
   onViewMaterial,
   onOpenScienceHub,
   onOpenExport,
@@ -911,16 +1011,20 @@ export function MaterialExperienceSections({
   canSuggestEdit,
   isAdminModeActive,
   learningLibrary,
+  contentResources,
   videoResources,
   areVideoResourcesLoading,
 }: MaterialExperienceSectionsProps) {
   const showDisabledSections = isDevelopment();
   const sectionProps = {
+    materialId,
     material,
     model,
     articleCounts,
     onViewArticles,
     onReadArticle,
+    onViewGuide,
+    onViewBlog,
     onViewMaterial,
     onOpenScienceHub,
     onOpenExport,
@@ -931,6 +1035,7 @@ export function MaterialExperienceSections({
     canSuggestEdit,
     isAdminModeActive,
     learningLibrary,
+    contentResources,
     videoResources,
     areVideoResourcesLoading,
   };
@@ -996,9 +1101,13 @@ function GenericSection({
             return (
               <>
                 <RecommendedLearningSection
+                  materialId={msep.materialId}
                   model={msep.model}
                   onReadArticle={msep.onReadArticle}
+                  onViewGuide={msep.onViewGuide}
+                  onViewBlog={msep.onViewBlog}
                   onViewMaterial={msep.onViewMaterial}
+                  contentResources={msep.contentResources}
                   videoResources={msep.videoResources}
                   areVideoResourcesLoading={msep.areVideoResourcesLoading}
                 />
