@@ -62,8 +62,18 @@ function formatConfidenceInterval(interval?: {
   return interval
     ? `${(interval.lower * 100).toFixed(1)}%–${(interval.upper * 100).toFixed(
         1,
-      )}%`
+    )}%`
     : "Not recorded";
+}
+
+function formatUnderscoredLabel(value: string): string {
+  return value.replace(/_/g, " ");
+}
+
+function formatResourceContext(role: string, contentType: string): string {
+  return `${formatUnderscoredLabel(role)} of ${formatUnderscoredLabel(
+    contentType,
+  )}`;
 }
 
 interface MaterialExperienceSectionsProps {
@@ -342,93 +352,128 @@ function RecommendedLearningSection({
   videoResources: MaterialVideoResource[];
   areVideoResourcesLoading: boolean;
 }) {
+  const articleResources = contentResources.filter(
+    (resource) => resource.contentType === "article",
+  );
+  const supplementaryResources = contentResources.filter(
+    (resource) => resource.contentType !== "article",
+  );
+  const hasContentResources =
+    articleResources.length > 0 || supplementaryResources.length > 0;
+  const hasVideoResources = areVideoResourcesLoading || videoResources.length > 0;
+
+  const renderContentResourceGrid = (
+    resources: MaterialContentResource[],
+  ) => (
+    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      {resources.map((resource) => {
+        const lifecycleFocusLabel = resource.lifecycleFocus
+          ? formatUnderscoredLabel(resource.lifecycleFocus)
+          : undefined;
+        const articleId = resource.articleId;
+        const articleCategory = resource.articleCategory;
+        const icon =
+          resource.contentType === "article" ? (
+            <BookOpen className="size-4" aria-hidden="true" />
+          ) : resource.contentType === "guide" ? (
+            <FilePlus2 className="size-4" aria-hidden="true" />
+          ) : (
+            <ExternalLink className="size-4" aria-hidden="true" />
+          );
+        const action =
+          resource.contentType === "article" && articleId && articleCategory
+            ? () => onReadArticle(articleId, articleCategory, materialId)
+            : resource.contentType === "guide" && resource.guideId
+              ? () => onViewGuide?.(resource.guideId!)
+              : resource.contentType === "blog_post"
+                ? () => onViewBlog?.(resource.blogPostId)
+                : undefined;
+
+        return (
+          <Card
+            key={resource.id}
+            className="border-[1.5px] border-[#211f1c]/25 shadow-none dark:border-white/20"
+          >
+            <CardHeader>
+              <div className="flex items-start gap-3">
+                <div className="mt-1 flex size-9 items-center justify-center rounded-full border bg-muted/50">
+                  {icon}
+                </div>
+                <div className="min-w-0">
+                  <CardTitle className="mt-2 text-base leading-6">
+                    {resource.title}
+                  </CardTitle>
+                  {lifecycleFocusLabel && (
+                    <CardDescription className="mt-1">
+                      {lifecycleFocusLabel}
+                    </CardDescription>
+                  )}
+                </div>
+              </div>
+            </CardHeader>
+            {action && (
+              <CardContent>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={action}
+                >
+                  <ExternalLink className="size-4" aria-hidden="true" />
+                  {resource.contentType === "article"
+                    ? "Read article"
+                    : resource.contentType === "guide"
+                      ? "Open guide"
+                      : "Browse blog"}
+                </Button>
+                <p className="mt-3 text-xs text-muted-foreground">
+                  {formatResourceContext(resource.role, resource.contentType)}
+                </p>
+              </CardContent>
+            )}
+          </Card>
+        );
+      })}
+    </div>
+  );
+
   return (
     <>
-      {contentResources.length > 0 && (
+      {hasContentResources && (
         <div className="mb-8 space-y-4">
-          <div>
-            <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">
-              Editor-Curated Links
-            </p>
-          </div>
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {contentResources.map((resource) => {
-              const contentTypeLabel = resource.contentType.replace(/_/g, " ");
-              const lifecycleFocusLabel = resource.lifecycleFocus?.replace(
-                /_/g,
-                " ",
-              );
-              const articleId = resource.articleId;
-              const articleCategory = resource.articleCategory;
-              const icon =
-                resource.contentType === "article" ? (
-                  <BookOpen className="size-4" aria-hidden="true" />
-                ) : resource.contentType === "guide" ? (
-                  <FilePlus2 className="size-4" aria-hidden="true" />
-                ) : (
-                  <ExternalLink className="size-4" aria-hidden="true" />
-                );
-              const action =
-                resource.contentType === "article" &&
-                articleId &&
-                articleCategory
-                  ? () => onReadArticle(articleId, articleCategory, materialId)
-                  : resource.contentType === "guide" && resource.guideId
-                    ? () => onViewGuide?.(resource.guideId!)
-                    : resource.contentType === "blog_post"
-                      ? () => onViewBlog?.(resource.blogPostId)
-                      : undefined;
-
-              return (
-                <Card
-                  key={resource.id}
-                  className="border-[1.5px] border-[#211f1c]/25 shadow-none dark:border-white/20"
-                >
-                  <CardHeader>
-                    <div className="flex items-start gap-3">
-                      <div className="mt-1 flex size-9 items-center justify-center rounded-full border bg-muted/50">
-                        {icon}
-                      </div>
-                      <div className="min-w-0">
-                        <div className="flex flex-wrap gap-2">
-                          <Badge variant="outline">{contentTypeLabel}</Badge>
-                          <Badge variant="outline">{resource.role}</Badge>
-                        </div>
-                        <CardTitle className="mt-2 text-base leading-6">
-                          {resource.title}
-                        </CardTitle>
-                        {lifecycleFocusLabel && (
-                          <CardDescription className="mt-1">
-                            {lifecycleFocusLabel}
-                          </CardDescription>
-                        )}
-                      </div>
-                    </div>
-                  </CardHeader>
-                  {action && (
-                    <CardContent>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={action}
-                      >
-                        <ExternalLink className="size-4" aria-hidden="true" />
-                        {resource.contentType === "article"
-                          ? "Read article"
-                          : resource.contentType === "guide"
-                            ? "Open guide"
-                            : "Browse blog"}
-                      </Button>
-                    </CardContent>
-                  )}
-                </Card>
-              );
-            })}
-          </div>
+          {articleResources.length > 0 && (
+            <div className="space-y-4">
+              <div>
+                <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">
+                  Linked Articles
+                </p>
+                <h3 className="mt-2 text-xl">Linked articles</h3>
+                <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+                  These are the reviewed article links tied to this material.
+                  They are kept separate from videos and other learning links so
+                  they are easier to scan.
+                </p>
+              </div>
+              {renderContentResourceGrid(articleResources)}
+            </div>
+          )}
+          {supplementaryResources.length > 0 && (
+            <div className="space-y-4">
+              <div>
+                <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">
+                  Related Learning
+                </p>
+                <h3 className="mt-2 text-xl">Related learning links</h3>
+                <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+                  Guides and blog posts that complement the material.
+                </p>
+              </div>
+              {renderContentResourceGrid(supplementaryResources)}
+            </div>
+          )}
         </div>
       )}
-      {(areVideoResourcesLoading || videoResources.length > 0) && (
+      {hasVideoResources && (
         <div className="mb-8 space-y-4">
           <div>
             <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">
@@ -477,16 +522,6 @@ function RecommendedLearningSection({
                       </a>
                     )}
                     <CardHeader>
-                      <div className="flex flex-wrap gap-2">
-                        <Badge variant="outline">
-                          {video.role.replace(/_/g, " ")}
-                        </Badge>
-                        {video.lifecycleFocus && (
-                          <Badge variant="outline">
-                            {video.lifecycleFocus.replace(/_/g, " ")}
-                          </Badge>
-                        )}
-                      </div>
                       <CardTitle className="mt-2 text-base leading-6">
                         <a
                           href={video.youtubeUrl}
@@ -500,6 +535,11 @@ function RecommendedLearningSection({
                       {video.channelName && (
                         <CardDescription>{video.channelName}</CardDescription>
                       )}
+                      {video.lifecycleFocus && (
+                        <CardDescription>
+                          {formatUnderscoredLabel(video.lifecycleFocus)}
+                        </CardDescription>
+                      )}
                     </CardHeader>
                     <CardContent>
                       <Button asChild variant="outline" size="sm">
@@ -512,6 +552,9 @@ function RecommendedLearningSection({
                           video
                         </a>
                       </Button>
+                      <p className="mt-3 text-xs text-muted-foreground">
+                        {formatResourceContext(video.role, "video")}
+                      </p>
                     </CardContent>
                   </Card>
                 );
@@ -520,74 +563,12 @@ function RecommendedLearningSection({
           )}
         </div>
       )}
-      {model.recommendedLearning.length > 0 ? (
-        <div className="grid gap-4 md:grid-cols-3">
-          {model.recommendedLearning.map(
-            ({ article, category, linkedMaterialId, linkedMaterialName }) => (
-              <Card
-                key={`${category}-${article.id}-${linkedMaterialId ?? "direct"}`}
-                className="h-full border-[1.5px] border-[#211f1c]/25 shadow-none dark:border-white/20"
-              >
-                <CardHeader>
-                  <div className="flex flex-wrap gap-2">
-                    <Badge
-                      variant="outline"
-                      style={{ backgroundColor: CATEGORY_COLORS[category] }}
-                      className="text-black"
-                    >
-                      {CATEGORY_LABELS[category]}
-                    </Badge>
-                    <Badge variant="outline">{article.article_type}</Badge>
-                  </div>
-                  <CardTitle className="mt-3 text-base leading-6">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        onReadArticle(article.id, category, linkedMaterialId)
-                      }
-                      className="text-left hover:underline focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    >
-                      {article.title}
-                    </button>
-                  </CardTitle>
-                  {linkedMaterialName && linkedMaterialId && onViewMaterial && (
-                    <CardDescription>
-                      From{" "}
-                      <button
-                        type="button"
-                        onClick={() => onViewMaterial(linkedMaterialId)}
-                        className="underline hover:text-foreground"
-                      >
-                        {linkedMaterialName}
-                      </button>
-                    </CardDescription>
-                  )}
-                </CardHeader>
-                <CardContent className="mt-auto">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                      onReadArticle(article.id, category, linkedMaterialId)
-                    }
-                  >
-                    <BookOpen className="size-4" aria-hidden="true" />
-                    Start reading
-                  </Button>
-                </CardContent>
-              </Card>
-            ),
-          )}
-        </div>
-      ) : (
+      {!hasContentResources && !hasVideoResources ? (
         <Card className="border-dashed shadow-none">
           <CardContent className="flex items-start gap-3 pt-6">
             <Library className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
             <div>
-              <p className="font-medium">
-                No learning content is published yet.
-              </p>
+              <p className="font-medium">No learning content is published yet.</p>
               <p className="mt-1 text-sm text-muted-foreground">
                 Contribution options below remain available for the current
                 material.
@@ -595,7 +576,7 @@ function RecommendedLearningSection({
             </div>
           </CardContent>
         </Card>
-      )}
+      ) : null}
     </>
   );
 }
