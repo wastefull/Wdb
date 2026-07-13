@@ -7,8 +7,7 @@ import {
   ShieldCheck,
   Tags,
 } from "lucide-react";
-import { useMemo, useState } from "react";
-import { ROADMAP_STAGES } from "../../config/roadmap";
+import { useState } from "react";
 import { ContentMappingReviewPanel } from "./ContentMappingReviewPanel";
 import { ContentMappingPreviewPanel } from "./ContentMappingPreviewPanel";
 import { ManualContentMappingPanel } from "./ManualContentMappingPanel";
@@ -63,36 +62,9 @@ const SECTIONS = [
 type ContentManagementSectionId = (typeof SECTIONS)[number]["id"] | "advanced";
 
 export function ContentManagementPage({ onBack }: ContentManagementPageProps) {
-  const stage7 = ROADMAP_STAGES.find((stage) => stage.number === 7);
   const [activeSection, setActiveSection] = useState<ContentManagementSectionId>(
     "video-link-management",
   );
-  const activeSectionLabel =
-    SECTIONS.find((section) => section.id === activeSection)?.label ??
-    "Legacy content-mapping migration tools";
-
-  const activeSectionDescription = useMemo(() => {
-    switch (activeSection) {
-      case "video-link-management":
-        return "Manage reviewed video links and create new video-to-material relationships.";
-      case "manual-content-mapping":
-        return "Create governed content mappings for articles, guides, blog posts, and other content.";
-      case "content-mapping-review":
-        return "Approve or reject pending content mappings and manage review state.";
-      case "material-relationship-management":
-        return "Create, review, and maintain governed material-to-material relationships.";
-      case "video-topic-classification":
-        return "Promote reviewed video topic tags into governed vocabulary.";
-      case "video-playlist-preview":
-        return "Preview a playlist, inspect candidates, and export a review-safe worksheet.";
-      case "video-triage-review":
-        return "Review staged private video candidates and record dispositions.";
-      case "advanced":
-        return "Run the legacy preview, quarantine, and checksum-bound apply tools.";
-      default:
-        return "";
-    }
-  }, [activeSection]);
 
   return (
     <div className="flex h-full">
@@ -153,30 +125,6 @@ export function ContentManagementPage({ onBack }: ContentManagementPageProps) {
 
       <main className="flex-1 overflow-y-auto p-8">
         <div className="mx-auto max-w-4xl space-y-6">
-          {stage7 && (
-            <section className="rounded-xl border border-waste-science/25 bg-waste-science/5 p-5 shadow-sm">
-              <div className="flex flex-wrap items-start justify-between gap-4">
-                <div>
-                  <p className="font-sniglet text-[13px]">
-                    Active roadmap stage
-                  </p>
-                  <h3 className="mt-1 font-display text-[22px] normal">
-                    Stage 7: {stage7.title}
-                  </h3>
-                  <p className="mt-2 max-w-2xl text-[13px] leading-relaxed text-black/70 dark:text-white/70">
-                    {stage7.summary}
-                  </p>
-                </div>
-                <div className="flex flex-col gap-2 text-[12px] text-black/60 dark:text-white/60">
-                  <span>Reviewed material-to-material relationships</span>
-                  <span>Reviewed content-to-material mappings</span>
-                  <span>Dedicated video link management</span>
-                  <span>Focused transactional audit coverage</span>
-                </div>
-              </div>
-            </section>
-          )}
-
           <div className="space-y-6">
             {activeSection === "video-link-management" && <VideoMaterialLinkPanel />}
             {activeSection === "manual-content-mapping" && <ManualContentMappingPanel />}
