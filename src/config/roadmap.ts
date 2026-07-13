@@ -456,7 +456,7 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
     number: 8,
     slug: "stage-8",
     title: "Evidence-Based Sustainability Scoring",
-    status: "in_progress",
+    status: "active",
     summary:
       "Define authoritative scoring methodology and convert reviewed source observations into published sustainability dimensions with strict provenance and approval boundaries.",
     deliverables: [

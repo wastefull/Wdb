@@ -32,7 +32,7 @@ const STATUS_LABELS: Record<MaterialRelationshipReviewStatus, string> = {
 };
 
 function formatLabel(value: string): string {
-  return value.replaceAll("_", " ");
+  return value.replace(/_/g, " ");
 }
 
 type RelationshipGuidance = {

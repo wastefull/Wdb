@@ -357,6 +357,13 @@ function RecommendedLearningSection({
           </div>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {contentResources.map((resource) => {
+              const contentTypeLabel = resource.contentType.replace(/_/g, " ");
+              const lifecycleFocusLabel = resource.lifecycleFocus?.replace(
+                /_/g,
+                " ",
+              );
+              const articleId = resource.articleId;
+              const articleCategory = resource.articleCategory;
               const icon =
                 resource.contentType === "article" ? (
                   <BookOpen className="size-4" aria-hidden="true" />
@@ -366,15 +373,8 @@ function RecommendedLearningSection({
                   <ExternalLink className="size-4" aria-hidden="true" />
                 );
               const action =
-                resource.contentType === "article" &&
-                resource.articleId &&
-                resource.articleCategory
-                  ? () =>
-                      onReadArticle(
-                        resource.articleId,
-                        resource.articleCategory,
-                        materialId,
-                      )
+                resource.contentType === "article" && articleId && articleCategory
+                  ? () => onReadArticle(articleId, articleCategory, materialId)
                   : resource.contentType === "guide" && resource.guideId
                     ? () => onViewGuide?.(resource.guideId!)
                     : resource.contentType === "blog_post"
@@ -394,16 +394,16 @@ function RecommendedLearningSection({
                       <div className="min-w-0">
                         <div className="flex flex-wrap gap-2">
                           <Badge variant="outline">
-                            {resource.contentType.replaceAll("_", " ")}
+                            {contentTypeLabel}
                           </Badge>
                           <Badge variant="outline">{resource.role}</Badge>
                         </div>
                         <CardTitle className="mt-2 text-base leading-6">
                           {resource.title}
                         </CardTitle>
-                        {resource.lifecycleFocus && (
+                        {lifecycleFocusLabel && (
                           <CardDescription className="mt-1">
-                            {resource.lifecycleFocus.replaceAll("_", " ")}
+                            {lifecycleFocusLabel}
                           </CardDescription>
                         )}
                       </div>
@@ -478,11 +478,11 @@ function RecommendedLearningSection({
                     <CardHeader>
                       <div className="flex flex-wrap gap-2">
                         <Badge variant="outline">
-                          {video.role.replaceAll("_", " ")}
+                          {video.role.replace(/_/g, " ")}
                         </Badge>
                         {video.lifecycleFocus && (
                           <Badge variant="outline">
-                            {video.lifecycleFocus.replaceAll("_", " ")}
+                            {video.lifecycleFocus.replace(/_/g, " ")}
                           </Badge>
                         )}
                       </div>

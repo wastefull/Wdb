@@ -16,6 +16,7 @@ export interface Source {
   weight?: number; // Source weight in aggregation (0-1)
   role?: string;
   lifecycleFocus?: string | null;
+  parameters?: string[];
   pdfFileName?: string; // Filename of uploaded PDF in Supabase Storage
 }
 
