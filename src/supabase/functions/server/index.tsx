@@ -22,9 +22,11 @@ import {
 import {
   buildYouTubePlaylistPreview,
   fetchYouTubePlaylistProviderData,
+  fetchYouTubeVideoDetail,
   loadExistingVideos,
   loadVideoDatabaseSnapshot,
   parseYouTubePlaylistId,
+  normalizeYouTubeVideoId,
   YOUTUBE_PLAYLIST_MAX_ITEMS,
   YOUTUBE_PLAYLIST_PREVIEW_VERSION,
   YouTubePlaylistPreviewError,
@@ -15218,6 +15220,316 @@ app.get(
       triage_review_enabled: triagePersistenceEnabled,
       graph_reads_enabled: false,
     });
+  },
+);
+
+app.post(
+  "/make-server-17cae920/graph/videos/manual",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    const client = _roleClient();
+    let createdVideoId: string | null = null;
+    let createdEntityId: string | null = null;
+    let createdMappingId: string | null = null;
+    let videoEntityId: string | null = null;
+
+    try {
+      const body = await c.req.json().catch(() => ({}));
+      const rawYoutubeUrl =
+        typeof body?.youtube_url === "string" ? body.youtube_url.trim() : "";
+      if (!rawYoutubeUrl) {
+        return c.json(
+          { success: false, error: "A YouTube URL is required." },
+          400,
+        );
+      }
+
+      const youtubeId = normalizeYouTubeVideoId(rawYoutubeUrl);
+      if (!youtubeId) {
+        return c.json(
+          { success: false, error: "The YouTube URL is not valid." },
+          400,
+        );
+      }
+
+      const canonicalYoutubeUrl = `https://www.youtube.com/watch?v=${youtubeId}`;
+      const titleOverride =
+        typeof body?.title === "string" && body.title.trim()
+          ? body.title.trim()
+          : null;
+      const materialId =
+        typeof body?.material_id === "string" && body.material_id.trim()
+          ? body.material_id.trim()
+          : null;
+      const lifecycleFocus =
+        typeof body?.lifecycle_focus === "string" && body.lifecycle_focus.trim()
+          ? body.lifecycle_focus.trim()
+          : null;
+      const evidenceUse =
+        typeof body?.evidence_use === "string" && body.evidence_use.trim()
+          ? body.evidence_use.trim()
+          : null;
+      const role =
+        typeof body?.role === "string" && body.role.trim()
+          ? body.role.trim()
+          : materialId
+            ? "primary_subject"
+            : null;
+
+      if (role === "evidence" && !evidenceUse) {
+        return c.json(
+          {
+            success: false,
+            error: "Evidence mappings require a verified evidence use.",
+          },
+          400,
+        );
+      }
+
+      const findMaterial = async () => {
+        const isUuid =
+          /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+        let query = client.from("materials").select("id,name,slug,legacy_kv_id");
+        query = materialId && isUuid.test(materialId)
+          ? query.eq("id", materialId)
+          : query.eq("legacy_kv_id", materialId);
+        let { data: material, error: materialError } =
+          await query.maybeSingle();
+        if (
+          !material &&
+          !materialError &&
+          materialId &&
+          !isUuid.test(materialId)
+        ) {
+          const slugResult = await client
+            .from("materials")
+            .select("id,name,slug,legacy_kv_id")
+            .eq("slug", materialId)
+            .maybeSingle();
+          material = slugResult.data;
+          materialError = slugResult.error;
+        }
+        if (materialError) throw materialError;
+        return material ?? null;
+      };
+
+      const [existingByYouTubeId, existingByUrl] = await Promise.all([
+        client
+          .from("videos")
+          .select("id,title,youtube_url,youtube_id,status")
+          .eq("youtube_id", youtubeId)
+          .maybeSingle(),
+        client
+          .from("videos")
+          .select("id,title,youtube_url,youtube_id,status")
+          .eq("youtube_url", rawYoutubeUrl)
+          .maybeSingle(),
+      ]);
+      if (existingByYouTubeId.error) throw existingByYouTubeId.error;
+      if (existingByUrl.error) throw existingByUrl.error;
+
+      let videoRow = existingByYouTubeId.data ?? existingByUrl.data ?? null;
+      let createdVideo = false;
+      if (!videoRow) {
+        const apiKey = Deno.env.get("YOUTUBE_API_KEY")?.trim();
+        let detail: Awaited<ReturnType<typeof fetchYouTubeVideoDetail>> | null =
+          null;
+        if (apiKey) {
+          try {
+            detail = await fetchYouTubeVideoDetail(youtubeId, apiKey);
+          } catch {
+            detail = null;
+          }
+        }
+
+        const resolvedTitle =
+          titleOverride ?? detail?.title ?? `YouTube video ${youtubeId}`;
+        const resolvedDescription = detail?.description ?? null;
+        const resolvedYoutubeUrl = canonicalYoutubeUrl;
+
+        const { data: insertedVideo, error: videoError } = await client
+          .from("videos")
+          .insert({
+            title: resolvedTitle,
+            slug: youtubeId,
+            youtube_url: resolvedYoutubeUrl,
+            youtube_id: youtubeId,
+            description: resolvedDescription,
+            duration_seconds: detail?.duration_seconds ?? null,
+            channel_name: detail?.channel_name ?? null,
+            thumbnail_url: detail?.thumbnail_url ?? null,
+            transcript: null,
+            summary: null,
+            key_takeaways: null,
+            difficulty_level: null,
+            status: "draft",
+            created_by: c.get("userId"),
+          })
+          .select("id,title,youtube_url,youtube_id,status")
+          .single();
+        if (videoError) throw videoError;
+        videoRow = insertedVideo;
+        createdVideoId = insertedVideo.id;
+        createdVideo = true;
+
+        const { data: insertedEntity, error: entityError } = await client
+          .from("entities")
+          .insert({
+            entity_type: "video",
+            name: resolvedTitle,
+            slug: youtubeId,
+            description: resolvedDescription,
+            status: "draft",
+          })
+          .select("id")
+          .single();
+        if (entityError) throw entityError;
+        createdEntityId = insertedEntity.id;
+
+        const { error: bindingError } = await client
+          .from("entity_canonical_bindings")
+          .insert({ entity_id: insertedEntity.id, video_id: insertedVideo.id });
+        if (bindingError) throw bindingError;
+      } else {
+        const { data: existingBinding, error: bindingError } = await client
+          .from("entity_canonical_bindings")
+          .select("entity_id")
+          .eq("video_id", videoRow.id)
+          .maybeSingle();
+        if (bindingError) throw bindingError;
+        if (existingBinding?.entity_id) {
+          videoEntityId = existingBinding.entity_id;
+        } else {
+          const resolvedTitle =
+            titleOverride ?? videoRow.title ?? `YouTube video ${youtubeId}`;
+          const { data: insertedEntity, error: entityError } = await client
+            .from("entities")
+            .insert({
+              entity_type: "video",
+              name: resolvedTitle,
+              slug: youtubeId,
+              description: null,
+              status: "draft",
+            })
+            .select("id")
+            .single();
+          if (entityError) throw entityError;
+          createdEntityId = insertedEntity.id;
+          videoEntityId = insertedEntity.id;
+          const { error: createBindingError } = await client
+            .from("entity_canonical_bindings")
+            .insert({ entity_id: insertedEntity.id, video_id: videoRow.id });
+          if (createBindingError) throw createBindingError;
+        }
+      }
+
+      if (!videoEntityId && createdEntityId) {
+        videoEntityId = createdEntityId;
+      }
+      if (!videoEntityId) {
+        throw new Error("The video entity could not be resolved.");
+      }
+
+      const material = materialId ? await findMaterial() : null;
+      let materialMappingCreated = false;
+      let materialMappingId: string | null = null;
+      if (material) {
+        const { data: materialBinding, error: materialBindingError } =
+          await client
+            .from("entity_canonical_bindings")
+            .select("entity_id")
+            .eq("material_id", material.id)
+            .maybeSingle();
+        if (materialBindingError) throw materialBindingError;
+        if (!materialBinding) {
+          return c.json(
+            { success: false, error: "The selected material has no entity binding." },
+            409,
+          );
+        }
+
+        const mappingRole = role ?? "primary_subject";
+        const { data: existingMapping, error: mappingLookupError } =
+          await client
+            .from("content_entities")
+            .select("id")
+            .eq("content_entity_id", videoRow.id)
+            .eq("subject_entity_id", materialBinding.entity_id)
+            .eq("role", mappingRole)
+            .maybeSingle();
+        if (mappingLookupError) throw mappingLookupError;
+        if (existingMapping) {
+          materialMappingId = existingMapping.id;
+        } else {
+          const { data: insertedMapping, error: mappingError } = await client
+            .from("content_entities")
+            .insert({
+              content_entity_id: videoRow.id,
+              subject_entity_id: materialBinding.entity_id,
+              role: mappingRole,
+              lifecycle_focus: lifecycleFocus,
+              evidence_use: evidenceUse,
+            })
+            .select("id")
+            .single();
+          if (mappingError) throw mappingError;
+          materialMappingId = insertedMapping.id;
+          createdMappingId = insertedMapping.id;
+          materialMappingCreated = true;
+        }
+      }
+
+      await createAuditLog({
+        userId: c.get("userId"),
+        userEmail: c.get("userEmail") ?? "unknown",
+        entityType: "video",
+        entityId: videoRow.id,
+        action: "create",
+        after: {
+          title: videoRow.title,
+          youtube_url: videoRow.youtube_url,
+          youtube_id: videoRow.youtube_id,
+          material_id: material?.id ?? null,
+          material_mapping_id: materialMappingId,
+        },
+        req: c,
+      });
+
+      return c.json({
+        success: true,
+        created: createdVideo,
+        existing: !createdVideo,
+        video_id: videoRow.id,
+        entity_id: videoEntityId,
+        youtube_id: videoRow.youtube_id ?? youtubeId,
+        youtube_url: videoRow.youtube_url ?? canonicalYoutubeUrl,
+        title: videoRow.title,
+        material_mapping_created: materialMappingCreated,
+        material_mapping_id: materialMappingId,
+        material_id: material?.id ?? null,
+      });
+    } catch (error) {
+      if (createdMappingId) {
+        await client.from("content_entities").delete().eq("id", createdMappingId);
+      }
+      if (createdEntityId) {
+        await client.from("entity_canonical_bindings").delete().eq("entity_id", createdEntityId);
+        await client.from("entities").delete().eq("id", createdEntityId);
+      }
+      if (createdVideoId) {
+        await client.from("videos").delete().eq("id", createdVideoId);
+      }
+      log.error("Manual video creation failed:", error);
+      return c.json(
+        {
+          success: false,
+          error:
+            error instanceof Error ? error.message : "Video could not be created.",
+        },
+        500,
+      );
+    }
   },
 );
 

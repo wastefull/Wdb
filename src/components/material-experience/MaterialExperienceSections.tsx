@@ -78,7 +78,7 @@ interface MaterialExperienceSectionsProps {
     materialId?: string,
   ) => void;
   onViewGuide?: (guideId: string) => void;
-  onViewBlog?: () => void;
+  onViewBlog?: (blogPostId?: string) => void;
   onViewMaterial?: (materialId: string) => void;
   onOpenScienceHub: () => void;
   onOpenExport: () => void;
@@ -377,8 +377,8 @@ function RecommendedLearningSection({
                   : resource.contentType === "guide" && resource.guideId
                     ? () => onViewGuide?.(resource.guideId!)
                     : resource.contentType === "blog_post"
-                      ? () => onViewBlog?.()
-                      : undefined;
+                    ? () => onViewBlog?.(resource.blogPostId)
+                    : undefined;
 
               return (
                 <Card

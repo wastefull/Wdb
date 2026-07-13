@@ -5,7 +5,6 @@ import {
   Link2,
   Loader2,
   RefreshCw,
-  WandSparkles,
 } from "lucide-react";
 import * as api from "../../utils/api";
 import type {
@@ -13,7 +12,6 @@ import type {
   ManualContentEntityType,
   ManualContentMappingEntityOption,
   ManualContentMappingOptionsResponse,
-  ReviewedVideoMappingReport,
 } from "../../types/manualContentMapping";
 
 const CONTENT_TYPE_LABELS: Record<ManualContentEntityType, string> = {
@@ -43,7 +41,7 @@ export function ManualContentMappingPanel() {
   const [options, setOptions] =
     useState<ManualContentMappingOptionsResponse>(EMPTY_OPTIONS);
   const [contentType, setContentType] = useState<"all" | ManualContentEntityType>(
-    "video",
+    "all",
   );
   const [contentSearch, setContentSearch] = useState("");
   const [materialSearch, setMaterialSearch] = useState("");
@@ -57,10 +55,6 @@ export function ManualContentMappingPanel() {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] =
     useState<CreateManualContentMappingResponse | null>(null);
-  const [videoReport, setVideoReport] =
-    useState<ReviewedVideoMappingReport | null>(null);
-  const [isPreviewingVideos, setIsPreviewingVideos] = useState(false);
-  const [isApplyingVideos, setIsApplyingVideos] = useState(false);
 
   const loadOptions = async () => {
     setIsLoading(true);
@@ -103,36 +97,6 @@ export function ManualContentMappingPanel() {
     (mapping) => mapping.content_entity_id === contentEntityId,
   );
   const isEvidence = role === "evidence";
-  const unresolvedVideoGroups = Array.from(
-    (videoReport?.unresolved ?? []).reduce(
-      (groups, candidate) => {
-        const key = candidate.material_identifier.trim().toLocaleLowerCase();
-        const existing = groups.get(key);
-        if (existing) {
-          existing.videoLinkCount += 1;
-          existing.matchCount = Math.max(
-            existing.matchCount,
-            candidate.match_count,
-          );
-        } else {
-          groups.set(key, {
-            identifier: candidate.material_identifier,
-            matchCount: candidate.match_count,
-            videoLinkCount: 1,
-          });
-        }
-        return groups;
-      },
-      new Map<
-        string,
-        { identifier: string; matchCount: number; videoLinkCount: number }
-      >(),
-    ).values(),
-  ).sort(
-    (left, right) =>
-      right.videoLinkCount - left.videoLinkCount ||
-      left.identifier.localeCompare(right.identifier),
-  );
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -172,37 +136,6 @@ export function ManualContentMappingPanel() {
     }
   };
 
-  const previewVideoMappings = async () => {
-    setIsPreviewingVideos(true);
-    setError(null);
-    try {
-      setVideoReport(await api.previewReviewedVideoMappings());
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : String(caught));
-    } finally {
-      setIsPreviewingVideos(false);
-    }
-  };
-
-  const applyVideoMappings = async () => {
-    if (!videoReport || videoReport.creatable_count < 1) return;
-    const confirmed = window.confirm(
-      `Create ${videoReport.creatable_count} missing primary-subject mapping(s) from the material links you reviewed during video triage? All mappings will remain pending review.`,
-    );
-    if (!confirmed) return;
-    setIsApplyingVideos(true);
-    setError(null);
-    try {
-      const report = await api.applyReviewedVideoMappings();
-      setVideoReport(report);
-      await loadOptions();
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : String(caught));
-    } finally {
-      setIsApplyingVideos(false);
-    }
-  };
-
   return (
     <section
       id="manual-content-mapping"
@@ -234,76 +167,6 @@ export function ManualContentMappingPanel() {
           <RefreshCw className={`size-3.5 ${isLoading ? "animate-spin" : ""}`} />
           Refresh
         </button>
-      </div>
-
-      <div className="rounded-lg border border-waste-science/25 bg-waste-science/5 p-4">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <p className="font-sniglet text-[13px]">Reviewed video links</p>
-            <p className="mt-1 max-w-xl text-[11px] text-black/60 dark:text-white/60">
-              Reuse the material links already reviewed during video triage as
-              initial primary-subject mappings. Existing mappings are skipped;
-              ambiguous identifiers are reported instead of guessed.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => void previewVideoMappings()}
-            disabled={isPreviewingVideos || isApplyingVideos}
-            className="flex items-center gap-2 rounded-lg border border-black/15 px-3 py-2 text-[12px] disabled:opacity-50 dark:border-white/15"
-          >
-            {isPreviewingVideos ? (
-              <Loader2 className="size-3.5 animate-spin" />
-            ) : (
-              <RefreshCw className="size-3.5" />
-            )}
-            Preview reviewed links
-          </button>
-        </div>
-
-        {videoReport && (
-          <div className="mt-3 space-y-3 border-t border-black/10 pt-3 dark:border-white/10">
-            <p className="text-[12px]">
-              {videoReport.resolved_count} resolved video-material links ·{" "}
-              {videoReport.existing_count} already mapped ·{" "}
-              {videoReport.creatable_count} ready to create ·{" "}
-              {videoReport.unresolved_count} unresolved links across{" "}
-              {unresolvedVideoGroups.length} identifier(s)
-            </p>
-            {videoReport.unresolved.length > 0 && (
-              <div className="max-h-28 overflow-y-auto rounded-md bg-amber-50 p-2 text-[10px] text-amber-800 dark:bg-amber-950/20 dark:text-amber-200">
-                {unresolvedVideoGroups.map((group) => (
-                  <p key={group.identifier.toLocaleLowerCase()}>
-                    {group.identifier} ·{" "}
-                    {group.matchCount === 0
-                      ? "no material match"
-                      : "ambiguous match"}{" "}
-                    · {group.videoLinkCount} video link(s)
-                  </p>
-                ))}
-              </div>
-            )}
-            <button
-              type="button"
-              onClick={() => void applyVideoMappings()}
-              disabled={
-                videoReport.creatable_count < 1 ||
-                isApplyingVideos ||
-                videoReport.mode === "apply"
-              }
-              className="retro-btn-primary flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {isApplyingVideos ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                <WandSparkles className="size-4" />
-              )}
-              {videoReport.mode === "apply"
-                ? `${videoReport.created_count} mapping(s) created`
-                : `Create ${videoReport.creatable_count} primary-subject mapping(s)`}
-            </button>
-          </div>
-        )}
       </div>
 
       {isLoading && options.content.length === 0 ? (

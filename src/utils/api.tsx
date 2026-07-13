@@ -22,6 +22,8 @@ import type {
   VideoPlaylistPreviewResponse,
   VideoTriageBatchListResponse,
   VideoTriageItemListResponse,
+  CreateVideoFromUrlRequest,
+  CreateVideoFromUrlResponse,
   VideoTriageReviewRequest,
   VideoTriageReviewResponse,
   VideoTriageStageRequest,
@@ -1922,6 +1924,16 @@ export async function applyVideoTriageBatch(
       body: JSON.stringify(request),
     },
   );
+}
+
+/** Admin only — creates a draft video from a YouTube URL and optional material link. */
+export async function createVideoFromUrl(
+  request: CreateVideoFromUrlRequest,
+): Promise<CreateVideoFromUrlResponse> {
+  return await apiCall("/graph/videos/manual", {
+    method: "POST",
+    body: JSON.stringify(request),
+  });
 }
 
 // ==================== GRAPH MIGRATION DRY RUNS ====================

@@ -451,6 +451,24 @@ function mapVideoDetail(item: JsonRecord): YouTubeVideoDetail | null {
   };
 }
 
+export async function fetchYouTubeVideoDetail(
+  youtubeId: string,
+  apiKey: string,
+  fetchImpl: typeof fetch = fetch,
+): Promise<YouTubeVideoDetail | null> {
+  const payload = await fetchProviderJson(
+    "videos",
+    {
+      part: "snippet,contentDetails,status",
+      id: youtubeId,
+    },
+    apiKey,
+    fetchImpl,
+  );
+  const item = providerItems(payload)[0];
+  return item ? mapVideoDetail(item) : null;
+}
+
 function chunks<T>(values: T[], size: number): T[][] {
   const result: T[][] = [];
   for (let index = 0; index < values.length; index += size) {

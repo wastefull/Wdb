@@ -244,6 +244,29 @@ export interface VideoTriageReviewRequest {
   review_notes: string | null;
 }
 
+export interface CreateVideoFromUrlRequest {
+  youtube_url: string;
+  title?: string;
+  material_id?: string | null;
+  role?: string | null;
+  lifecycle_focus?: string | null;
+  evidence_use?: string | null;
+}
+
+export interface CreateVideoFromUrlResponse {
+  success: boolean;
+  created: boolean;
+  existing: boolean;
+  video_id: string;
+  entity_id: string;
+  youtube_id: string | null;
+  youtube_url: string;
+  title: string;
+  material_mapping_created: boolean;
+  material_mapping_id?: string | null;
+  material_id?: string | null;
+}
+
 export interface VideoTriageReviewResponse {
   success: boolean;
   item_id: string;

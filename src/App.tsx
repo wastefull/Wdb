@@ -1359,7 +1359,7 @@ function AppContent() {
     "guide-detail": (view) => (
       <GuideDetailView guideId={view.guideId} onBack={goBack} />
     ),
-    blog: () => <BlogView onBack={goBack} />,
+    blog: (view) => <BlogView onBack={goBack} postId={view.postId} />,
     "editor-test": () => <EditorTestView />,
     about: () => <AboutView onBack={goBack} />,
     donate: () => <DonateView onBack={goBack} />,

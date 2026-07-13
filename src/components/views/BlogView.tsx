@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
+  Loader2,
   Calendar,
   Clock,
   List,
@@ -8,12 +9,18 @@ import {
   Trash2,
   User,
 } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkBreaks from "remark-breaks";
+import remarkGfm from "remark-gfm";
 import { toast } from "sonner";
 import { useAuthContext } from "../../contexts/AuthContext";
+import { useNavigationContext } from "../../contexts/NavigationContext";
 import { BlogPost, ChangelogEntry } from "../../types/blog";
 import {
   deleteChangelogEntry,
   getChangelogEntries,
+  getPostById,
+  getPostBySlug,
   getPublishedPosts,
   upsertChangelogEntry,
 } from "../../utils/blog";
@@ -23,6 +30,7 @@ import { PageTemplate } from "../shared/PageTemplate";
 
 interface BlogViewProps {
   onBack: () => void;
+  postId?: string;
 }
 
 type BlogSubtab = "posts" | "changelog";
@@ -35,16 +43,20 @@ function getTodayDateInputValue() {
   return `${year}-${month}-${day}`;
 }
 
-export function BlogView({ onBack }: BlogViewProps) {
+export function BlogView({ onBack, postId }: BlogViewProps) {
   const { userRole } = useAuthContext();
+  const { navigateToBlog } = useNavigationContext();
   const isAdmin = userRole === "admin";
 
   const [activeTab, setActiveTab] = useState<BlogSubtab>("changelog");
   const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
   const [changelogEntries, setChangelogEntries] = useState<ChangelogEntry[]>(
     [],
   );
   const [isLoading, setIsLoading] = useState(true);
+  const [isPostLoading, setIsPostLoading] = useState(false);
+  const [postError, setPostError] = useState<string | null>(null);
   const [selectedChangelogDate, setSelectedChangelogDate] = useState(
     getTodayDateInputValue(),
   );
@@ -55,6 +67,36 @@ export function BlogView({ onBack }: BlogViewProps) {
   useEffect(() => {
     loadContent();
   }, []);
+
+  useEffect(() => {
+    const loadPost = async () => {
+      if (!postId) {
+        setSelectedPost(null);
+        setPostError(null);
+        return;
+      }
+
+      setIsPostLoading(true);
+      setPostError(null);
+      try {
+        const fetchedPost = (await getPostById(postId)) ?? (await getPostBySlug(postId));
+        if (!fetchedPost) {
+          setSelectedPost(null);
+          setPostError("Blog post not found");
+          return;
+        }
+        setSelectedPost(fetchedPost);
+      } catch (error) {
+        logger.error("Error loading blog post:", error);
+        setSelectedPost(null);
+        setPostError("Failed to load blog post");
+      } finally {
+        setIsPostLoading(false);
+      }
+    };
+
+    loadPost();
+  }, [postId]);
 
   useEffect(() => {
     if (!isAdmin) {
@@ -225,9 +267,7 @@ export function BlogView({ onBack }: BlogViewProps) {
             <button
               key={post.id}
               className="retro-card-button w-full p-6 text-left"
-              onClick={() => {
-                logger.log("Navigate to blog post:", post.slug);
-              }}
+              onClick={() => navigateToBlog(post.id)}
             >
               <div className="flex flex-col gap-3">
                 <div className="flex items-center gap-2 text-sm text-black/60 dark:text-white/60">
@@ -397,6 +437,81 @@ export function BlogView({ onBack }: BlogViewProps) {
       </>
     );
   };
+
+  if (postId) {
+    if (isPostLoading || isLoading) {
+      return (
+        <PageTemplate title="Loading..." onBack={onBack}>
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="size-8 animate-spin text-black/50 dark:text-white/50" />
+          </div>
+        </PageTemplate>
+      );
+    }
+
+    if (postError || !selectedPost) {
+      return (
+        <PageTemplate title="Blog post not found" onBack={onBack}>
+          <div className="text-center py-12">
+            <p className="text-[14px] text-black/60 dark:text-white/60">
+              {postError || "Blog post not found"}
+            </p>
+          </div>
+        </PageTemplate>
+      );
+    }
+
+    return (
+      <PageTemplate title={selectedPost.title} onBack={onBack}>
+        <div className="mx-auto max-w-4xl space-y-6">
+          <div className="flex flex-wrap items-center gap-2 text-sm text-black/60 dark:text-white/60">
+            <span>{selectedPost.category}</span>
+            <span>•</span>
+            <span>
+              {formatDate(selectedPost.published_at || selectedPost.created_at)}
+            </span>
+            <span>•</span>
+            <span>{selectedPost.author_name || "WasteDB Team"}</span>
+            {selectedPost.reading_time_minutes && (
+              <>
+                <span>•</span>
+                <span>{selectedPost.reading_time_minutes} min read</span>
+              </>
+            )}
+          </div>
+
+          <div className="retro-card overflow-hidden">
+            {selectedPost.cover_image_url && (
+              <img
+                src={selectedPost.cover_image_url}
+                alt={selectedPost.title}
+                className="h-64 w-full object-cover"
+              />
+            )}
+
+            <div className="p-6 md:p-8">
+              <div className="mb-4 flex flex-wrap gap-2">
+                <span className={getCategoryColor(selectedPost.category)}>
+                  {selectedPost.category}
+                </span>
+                {selectedPost.tags?.map((tag) => (
+                  <span key={tag} className="tag-gray">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+
+              <article className="prose prose-lg max-w-none dark:prose-invert prose-headings:font-display prose-p:leading-relaxed">
+                <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
+                  {selectedPost.content}
+                </ReactMarkdown>
+              </article>
+            </div>
+          </div>
+        </div>
+      </PageTemplate>
+    );
+  }
 
   if (isLoading) {
     return (

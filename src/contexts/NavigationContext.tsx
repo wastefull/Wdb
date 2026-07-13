@@ -80,7 +80,7 @@ export type ViewType =
     }
   | { type: "guides" }
   | { type: "guide-detail"; guideId: string }
-  | { type: "blog" }
+  | { type: "blog"; postId?: string }
   | { type: "editor-test" }
   | { type: "about" }
   | { type: "donate" }
@@ -177,6 +177,11 @@ function getInitialViewFromUrlHash(): ViewType {
     return { type: "roadmap-overview", defaultTab: tab };
   }
 
+  if (rawHash === "blog" || rawHash.startsWith("blog/")) {
+    const postId = rawHash.split("/")[1];
+    return postId ? { type: "blog", postId } : { type: "blog" };
+  }
+
   const maybeViewType = STATIC_VIEW_HASH_TO_TYPE[rawHash];
 
   if (maybeViewType) {
@@ -244,7 +249,7 @@ interface NavigationContextType {
   navigateToChartsPerformance: () => void;
   navigateToRoadmapOverview: (defaultTab?: RoadmapTabId) => void;
   navigateToGuides: () => void;
-  navigateToBlog: () => void;
+  navigateToBlog: (postId?: string) => void;
   navigateToAbout: () => void;
   navigateToDonate: () => void;
   navigateToMaintenanceMode: () => void;
@@ -293,6 +298,10 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
       routeHash = view.defaultTab
         ? `roadmap-overview/${view.defaultTab}`
         : "roadmap-overview";
+    } else if (view.type === "blog") {
+      routeHash = view.postId
+        ? `blog/${encodeURIComponent(view.postId)}`
+        : "blog";
     } else {
       routeHash = STATIC_VIEW_TYPE_TO_HASH[view.type] || "";
     }
@@ -518,8 +527,8 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
     navigateTo({ type: "guides" });
   };
 
-  const navigateToBlog = () => {
-    navigateTo({ type: "blog" });
+  const navigateToBlog = (postId?: string) => {
+    navigateTo(postId ? { type: "blog", postId } : { type: "blog" });
   };
 
   const navigateToAbout = () => {
