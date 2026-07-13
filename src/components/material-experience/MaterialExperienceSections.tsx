@@ -241,7 +241,9 @@ function MaterialIntelligenceSection({
                   </div>
                   <div>
                     <dt>Theoretical 95% CI</dt>
-                    <dd>{formatConfidenceInterval(dimension.theoreticalCI95)}</dd>
+                    <dd>
+                      {formatConfidenceInterval(dimension.theoreticalCI95)}
+                    </dd>
                   </div>
                 </dl>
               ) : null}
@@ -346,13 +348,7 @@ function RecommendedLearningSection({
         <div className="mb-8 space-y-4">
           <div>
             <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">
-              Review
-            </p>
-            <h3 className="mt-2 text-xl">Reviewed content links</h3>
-            <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
-              These are the active reviewed educational content mappings for
-              this material. They reflect deliberate curation decisions and
-              stay separate from the graph discovery cutover.
+              Editor-Curated Links
             </p>
           </div>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -373,13 +369,15 @@ function RecommendedLearningSection({
                   <ExternalLink className="size-4" aria-hidden="true" />
                 );
               const action =
-                resource.contentType === "article" && articleId && articleCategory
+                resource.contentType === "article" &&
+                articleId &&
+                articleCategory
                   ? () => onReadArticle(articleId, articleCategory, materialId)
                   : resource.contentType === "guide" && resource.guideId
                     ? () => onViewGuide?.(resource.guideId!)
                     : resource.contentType === "blog_post"
-                    ? () => onViewBlog?.(resource.blogPostId)
-                    : undefined;
+                      ? () => onViewBlog?.(resource.blogPostId)
+                      : undefined;
 
               return (
                 <Card
@@ -393,9 +391,7 @@ function RecommendedLearningSection({
                       </div>
                       <div className="min-w-0">
                         <div className="flex flex-wrap gap-2">
-                          <Badge variant="outline">
-                            {contentTypeLabel}
-                          </Badge>
+                          <Badge variant="outline">{contentTypeLabel}</Badge>
                           <Badge variant="outline">{resource.role}</Badge>
                         </div>
                         <CardTitle className="mt-2 text-base leading-6">
@@ -411,7 +407,12 @@ function RecommendedLearningSection({
                   </CardHeader>
                   {action && (
                     <CardContent>
-                      <Button type="button" variant="outline" size="sm" onClick={action}>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={action}
+                      >
                         <ExternalLink className="size-4" aria-hidden="true" />
                         {resource.contentType === "article"
                           ? "Read article"
@@ -431,7 +432,7 @@ function RecommendedLearningSection({
         <div className="mb-8 space-y-4">
           <div>
             <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">
-              Watch
+              Video Resources
             </p>
             <h3 className="mt-2 text-xl">Video resources</h3>
           </div>
@@ -622,7 +623,7 @@ function GraphEmptyState({
           <div>
             <CardTitle className="text-base">{title}</CardTitle>
             <Badge variant="outline" className="mt-2">
-              {isAwaitingGraph ? "Awaiting verified graph data" : "Available"}
+              {isAwaitingGraph ? "Awaiting Human Review" : "Available"}
             </Badge>
           </div>
         </div>
@@ -741,7 +742,10 @@ function DeepResearchSection({
                           [{index + 1}] {source.title}
                         </p>
                         {inLibrary && (
-                          <Badge variant="secondary" className="shrink-0 text-[10px]">
+                          <Badge
+                            variant="secondary"
+                            className="shrink-0 text-[10px]"
+                          >
                             In library
                           </Badge>
                         )}
@@ -774,15 +778,17 @@ function DeepResearchSection({
                           <ExternalLink className="size-3" aria-hidden="true" />
                         </a>
                       )}
-                      {inLibrary && isAdminModeActive && onOpenSourceLibrary && (
-                        <button
-                          type="button"
-                          className="mt-2 block text-xs font-medium text-primary underline"
-                          onClick={onOpenSourceLibrary}
-                        >
-                          Open in source library
-                        </button>
-                      )}
+                      {inLibrary &&
+                        isAdminModeActive &&
+                        onOpenSourceLibrary && (
+                          <button
+                            type="button"
+                            className="mt-2 block text-xs font-medium text-primary underline"
+                            onClick={onOpenSourceLibrary}
+                          >
+                            Open in source library
+                          </button>
+                        )}
                     </li>
                   );
                 })}
@@ -817,7 +823,10 @@ function DeepResearchSection({
                 </p>
                 <div className="mt-2 grid gap-2 sm:grid-cols-3">
                   {evidenceSummary.dimensions.map((dimension) => (
-                    <div key={dimension.id} className="rounded-md border px-3 py-2">
+                    <div
+                      key={dimension.id}
+                      className="rounded-md border px-3 py-2"
+                    >
                       <p className="text-xs uppercase tracking-wide text-muted-foreground">
                         {dimension.label}
                       </p>
