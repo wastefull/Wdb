@@ -34,6 +34,78 @@ async function publicRest(table: string, query: string): Promise<Response> {
   });
 }
 
+function getAdminSession() {
+  const accessToken = sessionStorage.getItem("wastedb_access_token");
+  const userInfoStr = sessionStorage.getItem("wastedb_user");
+  const userId = userInfoStr ? JSON.parse(userInfoStr).id ?? null : null;
+  return { accessToken, userId };
+}
+
+function adminHeaders(accessToken: string): HeadersInit {
+  return {
+    Authorization: `Bearer ${publicAnonKey}`,
+    "X-Session-Token": accessToken,
+    "Content-Type": "application/json",
+  };
+}
+
+async function fetchJson(url: string, init?: RequestInit) {
+  const response = await fetch(url, init);
+  const text = await response.text();
+  let json: unknown = null;
+  try {
+    json = text ? JSON.parse(text) : null;
+  } catch {
+    json = text;
+  }
+  return { response, json, text };
+}
+
+async function findPublishedMaterialWithVideo() {
+  const materialsResponse = await publicRest(
+    "materials",
+    "select=id,name,slug,legacy_kv_id&status=eq.published&limit=20",
+  );
+  if (!materialsResponse.ok) {
+    return {
+      success: false as const,
+      message: `Material lookup failed with HTTP ${materialsResponse.status}.`,
+    };
+  }
+
+  const materials = (await materialsResponse.json()) as Array<{
+    id: string;
+    name?: string | null;
+  }>;
+  for (const material of materials) {
+    const videoResponse = await fetch(
+      `${EDGE_URL}/graph/materials/${encodeURIComponent(material.id)}/videos`,
+      {
+        headers: {
+          Authorization: `Bearer ${publicAnonKey}`,
+        },
+      },
+    );
+    if (!videoResponse.ok) continue;
+    const payload = (await videoResponse.json()) as {
+      videos?: Array<{ youtubeUrl?: string }>;
+    };
+    const firstVideo = payload.videos?.[0];
+    if (firstVideo?.youtubeUrl) {
+      return {
+        success: true as const,
+        material,
+        youtubeUrl: firstVideo.youtubeUrl,
+      };
+    }
+  }
+
+  return {
+    success: false as const,
+    message: "No published material with a linked video was available to smoke-test.",
+  };
+}
+
 export function getStage7Tests(): Test[] {
   return [
     {
@@ -309,6 +381,335 @@ export function getStage7Tests(): Test[] {
           message: valid
             ? "Malformed worksheets fail closed without staging partial rows."
             : "Worksheet validation accepted an incomplete or unsafe contract.",
+        };
+      },
+    },
+    {
+      id: "stage-7-manual-video-url-audit",
+      name: "Video-by-URL admin saves reuse existing videos and write audit logs",
+      description:
+        "Finds an already published linked video, reuses it through the manual URL flow without creating a duplicate video, and verifies the existing audit trail records the action.",
+      phase: "stage-7",
+      stage: 7,
+      category: "Video Curation",
+      requiresAuth: true,
+      testFn: async () => {
+        const { accessToken, userId } = getAdminSession();
+        if (!accessToken || !userId) {
+          return {
+            success: false,
+            message:
+              "Sign in as admin to verify the manual video-by-URL flow.",
+          };
+        }
+
+        const fixture = await findPublishedMaterialWithVideo();
+        if (!fixture.success) {
+          return fixture;
+        }
+
+        const createResponse = await fetchJson(
+          `${EDGE_URL}/graph/videos/manual`,
+          {
+            method: "POST",
+            headers: adminHeaders(accessToken),
+            body: JSON.stringify({
+              youtube_url: fixture.youtubeUrl,
+            }),
+          },
+        );
+        if (!createResponse.response.ok) {
+          return {
+            success: false,
+            message: `Manual video create returned HTTP ${createResponse.response.status}: ${createResponse.text}`,
+          };
+        }
+
+        const created = createResponse.json as {
+          success?: boolean;
+          existing?: boolean;
+          video_id?: string;
+          youtube_url?: string;
+          title?: string;
+        };
+        const auditResponse = await fetchJson(
+          `${EDGE_URL}/audit/logs?entityType=video&entityId=${encodeURIComponent(
+            String(created.video_id ?? ""),
+          )}&userId=${encodeURIComponent(userId)}&action=${
+            created.existing ? "update" : "create"
+          }&limit=1`,
+          {
+            headers: {
+              Authorization: `Bearer ${publicAnonKey}`,
+              "X-Session-Token": accessToken,
+            },
+          },
+        );
+        const audit = auditResponse.json as { logs?: Array<{ id?: string }> };
+        const valid =
+          created.success === true &&
+          created.existing === true &&
+          typeof created.video_id === "string" &&
+          created.youtube_url === fixture.youtubeUrl &&
+          Array.isArray(audit.logs) &&
+          audit.logs.length > 0;
+        return {
+          success: valid,
+          message: valid
+            ? `Manual video URL reuse succeeded and the audit log recorded video ${created.video_id}.`
+            : `Manual video URL audit contract failed: ${JSON.stringify({ created, audit: audit.logs ?? [] })}`,
+        };
+      },
+    },
+    {
+      id: "stage-7-manual-content-mapping-duplicate-safe",
+      name: "Manual content mapping reuses existing reviewed mappings",
+      description:
+        "Uses the existing admin options to re-submit an already-mapped content-to-material pair and verifies the service returns the existing mapping instead of creating a duplicate.",
+      phase: "stage-7",
+      stage: 7,
+      category: "Knowledge Governance",
+      requiresAuth: true,
+      testFn: async () => {
+        const { accessToken } = getAdminSession();
+        if (!accessToken) {
+          return {
+            success: false,
+            message:
+              "Sign in as admin to verify manual content-mapping duplicate protection.",
+          };
+        }
+
+        const optionsResponse = await fetchJson(
+          `${EDGE_URL}/graph/content-mappings/manual/options`,
+          { headers: adminHeaders(accessToken) },
+        );
+        if (!optionsResponse.response.ok) {
+          return {
+            success: false,
+            message: `Manual content options returned HTTP ${optionsResponse.response.status}: ${optionsResponse.text}`,
+          };
+        }
+
+        const options = optionsResponse.json as {
+          existing_mappings?: Array<{
+            id: string;
+            content_entity_id: string;
+            subject_entity_id: string;
+            role: string;
+            lifecycle_focus?: string | null;
+            evidence_use?: string | null;
+          }>;
+        };
+        const existingMapping = options.existing_mappings?.[0];
+        if (!existingMapping) {
+          return {
+            success: false,
+            message:
+              "No existing content mapping was available to smoke-test duplicate protection.",
+          };
+        }
+
+        const createResponse = await fetchJson(
+          `${EDGE_URL}/graph/content-mappings/manual`,
+          {
+            method: "POST",
+            headers: adminHeaders(accessToken),
+            body: JSON.stringify({
+              content_entity_id: existingMapping.content_entity_id,
+              subject_entity_id: existingMapping.subject_entity_id,
+              role: existingMapping.role,
+              lifecycle_focus: existingMapping.lifecycle_focus,
+              evidence_use: existingMapping.evidence_use,
+            }),
+          },
+        );
+        if (!createResponse.response.ok) {
+          return {
+            success: false,
+            message: `Manual content mapping returned HTTP ${createResponse.response.status}: ${createResponse.text}`,
+          };
+        }
+
+        const result = createResponse.json as {
+          success?: boolean;
+          already_exists?: boolean;
+          mapping_id?: string;
+        };
+        const valid =
+          result.success === true &&
+          result.already_exists === true &&
+          result.mapping_id === existingMapping.id;
+        return {
+          success: valid,
+          message: valid
+            ? `Manual content mapping duplicate protection returned the existing mapping ${existingMapping.id}.`
+            : `Manual content mapping duplicate contract failed: ${JSON.stringify(result)}`,
+        };
+      },
+    },
+    {
+      id: "stage-7-manual-material-relationship-duplicate-safe",
+      name: "Manual material relationships reuse existing records",
+      description:
+        "Re-submits an already-reviewed material relationship and verifies the admin RPC returns the existing row instead of creating a duplicate.",
+      phase: "stage-7",
+      stage: 7,
+      category: "Knowledge Governance",
+      requiresAuth: true,
+      testFn: async () => {
+        const { accessToken } = getAdminSession();
+        if (!accessToken) {
+          return {
+            success: false,
+            message:
+              "Sign in as admin to verify manual relationship duplicate protection.",
+          };
+        }
+
+        const reviewResponse = await fetchJson(
+          `${EDGE_URL}/graph/material-relationships/review?status=all&offset=0&limit=1`,
+          { headers: adminHeaders(accessToken) },
+        );
+        if (!reviewResponse.response.ok) {
+          return {
+            success: false,
+            message: `Manual relationship review list returned HTTP ${reviewResponse.response.status}: ${reviewResponse.text}`,
+          };
+        }
+
+        const reviewList = reviewResponse.json as {
+          items?: Array<{
+            id: string;
+            source_entity_id: string;
+            target_entity_id: string;
+            relationship_type: string;
+          }>;
+        };
+        const existingRelationship = reviewList.items?.[0];
+        if (!existingRelationship) {
+          return {
+            success: false,
+            message:
+              "No existing material relationship was available to smoke-test duplicate protection.",
+          };
+        }
+
+        const createResponse = await fetchJson(
+          `${EDGE_URL}/graph/material-relationships/manual`,
+          {
+            method: "POST",
+            headers: adminHeaders(accessToken),
+            body: JSON.stringify({
+              source_entity_id: existingRelationship.source_entity_id,
+              target_entity_id: existingRelationship.target_entity_id,
+              relationship_type: existingRelationship.relationship_type,
+            }),
+          },
+        );
+        if (!createResponse.response.ok) {
+          return {
+            success: false,
+            message: `Manual relationship create returned HTTP ${createResponse.response.status}: ${createResponse.text}`,
+          };
+        }
+
+        const result = createResponse.json as {
+          success?: boolean;
+          already_exists?: boolean;
+          relationship_id?: string;
+        };
+        const valid =
+          result.success === true &&
+          result.already_exists === true &&
+          result.relationship_id === existingRelationship.id;
+        return {
+          success: valid,
+          message: valid
+            ? `Manual relationship duplicate protection returned the existing row ${existingRelationship.id}.`
+            : `Manual relationship duplicate contract failed: ${JSON.stringify(result)}`,
+        };
+      },
+    },
+    {
+      id: "stage-7-public-material-resources-readonly",
+      name: "Public material-page resources stay read-only",
+      description:
+        "Checks the public material read endpoints return only presentational resources and remain shape-stable for the material page.",
+      phase: "stage-7",
+      stage: 7,
+      category: "Compatibility",
+      requiresAuth: false,
+      testFn: async () => {
+        const materialsResponse = await publicRest(
+          "materials",
+          "select=id&status=eq.published&limit=1",
+        );
+        if (!materialsResponse.ok) {
+          return {
+            success: false,
+            message: `Material lookup failed with HTTP ${materialsResponse.status}.`,
+          };
+        }
+
+        const materials = (await materialsResponse.json()) as Array<{
+          id: string;
+        }>;
+        const material = materials[0];
+        if (!material) {
+          return {
+            success: false,
+            message: "No published material was available for the public-read smoke test.",
+          };
+        }
+
+        const [videosResponse, contentResponse, relationshipsResponse] =
+          await Promise.all([
+            fetch(`${EDGE_URL}/graph/materials/${material.id}/videos`, {
+              headers: {
+                Authorization: `Bearer ${publicAnonKey}`,
+              },
+            }),
+            fetch(`${EDGE_URL}/graph/materials/${material.id}/content`, {
+              headers: {
+                Authorization: `Bearer ${publicAnonKey}`,
+              },
+            }),
+            fetch(`${EDGE_URL}/graph/materials/${material.id}/relationships`, {
+              headers: {
+                Authorization: `Bearer ${publicAnonKey}`,
+              },
+            }),
+          ]);
+
+        if (!videosResponse.ok || !contentResponse.ok || !relationshipsResponse.ok) {
+          return {
+            success: false,
+            message: `Public material resource reads failed: videos ${videosResponse.status}, content ${contentResponse.status}, relationships ${relationshipsResponse.status}.`,
+          };
+        }
+
+        const [videos, content, relationships] = await Promise.all([
+          videosResponse.json(),
+          contentResponse.json(),
+          relationshipsResponse.json(),
+        ]);
+        const videosList = Array.isArray(videos?.videos) ? videos.videos : [];
+        const contentList = Array.isArray(content?.content_resources)
+          ? content.content_resources
+          : [];
+        const relationshipsList = Array.isArray(relationships?.relationships)
+          ? relationships.relationships
+          : [];
+        const valid =
+          videosList.every((item) => !("status" in item)) &&
+          contentList.every((item) => !("status" in item)) &&
+          relationshipsList.every((item) => !("status" in item));
+        return {
+          success: valid,
+          message: valid
+            ? `Public material resources stayed read-only for material ${material.id}.`
+            : "A public material resource leaked review-only fields.",
         };
       },
     },

@@ -15233,6 +15233,8 @@ app.post(
     let createdEntityId: string | null = null;
     let createdMappingId: string | null = null;
     let videoEntityId: string | null = null;
+    let material: { id: string; name: string | null; slug: string | null; legacy_kv_id: string | null } | null = null;
+    let materialEntityId: string | null = null;
 
     try {
       const body = await c.req.json().catch(() => ({}));
@@ -15273,9 +15275,85 @@ app.post(
       const role =
         typeof body?.role === "string" && body.role.trim()
           ? body.role.trim()
-          : materialId
+        : materialId
             ? "primary_subject"
             : null;
+
+      const resolveMaterial = async () => {
+        if (!materialId) return null;
+
+        const bindingFirst = await client
+          .from("entity_canonical_bindings")
+          .select("entity_id,material_id")
+          .eq("entity_id", materialId)
+          .maybeSingle();
+        if (bindingFirst.error) throw bindingFirst.error;
+        if (bindingFirst.data?.material_id) {
+          const materialByBinding = await client
+            .from("materials")
+            .select("id,name,slug,legacy_kv_id")
+            .eq("id", bindingFirst.data.material_id)
+            .maybeSingle();
+          if (materialByBinding.error) throw materialByBinding.error;
+          if (materialByBinding.data) {
+            materialEntityId = bindingFirst.data.entity_id;
+            return materialByBinding.data;
+          }
+        }
+
+        const isUuid =
+          /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+        let query = client
+          .from("materials")
+          .select("id,name,slug,legacy_kv_id");
+        query = isUuid.test(materialId)
+          ? query.eq("id", materialId)
+          : query.eq("legacy_kv_id", materialId);
+        let { data: resolvedMaterial, error: materialError } =
+          await query.maybeSingle();
+        if (
+          !resolvedMaterial &&
+          !materialError &&
+          materialId &&
+          !isUuid.test(materialId)
+        ) {
+          const slugResult = await client
+            .from("materials")
+            .select("id,name,slug,legacy_kv_id")
+            .eq("slug", materialId)
+            .maybeSingle();
+          resolvedMaterial = slugResult.data;
+          materialError = slugResult.error;
+        }
+        if (materialError) throw materialError;
+        if (!resolvedMaterial) return null;
+
+        const materialBinding = await client
+          .from("entity_canonical_bindings")
+          .select("entity_id")
+          .eq("material_id", resolvedMaterial.id)
+          .maybeSingle();
+        if (materialBinding.error) throw materialBinding.error;
+        materialEntityId = materialBinding.data?.entity_id ?? null;
+        return resolvedMaterial;
+      };
+
+      material = await resolveMaterial();
+      if (materialId && !material) {
+        return c.json(
+          { success: false, error: "The selected material could not be found." },
+          404,
+        );
+      }
+      if (materialId && !materialEntityId) {
+        return c.json(
+          {
+            success: false,
+            error: "The selected material has no entity binding.",
+          },
+          409,
+        );
+      }
 
       if (role === "evidence" && !evidenceUse) {
         return c.json(
@@ -15286,33 +15364,6 @@ app.post(
           400,
         );
       }
-
-      const findMaterial = async () => {
-        const isUuid =
-          /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-        let query = client.from("materials").select("id,name,slug,legacy_kv_id");
-        query = materialId && isUuid.test(materialId)
-          ? query.eq("id", materialId)
-          : query.eq("legacy_kv_id", materialId);
-        let { data: material, error: materialError } =
-          await query.maybeSingle();
-        if (
-          !material &&
-          !materialError &&
-          materialId &&
-          !isUuid.test(materialId)
-        ) {
-          const slugResult = await client
-            .from("materials")
-            .select("id,name,slug,legacy_kv_id")
-            .eq("slug", materialId)
-            .maybeSingle();
-          material = slugResult.data;
-          materialError = slugResult.error;
-        }
-        if (materialError) throw materialError;
-        return material ?? null;
-      };
 
       const [existingByYouTubeId, existingByUrl] = await Promise.all([
         client
@@ -15431,31 +15482,16 @@ app.post(
         throw new Error("The video entity could not be resolved.");
       }
 
-      const material = materialId ? await findMaterial() : null;
       let materialMappingCreated = false;
       let materialMappingId: string | null = null;
-      if (material) {
-        const { data: materialBinding, error: materialBindingError } =
-          await client
-            .from("entity_canonical_bindings")
-            .select("entity_id")
-            .eq("material_id", material.id)
-            .maybeSingle();
-        if (materialBindingError) throw materialBindingError;
-        if (!materialBinding) {
-          return c.json(
-            { success: false, error: "The selected material has no entity binding." },
-            409,
-          );
-        }
-
+      if (material && materialEntityId) {
         const mappingRole = role ?? "primary_subject";
         const { data: existingMapping, error: mappingLookupError } =
           await client
             .from("content_entities")
             .select("id")
             .eq("content_entity_id", videoRow.id)
-            .eq("subject_entity_id", materialBinding.entity_id)
+            .eq("subject_entity_id", materialEntityId)
             .eq("role", mappingRole)
             .maybeSingle();
         if (mappingLookupError) throw mappingLookupError;
@@ -15466,7 +15502,7 @@ app.post(
             .from("content_entities")
             .insert({
               content_entity_id: videoRow.id,
-              subject_entity_id: materialBinding.entity_id,
+              subject_entity_id: materialEntityId,
               role: mappingRole,
               lifecycle_focus: lifecycleFocus,
               evidence_use: evidenceUse,
@@ -15480,18 +15516,23 @@ app.post(
         }
       }
 
+      const auditAction = createdVideo ? "create" : "update";
       await createAuditLog({
         userId: c.get("userId"),
         userEmail: c.get("userEmail") ?? "unknown",
         entityType: "video",
         entityId: videoRow.id,
-        action: "create",
+        action: auditAction,
         after: {
           title: videoRow.title,
           youtube_url: videoRow.youtube_url,
           youtube_id: videoRow.youtube_id,
           material_id: material?.id ?? null,
+          material_entity_id: materialEntityId,
           material_mapping_id: materialMappingId,
+          created: createdVideo,
+          existing: !createdVideo,
+          material_mapping_created: materialMappingCreated,
         },
         req: c,
       });
