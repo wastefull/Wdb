@@ -93,7 +93,6 @@ export function SourceLibraryManager({
   const [sources, setSources] = useState<Source[]>([...SOURCE_LIBRARY]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState<string>("all");
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showOAOnly, setShowOAOnly] = useState(false); // Open Access filter
   const [checkingOA, setCheckingOA] = useState<Set<string>>(new Set()); // Track which sources are being checked
   const [oaStatus, setOaStatus] = useState<Map<string, any>>(new Map()); // Track OA status for each source
@@ -126,7 +125,8 @@ export function SourceLibraryManager({
     weight: 1.0,
     type: "peer-reviewed",
     abstract: "",
-    tags: [],
+    role: "",
+    lifecycleFocus: "",
     citation_count: undefined,
   });
 
@@ -158,30 +158,20 @@ export function SourceLibraryManager({
     }
   };
 
-  // Get all unique tags from sources
-  const allTags = Array.from(
-    new Set(sources.flatMap((s) => s.tags || [])),
-  ).sort();
-
   // Filter sources
   const filteredSources = sources.filter((source) => {
     const matchesSearch =
       !searchQuery ||
       source.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       source.authors?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      source.tags?.some((tag) =>
-        tag.toLowerCase().includes(searchQuery.toLowerCase()),
-      );
+      source.role?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      source.lifecycleFocus?.toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesType = selectedType === "all" || source.type === selectedType;
 
-    const matchesTags =
-      selectedTags.length === 0 ||
-      selectedTags.every((tag) => source.tags?.includes(tag));
-
     const matchesOA = !showOAOnly || source.doi !== undefined;
 
-    return matchesSearch && matchesType && matchesTags && matchesOA;
+    return matchesSearch && matchesType && matchesOA;
   });
 
   // Get usage statistics for a source
@@ -234,7 +224,8 @@ export function SourceLibraryManager({
       weight: formData.weight || 1.0,
       type: formData.type as Source["type"],
       abstract: formData.abstract?.trim(),
-      tags: formData.tags || [],
+      role: formData.role?.trim(),
+      lifecycleFocus: formData.lifecycleFocus?.trim() || null,
       citation_count: formData.citation_count,
     };
 
@@ -458,7 +449,8 @@ export function SourceLibraryManager({
       weight: 1.0,
       type: "peer-reviewed",
       abstract: "",
-      tags: [],
+      role: "",
+      lifecycleFocus: "",
       citation_count: undefined,
     });
   };
@@ -1194,7 +1186,7 @@ export function SourceLibraryManager({
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-black/40 dark:text-white/40" />
                 <Input
                   type="text"
-                  placeholder="Search by title, author, or tags..."
+                  placeholder="Search by title, author, role, or lifecycle focus..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10 text-[12px]"
@@ -1220,30 +1212,6 @@ export function SourceLibraryManager({
               </Select>
             </div>
 
-            {/* Tag Filter */}
-            <div>
-              <Label className="text-sm mb-2 block">Tags</Label>
-              <div className="flex flex-wrap gap-1 max-h-25 overflow-y-auto p-2 bg-white dark:bg-[#1a1918] border border-[#211f1c] dark:border-white/20 rounded-md">
-                {allTags.map((tag) => (
-                  <Badge
-                    key={tag}
-                    variant={selectedTags.includes(tag) ? "default" : "outline"}
-                    className={`cursor-pointer text-[9px] ${
-                      selectedTags.includes(tag) ? "bg-blue-500 text-white" : ""
-                    }`}
-                    onClick={() => {
-                      setSelectedTags((prev) =>
-                        prev.includes(tag)
-                          ? prev.filter((t) => t !== tag)
-                          : [...prev, tag],
-                      );
-                    }}
-                  >
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-            </div>
           </div>
 
           {/* Open Access Filter Toggle */}
@@ -1276,7 +1244,6 @@ export function SourceLibraryManager({
           </div>
 
           {(selectedType !== "all" ||
-            selectedTags.length > 0 ||
             searchQuery ||
             showOAOnly) && (
             <div className="mt-3 flex items-center justify-between">
@@ -1289,7 +1256,6 @@ export function SourceLibraryManager({
                 onClick={() => {
                   setSearchQuery("");
                   setSelectedType("all");
-                  setSelectedTags([]);
                   setShowOAOnly(false);
                 }}
               >
@@ -1308,7 +1274,8 @@ export function SourceLibraryManager({
                   <TableHead className="text-sm w-[38%]">Source</TableHead>
                   <TableHead className="text-sm w-[9%]">Type</TableHead>
                   <TableHead className="text-sm w-[7%]">Weight</TableHead>
-                  <TableHead className="text-sm w-[17%]">Tags</TableHead>
+                  <TableHead className="text-sm w-[14%]">Role</TableHead>
+                  <TableHead className="text-sm w-[14%]">Lifecycle</TableHead>
                   <TableHead className="text-sm text-center w-[9%]">
                     Usage
                   </TableHead>
@@ -1655,22 +1622,26 @@ export function SourceLibraryManager({
                         </span>
                       </TableCell>
                       <TableCell>
-                        <div className="flex flex-wrap gap-1 max-w-50">
-                          {source.tags?.slice(0, 3).map((tag) => (
-                            <Badge
-                              key={tag}
-                              variant="outline"
-                              className="text-[8px]"
-                            >
-                              {tag}
-                            </Badge>
-                          ))}
-                          {source.tags && source.tags.length > 3 && (
-                            <Badge variant="outline" className="text-[8px]">
-                              +{source.tags.length - 3}
-                            </Badge>
-                          )}
-                        </div>
+                        {source.role ? (
+                          <Badge variant="outline" className="text-[8px]">
+                            {source.role.replaceAll("_", " ")}
+                          </Badge>
+                        ) : (
+                          <span className="text-xs text-black/40 dark:text-white/40">
+                            Unset
+                          </span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {source.lifecycleFocus ? (
+                          <Badge variant="outline" className="text-[8px]">
+                            {source.lifecycleFocus.replaceAll("_", " ")}
+                          </Badge>
+                        ) : (
+                          <span className="text-xs text-black/40 dark:text-white/40">
+                            Unset
+                          </span>
+                        )}
                       </TableCell>
                       <TableCell className="text-center">
                         {usage.length > 0 ? (
@@ -1996,12 +1967,6 @@ export function SourceLibraryManager({
                         </a>
                       </div>
                     )}
-                    {crossRefData.tags && (
-                      <div>
-                        <span className="font-medium">Tags:</span>{" "}
-                        <span className="select-all">{crossRefData.tags}</span>
-                      </div>
-                    )}
                     {crossRefData.citationCount !== undefined &&
                       crossRefData.citationCount > 0 && (
                         <div>
@@ -2032,12 +1997,6 @@ export function SourceLibraryManager({
                           year: crossRefData.year || formData.year,
                           url: crossRefData.url || formData.url,
                           abstract: crossRefData.abstract || formData.abstract,
-                          tags: crossRefData.tags
-                            ? crossRefData.tags
-                                .split(", ")
-                                .map((t: string) => t.trim())
-                                .filter(Boolean)
-                            : formData.tags,
                           citation_count:
                             crossRefData.citationCount || undefined,
                         });
@@ -2088,29 +2047,38 @@ export function SourceLibraryManager({
                 />
               </div>
 
-              {/* Tags */}
+              {/* Role / Lifecycle Focus */}
               <div>
-                <Label className="text-sm">
-                  Tags (comma or semicolon-separated)
-                </Label>
+                <Label className="text-sm">Role</Label>
                 <Input
-                  value={formData.tags?.join(", ") || ""}
+                  value={formData.role || ""}
                   onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      tags: e.target.value
-                        .replace(/;/g, ",") // Convert semicolons to commas
-                        .split(",")
-                        .map((t) => t.trim())
-                        .filter(Boolean),
-                    })
+                    setFormData({ ...formData, role: e.target.value })
                   }
-                  placeholder="PET, recycling, HDPE, yield"
+                  placeholder="primary_subject, supporting_context, evidence"
                   className="text-[12px]"
                 />
                 <p className="caption">
-                  Material types, processes, parameters (e.g., glass, recycling,
-                  yield)
+                  Same governing role structure used by linked video resources.
+                </p>
+              </div>
+
+              <div>
+                <Label className="text-sm">Lifecycle focus</Label>
+                <Input
+                  value={formData.lifecycleFocus || ""}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      lifecycleFocus: e.target.value,
+                    })
+                  }
+                  placeholder="repair, reuse, recycling, end_of_life"
+                  className="text-[12px]"
+                />
+                <p className="caption">
+                  Optional lifecycle emphasis, shared with the video resource
+                  model.
                 </p>
               </div>
 

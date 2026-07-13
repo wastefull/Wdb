@@ -135,6 +135,9 @@ export function MaterialDetailView({
   const [contentResources, setContentResources] = useState<
     MaterialContentResource[]
   >([]);
+  const [sourceLibraryDOIs, setSourceLibraryDOIs] = useState<Set<string>>(
+    new Set(),
+  );
   const [evidenceSummary, setEvidenceSummary] =
     useState<MaterialEvidenceScoringSummary | null>(null);
   const [areVideoResourcesLoading, setAreVideoResourcesLoading] =
@@ -188,6 +191,28 @@ export function MaterialDetailView({
       active = false;
     };
   }, [material.id]);
+
+  useEffect(() => {
+    let active = true;
+    void api
+      .getAllSources()
+      .then((sources) => {
+        if (!active) return;
+        setSourceLibraryDOIs(
+          new Set(
+            sources
+              .filter((source) => source.doi)
+              .map((source) => source.doi!.toLowerCase()),
+          ),
+        );
+      })
+      .catch(() => {
+        if (active) setSourceLibraryDOIs(new Set());
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -475,6 +500,7 @@ export function MaterialDetailView({
           onOpenSourceLibrary={
             isAdminModeActive ? navigateToSourceLibrary : undefined
           }
+          sourceLibraryDOIs={sourceLibraryDOIs}
           onOpenEvidenceLab={
             isAdminModeActive ? navigateToEvidenceLab : undefined
           }

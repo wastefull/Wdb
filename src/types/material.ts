@@ -14,7 +14,8 @@ export interface Source {
   doi?: string;
   url?: string;
   weight?: number; // Source weight in aggregation (0-1)
-  parameters?: string[]; // Which parameters this source contributed to (e.g., ['Y_value', 'D_value'])
+  role?: string;
+  lifecycleFocus?: string | null;
   pdfFileName?: string; // Filename of uploaded PDF in Supabase Storage
 }
 

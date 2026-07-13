@@ -546,7 +546,8 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
       is_open_access: oaStatus?.is_open_access || false,
       oa_status: oaStatus?.oa_status || undefined,
       best_oa_url: oaStatus?.best_oa_location?.url || undefined,
-      tags: [], // User can add tags
+      role: "",
+      lifecycleFocus: "",
     });
     setShowAddSourceDialog(true);
   };
@@ -1716,19 +1717,30 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Tags (comma-separated)</Label>
+                <Label>Role</Label>
                 <Input
-                  value={sourceToAdd.tags?.join(", ") || ""}
+                  value={sourceToAdd.role || ""}
                   onChange={(e) =>
                     setSourceToAdd({
                       ...sourceToAdd,
-                      tags: e.target.value
-                        .split(",")
-                        .map((t) => t.trim().toLowerCase())
-                        .filter(Boolean),
+                      role: e.target.value,
                     })
                   }
-                  placeholder="e.g., cardboard, biodegradation, composting"
+                  placeholder="primary_subject, supporting_context, evidence"
+                  className="w-full"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Lifecycle focus</Label>
+                <Input
+                  value={sourceToAdd.lifecycleFocus || ""}
+                  onChange={(e) =>
+                    setSourceToAdd({
+                      ...sourceToAdd,
+                      lifecycleFocus: e.target.value,
+                    })
+                  }
+                  placeholder="recycling, reuse, repair, end_of_life"
                   className="w-full"
                 />
               </div>

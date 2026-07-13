@@ -85,6 +85,7 @@ interface MaterialExperienceSectionsProps {
   onOpenScientificEditor?: () => void;
   onOpenSourceLibrary?: () => void;
   onOpenEvidenceLab?: () => void;
+  sourceLibraryDOIs?: Set<string>;
   onSuggestEdit?: () => void;
   canSuggestEdit: boolean;
   isAdminModeActive?: boolean;
@@ -682,6 +683,7 @@ function DeepResearchSection({
   onOpenScientificEditor,
   onOpenSourceLibrary,
   onOpenEvidenceLab,
+  sourceLibraryDOIs,
   isAdminModeActive,
 }: Pick<
   MaterialExperienceSectionsProps,
@@ -691,6 +693,7 @@ function DeepResearchSection({
   | "onOpenScientificEditor"
   | "onOpenSourceLibrary"
   | "onOpenEvidenceLab"
+  | "sourceLibraryDOIs"
   | "isAdminModeActive"
 >) {
   const hasParameters = model.research.parameterGroups.some(
@@ -725,14 +728,24 @@ function DeepResearchSection({
                       ? source.doi
                       : `https://doi.org/${source.doi}`
                     : source.url;
+                  const inLibrary = source.doi
+                    ? sourceLibraryDOIs?.has(source.doi.toLowerCase())
+                    : false;
                   return (
                     <li
                       key={`${source.title}-${index}`}
                       className="border-l-2 border-blue-300 pl-3 text-sm dark:border-blue-700"
                     >
-                      <p className="font-medium">
-                        [{index + 1}] {source.title}
-                      </p>
+                      <div className="flex items-start justify-between gap-3">
+                        <p className="font-medium">
+                          [{index + 1}] {source.title}
+                        </p>
+                        {inLibrary && (
+                          <Badge variant="secondary" className="shrink-0 text-[10px]">
+                            In library
+                          </Badge>
+                        )}
+                      </div>
                       <p className="mt-1 text-xs text-muted-foreground">
                         {[source.authors, source.year]
                           .filter(Boolean)
@@ -760,6 +773,15 @@ function DeepResearchSection({
                           Open source
                           <ExternalLink className="size-3" aria-hidden="true" />
                         </a>
+                      )}
+                      {inLibrary && isAdminModeActive && onOpenSourceLibrary && (
+                        <button
+                          type="button"
+                          className="mt-2 block text-xs font-medium text-primary underline"
+                          onClick={onOpenSourceLibrary}
+                        >
+                          Open in source library
+                        </button>
                       )}
                     </li>
                   );
@@ -1036,6 +1058,7 @@ export function MaterialExperienceSections({
   onOpenScientificEditor,
   onOpenSourceLibrary,
   onOpenEvidenceLab,
+  sourceLibraryDOIs,
   onSuggestEdit,
   canSuggestEdit,
   isAdminModeActive,
@@ -1060,6 +1083,7 @@ export function MaterialExperienceSections({
     onOpenScientificEditor,
     onOpenSourceLibrary,
     onOpenEvidenceLab,
+    sourceLibraryDOIs,
     onSuggestEdit,
     canSuggestEdit,
     isAdminModeActive,
@@ -1154,6 +1178,7 @@ function GenericSection({
                 onOpenScientificEditor={msep.onOpenScientificEditor}
                 onOpenSourceLibrary={msep.onOpenSourceLibrary}
                 onOpenEvidenceLab={msep.onOpenEvidenceLab}
+                sourceLibraryDOIs={msep.sourceLibraryDOIs}
                 isAdminModeActive={msep.isAdminModeActive}
               />
             );

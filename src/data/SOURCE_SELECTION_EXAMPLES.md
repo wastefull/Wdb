@@ -6,7 +6,7 @@ This document shows concrete examples of how the intelligent source selection al
 
 The system uses a **relevance scoring algorithm** that:
 1. Parses material name into search terms
-2. Scores each source based on tag matches, title mentions, and quality
+2. Scores each source based on role/focus matches, title mentions, and quality
 3. Prioritizes peer-reviewed sources over industry reports
 4. Ensures a mix of material-specific and general methodology sources
 
@@ -14,8 +14,8 @@ The system uses a **relevance scoring algorithm** that:
 
 | Match Type | Points | Example |
 |------------|--------|---------|
-| Exact tag match | +10 | "pet" material → source tagged "pet" |
-| Partial tag match | +5 | "cardboard" material → source tagged "paper" |
+| Exact role/focus match | +10 | "reference" source role → material flow uses it directly |
+| Partial lifecycle focus match | +5 | "cardboard" → source lifecycle focus includes "paper" |
 | Title mention | +3 | "Plastic" in material → "Plastic recycling" in source title |
 | Abstract mention | +2 | "PET" in material → "PET bottles" in abstract |
 | Source weight | +(weight × 2) | Peer-reviewed (1.0) gets +2, Industrial (0.7) gets +1.4 |
@@ -33,29 +33,29 @@ The system uses a **relevance scoring algorithm** that:
 ### Top Scored Sources:
 
 1. **"Degradation of cardboard and paper in home composting conditions"** (Score: ~18)
-   - Tag exact match: `cardboard` (+10)
-   - Tag partial match: `composting` (+5)
+   - Lifecycle focus exact match: `cardboard` (+10)
+   - Lifecycle focus partial match: `composting` (+5)
    - Peer-reviewed weight bonus (+2)
    - Title mention (+3)
 
 2. **"Fiber quality decline during cardboard recycling cycles"** (Score: ~17)
-   - Tag exact match: `cardboard` (+10)
-   - Tag partial match: `fiber-quality`, `recycling` (+5)
+   - Lifecycle focus exact match: `cardboard` (+10)
+   - Lifecycle focus partial match: `fiber-quality`, `recycling` (+5)
    - Peer-reviewed weight bonus (+2)
    - Title mention (+3)
 
 3. **"Advancing Sustainable Materials Management: 2018 Fact Sheet"** (Score: ~8)
-   - Tag partial match: `cardboard`, `paper` (+5)
+   - Lifecycle focus partial match: `cardboard`, `paper` (+5)
    - Government weight bonus (+1.8)
    - Title mention (+3)
 
 4. **"European Declaration of Paper Recycling 2020"** (Score: ~7)
-   - Tag partial match: `cardboard`, `paper` (+5)
+   - Lifecycle focus partial match: `cardboard`, `paper` (+5)
    - Industrial weight bonus (+1.4)
    - General tag bonus (+1)
 
 5. **"ISO 14044:2020 Environmental management — Life cycle assessment"** (Score: ~4)
-   - Methodology tag bonus (+1)
+   - Methodology focus bonus (+1)
    - Government weight bonus (+1.8)
    - General tag bonus (+1)
 

@@ -43,8 +43,8 @@ Per the WasteDB methodology whitepaper, sources are weighted based on their veri
 ```typescript
 import { SOURCE_LIBRARY, getSourcesByTag, getSourcesByMaterial } from './data/sources';
 
-// Get all sources for a specific tag
-const cardboardSources = getSourcesByTag('cardboard');
+// Get all sources for a specific role/focus label
+const referenceSources = getSourcesByTag('reference');
 
 // Get recommended sources for a material
 const glassSources = getSourcesByMaterial('Glass');
@@ -68,13 +68,14 @@ Each source includes:
   weight?: number;               // Source weight (0.3-1.0)
   type: 'peer-reviewed' | ...;   // Source type
   abstract?: string;             // Brief description
-  tags?: string[];               // Search tags (material, topic, etc.)
+  role?: string;                 // Governing role label shared with video resources
+  lifecycleFocus?: string | null;// Optional lifecycle emphasis
 }
 ```
 
 ## Source Provenance Tracking
 
-Each source can be tagged with which parameters it contributed to. This enables transparent data provenance:
+Each source can carry the same governing metadata used by video resources.
 
 ```typescript
 {
@@ -83,22 +84,10 @@ Each source can be tagged with which parameters it contributed to. This enables 
   year: 2023,
   doi: "10.1016/j.wasman.2023.01.001",
   weight: 1.0,
-  parameters: ['Y_value', 'CR_practical_mean']  // This source contributed to Yield and CR Practical
+  role: "evidence",
+  lifecycleFocus: "recycling"
 }
 ```
-
-### How Parameters Are Assigned
-
-When adding sources from the library, parameters are **automatically assigned** based on source tags:
-
-| Source Tags | Parameters Assigned | Rationale |
-|-------------|---------------------|-----------|
-| `recycling`, `yield`, `recovery` | `Y_value`, `CR_practical_mean` | Recovery/yield data |
-| `degradation`, `quality`, `composting` | `D_value` | Degradation/quality loss |
-| `contamination`, `purity` | `C_value` | Contamination tolerance |
-| `infrastructure`, `maturity` | `M_value` | Infrastructure availability |
-| `energy`, `lca` | `E_value` | Energy demand |
-| `general`, `methodology` | `CR_practical_mean`, `CR_theoretical_mean` | Overall methodology |
 
 ### Viewing Provenance
 

@@ -382,7 +382,8 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
     weight: 1.0,
     type: "peer-reviewed",
     abstract: result.abstract || undefined,
-    tags: [],
+    role: "reference",
+    lifecycleFocus: null,
     is_open_access: oaStatusCache.get(result.doi.toLowerCase()) || false,
   });
 

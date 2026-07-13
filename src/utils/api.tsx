@@ -633,7 +633,8 @@ export interface Source {
   weight?: number;
   type: "peer-reviewed" | "government" | "industrial" | "ngo" | "internal";
   abstract?: string;
-  tags?: string[];
+  role?: string;
+  lifecycleFocus?: string | null;
   pdfFileName?: string;
   is_open_access?: boolean; // Open Access status (from Unpaywall API)
   oa_status?: string | null; // OA status: 'gold', 'green', 'hybrid', 'bronze', 'closed'

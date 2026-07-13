@@ -26,7 +26,8 @@ export interface Source {
   weight?: number;
   type: "peer-reviewed" | "government" | "industrial" | "ngo" | "internal";
   abstract?: string;
-  tags?: string[]; // e.g., ['cardboard', 'paper', 'recyclability', 'composting']
+  role?: string;
+  lifecycleFocus?: string | null;
   pdfFileName?: string; // Filename of uploaded PDF in Supabase Storage
   is_open_access?: boolean; // Open Access status (from Unpaywall API or manual override)
   oa_status?: string | null; // OA status: 'gold', 'green', 'hybrid', 'bronze', 'closed'
@@ -43,8 +44,11 @@ export const SOURCE_LIBRARY: Source[] = [];
  * Helper function to get sources by tag
  */
 export function getSourcesByTag(tag: string): Source[] {
-  return SOURCE_LIBRARY.filter((source) =>
-    source.tags?.includes(tag.toLowerCase())
+  const search = tag.toLowerCase();
+  return SOURCE_LIBRARY.filter(
+    (source) =>
+      source.role?.toLowerCase().includes(search) ||
+      source.lifecycleFocus?.toLowerCase().includes(search),
   );
 }
 
@@ -61,9 +65,8 @@ export function getSourceById(id: string): Source | undefined {
 export function getSourcesByMaterial(materialName: string): Source[] {
   const searchTerm = materialName.toLowerCase();
   return SOURCE_LIBRARY.filter((source) =>
-    source.tags?.some(
-      (tag) => tag.includes(searchTerm) || searchTerm.includes(tag)
-    )
+    (source.role?.toLowerCase().includes(searchTerm) ?? false) ||
+    (source.lifecycleFocus?.toLowerCase().includes(searchTerm) ?? false),
   );
 }
 
