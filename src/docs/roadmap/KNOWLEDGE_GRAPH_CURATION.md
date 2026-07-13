@@ -4,6 +4,21 @@ Stage 7 turns the reconciled canonical entity layer into governed knowledge.
 It does not enable graph-powered discovery reads; that remains a Stage 10
 gate.
 
+## Stage 7 Wrap-Up Progress — July 13, 2026
+
+- The Content Management admin area now keeps one section visible at a time,
+  with video links, content mappings, relationship review, and preview tools
+  separated into focused panels.
+- Admins can add new videos by URL from the dedicated video-link panel, and
+  the flow reuses existing videos instead of creating duplicates.
+- Stage 7 smoke coverage now includes video-by-URL reuse, duplicate-safe
+  manual mappings and material relationships, and read-only material resource
+  checks so progress can be verified incrementally.
+- The remaining Stage 7 work should stay low-friction for human-reviewed
+  inputs and continue to use the existing audit-log system for every mutation.
+- Stage 8 planning now follows this wrap-up and centers on evidence-based
+  scoring methodology, provenance, and reviewed observation workflows.
+
 ## Supersession Note — July 8, 2026
 
 The roadmap now defines Stage 7 completion around two outcomes:

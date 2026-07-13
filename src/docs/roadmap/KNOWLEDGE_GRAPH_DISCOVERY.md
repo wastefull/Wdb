@@ -37,7 +37,10 @@ mislead.
   content-to-material workflows, including admin CRUD, review state, duplicate
   protection, and public material-page presentation.
 - **Stage 8:** Establish evidence-based scoring methodology and provenance;
-  discovery relationships remain separate from evidentiary support.
+  discovery relationships remain separate from evidentiary support. The first
+  slice should center on reviewed source observations, an admin-backed review
+  workflow, and audit-log-safe publication of scored outcomes rather than
+  discovery-first graph reads.
 - **Stage 9:** Expose public source browsing and citation links with strict
   public/restricted field boundaries.
 - **Stage 10:** Enable verified discovery reads, taxonomy governance, related
@@ -45,6 +48,9 @@ mislead.
 
 Existing material metrics, evidence, attribution, exports, and contribution
 workflows must remain available throughout the redesign.
+
+Stage 8 companion plan:
+[Evidence-Based Sustainability Scoring Plan](./guides/KNOWLEDGE_GRAPH_EVIDENCE_BASED_SCORING_PLAN.md).
 
 ## Stage 5 UI Contract
 

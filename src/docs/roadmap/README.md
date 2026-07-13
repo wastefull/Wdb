@@ -33,6 +33,12 @@ Stages 11 and 12 must remain the final sequence.
 - Stage 7 completion is defined by reviewed educational-content and
   material-relationship outcomes, including focused authorization, duplicate
   protection, public reads, and focused audit behavior.
+- Stage 7 wrap-up work now prioritizes admin-first video-by-URL intake,
+  single-section content management, and browser smoke tests that mirror the
+  actual curation workflow.
+- Stage 8 planning starts from reviewed source observations, methodology
+  versioning, and audit-backed publication of scored outcomes rather than
+  discovery-first graph reads.
 - Generalized taxonomy governance and broad discovery read cutover move to
   Stage 10.
 - Do not duplicate current stage status in Markdown.
@@ -45,3 +51,6 @@ practical, and backed by verified recovery procedures. See
 
 Active Stage 7 implementation contract:
 [Material Relationships and Educational Content](./KNOWLEDGE_GRAPH_CURATION.md).
+
+Stage 8 planning guide:
+[Evidence-Based Sustainability Scoring Plan](./guides/KNOWLEDGE_GRAPH_EVIDENCE_BASED_SCORING_PLAN.md).
