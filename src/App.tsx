@@ -81,6 +81,7 @@ import {
   CategoriesView,
   MaintenanceModePanel,
   ContentManagementPage,
+  EvidenceScoringPanel,
   OneTimeActionsPanel,
 } from "./components/admin";
 import { GenericDashboard } from "./components/dashboard/genericDashboard";
@@ -188,6 +189,7 @@ function AppContent() {
     navigateToSourceLibrary,
     navigateToSourceComparison,
     navigateToEvidenceLab,
+    navigateToEvidenceScoring,
     navigateToCurationWorkbench,
     navigateToTransformTesting,
     navigateToMaintenanceMode,
@@ -1153,6 +1155,7 @@ function AppContent() {
         onNavigateToSourceLibrary={navigateToSourceLibrary}
         onNavigateToSourceComparison={navigateToSourceComparison}
         onNavigateToEvidenceLab={navigateToEvidenceLab}
+        onNavigateToEvidenceScoring={navigateToEvidenceScoring}
         onNavigateToContentManagement={navigateToContentManagement}
         onNavigateToCurationWorkbench={navigateToCurationWorkbench}
         onNavigateToTransformTesting={navigateToTransformTesting}
@@ -1282,6 +1285,9 @@ function AppContent() {
       />
     ),
     "evidence-lab": () => <EvidenceLabView onBack={navigateToAdminHome} />,
+    "evidence-scoring": () => (
+      <EvidenceScoringPanel onBack={navigateToAdminDashboard} />
+    ),
     "curation-workbench": () => (
       <CurationWorkbench onBack={navigateToAdminHome} />
     ),

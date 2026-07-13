@@ -1,5 +1,6 @@
 import type { Material } from "../types/material";
 import type {
+  MaterialEvidenceScoringSummary,
   MaterialExperienceModel,
   MaterialGraphExperience,
   MaterialKeyInsight,
@@ -50,8 +51,9 @@ export function buildMaterialExperienceModel(
   material: Material,
   learningItems: MaterialLearningItem[],
   graph: MaterialGraphExperience = EMPTY_MATERIAL_GRAPH_EXPERIENCE,
+  evidenceSummary?: MaterialEvidenceScoringSummary | null,
 ): MaterialExperienceModel {
-  const dimensions = [
+  const dimensionFallbacks = [
     {
       id: "recyclability" as const,
       label: "Recyclability",
@@ -80,6 +82,18 @@ export function buildMaterialExperienceModel(
       theoreticalCI95: material.RU_theoretical_CI95,
     },
   ];
+
+  const dimensions = evidenceSummary?.dimensions?.length
+    ? evidenceSummary.dimensions.map((dimension) => ({
+        id: dimension.id,
+        label: dimension.label,
+        score: dimension.score,
+        practicalMean: dimension.normalizedMean,
+        theoreticalMean: dimension.normalizedMean,
+        practicalCI95: undefined,
+        theoreticalCI95: undefined,
+      }))
+    : dimensionFallbacks;
 
   const strongestDimension = [...dimensions].sort(
     (left, right) => right.score - left.score,
@@ -306,9 +320,11 @@ export function buildMaterialExperienceModel(
         imageLicenseName: material.wiki?.imageLicenseName,
         imageLicenseUrl: material.wiki?.imageLicenseUrl,
       },
-      methodVersion: material.method_version,
+      methodVersion: evidenceSummary?.methodologyVersion ?? material.method_version,
       whitepaperVersion: material.whitepaper_version,
-      calculationTimestamp: material.calculation_timestamp,
+      calculationTimestamp:
+        evidenceSummary?.calculationTimestamp ?? material.calculation_timestamp,
+      evidenceSummary: evidenceSummary ?? undefined,
     },
   };
 }

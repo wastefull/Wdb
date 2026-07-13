@@ -18,6 +18,10 @@ gate.
   inputs and continue to use the existing audit-log system for every mutation.
 - Stage 8 planning now follows this wrap-up and centers on evidence-based
   scoring methodology, provenance, and reviewed observation workflows.
+- The first Stage 8 slice is now implemented in the admin UI: evidence
+  methodology can be updated, review-queue observations can be approved or
+  flagged, and public material pages surface approved-evidence score
+  summaries.
 
 ## Supersession Note — July 8, 2026
 

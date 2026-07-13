@@ -12823,6 +12823,135 @@ app.patch(
   },
 );
 
+app.get(
+  "/make-server-17cae920/admin/evidence/scoring/methodology",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const methodology = await getCurrentEvidenceMethodology();
+      return c.json(methodology);
+    } catch (error) {
+      log.error("Error loading evidence methodology:", error);
+      return c.json(
+        { error: "Failed to load evidence methodology", details: String(error) },
+        500,
+      );
+    }
+  },
+);
+
+app.put(
+  "/make-server-17cae920/admin/evidence/scoring/methodology",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const userId = c.get("userId");
+      const body = await c.req.json().catch(() => ({}));
+      const version =
+        typeof body?.version === "string" ? body.version.trim() : "";
+      const description =
+        typeof body?.description === "string" ? body.description.trim() : "";
+      if (!version || !description) {
+        return c.json(
+          {
+            error: "Version and description are required",
+          },
+          400,
+        );
+      }
+
+      const before = await getCurrentEvidenceMethodology();
+      const updated: EvidenceMethodologyRecord = {
+        version,
+        description,
+        updated_at: new Date().toISOString(),
+      };
+      await kv.set(getEvidenceMethodologyKey(), updated);
+      await createAuditLog({
+        userId,
+        userEmail: c.get("userEmail"),
+        entityType: "evidence",
+        entityId: "methodology",
+        action: "update_methodology",
+        before,
+        after: updated,
+        req: c,
+      });
+      return c.json(updated);
+    } catch (error) {
+      log.error("Error updating evidence methodology:", error);
+      return c.json(
+        { error: "Failed to update evidence methodology", details: String(error) },
+        500,
+      );
+    }
+  },
+);
+
+app.get(
+  "/make-server-17cae920/admin/evidence/scoring/review",
+  verifyAuth,
+  verifyAdmin,
+  async (c) => {
+    try {
+      const status = c.req.query("status") ?? "pending";
+      if (
+        !["all", "pending", "validated", "flagged", "duplicate"].includes(
+          status,
+        )
+      ) {
+        return c.json({ error: "Invalid review status." }, 400);
+      }
+      const search = (c.req.query("search") ?? "").trim().toLowerCase();
+      const requestedOffset = Number.parseInt(c.req.query("offset") ?? "0", 10);
+      const requestedLimit = Number.parseInt(c.req.query("limit") ?? "50", 10);
+      const offset = Number.isFinite(requestedOffset)
+        ? Math.max(0, requestedOffset)
+        : 0;
+      const limit = Number.isFinite(requestedLimit)
+        ? Math.min(100, Math.max(1, requestedLimit))
+        : 50;
+      const allEvidence = (await kv.getByPrefix("evidence:")) as EvidenceRecord[];
+      const evidence = (allEvidence ?? []).filter(
+        (item): item is EvidenceRecord => !!item && typeof item.id === "string",
+      );
+      const filtered = evidence
+        .filter((item) => status === "all" || item.validation_status === status)
+        .filter((item) => {
+          if (!search) return true;
+          return [
+            item.citation,
+            item.snippet,
+            item.parameter_code,
+            item.material_id,
+            item.methodology_version,
+          ].some((value) =>
+            typeof value === "string" && value.toLowerCase().includes(search),
+          );
+        })
+        .sort(
+          (left, right) =>
+            new Date(right.created_at).getTime() -
+            new Date(left.created_at).getTime(),
+        );
+      return c.json({
+        items: filtered.slice(offset, offset + limit),
+        total: filtered.length,
+        offset,
+        limit,
+      });
+    } catch (error) {
+      log.error("Error loading evidence review queue:", error);
+      return c.json(
+        { error: "Failed to load evidence review queue", details: String(error) },
+        500,
+      );
+    }
+  },
+);
+
 // Parameter Aggregations (NEW in 9.1)
 app.post(
   "/make-server-17cae920/aggregations",
@@ -13202,6 +13331,151 @@ async function validateUnit(
   }
 }
 
+type EvidenceMethodologyRecord = {
+  version: string;
+  description: string;
+  updated_at: string;
+};
+
+type EvidenceRecord = {
+  id: string;
+  material_id: string;
+  parameter_code: string;
+  raw_value: number;
+  raw_unit: string;
+  transformed_value: number | null;
+  transform_version: string;
+  methodology_version?: string | null;
+  snippet: string;
+  source_type: string;
+  citation: string;
+  confidence_level: string;
+  notes?: string | null;
+  page_number?: number | null;
+  figure_number?: string | null;
+  table_number?: string | null;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+  validation_status?: "pending" | "validated" | "flagged" | "duplicate";
+  validated_by?: string | null;
+  validated_at?: string | null;
+};
+
+const DEFAULT_EVIDENCE_METHODODOLOGY: EvidenceMethodologyRecord = {
+  version: "stage-8-evidence-scoring-v1",
+  description:
+    "Stage 8 evidence scoring uses approved observations only. Draft and volunteer observations remain non-authoritative until staff validation records a methodology version.",
+  updated_at: new Date().toISOString(),
+};
+
+const EVIDENCE_DIMENSION_PARAMETERS: Record<string, string[]> = {
+  recyclability: ["Y", "D", "C", "M", "E"],
+  compostability: ["B", "N", "T", "H", "M"],
+  reusability: ["L", "R", "U", "C_RU", "M"],
+};
+
+function getEvidenceMethodologyKey() {
+  return "evidence:methodology:current";
+}
+
+async function getCurrentEvidenceMethodology(): Promise<EvidenceMethodologyRecord> {
+  const stored = (await kv.get(getEvidenceMethodologyKey())) as
+    | EvidenceMethodologyRecord
+    | null;
+  return stored ?? DEFAULT_EVIDENCE_METHODODOLOGY;
+}
+
+function normalizeEvidenceValue(evidence: EvidenceRecord): number | null {
+  if (typeof evidence.transformed_value === "number") {
+    return evidence.transformed_value;
+  }
+  return typeof evidence.raw_value === "number" ? evidence.raw_value : null;
+}
+
+function buildEvidenceScoringSummary(
+  materialId: string,
+  evidence: EvidenceRecord[],
+  methodology: EvidenceMethodologyRecord,
+) {
+  const validated = evidence.filter(
+    (item) => item.validation_status === "validated",
+  );
+  const validatedParameterCodes = new Set<string>();
+
+  const dimensions = Object.entries(EVIDENCE_DIMENSION_PARAMETERS).map(
+    ([id, parameterCodes]) => {
+      const parameterSummaries = parameterCodes
+        .map((parameterCode) => {
+          const parameterEvidence = validated.filter(
+            (item) => item.parameter_code === parameterCode,
+          );
+          if (parameterEvidence.length === 0) return null;
+          const values = parameterEvidence
+            .map(normalizeEvidenceValue)
+            .filter((value): value is number => value !== null);
+          if (values.length === 0) return null;
+          parameterEvidence.forEach((item) =>
+            validatedParameterCodes.add(item.parameter_code),
+          );
+          const averageValue =
+            values.reduce((sum, value) => sum + value, 0) / values.length;
+          return {
+            parameterCode,
+            observationCount: parameterEvidence.length,
+            averageValue,
+            reviewedAt: (() => {
+              const reviewedAtValues = parameterEvidence
+                .map((item) => item.validated_at)
+                .filter((value): value is string => Boolean(value))
+                .sort();
+              return reviewedAtValues[reviewedAtValues.length - 1] ?? null;
+            })(),
+          };
+        })
+        .filter(
+          (entry): entry is NonNullable<typeof entry> => entry !== null,
+        );
+
+      const normalizedValues = parameterSummaries.map(
+        (summary) => summary.averageValue,
+      );
+      const normalizedMean =
+        normalizedValues.length > 0
+          ? normalizedValues.reduce((sum, value) => sum + value, 0) /
+            normalizedValues.length
+          : 0;
+
+      return {
+        id,
+        label:
+          id === "recyclability"
+            ? "Recyclability"
+            : id === "compostability"
+              ? "Compostability"
+              : "Reusability",
+        score: Number((normalizedMean * 100).toFixed(2)),
+        normalizedMean,
+        observationCount: parameterSummaries.reduce(
+          (sum, summary) => sum + summary.observationCount,
+          0,
+        ),
+        parameterCodes,
+        parameterSummaries,
+      };
+    },
+  );
+
+  return {
+    materialId,
+    methodologyVersion: methodology.version,
+    calculationTimestamp: new Date().toISOString(),
+    approvedObservationCount: validated.length,
+    validatedParameterCount: validatedParameterCodes.size,
+    dimensions,
+  };
+}
+
 // Create evidence point (admin only)
 app.post(
   "/make-server-17cae920/evidence",
@@ -13227,6 +13501,7 @@ app.post(
         source_id, // Phase 9.1 addition (preferred)
         source_weight, // Phase 9.1 addition
         restricted_content, // Phase 9.1 addition
+        methodology_version,
       } = body;
 
       // Accept both source_ref and source_id for backward compatibility
@@ -13322,6 +13597,7 @@ app.post(
         .toString(36)
         .substr(2, 9)}`;
       const userId = c.get("userId");
+      const currentMethodology = await getCurrentEvidenceMethodology();
 
       // Create evidence point
       const evidencePoint = {
@@ -13344,6 +13620,10 @@ app.post(
         source_ref: sourceReference || null, // Phase 9.1 addition (kept for backward compatibility)
         source_weight: source_weight || 1.0, // Phase 9.1 addition
         restricted_content: restricted_content || false, // Phase 9.1 addition
+        methodology_version:
+          typeof methodology_version === "string" && methodology_version.trim()
+            ? methodology_version.trim()
+            : currentMethodology.version,
         validation_status: "pending", // Phase 9.1 addition
         validated_by: null, // Phase 9.1 addition
         validated_at: null, // Phase 9.1 addition
@@ -16595,6 +16875,45 @@ app.get(
     }
   },
 );
+
+app.get("/make-server-17cae920/graph/materials/:materialId/scoring", async (c) => {
+  try {
+    const materialId = c.req.param("materialId");
+    if (!/^[a-zA-Z0-9_-]{1,200}$/.test(materialId)) {
+      return c.json({ success: false, error: "Invalid material ID." }, 400);
+    }
+
+    const methodology = await getCurrentEvidenceMethodology();
+    const evidenceRefs = (await kv.getByPrefix(
+      `evidence_by_material:${materialId}:`,
+    )) as Array<{ value?: string } | string> | null;
+    const evidenceIds = Array.from(
+      new Set(
+        (evidenceRefs ?? []).flatMap((ref) =>
+          typeof ref === "string" ? [ref] : ref?.value ? [ref.value] : [],
+        ),
+      ),
+    );
+
+    const evidence = (
+      await Promise.all(
+        evidenceIds.map(async (id) => (await kv.get(`evidence:${id}`)) as EvidenceRecord | null),
+      )
+    ).filter((item): item is EvidenceRecord => !!item && !!item.id);
+    const summary = buildEvidenceScoringSummary(materialId, evidence, methodology);
+
+    return c.json({ success: true, summary });
+  } catch (error) {
+    log.error("Material scoring summary failed:", error);
+    return c.json(
+      {
+        success: false,
+        error: "Material scoring summary could not be loaded.",
+      },
+      500,
+    );
+  }
+});
 
 const MANUAL_CONTENT_ENTITY_TYPES = [
   "article",

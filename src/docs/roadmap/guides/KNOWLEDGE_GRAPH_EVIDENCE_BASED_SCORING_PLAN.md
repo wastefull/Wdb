@@ -5,6 +5,10 @@ reads. The first delivery slice should establish the scoring methodology,
 provenance model, and admin review workflow that lets humans approve source
 observations before any score can change.
 
+The first slice is now in progress in the app: there is a dedicated admin
+evidence-scoring panel, methodology/version storage, public approved-evidence
+score summaries, and smoke tests for the approval boundary.
+
 ## Summary
 
 - Keep the workflow admin-first and UI-backed.

@@ -41,6 +41,9 @@ mislead.
   slice should center on reviewed source observations, an admin-backed review
   workflow, and audit-log-safe publication of scored outcomes rather than
   discovery-first graph reads.
+- Stage 8 implementation has started with an admin evidence-scoring panel,
+  methodology/version storage, public approved-evidence score summaries, and
+  roadmap tests that smoke the approval boundary.
 - **Stage 9:** Expose public source browsing and citation links with strict
   public/restricted field boundaries.
 - **Stage 10:** Enable verified discovery reads, taxonomy governance, related

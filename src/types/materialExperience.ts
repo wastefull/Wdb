@@ -63,6 +63,32 @@ export interface MaterialVideoResource {
   lifecycleFocus?: string;
 }
 
+export interface MaterialEvidenceParameterSummary {
+  parameterCode: string;
+  observationCount: number;
+  averageValue: number;
+  reviewedAt?: string | null;
+}
+
+export interface MaterialEvidenceDimensionSummary {
+  id: CategoryType;
+  label: string;
+  score: number;
+  normalizedMean: number;
+  observationCount: number;
+  parameterCodes: string[];
+  parameterSummaries: MaterialEvidenceParameterSummary[];
+}
+
+export interface MaterialEvidenceScoringSummary {
+  materialId: string;
+  methodologyVersion: string;
+  calculationTimestamp: string;
+  approvedObservationCount: number;
+  validatedParameterCount: number;
+  dimensions: MaterialEvidenceDimensionSummary[];
+}
+
 export interface MaterialContentResource {
   id: string;
   title: string;
@@ -147,5 +173,6 @@ export interface MaterialExperienceModel {
     methodVersion?: string;
     whitepaperVersion?: string;
     calculationTimestamp?: string;
+    evidenceSummary?: MaterialEvidenceScoringSummary;
   };
 }

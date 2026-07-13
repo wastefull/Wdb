@@ -698,6 +698,7 @@ function DeepResearchSection({
   );
   const calculatedOn = formatTimestamp(model.research.calculationTimestamp);
   const attribution = model.research.attribution;
+  const evidenceSummary = model.research.evidenceSummary;
 
   return (
     <>
@@ -780,6 +781,34 @@ function DeepResearchSection({
                   {attribution.editorName &&
                     `Edited by ${attribution.editorName}`}
                 </p>
+              </div>
+            )}
+
+            {evidenceSummary && (
+              <div className="border-t pt-4 text-sm">
+                <p className="font-medium">Evidence provenance</p>
+                <p className="mt-1 text-muted-foreground">
+                  {evidenceSummary.approvedObservationCount} approved
+                  observation
+                  {evidenceSummary.approvedObservationCount === 1 ? "" : "s"} ·
+                  methodology {evidenceSummary.methodologyVersion}
+                </p>
+                <div className="mt-2 grid gap-2 sm:grid-cols-3">
+                  {evidenceSummary.dimensions.map((dimension) => (
+                    <div key={dimension.id} className="rounded-md border px-3 py-2">
+                      <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                        {dimension.label}
+                      </p>
+                      <p className="text-sm font-medium">
+                        {Math.round(dimension.score)}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {dimension.observationCount} approved observation
+                        {dimension.observationCount === 1 ? "" : "s"}
+                      </p>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 

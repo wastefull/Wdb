@@ -37,6 +37,7 @@ export function GenericDashboard({
     onNavigateToCharts,
     onNavigateToRoadmapOverview,
     onNavigateToSourceLibrary,
+    onNavigateToEvidenceScoring,
     onNavigateToContentManagement,
     onNavigateToTransformTesting,
   } = callbacks;
@@ -188,6 +189,27 @@ export function GenericDashboard({
                       </h3>
                       <p className="text-[12px] text-black/60 dark:text-white/60">
                         Manage scientific sources and citations
+                      </p>
+                    </div>
+                  </div>
+                </button>
+              )}
+
+              {type === "admin" && onNavigateToEvidenceScoring && (
+                <button
+                  onClick={onNavigateToEvidenceScoring}
+                  className="retro-card p-5 text-left hover:bg-black/5 dark:hover:bg-white/5 transition-colors group"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center shrink-0">
+                      <Shield size={24} className="text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-sniglet text-[14px] normal mb-1 group-hover:text-waste-recycle transition-colors">
+                        Evidence Scoring
+                      </h3>
+                      <p className="text-[12px] text-black/60 dark:text-white/60">
+                        Approve observations and keep public scoring honest.
                       </p>
                     </div>
                   </div>

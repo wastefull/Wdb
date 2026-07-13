@@ -50,6 +50,7 @@ import type {
 } from "../types/manualMaterialRelationship";
 import type { MaterialVideoResource } from "../types/materialExperience";
 import type { MaterialContentResource } from "../types/materialExperience";
+import type { MaterialEvidenceScoringSummary } from "../types/materialExperience";
 
 // Export projectId and publicAnonKey for use in other modules
 export { projectId, publicAnonKey };
@@ -1705,6 +1706,93 @@ export async function getMaterialRelationshipResources(
     `/graph/materials/${encodeURIComponent(materialId)}/relationships`,
   );
   return response.relationships;
+}
+
+export async function getMaterialEvidenceScoringSummary(
+  materialId: string,
+): Promise<MaterialEvidenceScoringSummary | null> {
+  try {
+    const response = await apiCall(
+      `/graph/materials/${encodeURIComponent(materialId)}/scoring`,
+    );
+    return response.summary ?? null;
+  } catch (error) {
+    apiLogger.warn("Material scoring summary unavailable:", {
+      materialId,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return null;
+  }
+}
+
+export interface EvidenceScoringMethodology {
+  version: string;
+  description: string;
+  updated_at: string;
+}
+
+export interface EvidenceReviewItem {
+  id: string;
+  material_id: string;
+  parameter_code: string;
+  raw_value: number;
+  raw_unit: string;
+  transformed_value: number | null;
+  transform_version: string;
+  methodology_version?: string | null;
+  snippet: string;
+  source_type: "whitepaper" | "article" | "external" | "manual";
+  citation: string;
+  confidence_level: "high" | "medium" | "low";
+  notes?: string | null;
+  page_number?: number | null;
+  figure_number?: string | null;
+  table_number?: string | null;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+  validation_status?: "pending" | "validated" | "flagged" | "duplicate";
+  validated_by?: string | null;
+  validated_at?: string | null;
+}
+
+export async function getEvidenceScoringMethodology(): Promise<EvidenceScoringMethodology> {
+  return await apiCall("/admin/evidence/scoring/methodology");
+}
+
+export async function updateEvidenceScoringMethodology(params: {
+  version: string;
+  description: string;
+}): Promise<EvidenceScoringMethodology> {
+  return await apiCall("/admin/evidence/scoring/methodology", {
+    method: "PUT",
+    body: JSON.stringify(params),
+  });
+}
+
+export async function listEvidenceForScoringReview(options: {
+  status?: "all" | "pending" | "validated" | "flagged" | "duplicate";
+  search?: string;
+  offset?: number;
+  limit?: number;
+} = {}): Promise<{ items: EvidenceReviewItem[]; total: number }> {
+  const params = new URLSearchParams({
+    status: options.status ?? "pending",
+    offset: String(options.offset ?? 0),
+    limit: String(options.limit ?? 50),
+  });
+  if (options.search?.trim()) params.set("search", options.search.trim());
+  return await apiCall(`/admin/evidence/scoring/review?${params}`);
+}
+
+export async function reviewEvidenceValidation(
+  evidenceId: string,
+  status: "pending" | "validated" | "flagged" | "duplicate",
+): Promise<{ success: boolean }> {
+  return await apiCall(`/evidence/${evidenceId}/validation`, {
+    method: "PATCH",
+    body: JSON.stringify({ status }),
+  });
 }
 
 /** Admin only — lists canonical entities and governed mapping vocabulary. */

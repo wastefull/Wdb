@@ -15,6 +15,7 @@ export interface DashboardBaseProps {
   onNavigateToDataManagement?: () => void;
   onNavigateToSourceLibrary?: () => void;
   onNavigateToEvidenceLab?: () => void;
+  onNavigateToEvidenceScoring?: () => void;
   onNavigateToCurationWorkbench?: () => void;
   onNavigateToTransformTesting?: () => void;
   onNavigateToCharts?: () => void;
@@ -189,6 +190,12 @@ const ALL_DASHBOARD_LINKS: DashboardLink[] = [
     key: "evidenceLab",
     action: "onNavigateToEvidenceLab",
     label: "Evidence Lab",
+    category: DashboardLinkCategory.Database,
+  },
+  {
+    key: "evidenceScoring",
+    action: "onNavigateToEvidenceScoring",
+    label: "Evidence Scoring",
     category: DashboardLinkCategory.Database,
   },
   {

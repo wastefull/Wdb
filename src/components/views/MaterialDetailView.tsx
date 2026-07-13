@@ -41,6 +41,7 @@ import { useNavigationContext } from "../../contexts/NavigationContext";
 import { MATERIAL_EXPERIENCE_SECTIONS } from "../../config/materialExperience";
 import { isDevelopment } from "../../utils/environment";
 import type {
+  MaterialEvidenceScoringSummary,
   MaterialContentResource,
   MaterialVideoResource,
 } from "../../types/materialExperience";
@@ -134,6 +135,8 @@ export function MaterialDetailView({
   const [contentResources, setContentResources] = useState<
     MaterialContentResource[]
   >([]);
+  const [evidenceSummary, setEvidenceSummary] =
+    useState<MaterialEvidenceScoringSummary | null>(null);
   const [areVideoResourcesLoading, setAreVideoResourcesLoading] =
     useState(true);
 
@@ -186,6 +189,21 @@ export function MaterialDetailView({
     };
   }, [material.id]);
 
+  useEffect(() => {
+    let active = true;
+    void api
+      .getMaterialEvidenceScoringSummary(material.id)
+      .then((summary) => {
+        if (active) setEvidenceSummary(summary);
+      })
+      .catch(() => {
+        if (active) setEvidenceSummary(null);
+      });
+    return () => {
+      active = false;
+    };
+  }, [material.id]);
+
   const confirmDeleteArticle = () => {
     if (!articleToDelete) return;
 
@@ -225,8 +243,14 @@ export function MaterialDetailView({
   );
 
   const experienceModel = useMemo(
-    () => buildMaterialExperienceModel(material, displayArticles),
-    [displayArticles, material],
+    () =>
+      buildMaterialExperienceModel(
+        material,
+        displayArticles,
+        undefined,
+        evidenceSummary,
+      ),
+    [displayArticles, evidenceSummary, material],
   );
 
   const articleCounts = useMemo(

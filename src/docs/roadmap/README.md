@@ -13,7 +13,7 @@ test mapping, and backlog items.
 5. Material Experience Redesign - Complete
 6. Knowledge Graph Foundation - Complete
 7. Material Relationships & Educational Content - Active
-8. Evidence-Based Sustainability Scoring - Planned
+8. Evidence-Based Sustainability Scoring - In Progress
 9. Public Source Library & Citations - Planned
 10. Taxonomy, Discovery & Learning Paths - Planned
 11. Privacy, Audit & Revision History - Planned
@@ -39,6 +39,9 @@ Stages 11 and 12 must remain the final sequence.
 - Stage 8 planning starts from reviewed source observations, methodology
   versioning, and audit-backed publication of scored outcomes rather than
   discovery-first graph reads.
+- Stage 8 now has an initial admin-facing evidence scoring panel, public
+  approved-evidence score summaries, and roadmap smoke tests wired to the new
+  workflow.
 - Generalized taxonomy governance and broad discovery read cutover move to
   Stage 10.
 - Do not duplicate current stage status in Markdown.

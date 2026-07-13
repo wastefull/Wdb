@@ -21,6 +21,7 @@ export { RolePermissionsView } from "./RolePermissionsView";
 export { ContentMappingPreviewPanel } from "./ContentMappingPreviewPanel";
 export { ContentMappingReviewPanel } from "./ContentMappingReviewPanel";
 export { ContentManagementPage } from "./ContentManagementPage";
+export { EvidenceScoringPanel } from "./EvidenceScoringPanel";
 export { ManualContentMappingPanel } from "./ManualContentMappingPanel";
 export { VideoMaterialLinkPanel } from "./VideoMaterialLinkPanel";
 export { VideoTopicClassificationPanel } from "./VideoTopicClassificationPanel";

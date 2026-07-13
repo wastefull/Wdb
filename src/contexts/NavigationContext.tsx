@@ -86,6 +86,7 @@ export type ViewType =
   | { type: "donate" }
   | { type: "maintenance-mode" }
   | { type: "content-management" }
+  | { type: "evidence-scoring" }
   | { type: "one-time-actions" };
 
 export type UserRole = "user" | "staff" | "admin";
@@ -116,6 +117,7 @@ export const ADMIN_VIEW_TYPES = new Set<ViewType["type"]>([
   "roadmap-overview",
   "maintenance-mode",
   "content-management",
+  "evidence-scoring",
   "one-time-actions",
 ]);
 
@@ -139,6 +141,7 @@ const STATIC_VIEW_HASH_TO_TYPE: Partial<Record<string, ViewType["type"]>> = {
   "source-library": "source-library",
   "source-comparison": "source-comparison",
   "content-management": "content-management",
+  "evidence-scoring": "evidence-scoring",
   "phase9-testing": "phase9-testing",
   "phase9-day10-testing": "phase9-day10-testing",
 };
@@ -254,6 +257,7 @@ interface NavigationContextType {
   navigateToDonate: () => void;
   navigateToMaintenanceMode: () => void;
   navigateToContentManagement: () => void;
+  navigateToEvidenceScoring: () => void;
   navigateToOneTimeActions: () => void;
   goBack: () => void;
 }
@@ -547,6 +551,10 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
     navigateTo({ type: "content-management" });
   };
 
+  const navigateToEvidenceScoring = () => {
+    navigateTo({ type: "evidence-scoring" });
+  };
+
   const navigateToOneTimeActions = () => {
     navigateTo({ type: "one-time-actions" });
   };
@@ -623,6 +631,7 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
     navigateToDonate,
     navigateToMaintenanceMode,
     navigateToContentManagement,
+    navigateToEvidenceScoring,
     navigateToOneTimeActions,
     goBack,
   };
