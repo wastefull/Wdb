@@ -34,8 +34,9 @@ Stages 11 and 12 must remain the final sequence.
   material-relationship outcomes, including focused authorization, duplicate
   protection, public reads, and focused audit behavior.
 - Stage 7 wrap-up work now prioritizes admin-first video-by-URL intake,
-  single-section content management, and browser smoke tests that mirror the
-  actual curation workflow.
+  single-section content management, shared Source Search entrypoints in the
+  Curation Workbench, and browser smoke tests that mirror the actual curation
+  workflow.
 - Stage 8 planning starts from reviewed source observations, methodology
   versioning, and audit-backed publication of scored outcomes rather than
   discovery-first graph reads.

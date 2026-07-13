@@ -49,6 +49,8 @@ import { useMaterialsContext } from "../../contexts/MaterialsContext";
 import { Alert, AlertDescription } from "../ui/alert";
 import { SOURCE_LIBRARY } from "../../data/sources";
 import { PDFViewer, PageTextContent } from "./PDFViewer";
+import { SourceSearchPanel } from "./SourceSearchPanel";
+import * as api from "../../utils/api";
 import {
   scanPdfForMatches,
   KeywordMatch,
@@ -56,6 +58,7 @@ import {
   groupMatchesByPage,
 } from "./keywordMatcher";
 import { logger } from "../../utils/logger";
+import type { CrossRefSearchResult } from "../../utils/api";
 interface CurationWorkbenchProps {
   onBack: () => void;
 }
@@ -135,7 +138,19 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedSource, setSelectedSource] = useState<any>(null);
   const [sources, setSources] = useState<any[]>([]);
-  const [loadingSources, setLoadingSources] = useState(true);
+  const [sourceSearchQuery, setSourceSearchQuery] = useState("");
+  const [sourceSearchResults, setSourceSearchResults] = useState<
+    CrossRefSearchResult[]
+  >([]);
+  const [selectedSearchResult, setSelectedSearchResult] =
+    useState<CrossRefSearchResult | null>(null);
+  const [searchingCrossRef, setSearchingCrossRef] = useState(false);
+  const [filterOpenAccess, setFilterOpenAccess] = useState(false);
+  const [checkingOABatch, setCheckingOABatch] = useState(false);
+  const [oaStatusCache, setOaStatusCache] = useState<Map<string, boolean>>(
+    new Map(),
+  );
+  const [showAllMaterials, setShowAllMaterials] = useState(false);
   const [unitsOntology, setUnitsOntology] = useState<UnitsOntology | null>(
     null,
   );
@@ -207,8 +222,6 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
       // Fallback to local SOURCE_LIBRARY
       setSources([...SOURCE_LIBRARY]);
       toast.error("Using local source library (API unavailable)");
-    } finally {
-      setLoadingSources(false);
     }
   };
 
@@ -234,6 +247,10 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
       // Don't show error toast - validation will just be disabled
     }
   };
+
+  const libraryDOIs = new Set(
+    sources.filter((source) => source.doi).map((source) => source.doi!.toLowerCase()),
+  );
 
   // Validate unit when parameter or unit changes
   useEffect(() => {
@@ -281,6 +298,141 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
       source_ref: source.id,
       citation: source.citation || source.title || "",
     });
+  };
+
+  const handleSourceSearch = async (query?: string) => {
+    const searchTerm = query ?? sourceSearchQuery;
+    if (!searchTerm.trim()) {
+      toast.error("Please enter a search term");
+      return;
+    }
+
+    if (query) {
+      setSourceSearchQuery(query);
+    }
+
+    setSearchingCrossRef(true);
+    setSourceSearchResults([]);
+    setSelectedSearchResult(null);
+
+    try {
+      const result = await api.searchSources(searchTerm, 20);
+      setSourceSearchResults(result.results);
+
+      if (result.results.length === 0) {
+        toast.info("No sources found. Try different search terms.");
+      } else {
+        toast.success(`Found ${result.results.length} sources`);
+
+        const uncachedDOIs = result.results
+          .filter((r) => !oaStatusCache.has(r.doi.toLowerCase()))
+          .map((r) => r.doi);
+
+        if (uncachedDOIs.length > 0) {
+          checkOAStatusBatch(uncachedDOIs);
+        }
+      }
+    } catch (error) {
+      logger.error("Error searching sources:", error);
+      toast.error("Failed to search for sources");
+    } finally {
+      setSearchingCrossRef(false);
+    }
+  };
+
+  const checkOAStatusBatch = async (dois: string[]) => {
+    setCheckingOABatch(true);
+    const newCache = new Map(oaStatusCache);
+
+    const batchSize = 5;
+    for (let i = 0; i < dois.length; i += batchSize) {
+      const batch = dois.slice(i, i + batchSize);
+      const results = await Promise.allSettled(
+        batch.map((doi) => api.checkOAStatus(doi)),
+      );
+
+      results.forEach((result, idx) => {
+        const doi = batch[idx].toLowerCase();
+        if (result.status === "fulfilled") {
+          newCache.set(doi, result.value.is_open_access);
+        } else {
+          newCache.set(doi, false);
+        }
+      });
+
+      setOaStatusCache(new Map(newCache));
+    }
+
+    setCheckingOABatch(false);
+  };
+
+  const handleSelectSearchResult = (result: CrossRefSearchResult) => {
+    setSelectedSearchResult(result);
+  };
+
+  const createSourceFromSearchResult = (
+    result: CrossRefSearchResult,
+  ): api.Source => ({
+    id: `crossref-${result.doi.replace(/[^a-zA-Z0-9]+/g, "-")}`,
+    title: result.title,
+    authors: result.authors.join(", "),
+    year: result.year || undefined,
+    doi: result.doi,
+    url: `https://doi.org/${result.doi}`,
+    weight: 1.0,
+    type: "peer-reviewed",
+    abstract: result.abstract || undefined,
+    tags: [],
+    is_open_access: oaStatusCache.get(result.doi.toLowerCase()) || false,
+  });
+
+  const handlePrimarySearchAction = async (
+    result: CrossRefSearchResult,
+    isInLibrary: boolean,
+  ) => {
+    setSelectedSearchResult(result);
+
+    if (isInLibrary) {
+      const existingSource = sources.find(
+        (source) => source.doi?.toLowerCase() === result.doi.toLowerCase(),
+      );
+
+      if (existingSource) {
+        handleSourceSelect(existingSource);
+        toast.success("Source selected for curation");
+      } else {
+        toast.error("Could not find the source in the local library");
+      }
+      return;
+    }
+
+    try {
+      const duplicate = await api.checkSourceDuplicate({
+        doi: result.doi,
+        title: result.title,
+      });
+
+      if (duplicate.isDuplicate && duplicate.existingSource) {
+        const existingSource = sources.find(
+          (source) => source.id === duplicate.existingSource?.id,
+        );
+
+        if (existingSource) {
+          handleSourceSelect(existingSource);
+          toast.info("Source already exists in the library and was selected");
+          return;
+        }
+      }
+
+      const newSource = createSourceFromSearchResult(result);
+      const createdSource = await api.createSource(newSource);
+      setSources((prev) => [...prev, createdSource]);
+      handleSourceSelect(createdSource);
+      toast.success("Source added to library and selected for curation");
+    } catch (error) {
+      logger.error("Failed to add search result to library:", error);
+      toast.error("Failed to add source to library");
+    }
   };
 
   const handleSubmit = async () => {
@@ -466,11 +618,11 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
       {/* Main Split-Pane Layout */}
       <div className="flex-1 flex overflow-hidden">
         {/* Left Pane: Source Viewer */}
-        <div className="flex-1 min-w-125 bg-white dark:bg-[#2a2825] flex flex-col border-r border-[#211f1c]/20 dark:border-white/20">
-          <div className="panel-bordered">
-            <h3 className="font-['Tilt_Warp'] text-[16px] normal mb-1">
-              Source Viewer
-            </h3>
+          <div className="flex-1 min-w-125 bg-white dark:bg-[#2a2825] flex flex-col border-r border-[#211f1c]/20 dark:border-white/20">
+            <div className="panel-bordered">
+              <h3 className="font-['Tilt_Warp'] text-[16px] normal mb-1">
+                Source Viewer
+              </h3>
             <p className="label-muted-sm">
               {selectedSource
                 ? `Viewing: ${selectedSource.title || selectedSource.citation}`
@@ -480,108 +632,36 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
 
           <div className="flex-1 overflow-hidden flex flex-col">
             {currentStep === 1 ? (
-              /* Step 1: Source Selection */
-              <ScrollArea className="flex-1">
-                <div className="p-6 space-y-4">
-                  {loadingSources ? (
-                    <div className="text-center py-12">
-                      <p className="label-muted">Loading sources...</p>
-                    </div>
-                  ) : sources.length === 0 ? (
-                    <div className="text-center py-12">
-                      <FileText
-                        size={48}
-                        className="mx-auto mb-4 text-black/20 dark:text-white/20"
-                      />
-                      <h4 className="font-['Tilt_Warp'] text-[14px] normal mb-2">
-                        No Sources Available
-                      </h4>
-                      <p className="label-muted-sm">
-                        Please add sources to the library first
-                      </p>
-                    </div>
-                  ) : (
-                    sources.map((source) => (
-                      <button
-                        key={source.id}
-                        onClick={() => handleSourceSelect(source)}
-                        className={`w-full p-4 rounded-lg border transition-all text-left ${
-                          selectedSource?.id === source.id
-                            ? "border-[#211f1c] dark:border-white bg-[#e5e4dc] dark:bg-[#3a3835] shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]"
-                            : "border-[#211f1c]/20 dark:border-white/20 hover:border-[#211f1c]/40 dark:hover:border-white/40"
-                        }`}
-                      >
-                        <div className="flex items-start gap-2 mb-2">
-                          <BookOpen
-                            size={14}
-                            className="text-black/60 dark:text-white/60 mt-0.5 shrink-0"
-                          />
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-['Tilt_Warp'] text-[13px] normal truncate">
-                              {source.title || "Untitled"}
-                            </h4>
-                            <p className="label-muted-sm line-clamp-2">
-                              {source.citation ||
-                                source.authors ||
-                                "No citation available"}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          {source.year && (
-                            <Badge
-                              variant="secondary"
-                              className="font-['Sniglet'] text-[9px]"
-                            >
-                              {source.year}
-                            </Badge>
-                          )}
-                          {/* OA Status Badge */}
-                          {source.is_open_access === true && (
-                            <Badge
-                              className={`text-[8px] ${
-                                source.manual_oa_override
-                                  ? "bg-teal-100 text-teal-800 dark:bg-teal-900/20 dark:text-teal-300"
-                                  : "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
-                              }`}
-                              title={`Open Access${
-                                source.manual_oa_override ? " (Manual)" : ""
-                              }`}
-                            >
-                              <Unlock className="w-2 h-2 mr-0.5" />
-                              OA
-                            </Badge>
-                          )}
-                          {source.is_open_access === false && (
-                            <Badge
-                              className={`text-[8px] ${
-                                source.manual_oa_override
-                                  ? "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300"
-                                  : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
-                              }`}
-                              title={`Closed Access${
-                                source.manual_oa_override ? " (Manual)" : ""
-                              }`}
-                            >
-                              <Lock className="w-2 h-2 mr-0.5" />
-                              Closed
-                            </Badge>
-                          )}
-                          {source.pdfFileName && (
-                            <Badge
-                              variant="outline"
-                              className="text-[8px] bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
-                              title="PDF Available"
-                            >
-                              PDF
-                            </Badge>
-                          )}
-                        </div>
-                      </button>
-                    ))
-                  )}
-                </div>
-              </ScrollArea>
+            <SourceSearchPanel
+              title="Start with Source Search"
+              defaultTab="existing"
+              description="Pick an existing library source or search for a new one, review OA status, and continue into the evidence steps."
+              searchQuery={sourceSearchQuery}
+              onSearchQueryChange={setSourceSearchQuery}
+              onSearch={handleSourceSearch}
+              searching={searchingCrossRef}
+              results={sourceSearchResults}
+              selectedResult={selectedSearchResult}
+              onSelectResult={handleSelectSearchResult}
+              onPrimaryAction={handlePrimarySearchAction}
+              primaryActionLabel={(isInLibrary) =>
+                isInLibrary ? "Use in Workbench" : "Add & Use"
+              }
+              libraryDOIs={libraryDOIs}
+              existingSources={sources}
+              selectedExistingSourceId={selectedSource?.id}
+              onSelectExistingSource={(source) => handleSourceSelect(source)}
+              filterOpenAccess={filterOpenAccess}
+              onFilterOpenAccessChange={setFilterOpenAccess}
+              checkingOABatch={checkingOABatch}
+              oaStatusCache={oaStatusCache}
+              materials={pilotMaterials}
+                showAllMaterials={showAllMaterials}
+                onToggleShowAllMaterials={() =>
+                  setShowAllMaterials(!showAllMaterials)
+                }
+                onQuickSearch={handleSourceSearch}
+              />
             ) : (
               /* Steps 2-5: Show selected source content with PDF viewer prominent */
               <>

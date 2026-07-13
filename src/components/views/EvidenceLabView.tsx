@@ -31,6 +31,7 @@ import {
   DialogTitle,
 } from "../ui/dialog";
 import { Label } from "../ui/label";
+import { Textarea } from "../ui/textarea";
 import {
   Select,
   SelectContent,
@@ -38,14 +39,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { Textarea } from "../ui/textarea";
-import { Switch } from "../ui/switch";
 import { toast } from "sonner";
 import { projectId, publicAnonKey } from "../../utils/supabase/info";
 import { useAuthContext } from "../../contexts/AuthContext";
 import { useMaterialsContext } from "../../contexts/MaterialsContext";
 import * as api from "../../utils/api";
 import type { CrossRefSearchResult, DOILookupResult } from "../../utils/api";
+import { SourceSearchPanel } from "../evidence/SourceSearchPanel";
 import { EvidenceListViewer } from "../evidence/EvidenceListViewer";
 import { logger } from "../../utils/logger";
 
@@ -80,7 +80,7 @@ interface MIU {
 export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
   const { user } = useAuthContext();
   const { materials } = useMaterialsContext();
-  const [viewMode, setViewMode] = useState<ViewMode>("evidence");
+  const [viewMode, setViewMode] = useState<ViewMode>("source-search");
   const [selectedParameter, setSelectedParameter] = useState<string | null>(
     null,
   );
@@ -612,16 +612,30 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
         <div className="flex-1">
           <h2 className="heading-xl">Evidence Lab</h2>
           <p className="label-muted">
-            {viewMode === "evidence"
-              ? "Collect and organize scientific evidence for material parameters"
-              : viewMode === "browse-all"
-                ? "Browse and manage all evidence points (including test data)"
-                : "Search academic databases for relevant sources"}
+            {viewMode === "source-search"
+              ? "Start by finding a source, then add it to the library or move it into evidence"
+              : viewMode === "evidence"
+                ? "Collect and organize scientific evidence for material parameters"
+                : "Browse and manage all evidence points (including test data)"}
           </p>
         </div>
 
         {/* Mode Toggle */}
         <div className="flex gap-1 p-1 bg-[#e5e4dc] dark:bg-[#1a1917] rounded-lg border border-[#211f1c]/20 dark:border-white/20">
+          <button
+            onClick={() => setViewMode("source-search")}
+            className={`px-3 py-1.5 rounded-md text-[12px] font-['Sniglet'] transition-all ${
+              viewMode === "source-search"
+                ? "bg-waste-reuse text-black shadow-sm normal"
+                : "text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white"
+            }`}
+          >
+            <Globe size={14} className="inline mr-1.5" />
+            Source Search
+            <span className="ml-2 rounded-full bg-black/10 px-2 py-0.5 text-[9px] uppercase tracking-wide">
+              Start here
+            </span>
+          </button>
           <button
             onClick={() => setViewMode("evidence")}
             className={`px-3 py-1.5 rounded-md text-[12px] font-['Sniglet'] transition-all ${
@@ -643,17 +657,6 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
           >
             <List size={14} className="inline mr-1.5" />
             Browse All
-          </button>
-          <button
-            onClick={() => setViewMode("source-search")}
-            className={`px-3 py-1.5 rounded-md text-[12px] font-['Sniglet'] transition-all ${
-              viewMode === "source-search"
-                ? "bg-white dark:bg-[#2a2825] shadow-sm normal"
-                : "text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white"
-            }`}
-          >
-            <Globe size={14} className="inline mr-1.5" />
-            Source Search
           </button>
         </div>
 
@@ -987,217 +990,28 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
         <div className="flex-1 flex overflow-hidden">
           {/* Left Pane: Search */}
           <div className="w-96 border-r border-[#211f1c]/20 dark:border-white/20 bg-white dark:bg-[#2a2825] flex flex-col">
-            {/* Material-Based Search */}
-            <div className="p-4 border-b border-[#211f1c]/20 dark:border-white/20">
-              <h3 className="font-['Tilt_Warp'] text-[14px] normal mb-3">
-                Search Academic Sources
-              </h3>
-              <div className="space-y-3">
-                <div>
-                  <Label className="label-muted-sm mb-1.5 block">
-                    Search by material or topic
-                  </Label>
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="e.g., cardboard biodegradation"
-                      value={sourceSearchQuery}
-                      onChange={(e) => setSourceSearchQuery(e.target.value)}
-                      onKeyDown={(e) =>
-                        e.key === "Enter" && handleSourceSearch()
-                      }
-                      className="h-9 font-['Sniglet'] text-[12px]"
-                    />
-                    <Button
-                      onClick={() => handleSourceSearch()}
-                      disabled={searchingCrossRef}
-                      size="sm"
-                      className="bg-waste-reuse hover:bg-waste-reuse/90 border border-[#211f1c] text-black"
-                    >
-                      {searchingCrossRef ? (
-                        <Loader2 size={14} className="animate-spin" />
-                      ) : (
-                        <Search size={14} />
-                      )}
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Open Access Filter */}
-                <div className="flex items-center justify-between">
-                  <Label className="label-muted-xs flex items-center gap-1.5">
-                    <CheckCircle size={12} className="text-green-600" />
-                    Open Access only
-                  </Label>
-                  <div className="flex items-center gap-2">
-                    {checkingOABatch && (
-                      <Loader2
-                        size={12}
-                        className="animate-spin text-black/40 dark:text-white/40"
-                      />
-                    )}
-                    <Switch
-                      checked={filterOpenAccess}
-                      onCheckedChange={setFilterOpenAccess}
-                    />
-                  </div>
-                </div>
-
-                {/* Quick search suggestions based on materials */}
-                {materials.length > 0 && (
-                  <div>
-                    <Label className="label-muted-xs mb-1.5 block">
-                      Quick search by material:
-                    </Label>
-                    <div className="flex flex-wrap gap-1.5">
-                      {(showAllMaterials
-                        ? materials
-                        : materials.slice(0, 5)
-                      ).map((m) => (
-                        <button
-                          key={m.id}
-                          onClick={() => handleSourceSearch(m.name)}
-                          className="px-2 py-1 text-xs font-['Sniglet'] bg-[#e5e4dc] dark:bg-[#1a1917] border border-[#211f1c]/20 dark:border-white/20 rounded-md hover:border-[#211f1c]/40 dark:hover:border-white/40 transition-colors"
-                        >
-                          {m.name}
-                        </button>
-                      ))}
-                      {materials.length > 5 && (
-                        <button
-                          onClick={() => setShowAllMaterials(!showAllMaterials)}
-                          className="px-2 py-1 text-xs font-['Sniglet'] bg-waste-reuse dark:bg-[#3a3835] border border-[#211f1c]/20 dark:border-white/20 rounded-md hover:border-[#211f1c]/40 dark:hover:border-white/40 transition-colors"
-                        >
-                          {showAllMaterials
-                            ? "Show less"
-                            : `+${materials.length - 5} more`}
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Search Results */}
-            <ScrollArea className="flex-1">
-              <div className="p-4 space-y-2">
-                {searchingCrossRef ? (
-                  <div className="text-center py-12">
-                    <Loader2
-                      size={32}
-                      className="mx-auto mb-3 animate-spin text-black/40 dark:text-white/40"
-                    />
-                    <p className="label-muted">Searching CrossRef...</p>
-                  </div>
-                ) : sourceSearchResults.length === 0 ? (
-                  <div className="text-center py-12">
-                    <Globe
-                      size={48}
-                      className="mx-auto mb-4 text-black/20 dark:text-white/20"
-                    />
-                    <h4 className="font-['Tilt_Warp'] text-[14px] normal mb-2">
-                      Search for Sources
-                    </h4>
-                    <p className="label-muted-sm max-w-xs mx-auto">
-                      Enter a material name or topic to find relevant academic
-                      papers
-                    </p>
-                  </div>
-                ) : (
-                  (() => {
-                    // Filter results based on OA toggle
-                    const filteredResults = filterOpenAccess
-                      ? sourceSearchResults.filter(
-                          (r) =>
-                            oaStatusCache.get(r.doi.toLowerCase()) === true,
-                        )
-                      : sourceSearchResults;
-
-                    if (
-                      filteredResults.length === 0 &&
-                      filterOpenAccess &&
-                      sourceSearchResults.length > 0
-                    ) {
-                      return (
-                        <div className="text-center py-12">
-                          <CheckCircle
-                            size={48}
-                            className="mx-auto mb-4 text-black/20 dark:text-white/20"
-                          />
-                          <h4 className="font-['Tilt_Warp'] text-[14px] normal mb-2">
-                            {checkingOABatch
-                              ? "Checking Open Access..."
-                              : "No Open Access Results"}
-                          </h4>
-                          <p className="label-muted-sm max-w-xs mx-auto">
-                            {checkingOABatch
-                              ? `Checking ${sourceSearchResults.length} sources...`
-                              : "None of the results are openly accessible. Try disabling the filter."}
-                          </p>
-                        </div>
-                      );
-                    }
-
-                    return filteredResults.map((result, idx) => {
-                      const isInLibrary = libraryDOIs.has(
-                        result.doi.toLowerCase(),
-                      );
-                      const isOpenAccess = oaStatusCache.get(
-                        result.doi.toLowerCase(),
-                      );
-                      return (
-                        <button
-                          key={`${result.doi}-${idx}`}
-                          onClick={() => handleSelectSearchResult(result)}
-                          className={`w-full p-3 rounded-lg border transition-all text-left ${
-                            selectedSearchResult?.doi === result.doi
-                              ? "border-[#211f1c] dark:border-white bg-[#e5e4dc] dark:bg-[#3a3835] shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]"
-                              : isInLibrary
-                                ? "border-[#a8d5ba] dark:border-[#a8d5ba]/60 bg-[#a8d5ba]/10 dark:bg-[#a8d5ba]/5"
-                                : "border-[#211f1c]/20 dark:border-white/20 hover:border-[#211f1c]/40 dark:hover:border-white/40"
-                          }`}
-                        >
-                          <div className="flex items-start justify-between gap-2 mb-1">
-                            <h4 className="font-['Sniglet'] text-[12px] normal line-clamp-2 flex-1">
-                              {result.title}
-                            </h4>
-                            <div className="flex gap-1 shrink-0">
-                              {isOpenAccess === true && (
-                                <Badge className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-[8px]">
-                                  <CheckCircle size={10} className="mr-0.5" />
-                                  OA
-                                </Badge>
-                              )}
-                              {isInLibrary && (
-                                <Badge className="bg-[#a8d5ba] text-black text-[8px]">
-                                  <Library size={10} className="mr-1" />
-                                  In Library
-                                </Badge>
-                              )}
-                            </div>
-                          </div>
-                          <p className="label-muted-xs mb-1">
-                            {result.authors.slice(0, 2).join(", ")}
-                            {result.authors.length > 2 && " et al."}
-                          </p>
-                          <div className="flex items-center gap-2">
-                            {result.year && (
-                              <Badge variant="secondary" className="text-[9px]">
-                                {result.year}
-                              </Badge>
-                            )}
-                            {result.journal && (
-                              <span className="label-muted-xs truncate max-w-37.5">
-                                {result.journal}
-                              </span>
-                            )}
-                          </div>
-                        </button>
-                      );
-                    });
-                  })()
-                )}
-              </div>
-            </ScrollArea>
+            <SourceSearchPanel
+              title="Start with Source Search"
+              description="Search for the source first, check Open Access, add the best match to the library, then continue into evidence work if needed."
+              searchQuery={sourceSearchQuery}
+              onSearchQueryChange={setSourceSearchQuery}
+              onSearch={handleSourceSearch}
+              searching={searchingCrossRef}
+              results={sourceSearchResults}
+              selectedResult={selectedSearchResult}
+              onSelectResult={handleSelectSearchResult}
+              libraryDOIs={libraryDOIs}
+              filterOpenAccess={filterOpenAccess}
+              onFilterOpenAccessChange={setFilterOpenAccess}
+              checkingOABatch={checkingOABatch}
+              oaStatusCache={oaStatusCache}
+              materials={materials}
+              showAllMaterials={showAllMaterials}
+              onToggleShowAllMaterials={() =>
+                setShowAllMaterials(!showAllMaterials)
+              }
+              onQuickSearch={handleSourceSearch}
+            />
           </div>
 
           {/* Right Pane: Source Details */}

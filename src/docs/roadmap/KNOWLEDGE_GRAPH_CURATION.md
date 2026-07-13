@@ -11,6 +11,9 @@ gate.
   separated into focused panels.
 - Admins can add new videos by URL from the dedicated video-link panel, and
   the flow reuses existing videos instead of creating duplicates.
+- Source Search now has its own shared component and is the first step in the
+  Curation Workbench source viewer, so logged-in users can search, inspect OA
+  status, and promote a source into curation from the same entrypoint.
 - Stage 7 smoke coverage now includes video-by-URL reuse, duplicate-safe
   manual mappings and material relationships, and read-only material resource
   checks so progress can be verified incrementally.

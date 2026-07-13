@@ -2,6 +2,7 @@
 export { DuplicateSourceWarning } from "./DuplicateSourceWarning";
 export { SourceDataComparison } from "./SourceDataComparison";
 export { SourceLibraryManager } from "./SourceLibraryManager";
+export { SourceSearchPanel } from "./SourceSearchPanel";
 
 // Evidence management
 export { CurationWorkbench } from "./CurationWorkbench";
