@@ -79,7 +79,8 @@ export function BlogView({ onBack, postId }: BlogViewProps) {
       setIsPostLoading(true);
       setPostError(null);
       try {
-        const fetchedPost = (await getPostById(postId)) ?? (await getPostBySlug(postId));
+        const fetchedPost =
+          (await getPostById(postId)) ?? (await getPostBySlug(postId));
         if (!fetchedPost) {
           setSelectedPost(null);
           setPostError("Blog post not found");
@@ -520,12 +521,10 @@ export function BlogView({ onBack, postId }: BlogViewProps) {
         description="Published posts and a compact public changelog from the WasteDB team"
         onBack={onBack}
       >
-        <div className="flex items-center justify-center py-12">
-          <div className="text-center">
-            <div className="inline-block w-8 h-8 border-2 border-black/20 dark:border-white/20 border-t-black dark:border-t-white rounded-full animate-spin mb-4" />
-            <p className="text-[13px] text-black/60 dark:text-white/60">
-              Loading blog content...
-            </p>
+        <div className="loading-container">
+          <div>
+            <div className="spinner" />
+            <p>Loading blog content...</p>
           </div>
         </div>
       </PageTemplate>
@@ -538,24 +537,20 @@ export function BlogView({ onBack, postId }: BlogViewProps) {
       description="Published posts and a compact public changelog from the WasteDB team"
       onBack={onBack}
     >
-      <div className="mb-6">
-        <div className="flex gap-1 md:gap-2 border-b border-[#211f1c]/20 dark:border-white/20 flex-wrap overflow-x-auto">
+      <div className="blog-tab">
+        <div className="blog-tab-bar">
           <button
             onClick={() => setActiveTab("posts")}
-            className={`px-2 md:px-4 py-2 text-xs md:text-[12px] transition-colors whitespace-nowrap ${
-              activeTab === "posts"
-                ? "normal border-b-2 border-[#211f1c] dark:border-white"
-                : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
+            className={`blog-tab-btn ${
+              activeTab === "posts" ? "tab-active" : "tab-inactive"
             }`}
           >
             Posts
           </button>
           <button
             onClick={() => setActiveTab("changelog")}
-            className={`px-2 md:px-4 py-2 text-xs md:text-[12px] transition-colors whitespace-nowrap ${
-              activeTab === "changelog"
-                ? "normal border-b-2 border-[#211f1c] dark:border-white"
-                : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
+            className={`blog-tab-btn ${
+              activeTab === "changelog" ? "tab-active" : "tab-inactive"
             }`}
           >
             Changelog

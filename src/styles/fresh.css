@@ -1654,6 +1654,22 @@ body {
   @apply p-4 border border-[#211f1c]/20 rounded-lg text-center text-sm text-black/60;
 }
 
+/* ======
+Loading 
+===== */
+.loading-container {
+  @apply flex items-center justify-center py-12;
+  & div {
+    @apply text-center;
+    & .spinner {
+      @apply inline-block w-8 h-8 border-2 border-black/20 dark:border-white/20 border-t-black dark:border-t-white rounded-full animate-spin mb-4;
+      & p {
+        @apply text-[13px] text-black/60 dark:text-white/60;
+      }
+    }
+  }
+}
+
 /* ==========================================================================
        Material Page Styles
        ========================================================================== */
@@ -1665,6 +1681,7 @@ body {
 @utility detail-gradient {
   @apply bg-[linear-gradient(135deg,color-mix(in_oklch,var(--waste-recycle)_25%,transparent),color-mix(in_oklch,var(--waste-reuse)_15%,transparent))];
 }
+
 main.material-detail-view {
   @apply p-6;
 
@@ -1971,6 +1988,25 @@ Admin/Staff Dashboards
       }
       & .numbers-card-value {
         @apply text-sm lg:text-xl arcade-numbers;
+      }
+    }
+  }
+}
+
+/* ==========
+BLOG VIEW
+============ */
+.blog-tab {
+  @apply mb-6;
+  & .blog-tab-bar {
+    @apply flex gap-1 md:gap-2 border-b border-[#211f1c]/20 dark:border-white/20 flex-wrap overflow-x-auto;
+    & .blog-tab-btn {
+      @apply px-2 md:px-4 py-2 text-xs md:text-[12px] transition-colors whitespace-nowrap;
+      & .tab-active {
+        @apply normal border-b-2 border-[#211f1c] dark:border-white;
+      }
+      & .tab-inactive {
+        @apply text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white;
       }
     }
   }
