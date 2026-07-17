@@ -201,7 +201,7 @@ export function VideoMaterialLinkPanel() {
   const submitCreateVideo = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!newVideoUrl.trim()) {
-      setError("Paste a YouTube URL first.");
+      setError("Paste a YouTube video or Shorts URL first.");
       return;
     }
     if (isNewVideoEvidence && !newVideoEvidenceUse) {
@@ -390,8 +390,9 @@ export function VideoMaterialLinkPanel() {
           <div>
             <p className="font-sniglet text-[13px]">Add video by URL</p>
             <p className="mt-1 max-w-xl text-[11px] text-black/60 dark:text-white/60">
-              Paste a YouTube link to create a draft video. If you choose a
-              material, the new video can be linked to it in the same step.
+              Paste a YouTube video or Shorts link to create a draft video. If
+              you choose a material, the new video can be linked to it in the
+              same step.
             </p>
           </div>
         </div>
@@ -399,14 +400,14 @@ export function VideoMaterialLinkPanel() {
         <form onSubmit={submitCreateVideo} className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <label className="space-y-2 text-[11px] font-medium">
-              YouTube URL
+              YouTube video or Shorts URL
               <input
                 value={newVideoUrl}
                 onChange={(event) => {
                   setNewVideoUrl(event.target.value);
                   setCreateVideoResult(null);
                 }}
-                placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                placeholder="https://www.youtube.com/shorts/dQw4w9WgXcQ"
                 className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] dark:border-white/15"
               />
             </label>

@@ -15530,7 +15530,7 @@ app.post(
       const youtubeId = normalizeYouTubeVideoId(rawYoutubeUrl);
       if (!youtubeId) {
         return c.json(
-          { success: false, error: "The YouTube URL is not valid." },
+          { success: false, error: "The YouTube video or Shorts URL is not valid." },
           400,
         );
       }
