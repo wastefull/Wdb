@@ -39,13 +39,13 @@ interface SearchResultsViewProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   onBack: () => void;
-  onEditMaterial: (material: Material) => void;
+  onEditMaterial: (materialId: string) => void;
   onDeleteMaterial: (id: string) => void;
   onViewArticles: (materialId: string, category: CategoryType) => void;
   onViewMaterial: (materialId: string) => void;
   onViewCategory: (category: Material["category"]) => void;
   onEditScientific: (materialId: string) => void;
-  onSuggestEdit: (material: Material) => void;
+  onSuggestEdit: (materialId: string) => void;
   isAdminModeActive: boolean;
   isAuthenticated: boolean;
 }
@@ -521,20 +521,20 @@ export function SearchResultsView({
       {/* Materials Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredMaterials.map((material) => (
-          <MaterialCard
-            key={material.id}
-            material={material}
-            onEdit={() => onEditMaterial(material)}
-            onDelete={() => onDeleteMaterial(material.id)}
-            onViewArticles={(category) => onViewArticles(material.id, category)}
-            onViewMaterial={() => onViewMaterial(material.id)}
-            onViewCategory={onViewCategory}
-            onEditScientific={() => onEditScientific(material.id)}
-            onSuggestEdit={() => onSuggestEdit(material)}
-            isAdminModeActive={isAdminModeActive}
-            isAuthenticated={isAuthenticated}
-            showScores={betaFeaturesEnabled}
-          />
+        <MaterialCard
+          key={material.id}
+          material={material}
+          onEdit={() => onEditMaterial(material.id)}
+          onDelete={() => onDeleteMaterial(material.id)}
+          onViewArticles={(category) => onViewArticles(material.id, category)}
+          onViewMaterial={() => onViewMaterial(material.id)}
+          onViewCategory={onViewCategory}
+          onEditScientific={() => onEditScientific(material.id)}
+          onSuggestEdit={() => onSuggestEdit(material.id)}
+          isAdminModeActive={isAdminModeActive}
+          isAuthenticated={isAuthenticated}
+          showScores={betaFeaturesEnabled}
+        />
         ))}
       </div>
 

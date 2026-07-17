@@ -23,6 +23,7 @@ export type ViewType =
   | { type: "permalink-loading" }
   | { type: "search-results"; query: string }
   | { type: "material-detail"; materialId: string }
+  | { type: "material-edit"; materialId: string }
   | { type: "articles"; category: CategoryType; materialId: string }
   | { type: "all-articles"; category?: CategoryType; articleType?: ArticleType }
   | {
@@ -185,6 +186,13 @@ function getInitialViewFromUrlHash(): ViewType {
     return postId ? { type: "blog", postId } : { type: "blog" };
   }
 
+  if (rawHash.startsWith("material-edit/")) {
+    const materialId = rawHash.slice("material-edit/".length).trim();
+    if (materialId) {
+      return { type: "material-edit", materialId };
+    }
+  }
+
   const maybeViewType = STATIC_VIEW_HASH_TO_TYPE[rawHash];
 
   if (maybeViewType) {
@@ -206,6 +214,7 @@ interface NavigationContextType {
   navigateToMaterials: () => void;
   navigateToSearchResults: (query: string) => void;
   navigateToMaterialDetail: (materialId: string) => void;
+  navigateToMaterialEdit: (materialId: string) => void;
   navigateToArticles: (materialId: string, category: CategoryType) => void;
   navigateToAllArticles: (category: CategoryType) => void;
   navigateToArticleDetail: (
@@ -306,6 +315,8 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
       routeHash = view.postId
         ? `blog/${encodeURIComponent(view.postId)}`
         : "blog";
+    } else if (view.type === "material-edit") {
+      routeHash = `material-edit/${encodeURIComponent(view.materialId)}`;
     } else {
       routeHash = STATIC_VIEW_TYPE_TO_HASH[view.type] || "";
     }
@@ -355,6 +366,10 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
 
   const navigateToMaterialDetail = (materialId: string) => {
     navigateTo({ type: "material-detail", materialId });
+  };
+
+  const navigateToMaterialEdit = (materialId: string) => {
+    navigateTo({ type: "material-edit", materialId });
   };
 
   const navigateToArticles = (materialId: string, category: CategoryType) => {
@@ -584,6 +599,7 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
     navigateToMaterials,
     navigateToSearchResults,
     navigateToMaterialDetail,
+    navigateToMaterialEdit,
     navigateToArticles,
     navigateToAllArticles,
     navigateToArticleDetail,

@@ -63,8 +63,8 @@ interface MaterialDetailViewProps {
   isAuthenticated?: boolean;
   currentUserId?: string;
   userRole?: string;
-  onEditMaterial?: (material: Material) => void;
-  onSuggestEdit?: (material: Material) => void;
+  onEditMaterial?: (materialId: string) => void;
+  onSuggestEdit?: (materialId: string) => void;
   onViewArticles?: (category: CategoryType) => void;
   onViewMaterial?: (materialId: string) => void;
 }
@@ -418,12 +418,12 @@ export function MaterialDetailView({
                   type="button"
                   onClick={() => {
                     if (isAdminModeActive && onEditMaterial) {
-                      onEditMaterial(material);
+                      onEditMaterial(material.id);
                       return;
                     }
 
                     if (isAuthenticated && onSuggestEdit) {
-                      onSuggestEdit(material);
+                      onSuggestEdit(material.id);
                     }
                   }}
                   aria-label={
@@ -506,10 +506,10 @@ export function MaterialDetailView({
           }
           onSuggestEdit={() => {
             if (isAdminModeActive && onEditMaterial) {
-              onEditMaterial(material);
+              onEditMaterial(material.id);
               return;
             }
-            onSuggestEdit?.(material);
+            onSuggestEdit?.(material.id);
           }}
           canSuggestEdit={Boolean(
             (isAdminModeActive && onEditMaterial) ||

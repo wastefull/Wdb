@@ -158,6 +158,7 @@ function AppContent() {
     navigateToMaterials,
     navigateToSearchResults,
     navigateToMaterialDetail,
+    navigateToMaterialEdit,
     navigateToArticles,
     navigateToMethodologyList,
     navigateToWhitepaper,
@@ -232,7 +233,6 @@ function AppContent() {
   const [showSubmitMaterialForm, setShowSubmitMaterialForm] = useState(false);
   const [submitMaterialInitialName, setSubmitMaterialInitialName] =
     useState("");
-  const [materialToEdit, setMaterialToEdit] = useState<Material | null>(null);
   const [showSubmitArticleForm, setShowSubmitArticleForm] = useState(false);
   const [showFrontLeftPanel, setShowFrontLeftPanel] = useState(false);
   const [showFrontRightPanel, setShowFrontRightPanel] = useState(false);
@@ -851,6 +851,7 @@ function AppContent() {
   const currentMaterial =
     currentView.type === "articles" ||
     currentView.type === "material-detail" ||
+    currentView.type === "material-edit" ||
     currentView.type === "article-standalone" ||
     currentView.type === "scientific-editor"
       ? resolveMaterialForView(currentView.materialId)
@@ -927,7 +928,7 @@ function AppContent() {
           setSearchQuery("");
           goBack();
         }}
-        onEditMaterial={setMaterialToEdit}
+        onEditMaterial={navigateToMaterialEdit}
         onDeleteMaterial={handleDeleteMaterial}
         onViewArticles={handleViewArticles}
         onViewMaterial={handleViewMaterial}
@@ -935,7 +936,7 @@ function AppContent() {
         onEditScientific={(materialId) =>
           navigateToScientificEditor(materialId)
         }
-        onSuggestEdit={setMaterialToEdit}
+        onSuggestEdit={navigateToMaterialEdit}
         isAdminModeActive={isAdminModeActive}
         isAuthenticated={!!user}
       />
@@ -991,13 +992,34 @@ function AppContent() {
           isAuthenticated={!!user}
           currentUserId={user?.id}
           userRole={userRole}
-          onEditMaterial={setMaterialToEdit}
-          onSuggestEdit={setMaterialToEdit}
+          onEditMaterial={navigateToMaterialEdit}
+          onSuggestEdit={navigateToMaterialEdit}
           onViewGuide={(guideId) => navigateTo({ type: "guide-detail", guideId })}
           onViewArticles={(category) =>
             handleViewArticles(material.id, category)
           }
           onViewMaterial={handleViewMaterial}
+        />
+      );
+    },
+    "material-edit": (view) => {
+      const material = resolveMaterialForView(view.materialId);
+      if (!material) {
+        return isLoadingMaterials ? <Loading what="material edit page" /> : null;
+      }
+      return (
+        <SuggestMaterialEditForm
+          material={material}
+          allMaterials={materials}
+          isAdminMode={userRole === "admin"}
+          onClose={goBack}
+          onSubmitSuccess={() => {
+            if (userRole !== "admin") {
+              toast.success(
+                'Edit suggestion submitted! Check "My Submissions" for updates.',
+              );
+            }
+          }}
         />
       );
     },
@@ -1497,22 +1519,6 @@ function AppContent() {
                     toast.success(
                       'Material submitted! Check "My Submissions" for updates.',
                     );
-                  }}
-                />
-              )}
-
-              {materialToEdit && (
-                <SuggestMaterialEditForm
-                  material={materialToEdit}
-                  allMaterials={materials}
-                  isAdminMode={userRole === "admin"}
-                  onClose={() => setMaterialToEdit(null)}
-                  onSubmitSuccess={() => {
-                    if (userRole !== "admin") {
-                      toast.success(
-                        'Edit suggestion submitted! Check "My Submissions" for updates.',
-                      );
-                    }
                   }}
                 />
               )}

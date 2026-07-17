@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo } from "react";
-import { X } from "lucide-react";
 import { toast } from "sonner";
 import * as api from "../../utils/api";
 import { Material } from "../../types/material";
@@ -20,7 +19,7 @@ import {
 } from "../ui/select";
 import { logger } from "../../utils/logger";
 import { DiscardChangesDialog } from "../shared/DiscardChangesDialog";
-import { Modal } from "../shared/Modal";
+import { PageTemplate } from "../shared/PageTemplate";
 
 interface SuggestMaterialEditFormProps {
   material: Material;
@@ -52,6 +51,7 @@ export function SuggestMaterialEditForm({
   const [changeReason, setChangeReason] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
+  const title = isAdminMode ? "Edit Material" : "Suggest Edit";
 
   const handleRequestClose = () => {
     if (hasChanges() || changeReason.trim()) {
@@ -228,245 +228,241 @@ export function SuggestMaterialEditForm({
     return [category, ...activeNames];
   }, [categories, category]);
 
-  return (
-    <Modal
-      onClose={handleRequestClose}
-      panelClassName="w-full max-w-4xl max-h-[90vh] overflow-y-auto p-0"
-    >
-      <div>
-        <div className="flex items-center justify-between p-4 border-b border-[#211f1c] dark:border-white/20 sticky top-0 bg-white dark:bg-[#2a2825] z-10">
-          <h3 className="normal">
-            {isAdminMode ? "Edit Material" : "Suggest Edit"}
-          </h3>
-          <button
-            onClick={handleRequestClose}
-            className="p-1.5 rounded-md hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
-          >
-            <X size={16} className="normal" />
-          </button>
+  const headerMessage = isAdminMode
+    ? `Editing ${material.name}`
+    : `Suggesting edits for ${material.name}`;
+  const content = (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="space-y-6">
+        <div className="bg-waste-reuse dark:bg-[#2a3235] border border-[#211f1c] dark:border-white/20 rounded-md p-3">
+          <p className="text-sm normal">
+            ✏️ <strong>{isAdminMode ? "Editing" : "Suggesting edits for"}</strong>{" "}
+            {material.name}
+          </p>
+          {!isAdminMode && (
+            <p className="text-xs text-black/70 dark:text-white/70 mt-1">
+              Your suggested changes will be reviewed by an admin before being
+              applied.
+            </p>
+          )}
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div className="bg-waste-reuse dark:bg-[#2a3235] border border-[#211f1c] dark:border-white/20 rounded-md p-3 mb-4">
-            <p className="text-sm normal">
-              ✏️ <strong>Editing:</strong> {material.name}
-            </p>
-            {!isAdminMode && (
-              <p className="text-xs text-black/70 dark:text-white/70 mt-1">
-                Your suggested changes will be reviewed by an admin before being
-                applied.
-              </p>
-            )}
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="edit-name" className="text-[12px] normal">
-                  Material Name *
-                </Label>
-                <Input
-                  id="edit-name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="mt-1"
-                  required
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="edit-category" className="text-[12px] normal">
-                  Category *
-                </Label>
-                <Select value={category} onValueChange={handleCategoryChange}>
-                  <SelectTrigger id="edit-category" className="mt-1">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categoryOptions.map((cat) => (
-                      <SelectItem key={cat} value={cat} className="">
-                        {cat}
-                        {!categories.some((active) => active.name === cat)
-                          ? " (current)"
-                          : ""}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label htmlFor="edit-aliases" className="text-[12px] normal">
-                  Aliases{" "}
-                  <span className="text-black/50 dark:text-white/50">
-                    (comma-separated)
-                  </span>
-                </Label>
-                <Input
-                  id="edit-aliases"
-                  value={aliases}
-                  onChange={(e) => setAliases(e.target.value)}
-                  placeholder="e.g. PET, Polyethylene terephthalate"
-                  className="mt-1"
-                />
-              </div>
-
-              <div className="flex items-center gap-3">
-                <input
-                  id="edit-isHub"
-                  type="checkbox"
-                  checked={isHub}
-                  onChange={(e) => setIsHub(e.target.checked)}
-                  className="w-4 h-4 accent-waste-recycle"
-                />
-                <Label
-                  htmlFor="edit-isHub"
-                  className="text-[12px] normal cursor-pointer"
-                >
-                  Hub page{" "}
-                  <span className="text-black/50 dark:text-white/50">
-                    (links to related materials)
-                  </span>
-                </Label>
-              </div>
-
-              <div>
-                <Label
-                  htmlFor="edit-description"
-                  className="text-[12px] normal"
-                >
-                  Description
-                </Label>
-                <Textarea
-                  id="edit-description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="mt-1 min-h-20"
-                  rows={3}
-                />
-              </div>
+        <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_22rem] gap-6">
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="edit-name" className="text-[12px] normal">
+                Material Name *
+              </Label>
+              <Input
+                id="edit-name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="mt-1"
+                required
+              />
             </div>
 
             <div>
-              <div className="border border-[#211f1c]/20 dark:border-white/10 rounded-md p-3 h-full">
-                <div className="flex items-center justify-between gap-2 mb-3">
-                  <Label
-                    htmlFor="linked-material-search"
-                    className="text-[12px] normal"
-                  >
-                    Linked Materials
-                  </Label>
-                  <span className="text-xs text-black/50 dark:text-white/50">
-                    {linkedMaterialIds.length} selected
-                  </span>
-                </div>
-
-                {!isHub && (
-                  <p className="text-xs text-black/60 dark:text-white/60 mb-3">
-                    Enable "Hub page" to link related materials.
-                  </p>
-                )}
-
-                <Input
-                  id="linked-material-search"
-                  value={linkSearchQuery}
-                  onChange={(e) => setLinkSearchQuery(e.target.value)}
-                  placeholder="Search materials to link..."
-                  className="mb-3"
-                  disabled={!isHub}
-                />
-
-                <div className="max-h-56 overflow-y-auto space-y-1 pr-1">
-                  {availableLinkedMaterials.map((candidate) => {
-                    const checked = linkedMaterialIds.includes(candidate.id);
-                    return (
-                      <label
-                        key={candidate.id}
-                        className={`flex items-center gap-2 rounded px-2 py-1.5 ${
-                          isHub
-                            ? "cursor-pointer hover:bg-black/5 dark:hover:bg-white/5"
-                            : "cursor-not-allowed opacity-60"
-                        }`}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={checked}
-                          disabled={!isHub}
-                          onChange={() => toggleLinkedMaterial(candidate.id)}
-                          className="w-3.5 h-3.5 accent-waste-recycle"
-                        />
-                        <span className="text-sm">
-                          {candidate.name}
-                          <span className="text-black/50 dark:text-white/50">
-                            {` (${candidate.category})`}
-                          </span>
-                        </span>
-                      </label>
-                    );
-                  })}
-                </div>
-
-                {isHub && linkedMaterialIds.length > 0 && (
-                  <p className="mt-3 text-xs text-black/60 dark:text-white/60">
-                    Linked:{" "}
-                    {linkedMaterialIds
-                      .map((id) => linkedMaterialNameById.get(id) || id)
-                      .join(", ")}
-                  </p>
-                )}
-              </div>
+              <Label htmlFor="edit-category" className="text-[12px] normal">
+                Category *
+              </Label>
+              <Select value={category} onValueChange={handleCategoryChange}>
+                <SelectTrigger id="edit-category" className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {categoryOptions.map((cat) => (
+                    <SelectItem key={cat} value={cat} className="">
+                      {cat}
+                      {!categories.some((active) => active.name === cat)
+                        ? " (current)"
+                        : ""}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-          </div>
 
-          {!isAdminMode && (
-            <div className="pt-2 border-t border-[#211f1c]/20 dark:border-white/10">
-              <Label htmlFor="change-reason" className="text-[12px] normal">
-                Reason for Change *
+            <div>
+              <Label htmlFor="edit-aliases" className="text-[12px] normal">
+                Aliases{" "}
+                <span className="text-black/50 dark:text-white/50">
+                  (comma-separated)
+                </span>
+              </Label>
+              <Input
+                id="edit-aliases"
+                value={aliases}
+                onChange={(e) => setAliases(e.target.value)}
+                placeholder="e.g. PET, Polyethylene terephthalate"
+                className="mt-1"
+              />
+            </div>
+
+            <div className="flex items-center gap-3">
+              <input
+                id="edit-isHub"
+                type="checkbox"
+                checked={isHub}
+                onChange={(e) => setIsHub(e.target.checked)}
+                className="w-4 h-4 accent-waste-recycle"
+              />
+              <Label
+                htmlFor="edit-isHub"
+                className="text-[12px] normal cursor-pointer"
+              >
+                Hub page{" "}
+                <span className="text-black/50 dark:text-white/50">
+                  (links to related materials)
+                </span>
+              </Label>
+            </div>
+
+            <div>
+              <Label htmlFor="edit-description" className="text-[12px] normal">
+                Description
               </Label>
               <Textarea
-                id="change-reason"
-                value={changeReason}
-                onChange={(e) => setChangeReason(e.target.value)}
-                placeholder="Explain why you're suggesting this change..."
-                className="mt-1 min-h-17.5"
-                rows={3}
-                required
+                id="edit-description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="mt-1 min-h-32"
+                rows={6}
               />
-              <p className="mt-1 text-xs text-black/50 dark:text-white/50">
-                Help reviewers understand the benefit of your changes.
-              </p>
             </div>
-          )}
-
-          <div className="flex gap-2 pt-4">
-            <button
-              type="button"
-              onClick={handleRequestClose}
-              className="flex-1 h-10 px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-waste-compost hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[12px] text-black"
-              disabled={submitting}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="flex-1 h-10 px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-waste-reuse hover:shadow-[3px_4px_0px_-1px_#000000] dark:hover:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] transition-all text-[12px] text-black disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={submitting || !hasChanges()}
-            >
-              {submitting
-                ? "Saving..."
-                : isAdminMode
-                  ? "Save Changes"
-                  : "Submit Suggestion"}
-            </button>
           </div>
-        </form>
+
+          <div>
+            <div className="border border-[#211f1c]/20 dark:border-white/10 rounded-md p-3 h-full">
+              <div className="flex items-center justify-between gap-2 mb-3">
+                <Label
+                  htmlFor="linked-material-search"
+                  className="text-[12px] normal"
+                >
+                  Linked Materials
+                </Label>
+                <span className="text-xs text-black/50 dark:text-white/50">
+                  {linkedMaterialIds.length} selected
+                </span>
+              </div>
+
+              {!isHub && (
+                <p className="text-xs text-black/60 dark:text-white/60 mb-3">
+                  Enable "Hub page" to link related materials.
+                </p>
+              )}
+
+              <Input
+                id="linked-material-search"
+                value={linkSearchQuery}
+                onChange={(e) => setLinkSearchQuery(e.target.value)}
+                placeholder="Search materials to link..."
+                className="mb-3"
+                disabled={!isHub}
+              />
+
+              <div className="max-h-56 overflow-y-auto space-y-1 pr-1">
+                {availableLinkedMaterials.map((candidate) => {
+                  const checked = linkedMaterialIds.includes(candidate.id);
+                  return (
+                    <label
+                      key={candidate.id}
+                      className={`flex items-center gap-2 rounded px-2 py-1.5 ${
+                        isHub
+                          ? "cursor-pointer hover:bg-black/5 dark:hover:bg-white/5"
+                          : "cursor-not-allowed opacity-60"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        disabled={!isHub}
+                        onChange={() => toggleLinkedMaterial(candidate.id)}
+                        className="w-3.5 h-3.5 accent-waste-recycle"
+                      />
+                      <span className="text-sm">
+                        {candidate.name}
+                        <span className="text-black/50 dark:text-white/50">
+                          {` (${candidate.category})`}
+                        </span>
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+
+              {isHub && linkedMaterialIds.length > 0 && (
+                <p className="mt-3 text-xs text-black/60 dark:text-white/60">
+                  Linked:{" "}
+                  {linkedMaterialIds
+                    .map((id) => linkedMaterialNameById.get(id) || id)
+                    .join(", ")}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {!isAdminMode && (
+          <div className="pt-2 border-t border-[#211f1c]/20 dark:border-white/10">
+            <Label htmlFor="change-reason" className="text-[12px] normal">
+              Reason for Change *
+            </Label>
+            <Textarea
+              id="change-reason"
+              value={changeReason}
+              onChange={(e) => setChangeReason(e.target.value)}
+              placeholder="Explain why you're suggesting this change..."
+              className="mt-1 min-h-24"
+              rows={5}
+              required
+            />
+            <p className="mt-1 text-xs text-black/50 dark:text-white/50">
+              Help reviewers understand the benefit of your changes.
+            </p>
+          </div>
+        )}
       </div>
+
+      <div className="flex gap-2 pt-4">
+        <button
+          type="button"
+          onClick={handleRequestClose}
+          className="flex-1 h-10 px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-waste-compost hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[12px] text-black"
+          disabled={submitting}
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          className="flex-1 h-10 px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-waste-reuse hover:shadow-[3px_4px_0px_-1px_#000000] dark:hover:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] transition-all text-[12px] text-black disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={submitting || !hasChanges()}
+        >
+          {submitting
+            ? "Saving..."
+            : isAdminMode
+              ? "Save Changes"
+              : "Submit Suggestion"}
+        </button>
+      </div>
+    </form>
+  );
+
+  return (
+    <PageTemplate
+      title={title}
+      description={headerMessage}
+      backButtonLabel="Back to material"
+      onBack={handleRequestClose}
+      maxWidth="6xl"
+    >
+      <div className="mx-auto w-full max-w-5xl">{content}</div>
       {showDiscardConfirm && (
         <DiscardChangesDialog
           onKeepEditing={() => setShowDiscardConfirm(false)}
           onDiscard={onClose}
         />
       )}
-    </Modal>
+    </PageTemplate>
   );
 }

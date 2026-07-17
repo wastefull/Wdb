@@ -127,7 +127,7 @@ export function MaterialCard({
       </div>
 
       {material.description && (
-        <p className="text-[14px] text-black/70 dark:text-white/70 mb-3 line-clamp-2">
+        <p className="text-[14px] text-black/70 dark:text-white/70 mb-3 line-clamp-2 whitespace-pre-line">
           {material.description}
         </p>
       )}

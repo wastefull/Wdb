@@ -14,7 +14,7 @@ export function MaterialDescriptionCard({
   return (
     <div className="material-description-card">
       <p>Description</p>
-      <p>{description}</p>
+      <p className="whitespace-pre-line">{description}</p>
       {(category || aliases.length > 0) && (
         <dl>
           {category && (
