@@ -55,6 +55,7 @@ export interface MaterialVideoResource {
   title: string;
   youtubeUrl: string;
   youtubeId?: string;
+  embeddable?: boolean | null;
   description?: string;
   durationSeconds?: number;
   channelName?: string;

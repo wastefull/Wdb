@@ -493,33 +493,50 @@ function RecommendedLearningSection({
                   (video.youtubeId
                     ? `https://i.ytimg.com/vi/${video.youtubeId}/hqdefault.jpg`
                     : undefined);
+                const canEmbed = video.embeddable === true && video.youtubeId;
+                const embedUrl = canEmbed
+                  ? `https://www.youtube-nocookie.com/embed/${video.youtubeId}?rel=0&modestbranding=1`
+                  : null;
                 return (
                   <Card
                     key={video.id}
                     className="group overflow-hidden border-[1.5px] border-[#211f1c]/25 shadow-none dark:border-white/20"
                   >
-                    {thumbnail && (
-                      <a
-                        href={video.youtubeUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="relative block aspect-video overflow-hidden bg-black/5"
-                      >
-                        <img
-                          src={thumbnail}
-                          alt=""
+                    {embedUrl ? (
+                      <div className="aspect-video overflow-hidden bg-black/5">
+                        <iframe
+                          src={embedUrl}
+                          title={video.title}
                           loading="lazy"
-                          className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                          className="size-full"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                          allowFullScreen
                         />
-                        <span className="absolute inset-0 grid place-items-center bg-black/10 transition-colors group-hover:bg-black/20">
-                          <span className="grid size-11 place-items-center rounded-full bg-white/90 text-black shadow-sm">
-                            <Play
-                              className="ml-0.5 size-5 fill-current"
-                              aria-hidden="true"
-                            />
+                      </div>
+                    ) : (
+                      thumbnail && (
+                        <a
+                          href={video.youtubeUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="relative block aspect-video overflow-hidden bg-black/5"
+                        >
+                          <img
+                            src={thumbnail}
+                            alt=""
+                            loading="lazy"
+                            className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                          />
+                          <span className="absolute inset-0 grid place-items-center bg-black/10 transition-colors group-hover:bg-black/20">
+                            <span className="grid size-11 place-items-center rounded-full bg-white/90 text-black shadow-sm">
+                              <Play
+                                className="ml-0.5 size-5 fill-current"
+                                aria-hidden="true"
+                              />
+                            </span>
                           </span>
-                        </span>
-                      </a>
+                        </a>
+                      )
                     )}
                     <CardHeader>
                       <CardTitle className="mt-2 text-base leading-6">
@@ -539,6 +556,9 @@ function RecommendedLearningSection({
                         <CardDescription>
                           {formatUnderscoredLabel(video.lifecycleFocus)}
                         </CardDescription>
+                      )}
+                      {video.embeddable === true && (
+                        <CardDescription>Embedded player available</CardDescription>
                       )}
                     </CardHeader>
                     <CardContent>

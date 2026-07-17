@@ -16466,6 +16466,21 @@ app.get(
         .order("title");
       if (videosError) throw videosError;
 
+      const { data: importItems, error: importItemsError } = await client
+        .from("video_import_items")
+        .select("video_id,embeddable,reviewed_at,created_at")
+        .in("video_id", videoIds)
+        .eq("review_status", "reviewed")
+        .order("reviewed_at", { ascending: false, nullsFirst: false })
+        .order("created_at", { ascending: false, nullsFirst: false });
+      if (importItemsError) throw importItemsError;
+
+      const embeddableByVideoId = new Map<string, boolean | null>();
+      for (const item of importItems ?? []) {
+        if (!item.video_id || embeddableByVideoId.has(item.video_id)) continue;
+        embeddableByVideoId.set(item.video_id, item.embeddable ?? null);
+      }
+
       const entityByVideoId = new Map(
         (videoBindings ?? []).map((binding) => [
           binding.video_id,
@@ -16491,6 +16506,7 @@ app.get(
               durationSeconds: video.duration_seconds ?? undefined,
               channelName: video.channel_name ?? undefined,
               thumbnailUrl: video.thumbnail_url ?? undefined,
+              embeddable: embeddableByVideoId.get(video.id) ?? undefined,
               role: mapping.role,
               lifecycleFocus: mapping.lifecycle_focus ?? undefined,
             },
