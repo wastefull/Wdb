@@ -488,6 +488,7 @@ function RecommendedLearningSection({
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {videoResources.map((video) => {
+                const isShortForm = video.videoFormat === "shorts";
                 const thumbnail =
                   video.thumbnailUrl ||
                   (video.youtubeId
@@ -495,15 +496,21 @@ function RecommendedLearningSection({
                     : undefined);
                 const canEmbed = video.embeddable === true && video.youtubeId;
                 const embedUrl = canEmbed
-                  ? `https://www.youtube-nocookie.com/embed/${video.youtubeId}?rel=0&modestbranding=1`
+                  ? `https://www.youtube-nocookie.com/embed/${video.youtubeId}?rel=0&modestbranding=1&playsinline=1`
                   : null;
                 return (
                   <Card
                     key={video.id}
-                    className="group overflow-hidden border-[1.5px] border-[#211f1c]/25 shadow-none dark:border-white/20"
+                    className={`group overflow-hidden border-[1.5px] border-[#211f1c]/25 shadow-none dark:border-white/20 ${
+                      isShortForm ? "w-full max-w-[280px] justify-self-center" : ""
+                    }`}
                   >
                     {embedUrl ? (
-                      <div className="aspect-video overflow-hidden bg-black/5">
+                      <div
+                        className={`overflow-hidden bg-black/5 ${
+                          isShortForm ? "aspect-[9/16]" : "aspect-video"
+                        }`}
+                      >
                         <iframe
                           src={embedUrl}
                           title={video.title}
@@ -519,13 +526,17 @@ function RecommendedLearningSection({
                           href={video.youtubeUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="relative block aspect-video overflow-hidden bg-black/5"
+                          className={`relative block overflow-hidden bg-black/5 ${
+                            isShortForm ? "aspect-[9/16]" : "aspect-video"
+                          }`}
                         >
                           <img
                             src={thumbnail}
                             alt=""
                             loading="lazy"
-                            className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                            className={`size-full transition-transform duration-300 group-hover:scale-[1.03] ${
+                              isShortForm ? "object-contain bg-black" : "object-cover"
+                            }`}
                           />
                           <span className="absolute inset-0 grid place-items-center bg-black/10 transition-colors group-hover:bg-black/20">
                             <span className="grid size-11 place-items-center rounded-full bg-white/90 text-black shadow-sm">
@@ -539,16 +550,23 @@ function RecommendedLearningSection({
                       )
                     )}
                     <CardHeader>
-                      <CardTitle className="mt-2 text-base leading-6">
-                        <a
-                          href={video.youtubeUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="hover:underline"
-                        >
-                          {video.title}
-                        </a>
-                      </CardTitle>
+                      <div className="flex items-start justify-between gap-3">
+                        <CardTitle className="mt-2 text-base leading-6">
+                          <a
+                            href={video.youtubeUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="hover:underline"
+                          >
+                            {video.title}
+                          </a>
+                        </CardTitle>
+                        {isShortForm && (
+                          <Badge variant="outline" className="mt-1 shrink-0">
+                            Shorts
+                          </Badge>
+                        )}
+                      </div>
                       {video.channelName && (
                         <CardDescription>{video.channelName}</CardDescription>
                       )}

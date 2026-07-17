@@ -236,6 +236,32 @@ export function normalizeYouTubeVideoId(value: unknown): string | null {
   return null;
 }
 
+export type YouTubeVideoFormat = "standard" | "shorts";
+
+export function inferYouTubeVideoFormat(
+  value: unknown,
+): YouTubeVideoFormat | null {
+  const input = cleanText(value);
+  if (!input) return null;
+
+  let url: URL;
+  try {
+    url = new URL(input);
+  } catch {
+    return null;
+  }
+
+  const host = url.hostname.toLowerCase().replace(/^www\./, "");
+  if (host === "youtu.be") return "standard";
+  if (!isYouTubeHost(host)) return null;
+
+  const segments = url.pathname.split("/").filter(Boolean);
+  if (segments.length >= 2 && segments[0] === "shorts" && isVideoId(segments[1])) {
+    return "shorts";
+  }
+  return "standard";
+}
+
 export function parseYouTubeDurationSeconds(value: unknown): number | null {
   const duration = cleanText(value);
   if (!duration) return null;

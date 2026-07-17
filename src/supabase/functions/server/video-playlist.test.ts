@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   buildYouTubePlaylistPreview,
+  inferYouTubeVideoFormat,
   normalizeYouTubeVideoId,
   parseYouTubeDurationSeconds,
   parseYouTubePlaylistId,
@@ -128,6 +129,18 @@ test("normalizes common YouTube video URL forms", () => {
     "abc123DEF_0",
   );
   assert.equal(normalizeYouTubeVideoId("https://example.com/video"), null);
+});
+
+test("infers the Shorts presentation hint from shorts URLs", () => {
+  assert.equal(
+    inferYouTubeVideoFormat("https://www.youtube.com/shorts/abc123DEF_0"),
+    "shorts",
+  );
+  assert.equal(
+    inferYouTubeVideoFormat("https://www.youtube.com/watch?v=abc123DEF_0"),
+    "standard",
+  );
+  assert.equal(inferYouTubeVideoFormat("abc123DEF_0"), null);
 });
 
 test("converts YouTube ISO durations to seconds", () => {

@@ -23,6 +23,7 @@ import {
   buildYouTubePlaylistPreview,
   fetchYouTubePlaylistProviderData,
   fetchYouTubeVideoDetail,
+  inferYouTubeVideoFormat,
   loadExistingVideos,
   loadVideoDatabaseSnapshot,
   parseYouTubePlaylistId,
@@ -15534,6 +15535,7 @@ app.post(
           400,
         );
       }
+      const youtubeFormat = inferYouTubeVideoFormat(rawYoutubeUrl);
 
       const canonicalYoutubeUrl = `https://www.youtube.com/watch?v=${youtubeId}`;
       const titleOverride =
@@ -15648,12 +15650,12 @@ app.post(
       const [existingByYouTubeId, existingByUrl] = await Promise.all([
         client
           .from("videos")
-          .select("id,title,youtube_url,youtube_id,status")
+          .select("id,title,youtube_url,youtube_id,video_format,status")
           .eq("youtube_id", youtubeId)
           .maybeSingle(),
         client
           .from("videos")
-          .select("id,title,youtube_url,youtube_id,status")
+          .select("id,title,youtube_url,youtube_id,video_format,status")
           .eq("youtube_url", rawYoutubeUrl)
           .maybeSingle(),
       ]);
@@ -15686,6 +15688,7 @@ app.post(
             slug: youtubeId,
             youtube_url: resolvedYoutubeUrl,
             youtube_id: youtubeId,
+            video_format: youtubeFormat,
             description: resolvedDescription,
             duration_seconds: detail?.duration_seconds ?? null,
             channel_name: detail?.channel_name ?? null,
@@ -15697,7 +15700,7 @@ app.post(
             status: "draft",
             created_by: c.get("userId"),
           })
-          .select("id,title,youtube_url,youtube_id,status")
+          .select("id,title,youtube_url,youtube_id,video_format,status")
           .single();
         if (videoError) throw videoError;
         videoRow = insertedVideo;
@@ -15723,6 +15726,21 @@ app.post(
           .insert({ entity_id: insertedEntity.id, video_id: insertedVideo.id });
         if (bindingError) throw bindingError;
       } else {
+        if (
+          youtubeFormat === "shorts" &&
+          existingByYouTubeId.data?.video_format !== "shorts" &&
+          existingByUrl.data?.video_format !== "shorts"
+        ) {
+          const { error: formatUpdateError } = await client
+            .from("videos")
+            .update({ video_format: "shorts" })
+            .eq("id", videoRow.id);
+          if (formatUpdateError) throw formatUpdateError;
+          videoRow = {
+            ...videoRow,
+            video_format: "shorts",
+          };
+        }
         const { data: existingBinding, error: bindingError } = await client
           .from("entity_canonical_bindings")
           .select("entity_id")
@@ -16459,7 +16477,7 @@ app.get(
       const { data: videos, error: videosError } = await client
         .from("videos")
         .select(
-          "id,title,youtube_url,youtube_id,description,duration_seconds,channel_name,thumbnail_url",
+          "id,title,youtube_url,youtube_id,video_format,description,duration_seconds,channel_name,thumbnail_url",
         )
         .in("id", videoIds)
         .eq("status", "published")
@@ -16502,6 +16520,11 @@ app.get(
               title: video.title,
               youtubeUrl: video.youtube_url,
               youtubeId: video.youtube_id ?? undefined,
+              videoFormat:
+                video.video_format === "shorts" ||
+                video.video_format === "standard"
+                  ? video.video_format
+                  : undefined,
               description: video.description ?? undefined,
               durationSeconds: video.duration_seconds ?? undefined,
               channelName: video.channel_name ?? undefined,
