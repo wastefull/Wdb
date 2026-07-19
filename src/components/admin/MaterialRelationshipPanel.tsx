@@ -11,6 +11,7 @@ import {
   Trash2,
 } from "lucide-react";
 import * as api from "../../utils/api";
+import { formatUnderscoredLabel } from "../../utils/labels";
 import type {
   CreateManualMaterialRelationshipResponse,
   ManualMaterialRelationshipOptionsResponse,
@@ -30,10 +31,6 @@ const STATUS_LABELS: Record<MaterialRelationshipReviewStatus, string> = {
   active: "Approved",
   archived: "Archived",
 };
-
-function formatLabel(value: string): string {
-  return value.replace(/_/g, " ");
-}
 
 type RelationshipGuidance = {
   summary: string;
@@ -396,7 +393,8 @@ export function MaterialRelationshipPanel() {
             {relationshipGuidance && (
               <div className="mt-2 rounded-lg border border-waste-science/20 bg-waste-science/5 p-3 text-[12px] text-black/70 dark:text-white/70">
                 <p className="font-medium text-black dark:text-white">
-                  {selectedRelationshipType?.label ?? formatLabel(relationshipType)}
+                  {selectedRelationshipType?.label ??
+                    formatUnderscoredLabel(relationshipType)}
                 </p>
                 <p className="mt-1 leading-relaxed">
                   {relationshipGuidance.summary}
@@ -447,7 +445,7 @@ export function MaterialRelationshipPanel() {
           <p className="text-[12px] text-black/65 dark:text-white/65">
             {createResult.created
               ? `Created pending relationship: ${sourceMaterial?.name ?? "Source"} -> ${targetMaterial?.name ?? "Target"}.`
-              : `Relationship already exists with status ${formatLabel(createResult.status)}.`}
+              : `Relationship already exists with status ${formatUnderscoredLabel(createResult.status)}.`}
           </p>
         )}
       </form>
@@ -523,7 +521,7 @@ export function MaterialRelationshipPanel() {
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-wide text-black/45 dark:text-white/45">
-                      <span>{formatLabel(item.relationship_type)}</span>
+                      <span>{formatUnderscoredLabel(item.relationship_type)}</span>
                       <span aria-hidden="true">/</span>
                       <span>{STATUS_LABELS[item.status]}</span>
                     </div>

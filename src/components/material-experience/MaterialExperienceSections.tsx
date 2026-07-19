@@ -9,7 +9,6 @@ import {
   Library,
   Network,
   Pencil,
-  Play,
   Route,
   ShieldCheck,
   Sparkles,
@@ -42,6 +41,11 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
+import { VideoCard } from "./VideoCard";
+import {
+  formatResourceContext,
+  formatUnderscoredLabel,
+} from "../../utils/labels";
 
 const CATEGORY_LABELS: Record<CategoryType, string> = {
   recyclability: "Recyclability",
@@ -62,18 +66,8 @@ function formatConfidenceInterval(interval?: {
   return interval
     ? `${(interval.lower * 100).toFixed(1)}%–${(interval.upper * 100).toFixed(
         1,
-    )}%`
+      )}%`
     : "Not recorded";
-}
-
-function formatUnderscoredLabel(value: string): string {
-  return value.replace(/_/g, " ");
-}
-
-function formatResourceContext(role: string, contentType: string): string {
-  return `${formatUnderscoredLabel(role)} of ${formatUnderscoredLabel(
-    contentType,
-  )}`;
 }
 
 interface MaterialExperienceSectionsProps {
@@ -358,13 +352,18 @@ function RecommendedLearningSection({
   const supplementaryResources = contentResources.filter(
     (resource) => resource.contentType !== "article",
   );
+  const standardVideoResources = videoResources.filter(
+    (video) => video.videoFormat !== "shorts",
+  );
+  const shortVideoResources = videoResources.filter(
+    (video) => video.videoFormat === "shorts",
+  );
   const hasContentResources =
     articleResources.length > 0 || supplementaryResources.length > 0;
-  const hasVideoResources = areVideoResourcesLoading || videoResources.length > 0;
+  const hasVideoResources =
+    areVideoResourcesLoading || videoResources.length > 0;
 
-  const renderContentResourceGrid = (
-    resources: MaterialContentResource[],
-  ) => (
+  const renderContentResourceGrid = (resources: MaterialContentResource[]) => (
     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       {resources.map((resource) => {
         const lifecycleFocusLabel = resource.lifecycleFocus
@@ -479,124 +478,34 @@ function RecommendedLearningSection({
             <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">
               Video Resources
             </p>
-            <h3 className="mt-2 text-xl">Video resources</h3>
           </div>
           {areVideoResourcesLoading ? (
             <p className="text-sm text-muted-foreground">
               Loading linked videos...
             </p>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {videoResources.map((video) => {
-                const isShortForm = video.videoFormat === "shorts";
-                const thumbnail =
-                  video.thumbnailUrl ||
-                  (video.youtubeId
-                    ? `https://i.ytimg.com/vi/${video.youtubeId}/hqdefault.jpg`
-                    : undefined);
-                const canEmbed = video.embeddable === true && video.youtubeId;
-                const embedUrl = canEmbed
-                  ? `https://www.youtube-nocookie.com/embed/${video.youtubeId}?rel=0&modestbranding=1&playsinline=1`
-                  : null;
-                return (
-                  <Card
-                    key={video.id}
-                    className={`group overflow-hidden border-[1.5px] border-[#211f1c]/25 shadow-none dark:border-white/20 ${
-                      isShortForm ? "w-full max-w-[280px] justify-self-center" : ""
-                    }`}
-                  >
-                    {embedUrl ? (
-                      <div
-                        className={`overflow-hidden bg-black/5 ${
-                          isShortForm ? "aspect-[9/16]" : "aspect-video"
-                        }`}
-                      >
-                        <iframe
-                          src={embedUrl}
-                          title={video.title}
-                          loading="lazy"
-                          className="size-full"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                          allowFullScreen
-                        />
-                      </div>
-                    ) : (
-                      thumbnail && (
-                        <a
-                          href={video.youtubeUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className={`relative block overflow-hidden bg-black/5 ${
-                            isShortForm ? "aspect-[9/16]" : "aspect-video"
-                          }`}
-                        >
-                          <img
-                            src={thumbnail}
-                            alt=""
-                            loading="lazy"
-                            className={`size-full transition-transform duration-300 group-hover:scale-[1.03] ${
-                              isShortForm ? "object-contain bg-black" : "object-cover"
-                            }`}
-                          />
-                          <span className="absolute inset-0 grid place-items-center bg-black/10 transition-colors group-hover:bg-black/20">
-                            <span className="grid size-11 place-items-center rounded-full bg-white/90 text-black shadow-sm">
-                              <Play
-                                className="ml-0.5 size-5 fill-current"
-                                aria-hidden="true"
-                              />
-                            </span>
-                          </span>
-                        </a>
-                      )
-                    )}
-                    <CardHeader>
-                      <div className="flex items-start justify-between gap-3">
-                        <CardTitle className="mt-2 text-base leading-6">
-                          <a
-                            href={video.youtubeUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="hover:underline"
-                          >
-                            {video.title}
-                          </a>
-                        </CardTitle>
-                        {isShortForm && (
-                          <Badge variant="outline" className="mt-1 shrink-0">
-                            Shorts
-                          </Badge>
-                        )}
-                      </div>
-                      {video.channelName && (
-                        <CardDescription>{video.channelName}</CardDescription>
-                      )}
-                      {video.lifecycleFocus && (
-                        <CardDescription>
-                          {formatUnderscoredLabel(video.lifecycleFocus)}
-                        </CardDescription>
-                      )}
-                      {video.embeddable === true && (
-                        <CardDescription>Embedded player available</CardDescription>
-                      )}
-                    </CardHeader>
-                    <CardContent>
-                      <Button asChild variant="outline" size="sm">
-                        <a
-                          href={video.youtubeUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <Play className="size-4" aria-hidden="true" /> Watch
-                          video
-                        </a>
-                      </Button>
-                      <p className="mt-3 text-xs text-muted-foreground">
-                        {formatResourceContext(video.role, "video")}
-                      </p>
-                    </CardContent>
-                  </Card>
-                );
-              })}
+            <div className="space-y-6">
+              {standardVideoResources.length > 0 && (
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {standardVideoResources.map((video) => (
+                    <VideoCard key={video.id} video={video} type="default" />
+                  ))}
+                </div>
+              )}
+              {shortVideoResources.length > 0 && (
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">
+                      Shorts
+                    </p>
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
+                    {shortVideoResources.map((video) => (
+                      <VideoCard key={video.id} video={video} type="short" />
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -606,7 +515,9 @@ function RecommendedLearningSection({
           <CardContent className="flex items-start gap-3 pt-6">
             <Library className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
             <div>
-              <p className="font-medium">No learning content is published yet.</p>
+              <p className="font-medium">
+                No learning content is published yet.
+              </p>
               <p className="mt-1 text-sm text-muted-foreground">
                 Contribution options below remain available for the current
                 material.
