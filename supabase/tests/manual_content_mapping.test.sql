@@ -4,17 +4,17 @@ CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 SET LOCAL ROLE postgres;
 SET LOCAL search_path = public, extensions;
 
-SELECT plan(26);
+SELECT plan(31);
 
 SELECT has_function(
   'public'::name,
   'create_manual_content_mapping'::name,
-  ARRAY['uuid', 'uuid', 'uuid', 'text', 'text', 'text']::name[]
+  ARRAY['uuid', 'uuid', 'uuid', 'text', 'text', 'text', 'boolean']::name[]
 );
 SELECT ok(
   has_function_privilege(
     'service_role',
-    'public.create_manual_content_mapping(uuid,uuid,uuid,text,text,text)',
+    'public.create_manual_content_mapping(uuid,uuid,uuid,text,text,text,boolean)',
     'EXECUTE'
   ),
   'Service role can create a manual content mapping'
@@ -22,7 +22,7 @@ SELECT ok(
 SELECT ok(
   NOT has_function_privilege(
     'authenticated',
-    'public.create_manual_content_mapping(uuid,uuid,uuid,text,text,text)',
+    'public.create_manual_content_mapping(uuid,uuid,uuid,text,text,text,boolean)',
     'EXECUTE'
   ),
   'Authenticated clients cannot bypass the admin Edge route'
@@ -113,6 +113,48 @@ SELECT is(
      AND after->>'content_entity_id' = '00000000-0000-0000-0000-000000000093'),
   1::bigint,
   'An exact duplicate creates no second audit record'
+);
+
+TRUNCATE manual_mapping_result;
+INSERT INTO manual_mapping_result(payload)
+SELECT public.create_manual_content_mapping(
+  '00000000-0000-0000-0000-000000000091',
+  '00000000-0000-0000-0000-000000000093',
+  '00000000-0000-0000-0000-000000000094',
+  'primary_subject',
+  'recycling',
+  NULL,
+  TRUE
+);
+SELECT is(
+  (SELECT payload->>'status' FROM manual_mapping_result),
+  'active',
+  'Auto-published video links are created active'
+);
+SELECT is(
+  (SELECT status FROM public.content_entities
+   WHERE content_entity_id = '00000000-0000-0000-0000-000000000093'),
+  'active',
+  'Auto-published video links activate the mapping'
+);
+SELECT is(
+  (SELECT status FROM public.videos
+   WHERE id = '00000000-0000-0000-0000-000000000096'),
+  'published',
+  'Auto-published video links publish the video'
+);
+SELECT is(
+  (SELECT count(*) FROM public.graph_sync_outbox
+   WHERE payload->>'provenance' = 'manual_admin_curation_auto_publish'),
+  3::bigint,
+  'Auto-published video links write three outbox events'
+);
+SELECT is(
+  (SELECT count(*) FROM public.audit_log
+   WHERE action = 'video_publish'
+     AND entity_id = '00000000-0000-0000-0000-000000000096'),
+  1::bigint,
+  'Auto-published video links write one video publish audit'
 );
 
 SELECT throws_ok(

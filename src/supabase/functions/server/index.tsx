@@ -14902,10 +14902,19 @@ async function createAuditLog(params: {
     after: params.after || null,
     changes,
     ipAddress: params.req ? getClientId(params.req).split(":")[0] : undefined,
-    userAgent: params.req
-      ? params.req.req.header("user-agent") || "unknown"
-      : undefined,
+    userAgent: undefined,
   };
+
+  if (params.req) {
+    const requestLike = params.req.req ?? params.req.raw ?? params.req;
+    if (typeof requestLike?.header === "function") {
+      entry.userAgent = requestLike.header("user-agent") || "unknown";
+    } else if (typeof requestLike?.headers?.get === "function") {
+      entry.userAgent = requestLike.headers.get("user-agent") || "unknown";
+    } else {
+      entry.userAgent = "unknown";
+    }
+  }
 
   const _supabase = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
@@ -15554,6 +15563,8 @@ app.post(
         typeof body?.evidence_use === "string" && body.evidence_use.trim()
           ? body.evidence_use.trim()
           : null;
+      const autoPublish = body?.auto_publish === true;
+      const autoPublishMaterialLink = body?.auto_publish_material_link === true;
       const role =
         typeof body?.role === "string" && body.role.trim()
           ? body.role.trim()
@@ -15647,22 +15658,31 @@ app.post(
         );
       }
 
-      const [existingByYouTubeId, existingByUrl] = await Promise.all([
-        client
-          .from("videos")
-          .select("id,title,youtube_url,youtube_id,video_format,status")
-          .eq("youtube_id", youtubeId)
-          .maybeSingle(),
-        client
-          .from("videos")
-          .select("id,title,youtube_url,youtube_id,video_format,status")
-          .eq("youtube_url", rawYoutubeUrl)
-          .maybeSingle(),
-      ]);
+      const [existingByYouTubeId, existingByRawUrl, existingByCanonicalUrl] =
+        await Promise.all([
+          client
+            .from("videos")
+            .select("id,title,youtube_url,youtube_id,video_format,status")
+            .eq("youtube_id", youtubeId)
+            .maybeSingle(),
+          client
+            .from("videos")
+            .select("id,title,youtube_url,youtube_id,video_format,status")
+            .eq("youtube_url", rawYoutubeUrl)
+            .maybeSingle(),
+          client
+            .from("videos")
+            .select("id,title,youtube_url,youtube_id,video_format,status")
+            .eq("youtube_url", canonicalYoutubeUrl)
+            .maybeSingle(),
+        ]);
       if (existingByYouTubeId.error) throw existingByYouTubeId.error;
-      if (existingByUrl.error) throw existingByUrl.error;
+      if (existingByRawUrl.error) throw existingByRawUrl.error;
+      if (existingByCanonicalUrl.error) throw existingByCanonicalUrl.error;
 
-      let videoRow = existingByYouTubeId.data ?? existingByUrl.data ?? null;
+      const existingByUrl =
+        existingByRawUrl.data ?? existingByCanonicalUrl.data ?? null;
+      let videoRow = existingByYouTubeId.data ?? existingByUrl ?? null;
       let createdVideo = false;
       if (!videoRow) {
         const apiKey = Deno.env.get("YOUTUBE_API_KEY")?.trim();
@@ -15729,7 +15749,7 @@ app.post(
         if (
           youtubeFormat === "shorts" &&
           existingByYouTubeId.data?.video_format !== "shorts" &&
-          existingByUrl.data?.video_format !== "shorts"
+          existingByUrl?.video_format !== "shorts"
         ) {
           const { error: formatUpdateError } = await client
             .from("videos")
@@ -15784,33 +15804,52 @@ app.post(
       let materialMappingId: string | null = null;
       if (material && materialEntityId) {
         const mappingRole = role ?? "primary_subject";
-        const { data: existingMapping, error: mappingLookupError } =
-          await client
-            .from("content_entities")
-            .select("id")
-            .eq("content_entity_id", videoRow.id)
-            .eq("subject_entity_id", materialEntityId)
-            .eq("role", mappingRole)
-            .maybeSingle();
-        if (mappingLookupError) throw mappingLookupError;
-        if (existingMapping) {
-          materialMappingId = existingMapping.id;
-        } else {
-          const { data: insertedMapping, error: mappingError } = await client
-            .from("content_entities")
-            .insert({
-              content_entity_id: videoRow.id,
-              subject_entity_id: materialEntityId,
-              role: mappingRole,
-              lifecycle_focus: lifecycleFocus,
-              evidence_use: evidenceUse,
-            })
-            .select("id")
-            .single();
+        if (autoPublishMaterialLink) {
+          const { data: mappingResult, error: mappingError } = await client.rpc(
+            "create_manual_content_mapping",
+            {
+              p_created_by: c.get("userId"),
+              p_content_entity_id: videoEntityId,
+              p_subject_entity_id: materialEntityId,
+              p_role: mappingRole,
+              p_lifecycle_focus: lifecycleFocus,
+              p_evidence_use: evidenceUse,
+              p_auto_publish: true,
+            },
+          );
           if (mappingError) throw mappingError;
-          materialMappingId = insertedMapping.id;
-          createdMappingId = insertedMapping.id;
-          materialMappingCreated = true;
+          materialMappingId = mappingResult?.mapping_id ?? null;
+          materialMappingCreated = mappingResult?.created === true;
+          createdMappingId = materialMappingCreated ? materialMappingId : null;
+        } else {
+          const { data: existingMapping, error: mappingLookupError } =
+            await client
+              .from("content_entities")
+              .select("id")
+              .eq("content_entity_id", videoEntityId)
+              .eq("subject_entity_id", materialEntityId)
+              .eq("role", mappingRole)
+              .maybeSingle();
+          if (mappingLookupError) throw mappingLookupError;
+          if (existingMapping) {
+            materialMappingId = existingMapping.id;
+          } else {
+            const { data: insertedMapping, error: mappingError } = await client
+              .from("content_entities")
+              .insert({
+                content_entity_id: videoEntityId,
+                subject_entity_id: materialEntityId,
+                role: mappingRole,
+                lifecycle_focus: lifecycleFocus,
+                evidence_use: evidenceUse,
+              })
+              .select("id")
+              .single();
+            if (mappingError) throw mappingError;
+            materialMappingId = insertedMapping.id;
+            createdMappingId = insertedMapping.id;
+            materialMappingCreated = true;
+          }
         }
       }
 
@@ -15860,11 +15899,31 @@ app.post(
         await client.from("videos").delete().eq("id", createdVideoId);
       }
       log.error("Manual video creation failed:", error);
+      const errorMessage =
+        error && typeof error === "object" && "message" in error
+          ? String((error as { message?: unknown }).message ?? "")
+          : "";
+      const errorDetails =
+        error && typeof error === "object" && "details" in error
+          ? String((error as { details?: unknown }).details ?? "")
+          : "";
+      const errorHint =
+        error && typeof error === "object" && "hint" in error
+          ? String((error as { hint?: unknown }).hint ?? "")
+          : "";
+      const actionableMessage = [
+        "Video could not be created.",
+        errorMessage ? `Database message: ${errorMessage}` : "",
+        errorDetails ? `Details: ${errorDetails}` : "",
+        errorHint ? `Hint: ${errorHint}` : "",
+      ]
+        .filter(Boolean)
+        .join(" ");
       return c.json(
         {
           success: false,
-          error:
-            error instanceof Error ? error.message : "Video could not be created.",
+          error: actionableMessage,
+          details: String(error),
         },
         500,
       );
@@ -17623,6 +17682,7 @@ app.post(
           p_role: role,
           p_lifecycle_focus: lifecycleFocus,
           p_evidence_use: evidenceUse,
+          p_auto_publish: autoPublish,
         },
       );
       if (error) throw error;

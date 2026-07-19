@@ -1801,7 +1801,7 @@ export async function getManualContentMappingOptions(): Promise<ManualContentMap
   return await apiCall("/graph/content-mappings/manual/options");
 }
 
-/** Admin only — creates one explicit pending-review content mapping. */
+/** Admin only — creates one governed content mapping, optionally auto-publishing linked videos. */
 export async function createManualContentMapping(
   request: CreateManualContentMappingRequest,
 ): Promise<CreateManualContentMappingResponse> {

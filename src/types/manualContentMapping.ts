@@ -43,6 +43,7 @@ export interface CreateManualContentMappingRequest {
   role: string;
   lifecycle_focus?: string | null;
   evidence_use?: string | null;
+  auto_publish?: boolean;
 }
 
 export interface CreateManualContentMappingResponse {

@@ -251,6 +251,7 @@ export interface CreateVideoFromUrlRequest {
   role?: string | null;
   lifecycle_focus?: string | null;
   evidence_use?: string | null;
+  auto_publish_material_link?: boolean;
 }
 
 export interface CreateVideoFromUrlResponse {

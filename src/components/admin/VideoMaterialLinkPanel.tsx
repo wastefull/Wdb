@@ -49,6 +49,15 @@ export function VideoMaterialLinkPanel() {
   const [isCreatingVideo, setIsCreatingVideo] = useState(false);
   const [createVideoResult, setCreateVideoResult] =
     useState<CreateVideoFromUrlResponse | null>(null);
+  const [quickVideoUrl, setQuickVideoUrl] = useState("");
+  const [quickVideoTitle, setQuickVideoTitle] = useState("");
+  const [quickVideoMaterialSearch, setQuickVideoMaterialSearch] = useState("");
+  const [quickVideoMaterialId, setQuickVideoMaterialId] = useState("");
+  const [quickVideoLifecycleFocus, setQuickVideoLifecycleFocus] =
+    useState("");
+  const [isQuickPublishingVideo, setIsQuickPublishingVideo] = useState(false);
+  const [quickPublishResult, setQuickPublishResult] =
+    useState<CreateVideoFromUrlResponse | null>(null);
   const [contentSearch, setContentSearch] = useState("");
   const [materialSearch, setMaterialSearch] = useState("");
   const [contentEntityId, setContentEntityId] = useState("");
@@ -111,6 +120,13 @@ export function VideoMaterialLinkPanel() {
       ),
     [newVideoMaterialSearch, options.materials],
   );
+  const quickVideoMaterialOptions = useMemo(
+    () =>
+      options.materials.filter((candidate) =>
+        includesSearch(candidate, quickVideoMaterialSearch),
+      ),
+    [options.materials, quickVideoMaterialSearch],
+  );
 
   const selectedVideo = options.content.find(
     (candidate) => candidate.id === contentEntityId,
@@ -118,12 +134,15 @@ export function VideoMaterialLinkPanel() {
   const selectedMaterial = options.materials.find(
     (candidate) => candidate.id === subjectEntityId,
   );
-  const selectedNewVideoMaterial = options.materials.find(
-    (candidate) => candidate.id === newVideoMaterialId,
+  const selectedQuickMaterial = options.materials.find(
+    (candidate) => candidate.id === quickVideoMaterialId,
   );
   const selectedRole = options.roles.find((candidate) => candidate.slug === role);
   const selectedNewVideoRole = options.roles.find(
     (candidate) => candidate.slug === newVideoRole,
+  );
+  const selectedQuickLifecycle = options.lifecycle_focuses.find(
+    (candidate) => candidate.slug === quickVideoLifecycleFocus,
   );
   const selectedMappings = options.existing_mappings.filter(
     (mapping) => mapping.content_entity_id === contentEntityId,
@@ -198,6 +217,45 @@ export function VideoMaterialLinkPanel() {
     }
   };
 
+  const submitQuickPublishVideo = async (
+    event: FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault();
+    if (!quickVideoUrl.trim()) {
+      setError("Paste a YouTube video or Shorts URL first.");
+      return;
+    }
+    if (!quickVideoMaterialId) {
+      setError("Choose one material from the results list.");
+      return;
+    }
+
+    setIsQuickPublishingVideo(true);
+    setError(null);
+    setQuickPublishResult(null);
+    try {
+      const response = await api.createVideoFromUrl({
+        youtube_url: quickVideoUrl.trim(),
+        title: quickVideoTitle.trim() || undefined,
+        material_id: quickVideoMaterialId,
+        role: "primary_subject",
+        lifecycle_focus: quickVideoLifecycleFocus || null,
+        auto_publish_material_link: true,
+      });
+      setQuickPublishResult(response);
+      setQuickVideoUrl("");
+      setQuickVideoTitle("");
+      setQuickVideoMaterialId("");
+      setQuickVideoMaterialSearch("");
+      setQuickVideoLifecycleFocus("");
+      await loadOptions();
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : String(caught));
+    } finally {
+      setIsQuickPublishingVideo(false);
+    }
+  };
+
   const submitCreateVideo = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!newVideoUrl.trim()) {
@@ -266,6 +324,7 @@ export function VideoMaterialLinkPanel() {
         role,
         lifecycle_focus: lifecycleFocus || null,
         evidence_use: isEvidence ? evidenceUse : null,
+        auto_publish: true,
       });
       setResult(response);
       await loadOptions();
@@ -296,7 +355,7 @@ export function VideoMaterialLinkPanel() {
               Promote reviewed video links into governed material mappings or
               create new video-to-material links manually. This section is
               dedicated to learning-resource links and keeps video workflow in
-              one place.
+              one place. Video links created here publish immediately.
             </p>
           </div>
         </div>
@@ -312,13 +371,163 @@ export function VideoMaterialLinkPanel() {
       </div>
 
       <div className="rounded-lg border border-waste-science/25 bg-waste-science/5 p-4">
+        <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="font-sniglet text-[13px]">Create and publish video link</p>
+            <p className="mt-1 max-w-xl text-[11px] text-black/60 dark:text-white/60">
+              Paste a YouTube video or Shorts link, choose the material, and
+              publish the linked video in one step.
+            </p>
+          </div>
+        </div>
+
+        <form onSubmit={submitQuickPublishVideo} className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="space-y-2 text-[11px] font-medium">
+              YouTube video or Shorts URL
+              <input
+                value={quickVideoUrl}
+                onChange={(event) => {
+                  setQuickVideoUrl(event.target.value);
+                  setQuickPublishResult(null);
+                }}
+                placeholder="https://www.youtube.com/shorts/dQw4w9WgXcQ"
+                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] dark:border-white/15"
+              />
+            </label>
+            <label className="space-y-2 text-[11px] font-medium">
+              Optional title override
+              <input
+                value={quickVideoTitle}
+                onChange={(event) => {
+                  setQuickVideoTitle(event.target.value);
+                  setQuickPublishResult(null);
+                }}
+                placeholder="Leave blank to use the YouTube title"
+                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] dark:border-white/15"
+              />
+            </label>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <label
+                className="block text-[11px] font-medium"
+                htmlFor="quick-video-material-search"
+              >
+                Link to material
+              </label>
+              <input
+                id="quick-video-material-search"
+                type="search"
+                value={quickVideoMaterialSearch}
+                onChange={(event) => {
+                  setQuickVideoMaterialSearch(event.target.value);
+                  setQuickPublishResult(null);
+                }}
+                placeholder="Search materials…"
+                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] dark:border-white/15"
+              />
+              <div className="h-32 overflow-y-auto rounded-lg border border-black/15 bg-background p-1 text-[12px] dark:border-white/15">
+                {quickVideoMaterialOptions.length === 0 ? (
+                  <p className="px-2 py-3 text-black/45 dark:text-white/45">
+                    No matching materials.
+                  </p>
+                ) : (
+                  quickVideoMaterialOptions.map((candidate) => {
+                    const selected = candidate.id === quickVideoMaterialId;
+                    return (
+                      <button
+                        type="button"
+                        key={candidate.id}
+                        onClick={() => {
+                          setQuickVideoMaterialId(candidate.id);
+                          setQuickPublishResult(null);
+                        }}
+                        className={`block w-full rounded-md px-2 py-1.5 text-left ${
+                          selected
+                            ? "bg-waste-science/20 font-medium ring-1 ring-waste-science/50"
+                            : "hover:bg-black/5 dark:hover:bg-white/5"
+                        }`}
+                      >
+                        {candidate.name}
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label
+                className="block text-[11px] font-medium"
+                htmlFor="quick-video-lifecycle"
+              >
+                Lifecycle focus
+              </label>
+              <select
+                id="quick-video-lifecycle"
+                value={quickVideoLifecycleFocus}
+                onChange={(event) => {
+                  setQuickVideoLifecycleFocus(event.target.value);
+                  setQuickPublishResult(null);
+                }}
+                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] dark:border-white/15"
+              >
+                <option value="">None</option>
+                {options.lifecycle_focuses.map((candidate) => (
+                  <option key={candidate.slug} value={candidate.slug}>
+                    {candidate.label}
+                  </option>
+                ))}
+              </select>
+              {selectedQuickLifecycle && (
+                <p className="text-[10px] text-black/50 dark:text-white/50">
+                  {selectedQuickLifecycle.description}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="submit"
+              disabled={isQuickPublishingVideo || !quickVideoUrl.trim() || !quickVideoMaterialId}
+              className="retro-btn-primary flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isQuickPublishingVideo ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <ExternalLink className="size-4" />
+              )}
+              Create and publish
+            </button>
+            {selectedQuickMaterial && (
+              <p className="text-[12px] text-black/60 dark:text-white/60">
+                Publishing <strong>{selectedQuickMaterial.name}</strong> with
+                the linked video.
+              </p>
+            )}
+            {quickPublishResult && (
+              <p className="text-[12px] text-black/60 dark:text-white/60">
+                {quickPublishResult.created ? "Created" : "Used existing"}{" "}
+                video: <strong>{quickPublishResult.title}</strong>. The link is
+                active and the video is published.
+              </p>
+            )}
+          </div>
+        </form>
+      </div>
+
+      <div className="rounded-lg border border-waste-science/25 bg-waste-science/5 p-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="font-sniglet text-[13px]">Reviewed video links</p>
             <p className="mt-1 max-w-xl text-[11px] text-black/60 dark:text-white/60">
               Reuse material links already reviewed during video triage as
               initial primary-subject mappings. Existing mappings are skipped;
-              ambiguous identifiers are reported instead of guessed.
+              ambiguous identifiers are reported instead of guessed. Links
+              created here are activated and published right away.
             </p>
           </div>
           <button
@@ -379,7 +588,7 @@ export function VideoMaterialLinkPanel() {
               )}
               {previewReport.mode === "apply"
                 ? `${previewReport.created_count} mapping(s) created`
-                : `Create ${previewReport.creatable_count} primary-subject mapping(s)`}
+                : `Create ${previewReport.creatable_count} active primary-subject mapping(s)`}
             </button>
           </div>
         )}
@@ -388,11 +597,11 @@ export function VideoMaterialLinkPanel() {
       <div className="rounded-lg border border-black/10 p-4 dark:border-white/10">
         <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="font-sniglet text-[13px]">Add video by URL</p>
+            <p className="font-sniglet text-[13px]">Draft video only</p>
             <p className="mt-1 max-w-xl text-[11px] text-black/60 dark:text-white/60">
-              Paste a YouTube video or Shorts link to create a draft video. If
-              you choose a material, the new video can be linked to it in the
-              same step.
+              Use this legacy step-by-step flow if you want to create a draft
+              video first. The quick panel above creates and publishes the link
+              in one step.
             </p>
           </div>
         </div>
@@ -784,7 +993,7 @@ export function VideoMaterialLinkPanel() {
               ) : (
                 <ExternalLink className="size-4" />
               )}
-              Create video link
+              Create and publish video link
             </button>
             {selectedVideo && selectedMaterial && (
               <p className="text-[12px] text-black/60 dark:text-white/60">
@@ -812,9 +1021,21 @@ export function VideoMaterialLinkPanel() {
                   </span>
                 </div>
                 <p className="mt-1 text-black/60 dark:text-white/60">
-                  Material ID: {mapping.subject_entity_id}
+                  Material:{" "}
+                  <strong>
+                    {options.materials.find(
+                      (candidate) => candidate.id === mapping.subject_entity_id,
+                    )?.name ?? "Unknown material"}
+                  </strong>
+                  {" "}
+                  <span className="text-black/45 dark:text-white/45">
+                    ({mapping.subject_entity_id})
+                  </span>
                   {mapping.lifecycle_focus ? ` · ${formatLabel(mapping.lifecycle_focus)}` : ""}
                   {mapping.evidence_use ? ` · ${formatLabel(mapping.evidence_use)}` : ""}
+                </p>
+                <p className="mt-1 text-[10px] text-black/45 dark:text-white/45">
+                  Mapping ID: {mapping.id}
                 </p>
               </div>
             ))}
@@ -830,8 +1051,11 @@ export function VideoMaterialLinkPanel() {
 
       {result && (
         <div className="rounded-lg border border-waste-compost/30 bg-waste-compost/5 p-3 text-[12px]">
-          Mapping {result.already_exists ? "already existed" : "created"} for{" "}
-          {result.role.replaceAll("_", " ")}.
+          {result.already_exists ? "Reused existing" : "Created"}{" "}
+          {result.role.replaceAll("_", " ")} mapping for{" "}
+          <strong>{selectedVideo?.name ?? "selected video"}</strong> and{" "}
+          <strong>{selectedMaterial?.name ?? "selected material"}</strong>.
+          The link is active and the video is published.
         </div>
       )}
     </section>
