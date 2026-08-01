@@ -1,9 +1,3 @@
-// Accessibility
-export {
-  AccessibilityProvider,
-  useAccessibility,
-} from "./AccessibilityContext";
-
 export { BackArrow } from "./BackArrow";
 export { DiscardChangesDialog } from "./DiscardChangesDialog";
 export { LastUpdated } from "./LastUpdated";

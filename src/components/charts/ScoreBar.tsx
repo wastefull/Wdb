@@ -1,5 +1,3 @@
-import { useAccessibility } from "../shared/AccessibilityContext";
-
 export interface ScoreBarProps {
   score: number;
   label: string;
@@ -15,29 +13,7 @@ export function ScoreBar({
   articleCount,
   onClick,
 }: ScoreBarProps) {
-  const { settings } = useAccessibility();
-
-  // Map pastel colors to high-contrast colors
-  const getHighContrastColor = (originalColor: string): string => {
-    const isDark = settings.darkMode;
-    const colorMap: { [key: string]: { light: string; dark: string } } = {
-      "#e6beb5": { light: "#c74444", dark: "#ff6b6b" }, // Compostability
-      "#e4e3ac": { light: "#d4b400", dark: "#ffd700" }, // Recyclability
-      "#b8c8cb": { light: "#4a90a4", dark: "#6bb6d0" }, // Reusability
-    };
-
-    const mapping = colorMap[originalColor.toLowerCase()];
-    if (mapping) {
-      return isDark ? mapping.dark : mapping.light;
-    }
-    return originalColor;
-  };
-
-  // Use high-contrast color if high contrast or no pastel mode is enabled
-  const displayColor =
-    settings.highContrast || settings.noPastel
-      ? getHighContrastColor(color)
-      : color;
+  const displayColor = color;
 
   return (
     <div className="flex flex-col gap-1 w-full">

@@ -16,7 +16,7 @@ import { AlertCircle, CheckCircle2, FileText, Zap } from "lucide-react";
 import { projectId, publicAnonKey } from "../../utils/supabase/info";
 import { useNavigationContext } from "../../contexts/NavigationContext";
 import { useAuthContext } from "../../contexts/AuthContext";
-import { useAccessibility } from "../shared/AccessibilityContext";
+import { useAdminMode } from "../../contexts/AdminModeContext";
 import { PageTemplate } from "../shared/PageTemplate";
 import { logger } from "../../utils/logger";
 
@@ -32,7 +32,7 @@ export function TakedownRequestForm({
   const { navigateToTakedownStatus, navigateToMaterials } =
     useNavigationContext();
   const { userRole } = useAuthContext();
-  const { settings } = useAccessibility();
+  const { isActive: isAdminModeActive } = useAdminMode();
 
   const [formData, setFormData] = useState({
     // Contact Information
@@ -297,7 +297,7 @@ export function TakedownRequestForm({
       </Alert>
 
       {/* Admin-only Quick Fill Button - only shown when Admin Mode is toggled on */}
-      {userRole === "admin" && settings.adminMode && (
+      {userRole === "admin" && isAdminModeActive && (
         <Alert className="bg-amber-50 border-amber-300">
           <Zap className="size-4 text-amber-600" />
           <AlertDescription className="flex items-center justify-between">

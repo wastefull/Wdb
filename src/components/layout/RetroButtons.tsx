@@ -1,7 +1,5 @@
-import { useState } from "react";
 import { useNavigationContext } from "../../contexts/NavigationContext";
-import { MobileAccessibilityButtons } from "./WindowButtons/MobileAccessibilityButtons";
-import { WindowsButtons } from "./WindowButtons/WindowButtons";
+import { WindowControlDots } from "./WindowControlDots";
 
 export interface RetroButtonsProps {
   title: string;
@@ -11,8 +9,6 @@ export interface RetroButtonsProps {
 
 export function RetroButtons({ title, titlePop, version }: RetroButtonsProps) {
   const { navigateToMaterials } = useNavigationContext();
-
-  const [mobileSettingsOpen, setMobileSettingsOpen] = useState(false);
 
   const isLogo = title === "Waste" && titlePop === "DB";
   const handleLogoClick = () => {
@@ -25,14 +21,7 @@ export function RetroButtons({ title, titlePop, version }: RetroButtonsProps) {
     <div className="access-menu-outer">
       <div className="access-menu-inner">
         <div className="access-menu-content">
-          {/* Mobile: Single accessibility button */}
-          <MobileAccessibilityButtons
-            open={mobileSettingsOpen}
-            setMobile={setMobileSettingsOpen}
-          />
-
-          {/* Desktop: Three separate buttons */}
-          <WindowsButtons />
+          <WindowControlDots />
 
           <div className="window-title">
             <h1

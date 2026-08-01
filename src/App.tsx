@@ -22,6 +22,8 @@ import {
   useNavigationContext,
 } from "./contexts/NavigationContext";
 import { AuthProvider, useAuthContext } from "./contexts/AuthContext";
+import { AdminModeProvider, useAdminMode } from "./contexts/AdminModeContext";
+import { CuratorPreferencesProvider } from "./contexts/CuratorPreferencesContext";
 import { CategoryProvider } from "./contexts/CategoryContext";
 import {
   MaterialsProvider,
@@ -108,8 +110,6 @@ import {
 
 // Shared
 import {
-  AccessibilityProvider,
-  useAccessibility,
   LoadingPlaceholder,
   CookieConsent,
   ApiDocumentation,
@@ -150,7 +150,7 @@ import {
 import { Loading } from "./components/ui/loading";
 
 function AppContent() {
-  const { settings, toggleAdminMode } = useAccessibility();
+  const { isActive: isAdminModeActive } = useAdminMode();
   const {
     currentView,
     goBack,
@@ -425,13 +425,6 @@ function AppContent() {
     handleAuthCallbacks();
   }, [signIn]);
 
-  // Ensure admin mode is off when not authenticated
-  useEffect(() => {
-    if (!isAuthenticated && settings.adminMode) {
-      toggleAdminMode();
-    }
-  }, [isAuthenticated, settings.adminMode, toggleAdminMode]);
-
   // MaterialsContext handles loading materials from Supabase/localStorage
   // Check for article permalink in URL
   useEffect(() => {
@@ -661,13 +654,9 @@ function AppContent() {
 
   const handleLogout = useCallback(() => {
     signOut();
-    // Ensure admin mode is off
-    if (settings.adminMode) {
-      toggleAdminMode();
-    }
     // Navigate to front page (materials list)
     navigateToMaterials();
-  }, [signOut, settings.adminMode, toggleAdminMode, navigateToMaterials]);
+  }, [signOut, navigateToMaterials]);
 
   // Wait briefly before showing the create-material CTA so it doesn't flash while typing.
   useEffect(() => {
@@ -684,11 +673,6 @@ function AppContent() {
     const rawQuery = searchQuery.trim();
     const normalizedQuery = searchQuery.trim().toLowerCase();
     const normalizedDebouncedQuery = debouncedSearchQuery.trim().toLowerCase();
-    const adminModeInEffect = !!(
-      user &&
-      userRole === "admin" &&
-      settings.adminMode
-    );
 
     if (!normalizedQuery) {
       return [];
@@ -792,7 +776,7 @@ function AppContent() {
       nameSuggestions.push({
         value: `Create "${rawQuery}"`,
         subtitle: user
-          ? adminModeInEffect
+          ? isAdminModeActive
             ? "Create material"
             : "Suggest new material for the database"
           : "Sign in to add new materials",
@@ -803,7 +787,7 @@ function AppContent() {
             return;
           }
 
-          if (adminModeInEffect) {
+          if (isAdminModeActive) {
             setEditingMaterial(null);
             setShowForm(true);
             return;
@@ -820,11 +804,9 @@ function AppContent() {
     return nameSuggestions;
   }, [
     debouncedSearchQuery,
+    isAdminModeActive,
     materials,
     searchQuery,
-    settings.adminMode,
-    user,
-    userRole,
   ]);
 
   const resolveMaterialForView = (materialId: string): Material | undefined => {
@@ -890,12 +872,6 @@ function AppContent() {
     }
   }, [currentMaterial, currentArticle, currentView.type]);
 
-  // Admin mode is only active if user is authenticated, has admin role, AND has toggled admin mode on
-  const isAdminModeActive = !!(
-    user &&
-    userRole === "admin" &&
-    settings.adminMode
-  );
   const showLeaderboardPanel =
     currentView.type === "materials" || currentView.type === "user-profile";
   const showLeftPanel = currentView.type === "materials";
@@ -1558,13 +1534,11 @@ export default function App() {
 
   return (
     <ErrorBoundary>
-      <AccessibilityProvider>
-        <NavigationProvider>
-          <CategoryProvider>
-            <AppWithAuth />
-          </CategoryProvider>
-        </NavigationProvider>
-      </AccessibilityProvider>
+      <NavigationProvider>
+        <CategoryProvider>
+          <AppWithAuth />
+        </CategoryProvider>
+      </NavigationProvider>
     </ErrorBoundary>
   );
 }
@@ -1579,9 +1553,13 @@ function AppWithAuth() {
 
   return (
     <AuthProvider onSessionExpired={handleSessionExpired}>
-      <Toaster position="top-center" />
-      <AppWithMaterialsContext />
-      <CookieConsent />
+      <AdminModeProvider>
+        <CuratorPreferencesProvider>
+          <Toaster position="top-center" />
+          <AppWithMaterialsContext />
+          <CookieConsent />
+        </CuratorPreferencesProvider>
+      </AdminModeProvider>
     </AuthProvider>
   );
 }

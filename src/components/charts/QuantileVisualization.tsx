@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "motion/react";
-import { useAccessibility } from "../shared/AccessibilityContext";
 
 export type ScoreType = "compostability" | "recyclability" | "reusability";
 
@@ -62,9 +61,8 @@ export function QuantileVisualization({
   hideHeader = false,
   showScores = true,
 }: QuantileVisualizationProps) {
-  const { settings } = useAccessibility();
-  const reduceMotion = settings.reduceMotion;
-  const highContrast = settings.highContrast;
+  const reduceMotion = false;
+  const highContrast = false;
   const [isHovered, setIsHovered] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 

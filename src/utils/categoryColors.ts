@@ -6,10 +6,6 @@
  *
  * Colors are keyed by category ID (stable slug, e.g. "paper-cardboard"),
  * not by display name. CSS vars are --cat-{slug}.
- *
- * Dark mode and No-Pastel mode variants are auto-derived from the base color
- * and applied automatically when the .dark / .no-pastel class is present on
- * <html>. No separate admin configuration is needed.
  */
 import { apiCall } from "./api";
 import { logger } from "./logger";
@@ -18,14 +14,10 @@ import { logger } from "./logger";
 export type CategoryColorMap = Record<string, string>;
 
 // ---------------------------------------------------------------------------
-// Module-level color storage so we can switch between modes without re-fetching
+// Module-level color storage
 // ---------------------------------------------------------------------------
 let _baseColors: CategoryColorMap = {};
-let _darkColors: CategoryColorMap = {};
-let _npColors: CategoryColorMap = {};
 let _baseTextColors: CategoryColorMap = {};
-let _darkTextColors: CategoryColorMap = {};
-let _npTextColors: CategoryColorMap = {};
 
 // ---------------------------------------------------------------------------
 // HSL utilities
@@ -67,27 +59,6 @@ function hslToHex(h: number, s: number, l: number): string {
  * Reduces lightness to ~50% so it reads well on dark backgrounds,
  * and boosts saturation slightly to prevent muddiness.
  */
-function deriveDarkVariant(hex: string): string {
-  if (!/^#[0-9a-fA-F]{6}$/.test(hex)) return hex;
-  const [h, s, l] = hexToHsl(hex);
-  const darkL = Math.max(38, l - 28); // e.g. 76% → 48%
-  const darkS = Math.min(68, s + 12);
-  return hslToHex(h, darkS, darkL);
-}
-
-/**
- * Derive a no-pastel variant from a pastel base color.
- * Significantly boosts saturation and reduces lightness for a vivid,
- * non-washed-out chip on light backgrounds.
- */
-function deriveNoPastelVariant(hex: string): string {
-  if (!/^#[0-9a-fA-F]{6}$/.test(hex)) return hex;
-  const [h, s, l] = hexToHsl(hex);
-  const npL = Math.max(32, l - 36); // e.g. 76% → 40%
-  const npS = Math.min(80, s + 38);
-  return hslToHex(h, npS, npL);
-}
-
 function deriveContrastTextVariant(hex: string): string {
   if (!/^#[0-9a-fA-F]{6}$/.test(hex)) return "#211f1c";
   const [h, s, l] = hexToHsl(hex);
@@ -96,36 +67,17 @@ function deriveContrastTextVariant(hex: string): string {
   return hslToHex(h, textS, textL);
 }
 
-function getCurrentMode(): "dark" | "np" | "base" {
-  if (typeof document === "undefined") return "base";
-  const cl = document.documentElement.classList;
-  if (cl.contains("no-pastel")) return "np";
-  if (cl.contains("dark")) return "dark";
-  return "base";
-}
-
 /**
- * Re-apply --cat-{id} CSS vars for the currently active mode (base / dark / np).
- * Called automatically by applyCategoryColors and by the MutationObserver in
- * CategoryContext whenever .dark or .no-pastel is toggled on <html>.
+ * Re-apply --cat-{id} CSS vars. Called automatically by applyCategoryColors.
  */
 export function updateColorModeVars(): void {
   if (typeof document === "undefined") return;
-  const mode = getCurrentMode();
-  const map =
-    mode === "dark" ? _darkColors : mode === "np" ? _npColors : _baseColors;
-  const textMap =
-    mode === "dark"
-      ? _darkTextColors
-      : mode === "np"
-        ? _npTextColors
-        : _baseTextColors;
   const root = document.documentElement;
-  for (const [slug, color] of Object.entries(map)) {
+  for (const [slug, color] of Object.entries(_baseColors)) {
     root.style.setProperty(`--cat-${slug}`, color);
     root.style.setProperty(
       `--cat-${slug}-contrast`,
-      textMap[slug] ?? "#211f1c",
+      _baseTextColors[slug] ?? "#211f1c",
     );
   }
 }
@@ -173,25 +125,15 @@ export const DEFAULT_CATEGORY_COLORS: CategoryColorMap = {
 
 /**
  * Apply a color map to the document root as CSS custom properties.
- * Also derives and stores dark-mode and no-pastel variants so they can
- * be swapped in automatically when the corresponding class is active.
  * Keys may be slugs ("paper-cardboard") or display names — both are slugified.
  */
 export function applyCategoryColors(colors: CategoryColorMap): void {
   _baseColors = {};
-  _darkColors = {};
-  _npColors = {};
   _baseTextColors = {};
-  _darkTextColors = {};
-  _npTextColors = {};
   for (const [category, color] of Object.entries(colors)) {
     const slug = categoryToSlug(category);
     _baseColors[slug] = color;
-    _darkColors[slug] = deriveDarkVariant(color);
-    _npColors[slug] = deriveNoPastelVariant(color);
     _baseTextColors[slug] = deriveContrastTextVariant(_baseColors[slug]);
-    _darkTextColors[slug] = deriveContrastTextVariant(_darkColors[slug]);
-    _npTextColors[slug] = deriveContrastTextVariant(_npColors[slug]);
   }
   updateColorModeVars();
 }

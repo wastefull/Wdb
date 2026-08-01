@@ -25,7 +25,7 @@ export function MobileMenu({
   currentView,
   user,
   userRole,
-  settings,
+  isAdminModeActive,
 }: {
   mobileMenuOpen: boolean;
   setMobileMenuOpen: (open: boolean) => void;
@@ -35,7 +35,7 @@ export function MobileMenu({
   currentView?: any;
   user?: { id: string; email: string; name?: string } | null;
   userRole?: "admin" | "staff" | "user" | null;
-  settings?: { adminMode: boolean };
+  isAdminModeActive?: boolean;
 }) {
   if (!onViewChange || !user) return null;
   return (
@@ -165,7 +165,7 @@ export function MobileMenu({
 
             {/* Staff Dashboard (if staff, or admin with admin mode on) */}
             {(userRole === "staff" ||
-              (userRole === "admin" && settings && settings.adminMode)) &&
+              (userRole === "admin" && isAdminModeActive)) &&
               currentView && (
                 <button
                   onClick={() => {

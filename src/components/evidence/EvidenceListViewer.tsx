@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useAccessibility } from "../shared/AccessibilityContext";
+import { useAdminMode } from "../../contexts/AdminModeContext";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { ScrollArea } from "../ui/scroll-area";
@@ -95,7 +95,7 @@ export function EvidenceListViewer({
   materialFilter,
   parameterFilter,
 }: EvidenceListViewerProps) {
-  const { settings } = useAccessibility();
+  const { isActive: isAdminModeActive } = useAdminMode();
   const [mius, setMius] = useState<MIU[]>([]);
   const [sources, setSources] = useState<Map<string, Source>>(new Map());
   const [loading, setLoading] = useState(true);
@@ -461,7 +461,7 @@ export function EvidenceListViewer({
           Showing {filteredMIUs.length} of {mius.length} evidence points
         </p>
         <div className="flex gap-2">
-          {settings.adminMode && filteredMIUs.length > 0 && (
+          {isAdminModeActive && filteredMIUs.length > 0 && (
             <Button
               onClick={() => setShowBulkDeleteConfirm(true)}
               variant="outline"

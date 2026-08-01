@@ -5,10 +5,8 @@ import {
   type MaterialExperienceSectionId,
 } from "../../config/materialExperience";
 import { isDevelopment } from "../../utils/environment";
-import { useAccessibility } from "../shared/AccessibilityContext";
 
 export function MaterialSectionNavigator() {
-  const { settings } = useAccessibility();
   const showDisabledSections = isDevelopment();
   const [activeSection, setActiveSection] =
     useState<MaterialExperienceSectionId>("material-overview");
@@ -51,7 +49,7 @@ export function MaterialSectionNavigator() {
 
   useLayoutEffect(() => {
     syncNavMeasurements();
-  }, [isPinned, showDisabledSections, settings.fontSize]);
+  }, [isPinned, showDisabledSections]);
 
   useEffect(() => {
     if (typeof document === "undefined") return;
@@ -99,7 +97,7 @@ export function MaterialSectionNavigator() {
       window.removeEventListener("resize", syncNavMeasurements);
       resizeObserver?.disconnect();
     };
-  }, [showDisabledSections, settings.fontSize]);
+  }, [showDisabledSections]);
 
   useEffect(() => {
     if (typeof IntersectionObserver === "undefined") return;
@@ -153,7 +151,7 @@ export function MaterialSectionNavigator() {
 
     setActiveSection(sectionId);
     section.scrollIntoView({
-      behavior: settings.reduceMotion ? "auto" : "smooth",
+      behavior: "smooth",
       block: "start",
     });
     section.focus({ preventScroll: true });

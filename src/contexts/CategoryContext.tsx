@@ -19,10 +19,7 @@ import React, {
 } from "react";
 import { MaterialCategoryDef, MATERIAL_CATEGORIES } from "../types/material";
 import { apiCall } from "../utils/api";
-import {
-  loadAndApplyCategoryColors,
-  updateColorModeVars,
-} from "../utils/categoryColors";
+import { loadAndApplyCategoryColors } from "../utils/categoryColors";
 import { supabaseClient } from "../utils/supabase/client";
 import { logger } from "../utils/logger";
 
@@ -95,17 +92,6 @@ export function CategoryProvider({ children }: { children: ReactNode }) {
       supabaseClient.removeChannel(channel);
     };
   }, [refetch]);
-
-  // Watch for .dark / .no-pastel class changes on <html> so category color
-  // CSS vars are swapped to the correct derived variant automatically.
-  useEffect(() => {
-    const observer = new MutationObserver(() => updateColorModeVars());
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
-    });
-    return () => observer.disconnect();
-  }, []);
 
   const getCategoryById = useCallback(
     (id: string) => categories.find((c) => c.id === id),

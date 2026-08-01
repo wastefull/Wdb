@@ -13,7 +13,7 @@ import {
 import { NotificationBell } from "../shared/NotificationBell";
 import { RetroButtons } from "./RetroButtons";
 import { AdminModeButton } from "./AdminModeButton";
-import { useAccessibility } from "../shared/AccessibilityContext";
+import { useAdminMode } from "../../contexts/AdminModeContext";
 import {
   Tooltip as UITooltip,
   TooltipContent,
@@ -71,7 +71,7 @@ export const StatusBar = memo(function StatusBar({
   onClose,
 }: StatusBarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { settings } = useAccessibility();
+  const { isActive: isAdminModeActive } = useAdminMode();
 
   // Mini variant for modals - simplified with just close button and title
   if (variant === "mini") {
@@ -154,7 +154,7 @@ export const StatusBar = memo(function StatusBar({
                   user={user}
                   currentView={currentView}
                   userRole={userRole}
-                  settings={settings}
+                  isAdminModeActive={isAdminModeActive}
                 />
               </div>
             )}
@@ -200,7 +200,7 @@ export const StatusBar = memo(function StatusBar({
                   />
                 )}
                 {(userRole === "staff" ||
-                  (userRole === "admin" && settings.adminMode)) &&
+                  (userRole === "admin" && isAdminModeActive)) &&
                   currentView && (
                     <TooltipProvider delayDuration={300}>
                       <UITooltip>

@@ -2,7 +2,7 @@ import { Material } from "../../types/material";
 import { useNavigationContext } from "../../contexts/NavigationContext";
 import { useAuthContext } from "../../contexts/AuthContext";
 import { useMaterialsContext } from "../../contexts/MaterialsContext";
-import { useAccessibility } from "./AccessibilityContext";
+import { useAdminMode } from "../../contexts/AdminModeContext";
 import { SearchBar, SearchSuggestionChips } from "../search";
 import type { SearchSuggestion } from "../search/SearchBar";
 import { MaterialForm } from "../forms";
@@ -42,13 +42,7 @@ export function FrontPage({
   const { user, userRole } = useAuthContext();
   const { materials, isLoadingMaterials, syncStatus, retrySync } =
     useMaterialsContext();
-  const { settings } = useAccessibility();
-
-  const isAdminModeActive = !!(
-    user &&
-    userRole === "admin" &&
-    settings.adminMode
-  );
+  const { isActive: isAdminModeActive } = useAdminMode();
 
   return (
     <div className="p-3">

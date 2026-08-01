@@ -1,4 +1,3 @@
-import { useAccessibility } from "./AccessibilityContext";
 import { useNavigationContext } from "../../contexts/NavigationContext";
 
 interface LogoLinkProps {
@@ -6,7 +5,6 @@ interface LogoLinkProps {
 }
 
 export function LogoLink({ onNavigateHome }: LogoLinkProps) {
-  const { settings } = useAccessibility();
   const { navigateTo } = useNavigationContext();
 
   const handleClick = () => {
@@ -16,9 +14,6 @@ export function LogoLink({ onNavigateHome }: LogoLinkProps) {
       navigateTo({ type: "materials" });
     }
   };
-  // Temporarily disabling dark mode
-  // const dm = settings.darkMode;
-  const dm = false;
 
   return (
     <button
@@ -27,13 +22,9 @@ export function LogoLink({ onNavigateHome }: LogoLinkProps) {
       aria-label="Go to home page"
     >
       <img
-        src={
-          dm
-            ? "https://bdvfwjmaufjeqmxphmtv.supabase.co/storage/v1/object/public/make-17cae920-assets/logo_darkmode-1763068549938.png"
-            : "https://bdvfwjmaufjeqmxphmtv.supabase.co/storage/v1/object/public/make-17cae920-assets/uplogo_transparent-1761169051994.png"
-        }
+        src="https://bdvfwjmaufjeqmxphmtv.supabase.co/storage/v1/object/public/make-17cae920-assets/uplogo_transparent-1761169051994.png"
         alt="Wastefull Logo"
-        className={dm ? "h-52 lg:h-64 w-auto" : "h-36 lg:h-48 w-auto"}
+        className="h-36 lg:h-48 w-auto"
       />
     </button>
   );

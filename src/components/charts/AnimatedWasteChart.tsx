@@ -7,7 +7,15 @@ import {
   Tooltip,
   PolarAngleAxis,
 } from "recharts";
-import { useAccessibility } from "../shared/AccessibilityContext";
+// Accessibility tooling (dark mode, high contrast, no-pastel, reduce motion,
+// font scaling) has been removed for now; these are the fixed defaults.
+const settings = {
+  fontSize: "normal" as "normal" | "large" | "xlarge",
+  highContrast: false,
+  noPastel: false,
+  reduceMotion: false,
+  darkMode: false,
+};
 
 interface ChartData {
   name: string;
@@ -27,7 +35,6 @@ export function AnimatedWasteChart({
   chartData,
   onCategoryClick,
 }: AnimatedWasteChartProps) {
-  const { settings } = useAccessibility();
   const [hasAnimated, setHasAnimated] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 

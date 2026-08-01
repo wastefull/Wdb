@@ -16,7 +16,6 @@
 import { useState, useEffect } from "react";
 import { QuantileVisualization, ScoreType } from "./QuantileVisualization";
 import { useRasterizedChart } from "../../utils/useRasterizedChart";
-import { useAccessibility } from "../shared/AccessibilityContext";
 import { logger as log } from "../../utils/logger";
 interface RasterizedQuantileVisualizationProps {
   materialId: string;
@@ -45,9 +44,8 @@ export function RasterizedQuantileVisualization({
   enableRasterization = true,
   showScores = true,
 }: RasterizedQuantileVisualizationProps) {
-  const { settings } = useAccessibility();
-  const reduceMotion = settings.reduceMotion;
-  const highContrast = settings.highContrast;
+  const reduceMotion = false;
+  const highContrast = false;
   const [shouldRasterize, setShouldRasterize] = useState(enableRasterization);
   const [isMobile, setIsMobile] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -67,7 +65,7 @@ export function RasterizedQuantileVisualization({
     data,
     width,
     height,
-    darkMode: settings.darkMode,
+    darkMode: false,
     highContrast,
     reduceMotion,
     enabled: shouldRasterize && !simplified && enableRasterization,
