@@ -13,10 +13,10 @@ interface ModalProps {
 }
 
 const DEFAULT_OVERLAY_CLASS_NAME =
-  "fixed inset-0 z-200 bg-black/40 dark:bg-black/60 flex items-start justify-center overflow-y-auto pt-10 px-4";
+  "fixed inset-0 z-200 bg-black/40 flex items-start justify-center overflow-y-auto pt-10 px-4";
 
 const DEFAULT_PANEL_CLASS_NAME =
-  "mt-10 bg-white dark:bg-[#2a2825] rounded-(--retro-rounding) retro-card";
+  "mt-10 bg-white rounded-(--retro-rounding) retro-card";
 
 export function Modal({
   onClose,

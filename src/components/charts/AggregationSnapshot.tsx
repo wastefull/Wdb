@@ -66,7 +66,7 @@ export function AggregationSnapshot({
   const computedDate = new Date(computed_at);
 
   return (
-    <Card className="bg-white dark:bg-[#1a1917] rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)]">
+    <Card className="bg-white rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000]">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
@@ -85,11 +85,11 @@ export function AggregationSnapshot({
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Aggregated Value */}
-        <div className="p-3 bg-blue-50 dark:bg-blue-950/20 rounded-md border border-blue-200 dark:border-blue-800">
-          <div className="text-xs text-black/60 dark:text-white/60 font-['Sniglet'] mb-1">
+        <div className="p-3 bg-blue-50 rounded-md border border-blue-200">
+          <div className="text-xs text-black/60 font-['Sniglet'] mb-1">
             Weighted Mean
           </div>
-          <div className="text-[20px] font-['Tilt_Warp'] text-blue-600 dark:text-blue-400">
+          <div className="text-[20px] font-['Tilt_Warp'] text-blue-600">
             {aggregated_value.toFixed(2)}
           </div>
         </div>
@@ -105,7 +105,7 @@ export function AggregationSnapshot({
             {/* Transform Version */}
             <div className="flex items-center justify-between p-2 bg-muted/50 rounded-md">
               <div className="flex items-center gap-2">
-                <FileText className="h-3 w-3 text-black/60 dark:text-white/60" />
+                <FileText className="h-3 w-3 text-black/60" />
                 <span className="font-['Sniglet'] text-xs normal">
                   Transform
                 </span>
@@ -121,7 +121,7 @@ export function AggregationSnapshot({
                   href="/data/transforms.json"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 dark:text-blue-400 hover:underline"
+                  className="text-blue-600 hover:underline"
                 >
                   <ExternalLink className="h-3 w-3" />
                 </a>
@@ -131,7 +131,7 @@ export function AggregationSnapshot({
             {/* Ontology Version */}
             <div className="flex items-center justify-between p-2 bg-muted/50 rounded-md">
               <div className="flex items-center gap-2">
-                <Database className="h-3 w-3 text-black/60 dark:text-white/60" />
+                <Database className="h-3 w-3 text-black/60" />
                 <span className="font-['Sniglet'] text-xs normal">
                   Ontology
                 </span>
@@ -147,7 +147,7 @@ export function AggregationSnapshot({
                   href="/data/ontologies/units.json"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 dark:text-blue-400 hover:underline"
+                  className="text-blue-600 hover:underline"
                 >
                   <ExternalLink className="h-3 w-3" />
                 </a>
@@ -157,7 +157,7 @@ export function AggregationSnapshot({
             {/* Weight Policy Version */}
             <div className="flex items-center justify-between p-2 bg-muted/50 rounded-md">
               <div className="flex items-center gap-2">
-                <BookOpen className="h-3 w-3 text-black/60 dark:text-white/60" />
+                <BookOpen className="h-3 w-3 text-black/60" />
                 <span className="font-['Sniglet'] text-xs normal">
                   Weight Policy
                 </span>
@@ -169,7 +169,7 @@ export function AggregationSnapshot({
                 >
                   v{weight_policy_version}
                 </Badge>
-                <span className="font-['Sniglet'] text-[9px] text-black/60 dark:text-white/60">
+                <span className="font-['Sniglet'] text-[9px] text-black/60">
                   (high: 1.0, medium: 0.7, low: 0.4)
                 </span>
               </div>
@@ -178,7 +178,7 @@ export function AggregationSnapshot({
             {/* Codebook Version */}
             <div className="flex items-center justify-between p-2 bg-muted/50 rounded-md">
               <div className="flex items-center gap-2">
-                <BookOpen className="h-3 w-3 text-black/60 dark:text-white/60" />
+                <BookOpen className="h-3 w-3 text-black/60" />
                 <span className="font-['Sniglet'] text-xs normal">
                   Codebook
                 </span>
@@ -199,7 +199,7 @@ export function AggregationSnapshot({
                 key={w.miu_id}
                 className="flex items-center justify-between p-2 bg-muted/30 rounded-md text-xs"
               >
-                <span className="font-['Sniglet'] text-black/60 dark:text-white/60">
+                <span className="font-['Sniglet'] text-black/60">
                   MIU {index + 1}
                 </span>
                 <div className="flex items-center gap-2">
@@ -207,10 +207,10 @@ export function AggregationSnapshot({
                     variant="outline"
                     className={`font-['Sniglet'] text-[9px] ${
                       w.confidence_level === "high"
-                        ? "border-green-500 text-green-700 dark:text-green-400"
+                        ? "border-green-500 text-green-700"
                         : w.confidence_level === "medium"
-                          ? "border-yellow-500 text-yellow-700 dark:text-yellow-400"
-                          : "border-red-500 text-red-700 dark:text-red-400"
+                          ? "border-yellow-500 text-yellow-700"
+                          : "border-red-500 text-red-700"
                     }`}
                   >
                     {w.confidence_level}
@@ -237,8 +237,8 @@ export function AggregationSnapshot({
         )}
 
         {/* Metadata Footer */}
-        <div className="pt-3 border-t border-[#211f1c]/20 dark:border-white/20">
-          <div className="text-[9px] text-black/50 dark:text-white/50 font-['Sniglet']">
+        <div className="pt-3 border-t border-[#211f1c]/20">
+          <div className="text-[9px] text-black/50 font-['Sniglet']">
             <div className="flex items-center justify-between">
               <span>Aggregation ID:</span>
               <code className="text-[8px] bg-muted px-1 py-0.5 rounded">

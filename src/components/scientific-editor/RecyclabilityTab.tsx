@@ -147,7 +147,7 @@ export function RecyclabilityTab({
         </h3>
 
         {/* Practical Score */}
-        <div className="mb-4 pb-4 border-b border-[#211f1c] dark:border-white/20">
+        <div className="mb-4 pb-4 border-b border-[#211f1c]">
           <h4 className="text-[12px] normal mb-2">
             Practical (Realistic Conditions)
           </h4>
@@ -211,7 +211,7 @@ export function RecyclabilityTab({
           </div>
 
           {formData.CR_practical_mean && (
-            <div className="mt-2 text-sm text-black/60 dark:text-white/60">
+            <div className="mt-2 text-sm text-black/60">
               Public Score:{" "}
               <strong>
                 {Math.round(formData.CR_practical_mean * 100)}/100
@@ -285,7 +285,7 @@ export function RecyclabilityTab({
           </div>
 
           {formData.CR_theoretical_mean && (
-            <div className="mt-2 text-sm text-black/60 dark:text-white/60">
+            <div className="mt-2 text-sm text-black/60">
               Public Score:{" "}
               <strong>
                 {Math.round(formData.CR_theoretical_mean * 100)}/100

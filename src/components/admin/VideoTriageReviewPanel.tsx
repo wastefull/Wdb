@@ -84,13 +84,13 @@ function ReviewEditor({
   };
 
   return (
-    <article className="rounded-lg border border-black/10 p-4 dark:border-white/10">
+    <article className="rounded-lg border border-black/10 p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <p className="text-[13px] font-medium">
             {item.title ?? "Untitled playlist item"}
           </p>
-          <p className="mt-1 text-[11px] text-black/50 dark:text-white/50">
+          <p className="mt-1 text-[11px] text-black/50">
             Position {item.playlist_positions.join(", ")} ·{" "}
             {item.channel_name ?? "Unknown channel"} ·{" "}
             {item.provider_classification}
@@ -106,14 +106,14 @@ function ReviewEditor({
             </a>
           )}
         </div>
-        <span className="rounded-full border border-black/15 px-2 py-1 text-[10px] dark:border-white/15">
+        <span className="rounded-full border border-black/15 px-2 py-1 text-[10px]">
           {item.review_status}
         </span>
       </div>
 
       {(item.provider_issues.length > 0 ||
         item.suggested_topic_tags.length > 0) && (
-        <p className="mt-3 text-[11px] text-black/60 dark:text-white/60">
+        <p className="mt-3 text-[11px] text-black/60">
           {item.provider_issues.length > 0 &&
             `Provider: ${item.provider_issues.join(", ")}. `}
           {item.suggested_topic_tags.length > 0 &&
@@ -129,7 +129,7 @@ function ReviewEditor({
             onChange={(event) =>
               setDisposition(event.target.value as VideoTriageDisposition | "")
             }
-            className="mt-1 w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] dark:border-white/15"
+            className="mt-1 w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
           >
             <option value="">Unreviewed</option>
             {!unavailable && (
@@ -150,7 +150,7 @@ function ReviewEditor({
             onChange={(event) => setMaterials(event.target.value)}
             placeholder="aluminum; pet"
             disabled={!disposition || disposition === "ignore"}
-            className="mt-1 w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] disabled:opacity-50 dark:border-white/15"
+            className="mt-1 w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] disabled:opacity-50"
           />
         </label>
 
@@ -161,7 +161,7 @@ function ReviewEditor({
             onChange={(event) => setTopics(event.target.value)}
             placeholder="3d_printing"
             disabled={!disposition || disposition === "ignore"}
-            className="mt-1 w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] disabled:opacity-50 dark:border-white/15"
+            className="mt-1 w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] disabled:opacity-50"
           />
         </label>
 
@@ -191,7 +191,7 @@ function ReviewEditor({
           value={notes}
           onChange={(event) => setNotes(event.target.value)}
           rows={2}
-          className="mt-1 w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] dark:border-white/15"
+          className="mt-1 w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
         />
       </label>
 
@@ -211,7 +211,7 @@ function ReviewEditor({
         </button>
         {message && (
           <span
-            className="text-[11px] text-black/60 dark:text-white/60"
+            className="text-[11px] text-black/60"
             aria-live="polite"
           >
             {message}
@@ -350,7 +350,7 @@ export function VideoTriageReviewPanel() {
             >
               Private Video Triage
             </h3>
-            <p className="mt-1 text-[12px] text-black/60 dark:text-white/60">
+            <p className="mt-1 text-[12px] text-black/60">
               Record human review decisions without creating drafts or public
               graph content.
             </p>
@@ -360,7 +360,7 @@ export function VideoTriageReviewPanel() {
           type="button"
           onClick={() => void refresh()}
           disabled={isLoading}
-          className="flex items-center gap-2 rounded-lg border border-black/15 px-3 py-2 text-[12px] disabled:opacity-50 dark:border-white/15"
+          className="flex items-center gap-2 rounded-lg border border-black/15 px-3 py-2 text-[12px] disabled:opacity-50"
         >
           <RefreshCw
             className={`size-3.5 ${isLoading ? "animate-spin" : ""}`}
@@ -370,7 +370,7 @@ export function VideoTriageReviewPanel() {
       </div>
 
       {error && (
-        <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-[12px] text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-300">
+        <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-[12px] text-red-700">
           {error}
         </p>
       )}
@@ -385,7 +385,7 @@ export function VideoTriageReviewPanel() {
                 setBatchId(event.target.value);
                 setOffset(0);
               }}
-              className="mt-1 w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] dark:border-white/15"
+              className="mt-1 w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
             >
               {batches.map((entry) => (
                 <option key={entry.id} value={entry.id}>
@@ -403,7 +403,7 @@ export function VideoTriageReviewPanel() {
                 setReviewStatus(event.target.value);
                 setOffset(0);
               }}
-              className="mt-1 w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] dark:border-white/15"
+              className="mt-1 w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
             >
               <option value="unreviewed">Unreviewed</option>
               <option value="reviewed">Reviewed</option>
@@ -428,12 +428,12 @@ export function VideoTriageReviewPanel() {
                 value={searchInput}
                 onChange={(event) => setSearchInput(event.target.value)}
                 placeholder="Title, YouTube ID, material, topic, or notes…"
-                className="min-w-0 flex-1 rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] dark:border-white/15"
+                className="min-w-0 flex-1 rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
               />
               <button
                 type="submit"
                 disabled={isLoading}
-                className="flex items-center gap-2 rounded-lg border border-black/15 px-3 py-2 text-[12px] disabled:opacity-50 dark:border-white/15"
+                className="flex items-center gap-2 rounded-lg border border-black/15 px-3 py-2 text-[12px] disabled:opacity-50"
               >
                 <Search className="size-3.5" /> Filter
               </button>
@@ -445,14 +445,14 @@ export function VideoTriageReviewPanel() {
                     setSearchQuery("");
                     setOffset(0);
                   }}
-                  className="rounded-lg border border-black/15 px-3 py-2 text-[12px] dark:border-white/15"
+                  className="rounded-lg border border-black/15 px-3 py-2 text-[12px]"
                 >
                   Clear
                 </button>
               )}
             </div>
             {searchQuery && (
-              <p className="mt-1 text-[10px] text-black/50 dark:text-white/50">
+              <p className="mt-1 text-[10px] text-black/50">
                 Filtering the complete batch for “{searchQuery}”
               </p>
             )}
@@ -462,7 +462,7 @@ export function VideoTriageReviewPanel() {
 
       {batch && (
         <div className="space-y-2">
-          <p className="text-[11px] text-black/60 dark:text-white/60">
+          <p className="text-[11px] text-black/60">
             Batch {batch.id} · {batch.row_count} candidates · status{" "}
             {batch.status}
           </p>
@@ -481,7 +481,7 @@ export function VideoTriageReviewPanel() {
               {isApplying ? "Applying drafts…" : "Apply reviewed drafts"}
             </button>
             {!capabilities?.draft_apply_enabled && (
-              <span className="text-[11px] text-black/50 dark:text-white/50">
+              <span className="text-[11px] text-black/50">
                 Draft apply gate is closed.
               </span>
             )}
@@ -504,7 +504,7 @@ export function VideoTriageReviewPanel() {
           <Loader2 className="size-4 animate-spin" /> Loading private triage…
         </p>
       ) : items.length === 0 ? (
-        <p className="rounded-lg border border-black/10 p-4 text-[12px] dark:border-white/10">
+        <p className="rounded-lg border border-black/10 p-4 text-[12px]">
           No candidates match this review filter.
         </p>
       ) : (
@@ -525,7 +525,7 @@ export function VideoTriageReviewPanel() {
               type="button"
               onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))}
               disabled={offset === 0 || isLoading}
-              className="rounded-lg border border-black/15 px-3 py-1.5 disabled:opacity-40 dark:border-white/15"
+              className="rounded-lg border border-black/15 px-3 py-1.5 disabled:opacity-40"
             >
               Previous
             </button>
@@ -533,7 +533,7 @@ export function VideoTriageReviewPanel() {
               type="button"
               onClick={() => setOffset(offset + PAGE_SIZE)}
               disabled={offset + PAGE_SIZE >= total || isLoading}
-              className="rounded-lg border border-black/15 px-3 py-1.5 disabled:opacity-40 dark:border-white/15"
+              className="rounded-lg border border-black/15 px-3 py-1.5 disabled:opacity-40"
             >
               Next
             </button>

@@ -248,12 +248,12 @@ export function BlogView({ onBack, postId }: BlogViewProps) {
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <Newspaper
             size={48}
-            className="mb-4 text-black/20 dark:text-white/20"
+            className="mb-4 text-black/20"
           />
-          <h3 className="text-[16px] font-display mb-2 text-black dark:text-white">
+          <h3 className="text-[16px] font-display mb-2 text-black">
             No blog posts yet
           </h3>
-          <p className="text-[13px] text-black/60 dark:text-white/60 max-w-md">
+          <p className="text-[13px] text-black/60 max-w-md">
             Blog posts will appear here once published by the WasteDB team.
             Check back soon for updates and insights.
           </p>
@@ -271,7 +271,7 @@ export function BlogView({ onBack, postId }: BlogViewProps) {
               onClick={() => navigateToBlog(post.id)}
             >
               <div className="flex flex-col gap-3">
-                <div className="flex items-center gap-2 text-sm text-black/60 dark:text-white/60">
+                <div className="flex items-center gap-2 text-sm text-black/60">
                   <Calendar size={14} />
                   <span>
                     {formatDate(post.published_at || post.created_at)}
@@ -288,11 +288,11 @@ export function BlogView({ onBack, postId }: BlogViewProps) {
                   )}
                 </div>
 
-                <h3 className="text-[18px] font-display text-black dark:text-white">
+                <h3 className="text-[18px] font-display text-black">
                   {post.title}
                 </h3>
 
-                <p className="text-[13px] text-black/70 dark:text-white/70">
+                <p className="text-[13px] text-black/70">
                   {post.excerpt}
                 </p>
 
@@ -311,8 +311,8 @@ export function BlogView({ onBack, postId }: BlogViewProps) {
           ))}
         </div>
 
-        <div className="mt-8 p-4 border border-[#211f1c]/20 dark:border-white/20 rounded-lg">
-          <p className="text-[12px] text-black/60 dark:text-white/60">
+        <div className="mt-8 p-4 border border-[#211f1c]/20 rounded-lg">
+          <p className="text-[12px] text-black/60">
             <Newspaper size={16} className="inline-block mr-2" />
             Blog posts are published by the WasteDB admin team and cover news,
             updates, and longer-form insights about the platform and waste
@@ -327,10 +327,10 @@ export function BlogView({ onBack, postId }: BlogViewProps) {
     return (
       <>
         {isAdmin && (
-          <div className="mb-4 rounded-lg border border-[#211f1c]/20 bg-white/70 p-4 dark:border-white/20 dark:bg-white/5">
+          <div className="mb-4 rounded-lg border border-[#211f1c]/20 bg-white/70 p-4">
             <div className="flex flex-col gap-3 md:flex-row md:items-end">
               <label className="block md:w-48">
-                <span className="mb-1 block text-sm uppercase tracking-[0.18em] text-black/50 dark:text-white/50">
+                <span className="mb-1 block text-sm uppercase tracking-[0.18em] text-black/50">
                   Entry Date
                 </span>
                 <input
@@ -339,13 +339,13 @@ export function BlogView({ onBack, postId }: BlogViewProps) {
                   onChange={(event) =>
                     setSelectedChangelogDate(event.target.value)
                   }
-                  className="w-full rounded-md border border-[#211f1c]/20 bg-white px-3 py-2 text-[13px] text-black outline-none transition focus:border-[#211f1c] dark:border-white/20 dark:bg-[#1f1d1b] dark:text-white dark:focus:border-white"
+                  className="w-full rounded-md border border-[#211f1c]/20 bg-white px-3 py-2 text-[13px] text-black outline-none transition focus:border-[#211f1c]"
                   disabled={isSavingChangelog || isDeletingChangelog}
                 />
               </label>
 
               <div className="flex-1">
-                <div className="mb-1 text-sm uppercase tracking-[0.18em] text-black/50 dark:text-white/50">
+                <div className="mb-1 text-sm uppercase tracking-[0.18em] text-black/50">
                   Public Bullets
                 </div>
                 <Textarea
@@ -354,14 +354,14 @@ export function BlogView({ onBack, postId }: BlogViewProps) {
                   placeholder={
                     "- Added changelog tab\n- Tightened mobile spacing\n- Fixed API auth edge case"
                   }
-                  className="min-h-28 bg-white text-[13px] leading-5 dark:bg-[#1f1d1b]"
+                  className="min-h-28 bg-white text-[13px] leading-5"
                   disabled={isSavingChangelog || isDeletingChangelog}
                 />
               </div>
             </div>
 
             <div className="mt-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-              <p className="text-sm text-black/55 dark:text-white/55">
+              <p className="text-sm text-black/55">
                 One bullet per line. This entry is visible to everyone as soon
                 as you save it.
               </p>
@@ -395,11 +395,11 @@ export function BlogView({ onBack, postId }: BlogViewProps) {
 
         {changelogEntries.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-center">
-            <List size={48} className="mb-4 text-black/20 dark:text-white/20" />
-            <h3 className="text-[16px] font-display mb-2 text-black dark:text-white">
+            <List size={48} className="mb-4 text-black/20" />
+            <h3 className="text-[16px] font-display mb-2 text-black">
               No changelog entries yet
             </h3>
-            <p className="text-[13px] text-black/60 dark:text-white/60 max-w-md">
+            <p className="text-[13px] text-black/60 max-w-md">
               Daily changelog notes will appear here as the WasteDB admin team
               publishes them.
             </p>
@@ -409,22 +409,22 @@ export function BlogView({ onBack, postId }: BlogViewProps) {
             {changelogEntries.map((entry) => (
               <section
                 key={entry.id}
-                className="rounded-lg border border-[#211f1c]/20 bg-white/70 px-4 py-3 dark:border-white/20 dark:bg-white/5"
+                className="rounded-lg border border-[#211f1c]/20 bg-white/70 px-4 py-3"
               >
                 <div className="mb-2 flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2 text-black dark:text-white">
+                  <div className="flex items-center gap-2 text-black">
                     <List size={14} />
                     <h3 className="text-[13px] font-display">
                       {formatChangelogDate(entry.entry_date)}
                     </h3>
                   </div>
-                  <span className="text-xs uppercase tracking-[0.18em] text-black/45 dark:text-white/45">
+                  <span className="text-xs uppercase tracking-[0.18em] text-black/45">
                     {entry.items.length} change
                     {entry.items.length === 1 ? "" : "s"}
                   </span>
                 </div>
 
-                <ul className="space-y-1 pl-4 text-[12px] leading-5 text-black/75 dark:text-white/75">
+                <ul className="space-y-1 pl-4 text-[12px] leading-5 text-black/75">
                   {entry.items.map((item, index) => (
                     <li key={`${entry.id}-${index}`} className="list-disc">
                       {item}
@@ -444,7 +444,7 @@ export function BlogView({ onBack, postId }: BlogViewProps) {
       return (
         <PageTemplate title="Loading..." onBack={onBack}>
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="size-8 animate-spin text-black/50 dark:text-white/50" />
+            <Loader2 className="size-8 animate-spin text-black/50" />
           </div>
         </PageTemplate>
       );
@@ -454,7 +454,7 @@ export function BlogView({ onBack, postId }: BlogViewProps) {
       return (
         <PageTemplate title="Blog post not found" onBack={onBack}>
           <div className="text-center py-12">
-            <p className="text-[14px] text-black/60 dark:text-white/60">
+            <p className="text-[14px] text-black/60">
               {postError || "Blog post not found"}
             </p>
           </div>
@@ -465,7 +465,7 @@ export function BlogView({ onBack, postId }: BlogViewProps) {
     return (
       <PageTemplate title={selectedPost.title} onBack={onBack}>
         <div className="mx-auto max-w-4xl space-y-6">
-          <div className="flex flex-wrap items-center gap-2 text-sm text-black/60 dark:text-white/60">
+          <div className="flex flex-wrap items-center gap-2 text-sm text-black/60">
             <span>{selectedPost.category}</span>
             <span>•</span>
             <span>
@@ -502,7 +502,7 @@ export function BlogView({ onBack, postId }: BlogViewProps) {
                 ))}
               </div>
 
-              <article className="prose prose-lg max-w-none dark:prose-invert prose-headings:font-display prose-p:leading-relaxed">
+              <article className="prose prose-lg max-w-none prose-headings:font-display prose-p:leading-relaxed">
                 <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
                   {selectedPost.content}
                 </ReactMarkdown>

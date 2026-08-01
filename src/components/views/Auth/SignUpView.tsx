@@ -21,12 +21,12 @@ export function SignUpView({
 }) {
   return (
     <div className="space-y-3">
-      <div className="text-center text-xs text-black/50 dark:text-white/50">
+      <div className="text-center text-xs text-black/50">
         Log in or sign up with just your email
       </div>
 
       <div>
-        <label className="text-[12px] normal block mb-1 uppercase tracking-[0.04em] text-black/70 dark:text-white/70">
+        <label className="text-[12px] normal block mb-1 uppercase tracking-[0.04em] text-black/70">
           Email Address:
         </label>
         <input
@@ -68,7 +68,7 @@ export function SignUpView({
         <Mail size={16} />
         {loading ? "Sending..." : "Send Magic Link"}
       </button>
-      <div className="text-center text-xs text-black/50 dark:text-white/50">
+      <div className="text-center text-xs text-black/50">
         or
       </div>
       <button

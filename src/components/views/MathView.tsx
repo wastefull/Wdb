@@ -36,7 +36,7 @@ export function MathView({ onBack, defaultTab = "overview" }: MathViewProps) {
               <h3 className="text-[18px] normal mb-2">
                 Math Tools Coming Soon
               </h3>
-              <p className="text-[12px] text-black/60 dark:text-white/60">
+              <p className="text-[12px] text-black/60">
                 This section will contain mathematical utilities, formula
                 editors, and computational tools.
               </p>

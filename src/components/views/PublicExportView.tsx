@@ -89,7 +89,7 @@ export function PublicExportView({
   };
 
   return (
-    <div className="min-h-screen bg-[#f5f3ed] dark:bg-[#1a1817] p-6">
+    <div className="min-h-screen bg-[#f5f3ed] p-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex items-center gap-4 mb-6">
@@ -98,7 +98,7 @@ export function PublicExportView({
           </button>
           <div className="flex-1">
             <h1 className="text-[24px] normal mb-1">Export WasteDB Data</h1>
-            <p className="text-[12px] text-black/60 dark:text-white/60">
+            <p className="text-[12px] text-black/60">
               Download {materialsCount} materials with 3D circularity data (CR,
               CC, RU)
             </p>
@@ -106,12 +106,12 @@ export function PublicExportView({
         </div>
 
         {/* Info Alert */}
-        <Alert className="mb-6 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
-          <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-          <AlertTitle className="text-[12px] text-blue-800 dark:text-blue-200">
+        <Alert className="mb-6 bg-blue-50 border-blue-200">
+          <Info className="h-4 w-4 text-blue-600" />
+          <AlertTitle className="text-[12px] text-blue-800">
             Open Data Access
           </AlertTitle>
-          <AlertDescription className="text-xs text-blue-700 dark:text-blue-300">
+          <AlertDescription className="text-xs text-blue-700">
             All WasteDB data is freely available under open license. Complete
             scientific data for all three dimensions: Recyclability,
             Compostability, and Reusability.
@@ -130,16 +130,16 @@ export function PublicExportView({
 
           {/* Public Export Tab */}
           <TabsContent value="public" className="space-y-6">
-            <Card className="p-6 bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
+            <Card className="p-6 bg-white border-[#211f1c]">
               <div className="flex items-start gap-4 mb-4">
-                <div className="p-3 arcade-bg-amber arcade-btn-amber rounded-md border border-[#211f1c] dark:border-white/20">
+                <div className="p-3 arcade-bg-amber arcade-btn-amber rounded-md border border-[#211f1c]">
                   <Database className="w-6 h-6" />
                 </div>
                 <div className="flex-1">
                   <h2 className="text-[18px] normal mb-2">
                     Public-Friendly Data Export
                   </h2>
-                  <p className="text-[12px] text-black/70 dark:text-white/70 mb-4">
+                  <p className="text-[12px] text-black/70 mb-4">
                     Simplified data for general audiences, educators, and
                     product designers. All scores are on a 0-100 scale for easy
                     interpretation across all three circular economy pathways.
@@ -221,8 +221,8 @@ export function PublicExportView({
                 </Button>
               </div>
 
-              <div className="mt-4 p-3 bg-[#faf9f6] dark:bg-[#1a1918] rounded-md border border-[#211f1c] dark:border-white/20">
-                <p className="text-xs text-black/60 dark:text-white/60">
+              <div className="mt-4 p-3 bg-[#faf9f6] rounded-md border border-[#211f1c]">
+                <p className="text-xs text-black/60">
                   <strong>Best for:</strong> Product labeling, educational
                   materials, consumer-facing applications, sustainability
                   reports, quick analysis
@@ -233,16 +233,16 @@ export function PublicExportView({
 
           {/* Research Export Tab */}
           <TabsContent value="research" className="space-y-6">
-            <Card className="p-6 bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
+            <Card className="p-6 bg-white border-[#211f1c]">
               <div className="flex items-start gap-4 mb-4">
-                <div className="p-3 arcade-bg-red arcade-btn-red rounded-md border border-[#211f1c] dark:border-white/20">
+                <div className="p-3 arcade-bg-red arcade-btn-red rounded-md border border-[#211f1c]">
                   <Database className="w-6 h-6" />
                 </div>
                 <div className="flex-1">
                   <h2 className="text-[18px] normal mb-2">
                     Research-Grade Data Export
                   </h2>
-                  <p className="text-[12px] text-black/70 dark:text-white/70 mb-4">
+                  <p className="text-[12px] text-black/70 mb-4">
                     Complete scientific metadata for all three dimensions
                     including normalized parameters, confidence intervals,
                     source citations, and calculation timestamps. For academic
@@ -361,8 +361,8 @@ export function PublicExportView({
                 </Button>
               </div>
 
-              <div className="mt-4 p-3 bg-[#faf9f6] dark:bg-[#1a1918] rounded-md border border-[#211f1c] dark:border-white/20">
-                <p className="text-xs text-black/60 dark:text-white/60">
+              <div className="mt-4 p-3 bg-[#faf9f6] rounded-md border border-[#211f1c]">
+                <p className="text-xs text-black/60">
                   <strong>Best for:</strong> Academic research, peer review,
                   reproducible studies, methodology validation, LCA databases,
                   multi-dimensional analysis
@@ -371,12 +371,12 @@ export function PublicExportView({
             </Card>
 
             {/* Methodology Reference */}
-            <Card className="p-4 bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
+            <Card className="p-4 bg-white border-[#211f1c]">
               <div className="flex items-center gap-2 mb-2">
                 <ExternalLink className="w-4 h-4 normal" />
                 <h3 className="text-[14px] normal">Methodology References</h3>
               </div>
-              <p className="text-sm text-black/70 dark:text-white/70 mb-3">
+              <p className="text-sm text-black/70 mb-3">
                 For detailed information about parameters, formulas, and data
                 collection standards, please refer to the WasteDB methodology
                 whitepapers (CR-v1, CC-v1, RU-v1).
@@ -443,7 +443,7 @@ export function PublicExportView({
         </Tabs>
 
         {/* Data Format Examples */}
-        <Card className="mt-6 p-6 bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
+        <Card className="mt-6 p-6 bg-white border-[#211f1c]">
           <h3 className="text-[16px] normal mb-3">Data Format Information</h3>
 
           <div className="space-y-3">
@@ -451,7 +451,7 @@ export function PublicExportView({
               <h4 className="text-[12px] font-medium normal mb-1">
                 CSV Format
               </h4>
-              <p className="text-xs text-black/70 dark:text-white/70">
+              <p className="text-xs text-black/70">
                 Comma-separated values compatible with Excel, Google Sheets, R,
                 and Python pandas. Public export: 8 columns. Research export: 39
                 columns with complete scientific metadata. First row contains
@@ -463,7 +463,7 @@ export function PublicExportView({
               <h4 className="text-[12px] font-medium normal mb-1">
                 JSON Format
               </h4>
-              <p className="text-xs text-black/70 dark:text-white/70">
+              <p className="text-xs text-black/70">
                 Structured JSON with metadata including export date, format
                 type, and material count. Research exports include all 15
                 parameters across three dimensions, confidence intervals,
@@ -490,7 +490,7 @@ export function PublicExportView({
               <h4 className="text-[12px] font-medium normal mb-1">
                 Dual-Mode Scoring
               </h4>
-              <p className="text-xs text-black/70 dark:text-white/70">
+              <p className="text-xs text-black/70">
                 Each dimension includes both <strong>Practical</strong>{" "}
                 (real-world infrastructure) and <strong>Theoretical</strong>{" "}
                 (ideal conditions) scores. The gap between them represents
@@ -502,21 +502,21 @@ export function PublicExportView({
         </Card>
 
         {/* License & Attribution */}
-        <Card className="mt-6 p-6 bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
+        <Card className="mt-6 p-6 bg-white border-[#211f1c]">
           <h3 className="text-[16px] normal mb-3">License & Attribution</h3>
-          <p className="text-sm text-black/70 dark:text-white/70 mb-3">
+          <p className="text-sm text-black/70 mb-3">
             WasteDB is maintained by <strong>Wastefull</strong> (San Jose, CA)
             as an open scientific resource. All data is freely available for
             research, education, and commercial use.
           </p>
-          <p className="text-xs text-black/60 dark:text-white/60 mb-3">
+          <p className="text-xs text-black/60 mb-3">
             When using WasteDB data in publications, please cite: <br />
             <em>
               WasteDB: Open Materials Sustainability Database. Wastefull,{" "}
               {new Date().getFullYear()}. Available at: wastedb.wastefull.org
             </em>
           </p>
-          <p className="text-xs text-black/60 dark:text-white/60">
+          <p className="text-xs text-black/60">
             <strong>Methodology versions:</strong> CR-v1 (Recyclability), CC-v1
             (Compostability), RU-v1 (Reusability), VIZ-v1 (Visualization) — All
             version 2025.1

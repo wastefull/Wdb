@@ -152,7 +152,7 @@ export function ManualContentMappingPanel() {
             >
               Create Content Mapping
             </h3>
-            <p className="mt-1 text-[13px] leading-relaxed text-black/70 dark:text-white/70">
+            <p className="mt-1 text-[13px] leading-relaxed text-black/70">
               Choose content, choose a material, and describe the connection.
               New mappings stay pending review and do not publish anything.
             </p>
@@ -162,7 +162,7 @@ export function ManualContentMappingPanel() {
           type="button"
           onClick={() => void loadOptions()}
           disabled={isLoading}
-          className="flex shrink-0 items-center gap-2 rounded-lg border border-black/15 px-3 py-2 text-[12px] disabled:opacity-50 dark:border-white/15"
+          className="flex shrink-0 items-center gap-2 rounded-lg border border-black/15 px-3 py-2 text-[12px] disabled:opacity-50"
         >
           <RefreshCw className={`size-3.5 ${isLoading ? "animate-spin" : ""}`} />
           Refresh
@@ -170,7 +170,7 @@ export function ManualContentMappingPanel() {
       </div>
 
       {isLoading && options.content.length === 0 ? (
-        <div className="flex items-center gap-2 py-6 text-[12px] text-black/60 dark:text-white/60">
+        <div className="flex items-center gap-2 py-6 text-[12px] text-black/60">
           <Loader2 className="size-4 animate-spin" />
           Loading canonical content and materials…
         </div>
@@ -188,7 +188,7 @@ export function ManualContentMappingPanel() {
                   setContentType(event.target.value as typeof contentType);
                   setContentEntityId("");
                 }}
-                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] dark:border-white/15"
+                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
               >
                 <option value="all">All content</option>
                 {Object.entries(CONTENT_TYPE_LABELS).map(([value, label]) => (
@@ -211,15 +211,15 @@ export function ManualContentMappingPanel() {
                   setResult(null);
                 }}
                 placeholder="Search titles…"
-                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] dark:border-white/15"
+                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
               />
               <div
                 role="listbox"
                 aria-label="Content"
-                className="h-36 w-full overflow-y-auto rounded-lg border border-black/15 bg-background p-1 text-[12px] dark:border-white/15"
+                className="h-36 w-full overflow-y-auto rounded-lg border border-black/15 bg-background p-1 text-[12px]"
               >
                 {filteredContent.length === 0 ? (
-                  <p className="px-2 py-3 text-black/45 dark:text-white/45">
+                  <p className="px-2 py-3 text-black/45">
                     No matching content.
                   </p>
                 ) : (
@@ -239,7 +239,7 @@ export function ManualContentMappingPanel() {
                         className={`block w-full rounded-md px-2 py-1.5 text-left ${
                           selected
                             ? "bg-waste-science/20 font-medium ring-1 ring-waste-science/50"
-                            : "hover:bg-black/5 dark:hover:bg-white/5"
+                            : "hover:bg-black/5"
                         }`}
                       >
                         {CONTENT_TYPE_LABELS[
@@ -251,7 +251,7 @@ export function ManualContentMappingPanel() {
                   })
                 )}
               </div>
-              <p className="text-[10px] text-black/50 dark:text-white/50">
+              <p className="text-[10px] text-black/50">
                 {filteredContent.length} matching canonical item(s)
               </p>
             </div>
@@ -270,15 +270,15 @@ export function ManualContentMappingPanel() {
                   setResult(null);
                 }}
                 placeholder="Search materials…"
-                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] dark:border-white/15"
+                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
               />
               <div
                 role="listbox"
                 aria-label="Material"
-                className="h-36 w-full overflow-y-auto rounded-lg border border-black/15 bg-background p-1 text-[12px] dark:border-white/15"
+                className="h-36 w-full overflow-y-auto rounded-lg border border-black/15 bg-background p-1 text-[12px]"
               >
                 {filteredMaterials.length === 0 ? (
-                  <p className="px-2 py-3 text-black/45 dark:text-white/45">
+                  <p className="px-2 py-3 text-black/45">
                     No matching materials.
                   </p>
                 ) : (
@@ -298,7 +298,7 @@ export function ManualContentMappingPanel() {
                         className={`block w-full rounded-md px-2 py-1.5 text-left ${
                           selected
                             ? "bg-waste-compost/20 font-medium ring-1 ring-waste-compost/50"
-                            : "hover:bg-black/5 dark:hover:bg-white/5"
+                            : "hover:bg-black/5"
                         }`}
                       >
                         {candidate.name}
@@ -307,7 +307,7 @@ export function ManualContentMappingPanel() {
                   })
                 )}
               </div>
-              <p className="text-[10px] text-black/50 dark:text-white/50">
+              <p className="text-[10px] text-black/50">
                 {filteredMaterials.length} matching canonical material(s)
               </p>
             </div>
@@ -322,7 +322,7 @@ export function ManualContentMappingPanel() {
                   setRole(event.target.value);
                   if (event.target.value !== "evidence") setEvidenceUse("");
                 }}
-                className="mt-1 w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] dark:border-white/15"
+                className="mt-1 w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
               >
                 {options.roles.map((candidate) => (
                   <option key={candidate.slug} value={candidate.slug}>
@@ -331,18 +331,18 @@ export function ManualContentMappingPanel() {
                 ))}
               </select>
               {selectedRole && (
-                <span className="mt-1 block text-[10px] font-normal text-black/55 dark:text-white/55">
+                <span className="mt-1 block text-[10px] font-normal text-black/55">
                   {selectedRole.description}
                 </span>
               )}
             </label>
 
             <label className="text-[11px] font-medium">
-              Lifecycle focus <span className="font-normal text-black/45 dark:text-white/45">(optional)</span>
+              Lifecycle focus <span className="font-normal text-black/45">(optional)</span>
               <select
                 value={lifecycleFocus}
                 onChange={(event) => setLifecycleFocus(event.target.value)}
-                className="mt-1 w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] dark:border-white/15"
+                className="mt-1 w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
               >
                 <option value="">None</option>
                 {options.lifecycle_focuses.map((candidate) => (
@@ -361,7 +361,7 @@ export function ManualContentMappingPanel() {
                 value={evidenceUse}
                 onChange={(event) => setEvidenceUse(event.target.value)}
                 required
-                className="mt-1 w-full rounded-lg border border-amber-400/50 bg-background px-3 py-2 text-[12px] dark:border-amber-500/50"
+                className="mt-1 w-full rounded-lg border border-amber-400/50 bg-background px-3 py-2 text-[12px]"
               >
                 <option value="">Choose the verified use…</option>
                 {options.evidence_uses.map((candidate) => (
@@ -370,14 +370,14 @@ export function ManualContentMappingPanel() {
                   </option>
                 ))}
               </select>
-              <span className="mt-1 block text-[10px] font-normal text-amber-700 dark:text-amber-300">
+              <span className="mt-1 block text-[10px] font-normal text-amber-700">
                 Evidence means an editor has verified this specific evidentiary use.
               </span>
             </label>
           )}
 
           {selectedMappings.length > 0 && (
-            <div className="rounded-lg border border-black/10 bg-black/[0.025] p-3 dark:border-white/10 dark:bg-white/[0.025]">
+            <div className="rounded-lg border border-black/10 bg-black/[0.025] p-3">
               <p className="mb-2 text-[11px] font-medium">
                 Existing mappings for {selectedContent?.name}
               </p>
@@ -387,7 +387,7 @@ export function ManualContentMappingPanel() {
                     (candidate) => candidate.id === mapping.subject_entity_id,
                   );
                   return (
-                    <p key={mapping.id} className="text-[11px] text-black/65 dark:text-white/65">
+                    <p key={mapping.id} className="text-[11px] text-black/65">
                       {material?.name ?? mapping.subject_entity_id} · {mapping.role.replaceAll("_", " ")} · {mapping.status.replaceAll("_", " ")}
                     </p>
                   );
@@ -396,7 +396,7 @@ export function ManualContentMappingPanel() {
             </div>
           )}
 
-          <div className="flex flex-wrap items-center gap-3 border-t border-black/10 pt-4 dark:border-white/10">
+          <div className="flex flex-wrap items-center gap-3 border-t border-black/10 pt-4">
             <button
               type="submit"
               disabled={isSaving || isLoading}
@@ -405,7 +405,7 @@ export function ManualContentMappingPanel() {
               {isSaving ? <Loader2 className="size-4 animate-spin" /> : <Link2 className="size-4" />}
               {isSaving ? "Creating mapping…" : "Create pending mapping"}
             </button>
-            <span className="text-[11px] text-black/55 dark:text-white/55">
+            <span className="text-[11px] text-black/55">
               Content: {selectedContent?.name ?? "not selected"} · Material:{" "}
               {selectedMaterial?.name ?? "not selected"} · Connection:{" "}
               {selectedRole?.label ?? "not selected"}
@@ -416,7 +416,7 @@ export function ManualContentMappingPanel() {
 
       <div aria-live="polite">
         {error && (
-          <p className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-[12px] text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-300">
+          <p className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-[12px] text-red-700">
             <AlertCircle className="mt-0.5 size-4 shrink-0" />
             {error}
           </p>

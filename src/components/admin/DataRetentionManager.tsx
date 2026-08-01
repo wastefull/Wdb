@@ -312,13 +312,13 @@ export function DataRetentionManager({
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
+            <div className="p-4 bg-blue-50 rounded-lg">
               <div className="text-[32px] font-['Tilt_Warp'] text-blue-600">
                 {stats?.screenshots.total || 0}
               </div>
               <p className="label-muted">Total screenshots</p>
             </div>
-            <div className="p-4 bg-orange-50 dark:bg-orange-950/20 rounded-lg">
+            <div className="p-4 bg-orange-50 rounded-lg">
               <div className="text-[32px] font-['Tilt_Warp'] text-orange-600">
                 {stats?.screenshots.expired || 0}
               </div>
@@ -345,18 +345,18 @@ export function DataRetentionManager({
                   {stats.screenshots.expiredSources.map((source) => (
                     <div
                       key={source.id}
-                      className="p-3 bg-muted/50 rounded-lg border border-orange-200 dark:border-orange-800"
+                      className="p-3 bg-muted/50 rounded-lg border border-orange-200"
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
                           <p className="font-['Sniglet'] text-sm font-semibold truncate">
                             {source.title}
                           </p>
-                          <p className="font-['Sniglet'] text-xs text-black/50 dark:text-white/50">
+                          <p className="font-['Sniglet'] text-xs text-black/50">
                             Created:{" "}
                             {new Date(source.created_at).toLocaleDateString()}
                           </p>
-                          <p className="font-['Sniglet'] text-[9px] text-black/40 dark:text-white/40 truncate">
+                          <p className="font-['Sniglet'] text-[9px] text-black/40 truncate">
                             ID: {source.id}
                           </p>
                         </div>
@@ -417,13 +417,13 @@ export function DataRetentionManager({
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 bg-green-50 dark:bg-green-950/20 rounded-lg">
+            <div className="p-4 bg-green-50 rounded-lg">
               <div className="text-[32px] font-['Tilt_Warp'] text-green-600">
                 {stats?.auditLogs.total || 0}
               </div>
               <p className="label-muted">Total audit logs</p>
             </div>
-            <div className="p-4 bg-red-50 dark:bg-red-950/20 rounded-lg">
+            <div className="p-4 bg-red-50 rounded-lg">
               <div className="text-[32px] font-['Tilt_Warp'] text-red-600">
                 {stats?.auditLogs.expired || 0}
               </div>
@@ -505,7 +505,7 @@ export function DataRetentionManager({
               value={sourceId}
               onChange={(e) => setSourceId(e.target.value)}
               placeholder="Enter source ID (e.g., source-1731456789-abc123)"
-              className="flex-1 px-3 py-2 border border-[#211f1c]/20 dark:border-white/20 rounded-lg font-['Sniglet'] text-[12px] focus:outline-none focus:ring-2 focus:ring-[#211f1c] dark:focus:ring-white"
+              className="flex-1 px-3 py-2 border border-[#211f1c]/20 rounded-lg font-['Sniglet'] text-[12px] focus:outline-none focus:ring-2 focus:ring-[#211f1c]"
             />
             <Button
               onClick={handleCheckIntegrity}
@@ -528,7 +528,7 @@ export function DataRetentionManager({
 
           {integrityCheck && (
             <div className="space-y-3">
-              <div className="p-4 bg-muted/50 rounded-lg border-2 border-[#211f1c]/20 dark:border-white/20">
+              <div className="p-4 bg-muted/50 rounded-lg border-2 border-[#211f1c]/20">
                 <div className="flex items-start justify-between gap-2 mb-3">
                   <div className="flex-1 min-w-0">
                     <h4 className="font-['Sniglet'] text-[13px] font-semibold mb-1">
@@ -582,7 +582,7 @@ export function DataRetentionManager({
                         {integrityCheck.dependentEvidence.map((evidence) => (
                           <div
                             key={evidence.id}
-                            className="p-2 bg-white dark:bg-black/20 rounded border border-red-200 dark:border-red-800"
+                            className="p-2 bg-white rounded border border-red-200"
                           >
                             <p className="font-['Sniglet'] text-xs">
                               <strong>Material:</strong> {evidence.material_id}
@@ -591,7 +591,7 @@ export function DataRetentionManager({
                               <strong>Parameter:</strong>{" "}
                               {evidence.parameter_code}
                             </p>
-                            <p className="font-['Sniglet'] text-[9px] text-black/50 dark:text-white/50">
+                            <p className="font-['Sniglet'] text-[9px] text-black/50">
                               Created:{" "}
                               {new Date(
                                 evidence.created_at,

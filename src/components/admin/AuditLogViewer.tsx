@@ -185,13 +185,13 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
   function getActionColor(action: string) {
     switch (action) {
       case "create":
-        return "bg-green-500/20 text-green-700 dark:text-green-300 border-green-500";
+        return "bg-green-500/20 text-green-700 border-green-500";
       case "update":
-        return "bg-blue-500/20 text-blue-700 dark:text-blue-300 border-blue-500";
+        return "bg-blue-500/20 text-blue-700 border-blue-500";
       case "delete":
-        return "bg-red-500/20 text-red-700 dark:text-red-300 border-red-500";
+        return "bg-red-500/20 text-red-700 border-red-500";
       default:
-        return "bg-gray-500/20 text-gray-700 dark:text-gray-300 border-gray-500";
+        return "bg-gray-500/20 text-gray-700 border-gray-500";
     }
   }
 
@@ -210,13 +210,13 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
   });
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-[#e8f4f8] to-waste-reuse dark:from-[#0a0908] dark:to-[#1a1917] p-6">
+    <div className="min-h-screen bg-linear-to-b from-[#e8f4f8] to-waste-reuse p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6">
           <button
             onClick={onBack}
-            className="mb-4 px-4 py-2 bg-waste-reuse dark:bg-[#2d2b28] rounded-lg border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet'] text-[12px]"
+            className="mb-4 px-4 py-2 bg-waste-reuse rounded-lg border border-[#211f1c] hover:shadow-[2px_2px_0px_0px_#000000] transition-all font-['Sniglet'] text-[12px]"
           >
             ← Back to Admin
           </button>
@@ -224,7 +224,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
           <h1 className="font-['Tilt_Warp'] text-[32px] normal mb-2">
             Audit Log Viewer
           </h1>
-          <p className="font-['Sniglet'] text-[14px] text-black/60 dark:text-white/60">
+          <p className="font-['Sniglet'] text-[14px] text-black/60">
             Complete audit trail of all data changes in WasteDB
           </p>
         </div>
@@ -232,7 +232,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
         {/* Statistics Dashboard */}
         {stats && (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div className="bg-white dark:bg-[#1a1917] rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] p-4">
+            <div className="bg-white rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Activity size={20} className="normal" />
                 <h3 className="label-muted">Total Events</h3>
@@ -240,7 +240,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
               <p className="heading-xl">{stats.total}</p>
             </div>
 
-            <div className="bg-white dark:bg-[#1a1917] rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] p-4">
+            <div className="bg-white rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] p-4">
               <div className="flex items-center gap-2 mb-2">
                 <User size={20} className="normal" />
                 <h3 className="label-muted">Active Users</h3>
@@ -248,22 +248,22 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
               <p className="heading-xl">{Object.keys(stats.byUser).length}</p>
             </div>
 
-            <div className="bg-white dark:bg-[#1a1917] rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] p-4">
+            <div className="bg-white rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Calendar size={20} className="normal" />
                 <h3 className="label-muted">Creates</h3>
               </div>
-              <p className="font-['Tilt_Warp'] text-[24px] text-green-600 dark:text-green-400">
+              <p className="font-['Tilt_Warp'] text-[24px] text-green-600">
                 {stats.byAction.create || 0}
               </p>
             </div>
 
-            <div className="bg-white dark:bg-[#1a1917] rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] p-4">
+            <div className="bg-white rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Activity size={20} className="normal" />
                 <h3 className="label-muted">Deletes</h3>
               </div>
-              <p className="font-['Tilt_Warp'] text-[24px] text-red-600 dark:text-red-400">
+              <p className="font-['Tilt_Warp'] text-[24px] text-red-600">
                 {stats.byAction.delete || 0}
               </p>
             </div>
@@ -271,7 +271,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
         )}
 
         {/* Filters */}
-        <div className="bg-white dark:bg-[#1a1917] rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] p-4 mb-6">
+        <div className="bg-white rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] p-4 mb-6">
           <div className="flex items-center gap-2 mb-4">
             <Filter size={16} />
             <h3 className="font-['Tilt_Warp'] text-[16px]">Filters</h3>
@@ -286,7 +286,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
                   setEntityTypeFilter(e.target.value);
                   setPage(0);
                 }}
-                className="w-full px-3 py-2 bg-white dark:bg-[#2d2b28] border border-[#211f1c]/20 dark:border-white/20 rounded-md font-['Sniglet'] text-[12px]"
+                className="w-full px-3 py-2 bg-white border border-[#211f1c]/20 rounded-md font-['Sniglet'] text-[12px]"
               >
                 <option value="">All Types</option>
                 <option value="material">Material</option>
@@ -306,7 +306,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
                   setActionFilter(e.target.value);
                   setPage(0);
                 }}
-                className="w-full px-3 py-2 bg-white dark:bg-[#2d2b28] border border-[#211f1c]/20 dark:border-white/20 rounded-md font-['Sniglet'] text-[12px]"
+                className="w-full px-3 py-2 bg-white border border-[#211f1c]/20 rounded-md font-['Sniglet'] text-[12px]"
               >
                 <option value="">All Actions</option>
                 <option value="create">Create</option>
@@ -320,14 +320,14 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
               <div className="relative">
                 <Search
                   size={16}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-black/40"
                 />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search logs..."
-                  className="w-full pl-10 pr-3 py-2 bg-white dark:bg-[#2d2b28] border border-[#211f1c]/20 dark:border-white/20 rounded-md font-['Sniglet'] text-[12px]"
+                  className="w-full pl-10 pr-3 py-2 bg-white border border-[#211f1c]/20 rounded-md font-['Sniglet'] text-[12px]"
                 />
               </div>
             </div>
@@ -343,7 +343,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
                   setStartDate(e.target.value);
                   setPage(0);
                 }}
-                className="w-full px-3 py-2 bg-white dark:bg-[#2d2b28] border border-[#211f1c]/20 dark:border-white/20 rounded-md font-['Sniglet'] text-[12px]"
+                className="w-full px-3 py-2 bg-white border border-[#211f1c]/20 rounded-md font-['Sniglet'] text-[12px]"
               />
             </div>
 
@@ -356,7 +356,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
                   setEndDate(e.target.value);
                   setPage(0);
                 }}
-                className="w-full px-3 py-2 bg-white dark:bg-[#2d2b28] border border-[#211f1c]/20 dark:border-white/20 rounded-md font-['Sniglet'] text-[12px]"
+                className="w-full px-3 py-2 bg-white border border-[#211f1c]/20 rounded-md font-['Sniglet'] text-[12px]"
               />
             </div>
           </div>
@@ -364,7 +364,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
           <div className="mt-4 flex justify-end">
             <button
               onClick={exportLogs}
-              className="flex items-center gap-2 px-4 py-2 bg-waste-reuse dark:bg-[#2d2b28] rounded-lg border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet'] text-[12px]"
+              className="flex items-center gap-2 px-4 py-2 bg-waste-reuse rounded-lg border border-[#211f1c] hover:shadow-[2px_2px_0px_0px_#000000] transition-all font-['Sniglet'] text-[12px]"
             >
               <Download size={16} />
               Export Logs
@@ -373,13 +373,13 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
         </div>
 
         {fetchError && (
-          <div className="mb-6 px-4 py-3 rounded-md border border-red-500/40 bg-red-500/10 text-red-700 dark:text-red-300 font-['Sniglet'] text-[12px]">
+          <div className="mb-6 px-4 py-3 rounded-md border border-red-500/40 bg-red-500/10 text-red-700 font-['Sniglet'] text-[12px]">
             {fetchError}
           </div>
         )}
 
         {/* Logs Table */}
-        <div className="bg-white dark:bg-[#1a1917] rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)]">
+        <div className="bg-white rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000]">
           <div className="panel-bordered">
             <h3 className="font-['Tilt_Warp'] text-[18px]">
               Audit Logs ({total} total)
@@ -398,7 +398,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
             <>
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-[#e8f4f8] dark:bg-[#2d2b28]">
+                  <thead className="bg-[#e8f4f8]">
                     <tr>
                       <th className="px-4 py-3 text-left font-['Sniglet'] text-[12px]">
                         Timestamp
@@ -427,7 +427,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
                     {filteredLogs.map((log) => (
                       <tr
                         key={log.id}
-                        className="border-t border-[#211f1c]/20 dark:border-white/20 hover:bg-[#e8f4f8] dark:hover:bg-[#2d2b28] transition-colors"
+                        className="border-t border-[#211f1c]/20 hover:bg-[#e8f4f8] transition-colors"
                       >
                         <td className="px-4 py-3 font-['Sniglet'] text-sm">
                           {new Date(log.timestamp).toLocaleString()}
@@ -459,7 +459,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
                         <td className="px-4 py-3">
                           <button
                             onClick={() => setSelectedLog(log)}
-                            className="p-1 hover:bg-waste-reuse dark:hover:bg-[#2d2b28] rounded transition-colors"
+                            className="p-1 hover:bg-waste-reuse rounded transition-colors"
                           >
                             <Eye size={16} />
                           </button>
@@ -471,7 +471,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
               </div>
 
               {/* Pagination */}
-              <div className="p-4 border-t border-[#211f1c]/20 dark:border-white/20 flex items-center justify-between">
+              <div className="p-4 border-t border-[#211f1c]/20 flex items-center justify-between">
                 <p className="label-muted">
                   Showing {page * limit + 1} -{" "}
                   {Math.min((page + 1) * limit, total)} of {total}
@@ -480,14 +480,14 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
                   <button
                     onClick={() => setPage(Math.max(0, page - 1))}
                     disabled={page === 0}
-                    className="px-4 py-2 bg-waste-reuse dark:bg-[#2d2b28] rounded-lg border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet'] text-[12px] disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-4 py-2 bg-waste-reuse rounded-lg border border-[#211f1c] hover:shadow-[2px_2px_0px_0px_#000000] transition-all font-['Sniglet'] text-[12px] disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Previous
                   </button>
                   <button
                     onClick={() => setPage(page + 1)}
                     disabled={(page + 1) * limit >= total}
-                    className="px-4 py-2 bg-waste-reuse dark:bg-[#2d2b28] rounded-lg border border-[#211f1c] dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all font-['Sniglet'] text-[12px] disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-4 py-2 bg-waste-reuse rounded-lg border border-[#211f1c] hover:shadow-[2px_2px_0px_0px_#000000] transition-all font-['Sniglet'] text-[12px] disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Next
                   </button>
@@ -505,13 +505,13 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
           panelClassName="w-full max-w-3xl flex flex-col max-h-[85vh]"
         >
           {/* Sticky header */}
-          <div className="flex items-start justify-between px-6 pt-6 pb-4 border-b border-[#211f1c]/10 dark:border-white/10 shrink-0">
+          <div className="flex items-start justify-between px-6 pt-6 pb-4 border-b border-[#211f1c]/10 shrink-0">
             <h2 className="font-['Tilt_Warp'] text-[22px]">
               Audit Log Details
             </h2>
             <button
               onClick={() => setSelectedLog(null)}
-              className="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
+              className="p-1.5 rounded-lg hover:bg-black/5 transition-colors text-black/50 hover:text-black"
               aria-label="Close"
             >
               <X size={18} />
@@ -545,7 +545,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
                   <p className="font-['Sniglet'] text-[13px]">
                     {selectedLog.userEmail}
                   </p>
-                  <p className="font-['Sniglet'] text-[11px] text-black/40 dark:text-white/40 mt-0.5 break-all">
+                  <p className="font-['Sniglet'] text-[11px] text-black/40 mt-0.5 break-all">
                     {selectedLog.userId}
                   </p>
                 </div>
@@ -554,7 +554,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
                   <p className="font-['Sniglet'] text-[13px] capitalize">
                     {selectedLog.entityType}
                   </p>
-                  <p className="font-['Sniglet'] text-[11px] text-black/40 dark:text-white/40 mt-0.5 break-all">
+                  <p className="font-['Sniglet'] text-[11px] text-black/40 mt-0.5 break-all">
                     {selectedLog.entityId}
                   </p>
                 </div>
@@ -576,7 +576,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
               {selectedLog.before && (
                 <div>
                   <p className="label-muted mb-1">Before</p>
-                  <pre className="bg-[#f0f0f0] dark:bg-[#1a1917] p-3 rounded-lg font-mono text-[11px] overflow-x-auto max-h-60 border border-[#211f1c]/10 dark:border-white/10">
+                  <pre className="bg-[#f0f0f0] p-3 rounded-lg font-mono text-[11px] overflow-x-auto max-h-60 border border-[#211f1c]/10">
                     {JSON.stringify(selectedLog.before, null, 2)}
                   </pre>
                 </div>
@@ -585,7 +585,7 @@ export function AuditLogViewer({ onBack }: AuditLogViewerProps) {
               {selectedLog.after && (
                 <div>
                   <p className="label-muted mb-1">After</p>
-                  <pre className="bg-[#f0f0f0] dark:bg-[#1a1917] p-3 rounded-lg font-mono text-[11px] overflow-x-auto max-h-60 border border-[#211f1c]/10 dark:border-white/10">
+                  <pre className="bg-[#f0f0f0] p-3 rounded-lg font-mono text-[11px] overflow-x-auto max-h-60 border border-[#211f1c]/10">
                     {JSON.stringify(selectedLog.after, null, 2)}
                   </pre>
                 </div>

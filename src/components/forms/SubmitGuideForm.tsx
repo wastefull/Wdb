@@ -128,12 +128,12 @@ export function SubmitGuideForm({
       panelClassName="retro-card w-full max-w-3xl max-h-[90vh] overflow-y-auto p-0"
     >
       <div>
-        <div className="sticky top-0 bg-white dark:bg-[#2a2825] border-b border-[#211f1c]/20 dark:border-white/20 p-6 flex items-center justify-between">
+        <div className="sticky top-0 bg-white border-b border-[#211f1c]/20 p-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="icon-box arcade-bg-green arcade-btn-green">
               <BookOpen size={24} />
             </div>
-            <h2 className="text-[18px] font-display text-black dark:text-white">
+            <h2 className="text-[18px] font-display text-black">
               Submit a Guide
             </h2>
           </div>
@@ -149,7 +149,7 @@ export function SubmitGuideForm({
             </button>
             <button
               onClick={onClose}
-              className="icon-box-sm hover:bg-black/5 dark:hover:bg-white/10"
+              className="icon-box-sm hover:bg-black/5"
               disabled={isSubmitting}
             >
               <X size={18} />
@@ -161,8 +161,8 @@ export function SubmitGuideForm({
         {showImportModal && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-60">
             <div className="retro-card w-full max-w-2xl max-h-[80vh] overflow-y-auto">
-              <div className="p-6 border-b border-[#211f1c]/20 dark:border-white/20 flex items-center justify-between">
-                <h3 className="text-[16px] font-display text-black dark:text-white">
+              <div className="p-6 border-b border-[#211f1c]/20 flex items-center justify-between">
+                <h3 className="text-[16px] font-display text-black">
                   Import Guide Data
                 </h3>
                 <button
@@ -171,20 +171,20 @@ export function SubmitGuideForm({
                     setShowImportModal(false);
                     setImportJson("");
                   }}
-                  className="icon-box-sm hover:bg-black/5 dark:hover:bg-white/10"
+                  className="icon-box-sm hover:bg-black/5"
                 >
                   <X size={18} />
                 </button>
               </div>
               <div className="p-6 space-y-4">
-                <p className="text-[13px] text-black/70 dark:text-white/70">
+                <p className="text-[13px] text-black/70">
                   Paste guide JSON to import. This will populate the form with
                   the imported data. See{" "}
                   <a
                     href="https://github.com/wastefull/Wdb/blob/main/src/docs/admin/GUIDE_IMPORT_FORMAT.md"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="underline text-blue-600 dark:text-blue-400"
+                    className="underline text-blue-600"
                   >
                     import format documentation
                   </a>{" "}
@@ -439,11 +439,11 @@ export function SubmitGuideForm({
           </div>
 
           {/* Actions */}
-          <div className="flex gap-3 pt-4 border-t border-[#211f1c]/20 dark:border-white/20">
+          <div className="flex gap-3 pt-4 border-t border-[#211f1c]/20">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 retro-btn px-4 py-3 bg-white dark:bg-[#2a2825] text-black dark:text-white text-[13px]"
+              className="flex-1 retro-btn px-4 py-3 bg-white text-black text-[13px]"
               disabled={isSubmitting}
             >
               Cancel

@@ -345,11 +345,11 @@ kbd {
 }
 
 .promo {
-  @apply text-sm text-black/70 dark:text-white/70 leading-relaxed;
+  @apply text-sm text-black/70 leading-relaxed;
 }
 
 .promo-heading {
-  @apply text-lg text-black dark:text-white;
+  @apply text-lg text-black;
   font-family: "Tilt Warp", cursive;
 }
 /* ==========================================================================
@@ -635,7 +635,7 @@ html {
 
 .menu-header {
   @apply text-base;
-  @apply text-black dark:text-white;
+  @apply text-black;
 }
 
 .menu-subheader {
@@ -699,9 +699,9 @@ html {
 
 .nav-tab {
   @apply flex items-center gap-1.5 px-3 py-1.5 rounded-lg;
-  @apply text-black/70 dark:text-white/70;
-  @apply hover:text-black dark:hover:text-white;
-  @apply hover:bg-black/5 dark:hover:bg-white/10;
+  @apply text-black/70;
+  @apply hover:text-black;
+  @apply hover:bg-black/5;
   @apply transition-colors;
 }
 
@@ -736,8 +736,8 @@ html {
 }
 
 .nav-tab-active {
-  @apply text-black dark:text-white;
-  @apply bg-black/10 dark:bg-(--imaginary);
+  @apply text-black;
+  @apply bg-black/10;
 }
 
 .beta-badge {
@@ -778,7 +778,7 @@ html {
    ========================================================================== */
 @utility normal {
   .normal {
-    @apply text-base text-black dark:text-white;
+    @apply text-base text-black;
   }
 }
 
@@ -793,19 +793,19 @@ html {
 }
 
 .muted {
-  @apply text-base text-black/60 dark:text-white/60;
+  @apply text-base text-black/60;
 }
 
 .label-muted-sm {
-  @apply text-sm text-black/60 dark:text-white/60;
+  @apply text-sm text-black/60;
 }
 
 .label-muted-xs {
-  @apply text-xs text-black/60 dark:text-white/60;
+  @apply text-xs text-black/60;
 }
 
 .caption {
-  @apply text-xs text-black/60 dark:text-white/60 mt-1;
+  @apply text-xs text-black/60 mt-1;
 }
 
 /* ==========================================================================
@@ -820,19 +820,19 @@ html {
    Headings
    ========================================================================== */
 .heading-xl {
-  @apply font-display text-4xl text-black dark:text-white;
+  @apply font-display text-4xl text-black;
 }
 
 .heading-lg {
-  @apply font-display text-lg text-black dark:text-white;
+  @apply font-display text-lg text-black;
 }
 
 .heading-md {
-  @apply font-display text-base text-black dark:text-white;
+  @apply font-display text-base text-black;
 }
 
 .heading-sm {
-  @apply font-display text-sm text-black/60 dark:text-white/60;
+  @apply font-display text-sm text-black/60;
 }
 
 /* ==========================================================================
@@ -851,33 +851,33 @@ html {
 }
 
 .card-interactive {
-  @apply p-2 bg-waste-reuse dark:bg-(--blackish) rounded-md border border-(--surface-border);
-  @apply hover:shadow-(--hover-shadow) dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all;
+  @apply p-2 bg-waste-reuse rounded-md border border-(--surface-border);
+  @apply hover:shadow-(--hover-shadow) transition-all;
 }
 
 .card-muted {
-  @apply bg-waste-reuse/30 dark:bg-(--blackish)/30 border border-(--blackish)/20 dark:border-white/10 rounded-md p-3;
+  @apply bg-waste-reuse/30 border border-(--blackish)/20 rounded-md p-3;
 }
 
 /* Reversed variants - inline retro-card styles since @apply can't reference custom classes */
 .reversed {
-  @apply bg-(--surface-bg) rounded-(--retro-rounding) border-(--retro-border) dark:border-(--imaginary);
-  @apply shadow-(--retro-shadow) dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)];
+  @apply bg-(--surface-bg) rounded-(--retro-rounding) border-(--retro-border);
+  @apply shadow-(--retro-shadow);
 }
 .flat-reversed {
-  @apply bg-(--surface-bg) rounded-(--retro-rounding) border-(--retro-border) dark:border-(--imaginary);
+  @apply bg-(--surface-bg) rounded-(--retro-rounding) border-(--retro-border);
 }
 
 .article-cover-image {
-  @apply rounded-lg border border-[#211f1c] dark:border-white/20 max-w-75!;
+  @apply rounded-lg border border-[#211f1c] max-w-75!;
 }
 /* ==========================================================================
    Form Inputs
    ========================================================================== */
 .input-field {
-  @apply w-full px-3 py-2 bg-(--surface-bg) border-(--retro-border) dark:border-(--imaginary) rounded-xl;
-  @apply text-base text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50;
-  @apply outline-none focus:shadow-(--hover-shadow) dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all;
+  @apply w-full px-3 py-2 bg-(--surface-bg) border-(--retro-border) rounded-xl;
+  @apply text-base text-black placeholder:text-black/50;
+  @apply outline-none focus:shadow-(--hover-shadow) transition-all;
 }
 
 .input-field-sm {
@@ -886,9 +886,9 @@ html {
 }
 
 .textarea-field {
-  @apply w-full px-3 py-2 bg-(--surface-bg) border-(--retro-border) dark:border-(--imaginary) rounded-xl;
-  @apply text-base text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50;
-  @apply outline-none focus:shadow-(--hover-shadow) dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all;
+  @apply w-full px-3 py-2 bg-(--surface-bg) border-(--retro-border) rounded-xl;
+  @apply text-base text-black placeholder:text-black/50;
+  @apply outline-none focus:shadow-(--hover-shadow) transition-all;
   @apply resize-none;
 }
 
@@ -909,7 +909,7 @@ html {
    Tags / Badges (small colored labels)
    ========================================================================== */
 .tag {
-  @apply inline-block px-2 py-0.5 rounded-md border border-(--surface-border) text-xs text-black dark:text-white;
+  @apply inline-block px-2 py-0.5 rounded-md border border-(--surface-border) text-xs text-black;
 }
 
 .tag-cyan {
@@ -936,11 +936,11 @@ html {
    Table Headers (right-aligned, display font)
    ========================================================================== */
 .table-header {
-  @apply px-4 py-3 text-right font-display text-sm text-black dark:text-white;
+  @apply px-4 py-3 text-right font-display text-sm text-black;
 }
 
 .table-cell {
-  @apply px-4 py-3 text-base text-black dark:text-white;
+  @apply px-4 py-3 text-base text-black;
 }
 
 /* ==========================================================================
@@ -948,22 +948,22 @@ html {
    ========================================================================== */
 
 @utility retro-card {
-  @apply bg-white dark:bg-[#2a2825] relative rounded-(--retro-rounding) p-4 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] border-[1.5px] border-[#211f1c] dark:border-white/20;
+  @apply bg-white relative rounded-(--retro-rounding) p-4 shadow-[3px_4px_0px_-1px_#000000] border-[1.5px] border-[#211f1c];
 }
 /* Standard retro card with shadow */
 .retro-card-shadow {
-  @apply bg-(--surface-bg) rounded-(--retro-rounding) border-(--retro-border) dark:border-(--imaginary);
-  @apply shadow-(--retro-shadow) dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)];
+  @apply bg-(--surface-bg) rounded-(--retro-rounding) border-(--retro-border);
+  @apply shadow-(--retro-shadow);
 }
 
 /* Retro card without shadow (flat) */
 .retro-card-flat {
-  @apply bg-(--surface-bg) rounded-(--retro-rounding) border-(--retro-border) dark:border-(--imaginary);
+  @apply bg-(--surface-bg) rounded-(--retro-rounding) border-(--retro-border);
 }
 
 /* Retro card that acts as a button (with hover) */
 .retro-card-button {
-  @apply bg-(--surface-bg) rounded-(--retro-rounding) border-(--retro-border) dark:border-(--imaginary);
+  @apply bg-(--surface-bg) rounded-(--retro-rounding) border-(--retro-border);
   @apply shadow-(--retro-shadow);
   @apply hover:translate-y-px hover:shadow-(--retro-hover-shadow) transition-all;
 }
@@ -1006,9 +1006,9 @@ html {
 
 .search-chip {
   @apply text-xs px-2.5 py-1 rounded-full
-      border border-[#211f1c]/20 dark:border-white/15
-      shadow-[1.5px_1.5px_0px_0px_#211f1c] dark:shadow-[1.5px_1.5px_0px_0px_rgba(255,255,255,0.12)]
-      hover:shadow-[0.5px_0.5px_0px_0px_#211f1c] dark:hover:shadow-[0.5px_0.5px_0px_0px_rgba(255,255,255,0.12)]
+      border border-[#211f1c]/20
+      shadow-[1.5px_1.5px_0px_0px_#211f1c]
+      hover:shadow-[0.5px_0.5px_0px_0px_#211f1c]
       hover:translate-y-px hover:opacity-80
       active:translate-y-0.5 active:shadow-none
       transition-all duration-100 cursor-pointer;
@@ -1017,15 +1017,15 @@ html {
 /* Primary action button with press effect */
 @utility retro-btn-primary {
   .retro-btn-primary {
-    @apply rounded-xl border border-(--blackish) dark:border-(--retro-border-white);
-    @apply shadow-(--hover-shadow) dark:shadow-(--retro-hover-shadow);
-    @apply hover:translate-y-px hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all;
+    @apply rounded-xl border border-(--blackish);
+    @apply shadow-(--hover-shadow);
+    @apply hover:translate-y-px hover:shadow-[1px_1px_0px_0px_#000000] transition-all;
     @apply hover:cursor-pointer;
   }
 }
 /* Card with subtle hover effect (2x2 -> 3x3 shadow on hover) */
 .retro-card-hover {
-  @apply bg-(--surface-bg) rounded-(--retro-rounding) border-(--retro-border) dark:border-(--imaginary);
+  @apply bg-(--surface-bg) rounded-(--retro-rounding) border-(--retro-border);
   @apply shadow-(--hover-shadow);
   @apply hover:shadow-(--retro-thick-shadow) transition-all;
 }
@@ -1042,7 +1042,7 @@ html {
    ========================================================================== */
 .retro-input {
   @apply w-full px-3 py-2 bg-input-background border-(--retro-border) rounded-xl;
-  @apply text-base text-black dark:text-white placeholder:text-black/50 dark:placeholder:text-white/50;
+  @apply text-base text-black placeholder:text-black/50;
   @apply outline-none focus:shadow-(--hover-shadow) transition-all;
 }
 
@@ -1163,11 +1163,11 @@ html {
   @apply p-4 flex flex-col items-center overflow-hidden;
 }
 .resource-panel h3 {
-  @apply text-[13px] uppercase tracking-[0.08em] text-black/60 dark:text-white/60 mb-4 flex items-center gap-2;
+  @apply text-[13px] uppercase tracking-[0.08em] text-black/60 mb-4 flex items-center gap-2;
 }
 
 .resource-panel aside {
-  @apply px-1 py-3 bg-[#f5f4f1] dark:bg-[#2a2825] rounded-lg shrink-0;
+  @apply px-1 py-3 bg-[#f5f4f1] rounded-lg shrink-0;
 }
 
 .resource-panel aside ul {
@@ -1179,11 +1179,11 @@ html {
 }
 
 .resource-panel aside ul li a > * {
-  @apply w-3.5 h-3.5 text-[#211f1c]/60 dark:text-white dark:hover:text-black/60;
+  @apply w-3.5 h-3.5 text-[#211f1c]/60;
 }
 
 .resource-panel > aside > div {
-  @apply mt-12 p-3 rounded-lg border-[1.5px] border-[#211f1c]  text-center text-sm text-gray-800 dark:text-white/80;
+  @apply mt-12 p-3 rounded-lg border-[1.5px] border-[#211f1c]  text-center text-sm text-gray-800;
 }
 
 .resource-panel button {
@@ -1201,10 +1201,10 @@ html {
   @apply box-border content-stretch flex gap-1 md:gap-2.5 items-center justify-start md:justify-center px-0.75 md:px-1.75 py-0.5 relative size-full;
 }
 .sheet-content {
-  @apply bg-[#faf7f2] dark:bg-[#2a2825] border-t-[1.5px] border-[#211f1c] dark:border-white/20 rounded-t-xl px-6;
+  @apply bg-[#faf7f2] border-t-[1.5px] border-[#211f1c] rounded-t-xl px-6;
 }
 .sheet-header {
-  @apply border-b border-[#211f1c]/20 dark:border-white/20 pb-4;
+  @apply border-b border-[#211f1c]/20 pb-4;
 }
 
 /* ==========================================================================
@@ -1252,9 +1252,9 @@ Loading
   & div {
     @apply text-center;
     & .spinner {
-      @apply inline-block w-8 h-8 border-2 border-black/20 dark:border-white/20 border-t-black dark:border-t-white rounded-full animate-spin mb-4;
+      @apply inline-block w-8 h-8 border-2 border-black/20 border-t-black rounded-full animate-spin mb-4;
       & p {
-        @apply text-[13px] text-black/60 dark:text-white/60;
+        @apply text-[13px] text-black/60;
       }
     }
   }
@@ -1265,7 +1265,7 @@ Loading
        ========================================================================== */
 
 @utility element-gradient {
-  @apply bg-[linear-gradient(180deg,rgba(228,227,172,0.22)_0%,rgba(255,255,255,0)_45%)] dark:bg-[linear-gradient(180deg,rgba(228,227,172,0.08)_0%,rgba(26,25,23,0)_45%)];
+  @apply bg-[linear-gradient(180deg,rgba(228,227,172,0.22)_0%,rgba(255,255,255,0)_45%)];
 }
 
 @utility detail-gradient {
@@ -1308,7 +1308,7 @@ main.material-detail-view {
           }
 
           & p:last-child {
-            @apply mt-2 max-w-3xl leading-7 text-black/80 dark:text-white/80;
+            @apply mt-2 max-w-3xl leading-7 text-black/80;
           }
 
           & dl {
@@ -1418,7 +1418,7 @@ main.material-detail-view {
       @apply flex items-start gap-2 rounded-md border px-3 py-2 text-sm;
 
       & .needs-review {
-        @apply border-amber-400/60 bg-amber-50 text-amber-950 dark:bg-amber-950/20 dark:text-amber-100;
+        @apply border-amber-400/60 bg-amber-50 text-amber-950;
 
         /* Alert Triangle Icon */
         & svg {
@@ -1574,7 +1574,7 @@ Admin/Staff Dashboards
         @apply w-10 h-10 rounded-full bg-waste-recycle/20 flex items-center justify-center;
       }
       & .numbers-card-content {
-        @apply text-sm text-black/60 dark:text-white/60 uppercase tracking-wide;
+        @apply text-sm text-black/60 uppercase tracking-wide;
       }
       & .numbers-card-value {
         @apply text-sm lg:text-xl arcade-numbers;
@@ -1589,14 +1589,14 @@ BLOG VIEW
 .blog-tab {
   @apply mb-6;
   & .blog-tab-bar {
-    @apply flex gap-1 md:gap-2 border-b border-[#211f1c]/20 dark:border-white/20 flex-wrap overflow-x-auto;
+    @apply flex gap-1 md:gap-2 border-b border-[#211f1c]/20 flex-wrap overflow-x-auto;
     & .blog-tab-btn {
       @apply px-2 md:px-4 py-2 text-xs md:text-[12px] transition-colors whitespace-nowrap;
       & .tab-active {
-        @apply normal border-b-2 border-[#211f1c] dark:border-white;
+        @apply normal border-b-2 border-[#211f1c];
       }
       & .tab-inactive {
-        @apply text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white;
+        @apply text-black/50 hover:text-black;
       }
     }
   }

@@ -179,12 +179,12 @@ export function CategoryColorsView({ onBack }: CategoryColorsViewProps) {
     >
       {loading ? (
         <div className="flex items-center justify-center py-16">
-          <div className="animate-spin rounded-full h-8 w-8 border-2 border-[#211f1c] dark:border-white/60 border-t-transparent" />
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-[#211f1c] border-t-transparent" />
         </div>
       ) : (
         <div className="space-y-6">
           {/* Info banner */}
-          <div className="flex items-start gap-2 px-4 py-3 rounded-lg bg-black/4 dark:bg-white/5 text-[12px] text-black/55 dark:text-white/55">
+          <div className="flex items-start gap-2 px-4 py-3 rounded-lg bg-black/4 text-[12px] text-black/55">
             <Info size={13} className="shrink-0 mt-0.5" />
             <span>
               Pick from the pastel palette by clicking a category row. Dark mode
@@ -207,7 +207,7 @@ export function CategoryColorsView({ onBack }: CategoryColorsViewProps) {
                   key={cat.id}
                   className={
                     i > 0
-                      ? "border-t border-[#211f1c]/8 dark:border-white/8"
+                      ? "border-t border-[#211f1c]/8"
                       : ""
                   }
                 >
@@ -215,13 +215,13 @@ export function CategoryColorsView({ onBack }: CategoryColorsViewProps) {
                   <button
                     type="button"
                     onClick={() => setExpandedId(isOpen ? null : cat.id)}
-                    className="w-full flex items-center gap-4 px-5 py-3 hover:bg-black/3 dark:hover:bg-white/3 transition-colors text-left"
+                    className="w-full flex items-center gap-4 px-5 py-3 hover:bg-black/3 transition-colors text-left"
                     aria-expanded={isOpen}
                     aria-label={`${cat.name} — click to ${isOpen ? "close" : "open"} color palette`}
                   >
                     {/* Color swatch */}
                     <div
-                      className="w-8 h-8 rounded-md border border-[#211f1c]/15 dark:border-white/15 shrink-0 transition-colors duration-100"
+                      className="w-8 h-8 rounded-md border border-[#211f1c]/15 shrink-0 transition-colors duration-100"
                       style={{ backgroundColor: currentColor }}
                     />
 
@@ -231,7 +231,7 @@ export function CategoryColorsView({ onBack }: CategoryColorsViewProps) {
                     </span>
 
                     {/* Hex value */}
-                    <span className="font-mono text-sm text-black/40 dark:text-white/40">
+                    <span className="font-mono text-sm text-black/40">
                       {/^#[0-9a-fA-F]{6}$/.test(currentColor)
                         ? currentColor
                         : "—"}
@@ -239,7 +239,7 @@ export function CategoryColorsView({ onBack }: CategoryColorsViewProps) {
 
                     {/* Changed indicator */}
                     {isChanged && (
-                      <span className="text-xs text-black/35 dark:text-white/35 italic">
+                      <span className="text-xs text-black/35 italic">
                         modified
                       </span>
                     )}
@@ -248,19 +248,19 @@ export function CategoryColorsView({ onBack }: CategoryColorsViewProps) {
                     {isOpen ? (
                       <ChevronUp
                         size={14}
-                        className="text-black/40 dark:text-white/40 shrink-0"
+                        className="text-black/40 shrink-0"
                       />
                     ) : (
                       <ChevronDown
                         size={14}
-                        className="text-black/40 dark:text-white/40 shrink-0"
+                        className="text-black/40 shrink-0"
                       />
                     )}
                   </button>
 
                   {/* Expanded palette */}
                   {isOpen && (
-                    <div className="px-5 pb-4 border-t border-[#211f1c]/6 dark:border-white/6 bg-black/2 dark:bg-white/2">
+                    <div className="px-5 pb-4 border-t border-[#211f1c]/6 bg-black/2">
                       {/* Swatch grid */}
                       <div className="grid grid-cols-8 gap-1.5 py-3">
                         {PASTEL_PALETTE.map((swatch) => (
@@ -271,8 +271,8 @@ export function CategoryColorsView({ onBack }: CategoryColorsViewProps) {
                             className={[
                               "w-7 h-7 rounded-md transition-transform hover:scale-110 border-2",
                               currentColor === swatch
-                                ? "border-[#211f1c] dark:border-white scale-110"
-                                : "border-transparent hover:border-[#211f1c]/30 dark:hover:border-white/30",
+                                ? "border-[#211f1c] scale-110"
+                                : "border-transparent hover:border-[#211f1c]/30",
                             ].join(" ")}
                             style={{ backgroundColor: swatch }}
                             title={swatch}
@@ -282,7 +282,7 @@ export function CategoryColorsView({ onBack }: CategoryColorsViewProps) {
 
                       {/* Hex input + per-row actions */}
                       <div className="flex items-center gap-3 mt-1">
-                        <label className="text-sm text-black/45 dark:text-white/45 font-sniglet">
+                        <label className="text-sm text-black/45 font-sniglet">
                           Custom hex:
                         </label>
                         <input
@@ -293,7 +293,7 @@ export function CategoryColorsView({ onBack }: CategoryColorsViewProps) {
                           }
                           placeholder="#rrggbb"
                           maxLength={7}
-                          className="font-mono text-[12px] px-2 py-1 rounded border border-[#211f1c]/15 dark:border-white/15 bg-transparent w-24 text-center"
+                          className="font-mono text-[12px] px-2 py-1 rounded border border-[#211f1c]/15 bg-transparent w-24 text-center"
                           aria-label={`${cat.name} hex value`}
                         />
                         {isChanged && (
@@ -302,7 +302,7 @@ export function CategoryColorsView({ onBack }: CategoryColorsViewProps) {
                             onClick={() =>
                               handleColorChange(cat.id, defaultColor)
                             }
-                            className="text-sm text-black/35 dark:text-white/35 hover:text-black dark:hover:text-white transition-colors"
+                            className="text-sm text-black/35 hover:text-black transition-colors"
                           >
                             Reset to default
                           </button>
@@ -317,14 +317,14 @@ export function CategoryColorsView({ onBack }: CategoryColorsViewProps) {
 
           {/* Live preview */}
           <div className="retro-card p-4 space-y-2">
-            <p className="text-sm text-black/50 dark:text-white/50 uppercase tracking-wide font-sniglet">
+            <p className="text-sm text-black/50 uppercase tracking-wide font-sniglet">
               Live Preview
             </p>
             <div className="flex gap-2 flex-wrap">
               {categories.map((cat) => (
                 <span
                   key={cat.id}
-                  className="px-2.5 py-1 rounded-full text-sm font-sniglet border border-[#211f1c]/10 dark:border-white/10 transition-colors duration-100"
+                  className="px-2.5 py-1 rounded-full text-sm font-sniglet border border-[#211f1c]/10 transition-colors duration-100"
                   style={{
                     backgroundColor: `var(${categoryToCssVar(cat.id)})`,
                     color: `var(${categoryToContrastCssVar(cat.id)})`,
@@ -334,7 +334,7 @@ export function CategoryColorsView({ onBack }: CategoryColorsViewProps) {
                 </span>
               ))}
             </div>
-            <p className="text-xs text-black/35 dark:text-white/35 italic">
+            <p className="text-xs text-black/35 italic">
               Uses the live CSS var — reflects dark mode and no-pastel
               overrides.
             </p>
@@ -365,7 +365,7 @@ export function CategoryColorsView({ onBack }: CategoryColorsViewProps) {
             <button
               onClick={handleResetToDefaults}
               disabled={saving}
-              className="retro-icon-button flex items-center gap-2 ml-auto text-black/40 dark:text-white/40"
+              className="retro-icon-button flex items-center gap-2 ml-auto text-black/40"
               title="Reset all to factory defaults"
             >
               <Palette size={14} />

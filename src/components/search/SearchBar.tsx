@@ -133,11 +133,11 @@ export function SearchBar({
   return (
     <div
       ref={containerRef}
-      className="relative shrink-0 w-full px-5 py-4 bg-white dark:bg-[#2a2825] rounded-full"
+      className="relative shrink-0 w-full px-5 py-4 bg-white rounded-full"
     >
       <div
         aria-hidden="true"
-        className="absolute border-[#211f1c] dark:border-white/20 border-[1.5px] border-solid inset-[-0.75px] pointer-events-none rounded-full"
+        className="absolute border-[#211f1c] border-[1.5px] border-solid inset-[-0.75px] pointer-events-none rounded-full"
       />
       <div className="flex flex-row items-center justify-center size-full">
         <div className="box-border flex gap-4 items-center justify-start relative w-full">
@@ -162,7 +162,7 @@ export function SearchBar({
               setHighlightedIndex(-1);
             }}
             placeholder={isMobile ? "Search…" : "What do I do with…?"}
-            className="bg-transparent border-none outline-none text-[15px] normal placeholder:text-black/50 dark:placeholder:text-white/50 flex-1 min-w-0 "
+            className="bg-transparent border-none outline-none text-[15px] normal placeholder:text-black/50 flex-1 min-w-0 "
             aria-label="Search materials"
             aria-autocomplete="list"
             aria-expanded={isDropdownOpen && hasSuggestions}
@@ -176,7 +176,7 @@ export function SearchBar({
         <div
           id="material-search-suggestions"
           role="listbox"
-          className="absolute left-0 right-0 top-[calc(100%+8px)] z-30 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#faf7f2] dark:bg-[#1f1d1a] shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.15)] overflow-x-hidden overflow-y-auto max-h-[60vh] overscroll-contain"
+          className="absolute left-0 right-0 top-[calc(100%+8px)] z-30 rounded-[11.46px] border-[1.5px] border-[#211f1c] bg-[#faf7f2] shadow-[3px_4px_0px_-1px_#000000] overflow-x-hidden overflow-y-auto max-h-[60vh] overscroll-contain"
           style={{ WebkitOverflowScrolling: "touch" }}
         >
           {visibleSuggestions.map((suggestion, index) => {
@@ -190,23 +190,23 @@ export function SearchBar({
                 aria-selected={isHighlighted}
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => selectSuggestion(suggestion)}
-                className={`w-full text-left px-3 py-2.5 border-b border-[#211f1c]/10 dark:border-white/10 last:border-b-0 transition-colors ${
+                className={`w-full text-left px-3 py-2.5 border-b border-[#211f1c]/10 last:border-b-0 transition-colors ${
                   isHighlighted
-                    ? "bg-waste-recycle/40 dark:bg-waste-recycle/20"
-                    : "hover:bg-black/5 dark:hover:bg-white/5"
+                    ? "bg-waste-recycle/40"
+                    : "hover:bg-black/5"
                 }`}
               >
                 <div
                   className={`text-[14px] normal truncate ${
                     suggestion.onSelect
-                      ? "text-black dark:text-white"
-                      : "text-black dark:text-white"
+                      ? "text-black"
+                      : "text-black"
                   }`}
                 >
                   {suggestion.value}
                 </div>
                 {suggestion.subtitle && (
-                  <div className="text-sm text-black/55 dark:text-white/55 truncate mt-0.5">
+                  <div className="text-sm text-black/55 truncate mt-0.5">
                     {suggestion.subtitle}
                   </div>
                 )}

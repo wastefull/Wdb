@@ -91,7 +91,7 @@ export function PageTemplate({
 
   return (
     <div
-      className={`min-h-screen bg-[#f5f3ed] dark:bg-[#1a1817] p-4 md:p-6 ${className}`}
+      className={`min-h-screen bg-[#f5f3ed] p-4 md:p-6 ${className}`}
     >
       <div className={`${maxWidthClass} mx-auto`}>
         {/* Header Section */}
@@ -111,7 +111,7 @@ export function PageTemplate({
           <div className="flex-1">
             <h1 className="text-[20px] md:text-[24px] normal mb-1">{title}</h1>
             {description && (
-              <p className="text-sm md:text-[12px] text-black/60 dark:text-white/60">
+              <p className="text-sm md:text-[12px] text-black/60">
                 {description}
               </p>
             )}

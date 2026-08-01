@@ -297,7 +297,7 @@ export function GlideStaticTable({
   };
 
   return (
-    <div className="bg-white dark:bg-[#2a2825] rounded-(--retro-rounding) border-[1.5px] border-[#211f1c] dark:border-white/20 overflow-hidden">
+    <div className="bg-white rounded-(--retro-rounding) border-[1.5px] border-[#211f1c] overflow-hidden">
       <div className="overflow-hidden">
         <DataEditor
           columns={columns}
@@ -318,7 +318,7 @@ export function GlideStaticTable({
 
       {materials.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-[16px] text-black/50 dark:text-white/50">
+          <p className="text-[16px] text-black/50">
             No materials in database yet.
           </p>
         </div>
@@ -330,19 +330,19 @@ export function GlideStaticTable({
           if (!open) setDeleteTarget(null);
         }}
       >
-        <AlertDialogContent className="bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20">
+        <AlertDialogContent className="bg-white border-[1.5px] border-[#211f1c]">
           <AlertDialogHeader>
             <AlertDialogTitle className="normal">
               Delete Material?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-black/70 dark:text-white/70">
+            <AlertDialogDescription className="text-black/70">
               Are you sure you want to delete "{deleteTarget?.name}"? This will
               permanently remove the material and all its associated articles.
               This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-waste-reuse border-[#211f1c] dark:border-white/20">
+            <AlertDialogCancel className="bg-waste-reuse border-[#211f1c]">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
@@ -351,7 +351,7 @@ export function GlideStaticTable({
                 onDeleteMaterial(deleteTarget.id);
                 setDeleteTarget(null);
               }}
-              className="bg-waste-compost text-black border-[1.5px] border-[#211f1c] dark:border-white/20 hover:bg-waste-compost/80"
+              className="bg-waste-compost text-black border-[1.5px] border-[#211f1c] hover:bg-waste-compost/80"
             >
               Delete
             </AlertDialogAction>

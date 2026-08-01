@@ -63,7 +63,7 @@ export function ImageUploadArea({
   return (
     <div className="w-full">
       {label && (
-        <label className="text-[13px] text-black dark:text-white block mb-2">
+        <label className="text-[13px] text-black block mb-2">
           {label}
         </label>
       )}
@@ -73,8 +73,8 @@ export function ImageUploadArea({
         onDragLeave={handleDragLeave}
         className={`relative border-[1.5px] border-dashed rounded-xl p-4 transition-all ${
           isDragging
-            ? "border-[#211f1c] dark:border-white bg-[#211f1c]/5 dark:bg-white/5"
-            : "border-[#211f1c]/30 dark:border-white/30 bg-white dark:bg-[#2a2825]"
+            ? "border-[#211f1c] bg-[#211f1c]/5"
+            : "border-[#211f1c]/30 bg-white"
         }`}
       >
         {image ? (
@@ -82,7 +82,7 @@ export function ImageUploadArea({
             <img
               src={image}
               alt="Preview"
-              className="w-full h-auto rounded-lg border border-[#211f1c] dark:border-white/20"
+              className="w-full h-auto rounded-lg border border-[#211f1c]"
             />
             <button
               type="button"
@@ -95,14 +95,14 @@ export function ImageUploadArea({
         ) : (
           <div className="flex flex-col gap-3">
             {/* Mode toggle */}
-            <div className="flex justify-center gap-1 p-1 bg-black/5 dark:bg-white/5 rounded-lg w-fit mx-auto">
+            <div className="flex justify-center gap-1 p-1 bg-black/5 rounded-lg w-fit mx-auto">
               <button
                 type="button"
                 onClick={() => setMode("upload")}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm transition-all ${
                   mode === "upload"
-                    ? "bg-white dark:bg-[#2a2825] shadow-sm text-black dark:text-white"
-                    : "text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white"
+                    ? "bg-white shadow-sm text-black"
+                    : "text-black/60 hover:text-black"
                 }`}
               >
                 <Upload size={12} />
@@ -113,8 +113,8 @@ export function ImageUploadArea({
                 onClick={() => setMode("url")}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm transition-all ${
                   mode === "url"
-                    ? "bg-white dark:bg-[#2a2825] shadow-sm text-black dark:text-white"
-                    : "text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white"
+                    ? "bg-white shadow-sm text-black"
+                    : "text-black/60 hover:text-black"
                 }`}
               >
                 <Link size={12} />
@@ -126,9 +126,9 @@ export function ImageUploadArea({
               <label className="cursor-pointer flex flex-row items-center justify-center gap-2 py-3">
                 <ImageIcon
                   size={18}
-                  className="text-black/40 dark:text-white/40"
+                  className="text-black/40"
                 />
-                <p className="text-sm text-black/60 dark:text-white/60">
+                <p className="text-sm text-black/60">
                   Drop image here or click to upload
                 </p>
                 <input
@@ -148,7 +148,7 @@ export function ImageUploadArea({
                   onChange={(e) => setUrlInput(e.target.value)}
                   onKeyDown={handleUrlKeyDown}
                   placeholder="https://example.com/image.jpg"
-                  className="flex-1 px-3 py-2 bg-white dark:bg-[#1a1817] border border-[#211f1c]/20 dark:border-white/20 rounded-lg text-[12px] text-black dark:text-white outline-none focus:border-[#211f1c] dark:focus:border-white/50 transition-all"
+                  className="flex-1 px-3 py-2 bg-white border border-[#211f1c]/20 rounded-lg text-[12px] text-black outline-none focus:border-[#211f1c] transition-all"
                 />
                 <button
                   type="button"

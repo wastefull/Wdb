@@ -9,7 +9,7 @@ export function PageFooter() {
 
   return (
     <div className="p-6">
-      <footer className="relative mt-8 text-center border-t border-[#211f1c]/10 dark:border-white/10 pt-6">
+      <footer className="relative mt-8 text-center border-t border-[#211f1c]/10 pt-6">
         <div className="pb-6 left-0 top-6">
           <LogoLink />
         </div>
@@ -23,23 +23,23 @@ export function PageFooter() {
           >
             <button
               onClick={navigateToScienceHub}
-              className="text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white md:hover:underline transition-colors flex items-center gap-1"
+              className="text-[12px] text-black/70 hover:text-black md:hover:underline transition-colors flex items-center gap-1"
             >
               <FlaskConical className="w-5 h-5 md:w-3 md:h-3" />
               <span className="hidden md:inline">Science</span>
             </button>
-            <span className="text-black/30 dark:text-white/30">•</span>
+            <span className="text-black/30">•</span>
             <button
               onClick={navigateToLegalHub}
-              className="text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white md:hover:underline transition-colors flex items-center gap-1"
+              className="text-[12px] text-black/70 hover:text-black md:hover:underline transition-colors flex items-center gap-1"
             >
               <AlertCircle className="w-5 h-5 md:w-3 md:h-3" />
               <span className="hidden md:inline">Legal</span>
             </button>
-            <span className="text-black/30 dark:text-white/30">•</span>
+            <span className="text-black/30">•</span>
             <button
               onClick={navigateToPrivacyPolicy}
-              className="text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white md:hover:underline transition-colors flex items-center gap-1"
+              className="text-[12px] text-black/70 hover:text-black md:hover:underline transition-colors flex items-center gap-1"
             >
               <CircleOff className="w-5 h-5 md:w-3 md:h-3" />
               <span className="hidden md:inline">We Do Not Sell Your Data</span>
@@ -47,12 +47,12 @@ export function PageFooter() {
           </motion.div>
         </div>
 
-        <p className="text-sm md:text-[12px] text-black/60 dark:text-white/60 max-w-3xl mx-auto px-4">
+        <p className="text-sm md:text-[12px] text-black/60 max-w-3xl mx-auto px-4">
           <a
             href="https://wastefull.org"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-black dark:hover:text-white transition-colors underline"
+            className="hover:text-black transition-colors underline"
           >
             Wastefull, Inc.
           </a>{" "}

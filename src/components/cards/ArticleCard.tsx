@@ -82,18 +82,18 @@ export function ArticleCard({
   );
 
   return (
-    <div className="bg-white dark:bg-[#2a2825] relative rounded-(--retro-rounding) p-4 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] border-[1.5px] border-[#211f1c] dark:border-white/20">
+    <div className="bg-white relative rounded-(--retro-rounding) p-4 shadow-[3px_4px_0px_-1px_#000000] border-[1.5px] border-[#211f1c]">
       <div className="flex justify-between items-start mb-3">
         <div className="flex-1">
           {onReadMore ? (
             <button
               onClick={onReadMore}
-              className="text-[14px] text-black dark:text-white hover:underline cursor-pointer text-left block"
+              className="text-[14px] text-black hover:underline cursor-pointer text-left block"
             >
               {article.title}
             </button>
           ) : (
-            <h4 className="text-[14px] text-black dark:text-white">
+            <h4 className="text-[14px] text-black">
               {article.title}
             </h4>
           )}
@@ -130,13 +130,13 @@ export function ArticleCard({
           <div className="flex gap-2">
             <button
               onClick={onEdit}
-              className="icon-box-sm bg-waste-recycle !dark:border-[#211f1c] !dark:hover:shadow-[2px_2px_0px_0px_#000000]"
+              className="icon-box-sm bg-waste-recycle"
             >
               <Edit2 size={12} />
             </button>
             <button
               onClick={onDelete}
-              className="icon-box-sm bg-waste-compost !dark:border-[#211f1c] !dark:hover:shadow-[2px_2px_0px_0px_#000000]"
+              className="icon-box-sm bg-waste-compost"
             >
               <Trash2 size={12} />
             </button>
@@ -151,13 +151,13 @@ export function ArticleCard({
             <img
               src={coverImage}
               alt={article.title}
-              className="w-full h-32 object-cover rounded-lg border border-[#211f1c] dark:border-white/20"
+              className="w-full h-32 object-cover rounded-lg border border-[#211f1c]"
             />
           </div>
         )}
 
         {/* Content Preview */}
-        <p className="text-sm text-black/70 dark:text-white/70 line-clamp-3">
+        <p className="text-sm text-black/70 line-clamp-3">
           {preview}
         </p>
 
@@ -165,7 +165,7 @@ export function ArticleCard({
         {onReadMore && (
           <button
             onClick={onReadMore}
-            className="text-sm text-black dark:text-white hover:underline"
+            className="text-sm text-black hover:underline"
           >
             Read more...
           </button>
@@ -173,11 +173,11 @@ export function ArticleCard({
 
         {/* Linked material attribution */}
         {linkedMaterialName && onViewLinkedMaterial && (
-          <p className="text-xs text-black/50 dark:text-white/40 pt-1 text-right dark:border-white/10">
+          <p className="text-xs text-black/50 pt-1 text-right">
             From{" "}
             <button
               onClick={onViewLinkedMaterial}
-              className="underline hover:text-black dark:hover:text-white transition-colors"
+              className="underline hover:text-black transition-colors"
             >
               {linkedMaterialName}
             </button>

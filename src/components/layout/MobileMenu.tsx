@@ -43,7 +43,7 @@ export function MobileMenu({
       <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
         <SheetTrigger asChild>
           <button
-            className="p-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-white/50 dark:bg-black/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+            className="p-1.5 rounded-md border border-[#211f1c] bg-white/50 hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
             aria-label="Open menu"
           >
             <Menu className="w-4 h-4" />
@@ -51,16 +51,16 @@ export function MobileMenu({
         </SheetTrigger>
         <SheetContent
           side="top"
-          className="bg-[#faf7f2] dark:bg-[#2a2825] border-t-[1.5px] border-[#211f1c] dark:border-white/20 rounded-t-xl px-6 max-h-[85svh] overflow-hidden"
+          className="bg-[#faf7f2] border-t-[1.5px] border-[#211f1c] rounded-t-xl px-6 max-h-[85svh] overflow-hidden"
           aria-describedby="mobile-menu-description"
         >
           <div id="mobile-menu-description" className="sr-only">
             Mobile menu with sync status, navigation, and quick logout options.
           </div>
-          <SheetHeader className="shrink-0 border-b border-[#211f1c]/20 dark:border-white/20 pb-4">
+          <SheetHeader className="shrink-0 border-b border-[#211f1c]/20 pb-4">
             <div className="flex items-center justify-between">
               {/* Sync Status - left side */}
-              <div className="flex items-center gap-1.5 text-sm text-black/50 dark:text-white/50 min-w-17.5">
+              <div className="flex items-center gap-1.5 text-sm text-black/50 min-w-17.5">
                 {syncStatus && (
                   <>
                     {syncStatus === "synced" && (
@@ -83,10 +83,8 @@ export function MobileMenu({
                     )}
                     {syncStatus === "error" && (
                       <>
-                        <CloudOff className="w-3 h-3 text-[#c74444] dark:text-[#ff6b6b]" />
-                        <span className="text-[#c74444] dark:text-[#ff6b6b]">
-                          Sync error
-                        </span>
+                        <CloudOff className="w-3 h-3 text-[#c74444]" />
+                        <span className="text-[#c74444]">Sync error</span>
                       </>
                     )}
                   </>
@@ -101,7 +99,7 @@ export function MobileMenu({
                     onLogout();
                     setMobileMenuOpen(false);
                   }}
-                  className="flex items-center gap-1 px-2 py-1 rounded-md border border-[#211f1c] dark:border-white/20 arcade-bg-red hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                  className="flex items-center gap-1 px-2 py-1 rounded-md border border-[#211f1c] arcade-bg-red hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
                   aria-label="Sign out"
                 >
                   <LogOut className="w-3.5 h-3.5 arcade-btn-red" />
@@ -124,16 +122,14 @@ export function MobileMenu({
                 });
                 setMobileMenuOpen(false);
               }}
-              className="flex items-center gap-3 p-3 rounded-lg border border-[#211f1c]/20 dark:border-white/20 bg-white/50 dark:bg-black/20 hover:bg-white dark:hover:bg-black/40 transition-colors"
+              className="flex items-center gap-3 p-3 rounded-lg border border-[#211f1c]/20 bg-white/50 hover:bg-white transition-colors"
             >
               <User className="w-5 h-5" />
               <div className="flex flex-col items-start">
                 <span className="text-[13px] font-medium">
                   {user.name || user.email.split("@")[0]}
                 </span>
-                <span className="text-sm text-black/60 dark:text-white/60">
-                  View profile
-                </span>
+                <span className="text-sm text-black/60">View profile</span>
               </div>
             </button>
 
@@ -143,7 +139,7 @@ export function MobileMenu({
                 // NotificationBell handles its own panel, so we just close menu
                 setMobileMenuOpen(false);
               }}
-              className="flex items-center gap-3 p-3 rounded-lg border border-[#211f1c]/20 dark:border-white/20 bg-white/50 dark:bg-black/20 hover:bg-white dark:hover:bg-black/40 transition-colors"
+              className="flex items-center gap-3 p-3 rounded-lg border border-[#211f1c]/20 bg-white/50 hover:bg-white transition-colors"
             >
               <Bell className="w-5 h-5" />
               <span className="text-[13px] font-medium">Notifications</span>
@@ -156,7 +152,7 @@ export function MobileMenu({
                   onViewChange({ type: "admin-dashboard" });
                   setMobileMenuOpen(false);
                 }}
-                className="flex items-center gap-3 p-3 rounded-lg border border-[#211f1c]/20 dark:border-white/20 bg-white/50 dark:bg-black/20 hover:bg-white dark:hover:bg-black/40 transition-colors"
+                className="flex items-center gap-3 p-3 rounded-lg border border-[#211f1c]/20 bg-white/50 hover:bg-white transition-colors"
               >
                 <Shield className="w-5 h-5" />
                 <span className="text-[13px] font-medium">Admin Dashboard</span>
@@ -172,7 +168,7 @@ export function MobileMenu({
                     onViewChange({ type: "staff-dashboard" });
                     setMobileMenuOpen(false);
                   }}
-                  className="flex items-center gap-3 p-3 rounded-lg border border-[#211f1c]/20 dark:border-white/20 bg-white/50 dark:bg-black/20 hover:bg-white dark:hover:bg-black/40 transition-colors"
+                  className="flex items-center gap-3 p-3 rounded-lg border border-[#211f1c]/20 bg-white/50 hover:bg-white transition-colors"
                 >
                   <Briefcase className="w-5 h-5" />
                   <span className="text-[13px] font-medium">
@@ -188,7 +184,7 @@ export function MobileMenu({
                   onLogout();
                   setMobileMenuOpen(false);
                 }}
-                className="flex items-center gap-3 p-3 rounded-lg border border-[#211f1c] dark:border-white/20 arcade-bg-red hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all mt-2"
+                className="flex items-center gap-3 p-3 rounded-lg border border-[#211f1c] arcade-bg-red hover:shadow-[2px_2px_0px_0px_#000000] transition-all mt-2"
               >
                 <LogOut className="w-5 h-5 arcade-btn-red" />
                 <span className="text-[13px] font-medium arcade-btn-red">

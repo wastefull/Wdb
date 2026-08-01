@@ -221,12 +221,12 @@ export function CategoriesView({ onBack }: CategoriesViewProps) {
     >
       {loadingAll ? (
         <div className="flex items-center justify-center py-16">
-          <div className="animate-spin rounded-full h-8 w-8 border-2 border-[#211f1c] dark:border-white/60 border-t-transparent" />
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-[#211f1c] border-t-transparent" />
         </div>
       ) : loadError ? (
         <div className="retro-card p-6 text-center space-y-3">
           <AlertTriangle size={24} className="mx-auto text-amber-500" />
-          <p className="text-[13px] text-black/70 dark:text-white/70">
+          <p className="text-[13px] text-black/70">
             Failed to load categories. Check your connection and try again.
           </p>
           <button onClick={fetchAll} className="retro-icon-button">
@@ -236,12 +236,12 @@ export function CategoriesView({ onBack }: CategoriesViewProps) {
       ) : (
         <div className="space-y-6">
           {/* Active categories */}
-          <div className="retro-card divide-y divide-[#211f1c]/8 dark:divide-white/8">
+          <div className="retro-card divide-y divide-[#211f1c]/8">
             {active.map((cat) => (
               <div key={cat.id} className="flex items-center gap-3 px-5 py-3">
                 <Tag
                   size={14}
-                  className="text-black/40 dark:text-white/40 shrink-0"
+                  className="text-black/40 shrink-0"
                 />
 
                 {editingId === cat.id ? (
@@ -281,7 +281,7 @@ export function CategoriesView({ onBack }: CategoriesViewProps) {
                     <span className="flex-1 font-sniglet text-[13px]">
                       {cat.name}
                     </span>
-                    <span className="font-mono text-xs text-black/30 dark:text-white/30 shrink-0">
+                    <span className="font-mono text-xs text-black/30 shrink-0">
                       {cat.id}
                     </span>
                     <button
@@ -308,7 +308,7 @@ export function CategoriesView({ onBack }: CategoriesViewProps) {
               <div className="flex items-center gap-2 px-5 py-3">
                 <Tag
                   size={14}
-                  className="text-black/40 dark:text-white/40 shrink-0"
+                  className="text-black/40 shrink-0"
                 />
                 <input
                   autoFocus
@@ -361,10 +361,10 @@ export function CategoriesView({ onBack }: CategoriesViewProps) {
           {/* Deleted categories */}
           {deleted.length > 0 && (
             <div className="space-y-2">
-              <p className="text-sm text-black/40 dark:text-white/40 uppercase tracking-wide font-sniglet px-1">
+              <p className="text-sm text-black/40 uppercase tracking-wide font-sniglet px-1">
                 Deleted Categories
               </p>
-              <div className="retro-card divide-y divide-[#211f1c]/8 dark:divide-white/8 opacity-60">
+              <div className="retro-card divide-y divide-[#211f1c]/8 opacity-60">
                 {deleted.map((cat) => (
                   <div
                     key={cat.id}
@@ -372,12 +372,12 @@ export function CategoriesView({ onBack }: CategoriesViewProps) {
                   >
                     <Tag
                       size={14}
-                      className="text-black/30 dark:text-white/30 shrink-0"
+                      className="text-black/30 shrink-0"
                     />
-                    <span className="flex-1 font-sniglet text-[13px] line-through text-black/50 dark:text-white/50">
+                    <span className="flex-1 font-sniglet text-[13px] line-through text-black/50">
                       {cat.name}
                     </span>
-                    <span className="font-mono text-xs text-black/20 dark:text-white/20 shrink-0">
+                    <span className="font-mono text-xs text-black/20 shrink-0">
                       {cat.id}
                     </span>
                     <button
@@ -397,7 +397,7 @@ export function CategoriesView({ onBack }: CategoriesViewProps) {
           {/* Migration tool */}
           <div className="retro-card p-4 space-y-2">
             <p className="text-[12px] font-sniglet">Material Migration</p>
-            <p className="text-sm text-black/50 dark:text-white/50">
+            <p className="text-sm text-black/50">
               Populate the stable{" "}
               <code className="font-mono text-xs">categoryId</code> field on all
               existing material records. Run this once after the initial deploy,
@@ -410,7 +410,7 @@ export function CategoriesView({ onBack }: CategoriesViewProps) {
               className="retro-icon-button flex items-center gap-2 text-[12px]"
             >
               {migrating ? (
-                <div className="animate-spin rounded-full h-3.5 w-3.5 border border-[#211f1c]/40 dark:border-white/40 border-t-transparent" />
+                <div className="animate-spin rounded-full h-3.5 w-3.5 border border-[#211f1c]/40 border-t-transparent" />
               ) : (
                 <RotateCcw size={13} />
               )}
@@ -435,14 +435,14 @@ export function CategoriesView({ onBack }: CategoriesViewProps) {
                 </p>
                 {deleteConfirm.affectedCount !== null &&
                   deleteConfirm.affectedCount > 0 && (
-                    <p className="text-[12px] text-black/60 dark:text-white/60 mt-1">
+                    <p className="text-[12px] text-black/60 mt-1">
                       {deleteConfirm.affectedCount} material
                       {deleteConfirm.affectedCount !== 1 ? "s" : ""} currently
                       use this category. They will appear as uncategorized until
                       reassigned or the category is restored.
                     </p>
                   )}
-                <p className="text-[12px] text-black/50 dark:text-white/50 mt-1">
+                <p className="text-[12px] text-black/50 mt-1">
                   This is a soft delete — you can restore it later.
                 </p>
               </div>

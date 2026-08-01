@@ -206,16 +206,16 @@ export function TransformVersionManager({
         <h1 className="font-['Tilt_Warp',sans-serif] text-[24px] normal mb-2">
           Transform Version Manager
         </h1>
-        <p className="text-[14px] text-black/70 dark:text-white/70">
+        <p className="text-[14px] text-black/70">
           Manage versioned transforms and trigger recomputation for all 13
           parameters
         </p>
       </div>
 
       {/* Info Alert */}
-      <Alert className="bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-700">
-        <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-        <AlertDescription className="text-[12px] text-blue-900 dark:text-blue-100">
+      <Alert className="bg-blue-50 border-blue-300">
+        <Info className="h-4 w-4 text-blue-600" />
+        <AlertDescription className="text-[12px] text-blue-900">
           <strong>Transform Governance:</strong> When you update a transform
           formula, all MIUs using the old version must be recomputed to maintain
           data consistency. Recompute jobs will run automatically once MIUs are
@@ -225,14 +225,14 @@ export function TransformVersionManager({
 
       {/* Transform Overview */}
       {transforms && (
-        <Card className="bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
+        <Card className="bg-white border-[#211f1c]">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle className="text-[18px] normal">
                   Transform Definitions
                 </CardTitle>
-                <CardDescription className="text-[12px] text-black/60 dark:text-white/60">
+                <CardDescription className="text-[12px] text-black/60">
                   Version {transforms.version} • Updated{" "}
                   {new Date(transforms.last_updated).toLocaleDateString()}
                 </CardDescription>
@@ -267,7 +267,7 @@ export function TransformVersionManager({
                       {dimensionTransforms.map((transform) => (
                         <Card
                           key={transform.id}
-                          className="bg-[#f5f3f0] dark:bg-[#1a1918] border-[#211f1c] dark:border-white/20 hover:border-[#211f1c]/50 dark:hover:border-white/40 transition-all cursor-pointer"
+                          className="bg-[#f5f3f0] border-[#211f1c] hover:border-[#211f1c]/50 transition-all cursor-pointer"
                           onClick={() => {
                             setSelectedTransform(transform);
                             setShowRecomputeDialog(true);
@@ -280,7 +280,7 @@ export function TransformVersionManager({
                                 <div className="text-[16px] normal">
                                   {transform.parameter}
                                 </div>
-                                <div className="text-sm text-black/60 dark:text-white/60">
+                                <div className="text-sm text-black/60">
                                   {transform.name}
                                 </div>
                               </div>
@@ -289,13 +289,13 @@ export function TransformVersionManager({
                               </Badge>
                             </div>
 
-                            <div className="bg-white dark:bg-[#2a2825] rounded p-2 mb-2 border border-[#211f1c]/20 dark:border-white/10">
+                            <div className="bg-white rounded p-2 mb-2 border border-[#211f1c]/20">
                               <code className="font-mono text-xs normal">
                                 {transform.formula}
                               </code>
                             </div>
 
-                            <div className="flex items-center gap-2 text-xs text-black/60 dark:text-white/60">
+                            <div className="flex items-center gap-2 text-xs text-black/60">
                               <span>
                                 {transform.unit_input} → {transform.unit_output}
                               </span>
@@ -314,7 +314,7 @@ export function TransformVersionManager({
 
       {/* Recompute Dialog */}
       {showRecomputeDialog && selectedTransform && (
-        <Card className="bg-yellow-50 dark:bg-yellow-900/20 border-yellow-300 dark:border-yellow-700">
+        <Card className="bg-yellow-50 border-yellow-300">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
@@ -322,7 +322,7 @@ export function TransformVersionManager({
                   <GitBranch className="w-5 h-5" />
                   Trigger Recompute for {selectedTransform.parameter}
                 </CardTitle>
-                <CardDescription className="text-[12px] text-black/60 dark:text-white/60">
+                <CardDescription className="text-[12px] text-black/60">
                   {selectedTransform.name} ({selectedTransform.dimension})
                 </CardDescription>
               </div>
@@ -341,9 +341,9 @@ export function TransformVersionManager({
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Alert className="bg-orange-50 dark:bg-orange-900/20 border-orange-300 dark:border-orange-700">
-              <AlertTriangle className="h-4 w-4 text-orange-600 dark:text-orange-400" />
-              <AlertDescription className="text-sm text-orange-900 dark:text-orange-100">
+            <Alert className="bg-orange-50 border-orange-300">
+              <AlertTriangle className="h-4 w-4 text-orange-600" />
+              <AlertDescription className="text-sm text-orange-900">
                 <strong>Warning:</strong> Changing a transform formula will
                 trigger recomputation of all MIUs using this parameter. This
                 operation may take several minutes and will update material
@@ -351,10 +351,10 @@ export function TransformVersionManager({
               </AlertDescription>
             </Alert>
 
-            <div className="bg-white dark:bg-[#2a2825] rounded-lg p-4 border border-[#211f1c]/20 dark:border-white/10">
+            <div className="bg-white rounded-lg p-4 border border-[#211f1c]/20">
               <div className="grid grid-cols-2 gap-4 mb-3">
                 <div>
-                  <Label className="text-sm text-black/70 dark:text-white/70">
+                  <Label className="text-sm text-black/70">
                     Current Version
                   </Label>
                   <div className="font-mono text-[12px] normal">
@@ -362,7 +362,7 @@ export function TransformVersionManager({
                   </div>
                 </div>
                 <div>
-                  <Label className="text-sm text-black/70 dark:text-white/70">
+                  <Label className="text-sm text-black/70">
                     Current Formula
                   </Label>
                   <div className="font-mono text-[12px] normal">
@@ -422,7 +422,7 @@ export function TransformVersionManager({
       )}
 
       {/* Recompute Jobs History */}
-      <Card className="bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
+      <Card className="bg-white border-[#211f1c]">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -430,7 +430,7 @@ export function TransformVersionManager({
                 <History className="w-5 h-5" />
                 Recompute Jobs
               </CardTitle>
-              <CardDescription className="text-[12px] text-black/60 dark:text-white/60">
+              <CardDescription className="text-[12px] text-black/60">
                 History of transform recomputation jobs
               </CardDescription>
             </div>
@@ -454,9 +454,9 @@ export function TransformVersionManager({
         </CardHeader>
         <CardContent>
           {jobs.length > 0 && (
-            <Alert className="mb-4 bg-yellow-50 dark:bg-yellow-900/20 border-yellow-300 dark:border-yellow-700">
-              <Clock className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
-              <AlertDescription className="text-sm text-yellow-900 dark:text-yellow-100">
+            <Alert className="mb-4 bg-yellow-50 border-yellow-300">
+              <Clock className="h-4 w-4 text-yellow-600" />
+              <AlertDescription className="text-sm text-yellow-900">
                 <strong>Note:</strong> Job processing is not yet implemented.
                 All jobs will remain in "pending" status until Phase 9.2 when
                 MIU (Material Impact Units) are added. At that point, jobs will
@@ -465,7 +465,7 @@ export function TransformVersionManager({
             </Alert>
           )}
           {jobs.length === 0 ? (
-            <div className="text-center py-8 text-black/50 dark:text-white/50">
+            <div className="text-center py-8 text-black/50">
               <History className="w-12 h-12 mx-auto mb-3 opacity-30" />
               <p className="text-[12px]">No recompute jobs yet</p>
             </div>
@@ -474,7 +474,7 @@ export function TransformVersionManager({
               {jobs.map((job) => (
                 <div
                   key={job.id}
-                  className="bg-[#f5f3f0] dark:bg-[#1a1918] rounded-lg p-4 border border-[#211f1c]/20 dark:border-white/10"
+                  className="bg-[#f5f3f0] rounded-lg p-4 border border-[#211f1c]/20"
                 >
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center gap-2">
@@ -483,7 +483,7 @@ export function TransformVersionManager({
                         <div className="text-[14px] normal">
                           {job.parameter} Transform Update
                         </div>
-                        <div className="text-sm text-black/60 dark:text-white/60">
+                        <div className="text-sm text-black/60">
                           {job.oldTransformVersion} → {job.newTransformVersion}
                         </div>
                       </div>
@@ -493,11 +493,11 @@ export function TransformVersionManager({
                     </Badge>
                   </div>
 
-                  <div className="text-sm text-black/70 dark:text-white/70 mb-2">
+                  <div className="text-sm text-black/70 mb-2">
                     <strong>Reason:</strong> {job.reason}
                   </div>
 
-                  <div className="flex items-center gap-4 text-xs text-black/60 dark:text-white/60">
+                  <div className="flex items-center gap-4 text-xs text-black/60">
                     <span>Job ID: {job.id}</span>
                     <span>
                       Created: {new Date(job.createdAt).toLocaleString()}
@@ -510,8 +510,8 @@ export function TransformVersionManager({
                   </div>
 
                   {job.errorMessage && (
-                    <Alert className="mt-2 bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-700">
-                      <AlertDescription className="text-sm text-red-900 dark:text-red-100">
+                    <Alert className="mt-2 bg-red-50 border-red-300">
+                      <AlertDescription className="text-sm text-red-900">
                         {job.errorMessage}
                       </AlertDescription>
                     </Alert>

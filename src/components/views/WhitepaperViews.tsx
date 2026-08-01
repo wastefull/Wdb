@@ -51,15 +51,15 @@ export function MethodologyListView({
     >
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-black/50 dark:text-white/50" />
+          <Loader2 className="w-8 h-8 animate-spin text-black/50" />
         </div>
       ) : error ? (
         <div className="text-center py-12">
-          <p className="text-[14px] text-red-600 dark:text-red-400">{error}</p>
+          <p className="text-[14px] text-red-600">{error}</p>
         </div>
       ) : whitepapers.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-[14px] text-black/60 dark:text-white/60">
+          <p className="text-[14px] text-black/60">
             No whitepapers available yet
           </p>
         </div>
@@ -79,7 +79,7 @@ export function MethodologyListView({
                   <h3 className="text-[16px] normal mb-2">
                     {whitepaper.title}
                   </h3>
-                  <p className="text-[12px] text-black/60 dark:text-white/60 mb-2">
+                  <p className="text-[12px] text-black/60 mb-2">
                     Last updated:{" "}
                     {new Date(whitepaper.updatedAt).toLocaleDateString()}
                   </p>
@@ -168,7 +168,7 @@ export function WhitepaperView({
     return (
       <PageTemplate title="Loading..." onBack={onBack}>
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-black/50 dark:text-white/50" />
+          <Loader2 className="w-8 h-8 animate-spin text-black/50" />
         </div>
       </PageTemplate>
     );
@@ -178,7 +178,7 @@ export function WhitepaperView({
     return (
       <PageTemplate title="Error" onBack={onBack}>
         <div className="text-center py-12">
-          <p className="text-[14px] text-red-600 dark:text-red-400">
+          <p className="text-[14px] text-red-600">
             {error || "Whitepaper not found"}
           </p>
         </div>
@@ -190,33 +190,33 @@ export function WhitepaperView({
     <PageTemplate title={whitepaper.title} onBack={onBack}>
       <div className="retro-card p-6 md:p-8">
         <article
-          className="prose prose-lg max-w-none dark:prose-invert
+          className="prose prose-lg max-w-none
           prose-headings:font-serif
-          prose-headings:text-black dark:prose-headings:text-white
+          prose-headings:text-black
           prose-h1:text-3xl prose-h1:font-bold prose-h1:mb-4 prose-h1:mt-6
           prose-h2:text-2xl prose-h2:font-bold prose-h2:mb-3 prose-h2:mt-5
           prose-h3:text-xl prose-h3:font-semibold prose-h3:mb-2 prose-h3:mt-4
           prose-p:font-serif
           prose-p:text-base prose-p:leading-relaxed
-          prose-p:text-black dark:prose-p:text-white
+          prose-p:text-black
           prose-li:font-serif
           prose-li:text-base prose-li:leading-relaxed
-          prose-li:text-black dark:prose-li:text-white
+          prose-li:text-black
           prose-table:font-serif
           prose-table:text-sm
           prose-th:font-semibold
-          prose-th:text-black dark:prose-th:text-white
-          prose-td:text-black dark:prose-td:text-white
-          prose-strong:font-semibold prose-strong:text-black dark:prose-strong:text-white
-          prose-em:italic prose-em:text-black dark:prose-em:text-white
+          prose-th:text-black
+          prose-td:text-black
+          prose-strong:font-semibold prose-strong:text-black
+          prose-em:italic prose-em:text-black
           prose-code:font-mono prose-code:text-sm
-          prose-code:text-black dark:prose-code:text-white
-          prose-code:bg-gray-100 dark:prose-code:bg-gray-800
+          prose-code:text-black
+          prose-code:bg-gray-100
           prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded
           prose-pre:font-mono prose-pre:text-sm
-          prose-blockquote:border-l-gray-300 dark:prose-blockquote:border-l-gray-600
+          prose-blockquote:border-l-gray-300
           prose-blockquote:font-serif prose-blockquote:italic
-          prose-blockquote:text-black/80 dark:prose-blockquote:text-white/80
+          prose-blockquote:text-black/80
         "
           style={{
             fontFamily:
@@ -231,14 +231,14 @@ export function WhitepaperView({
                 <div className="overflow-x-auto my-6">
                   <table
                     {...props}
-                    className="border-collapse border border-gray-300 dark:border-gray-600"
+                    className="border-collapse border border-gray-300"
                   />
                 </div>
               ),
               th: ({ node, ...props }) => (
                 <th
                   {...props}
-                  className="border border-gray-300 dark:border-gray-600 px-4 py-2 bg-gray-50 dark:bg-gray-800"
+                  className="border border-gray-300 px-4 py-2 bg-gray-50"
                   style={{
                     fontFamily:
                       'Charter, "Bitstream Charter", "Sitka Text", Cambria, serif',
@@ -248,7 +248,7 @@ export function WhitepaperView({
               td: ({ node, ...props }) => (
                 <td
                   {...props}
-                  className="border border-gray-300 dark:border-gray-600 px-4 py-2"
+                  className="border border-gray-300 px-4 py-2"
                   style={{
                     fontFamily:
                       'Charter, "Bitstream Charter", "Sitka Text", Cambria, serif',

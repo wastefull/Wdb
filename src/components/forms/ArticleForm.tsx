@@ -139,9 +139,9 @@ export function ArticleForm({
       {/* Import Modal */}
       {showImportModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-[#2a2825] rounded-xl border-[1.5px] border-[#211f1c] dark:border-white/20 p-6 w-full max-w-2xl mx-4 max-h-[80vh] overflow-y-auto">
+          <div className="bg-white rounded-xl border-[1.5px] border-[#211f1c] p-6 w-full max-w-2xl mx-4 max-h-[80vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-[16px] text-black dark:text-white">
+              <h3 className="text-[16px] text-black">
                 Import Article from JSON
               </h3>
               <button
@@ -150,12 +150,12 @@ export function ArticleForm({
                   setShowImportModal(false);
                   setImportJson("");
                 }}
-                className="text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white"
+                className="text-black/60 hover:text-black"
               >
                 <X size={20} />
               </button>
             </div>
-            <p className="text-[12px] text-black/60 dark:text-white/60 mb-4">
+            <p className="text-[12px] text-black/60 mb-4">
               Paste your article JSON below. It should include a "content" field
               with Tiptap format (type: "doc").
             </p>
@@ -163,7 +163,7 @@ export function ArticleForm({
               value={importJson}
               onChange={(e) => setImportJson(e.target.value)}
               placeholder='{"title": "My Article", "content": {"type": "doc", "content": [...]}}'
-              className="w-full h-64 px-3 py-2 bg-white dark:bg-[#1a1817] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-xl text-[13px] text-black dark:text-white font-mono outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.3)] transition-all"
+              className="w-full h-64 px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-xl text-[13px] text-black font-mono outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all"
             />
             <div className="flex gap-3 mt-4 justify-end">
               <button
@@ -172,7 +172,7 @@ export function ArticleForm({
                   setShowImportModal(false);
                   setImportJson("");
                 }}
-                className="px-4 py-2 text-[13px] text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white"
+                className="px-4 py-2 text-[13px] text-black/60 hover:text-black"
               >
                 Cancel
               </button>
@@ -192,13 +192,13 @@ export function ArticleForm({
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         {/* Header with Import Button */}
         <div className="flex items-center justify-between">
-          <h2 className="text-[18px] text-black dark:text-white">
+          <h2 className="text-[18px] text-black">
             {article ? "Edit Article" : "New Article"}
           </h2>
           <button
             type="button"
             onClick={() => setShowImportModal(true)}
-            className="flex items-center gap-2 px-3 py-1.5 text-[12px] text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white border border-[#211f1c]/30 dark:border-white/20 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-all"
+            className="flex items-center gap-2 px-3 py-1.5 text-[12px] text-black/70 hover:text-black border border-[#211f1c]/30 rounded-lg hover:bg-black/5 transition-all"
           >
             <Download size={14} />
             Import JSON
@@ -206,8 +206,8 @@ export function ArticleForm({
         </div>
 
         {/* Overview Section */}
-        <div className="bg-white dark:bg-[#1a1817] rounded-xl border-[1.5px] border-[#211f1c] dark:border-white/20 p-4">
-          <h3 className="text-[15px] text-black dark:text-white mb-4">
+        <div className="bg-white rounded-xl border-[1.5px] border-[#211f1c] p-4">
+          <h3 className="text-[15px] text-black mb-4">
             Overview
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -225,7 +225,7 @@ export function ArticleForm({
             </div>
             <div className="flex flex-col gap-3">
               <div>
-                <label className="text-[13px] text-black dark:text-white block mb-1">
+                <label className="text-[13px] text-black block mb-1">
                   Title
                 </label>
                 <input
@@ -236,11 +236,11 @@ export function ArticleForm({
                   }
                   onKeyDownCapture={handleKeyDown}
                   required
-                  className="w-full px-3 py-2 bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-xl text-[14px] text-black dark:text-white outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.3)] transition-all"
+                  className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-xl text-[14px] text-black outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all"
                 />
               </div>
               <div>
-                <label className="text-[13px] text-black dark:text-white block mb-1">
+                <label className="text-[13px] text-black block mb-1">
                   Article Type
                 </label>
                 <select
@@ -254,7 +254,7 @@ export function ArticleForm({
                         | "Experimental",
                     })
                   }
-                  className="w-full px-3 py-2 bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-xl text-[14px] text-black dark:text-white outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.3)] transition-all"
+                  className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-xl text-[14px] text-black outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all"
                 >
                   <option value="DIY">DIY</option>
                   <option value="Industrial">Industrial</option>
@@ -262,7 +262,7 @@ export function ArticleForm({
                 </select>
               </div>
               <div>
-                <label className="text-[13px] text-black dark:text-white block mb-1">
+                <label className="text-[13px] text-black block mb-1">
                   Sustainability Category
                 </label>
                 <select
@@ -276,7 +276,7 @@ export function ArticleForm({
                         | "reusability",
                     })
                   }
-                  className="w-full px-3 py-2 bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-xl text-[14px] text-black dark:text-white outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.3)] transition-all"
+                  className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-xl text-[14px] text-black outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all"
                 >
                   <option value="compostability">Compostability</option>
                   <option value="recyclability">Recyclability</option>
@@ -288,8 +288,8 @@ export function ArticleForm({
         </div>
 
         {/* Content Editor */}
-        <div className="bg-white dark:bg-[#1a1817] rounded-xl border-[1.5px] border-[#211f1c] dark:border-white/20 p-4">
-          <h3 className="text-[15px] text-black dark:text-white mb-4">
+        <div className="bg-white rounded-xl border-[1.5px] border-[#211f1c] p-4">
+          <h3 className="text-[15px] text-black mb-4">
             Content
           </h3>
           <ContentEditor
@@ -301,7 +301,7 @@ export function ArticleForm({
 
         {/* Admin-only: Post on behalf of another user */}
         {isAdminMode && !article && (
-          <div className="bg-white dark:bg-[#1a1817] rounded-xl border-[1.5px] border-[#211f1c] dark:border-white/20 p-4">
+          <div className="bg-white rounded-xl border-[1.5px] border-[#211f1c] p-4">
             <UserSelector
               selectedUserId={onBehalfOfUserId}
               onSelectUser={setOnBehalfOfUserId}

@@ -50,7 +50,7 @@ export function VideoTopicClassificationPanel() {
             <h3 id="video-topic-classification-title" className="font-sniglet text-[16px] normal">
               Reviewed Video Topics
             </h3>
-            <p className="mt-1 max-w-xl text-[13px] leading-relaxed text-black/70 dark:text-white/70">
+            <p className="mt-1 max-w-xl text-[13px] leading-relaxed text-black/70">
               Reuse only topic tags you explicitly approved during triage.
               Suggestions are never applied automatically, and topic tags stay
               independent from material mappings.
@@ -61,7 +61,7 @@ export function VideoTopicClassificationPanel() {
           type="button"
           onClick={() => void preview()}
           disabled={isPreviewing || isApplying}
-          className="flex items-center gap-2 rounded-lg border border-black/15 px-3 py-2 text-[12px] disabled:opacity-50 dark:border-white/15"
+          className="flex items-center gap-2 rounded-lg border border-black/15 px-3 py-2 text-[12px] disabled:opacity-50"
         >
           {isPreviewing ? <Loader2 className="size-3.5 animate-spin" /> : <RefreshCw className="size-3.5" />}
           Preview reviewed topics
@@ -69,22 +69,22 @@ export function VideoTopicClassificationPanel() {
       </div>
 
       {error && (
-        <p role="alert" className="rounded-lg border border-red-500/25 bg-red-500/5 p-3 text-[12px] text-red-700 dark:text-red-300">
+        <p role="alert" className="rounded-lg border border-red-500/25 bg-red-500/5 p-3 text-[12px] text-red-700">
           {error}
         </p>
       )}
 
       {report && (
-        <div className="space-y-3 rounded-xl border border-black/10 p-4 dark:border-white/10">
+        <div className="space-y-3 rounded-xl border border-black/10 p-4">
           <p className="text-[13px]">
             {report.candidate_count} reviewed assignments across {report.governed_topic_count} topics - {report.existing_count} already
             tagged - {report.creatable_count} ready
           </p>
-          <p className="text-[11px] text-black/60 dark:text-white/60">
+          <p className="text-[11px] text-black/60">
             {report.existing_vocabulary_count} existing governed topic(s); {report.new_topic_count} reviewed topic(s) will be added to the governed vocabulary.
           </p>
           {report.created_count > 0 && (
-            <p className="flex items-center gap-2 text-[12px] text-green-700 dark:text-green-300">
+            <p className="flex items-center gap-2 text-[12px] text-green-700">
               <CheckCircle className="size-4" /> {report.created_count} active topic tag(s) created.
             </p>
           )}

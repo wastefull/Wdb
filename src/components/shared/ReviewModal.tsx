@@ -190,13 +190,13 @@ export function ReviewModal({
     return (
       <div className="space-y-3">
         <div className="card-muted">
-          <p className="text-sm text-black/70 dark:text-white/70 mb-1">
+          <p className="text-sm text-black/70 mb-1">
             <strong>Name:</strong>
           </p>
           <p className="text-[13px] normal">{submission.content_data.name}</p>
         </div>
         <div className="card-muted">
-          <p className="text-sm text-black/70 dark:text-white/70 mb-1">
+          <p className="text-sm text-black/70 mb-1">
             <strong>Category:</strong>
           </p>
           <p className="text-[13px] normal">
@@ -205,7 +205,7 @@ export function ReviewModal({
         </div>
         {submission.content_data.description && (
           <div className="card-muted">
-            <p className="text-sm text-black/70 dark:text-white/70 mb-1">
+            <p className="text-sm text-black/70 mb-1">
               <strong>Description:</strong>
             </p>
             <p className="text-[13px] normal">
@@ -215,7 +215,7 @@ export function ReviewModal({
         )}
         {submission.type === "edit_material" &&
           submission.content_data.change_reason && (
-            <div className="bg-waste-recycle dark:bg-[#3a3825] border border-[#211f1c] dark:border-white/20 rounded-md p-3">
+            <div className="bg-waste-recycle border border-[#211f1c] rounded-md p-3">
               <p className="text-sm normal mb-1">
                 <strong>Reason for Change:</strong>
               </p>
@@ -249,7 +249,7 @@ export function ReviewModal({
             <Label htmlFor="edit-content" className="text-[12px] normal">
               Content *
             </Label>
-            <div className="mt-1 border border-[#211f1c]/20 dark:border-white/20 rounded-lg overflow-hidden">
+            <div className="mt-1 border border-[#211f1c]/20 rounded-lg overflow-hidden">
               <ContentEditor
                 initialContent={
                   editedContent.content &&
@@ -270,13 +270,13 @@ export function ReviewModal({
     return (
       <div className="space-y-3">
         <div className="card-muted">
-          <p className="text-sm text-black/70 dark:text-white/70 mb-1">
+          <p className="text-sm text-black/70 mb-1">
             <strong>Title:</strong>
           </p>
           <p className="text-[13px] normal">{submission.content_data.title}</p>
         </div>
         <div className="card-muted">
-          <p className="text-sm text-black/70 dark:text-white/70 mb-1">
+          <p className="text-sm text-black/70 mb-1">
             <strong>Category:</strong>
           </p>
           <p className="text-[13px] normal">
@@ -285,11 +285,11 @@ export function ReviewModal({
         </div>
         {submission.content_data.content && (
           <div className="card-muted max-h-100 overflow-y-auto">
-            <p className="text-sm text-black/70 dark:text-white/70 mb-2">
+            <p className="text-sm text-black/70 mb-2">
               <strong>Content:</strong>
             </p>
             {typeof submission.content_data.content === "object" ? (
-              <div className="prose prose-sm max-w-none dark:prose-invert text-[13px]">
+              <div className="prose prose-sm max-w-none text-[13px]">
                 <GuideRenderer content={submission.content_data.content} />
               </div>
             ) : (
@@ -309,16 +309,16 @@ export function ReviewModal({
       panelClassName="w-full max-w-3xl max-h-[90vh] overflow-y-auto p-0"
     >
       <div>
-        <div className="flex items-center justify-between p-4 border-b border-[#211f1c] dark:border-white/20 sticky top-0 bg-white dark:bg-[#2a2825] z-10">
+        <div className="flex items-center justify-between p-4 border-b border-[#211f1c] sticky top-0 bg-white z-10">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-md bg-waste-reuse dark:bg-[#2a3235] border border-[#211f1c] dark:border-white/20">
+            <div className="p-2 rounded-md bg-waste-reuse border border-[#211f1c]">
               {getSubmissionIcon()}
             </div>
             <h3 className="normal">{getSubmissionTitle()}</h3>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-md hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+            className="p-1.5 rounded-md hover:bg-black/5 transition-colors"
           >
             <X size={16} className="normal" />
           </button>
@@ -328,7 +328,7 @@ export function ReviewModal({
           {!action ? (
             <div className="space-y-6">
               <div className="mb-4">
-                <p className="text-sm text-black/60 dark:text-white/60 mb-4">
+                <p className="text-sm text-black/60 mb-4">
                   Submitted {new Date(submission.created_at).toLocaleString()}
                 </p>
                 {(submission.type === "new_material" ||
@@ -339,12 +339,12 @@ export function ReviewModal({
                   renderArticleContent()}
               </div>
 
-              <div className="border-t border-[#211f1c]/20 dark:border-white/10 pt-6">
+              <div className="border-t border-[#211f1c]/20 pt-6">
                 <p className="text-[12px] normal mb-4">Choose an action:</p>
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={() => setAction("approve")}
-                    className="p-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#c8e5c8] hover:shadow-[3px_4px_0px_-1px_#000000] dark:hover:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] transition-all text-left"
+                    className="p-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] bg-[#c8e5c8] hover:shadow-[3px_4px_0px_-1px_#000000] transition-all text-left"
                   >
                     <div className="flex items-center gap-2 mb-2">
                       <CheckCircle size={16} className="text-black" />
@@ -357,7 +357,7 @@ export function ReviewModal({
 
                   <button
                     onClick={() => setAction("edit")}
-                    className="p-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-waste-reuse hover:shadow-[3px_4px_0px_-1px_#000000] dark:hover:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] transition-all text-left"
+                    className="p-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] bg-waste-reuse hover:shadow-[3px_4px_0px_-1px_#000000] transition-all text-left"
                   >
                     <div className="flex items-center gap-2 mb-2">
                       <Edit3 size={16} className="text-black" />
@@ -372,7 +372,7 @@ export function ReviewModal({
 
                   <button
                     onClick={() => setAction("suggest")}
-                    className="p-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-waste-recycle hover:shadow-[3px_4px_0px_-1px_#000000] dark:hover:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] transition-all text-left"
+                    className="p-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] bg-waste-recycle hover:shadow-[3px_4px_0px_-1px_#000000] transition-all text-left"
                   >
                     <div className="flex items-center gap-2 mb-2">
                       <Edit3 size={16} className="text-black" />
@@ -387,7 +387,7 @@ export function ReviewModal({
 
                   <button
                     onClick={() => setAction("reject")}
-                    className="p-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-waste-compost hover:shadow-[3px_4px_0px_-1px_#000000] dark:hover:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] transition-all text-left"
+                    className="p-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] bg-waste-compost hover:shadow-[3px_4px_0px_-1px_#000000] transition-all text-left"
                   >
                     <div className="flex items-center gap-2 mb-2">
                       <XCircle size={16} className="text-black" />
@@ -404,7 +404,7 @@ export function ReviewModal({
             <div className="space-y-4">
               {action === "edit" && (
                 <>
-                  <div className="bg-waste-reuse dark:bg-[#2a3235] border border-[#211f1c] dark:border-white/20 rounded-md p-3 mb-4">
+                  <div className="bg-waste-reuse border border-[#211f1c] rounded-md p-3 mb-4">
                     <p className="text-sm normal">
                       ✏️ <strong>Edit Mode:</strong> Make your changes below.
                       You'll be credited as editor.
@@ -442,7 +442,7 @@ export function ReviewModal({
               )}
 
               {action === "approve" && (
-                <div className="bg-[#c8e5c8] dark:bg-[#2a3f2a] border border-[#211f1c] dark:border-white/20 rounded-md p-3">
+                <div className="bg-[#c8e5c8] border border-[#211f1c] rounded-md p-3">
                   <p className="text-[12px] normal">
                     ✅ Ready to approve and publish this submission?
                   </p>
@@ -456,14 +456,14 @@ export function ReviewModal({
                     setFeedback("");
                     setEditedContent(submission.content_data);
                   }}
-                  className="flex-1 h-10 px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-waste-compost hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[12px] text-black"
+                  className="flex-1 h-10 px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] bg-waste-compost hover:shadow-[2px_2px_0px_0px_#000000] transition-all text-[12px] text-black"
                   disabled={processing}
                 >
                   Back
                 </button>
                 <button
                   onClick={handleSubmit}
-                  className="flex-1 h-10 px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#c8e5c8] hover:shadow-[3px_4px_0px_-1px_#000000] dark:hover:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] transition-all text-[12px] text-black disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 h-10 px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] bg-[#c8e5c8] hover:shadow-[3px_4px_0px_-1px_#000000] transition-all text-[12px] text-black disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={processing}
                 >
                   {processing ? "Processing..." : "Confirm"}

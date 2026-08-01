@@ -145,9 +145,9 @@ export function SourcesTab({
     <div className="space-y-4">
       {/* Confidence Level Warning */}
       {levelHierarchy[currentLevel] > levelHierarchy[suggestedLevel] && (
-        <Alert className="bg-amber-50 dark:bg-amber-900/20 border-amber-300 dark:border-amber-700">
-          <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-          <AlertDescription className="text-sm text-amber-800 dark:text-amber-200">
+        <Alert className="bg-amber-50 border-amber-300">
+          <AlertCircle className="h-4 w-4 text-amber-600" />
+          <AlertDescription className="text-sm text-amber-800">
             <strong>Confidence Level Mismatch:</strong> Current level is "
             {currentLevel}" but you only have {sources.length} source(s).
             {sources.length === 0 &&
@@ -183,7 +183,7 @@ export function SourcesTab({
               </SelectContent>
             </Select>
             {suggestedLevel !== currentLevel && (
-              <p className="text-[9px] text-amber-600 dark:text-amber-400 mt-1">
+              <p className="text-[9px] text-amber-600 mt-1">
                 Recommended: {suggestedLevel} ({sources.length} sources)
               </p>
             )}
@@ -214,13 +214,13 @@ export function SourcesTab({
           {sources.map((source, index) => (
             <div
               key={index}
-              className="p-3 bg-white dark:bg-[#2a2825] border border-[#211f1c] dark:border-white/20 rounded-md"
+              className="p-3 bg-white border border-[#211f1c] rounded-md"
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <p className="text-sm normal font-medium">{source.title}</p>
                   {source.authors && (
-                    <p className="text-[9px] text-black/60 dark:text-white/60">
+                    <p className="text-[9px] text-black/60">
                       {source.authors}
                     </p>
                   )}
@@ -235,7 +235,7 @@ export function SourcesTab({
                         href={`https://doi.org/${source.doi}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[9px] text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+                        className="text-[9px] text-blue-600 hover:underline flex items-center gap-1"
                       >
                         DOI <ExternalLink className="w-2 h-2" />
                       </a>
@@ -244,7 +244,7 @@ export function SourcesTab({
                         href={api.getSourcePdfViewUrl(source.pdfFileName)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[9px] text-green-600 dark:text-green-400 hover:underline flex items-center gap-1 cursor-pointer"
+                        className="text-[9px] text-green-600 hover:underline flex items-center gap-1 cursor-pointer"
                         title="View uploaded PDF"
                       >
                         <BookOpen className="w-2 h-2" /> View PDF
@@ -254,7 +254,7 @@ export function SourcesTab({
                         href={getGoogleScholarUrl(source.title, source.authors)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[9px] text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-1"
+                        className="text-[9px] text-purple-600 hover:underline flex items-center gap-1"
                         title="Search on Google Scholar"
                       >
                         <GraduationCap className="w-2 h-2" /> Scholar
@@ -267,7 +267,7 @@ export function SourcesTab({
                     )}
                   </div>
                   {source.parameters && source.parameters.length > 0 && (
-                    <div className="mt-2 text-[9px] text-black/60 dark:text-white/60">
+                    <div className="mt-2 text-[9px] text-black/60">
                       <span className="italic">Used for:</span>{" "}
                       {source.parameters
                         .map((param) => PARAMETER_NAMES[param] || param)
@@ -288,19 +288,19 @@ export function SourcesTab({
           ))}
 
           {sources.length === 0 && (
-            <p className="text-sm text-black/60 dark:text-white/60 text-center py-4">
+            <p className="text-sm text-black/60 text-center py-4">
               No sources added yet
             </p>
           )}
         </div>
 
         {/* Source Library Browser */}
-        <div className="pt-4 border-t border-[#211f1c] dark:border-white/20">
+        <div className="pt-4 border-t border-[#211f1c]">
           <Dialog open={showSourceLibrary} onOpenChange={setShowSourceLibrary}>
             <DialogTrigger asChild>
               <Button
                 variant="outline"
-                className="w-full border-[#211f1c] dark:border-white/20"
+                className="w-full border-[#211f1c]"
               >
                 <BookOpen className="w-4 h-4 mr-2" />
                 Browse Source Library ({SOURCE_LIBRARY.length} available)
@@ -318,7 +318,7 @@ export function SourcesTab({
               {/* Search */}
               <div className="mb-4">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-black/40 dark:text-white/40" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-black/40" />
                   <Input
                     type="text"
                     placeholder="Search by title, author, or tags..."
@@ -342,7 +342,7 @@ export function SourcesTab({
                         {materialSources.map((source) => (
                           <Card
                             key={source.id}
-                            className="p-3 bg-blue-50 dark:bg-blue-900/20"
+                            className="p-3 bg-blue-50"
                           >
                             <div className="flex items-start justify-between gap-3">
                               <div className="flex-1">

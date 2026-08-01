@@ -152,18 +152,18 @@ export function SubmitArticleForm({
       panelClassName="w-full max-w-2xl max-h-[90vh] overflow-y-auto p-0"
     >
       <div>
-        <div className="flex items-center justify-between p-4 border-b border-[#211f1c] dark:border-white/20 sticky top-0 bg-white dark:bg-[#2a2825] z-10">
+        <div className="flex items-center justify-between p-4 border-b border-[#211f1c] sticky top-0 bg-white z-10">
           <h3 className="normal">Submit New Article</h3>
           <button
             onClick={handleRequestClose}
-            className="p-1.5 rounded-md hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+            className="p-1.5 rounded-md hover:bg-black/5 transition-colors"
           >
             <X size={16} className="normal" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div className="bg-waste-recycle dark:bg-[#3a3825] border border-[#211f1c] dark:border-white/20 rounded-md p-3 mb-4">
+          <div className="bg-waste-recycle border border-[#211f1c] rounded-md p-3 mb-4">
             <p className="text-sm normal">
               📝 <strong>Note:</strong> Your article will be reviewed by an
               admin before publication. You can use Markdown formatting in the
@@ -236,8 +236,8 @@ export function SubmitArticleForm({
           </div>
 
           {selectedMaterial && (
-            <div className="bg-waste-reuse/30 dark:bg-[#2a3235]/30 border border-[#211f1c]/20 dark:border-white/10 rounded-md p-2">
-              <p className="text-xs text-black/70 dark:text-white/70">
+            <div className="bg-waste-reuse/30 border border-[#211f1c]/20 rounded-md p-2">
+              <p className="text-xs text-black/70">
                 <strong>Selected:</strong> {selectedMaterial.name} (
                 {selectedMaterial.category})
               </p>
@@ -247,7 +247,7 @@ export function SubmitArticleForm({
           <div>
             <Label htmlFor="article-content" className="text-[12px] normal">
               Article Content *{" "}
-              <span className="text-xs text-black/50 dark:text-white/50">
+              <span className="text-xs text-black/50">
                 (Markdown supported)
               </span>
             </Label>
@@ -260,7 +260,7 @@ export function SubmitArticleForm({
               rows={15}
               required
             />
-            <p className="mt-1 text-xs text-black/50 dark:text-white/50">
+            <p className="mt-1 text-xs text-black/50">
               Use **bold**, *italic*, headings (##), lists (-), and links
               ([text](url))
             </p>
@@ -270,14 +270,14 @@ export function SubmitArticleForm({
             <button
               type="button"
               onClick={handleRequestClose}
-              className="flex-1 h-10 px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-waste-compost hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[12px] text-black"
+              className="flex-1 h-10 px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] bg-waste-compost hover:shadow-[2px_2px_0px_0px_#000000] transition-all text-[12px] text-black"
               disabled={submitting}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 h-10 px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#c8e5c8] hover:shadow-[3px_4px_0px_-1px_#000000] dark:hover:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] transition-all text-[12px] text-black disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 h-10 px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] bg-[#c8e5c8] hover:shadow-[3px_4px_0px_-1px_#000000] transition-all text-[12px] text-black disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={submitting}
             >
               {submitting ? "Submitting..." : "Submit for Review"}

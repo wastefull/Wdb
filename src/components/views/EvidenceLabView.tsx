@@ -604,9 +604,9 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
   );
 
   return (
-    <div className="h-full flex flex-col bg-[#e5e4dc] dark:bg-[#1a1917]">
+    <div className="h-full flex flex-col bg-[#e5e4dc]">
       {/* Header */}
-      <div className="flex items-center gap-4 p-6 border-b border-[#211f1c]/20 dark:border-white/20 bg-white dark:bg-[#2a2825]">
+      <div className="flex items-center gap-4 p-6 border-b border-[#211f1c]/20 bg-white">
         <button onClick={onBack} className="card-interactive">
           <ArrowLeft size={16} className="text-black" />
         </button>
@@ -622,13 +622,13 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
         </div>
 
         {/* Mode Toggle */}
-        <div className="flex gap-1 p-1 bg-[#e5e4dc] dark:bg-[#1a1917] rounded-lg border border-[#211f1c]/20 dark:border-white/20">
+        <div className="flex gap-1 p-1 bg-[#e5e4dc] rounded-lg border border-[#211f1c]/20">
           <button
             onClick={() => setViewMode("source-search")}
             className={`px-3 py-1.5 rounded-md text-[12px] font-['Sniglet'] transition-all ${
               viewMode === "source-search"
                 ? "bg-waste-reuse text-black shadow-sm normal"
-                : "text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white"
+                : "text-black/60 hover:text-black"
             }`}
           >
             <Globe size={14} className="inline mr-1.5" />
@@ -641,8 +641,8 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
             onClick={() => setViewMode("evidence")}
             className={`px-3 py-1.5 rounded-md text-[12px] font-['Sniglet'] transition-all ${
               viewMode === "evidence"
-                ? "bg-white dark:bg-[#2a2825] shadow-sm normal"
-                : "text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white"
+                ? "bg-white shadow-sm normal"
+                : "text-black/60 hover:text-black"
             }`}
           >
             <Database size={14} className="inline mr-1.5" />
@@ -652,8 +652,8 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
             onClick={() => setViewMode("browse-all")}
             className={`px-3 py-1.5 rounded-md text-[12px] font-['Sniglet'] transition-all ${
               viewMode === "browse-all"
-                ? "bg-white dark:bg-[#2a2825] shadow-sm normal"
-                : "text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white"
+                ? "bg-white shadow-sm normal"
+                : "text-black/60 hover:text-black"
             }`}
           >
             <List size={14} className="inline mr-1.5" />
@@ -663,7 +663,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
 
         {viewMode === "evidence" && (
           <Button
-            className="bg-waste-compost hover:bg-waste-compost/90 border border-[#211f1c] dark:border-white/20"
+            className="bg-waste-compost hover:bg-waste-compost/90 border border-[#211f1c]"
             onClick={() => setShowCreateDialog(true)}
           >
             <Plus size={16} className="mr-2" />
@@ -677,13 +677,13 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
         /* Evidence Mode - Original Split-Pane Layout */
         <div className="flex-1 flex overflow-hidden">
           {/* Left Pane: Parameter Selection */}
-          <div className="w-80 border-r border-[#211f1c]/20 dark:border-white/20 bg-white dark:bg-[#2a2825] flex flex-col">
+          <div className="w-80 border-r border-[#211f1c]/20 bg-white flex flex-col">
             {/* Search */}
             <div className="panel-bordered">
               <div className="relative">
                 <Search
                   size={14}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-black/40 dark:text-white/40"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-black/40"
                 />
                 <Input
                   placeholder="Search parameters..."
@@ -703,14 +703,14 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                     onClick={() => setSelectedParameter(param.code)}
                     className={`w-full p-3 rounded-lg border transition-all text-left ${
                       selectedParameter === param.code
-                        ? "border-[#211f1c] dark:border-white bg-[#e5e4dc] dark:bg-[#3a3835] shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]"
-                        : "border-[#211f1c]/20 dark:border-white/20 hover:border-[#211f1c]/40 dark:hover:border-white/40"
+                        ? "border-[#211f1c] bg-[#e5e4dc] shadow-[2px_2px_0px_0px_#000000]"
+                        : "border-[#211f1c]/20 hover:border-[#211f1c]/40"
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center gap-2">
                         <div
-                          className="w-6 h-6 rounded-md border border-[#211f1c] dark:border-white/20 flex items-center justify-center font-['Tilt_Warp'] text-xs"
+                          className="w-6 h-6 rounded-md border border-[#211f1c] flex items-center justify-center font-['Tilt_Warp'] text-xs"
                           style={{ backgroundColor: param.color }}
                         >
                           {param.code}
@@ -733,7 +733,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
           </div>
 
           {/* Middle Pane: MIU List */}
-          <div className="flex-1 bg-white dark:bg-[#2a2825] flex flex-col border-r border-[#211f1c]/20 dark:border-white/20">
+          <div className="flex-1 bg-white flex flex-col border-r border-[#211f1c]/20">
             {selectedParameter ? (
               <>
                 {/* MIU List Header */}
@@ -765,15 +765,15 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                         onClick={() => setSelectedMIU(miu)}
                         className={`w-full p-4 rounded-lg border transition-all text-left ${
                           selectedMIU?.id === miu.id
-                            ? "border-[#211f1c] dark:border-white bg-[#e5e4dc] dark:bg-[#3a3835] shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]"
-                            : "border-[#211f1c]/20 dark:border-white/20 hover:border-[#211f1c]/40 dark:hover:border-white/40"
+                            ? "border-[#211f1c] bg-[#e5e4dc] shadow-[2px_2px_0px_0px_#000000]"
+                            : "border-[#211f1c]/20 hover:border-[#211f1c]/40"
                         }`}
                       >
                         {/* Source Title */}
                         <div className="flex items-start gap-2 mb-2">
                           <BookOpen
                             size={14}
-                            className="text-black/40 dark:text-white/40 mt-0.5 shrink-0"
+                            className="text-black/40 mt-0.5 shrink-0"
                           />
                           <span className="label">{miu.citation}</span>
                         </div>
@@ -782,7 +782,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                         <div className="flex items-center gap-2 mb-2">
                           <Database
                             size={14}
-                            className="text-black/40 dark:text-white/40"
+                            className="text-black/40"
                           />
                           <span className="font-['Tilt_Warp'] text-[14px] normal">
                             {miu.raw_value} {miu.raw_unit}
@@ -805,14 +805,14 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                         </p>
 
                         {/* Metadata */}
-                        <div className="flex items-center gap-3 mt-3 pt-3 border-t border-[#211f1c]/10 dark:border-white/10">
-                          <span className="font-['Sniglet'] text-[9px] text-black/40 dark:text-white/40">
+                        <div className="flex items-center gap-3 mt-3 pt-3 border-t border-[#211f1c]/10">
+                          <span className="font-['Sniglet'] text-[9px] text-black/40">
                             Page {miu.page_number}
                           </span>
-                          <span className="font-['Sniglet'] text-[9px] text-black/40 dark:text-white/40">
+                          <span className="font-['Sniglet'] text-[9px] text-black/40">
                             •
                           </span>
-                          <span className="font-['Sniglet'] text-[9px] text-black/40 dark:text-white/40">
+                          <span className="font-['Sniglet'] text-[9px] text-black/40">
                             {new Date(miu.created_at).toLocaleDateString()}
                           </span>
                         </div>
@@ -826,7 +826,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                 <div className="text-center">
                   <Database
                     size={48}
-                    className="mx-auto mb-4 text-black/20 dark:text-white/20"
+                    className="mx-auto mb-4 text-black/20"
                   />
                   <h3 className="font-['Tilt_Warp'] text-[16px] normal mb-2">
                     Select a Parameter
@@ -841,7 +841,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
           </div>
 
           {/* Right Pane: MIU Detail View */}
-          <div className="w-96 bg-white dark:bg-[#2a2825] flex flex-col">
+          <div className="w-96 bg-white flex flex-col">
             {selectedMIU ? (
               <>
                 {/* Detail Header */}
@@ -849,7 +849,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                   <h3 className="font-['Tilt_Warp'] text-[16px] normal mb-1">
                     Evidence Point Details
                   </h3>
-                  <p className="font-['Sniglet'] text-xs text-black/40 dark:text-white/40">
+                  <p className="font-['Sniglet'] text-xs text-black/40">
                     ID: {selectedMIU.id}
                   </p>
                 </div>
@@ -859,21 +859,21 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                   <div className="p-4 space-y-4">
                     {/* Source Information */}
                     <div>
-                      <label className="block font-['Tilt_Warp'] text-sm text-black/60 dark:text-white/60 mb-2">
+                      <label className="block font-['Tilt_Warp'] text-sm text-black/60 mb-2">
                         SOURCE
                       </label>
-                      <div className="p-3 rounded-lg bg-[#e5e4dc] dark:bg-[#1a1917] border border-[#211f1c]/20 dark:border-white/20">
+                      <div className="p-3 rounded-lg bg-[#e5e4dc] border border-[#211f1c]/20">
                         <div className="flex items-start gap-2 mb-2">
                           <BookOpen
                             size={14}
-                            className="text-black/60 dark:text-white/60 mt-0.5"
+                            className="text-black/60 mt-0.5"
                           />
                           <span className="label">{selectedMIU.citation}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <FileText
                             size={12}
-                            className="text-black/40 dark:text-white/40"
+                            className="text-black/40"
                           />
                           <span className="label-muted-xs">
                             Page {selectedMIU.page_number}
@@ -884,10 +884,10 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
 
                     {/* Value */}
                     <div>
-                      <label className="block font-['Tilt_Warp'] text-sm text-black/60 dark:text-white/60 mb-2">
+                      <label className="block font-['Tilt_Warp'] text-sm text-black/60 mb-2">
                         EXTRACTED VALUE
                       </label>
-                      <div className="p-3 rounded-lg bg-[#e5e4dc] dark:bg-[#1a1917] border border-[#211f1c]/20 dark:border-white/20">
+                      <div className="p-3 rounded-lg bg-[#e5e4dc] border border-[#211f1c]/20">
                         <span className="font-['Tilt_Warp'] text-[20px] normal">
                           {selectedMIU.raw_value} {selectedMIU.raw_unit}
                         </span>
@@ -896,10 +896,10 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
 
                     {/* Context */}
                     <div>
-                      <label className="block font-['Tilt_Warp'] text-sm text-black/60 dark:text-white/60 mb-2">
+                      <label className="block font-['Tilt_Warp'] text-sm text-black/60 mb-2">
                         CONTEXT
                       </label>
-                      <div className="p-3 rounded-lg bg-[#e5e4dc] dark:bg-[#1a1917] border border-[#211f1c]/20 dark:border-white/20">
+                      <div className="p-3 rounded-lg bg-[#e5e4dc] border border-[#211f1c]/20">
                         <p className="label leading-relaxed">
                           {selectedMIU.snippet}
                         </p>
@@ -908,7 +908,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
 
                     {/* Confidence */}
                     <div>
-                      <label className="block font-['Tilt_Warp'] text-sm text-black/60 dark:text-white/60 mb-2">
+                      <label className="block font-['Tilt_Warp'] text-sm text-black/60 mb-2">
                         CONFIDENCE LEVEL
                       </label>
                       <Badge
@@ -925,17 +925,17 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
 
                     {/* Metadata */}
                     <div>
-                      <label className="block font-['Tilt_Warp'] text-sm text-black/60 dark:text-white/60 mb-2">
+                      <label className="block font-['Tilt_Warp'] text-sm text-black/60 mb-2">
                         METADATA
                       </label>
                       <div className="space-y-2">
-                        <div className="flex items-center justify-between p-2 rounded bg-[#e5e4dc] dark:bg-[#1a1917]">
+                        <div className="flex items-center justify-between p-2 rounded bg-[#e5e4dc]">
                           <span className="label-muted-sm">Created by</span>
                           <span className="font-['Sniglet'] text-sm normal">
                             {selectedMIU.created_by}
                           </span>
                         </div>
-                        <div className="flex items-center justify-between p-2 rounded bg-[#e5e4dc] dark:bg-[#1a1917]">
+                        <div className="flex items-center justify-between p-2 rounded bg-[#e5e4dc]">
                           <span className="label-muted-sm">Created at</span>
                           <span className="font-['Sniglet'] text-sm normal">
                             {new Date(
@@ -973,7 +973,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                 <div className="text-center">
                   <FileText
                     size={48}
-                    className="mx-auto mb-4 text-black/20 dark:text-white/20"
+                    className="mx-auto mb-4 text-black/20"
                   />
                   <h3 className="font-['Tilt_Warp'] text-[16px] normal mb-2">
                     No Selection
@@ -990,7 +990,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
         /* Source Search Mode */
         <div className="flex-1 flex overflow-hidden">
           {/* Left Pane: Search */}
-          <div className="w-96 border-r border-[#211f1c]/20 dark:border-white/20 bg-white dark:bg-[#2a2825] flex flex-col">
+          <div className="w-96 border-r border-[#211f1c]/20 bg-white flex flex-col">
             <SourceSearchPanel
               title="Start with Source Search"
               description="Search for the source first, check Open Access, add the best match to the library, then continue into evidence work if needed."
@@ -1016,7 +1016,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
           </div>
 
           {/* Right Pane: Source Details */}
-          <div className="flex-1 bg-white dark:bg-[#2a2825] flex flex-col">
+          <div className="flex-1 bg-white flex flex-col">
             {selectedSearchResult ? (
               (() => {
                 const isInLibrary = libraryDOIs.has(
@@ -1025,7 +1025,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                 return (
                   <>
                     {/* Detail Header */}
-                    <div className="p-4 border-b border-[#211f1c]/20 dark:border-white/20">
+                    <div className="p-4 border-b border-[#211f1c]/20">
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
@@ -1047,7 +1047,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                           <Button
                             variant="outline"
                             disabled
-                            className="text-black/50 dark:text-white/50"
+                            className="text-black/50"
                           >
                             <CheckCircle size={14} className="mr-2" />
                             Already Added
@@ -1100,7 +1100,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                             href={`https://doi.org/${selectedSearchResult.doi}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="label text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1"
+                            className="label text-blue-600 hover:underline inline-flex items-center gap-1"
                           >
                             {selectedSearchResult.doi}
                             <ExternalLink size={12} />
@@ -1116,7 +1116,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                             <div className="flex items-center gap-2">
                               <Loader2
                                 size={14}
-                                className="animate-spin text-black/40 dark:text-white/40"
+                                className="animate-spin text-black/40"
                               />
                               <span className="label-muted">Checking...</span>
                             </div>
@@ -1156,7 +1156,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                               href={oaStatus.best_oa_location.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="mt-2 inline-flex items-center gap-1 text-sm font-['Sniglet'] text-blue-600 dark:text-blue-400 hover:underline"
+                              className="mt-2 inline-flex items-center gap-1 text-sm font-['Sniglet'] text-blue-600 hover:underline"
                             >
                               <ExternalLink size={12} />
                               View Open Access Version
@@ -1171,7 +1171,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                               Abstract
                             </label>
                             <div
-                              className="p-3 rounded-lg bg-[#e5e4dc] dark:bg-[#1a1917] border border-[#211f1c]/20 dark:border-white/20"
+                              className="p-3 rounded-lg bg-[#e5e4dc] border border-[#211f1c]/20"
                               dangerouslySetInnerHTML={{
                                 __html: selectedSearchResult.abstract,
                               }}
@@ -1188,7 +1188,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                 <div className="text-center">
                   <BookOpen
                     size={48}
-                    className="mx-auto mb-4 text-black/20 dark:text-white/20"
+                    className="mx-auto mb-4 text-black/20"
                   />
                   <h3 className="font-['Tilt_Warp'] text-[16px] normal mb-2">
                     Select a Source
@@ -1204,7 +1204,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
         </div>
       ) : viewMode === "browse-all" ? (
         /* Browse All Mode - EvidenceListViewer */
-        <div className="flex-1 overflow-auto p-6 bg-[#e5e4dc] dark:bg-[#1a1917]">
+        <div className="flex-1 overflow-auto p-6 bg-[#e5e4dc]">
           <EvidenceListViewer />
         </div>
       ) : null}
@@ -1713,7 +1713,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                 <Input
                   value={sourceToAdd.doi || ""}
                   readOnly
-                  className="w-full bg-[#e5e4dc] dark:bg-[#1a1917]"
+                  className="w-full bg-[#e5e4dc]"
                 />
               </div>
               <div className="space-y-2">
@@ -1746,7 +1746,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
               </div>
 
               {/* Open Access Info */}
-              <div className="p-3 rounded-lg bg-[#e5e4dc] dark:bg-[#1a1917] border border-[#211f1c]/20 dark:border-white/20">
+              <div className="p-3 rounded-lg bg-[#e5e4dc] border border-[#211f1c]/20">
                 <div className="flex items-center gap-2 mb-2">
                   {sourceToAdd.is_open_access ? (
                     <>
@@ -1770,7 +1770,7 @@ export function EvidenceLabView({ onBack }: EvidenceLabViewProps) {
                     href={sourceToAdd.best_oa_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="label-muted-xs text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1"
+                    className="label-muted-xs text-blue-600 hover:underline inline-flex items-center gap-1"
                   >
                     <ExternalLink size={10} />
                     {sourceToAdd.best_oa_url}

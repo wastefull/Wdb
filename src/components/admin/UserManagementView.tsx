@@ -169,7 +169,7 @@ export function UserManagementView({
       <div className="flex items-center gap-4 mb-6">
         <button
           onClick={onBack}
-          className="p-2 rounded-md border border-[#211f1c] dark:border-white/20 bg-waste-compost hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+          className="p-2 rounded-md border border-[#211f1c] bg-waste-compost hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
         >
           <ArrowLeft size={16} className="text-black" />
         </button>
@@ -178,12 +178,12 @@ export function UserManagementView({
 
       {loading ? (
         <div className="text-center py-8">
-          <p className="text-[14px] text-black/70 dark:text-white/70">
+          <p className="text-[14px] text-black/70">
             Loading users...
           </p>
         </div>
       ) : (
-        <div className="bg-white dark:bg-[#1a1917] rounded-(--retro-rounding) border-[1.5px] border-[#211f1c] dark:border-white/20 overflow-hidden">
+        <div className="bg-white rounded-(--retro-rounding) border-[1.5px] border-[#211f1c] overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>
@@ -201,12 +201,12 @@ export function UserManagementView({
                   <TableCell className="text-[12px] normal">
                     {user.email}
                     {user.id === currentUserId && (
-                      <span className="ml-2 text-xs text-black/50 dark:text-white/50">
+                      <span className="ml-2 text-xs text-black/50">
                         (You)
                       </span>
                     )}
                     {user.active === false && (
-                      <span className="ml-2 px-2 py-0.5 text-[9px] bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded">
+                      <span className="ml-2 px-2 py-0.5 text-[9px] bg-red-100 text-red-700 rounded">
                         Inactive
                       </span>
                     )}
@@ -247,17 +247,17 @@ export function UserManagementView({
                       </SelectContent>
                     </Select>
                   </TableCell>
-                  <TableCell className="text-sm text-black/70 dark:text-white/70">
+                  <TableCell className="text-sm text-black/70">
                     {formatDate(user.created_at)}
                   </TableCell>
-                  <TableCell className="text-sm text-black/70 dark:text-white/70">
+                  <TableCell className="text-sm text-black/70">
                     {formatDate(user.last_sign_in_at)}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex gap-2 justify-end">
                       <button
                         onClick={() => handleEditUser(user)}
-                        className="p-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-waste-reuse hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                        className="p-1.5 rounded-md border border-[#211f1c] bg-waste-reuse hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
                         title="Edit user"
                       >
                         <Edit2 size={12} className="text-black" />
@@ -268,18 +268,18 @@ export function UserManagementView({
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
                                 <button
-                                  className="p-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#f4d3a0] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                                  className="p-1.5 rounded-md border border-[#211f1c] bg-[#f4d3a0] hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
                                   title="Inactivate user"
                                 >
                                   <UserX size={12} className="text-black" />
                                 </button>
                               </AlertDialogTrigger>
-                              <AlertDialogContent className="bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20">
+                              <AlertDialogContent className="bg-white border-[1.5px] border-[#211f1c]">
                                 <AlertDialogHeader>
                                   <AlertDialogTitle className="normal">
                                     Inactivate User
                                   </AlertDialogTitle>
-                                  <AlertDialogDescription className="text-black/70 dark:text-white/70">
+                                  <AlertDialogDescription className="text-black/70">
                                     Inactivate {user.email}? They won't be able
                                     to log in, but their data will be preserved.
                                     You can reactivate them later.
@@ -303,7 +303,7 @@ export function UserManagementView({
                           ) : (
                             <button
                               onClick={() => handleActivateUser(user.id)}
-                              className="p-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-[#c8e5c8] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                              className="p-1.5 rounded-md border border-[#211f1c] bg-[#c8e5c8] hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
                               title="Reactivate user"
                             >
                               <UserIcon size={12} className="text-black" />
@@ -312,18 +312,18 @@ export function UserManagementView({
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
                               <button
-                                className="p-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-waste-compost hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                                className="p-1.5 rounded-md border border-[#211f1c] bg-waste-compost hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
                                 title="Delete user"
                               >
                                 <Trash2 size={12} className="text-black" />
                               </button>
                             </AlertDialogTrigger>
-                            <AlertDialogContent className="bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20">
+                            <AlertDialogContent className="bg-white border-[1.5px] border-[#211f1c]">
                               <AlertDialogHeader>
                                 <AlertDialogTitle className="normal">
                                   Delete User
                                 </AlertDialogTitle>
-                                <AlertDialogDescription className="text-black/70 dark:text-white/70">
+                                <AlertDialogDescription className="text-black/70">
                                   Are you sure you want to delete {user.email}?
                                   This action cannot be undone.
                                 </AlertDialogDescription>
@@ -358,7 +358,7 @@ export function UserManagementView({
           open={!!editingUser}
           onOpenChange={() => setEditingUser(null)}
         >
-          <AlertDialogContent className="bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20">
+          <AlertDialogContent className="bg-white border-[1.5px] border-[#211f1c]">
             <AlertDialogHeader>
               <AlertDialogTitle className="normal">Edit User</AlertDialogTitle>
             </AlertDialogHeader>

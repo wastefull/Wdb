@@ -24,19 +24,19 @@ export function PermalinkSelectionPrompt({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/30 dark:bg-black/60 flex items-center justify-center p-4 z-50">
-      <div className="bg-white dark:bg-[#2a2825] rounded-(--retro-rounding) border-[1.5px] border-[#211f1c] dark:border-white/20 w-full max-w-sm shadow-[4px_4px_0px_0px_#000000] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]">
-        <div className="flex items-center justify-between p-4 border-b border-[#211f1c] dark:border-white/20">
+    <div className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-(--retro-rounding) border-[1.5px] border-[#211f1c] w-full max-w-sm shadow-[4px_4px_0px_0px_#000000]">
+        <div className="flex items-center justify-between p-4 border-b border-[#211f1c]">
           <h3 className="normal text-[14px]">Which material did you mean?</h3>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-md hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+            className="p-1.5 rounded-md hover:bg-black/5 transition-colors"
             aria-label="Close"
           >
             <span className="text-[16px] leading-none">✕</span>
           </button>
         </div>
-        <p className="px-4 pt-3 text-sm text-black/60 dark:text-white/60">
+        <p className="px-4 pt-3 text-sm text-black/60">
           The link matches more than one material. Choose one to continue.
         </p>
         <ul className="p-4 space-y-2">
@@ -45,10 +45,10 @@ export function PermalinkSelectionPrompt({
               <button
                 type="button"
                 onClick={() => handleSelectCandidate(candidate)}
-                className="w-full text-left px-3 py-2 rounded-xl border border-[#211f1c]/20 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                className="w-full text-left px-3 py-2 rounded-xl border border-[#211f1c]/20 hover:bg-black/5 transition-colors"
               >
                 <span className="text-[13px] block">{candidate.name}</span>
-                <span className="text-xs text-black/50 dark:text-white/50">
+                <span className="text-xs text-black/50">
                   {candidate.category}
                 </span>
               </button>

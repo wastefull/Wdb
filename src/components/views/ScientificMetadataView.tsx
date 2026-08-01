@@ -136,9 +136,9 @@ export function ScientificMetadataView({
         <Card className={classes(classBank.cards.flat)}>
           {/* Validation Warning */}
           {validationWarning && (
-            <Alert className="mb-4 bg-amber-50 dark:bg-amber-900/20 border-amber-300 dark:border-amber-700">
-              <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-              <AlertDescription className="text-sm text-amber-800 dark:text-amber-200">
+            <Alert className="mb-4 bg-amber-50 border-amber-300">
+              <AlertTriangle className="h-4 w-4 text-amber-600" />
+              <AlertDescription className="text-sm text-amber-800">
                 <strong>Data Quality Issue:</strong> {validationWarning}
                 {isAdminModeActive &&
                   " Please edit scientific data to add sources or adjust confidence level."}
@@ -163,7 +163,7 @@ export function ScientificMetadataView({
           )}
 
           {!hasScientificData && (
-            <p className="text-sm text-black/60 dark:text-white/60 text-center py-4">
+            <p className="text-sm text-black/60 text-center py-4">
               No scientific data available.{" "}
               {isAdminModeActive && "Click above to add scientific parameters."}
             </p>
@@ -216,7 +216,7 @@ export function ScientificMetadataView({
                               <Badge
                                 key={source.index}
                                 variant="outline"
-                                className="text-[8px] bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
+                                className="text-[8px] bg-blue-50 text-blue-700"
                               >
                                 [{source.index + 1}]{" "}
                                 {source.authors
@@ -416,7 +416,7 @@ export function ScientificMetadataView({
                           </span>
                         </div>
                         {material.CR_practical_CI95 && (
-                          <div className="text-xs text-black/50 dark:text-white/50 mb-1">
+                          <div className="text-xs text-black/50 mb-1">
                             95% CI: [
                             {(material.CR_practical_CI95.lower * 100).toFixed(
                               1,
@@ -436,7 +436,7 @@ export function ScientificMetadataView({
                                 <Badge
                                   key={source.index}
                                   variant="outline"
-                                  className="text-[8px] bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300"
+                                  className="text-[8px] bg-purple-50 text-purple-700"
                                 >
                                   [{source.index + 1}]{" "}
                                   {source.authors
@@ -466,7 +466,7 @@ export function ScientificMetadataView({
                           </span>
                         </div>
                         {material.CR_theoretical_CI95 && (
-                          <div className="text-xs text-black/50 dark:text-white/50 mb-1">
+                          <div className="text-xs text-black/50 mb-1">
                             95% CI: [
                             {(material.CR_theoretical_CI95.lower * 100).toFixed(
                               1,
@@ -486,7 +486,7 @@ export function ScientificMetadataView({
                                 <Badge
                                   key={source.index}
                                   variant="outline"
-                                  className="text-[8px] bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300"
+                                  className="text-[8px] bg-purple-50 text-purple-700"
                                 >
                                   [{source.index + 1}]{" "}
                                   {source.authors
@@ -522,10 +522,10 @@ export function ScientificMetadataView({
                     {material.sources.map((source, idx) => (
                       <div
                         key={idx}
-                        className="border-l-2 border-blue-300 dark:border-blue-700 pl-2"
+                        className="border-l-2 border-blue-300 pl-2"
                       >
-                        <div className="text-black/80 dark:text-white/80">
-                          <span className="font-medium text-blue-600 dark:text-blue-400">
+                        <div className="text-black/80">
+                          <span className="font-medium text-blue-600">
                             [{idx + 1}]
                           </span>{" "}
                           {source.authors && `${source.authors}. `}
@@ -536,14 +536,14 @@ export function ScientificMetadataView({
                               href={`https://doi.org/${source.doi}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="ml-1 text-blue-600 dark:text-blue-400 hover:underline"
+                              className="ml-1 text-blue-600 hover:underline"
                             >
                               DOI
                             </a>
                           )}
                         </div>
                         {source.parameters && source.parameters.length > 0 && (
-                          <div className="mt-1 text-[9px] text-black/60 dark:text-white/60">
+                          <div className="mt-1 text-[9px] text-black/60">
                             <span className="italic">Used for:</span>{" "}
                             {source.parameters
                               .map((param) => {
@@ -568,7 +568,7 @@ export function ScientificMetadataView({
               )}
 
               {/* Metadata */}
-              <div className="pt-2 border-t border-[#211f1c] dark:border-white/20">
+              <div className="pt-2 border-t border-[#211f1c]">
                 <div className="flex items-center gap-2 mb-2">
                   <Calendar className="w-4 h-4 normal" />
                   <h4
@@ -580,7 +580,7 @@ export function ScientificMetadataView({
                     Calculation Metadata
                   </h4>
                 </div>
-                <div className="space-y-1 text-xs text-black/60 dark:text-white/60">
+                <div className="space-y-1 text-xs text-black/60">
                   {material.method_version && (
                     <div>Method: {material.method_version}</div>
                   )}

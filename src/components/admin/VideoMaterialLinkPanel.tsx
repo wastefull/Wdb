@@ -351,7 +351,7 @@ export function VideoMaterialLinkPanel() {
             >
               Video Link Management
             </h3>
-            <p className="mt-1 max-w-2xl text-[13px] leading-relaxed text-black/70 dark:text-white/70">
+            <p className="mt-1 max-w-2xl text-[13px] leading-relaxed text-black/70">
               Promote reviewed video links into governed material mappings or
               create new video-to-material links manually. This section is
               dedicated to learning-resource links and keeps video workflow in
@@ -363,7 +363,7 @@ export function VideoMaterialLinkPanel() {
           type="button"
           onClick={() => void loadOptions()}
           disabled={isLoading}
-          className="flex shrink-0 items-center gap-2 rounded-lg border border-black/15 px-3 py-2 text-[12px] disabled:opacity-50 dark:border-white/15"
+          className="flex shrink-0 items-center gap-2 rounded-lg border border-black/15 px-3 py-2 text-[12px] disabled:opacity-50"
         >
           <RefreshCw className={`size-3.5 ${isLoading ? "animate-spin" : ""}`} />
           Refresh
@@ -374,7 +374,7 @@ export function VideoMaterialLinkPanel() {
         <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="font-sniglet text-[13px]">Create and publish video link</p>
-            <p className="mt-1 max-w-xl text-[11px] text-black/60 dark:text-white/60">
+            <p className="mt-1 max-w-xl text-[11px] text-black/60">
               Paste a YouTube video or Shorts link, choose the material, and
               publish the linked video in one step.
             </p>
@@ -392,7 +392,7 @@ export function VideoMaterialLinkPanel() {
                   setQuickPublishResult(null);
                 }}
                 placeholder="https://www.youtube.com/shorts/dQw4w9WgXcQ"
-                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] dark:border-white/15"
+                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
               />
             </label>
             <label className="space-y-2 text-[11px] font-medium">
@@ -404,7 +404,7 @@ export function VideoMaterialLinkPanel() {
                   setQuickPublishResult(null);
                 }}
                 placeholder="Leave blank to use the YouTube title"
-                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] dark:border-white/15"
+                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
               />
             </label>
           </div>
@@ -426,11 +426,11 @@ export function VideoMaterialLinkPanel() {
                   setQuickPublishResult(null);
                 }}
                 placeholder="Search materials…"
-                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] dark:border-white/15"
+                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
               />
-              <div className="h-32 overflow-y-auto rounded-lg border border-black/15 bg-background p-1 text-[12px] dark:border-white/15">
+              <div className="h-32 overflow-y-auto rounded-lg border border-black/15 bg-background p-1 text-[12px]">
                 {quickVideoMaterialOptions.length === 0 ? (
-                  <p className="px-2 py-3 text-black/45 dark:text-white/45">
+                  <p className="px-2 py-3 text-black/45">
                     No matching materials.
                   </p>
                 ) : (
@@ -447,7 +447,7 @@ export function VideoMaterialLinkPanel() {
                         className={`block w-full rounded-md px-2 py-1.5 text-left ${
                           selected
                             ? "bg-waste-science/20 font-medium ring-1 ring-waste-science/50"
-                            : "hover:bg-black/5 dark:hover:bg-white/5"
+                            : "hover:bg-black/5"
                         }`}
                       >
                         {candidate.name}
@@ -472,7 +472,7 @@ export function VideoMaterialLinkPanel() {
                   setQuickVideoLifecycleFocus(event.target.value);
                   setQuickPublishResult(null);
                 }}
-                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] dark:border-white/15"
+                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
               >
                 <option value="">None</option>
                 {options.lifecycle_focuses.map((candidate) => (
@@ -482,7 +482,7 @@ export function VideoMaterialLinkPanel() {
                 ))}
               </select>
               {selectedQuickLifecycle && (
-                <p className="text-[10px] text-black/50 dark:text-white/50">
+                <p className="text-[10px] text-black/50">
                   {selectedQuickLifecycle.description}
                 </p>
               )}
@@ -503,13 +503,13 @@ export function VideoMaterialLinkPanel() {
               Create and publish
             </button>
             {selectedQuickMaterial && (
-              <p className="text-[12px] text-black/60 dark:text-white/60">
+              <p className="text-[12px] text-black/60">
                 Publishing <strong>{selectedQuickMaterial.name}</strong> with
                 the linked video.
               </p>
             )}
             {quickPublishResult && (
-              <p className="text-[12px] text-black/60 dark:text-white/60">
+              <p className="text-[12px] text-black/60">
                 {quickPublishResult.created ? "Created" : "Used existing"}{" "}
                 video: <strong>{quickPublishResult.title}</strong>. The link is
                 active and the video is published.
@@ -523,7 +523,7 @@ export function VideoMaterialLinkPanel() {
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="font-sniglet text-[13px]">Reviewed video links</p>
-            <p className="mt-1 max-w-xl text-[11px] text-black/60 dark:text-white/60">
+            <p className="mt-1 max-w-xl text-[11px] text-black/60">
               Reuse material links already reviewed during video triage as
               initial primary-subject mappings. Existing mappings are skipped;
               ambiguous identifiers are reported instead of guessed. Links
@@ -534,7 +534,7 @@ export function VideoMaterialLinkPanel() {
             type="button"
             onClick={() => void previewReviewedLinks()}
             disabled={isPreviewing || isApplying}
-            className="flex items-center gap-2 rounded-lg border border-black/15 px-3 py-2 text-[12px] disabled:opacity-50 dark:border-white/15"
+            className="flex items-center gap-2 rounded-lg border border-black/15 px-3 py-2 text-[12px] disabled:opacity-50"
           >
             {isPreviewing ? (
               <Loader2 className="size-3.5 animate-spin" />
@@ -546,7 +546,7 @@ export function VideoMaterialLinkPanel() {
         </div>
 
         {previewReport && (
-          <div className="mt-3 space-y-3 border-t border-black/10 pt-3 dark:border-white/10">
+          <div className="mt-3 space-y-3 border-t border-black/10 pt-3">
             <div className="flex flex-wrap items-center gap-2 text-[12px]">
               <CheckCircle className="size-4 text-waste-science" />
               <span>
@@ -558,7 +558,7 @@ export function VideoMaterialLinkPanel() {
             </div>
 
             {previewReport.unresolved.length > 0 && (
-              <div className="max-h-28 overflow-y-auto rounded-md bg-amber-50 p-2 text-[10px] text-amber-800 dark:bg-amber-950/20 dark:text-amber-200">
+              <div className="max-h-28 overflow-y-auto rounded-md bg-amber-50 p-2 text-[10px] text-amber-800">
                 {unresolvedVideoGroups.map((group) => (
                   <p key={group.identifier.toLocaleLowerCase()}>
                     {group.identifier} ·{" "}
@@ -594,11 +594,11 @@ export function VideoMaterialLinkPanel() {
         )}
       </div>
 
-      <div className="rounded-lg border border-black/10 p-4 dark:border-white/10">
+      <div className="rounded-lg border border-black/10 p-4">
         <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="font-sniglet text-[13px]">Draft video only</p>
-            <p className="mt-1 max-w-xl text-[11px] text-black/60 dark:text-white/60">
+            <p className="mt-1 max-w-xl text-[11px] text-black/60">
               Use this legacy step-by-step flow if you want to create a draft
               video first. The quick panel above creates and publishes the link
               in one step.
@@ -617,7 +617,7 @@ export function VideoMaterialLinkPanel() {
                   setCreateVideoResult(null);
                 }}
                 placeholder="https://www.youtube.com/shorts/dQw4w9WgXcQ"
-                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] dark:border-white/15"
+                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
               />
             </label>
             <label className="space-y-2 text-[11px] font-medium">
@@ -626,7 +626,7 @@ export function VideoMaterialLinkPanel() {
                 value={newVideoTitle}
                 onChange={(event) => setNewVideoTitle(event.target.value)}
                 placeholder="Leave blank to use the YouTube title"
-                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] dark:border-white/15"
+                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
               />
             </label>
           </div>
@@ -645,11 +645,11 @@ export function VideoMaterialLinkPanel() {
                 value={newVideoMaterialSearch}
                 onChange={(event) => setNewVideoMaterialSearch(event.target.value)}
                 placeholder="Search materials…"
-                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] dark:border-white/15"
+                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
               />
-              <div className="h-32 overflow-y-auto rounded-lg border border-black/15 bg-background p-1 text-[12px] dark:border-white/15">
+              <div className="h-32 overflow-y-auto rounded-lg border border-black/15 bg-background p-1 text-[12px]">
                 {newVideoMaterialOptions.length === 0 ? (
-                  <p className="px-2 py-3 text-black/45 dark:text-white/45">
+                  <p className="px-2 py-3 text-black/45">
                     No matching materials.
                   </p>
                 ) : (
@@ -666,7 +666,7 @@ export function VideoMaterialLinkPanel() {
                         className={`block w-full rounded-md px-2 py-1.5 text-left ${
                           selected
                             ? "bg-waste-science/20 font-medium ring-1 ring-waste-science/50"
-                            : "hover:bg-black/5 dark:hover:bg-white/5"
+                            : "hover:bg-black/5"
                         }`}
                       >
                         {candidate.name}
@@ -689,7 +689,7 @@ export function VideoMaterialLinkPanel() {
                   id="new-video-role"
                   value={newVideoRole}
                   onChange={(event) => setNewVideoRole(event.target.value)}
-                  className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] dark:border-white/15"
+                  className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
                 >
                   {options.roles.map((candidate) => (
                     <option key={candidate.slug} value={candidate.slug}>
@@ -698,7 +698,7 @@ export function VideoMaterialLinkPanel() {
                   ))}
                 </select>
                 {selectedNewVideoRole && (
-                  <p className="text-[10px] text-black/50 dark:text-white/50">
+                  <p className="text-[10px] text-black/50">
                     {selectedNewVideoRole.description}
                   </p>
                 )}
@@ -717,7 +717,7 @@ export function VideoMaterialLinkPanel() {
                   onChange={(event) =>
                     setNewVideoLifecycleFocus(event.target.value)
                   }
-                  className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] dark:border-white/15"
+                  className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
                 >
                   <option value="">None</option>
                   {options.lifecycle_focuses.map((candidate) => (
@@ -739,7 +739,7 @@ export function VideoMaterialLinkPanel() {
                   id="new-video-evidence-use"
                   value={newVideoEvidenceUse}
                   onChange={(event) => setNewVideoEvidenceUse(event.target.value)}
-                  className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] dark:border-white/15"
+                  className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
                   disabled={!newVideoMaterialId || !isNewVideoEvidence}
                 >
                   <option value="">Choose evidence use</option>
@@ -767,7 +767,7 @@ export function VideoMaterialLinkPanel() {
               Create draft video
             </button>
             {createVideoResult && (
-              <p className="text-[12px] text-black/60 dark:text-white/60">
+              <p className="text-[12px] text-black/60">
                 {createVideoResult.created ? "Created" : "Used existing"}{" "}
                 video: <strong>{createVideoResult.title}</strong>
                 {createVideoResult.material_mapping_created
@@ -782,7 +782,7 @@ export function VideoMaterialLinkPanel() {
       </div>
 
       {isLoading && options.content.length === 0 ? (
-        <div className="flex items-center gap-2 py-6 text-[12px] text-black/60 dark:text-white/60">
+        <div className="flex items-center gap-2 py-6 text-[12px] text-black/60">
           <Loader2 className="size-4 animate-spin" />
           Loading canonical videos and materials…
         </div>
@@ -806,15 +806,15 @@ export function VideoMaterialLinkPanel() {
                   setResult(null);
                 }}
                 placeholder="Search video titles…"
-                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] dark:border-white/15"
+                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
               />
               <div
                 role="listbox"
                 aria-label="Videos"
-                className="h-40 w-full overflow-y-auto rounded-lg border border-black/15 bg-background p-1 text-[12px] dark:border-white/15"
+                className="h-40 w-full overflow-y-auto rounded-lg border border-black/15 bg-background p-1 text-[12px]"
               >
                 {videoOptions.length === 0 ? (
-                  <p className="px-2 py-3 text-black/45 dark:text-white/45">
+                  <p className="px-2 py-3 text-black/45">
                     No matching videos.
                   </p>
                 ) : (
@@ -834,7 +834,7 @@ export function VideoMaterialLinkPanel() {
                         className={`block w-full rounded-md px-2 py-1.5 text-left ${
                           selected
                             ? "bg-waste-science/20 font-medium ring-1 ring-waste-science/50"
-                            : "hover:bg-black/5 dark:hover:bg-white/5"
+                            : "hover:bg-black/5"
                         }`}
                       >
                         Video · {candidate.name}
@@ -843,7 +843,7 @@ export function VideoMaterialLinkPanel() {
                   })
                 )}
               </div>
-              <p className="text-[10px] text-black/50 dark:text-white/50">
+              <p className="text-[10px] text-black/50">
                 {videoOptions.length} matching video item(s)
               </p>
             </div>
@@ -865,15 +865,15 @@ export function VideoMaterialLinkPanel() {
                   setResult(null);
                 }}
                 placeholder="Search materials…"
-                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] dark:border-white/15"
+                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
               />
               <div
                 role="listbox"
                 aria-label="Materials"
-                className="h-40 w-full overflow-y-auto rounded-lg border border-black/15 bg-background p-1 text-[12px] dark:border-white/15"
+                className="h-40 w-full overflow-y-auto rounded-lg border border-black/15 bg-background p-1 text-[12px]"
               >
                 {materialOptions.length === 0 ? (
-                  <p className="px-2 py-3 text-black/45 dark:text-white/45">
+                  <p className="px-2 py-3 text-black/45">
                     No matching materials.
                   </p>
                 ) : (
@@ -893,7 +893,7 @@ export function VideoMaterialLinkPanel() {
                         className={`block w-full rounded-md px-2 py-1.5 text-left ${
                           selected
                             ? "bg-waste-science/20 font-medium ring-1 ring-waste-science/50"
-                            : "hover:bg-black/5 dark:hover:bg-white/5"
+                            : "hover:bg-black/5"
                         }`}
                       >
                         {candidate.name}
@@ -902,7 +902,7 @@ export function VideoMaterialLinkPanel() {
                   })
                 )}
               </div>
-              <p className="text-[10px] text-black/50 dark:text-white/50">
+              <p className="text-[10px] text-black/50">
                 {materialOptions.length} matching material(s)
               </p>
             </div>
@@ -920,7 +920,7 @@ export function VideoMaterialLinkPanel() {
                 id="video-link-role"
                 value={role}
                 onChange={(event) => setRole(event.target.value)}
-                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] dark:border-white/15"
+                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
               >
                 {options.roles.map((candidate) => (
                   <option key={candidate.slug} value={candidate.slug}>
@@ -929,7 +929,7 @@ export function VideoMaterialLinkPanel() {
                 ))}
               </select>
               {selectedRole && (
-                <p className="text-[10px] text-black/50 dark:text-white/50">
+                <p className="text-[10px] text-black/50">
                   {selectedRole.description}
                 </p>
               )}
@@ -946,7 +946,7 @@ export function VideoMaterialLinkPanel() {
                 id="video-link-lifecycle"
                 value={lifecycleFocus}
                 onChange={(event) => setLifecycleFocus(event.target.value)}
-                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] dark:border-white/15"
+                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
               >
                 <option value="">None</option>
                 {options.lifecycle_focuses.map((candidate) => (
@@ -970,7 +970,7 @@ export function VideoMaterialLinkPanel() {
                 id="video-link-evidence-use"
                 value={evidenceUse}
                 onChange={(event) => setEvidenceUse(event.target.value)}
-                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] dark:border-white/15"
+                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
               >
                 <option value="">Choose evidence use</option>
                 {options.evidence_uses.map((candidate) => (
@@ -996,7 +996,7 @@ export function VideoMaterialLinkPanel() {
               Create and publish video link
             </button>
             {selectedVideo && selectedMaterial && (
-              <p className="text-[12px] text-black/60 dark:text-white/60">
+              <p className="text-[12px] text-black/60">
                 Linking <strong>{selectedVideo.name}</strong> to{" "}
                 <strong>{selectedMaterial.name}</strong>
               </p>
@@ -1006,21 +1006,21 @@ export function VideoMaterialLinkPanel() {
       )}
 
       {contentEntityId && selectedMappings.length > 0 && (
-        <div className="rounded-lg border border-black/10 p-4 dark:border-white/10">
+        <div className="rounded-lg border border-black/10 p-4">
           <p className="text-[13px] font-medium">Existing mappings for selected video</p>
           <div className="mt-3 space-y-2">
             {selectedMappings.map((mapping) => (
               <div
                 key={mapping.id}
-                className="rounded-md border border-black/10 px-3 py-2 text-[12px] dark:border-white/10"
+                className="rounded-md border border-black/10 px-3 py-2 text-[12px]"
               >
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="font-medium">{formatLabel(mapping.role)}</span>
-                  <span className="text-black/50 dark:text-white/50">
+                  <span className="text-black/50">
                     {formatLabel(mapping.status)}
                   </span>
                 </div>
-                <p className="mt-1 text-black/60 dark:text-white/60">
+                <p className="mt-1 text-black/60">
                   Material:{" "}
                   <strong>
                     {options.materials.find(
@@ -1028,13 +1028,13 @@ export function VideoMaterialLinkPanel() {
                     )?.name ?? "Unknown material"}
                   </strong>
                   {" "}
-                  <span className="text-black/45 dark:text-white/45">
+                  <span className="text-black/45">
                     ({mapping.subject_entity_id})
                   </span>
                   {mapping.lifecycle_focus ? ` · ${formatLabel(mapping.lifecycle_focus)}` : ""}
                   {mapping.evidence_use ? ` · ${formatLabel(mapping.evidence_use)}` : ""}
                 </p>
-                <p className="mt-1 text-[10px] text-black/45 dark:text-white/45">
+                <p className="mt-1 text-[10px] text-black/45">
                   Mapping ID: {mapping.id}
                 </p>
               </div>
@@ -1044,7 +1044,7 @@ export function VideoMaterialLinkPanel() {
       )}
 
       {error && (
-        <div className="rounded-lg border border-red-300 bg-red-50 p-3 text-[12px] text-red-800 dark:border-red-900 dark:bg-red-950/20 dark:text-red-200">
+        <div className="rounded-lg border border-red-300 bg-red-50 p-3 text-[12px] text-red-800">
           {error}
         </div>
       )}
@@ -1064,7 +1064,7 @@ export function VideoMaterialLinkPanel() {
 
 function VideoIcon() {
   return (
-    <div className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border border-black/15 bg-black/5 dark:border-white/15 dark:bg-white/5">
+    <div className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border border-black/15 bg-black/5">
       <Search className="size-3.5" />
     </div>
   );

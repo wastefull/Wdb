@@ -81,7 +81,7 @@ export function MaintenanceModePanel({ onBack }: MaintenanceModePanelProps) {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="border-b border-[#211f1c]/10 dark:border-white/10 p-6 flex items-center gap-4">
+      <div className="border-b border-[#211f1c]/10 p-6 flex items-center gap-4">
         <button
           onClick={onBack}
           className="flex items-center gap-2 normal hover:opacity-70 transition-opacity"
@@ -97,8 +97,8 @@ export function MaintenanceModePanel({ onBack }: MaintenanceModePanelProps) {
         <div
           className={`retro-card p-6 mb-6 transition-colors duration-500 ${
             isEnabled
-              ? "border-orange-400/60 bg-orange-50/50 dark:bg-orange-950/20"
-              : "border-green-400/60 bg-green-50/50 dark:bg-green-950/20"
+              ? "border-orange-400/60 bg-orange-50/50"
+              : "border-green-400/60 bg-green-50/50"
           }`}
         >
           <div className="flex items-center gap-3 mb-4">
@@ -113,8 +113,8 @@ export function MaintenanceModePanel({ onBack }: MaintenanceModePanelProps) {
                 <span
                   className={
                     isEnabled
-                      ? "text-orange-600 dark:text-orange-400"
-                      : "text-green-600 dark:text-green-400"
+                      ? "text-orange-600"
+                      : "text-green-600"
                   }
                 >
                   {isEnabled ? "in maintenance" : "live"}
@@ -130,10 +130,10 @@ export function MaintenanceModePanel({ onBack }: MaintenanceModePanelProps) {
 
           {/* Count-up timer */}
           {isEnabled && status?.startedAt && (
-            <div className="flex items-center gap-2 mt-4 bg-black/5 dark:bg-white/5 rounded-lg p-3">
+            <div className="flex items-center gap-2 mt-4 bg-black/5 rounded-lg p-3">
               <Clock size={14} className="text-orange-500 shrink-0" />
               <span className="text-xs opacity-70 mr-1">Down for</span>
-              <span className="font-mono font-bold text-orange-600 dark:text-orange-400 tracking-widest text-sm">
+              <span className="font-mono font-bold text-orange-600 tracking-widest text-sm">
                 {elapsed}
               </span>
             </div>

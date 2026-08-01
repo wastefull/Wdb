@@ -172,7 +172,7 @@ export function StaffDashboard({
             <h1 className="font-display text-[28px] normal mb-2">
               Staff Dashboard
             </h1>
-            <p className="text-[14px] text-black/60 dark:text-white/60"></p>
+            <p className="text-[14px] text-black/60"></p>
           </div>
 
           {/* Quick Stats Row */}
@@ -183,7 +183,7 @@ export function StaffDashboard({
                   <Package size={20} className="text-waste-recycle" />
                 </div>
                 <div>
-                  <p className="text-sm text-black/60 dark:text-white/60 uppercase tracking-wide">
+                  <p className="text-sm text-black/60 uppercase tracking-wide">
                     Materials
                   </p>
                   <p className="text-xl font-bold arcade-numbers">
@@ -199,7 +199,7 @@ export function StaffDashboard({
                   <FileText size={20} className="text-waste-reuse" />
                 </div>
                 <div>
-                  <p className="text-sm text-black/60 dark:text-white/60 uppercase tracking-wide">
+                  <p className="text-sm text-black/60 uppercase tracking-wide">
                     Articles
                   </p>
                   <p className="text-xl font-bold arcade-numbers">
@@ -215,7 +215,7 @@ export function StaffDashboard({
                   <BookOpen size={20} className="text-waste-compost" />
                 </div>
                 <div>
-                  <p className="text-sm text-black/60 dark:text-white/60 uppercase tracking-wide">
+                  <p className="text-sm text-black/60 uppercase tracking-wide">
                     Guides
                   </p>
                   <p className="text-xl font-bold arcade-numbers">
@@ -231,7 +231,7 @@ export function StaffDashboard({
                   <Users size={20} className="text-waste-science" />
                 </div>
                 <div>
-                  <p className="text-sm text-black/60 dark:text-white/60 uppercase tracking-wide">
+                  <p className="text-sm text-black/60 uppercase tracking-wide">
                     Users
                   </p>
                   <p className="text-xl font-bold arcade-numbers">
@@ -253,20 +253,20 @@ export function StaffDashboard({
               {onNavigateToDataManagement && (
                 <button
                   onClick={onNavigateToDataManagement}
-                  className="retro-card p-5 text-left hover:bg-black/5 dark:hover:bg-white/5 transition-colors group"
+                  className="retro-card p-5 text-left hover:bg-black/5 transition-colors group"
                 >
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center shrink-0">
                       <Database
                         size={24}
-                        className="text-green-600 dark:text-green-400"
+                        className="text-green-600"
                       />
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-sniglet text-[14px] normal mb-1 group-hover:text-waste-recycle transition-colors">
                         Materials Database
                       </h3>
-                      <p className="text-[12px] text-black/60 dark:text-white/60">
+                      <p className="text-[12px] text-black/60">
                         Browse and manage material entries
                       </p>
                     </div>
@@ -278,20 +278,20 @@ export function StaffDashboard({
               {onNavigateToSourceLibrary && (
                 <button
                   onClick={onNavigateToSourceLibrary}
-                  className="retro-card p-5 text-left hover:bg-black/5 dark:hover:bg-white/5 transition-colors group"
+                  className="retro-card p-5 text-left hover:bg-black/5 transition-colors group"
                 >
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center shrink-0">
                       <BookOpen
                         size={24}
-                        className="text-purple-600 dark:text-purple-400"
+                        className="text-purple-600"
                       />
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-sniglet text-[14px] normal mb-1 group-hover:text-waste-recycle transition-colors">
                         Source Library
                       </h3>
-                      <p className="text-[12px] text-black/60 dark:text-white/60">
+                      <p className="text-[12px] text-black/60">
                         Manage scientific sources and citations
                       </p>
                     </div>
@@ -303,7 +303,7 @@ export function StaffDashboard({
               {onNavigateToEvidenceLab && (
                 <button
                   onClick={onNavigateToEvidenceLab}
-                  className="retro-card p-5 text-left hover:bg-black/5 dark:hover:bg-white/5 transition-colors group"
+                  className="retro-card p-5 text-left hover:bg-black/5 transition-colors group"
                 >
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-xl bg-waste-science/20 flex items-center justify-center shrink-0">
@@ -313,7 +313,7 @@ export function StaffDashboard({
                       <h3 className="font-sniglet text-[14px] normal mb-1 group-hover:text-waste-recycle transition-colors">
                         Evidence Lab
                       </h3>
-                      <p className="text-[12px] text-black/60 dark:text-white/60">
+                      <p className="text-[12px] text-black/60">
                         Extract and manage MIU evidence points
                       </p>
                     </div>
@@ -325,20 +325,20 @@ export function StaffDashboard({
               {onNavigateToRoadmapOverview && (
                 <button
                   onClick={onNavigateToRoadmapOverview}
-                  className="retro-card p-5 text-left hover:bg-black/5 dark:hover:bg-white/5 transition-colors group"
+                  className="retro-card p-5 text-left hover:bg-black/5 transition-colors group"
                 >
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-xl bg-cyan-500/20 flex items-center justify-center shrink-0">
                       <TrendingUp
                         size={24}
-                        className="text-cyan-600 dark:text-cyan-400"
+                        className="text-cyan-600"
                       />
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-sniglet text-[14px] normal mb-1 group-hover:text-waste-recycle transition-colors">
                         Roadmap
                       </h3>
-                      <p className="text-[12px] text-black/60 dark:text-white/60">
+                      <p className="text-[12px] text-black/60">
                         View development stages and progress
                       </p>
                     </div>
@@ -350,7 +350,7 @@ export function StaffDashboard({
               {onNavigateToTransformTesting && (
                 <button
                   onClick={onNavigateToTransformTesting}
-                  className="retro-card p-4 text-left hover:bg-black/5 dark:hover:bg-white/5 transition-colors group"
+                  className="retro-card p-4 text-left hover:bg-black/5 transition-colors group"
                 >
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-xl bg-waste-science/20 flex items-center justify-center shrink-0">
@@ -360,7 +360,7 @@ export function StaffDashboard({
                       <h3 className="font-sniglet text-[14px] normal mb-1 group-hover:text-waste-recycle transition-colors">
                         Transform Testing
                       </h3>
-                      <p className="text-[12px] text-black/60 dark:text-white/60">
+                      <p className="text-[12px] text-black/60">
                         Test transform formulas and calculations
                       </p>
                     </div>
@@ -372,7 +372,7 @@ export function StaffDashboard({
               {onNavigateToCharts && (
                 <button
                   onClick={onNavigateToCharts}
-                  className="retro-card p-4 text-left hover:bg-black/5 dark:hover:bg-white/5 transition-colors group"
+                  className="retro-card p-4 text-left hover:bg-black/5 transition-colors group"
                 >
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-xl bg-waste-reuse/20 flex items-center justify-center shrink-0">
@@ -382,7 +382,7 @@ export function StaffDashboard({
                       <h3 className="font-sniglet text-[14px] normal mb-1 group-hover:text-waste-recycle transition-colors">
                         Chart Performance
                       </h3>
-                      <p className="text-[12px] text-black/60 dark:text-white/60">
+                      <p className="text-[12px] text-black/60">
                         Monitor chart rendering performance
                       </p>
                     </div>

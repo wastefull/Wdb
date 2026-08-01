@@ -802,15 +802,12 @@ function AppContent() {
     }
 
     return nameSuggestions;
-  }, [
-    debouncedSearchQuery,
-    isAdminModeActive,
-    materials,
-    searchQuery,
-  ]);
+  }, [debouncedSearchQuery, isAdminModeActive, materials, searchQuery]);
 
   const resolveMaterialForView = (materialId: string): Material | undefined => {
-    const directMatch = materials.find((material) => material.id === materialId);
+    const directMatch = materials.find(
+      (material) => material.id === materialId,
+    );
     if (directMatch) return directMatch;
 
     const normalizedMaterialId = materialId.trim().toLowerCase();
@@ -822,7 +819,9 @@ function AppContent() {
         (material as any).slug,
         ...(material.aliases ?? []),
         ...(material.wiki?.aliases ?? []),
-      ].filter((candidate): candidate is string => typeof candidate === "string");
+      ].filter(
+        (candidate): candidate is string => typeof candidate === "string",
+      );
 
       return identifiers.some(
         (candidate) => candidate.trim().toLowerCase() === normalizedMaterialId,
@@ -970,7 +969,9 @@ function AppContent() {
           userRole={userRole}
           onEditMaterial={navigateToMaterialEdit}
           onSuggestEdit={navigateToMaterialEdit}
-          onViewGuide={(guideId) => navigateTo({ type: "guide-detail", guideId })}
+          onViewGuide={(guideId) =>
+            navigateTo({ type: "guide-detail", guideId })
+          }
           onViewArticles={(category) =>
             handleViewArticles(material.id, category)
           }
@@ -981,7 +982,9 @@ function AppContent() {
     "material-edit": (view) => {
       const material = resolveMaterialForView(view.materialId);
       if (!material) {
-        return isLoadingMaterials ? <Loading what="material edit page" /> : null;
+        return isLoadingMaterials ? (
+          <Loading what="material edit page" />
+        ) : null;
       }
       return (
         <SuggestMaterialEditForm

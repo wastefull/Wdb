@@ -370,7 +370,7 @@ export function TestSuite() {
                       key={test.id}
                       className={`border-t ${
                         index % 2 === 0
-                          ? "bg-white dark:bg-[#1a1917]"
+                          ? "bg-white"
                           : "bg-muted/20"
                       }`}
                     >

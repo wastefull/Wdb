@@ -258,7 +258,7 @@ export function ArticlesView({
           <h2 className="text-[18px] normal">
             {material.name} - {categoryLabels[category]}
           </h2>
-          <p className="text-[12px] text-black/60 dark:text-white/60">
+          <p className="text-[12px] text-black/60">
             {articles.length} article{articles.length !== 1 ? "s" : ""}
           </p>
         </div>

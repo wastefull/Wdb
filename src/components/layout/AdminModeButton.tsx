@@ -55,9 +55,7 @@ export function AdminModeButton({
           checked={isToggledOn}
           onCheckedChange={handleAdminToggle}
           className="scale-75"
-          aria-label={
-            isToggledOn ? "Disable admin mode" : "Enable admin mode"
-          }
+          aria-label={isToggledOn ? "Disable admin mode" : "Enable admin mode"}
         />
       </div>
     </div>

@@ -226,7 +226,7 @@ export function SearchResultsView({
       <div className="mb-6 flex items-center justify-between flex-wrap gap-4">
         <button
           onClick={onBack}
-          className="flex items-center gap-2 px-4 py-2 arcade-bg-cyan arcade-btn-cyan rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[3px_4px_0px_-1px_#000000] dark:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] hover:translate-y-px hover:shadow-[2px_3px_0px_-1px_#000000] dark:hover:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
+          className="flex items-center gap-2 px-4 py-2 arcade-bg-cyan arcade-btn-cyan rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] hover:translate-y-px hover:shadow-[2px_3px_0px_-1px_#000000] transition-all"
         >
           <ArrowLeft size={16} />
           <span className="text-[14px]">Back to Home</span>
@@ -248,7 +248,7 @@ export function SearchResultsView({
           ) : (
             <span className="font-bold">All Materials</span>
           )}
-          <span className="text-black/50 dark:text-white/50 ml-2">
+          <span className="text-black/50 ml-2">
             ({filteredMaterials.length} result
             {filteredMaterials.length !== 1 ? "s" : ""})
           </span>
@@ -276,15 +276,15 @@ export function SearchResultsView({
 
         {/* Filter Content */}
         {showFilters && (
-          <div className="px-4 pb-4 border-t border-[#211f1c]/20 dark:border-white/10 pt-4">
+          <div className="px-4 pb-4 border-t border-[#211f1c]/20 pt-4">
             {/* Beta Features Toggle */}
-            <div className="mb-4 p-3 bg-linear-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-xl border border-purple-300 dark:border-purple-700">
+            <div className="mb-4 p-3 bg-linear-to-r from-purple-100 to-pink-100 rounded-xl border border-purple-300">
               <label className="flex items-center justify-between cursor-pointer">
                 <div className="flex items-center gap-2">
-                  <span className="text-[13px] font-medium text-purple-800 dark:text-purple-200">
+                  <span className="text-[13px] font-medium text-purple-800">
                     Enable BETA Features
                   </span>
-                  <span className="text-[9px] bg-waste-science text-black dark:text-white px-1.5 py-0.5 rounded-full font-bold">
+                  <span className="text-[9px] bg-waste-science text-black px-1.5 py-0.5 rounded-full font-bold">
                     BETA
                   </span>
                 </div>
@@ -295,10 +295,10 @@ export function SearchResultsView({
                     onChange={(e) => setBetaFeaturesEnabled(e.target.checked)}
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-gray-300 dark:bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-500"></div>
+                  <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-500"></div>
                 </div>
               </label>
-              <p className="text-xs text-purple-600 dark:text-purple-300 mt-1">
+              <p className="text-xs text-purple-600 mt-1">
                 Experimental features that may change or be removed
               </p>
             </div>
@@ -316,7 +316,7 @@ export function SearchResultsView({
                       showCategories ? "rotate-90" : ""
                     }`}
                   />
-                  <span className="text-[12px] text-black/70 dark:text-white/70 font-medium">
+                  <span className="text-[12px] text-black/70 font-medium">
                     Categories
                   </span>
                   {selectedCategories.length > 0 && (
@@ -331,7 +331,7 @@ export function SearchResultsView({
                       e.stopPropagation();
                       setSelectedCategories([]);
                     }}
-                    className="text-sm text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
+                    className="text-sm text-black/50 hover:text-black"
                   >
                     Clear
                   </button>
@@ -351,12 +351,12 @@ export function SearchResultsView({
                           isSelected
                             ? "bg-waste-recycle border-[#211f1c] shadow-[2px_2px_0px_0px_#000000]"
                             : count > 0
-                              ? "bg-white dark:bg-[#2a2825] border-[#211f1c]/30 dark:border-white/20 hover:border-[#211f1c] dark:hover:border-white/40"
-                              : "bg-black/5 dark:bg-white/5 border-transparent text-black/30 dark:text-white/30 cursor-not-allowed"
+                              ? "bg-white border-[#211f1c]/30 hover:border-[#211f1c]"
+                              : "bg-black/5 border-transparent text-black/30 cursor-not-allowed"
                         }`}
                       >
                         {cat.name}
-                        <span className="ml-1 text-black/50 dark:text-white/50">
+                        <span className="ml-1 text-black/50">
                           ({count})
                         </span>
                       </button>
@@ -380,10 +380,10 @@ export function SearchResultsView({
                         showScoreFilters ? "rotate-90" : ""
                       }`}
                     />
-                    <span className="text-[12px] text-black/70 dark:text-white/70 font-medium">
+                    <span className="text-[12px] text-black/70 font-medium">
                       Minimum Scores
                     </span>
-                    <span className="text-[9px] bg-waste-science text-black dark:text-white px-1.5 py-0.5 rounded-full font-bold ml-1">
+                    <span className="text-[9px] bg-waste-science text-black px-1.5 py-0.5 rounded-full font-bold ml-1">
                       BETA
                     </span>
                   </div>
@@ -392,7 +392,7 @@ export function SearchResultsView({
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {/* Compostability */}
                     <div>
-                      <label className="text-sm text-black/60 dark:text-white/60 flex items-center justify-between mb-1">
+                      <label className="text-sm text-black/60 flex items-center justify-between mb-1">
                         <span className="flex items-center gap-1">
                           <span
                             className="w-2 h-2 rounded-full"
@@ -415,7 +415,7 @@ export function SearchResultsView({
                     </div>
                     {/* Recyclability */}
                     <div>
-                      <label className="text-sm text-black/60 dark:text-white/60 flex items-center justify-between mb-1">
+                      <label className="text-sm text-black/60 flex items-center justify-between mb-1">
                         <span className="flex items-center gap-1">
                           <span
                             className="w-2 h-2 rounded-full"
@@ -438,7 +438,7 @@ export function SearchResultsView({
                     </div>
                     {/* Reusability */}
                     <div>
-                      <label className="text-sm text-black/60 dark:text-white/60 flex items-center justify-between mb-1">
+                      <label className="text-sm text-black/60 flex items-center justify-between mb-1">
                         <span className="flex items-center gap-1">
                           <span
                             className="w-2 h-2 rounded-full"
@@ -467,7 +467,7 @@ export function SearchResultsView({
             {hasActiveFilters && (
               <button
                 onClick={clearFilters}
-                className="flex items-center gap-1 text-sm text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
+                className="flex items-center gap-1 text-sm text-black/50 hover:text-black"
               >
                 <X size={12} />
                 Clear all filters
@@ -477,15 +477,15 @@ export function SearchResultsView({
         )}
 
         {/* Sort Options - Always visible */}
-        <div className="flex items-center justify-between p-4 border-t border-[#211f1c]/20 dark:border-white/10">
+        <div className="flex items-center justify-between p-4 border-t border-[#211f1c]/20">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-black/60 dark:text-white/60">
+            <span className="text-sm text-black/60">
               Sort by:
             </span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-              className="text-sm px-2 py-1 bg-white dark:bg-[#2a2825] border border-[#211f1c]/30 dark:border-white/20 rounded-lg outline-none"
+              className="text-sm px-2 py-1 bg-white border border-[#211f1c]/30 rounded-lg outline-none"
             >
               <option value="name">Name</option>
               <option value="compostability">Compostability</option>
@@ -496,13 +496,13 @@ export function SearchResultsView({
               onClick={() =>
                 setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"))
               }
-              className="text-sm px-2 py-1 bg-white dark:bg-[#2a2825] border border-[#211f1c]/30 dark:border-white/20 rounded-lg hover:border-[#211f1c] dark:hover:border-white/40 transition-all"
+              className="text-sm px-2 py-1 bg-white border border-[#211f1c]/30 rounded-lg hover:border-[#211f1c] transition-all"
             >
               {sortOrder === "asc" ? "↑ Asc" : "↓ Desc"}
             </button>
           </div>
           <label className="flex items-center gap-2 cursor-pointer">
-            <span className="text-[13px] text-black/70 dark:text-white/70">
+            <span className="text-[13px] text-black/70">
               Has articles
             </span>
             <div className="relative">
@@ -512,7 +512,7 @@ export function SearchResultsView({
                 onChange={(e) => setHasArticlesOnly(e.target.checked)}
                 className="sr-only peer"
               />
-              <div className="w-11 h-6 bg-gray-300 dark:bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-waste-recycle"></div>
+              <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-waste-recycle"></div>
             </div>
           </label>
         </div>
@@ -541,7 +541,7 @@ export function SearchResultsView({
       {/* No Results */}
       {filteredMaterials.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-[16px] text-black/50 dark:text-white/50 mb-4">
+          <p className="text-[16px] text-black/50 mb-4">
             No materials found matching your criteria.
           </p>
           {hasActiveFilters && (

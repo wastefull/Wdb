@@ -39,7 +39,7 @@ function ResolutionBadge({ resolution }: { resolution: PreviewResolution }) {
     resolution === "resolved"
       ? "border-waste-compost/40 bg-waste-compost/10 text-waste-compost"
       : resolution === "awaiting_review"
-        ? "border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-300"
+        ? "border-amber-300 bg-amber-50 text-amber-700"
         : "border-waste-science/30 bg-waste-science/10 text-waste-science";
   return (
     <span
@@ -70,16 +70,16 @@ function SummaryGrid({
 
   return (
     <div>
-      <p className="mb-2 text-[12px] font-medium text-black/60 dark:text-white/60">
+      <p className="mb-2 text-[12px] font-medium text-black/60">
         {label}
       </p>
       <dl className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {stats.map(([name, value]) => (
           <div
             key={name}
-            className="rounded-lg border border-black/10 p-2.5 dark:border-white/10"
+            className="rounded-lg border border-black/10 p-2.5"
           >
-            <dt className="text-[10px] text-black/50 dark:text-white/50">
+            <dt className="text-[10px] text-black/50">
               {name}
             </dt>
             <dd className="mt-0.5 font-mono text-[16px]">{value}</dd>
@@ -104,14 +104,14 @@ function RelationshipTable({
   onToggle: (candidateKey: string, selected: boolean) => void;
 }) {
   return (
-    <details className="rounded-lg border border-black/10 dark:border-white/10">
+    <details className="rounded-lg border border-black/10">
       <summary className="cursor-pointer px-4 py-3 text-[13px] font-medium">
         Relationship candidates ({candidates.length} sampled)
       </summary>
-      <div className="max-h-[28rem] overflow-auto border-t border-black/10 dark:border-white/10">
+      <div className="max-h-[28rem] overflow-auto border-t border-black/10">
         <table className="w-full min-w-[640px] text-left text-[11px]">
           <thead className="sticky top-0 bg-background">
-            <tr className="border-b border-black/10 dark:border-white/10">
+            <tr className="border-b border-black/10">
               <th scope="col" className="px-3 py-2 font-medium">
                 Approve
               </th>
@@ -136,7 +136,7 @@ function RelationshipTable({
             {candidates.map((c) => (
               <tr
                 key={c.candidate_key}
-                className="border-b border-black/5 align-top last:border-b-0 dark:border-white/5"
+                className="border-b border-black/5 align-top last:border-b-0"
               >
                 <td className="px-3 py-2.5">
                   <input
@@ -149,25 +149,25 @@ function RelationshipTable({
                     aria-label={`Approve relationship from ${c.source.name ?? c.source.legacy_kv_id} to ${c.target.name ?? c.target.legacy_kv_id}`}
                   />
                 </td>
-                <td className="px-3 py-2.5 font-mono text-[10px] text-black/60 dark:text-white/60">
+                <td className="px-3 py-2.5 font-mono text-[10px] text-black/60">
                   {c.provenance}
                 </td>
                 <td className="px-3 py-2.5">
                   <div className="font-medium">{c.source.name ?? "—"}</div>
-                  <div className="text-[10px] text-black/50 dark:text-white/50">
+                  <div className="text-[10px] text-black/50">
                     {c.source.legacy_kv_id}
                   </div>
                 </td>
                 <td className="px-3 py-2.5">
                   <div className="font-medium">{c.target.name ?? "—"}</div>
-                  <div className="text-[10px] text-black/50 dark:text-white/50">
+                  <div className="text-[10px] text-black/50">
                     {c.target.legacy_kv_id}
                   </div>
                 </td>
                 <td className="px-3 py-2.5">
                   <ResolutionBadge resolution={c.resolution} />
                 </td>
-                <td className="px-3 py-2.5 text-black/60 dark:text-white/60">
+                <td className="px-3 py-2.5 text-black/60">
                   {c.resolution_notes ?? "—"}
                 </td>
               </tr>
@@ -193,14 +193,14 @@ function ContentMappingTable({
   onToggle: (candidateKey: string, selected: boolean) => void;
 }) {
   return (
-    <details className="rounded-lg border border-black/10 dark:border-white/10">
+    <details className="rounded-lg border border-black/10">
       <summary className="cursor-pointer px-4 py-3 text-[13px] font-medium">
         Content mapping candidates ({candidates.length} sampled)
       </summary>
-      <div className="max-h-[28rem] overflow-auto border-t border-black/10 dark:border-white/10">
+      <div className="max-h-[28rem] overflow-auto border-t border-black/10">
         <table className="w-full min-w-[640px] text-left text-[11px]">
           <thead className="sticky top-0 bg-background">
-            <tr className="border-b border-black/10 dark:border-white/10">
+            <tr className="border-b border-black/10">
               <th scope="col" className="px-3 py-2 font-medium">
                 Approve
               </th>
@@ -225,7 +225,7 @@ function ContentMappingTable({
             {candidates.map((c) => (
               <tr
                 key={c.candidate_key}
-                className="border-b border-black/5 align-top last:border-b-0 dark:border-white/5"
+                className="border-b border-black/5 align-top last:border-b-0"
               >
                 <td className="px-3 py-2.5">
                   <input
@@ -238,25 +238,25 @@ function ContentMappingTable({
                     aria-label={`Approve ${c.content.type} mapping from ${c.content.name ?? c.content.domain_id} to ${c.subject.name ?? c.subject.legacy_kv_id}`}
                   />
                 </td>
-                <td className="px-3 py-2.5 font-mono text-[10px] text-black/60 dark:text-white/60">
+                <td className="px-3 py-2.5 font-mono text-[10px] text-black/60">
                   {c.provenance}
                 </td>
                 <td className="px-3 py-2.5">
                   <div className="font-medium">{c.content.name ?? "—"}</div>
-                  <div className="text-[10px] capitalize text-black/50 dark:text-white/50">
+                  <div className="text-[10px] capitalize text-black/50">
                     {c.content.type} · {c.content.domain_id}
                   </div>
                 </td>
                 <td className="px-3 py-2.5">
                   <div className="font-medium">{c.subject.name ?? "—"}</div>
-                  <div className="text-[10px] text-black/50 dark:text-white/50">
+                  <div className="text-[10px] text-black/50">
                     {c.subject.legacy_kv_id}
                   </div>
                 </td>
                 <td className="px-3 py-2.5">
                   <ResolutionBadge resolution={c.resolution} />
                 </td>
-                <td className="px-3 py-2.5 text-black/60 dark:text-white/60">
+                <td className="px-3 py-2.5 text-black/60">
                   {c.resolution_notes ?? "—"}
                 </td>
               </tr>
@@ -293,7 +293,7 @@ function ReportDisplay({
         className={`rounded-lg border p-4 ${
           unchanged
             ? "border-waste-compost/30 bg-waste-compost/5"
-            : "border-red-300 bg-red-50 dark:border-red-800 dark:bg-red-950/30"
+            : "border-red-300 bg-red-50"
         }`}
       >
         <div className="flex items-start gap-2">
@@ -308,7 +308,7 @@ function ReportDisplay({
                 ? "Read-only preview complete"
                 : "Contract violation: record counts changed"}
             </p>
-            <p className="mt-1 text-[11px] text-black/60 dark:text-white/60">
+            <p className="mt-1 text-[11px] text-black/60">
               {unchanged
                 ? `${proof.entity_relationships_before} relationships and ${proof.content_entities_before} content mappings — unchanged before and after preview.`
                 : `Relationships: ${proof.entity_relationships_before} → ${proof.entity_relationships_after} · Content mappings: ${proof.content_entities_before} → ${proof.content_entities_after}`}
@@ -344,7 +344,7 @@ function ReportDisplay({
       )}
 
       {/* Footer */}
-      <p className="text-[10px] text-black/40 dark:text-white/40">
+      <p className="text-[10px] text-black/40">
         Generated at {new Date(report.generated_at).toLocaleString()} ·
         sample_limit {report.sample_limit} · {report.contract_version}
       </p>
@@ -488,7 +488,7 @@ export function ContentMappingPreviewPanel() {
           >
             Content Mapping Preview
           </h3>
-          <p className="mt-1 text-[13px] leading-relaxed text-black/70 dark:text-white/70">
+          <p className="mt-1 text-[13px] leading-relaxed text-black/70">
             Read-only preview of candidate material relationships (related_to)
             and content mappings (discusses) inferred from existing
             authoritative data. No graph records are created. Conservative
@@ -501,7 +501,7 @@ export function ContentMappingPreviewPanel() {
         <div>
           <label
             htmlFor="content-mapping-sample-limit"
-            className="mb-1 block text-[11px] font-medium text-black/60 dark:text-white/60"
+            className="mb-1 block text-[11px] font-medium text-black/60"
           >
             Sample limit
           </label>
@@ -510,7 +510,7 @@ export function ContentMappingPreviewPanel() {
             value={sampleLimit}
             onChange={(e) => setSampleLimit(Number(e.target.value))}
             disabled={isLoading}
-            className="rounded-lg border border-black/15 bg-black/5 px-3 py-2 text-[12px] focus:outline-none focus:ring-1 focus:ring-waste-science disabled:opacity-60 dark:border-white/15 dark:bg-white/5"
+            className="rounded-lg border border-black/15 bg-black/5 px-3 py-2 text-[12px] focus:outline-none focus:ring-1 focus:ring-waste-science disabled:opacity-60"
           >
             {SAMPLE_LIMIT_OPTIONS.map((n) => (
               <option key={n} value={n}>
@@ -541,7 +541,7 @@ export function ContentMappingPreviewPanel() {
 
       <div aria-live="polite">
         {error && (
-          <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-4 text-[12px] text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-300">
+          <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-4 text-[12px] text-red-700">
             <XCircle className="mt-0.5 size-4 shrink-0" />
             <span>{error}</span>
           </div>
@@ -557,13 +557,13 @@ export function ContentMappingPreviewPanel() {
 
       {/* Quarantine action — only shown after a preview has run */}
       {report && awaitingCount > 0 && (
-        <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-4 dark:border-amber-800/50 dark:bg-amber-950/10">
+        <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-4">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="flex items-start gap-2">
-              <Archive className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400" />
+              <Archive className="mt-0.5 size-4 shrink-0 text-amber-600" />
               <div>
                 <p className="text-[13px] font-medium">Write to quarantine</p>
-                <p className="mt-1 max-w-xl text-[11px] text-black/60 dark:text-white/60">
+                <p className="mt-1 max-w-xl text-[11px] text-black/60">
                   Preserve all {awaitingCount} awaiting-review candidate
                   {awaitingCount !== 1 ? "s" : ""} as immutable migration-issue
                   records for human review. Does not modify entity_relationships
@@ -588,7 +588,7 @@ export function ContentMappingPreviewPanel() {
 
           <div className="mt-3" aria-live="polite">
             {quarantineError && (
-              <p className="text-[12px] text-red-600 dark:text-red-300">
+              <p className="text-[12px] text-red-600">
                 {quarantineError}
               </p>
             )}
@@ -603,7 +603,7 @@ export function ContentMappingPreviewPanel() {
                           quarantineResult.total_issues_written !== 1 ? "s" : ""
                         } written`}
                   </p>
-                  <p className="mt-0.5 text-[11px] text-black/60 dark:text-white/60">
+                  <p className="mt-0.5 text-[11px] text-black/60">
                     {quarantineResult.relationship_issues_written} relationship
                     · {quarantineResult.content_mapping_issues_written} content
                     mapping · run{" "}
@@ -624,14 +624,14 @@ export function ContentMappingPreviewPanel() {
               <Zap className="mt-0.5 size-4 shrink-0 text-waste-science" />
               <div>
                 <p className="text-[13px] font-medium">Apply to graph</p>
-                <p className="mt-1 max-w-xl text-[11px] text-black/60 dark:text-white/60">
+                <p className="mt-1 max-w-xl text-[11px] text-black/60">
                   Select individual resolved rows in the candidate tables.
                   Currently {selectedCount} of {resolvedCount} resolved record
                   {resolvedCount !== 1 ? "s are" : " is"} approved for this
                   manifest. Graph rows and outbox events commit together and
                   remain pending_review until separately activated.
                   {!capabilities?.apply_enabled && (
-                    <span className="ml-1 font-medium text-amber-600 dark:text-amber-400">
+                    <span className="ml-1 font-medium text-amber-600">
                       Gate currently disabled (CONTENT_MAPPING_APPLY_ENABLED).
                     </span>
                   )}
@@ -661,7 +661,7 @@ export function ContentMappingPreviewPanel() {
 
           <div className="mt-3" aria-live="polite">
             {applyError && (
-              <p className="text-[12px] text-red-600 dark:text-red-300">
+              <p className="text-[12px] text-red-600">
                 {applyError}
               </p>
             )}
@@ -674,7 +674,7 @@ export function ContentMappingPreviewPanel() {
                       ? "Reviewed manifest was already applied"
                       : "Graph records created"}
                   </p>
-                  <p className="mt-0.5 text-[11px] text-black/60 dark:text-white/60">
+                  <p className="mt-0.5 text-[11px] text-black/60">
                     {applyResult.relationships_inserted} rel inserted ·{" "}
                     {applyResult.relationships_skipped} skipped ·{" "}
                     {applyResult.content_mappings_inserted} CE inserted ·{" "}

@@ -185,7 +185,7 @@ export function CompostabilityTab({
         </h3>
 
         {/* Practical Score */}
-        <div className="mb-4 pb-4 border-b border-[#211f1c] dark:border-white/20">
+        <div className="mb-4 pb-4 border-b border-[#211f1c]">
           <h4 className="text-[12px] normal mb-2">
             Practical (Regional Facilities)
           </h4>
@@ -249,7 +249,7 @@ export function CompostabilityTab({
           </div>
 
           {formData.CC_practical_mean !== undefined && (
-            <div className="mt-2 text-sm text-black/60 dark:text-white/60">
+            <div className="mt-2 text-sm text-black/60">
               Public Score:{" "}
               <strong>
                 {Math.round(formData.CC_practical_mean * 100)}/100
@@ -323,7 +323,7 @@ export function CompostabilityTab({
           </div>
 
           {formData.CC_theoretical_mean !== undefined && (
-            <div className="mt-2 text-sm text-black/60 dark:text-white/60">
+            <div className="mt-2 text-sm text-black/60">
               Public Score:{" "}
               <strong>
                 {Math.round(formData.CC_theoretical_mean * 100)}/100

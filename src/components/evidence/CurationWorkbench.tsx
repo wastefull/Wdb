@@ -532,9 +532,9 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
   ];
 
   return (
-    <div className="h-full flex flex-col bg-[#e5e4dc] dark:bg-[#1a1917]">
+    <div className="h-full flex flex-col bg-[#e5e4dc]">
       {/* Header */}
-      <div className="flex items-center gap-4 p-6 border-b border-[#211f1c]/20 dark:border-white/20 bg-white dark:bg-[#2a2825]">
+      <div className="flex items-center gap-4 p-6 border-b border-[#211f1c]/20 bg-white">
         <button onClick={onBack} className="card-interactive">
           <ArrowLeft size={16} className="text-black" />
         </button>
@@ -544,13 +544,13 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
             Phase 9.2: CR Parameters Only (Aluminum, PET, Cardboard)
           </p>
         </div>
-        <Badge className="bg-[#a8d5ba] border-[#211f1c] dark:border-white/20 text-black font-['Sniglet']">
+        <Badge className="bg-[#a8d5ba] border-[#211f1c] text-black font-['Sniglet']">
           Pilot Mode
         </Badge>
       </div>
 
       {/* Progress Steps */}
-      <div className="bg-white dark:bg-[#2a2825] border-b border-[#211f1c]/20 dark:border-white/20 px-6 py-4">
+      <div className="bg-white border-b border-[#211f1c]/20 px-6 py-4">
         <div className="flex items-center justify-between max-w-4xl mx-auto">
           {steps.map((step, index) => {
             const Icon = step.icon;
@@ -575,10 +575,10 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                   <div
                     className={`w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all ${
                       isCompleted
-                        ? "bg-[#a8d5ba] border-[#211f1c] dark:border-white"
+                        ? "bg-[#a8d5ba] border-[#211f1c]"
                         : isActive
-                          ? "bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]"
-                          : "bg-[#e5e4dc] dark:bg-[#3a3835] border-[#211f1c]/20 dark:border-white/20"
+                          ? "bg-white border-[#211f1c] shadow-[2px_2px_0px_0px_#000000]"
+                          : "bg-[#e5e4dc] border-[#211f1c]/20"
                     }`}
                   >
                     {isCompleted ? (
@@ -590,14 +590,14 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                   <div className="text-left hidden md:block">
                     <div
                       className={`font-['Tilt_Warp'] text-sm ${
-                        isActive ? "normal" : "text-black/40 dark:text-white/40"
+                        isActive ? "normal" : "text-black/40"
                       }`}
                     >
                       Step {step.number}
                     </div>
                     <div
                       className={`font-['Sniglet'] text-xs ${
-                        isActive ? "normal" : "text-black/40 dark:text-white/40"
+                        isActive ? "normal" : "text-black/40"
                       }`}
                     >
                       {step.title}
@@ -607,7 +607,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                 {index < steps.length - 1 && (
                   <ChevronRight
                     size={16}
-                    className="mx-4 text-black/20 dark:text-white/20 hidden md:block"
+                    className="mx-4 text-black/20 hidden md:block"
                   />
                 )}
               </div>
@@ -619,7 +619,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
       {/* Main Split-Pane Layout */}
       <div className="flex-1 flex overflow-hidden">
         {/* Left Pane: Source Viewer */}
-          <div className="flex-1 min-w-125 bg-white dark:bg-[#2a2825] flex flex-col border-r border-[#211f1c]/20 dark:border-white/20">
+          <div className="flex-1 min-w-125 bg-white flex flex-col border-r border-[#211f1c]/20">
             <div className="panel-bordered">
               <h3 className="font-['Tilt_Warp'] text-[16px] normal mb-1">
                 Source Viewer
@@ -669,7 +669,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                 {selectedSource ? (
                   <>
                     {/* Compact source metadata bar */}
-                    <div className="p-3 border-b border-[#211f1c]/20 dark:border-white/20 bg-[#f5f4f0] dark:bg-[#1a1917] shrink-0">
+                    <div className="p-3 border-b border-[#211f1c]/20 bg-[#f5f4f0] shrink-0">
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex-1 min-w-0">
                           <h4 className="font-['Tilt_Warp'] text-[12px] truncate">
@@ -677,17 +677,17 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                           </h4>
                           <div className="flex flex-wrap items-center gap-2 mt-1">
                             {selectedSource.authors && (
-                              <span className="font-['Sniglet'] text-[9px] text-black/60 dark:text-white/60 truncate max-w-37.5">
+                              <span className="font-['Sniglet'] text-[9px] text-black/60 truncate max-w-37.5">
                                 {selectedSource.authors}
                               </span>
                             )}
                             {selectedSource.year && (
-                              <span className="font-['Sniglet'] text-[9px] text-black/60 dark:text-white/60">
+                              <span className="font-['Sniglet'] text-[9px] text-black/60">
                                 ({selectedSource.year})
                               </span>
                             )}
                             {selectedSource.is_open_access === true && (
-                              <Badge className="text-[7px] bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300 h-4">
+                              <Badge className="text-[7px] bg-green-100 text-green-800 h-4">
                                 <Unlock className="w-2 h-2 mr-0.5" />
                                 OA
                               </Badge>
@@ -733,11 +733,11 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                     {selectedSource.pdfFileName ? (
                       <div className="flex-1 p-2 overflow-hidden min-h-0 flex flex-col">
                         {/* Keyword Match Scanner */}
-                        <div className="mb-2 p-2 bg-[#f5f5f0] dark:bg-[#2a2825] border border-[#211f1c]/10 dark:border-white/10 rounded-md">
+                        <div className="mb-2 p-2 bg-[#f5f5f0] border border-[#211f1c]/10 rounded-md">
                           <div className="flex items-center gap-2 mb-2">
                             <Search
                               size={14}
-                              className="text-black/60 dark:text-white/60"
+                              className="text-black/60"
                             />
                             <span className="font-['Tilt_Warp'] text-xs normal">
                               Find Relevant Passages
@@ -751,7 +751,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                                   e.target.value as ParameterCode | "",
                                 )
                               }
-                              className="h-7 px-2 text-xs font-['Sniglet'] bg-white dark:bg-[#1a1917] border border-[#211f1c]/20 dark:border-white/20 rounded"
+                              className="h-7 px-2 text-xs font-['Sniglet'] bg-white border border-[#211f1c]/20 rounded"
                             >
                               <option value="">Select parameter...</option>
                               <option value="Y">Y - Years to Degrade</option>
@@ -789,7 +789,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                               Scan PDF
                             </Button>
                             {keywordMatches.length > 0 && (
-                              <span className="text-[9px] font-['Sniglet'] text-black/60 dark:text-white/60">
+                              <span className="text-[9px] font-['Sniglet'] text-black/60">
                                 {keywordMatches.length} matches found
                               </span>
                             )}
@@ -798,12 +798,12 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
 
                         {/* Keyword Matches Panel */}
                         {keywordMatches.length > 0 && (
-                          <div className="mb-2 border border-[#211f1c]/10 dark:border-white/10 rounded-md bg-white dark:bg-[#1a1917] overflow-hidden">
+                          <div className="mb-2 border border-[#211f1c]/10 rounded-md bg-white overflow-hidden">
                             <button
                               onClick={() =>
                                 setMatchesExpanded(!matchesExpanded)
                               }
-                              className="w-full flex items-center justify-between p-2 hover:bg-[#f5f5f0] dark:hover:bg-[#2a2825] transition-colors"
+                              className="w-full flex items-center justify-between p-2 hover:bg-[#f5f5f0] transition-colors"
                             >
                               <span className="font-['Tilt_Warp'] text-xs normal flex items-center gap-1">
                                 <Target size={12} className="text-[#a8d5ba]" />
@@ -816,16 +816,16 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                               )}
                             </button>
                             {matchesExpanded && (
-                              <div className="max-h-37.5 overflow-y-auto border-t border-[#211f1c]/10 dark:border-white/10">
+                              <div className="max-h-37.5 overflow-y-auto border-t border-[#211f1c]/10">
                                 {Array.from(
                                   groupMatchesByPage(keywordMatches).entries(),
                                 ).map(([pageNum, pageMatches]) => (
                                   <div
                                     key={pageNum}
-                                    className="border-b border-[#211f1c]/5 dark:border-white/5 last:border-b-0"
+                                    className="border-b border-[#211f1c]/5 last:border-b-0"
                                   >
-                                    <div className="px-2 py-1 bg-[#f5f5f0] dark:bg-[#2a2825] flex items-center justify-between">
-                                      <span className="font-['Sniglet'] text-[9px] text-black/60 dark:text-white/60">
+                                    <div className="px-2 py-1 bg-[#f5f5f0] flex items-center justify-between">
+                                      <span className="font-['Sniglet'] text-[9px] text-black/60">
                                         Page {pageNum} ({pageMatches.length}{" "}
                                         matches)
                                       </span>
@@ -857,7 +857,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                                           ) => (
                                             <div
                                               key={idx}
-                                              className="text-[9px] font-['Sniglet'] text-black/70 dark:text-white/70 flex items-start gap-1 cursor-pointer hover:bg-[#e5e4dc] dark:hover:bg-[#3a3835] p-1 rounded"
+                                              className="text-[9px] font-['Sniglet'] text-black/70 flex items-start gap-1 cursor-pointer hover:bg-[#e5e4dc] p-1 rounded"
                                               onClick={() => {
                                                 setHighlightKeywords([
                                                   match.keyword,
@@ -870,14 +870,14 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                                               <Badge className="shrink-0 text-[8px] bg-[#a8d5ba] text-black">
                                                 {match.keyword}
                                               </Badge>
-                                              <span className="line-clamp-1 text-black/50 dark:text-white/50">
+                                              <span className="line-clamp-1 text-black/50">
                                                 ...{match.context}...
                                               </span>
                                             </div>
                                           ),
                                         )}
                                       {pageMatches.length > 3 && (
-                                        <span className="text-[8px] text-black/40 dark:text-white/40 pl-1">
+                                        <span className="text-[8px] text-black/40 pl-1">
                                           +{pageMatches.length - 3} more matches
                                         </span>
                                       )}
@@ -980,7 +980,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
 
                           {/* Abstract */}
                           <div>
-                            <Label className="font-['Tilt_Warp'] text-xs text-black/60 dark:text-white/60">
+                            <Label className="font-['Tilt_Warp'] text-xs text-black/60">
                               ABSTRACT / SUMMARY
                             </Label>
                             <p className="font-['Sniglet'] text-sm normal mt-2 leading-relaxed">
@@ -991,11 +991,11 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                           </div>
 
                           {/* No PDF helper */}
-                          <div className="p-3 bg-[#fff9e6] dark:bg-[#3a3220] border border-[#f4d5a6] dark:border-[#5a4820] rounded-md space-y-2">
-                            <p className="font-['Sniglet'] text-xs text-black/80 dark:text-white/80">
+                          <div className="p-3 bg-[#fff9e6] border border-[#f4d5a6] rounded-md space-y-2">
+                            <p className="font-['Sniglet'] text-xs text-black/80">
                               💡 <strong>No PDF uploaded yet.</strong>
                             </p>
-                            <p className="font-['Sniglet'] text-[9px] text-black/60 dark:text-white/60">
+                            <p className="font-['Sniglet'] text-[9px] text-black/60">
                               Use the buttons above to access the source
                               document. Once you have the PDF, upload it via the
                               Source Library Manager to enable inline viewing
@@ -1011,7 +1011,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                     <div className="text-center">
                       <FileText
                         size={48}
-                        className="mx-auto mb-4 text-black/20 dark:text-white/20"
+                        className="mx-auto mb-4 text-black/20"
                       />
                       <p className="label-muted-sm">No source selected</p>
                     </div>
@@ -1023,7 +1023,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
         </div>
 
         {/* Right Pane: Evidence Wizard */}
-        <div className="w-95 min-w-[320px] max-w-105 bg-white dark:bg-[#2a2825] flex flex-col">
+        <div className="w-95 min-w-[320px] max-w-105 bg-white flex flex-col">
           <div className="panel-bordered">
             <h3 className="font-['Tilt_Warp'] text-[16px] normal mb-1">
               Evidence Wizard
@@ -1041,7 +1041,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                       className={`w-6 h-6 rounded-full border flex items-center justify-center text-sm font-['Tilt_Warp'] ${
                         selectedSource
                           ? "bg-[#a8d5ba] border-[#211f1c] text-black"
-                          : "border-[#211f1c]/40 text-black/40 dark:text-white/40"
+                          : "border-[#211f1c]/40 text-black/40"
                       }`}
                     >
                       1
@@ -1052,7 +1052,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                   </div>
 
                   {selectedSource ? (
-                    <Card className="border-2 border-[#211f1c] dark:border-white/20">
+                    <Card className="border-2 border-[#211f1c]">
                       <CardHeader className="pb-2">
                         <CardTitle className="font-['Tilt_Warp'] text-[14px]">
                           {selectedSource.title || "Untitled Source"}
@@ -1076,17 +1076,17 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                         )}
                         {selectedSource.abstract && (
                           <div>
-                            <Label className="font-['Tilt_Warp'] text-xs text-black/60 dark:text-white/60">
+                            <Label className="font-['Tilt_Warp'] text-xs text-black/60">
                               ABSTRACT
                             </Label>
-                            <p className="font-['Sniglet'] text-sm text-black/80 dark:text-white/80 mt-1 line-clamp-4">
+                            <p className="font-['Sniglet'] text-sm text-black/80 mt-1 line-clamp-4">
                               {selectedSource.abstract}
                             </p>
                           </div>
                         )}
                         {selectedSource.doi && (
                           <div>
-                            <Label className="font-['Tilt_Warp'] text-xs text-black/60 dark:text-white/60">
+                            <Label className="font-['Tilt_Warp'] text-xs text-black/60">
                               DOI
                             </Label>
                             <div className="flex items-center gap-2 mt-1">
@@ -1094,7 +1094,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                                 href={`https://doi.org/${selectedSource.doi}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="font-['Sniglet'] text-sm text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+                                className="font-['Sniglet'] text-sm text-blue-600 hover:underline flex items-center gap-1"
                               >
                                 {selectedSource.doi}
                                 <ExternalLink size={10} />
@@ -1104,8 +1104,8 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                                 <Badge
                                   className={`text-[8px] ${
                                     selectedSource.manual_oa_override
-                                      ? "bg-teal-100 text-teal-800 dark:bg-teal-900/20 dark:text-teal-300"
-                                      : "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
+                                      ? "bg-teal-100 text-teal-800"
+                                      : "bg-green-100 text-green-800"
                                   }`}
                                   title={`Open Access${
                                     selectedSource.manual_oa_override
@@ -1121,8 +1121,8 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                                 <Badge
                                   className={`text-[8px] ${
                                     selectedSource.manual_oa_override
-                                      ? "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300"
-                                      : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
+                                      ? "bg-orange-100 text-orange-800"
+                                      : "bg-red-100 text-red-800"
                                   }`}
                                   title={`Closed Access${
                                     selectedSource.manual_oa_override
@@ -1140,12 +1140,12 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                       </CardContent>
                     </Card>
                   ) : (
-                    <div className="p-6 border-2 border-dashed border-[#211f1c]/20 dark:border-white/20 rounded-lg text-center">
+                    <div className="p-6 border-2 border-dashed border-[#211f1c]/20 rounded-lg text-center">
                       <FileText
                         size={32}
-                        className="mx-auto mb-3 text-black/20 dark:text-white/20"
+                        className="mx-auto mb-3 text-black/20"
                       />
-                      <p className="font-['Sniglet'] text-[12px] text-black/60 dark:text-white/60">
+                      <p className="font-['Sniglet'] text-[12px] text-black/60">
                         Select a source from the list on the left to begin
                         extracting evidence.
                       </p>
@@ -1166,7 +1166,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                       className={`w-6 h-6 rounded-full border flex items-center justify-center text-sm font-['Tilt_Warp'] ${
                         formData.material_id
                           ? "bg-[#a8d5ba] border-[#211f1c] text-black"
-                          : "border-[#211f1c]/40 text-black/40 dark:text-white/40"
+                          : "border-[#211f1c]/40 text-black/40"
                       }`}
                     >
                       2
@@ -1213,7 +1213,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                       className={`w-6 h-6 rounded-full border flex items-center justify-center text-sm font-['Tilt_Warp'] ${
                         formData.parameter_code
                           ? "bg-[#a8d5ba] border-[#211f1c] text-black"
-                          : "border-[#211f1c]/40 text-black/40 dark:text-white/40"
+                          : "border-[#211f1c]/40 text-black/40"
                       }`}
                     >
                       3
@@ -1264,7 +1264,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                         formData.raw_unit &&
                         formData.snippet
                           ? "bg-[#a8d5ba] border-[#211f1c] text-black"
-                          : "border-[#211f1c]/40 text-black/40 dark:text-white/40"
+                          : "border-[#211f1c]/40 text-black/40"
                       }`}
                     >
                       4
@@ -1380,9 +1380,9 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
 
                   {/* Unit validation error */}
                   {unitValidationError && currentStep === 4 && (
-                    <Alert className="border-red-200 bg-red-50 dark:bg-red-950/20">
+                    <Alert className="border-red-200 bg-red-50">
                       <AlertCircle className="size-4 text-red-600" />
-                      <AlertDescription className="font-['Sniglet'] text-sm text-red-800 dark:text-red-200">
+                      <AlertDescription className="font-['Sniglet'] text-sm text-red-800">
                         {unitValidationError}
                       </AlertDescription>
                     </Alert>
@@ -1393,8 +1393,8 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                     unitsOntology &&
                     currentStep === 4 &&
                     !unitValidationError && (
-                      <div className="p-3 bg-[#e8f5e9] dark:bg-[#1b3a1f] border border-[#a5d6a7] dark:border-[#2e5a32] rounded-md">
-                        <p className="font-['Sniglet'] text-xs text-black/80 dark:text-white/80">
+                      <div className="p-3 bg-[#e8f5e9] border border-[#a5d6a7] rounded-md">
+                        <p className="font-['Sniglet'] text-xs text-black/80">
                           ✅{" "}
                           <strong>
                             Valid unit for {formData.parameter_code}
@@ -1422,7 +1422,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full border border-[#211f1c]/40 flex items-center justify-center text-sm font-['Tilt_Warp'] text-black/40 dark:text-white/40">
+                    <div className="w-6 h-6 rounded-full border border-[#211f1c]/40 flex items-center justify-center text-sm font-['Tilt_Warp'] text-black/40">
                       5
                     </div>
                     <Label className="font-['Tilt_Warp'] text-[13px]">
@@ -1548,7 +1548,7 @@ export function CurationWorkbench({ onBack }: CurationWorkbenchProps) {
           </ScrollArea>
 
           {/* Navigation Footer */}
-          <div className="p-4 border-t border-[#211f1c]/20 dark:border-white/20 flex items-center justify-between gap-3">
+          <div className="p-4 border-t border-[#211f1c]/20 flex items-center justify-between gap-3">
             <Button
               variant="outline"
               onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}

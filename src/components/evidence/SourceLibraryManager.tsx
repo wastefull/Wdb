@@ -559,15 +559,15 @@ export function SourceLibraryManager({
   const getTypeColor = (type: Source["type"]) => {
     switch (type) {
       case "peer-reviewed":
-        return "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300";
+        return "bg-green-100 text-green-800";
       case "government":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300";
+        return "bg-blue-100 text-blue-800";
       case "industrial":
-        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300";
+        return "bg-yellow-100 text-yellow-800";
       case "ngo":
-        return "bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-300";
+        return "bg-purple-100 text-purple-800";
       case "internal":
-        return "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300";
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -972,8 +972,8 @@ export function SourceLibraryManager({
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
-            <Cloud className="w-12 h-12 mx-auto mb-3 text-black/20 dark:text-white/20 animate-pulse" />
-            <p className="text-[14px] text-black/50 dark:text-white/50">
+            <Cloud className="w-12 h-12 mx-auto mb-3 text-black/20 animate-pulse" />
+            <p className="text-[14px] text-black/50">
               Loading sources...
             </p>
           </div>
@@ -991,7 +991,7 @@ export function SourceLibraryManager({
             <Button
               onClick={onBack}
               variant="outline"
-              className="border-[#211f1c] dark:border-white/20 text-sm md:text-sm"
+              className="border-[#211f1c] text-sm md:text-sm"
             >
               <ArrowLeft className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
               Back
@@ -1005,12 +1005,12 @@ export function SourceLibraryManager({
             <div className="flex items-center gap-2">
               <h1 className="text-[16px] normal">Source Library Management</h1>
               {cloudSynced ? (
-                <Cloud className="w-4 h-4 text-green-600 dark:text-green-400" />
+                <Cloud className="w-4 h-4 text-green-600" />
               ) : (
-                <CloudOff className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+                <CloudOff className="w-4 h-4 text-orange-600" />
               )}
             </div>
-            <p className="text-[12px] text-black/60 dark:text-white/60">
+            <p className="text-[12px] text-black/60">
               Manage academic sources and citations ({sources.length} sources)
               {cloudSynced ? " • Synced with cloud" : " • Local only"}
             </p>
@@ -1020,7 +1020,7 @@ export function SourceLibraryManager({
             <Button
               onClick={handleExportSources}
               variant="outline"
-              className="border-[#211f1c] dark:border-white/20 text-sm md:text-sm"
+              className="border-[#211f1c] text-sm md:text-sm"
               disabled={sources.length === 0}
             >
               <Download className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
@@ -1031,7 +1031,7 @@ export function SourceLibraryManager({
             {isAuthenticated && isAdmin && (
               <Button
                 variant="outline"
-                className="border-[#211f1c] dark:border-white/20 text-sm md:text-sm relative"
+                className="border-[#211f1c] text-sm md:text-sm relative"
                 onClick={() =>
                   document.getElementById("import-sources-input")?.click()
                 }
@@ -1053,7 +1053,7 @@ export function SourceLibraryManager({
               <Button
                 onClick={handleRefreshFromCloud}
                 variant="outline"
-                className="border-[#211f1c] dark:border-white/20 text-sm md:text-sm"
+                className="border-[#211f1c] text-sm md:text-sm"
               >
                 <RefreshCw className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
                 <span className="whitespace-nowrap">Refresh</span>
@@ -1068,7 +1068,7 @@ export function SourceLibraryManager({
                 <Button
                   onClick={handleSyncToCloud}
                   variant="outline"
-                  className="border-[#211f1c] dark:border-white/20 text-sm md:text-sm"
+                  className="border-[#211f1c] text-sm md:text-sm"
                 >
                   <Cloud className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
                   <span className="whitespace-nowrap">Sync to Cloud</span>
@@ -1093,7 +1093,7 @@ export function SourceLibraryManager({
               <Button
                 onClick={handleRemoveDuplicates}
                 variant="outline"
-                className="border-amber-500/50 text-amber-600 hover:bg-amber-500/10 dark:border-amber-500/30 dark:text-amber-400 text-sm md:text-sm"
+                className="border-amber-500/50 text-amber-600 hover:bg-amber-500/10 text-sm md:text-sm"
                 disabled={removingDuplicates}
               >
                 <Copy className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
@@ -1112,7 +1112,7 @@ export function SourceLibraryManager({
                 <DialogTrigger asChild>
                   <Button
                     variant="outline"
-                    className="border-red-500/50 text-red-600 hover:bg-red-500/10 dark:border-red-500/30 dark:text-red-400 text-sm md:text-sm"
+                    className="border-red-500/50 text-red-600 hover:bg-red-500/10 text-sm md:text-sm"
                     disabled={deletingAll}
                   >
                     <Trash2 className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
@@ -1122,7 +1122,7 @@ export function SourceLibraryManager({
                   </Button>
                 </DialogTrigger>
                 <DialogContent
-                  className="max-w-md bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20"
+                  className="max-w-md bg-white border-[#211f1c]"
                   style={{
                     top: "50vh",
                     left: "50vw",
@@ -1135,17 +1135,17 @@ export function SourceLibraryManager({
                       Delete All Sources
                     </DialogTitle>
                     <DialogDescription asChild>
-                      <div className="space-y-3 text-black/70 dark:text-white/70">
+                      <div className="space-y-3 text-black/70">
                         <p>
                           Are you sure you want to delete{" "}
                           <strong>all {sources.length} sources</strong> from the
                           library?
                         </p>
-                        <p className="text-amber-600 dark:text-amber-400">
+                        <p className="text-amber-600">
                           ⚠️ This action cannot be undone. Sources with
                           dependent evidence points will be skipped.
                         </p>
-                        <p className="text-sm text-black/50 dark:text-white/50">
+                        <p className="text-sm text-black/50">
                           A single audit email will be sent summarizing this
                           bulk deletion.
                         </p>
@@ -1155,7 +1155,7 @@ export function SourceLibraryManager({
                   <div className="flex justify-end gap-2 mt-4">
                     <Button
                       variant="outline"
-                      className="border-[#211f1c] dark:border-white/20"
+                      className="border-[#211f1c]"
                       onClick={() => setShowDeleteAllDialog(false)}
                     >
                       Cancel
@@ -1177,13 +1177,13 @@ export function SourceLibraryManager({
         </div>
 
         {/* Filters */}
-        <Card className="p-4 mb-4 bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
+        <Card className="p-4 mb-4 bg-white border-[#211f1c]">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Search */}
             <div>
               <Label className="text-sm mb-2 block">Search</Label>
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-black/40 dark:text-white/40" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-black/40" />
                 <Input
                   type="text"
                   placeholder="Search by title, author, role, or lifecycle focus..."
@@ -1236,7 +1236,7 @@ export function SourceLibraryManager({
                 </>
               )}
             </Button>
-            <p className="text-[9px] text-black/60 dark:text-white/60">
+            <p className="text-[9px] text-black/60">
               {showOAOnly
                 ? "Showing only sources with DOIs"
                 : "Toggle to filter Open Access sources"}
@@ -1247,7 +1247,7 @@ export function SourceLibraryManager({
             searchQuery ||
             showOAOnly) && (
             <div className="mt-3 flex items-center justify-between">
-              <p className="text-sm text-black/60 dark:text-white/60">
+              <p className="text-sm text-black/60">
                 Showing {filteredSources.length} of {sources.length} sources
               </p>
               <Button
@@ -1266,7 +1266,7 @@ export function SourceLibraryManager({
         </Card>
 
         {/* Sources Table */}
-        <Card className="bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
+        <Card className="bg-white border-[#211f1c]">
           <div className="overflow-x-auto">
             <Table className="table-fixed w-[99%]">
               <TableHeader>
@@ -1297,7 +1297,7 @@ export function SourceLibraryManager({
                           </p>
                           {source.authors && (
                             <p
-                              className="text-[9px] text-black/60 dark:text-white/60 truncate"
+                              className="text-[9px] text-black/60 truncate"
                               title={source.authors}
                             >
                               {source.authors}
@@ -1312,7 +1312,7 @@ export function SourceLibraryManager({
                             {source.citation_count !== undefined &&
                               source.citation_count > 0 && (
                                 <Badge
-                                  className="bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-300 text-[8px]"
+                                  className="bg-amber-100 text-amber-800 text-[8px]"
                                   title={`${source.citation_count.toLocaleString()} citations at entry time (from CrossRef)`}
                                 >
                                   {source.citation_count >= 1000
@@ -1329,7 +1329,7 @@ export function SourceLibraryManager({
                                   href={`https://doi.org/${source.doi}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="text-[9px] text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+                                  className="text-[9px] text-blue-600 hover:underline flex items-center gap-1"
                                 >
                                   DOI <ExternalLink className="w-2 h-2" />
                                 </a>
@@ -1363,8 +1363,8 @@ export function SourceLibraryManager({
                                         <Badge
                                           className={`text-[8px] cursor-pointer ${
                                             hasManualOverride
-                                              ? "bg-teal-100 text-teal-800 dark:bg-teal-900/20 dark:text-teal-300 border border-teal-400 dark:border-teal-600"
-                                              : "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
+                                              ? "bg-teal-100 text-teal-800 border border-teal-400"
+                                              : "bg-green-100 text-green-800"
                                           }`}
                                           title={`Open Access${
                                             hasManualOverride
@@ -1398,11 +1398,11 @@ export function SourceLibraryManager({
                                               )
                                             }
                                             disabled={checkingOA.has(source.id)}
-                                            className="p-0.5 hover:bg-black/5 dark:hover:bg-white/10 rounded"
+                                            className="p-0.5 hover:bg-black/5 rounded"
                                             title="Re-check via Unpaywall"
                                           >
                                             <RefreshCw
-                                              className={`w-2.5 h-2.5 text-black/40 dark:text-white/40 ${
+                                              className={`w-2.5 h-2.5 text-black/40 ${
                                                 checkingOA.has(source.id)
                                                   ? "animate-spin"
                                                   : ""
@@ -1420,8 +1420,8 @@ export function SourceLibraryManager({
                                             isAdmin ? "cursor-pointer" : ""
                                           } ${
                                             hasManualOverride
-                                              ? "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300 border border-orange-400 dark:border-orange-600"
-                                              : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
+                                              ? "bg-orange-100 text-orange-800 border border-orange-400"
+                                              : "bg-red-100 text-red-800"
                                           }`}
                                           title={`Closed Access${
                                             hasManualOverride
@@ -1449,11 +1449,11 @@ export function SourceLibraryManager({
                                               )
                                             }
                                             disabled={checkingOA.has(source.id)}
-                                            className="p-0.5 hover:bg-black/5 dark:hover:bg-white/10 rounded"
+                                            className="p-0.5 hover:bg-black/5 rounded"
                                             title="Re-check via Unpaywall"
                                           >
                                             <RefreshCw
-                                              className={`w-2.5 h-2.5 text-black/40 dark:text-white/40 ${
+                                              className={`w-2.5 h-2.5 text-black/40 ${
                                                 checkingOA.has(source.id)
                                                   ? "animate-spin"
                                                   : ""
@@ -1496,7 +1496,7 @@ export function SourceLibraryManager({
                                     )}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="text-[9px] text-green-600 dark:text-green-400 hover:underline flex items-center gap-1 cursor-pointer"
+                                    className="text-[9px] text-green-600 hover:underline flex items-center gap-1 cursor-pointer"
                                     title="View uploaded PDF"
                                   >
                                     <BookOpen className="w-2 h-2" /> PDF
@@ -1511,7 +1511,7 @@ export function SourceLibraryManager({
                                   )}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="text-[9px] text-green-600 dark:text-green-400 hover:underline flex items-center gap-1 cursor-pointer"
+                                  className="text-[9px] text-green-600 hover:underline flex items-center gap-1 cursor-pointer"
                                   title="View uploaded PDF"
                                   onClick={(e) => {
                                     logger.log(
@@ -1586,7 +1586,7 @@ export function SourceLibraryManager({
                                       toast.error("Failed to run diagnostics");
                                     }
                                   }}
-                                  className="text-[9px] text-orange-600 dark:text-orange-400 hover:underline flex items-center gap-1 cursor-pointer"
+                                  className="text-[9px] text-orange-600 hover:underline flex items-center gap-1 cursor-pointer"
                                   title="Run diagnostics"
                                 >
                                   🔍 Debug
@@ -1600,7 +1600,7 @@ export function SourceLibraryManager({
                                 )}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-[9px] text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-1"
+                                className="text-[9px] text-purple-600 hover:underline flex items-center gap-1"
                                 title="Search on Google Scholar"
                               >
                                 <GraduationCap className="w-2 h-2" /> Scholar
@@ -1627,7 +1627,7 @@ export function SourceLibraryManager({
                             {source.role.replaceAll("_", " ")}
                           </Badge>
                         ) : (
-                          <span className="text-xs text-black/40 dark:text-white/40">
+                          <span className="text-xs text-black/40">
                             Unset
                           </span>
                         )}
@@ -1638,7 +1638,7 @@ export function SourceLibraryManager({
                             {source.lifecycleFocus.replaceAll("_", " ")}
                           </Badge>
                         ) : (
-                          <span className="text-xs text-black/40 dark:text-white/40">
+                          <span className="text-xs text-black/40">
                             Unset
                           </span>
                         )}
@@ -1650,7 +1650,7 @@ export function SourceLibraryManager({
                             {usage.length !== 1 ? "s" : ""}
                           </Badge>
                         ) : (
-                          <span className="text-xs text-black/40 dark:text-white/40">
+                          <span className="text-xs text-black/40">
                             Unused
                           </span>
                         )}
@@ -1670,7 +1670,7 @@ export function SourceLibraryManager({
                                     )
                                   }
                                   title="Delete PDF"
-                                  className="text-red-600 hover:text-red-700 dark:text-red-400"
+                                  className="text-red-600 hover:text-red-700"
                                 >
                                   <X className="w-3 h-3" />
                                 </Button>
@@ -1765,8 +1765,8 @@ export function SourceLibraryManager({
 
           {filteredSources.length === 0 && (
             <div className="text-center py-12">
-              <BookOpen className="w-12 h-12 mx-auto mb-3 text-black/20 dark:text-white/20" />
-              <p className="text-[14px] text-black/50 dark:text-white/50">
+              <BookOpen className="w-12 h-12 mx-auto mb-3 text-black/20" />
+              <p className="text-[14px] text-black/50">
                 No sources found
               </p>
             </div>
@@ -1971,7 +1971,7 @@ export function SourceLibraryManager({
                       crossRefData.citationCount > 0 && (
                         <div>
                           <span className="font-medium">Citations:</span>{" "}
-                          <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-300 text-[9px]">
+                          <Badge className="bg-amber-100 text-amber-800 text-[9px]">
                             {crossRefData.citationCount.toLocaleString()} cited
                           </Badge>
                         </div>
@@ -2141,7 +2141,7 @@ export function SourceLibraryManager({
                     pdfUrlInput === source.best_oa_pdf_url
                   ) {
                     return (
-                      <p className="text-[9px] text-green-600 dark:text-green-400 mt-1">
+                      <p className="text-[9px] text-green-600 mt-1">
                         ✅ Pre-filled with direct PDF link from Unpaywall
                       </p>
                     );
@@ -2150,7 +2150,7 @@ export function SourceLibraryManager({
                     pdfUrlInput === source.best_oa_url
                   ) {
                     return (
-                      <p className="text-[9px] text-amber-600 dark:text-amber-400 mt-1">
+                      <p className="text-[9px] text-amber-600 mt-1">
                         ⚠️ Using landing page URL (no direct PDF link
                         available). May need to find the actual PDF URL.
                       </p>
@@ -2165,9 +2165,9 @@ export function SourceLibraryManager({
                 })()}
               </div>
 
-              <Alert className="bg-amber-50 dark:bg-amber-900/20 border-amber-300 dark:border-amber-700">
-                <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                <AlertDescription className="text-xs text-amber-800 dark:text-amber-200">
+              <Alert className="bg-amber-50 border-amber-300">
+                <AlertTriangle className="h-4 w-4 text-amber-600" />
+                <AlertDescription className="text-xs text-amber-800">
                   <strong>Blocked publishers:</strong> Science.org, Nature,
                   Springer, Wiley, Elsevier, IEEE, ACM block automated
                   downloads. For these, download the PDF in your browser and use
@@ -2216,27 +2216,27 @@ export function SourceLibraryManager({
 
         {/* Info Alert */}
         {!isAuthenticated || !isAdmin ? (
-          <Alert className="mt-4 bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-700">
-            <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-            <AlertDescription className="text-sm text-blue-800 dark:text-blue-200">
+          <Alert className="mt-4 bg-blue-50 border-blue-300">
+            <AlertCircle className="h-4 w-4 text-blue-600" />
+            <AlertDescription className="text-sm text-blue-800">
               <strong>Note:</strong> Admin access required to modify the source
               library. Sign in with an admin account to add, edit, or delete
               sources.
             </AlertDescription>
           </Alert>
         ) : cloudSynced ? (
-          <Alert className="mt-4 bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700">
-            <Cloud className="h-4 w-4 text-green-600 dark:text-green-400" />
-            <AlertDescription className="text-sm text-green-800 dark:text-green-200">
+          <Alert className="mt-4 bg-green-50 border-green-300">
+            <Cloud className="h-4 w-4 text-green-600" />
+            <AlertDescription className="text-sm text-green-800">
               <strong>Cloud Sync Active:</strong> Changes to the source library
               are automatically synced to the cloud and will persist across
               sessions.
             </AlertDescription>
           </Alert>
         ) : (
-          <Alert className="mt-4 bg-orange-50 dark:bg-orange-900/20 border-orange-300 dark:border-orange-700">
-            <CloudOff className="h-4 w-4 text-orange-600 dark:text-orange-400" />
-            <AlertDescription className="text-sm text-orange-800 dark:text-orange-200">
+          <Alert className="mt-4 bg-orange-50 border-orange-300">
+            <CloudOff className="h-4 w-4 text-orange-600" />
+            <AlertDescription className="text-sm text-orange-800">
               <strong>Local Only:</strong> Sources are stored locally. Click
               "Sync to Cloud" to save changes permanently.
             </AlertDescription>

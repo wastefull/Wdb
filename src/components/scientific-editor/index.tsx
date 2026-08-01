@@ -100,7 +100,7 @@ export function ScientificDataEditor({
   };
 
   return (
-    <div className="bg-white dark:bg-[#2a2825] relative rounded-(--retro-rounding) p-6 border-[1.5px] border-[#211f1c] dark:border-white/20 max-h-[80vh] overflow-y-auto">
+    <div className="bg-white relative rounded-(--retro-rounding) p-6 border-[1.5px] border-[#211f1c] max-h-[80vh] overflow-y-auto">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-[18px] normal">
           Scientific Data Editor: {material.name}
@@ -109,14 +109,14 @@ export function ScientificDataEditor({
           <Button
             onClick={onCancel}
             variant="outline"
-            className="border-[#211f1c] dark:border-white/20"
+            className="border-[#211f1c]"
           >
             <X className="w-4 h-4 mr-2" />
             Cancel
           </Button>
           <Button
             onClick={handleSave}
-            className="bg-waste-recycle hover:bg-waste-recycle/80 text-black border-[#211f1c] dark:border-white/20"
+            className="bg-waste-recycle hover:bg-waste-recycle/80 text-black border-[#211f1c]"
           >
             <Save className="w-4 h-4 mr-2" />
             Save
@@ -124,9 +124,9 @@ export function ScientificDataEditor({
         </div>
       </div>
 
-      <Alert className="mb-4 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
-        <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-        <AlertDescription className="text-sm text-blue-800 dark:text-blue-200">
+      <Alert className="mb-4 bg-blue-50 border-blue-200">
+        <AlertCircle className="h-4 w-4 text-blue-600" />
+        <AlertDescription className="text-sm text-blue-800">
           All parameter values should be normalized to 0-1 scale. M_value
           (Infrastructure Maturity) is shared across all three dimensions.
         </AlertDescription>

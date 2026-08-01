@@ -280,21 +280,21 @@ export function MySubmissionsView({
     switch (status) {
       case "pending_review":
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[#f4d3a0] dark:bg-[#4a3f2a] border border-[#211f1c] dark:border-white/20 text-xs normal">
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[#f4d3a0] border border-[#211f1c] text-xs normal">
             <Clock size={10} />
             Pending Review
           </span>
         );
       case "approved":
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[#c8e5c8] dark:bg-[#2a3f2a] border border-[#211f1c] dark:border-white/20 text-xs normal">
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[#c8e5c8] border border-[#211f1c] text-xs normal">
             <CheckCircle size={10} />
             Approved
           </span>
         );
       case "rejected":
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-waste-compost dark:bg-[#3f2a2a] border border-[#211f1c] dark:border-white/20 text-xs normal">
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-waste-compost border border-[#211f1c] text-xs normal">
             <XCircle size={10} />
             Rejected
           </span>
@@ -302,7 +302,7 @@ export function MySubmissionsView({
       case "needs_revision":
       case "pending_revision":
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-waste-recycle dark:bg-[#3a3825] border border-[#211f1c] dark:border-white/20 text-xs normal">
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-waste-recycle border border-[#211f1c] text-xs normal">
             <Edit3 size={10} />
             Needs Revision
           </span>
@@ -373,7 +373,7 @@ export function MySubmissionsView({
         <button
           type="button"
           onClick={() => onViewArticle(materialId, category, articleId)}
-          className="text-[12px] normal underline hover:no-underline text-black/80 dark:text-white/80 mt-1"
+          className="text-[12px] normal underline hover:no-underline text-black/80 mt-1"
         >
           View published article
         </button>
@@ -391,7 +391,7 @@ export function MySubmissionsView({
         <button
           type="button"
           onClick={() => onViewMaterial(materialId)}
-          className="text-[12px] normal underline hover:no-underline text-black/80 dark:text-white/80 mt-1"
+          className="text-[12px] normal underline hover:no-underline text-black/80 mt-1"
         >
           View material
         </button>
@@ -409,7 +409,7 @@ export function MySubmissionsView({
         <button
           type="button"
           onClick={() => onViewMaterial(materialId)}
-          className="text-[12px] normal underline hover:no-underline text-black/80 dark:text-white/80 mt-1"
+          className="text-[12px] normal underline hover:no-underline text-black/80 mt-1"
         >
           View material
         </button>
@@ -433,7 +433,7 @@ export function MySubmissionsView({
 
       {loading ? (
         <div className="text-center py-8">
-          <p className="text-[14px] text-black/70 dark:text-white/70">
+          <p className="text-[14px] text-black/70">
             Loading submissions...
           </p>
         </div>
@@ -441,12 +441,12 @@ export function MySubmissionsView({
         <div className="text-center py-12">
           <Package
             size={48}
-            className="mx-auto mb-4 text-black/20 dark:text-white/20"
+            className="mx-auto mb-4 text-black/20"
           />
-          <p className="text-[14px] text-black/70 dark:text-white/70">
+          <p className="text-[14px] text-black/70">
             No submissions yet
           </p>
-          <p className="text-[12px] text-black/50 dark:text-white/50 mt-2">
+          <p className="text-[12px] text-black/50 mt-2">
             Submissions of any status will appear here.
           </p>
         </div>
@@ -455,11 +455,11 @@ export function MySubmissionsView({
           {submissions.map((submission) => (
             <div
               key={submission.id}
-              className="flat-reversed p-4 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+              className="flat-reversed p-4 hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-start gap-3 flex-1">
-                  <div className="icon-box bg-waste-reuse dark:bg-[#2a3235] p-2">
+                  <div className="icon-box bg-waste-reuse p-2">
                     {getSubmissionIcon(submission.type)}
                   </div>
                   <div className="flex-1">
@@ -468,13 +468,13 @@ export function MySubmissionsView({
                         {getSubmissionTitle(submission)}
                       </h3>
                     </div>
-                    <p className="text-sm text-black/60 dark:text-white/60 mb-2">
+                    <p className="text-sm text-black/60 mb-2">
                       {getSubmissionLabel(submission.type)} • Submitted{" "}
                       {formatDate(submission.created_at)}
                     </p>
                     {renderSubmissionLink(submission)}
                     {submission.feedback && (
-                      <div className="bg-waste-recycle dark:bg-[#3a3825] border border-[#211f1c] dark:border-white/20 rounded-md p-2 mt-2">
+                      <div className="bg-waste-recycle border border-[#211f1c] rounded-md p-2 mt-2">
                         <p className="text-xs normal">
                           <strong>Feedback:</strong> {submission.feedback}
                         </p>
@@ -487,7 +487,7 @@ export function MySubmissionsView({
                         isMaterialType(submission.type)) && (
                         <div className="mt-3">
                           {editingId === submission.id ? (
-                            <div className="border border-[#211f1c] dark:border-white/20 rounded-md p-3 space-y-3 bg-white/50 dark:bg-black/20">
+                            <div className="border border-[#211f1c] rounded-md p-3 space-y-3 bg-white/50">
                               {isArticleType(submission.type) ? (
                                 <>
                                   <div>
@@ -503,7 +503,7 @@ export function MySubmissionsView({
                                           title: e.target.value,
                                         }))
                                       }
-                                      className="w-full text-[12px] px-2 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-white dark:bg-[#2a2825] normal focus:outline-none focus:ring-1 focus:ring-[#211f1c] dark:focus:ring-white/40"
+                                      className="w-full text-[12px] px-2 py-1.5 rounded-md border border-[#211f1c] bg-white normal focus:outline-none focus:ring-1 focus:ring-[#211f1c]"
                                     />
                                   </div>
                                   <div>
@@ -519,7 +519,7 @@ export function MySubmissionsView({
                                         }))
                                       }
                                       rows={6}
-                                      className="w-full text-[12px] px-2 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-white dark:bg-[#2a2825] normal focus:outline-none focus:ring-1 focus:ring-[#211f1c] dark:focus:ring-white/40 resize-y"
+                                      className="w-full text-[12px] px-2 py-1.5 rounded-md border border-[#211f1c] bg-white normal focus:outline-none focus:ring-1 focus:ring-[#211f1c] resize-y"
                                     />
                                   </div>
                                 </>
@@ -538,7 +538,7 @@ export function MySubmissionsView({
                                           name: e.target.value,
                                         }))
                                       }
-                                      className="w-full text-[12px] px-2 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-white dark:bg-[#2a2825] normal focus:outline-none focus:ring-1 focus:ring-[#211f1c] dark:focus:ring-white/40"
+                                      className="w-full text-[12px] px-2 py-1.5 rounded-md border border-[#211f1c] bg-white normal focus:outline-none focus:ring-1 focus:ring-[#211f1c]"
                                     />
                                   </div>
                                   <div>
@@ -553,7 +553,7 @@ export function MySubmissionsView({
                                           category: e.target.value,
                                         }))
                                       }
-                                      className="w-full text-[12px] px-2 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-white dark:bg-[#2a2825] normal focus:outline-none focus:ring-1 focus:ring-[#211f1c] dark:focus:ring-white/40"
+                                      className="w-full text-[12px] px-2 py-1.5 rounded-md border border-[#211f1c] bg-white normal focus:outline-none focus:ring-1 focus:ring-[#211f1c]"
                                     >
                                       <option value="">Select category</option>
                                       {MATERIAL_CATEGORIES.map((category) => (
@@ -576,7 +576,7 @@ export function MySubmissionsView({
                                         }))
                                       }
                                       rows={4}
-                                      className="w-full text-[12px] px-2 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-white dark:bg-[#2a2825] normal focus:outline-none focus:ring-1 focus:ring-[#211f1c] dark:focus:ring-white/40 resize-y"
+                                      className="w-full text-[12px] px-2 py-1.5 rounded-md border border-[#211f1c] bg-white normal focus:outline-none focus:ring-1 focus:ring-[#211f1c] resize-y"
                                     />
                                   </div>
                                   {submission.type === "edit_material" && (
@@ -593,7 +593,7 @@ export function MySubmissionsView({
                                           }))
                                         }
                                         rows={3}
-                                        className="w-full text-[12px] px-2 py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 bg-white dark:bg-[#2a2825] normal focus:outline-none focus:ring-1 focus:ring-[#211f1c] dark:focus:ring-white/40 resize-y"
+                                        className="w-full text-[12px] px-2 py-1.5 rounded-md border border-[#211f1c] bg-white normal focus:outline-none focus:ring-1 focus:ring-[#211f1c] resize-y"
                                       />
                                     </div>
                                   )}

@@ -11,9 +11,9 @@ export const classBank = {
         },
         dark: {
           text: {
-            color: "dark:text-blue-300",
+            color: "",
           },
-          bgColor: "dark:bg-blue-900/20",
+          bgColor: "",
         },
       },
     },
@@ -31,7 +31,7 @@ export const classBank = {
       focusClasses:
         "outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
       invalidClasses:
-        "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+        "aria-invalid:ring-destructive/20 aria-invalid:border-destructive",
     },
     defaultClasses: {
       bgColor: "bg-primary",
@@ -39,19 +39,19 @@ export const classBank = {
       hoverBgColor: "hover:bg-primary/90",
     },
     destructiveClasses: {
-      bgColor: "bg-destructive dark:bg-destructive/60",
+      bgColor: "bg-destructive",
       textColor: "text-white",
       hoverBgColor: "hover:bg-destructive/90",
       focusRingColor:
-        "focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40",
+        "focus-visible:ring-destructive/20",
     },
     outlineClasses: {
       bgColor: "bg-background",
       textColor: "text-foreground",
       border:
-        "border border-solid border-[#211f1c] dark:border-white/20 dark:bg-input/30",
+        "border border-solid border-[#211f1c]",
       hoverBgColor:
-        "hover:bg-accent hover:text-accent-foreground dark:hover:bg-input/50",
+        "hover:bg-accent hover:text-accent-foreground",
     },
     secondaryClasses: {
       bgColor: "bg-secondary",
@@ -59,7 +59,7 @@ export const classBank = {
       hoverBgColor: "hover:bg-secondary/80",
     },
     ghostClasses: {
-      hoverBgColor: "hover:bg-accent dark:hover:bg-accent/50",
+      hoverBgColor: "hover:bg-accent",
       hoverTextColor: "hover:text-accent-foreground",
     },
     linkClasses: {
@@ -74,7 +74,7 @@ export const classBank = {
     },
   },
   cards: {
-    flat: "mt-2 p-4 bg-white dark:bg-[#1a1918] border border-[#211f1c] dark:border-white/20",
+    flat: "mt-2 p-4 bg-white border border-[#211f1c]",
   },
   checkbox: {
     root: {
@@ -91,7 +91,7 @@ export const classBank = {
           bgColor: "bg-input-background ",
         },
         dark: {
-          bgColor: "dark:bg-input/30",
+          bgColor: "",
         },
       },
       checked: {
@@ -103,7 +103,7 @@ export const classBank = {
           textColor: "data-[state=checked]:text-primary-foreground",
         },
         dark: {
-          darkBgColor: "dark:data-[state=checked]:bg-primary",
+          darkBgColor: "",
         },
       },
       focus: {
@@ -118,7 +118,7 @@ export const classBank = {
           ring: "aria-invalid:ring-destructive/20",
         },
         dark: {
-          ring: "dark:aria-invalid:ring-destructive/40",
+          ring: "",
         },
       },
       focusVisible: {
@@ -149,15 +149,15 @@ export const classBank = {
       level: {
         high: {
           light: { text: "text-green-700" },
-          dark: { text: "dark:text-green-400" },
+          dark: { text: "" },
         },
         medium: {
           light: { text: "text-amber-600" },
-          dark: { text: "dark:text-amber-400" },
+          dark: { text: "" },
         },
         low: {
           light: { text: "text-red-600" },
-          dark: { text: "dark:text-red-400" },
+          dark: { text: "" },
         },
       },
       margin: { all: "ml-auto" },
@@ -245,13 +245,13 @@ export const styles = {
     "flex items-center justify-center text-current transition-none",
   flexWrapGap1Pl2: "flex flex-wrap gap-1 pl-2",
   flexJustifyCenterMB1: "flex justify-between items-center mb-1",
-  BW60: "text-black/60 dark:text-white/60",
+  BW60: "text-black/60",
   BW: "normal",
   med: "font-medium",
   PL2: "pl-2",
   scientificMetadataLayout: "flex items-center gap-2 mb-2",
   metaDataViewStyles:
-    "flex items-center gap-2 p-3 arcade-bg-green arcade-btn-green border border-[#211f1c] dark:border-white/20 rounded-md hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all",
+    "flex items-center gap-2 p-3 arcade-bg-green arcade-btn-green border border-[#211f1c] rounded-md hover:shadow-[2px_2px_0px_0px_#000000] transition-all",
   wFull: "w-full",
   w4h4: "w-4 h-4",
   mlAuto: "ml-auto",

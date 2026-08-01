@@ -14,7 +14,7 @@ export function ChartsPerformanceView({ onBack }: ChartsPerformanceViewProps) {
         </button>
         <div className="flex-1">
           <h2 className="text-[24px] normal">Charts Performance</h2>
-          <p className="text-[12px] text-black/60 dark:text-white/60">
+          <p className="text-[12px] text-black/60">
             Chart rendering and rasterization testing
           </p>
         </div>

@@ -200,7 +200,7 @@ export function ContentMappingReviewPanel() {
             >
               Content Mapping Review
             </h3>
-            <p className="mt-1 max-w-xl text-[13px] leading-relaxed text-black/70 dark:text-white/70">
+            <p className="mt-1 max-w-xl text-[13px] leading-relaxed text-black/70">
               Approve deliberate content-to-material claims or reject incorrect
               ones. Every decision records reviewer metadata, audit history, and
               a compatibility event in one transaction.
@@ -211,7 +211,7 @@ export function ContentMappingReviewPanel() {
           type="button"
           onClick={() => void loadItems()}
           disabled={isLoading}
-          className="flex items-center gap-2 rounded-lg border border-black/15 px-3 py-2 text-[12px] disabled:opacity-50 dark:border-white/15"
+          className="flex items-center gap-2 rounded-lg border border-black/15 px-3 py-2 text-[12px] disabled:opacity-50"
         >
           <RefreshCw
             className={`size-3.5 ${isLoading ? "animate-spin" : ""}`}
@@ -221,7 +221,7 @@ export function ContentMappingReviewPanel() {
       </div>
 
       <div className="flex flex-wrap gap-3">
-        <label className="flex flex-col gap-1 text-[11px] text-black/60 dark:text-white/60">
+        <label className="flex flex-col gap-1 text-[11px] text-black/60">
           Status
           <select
             value={status}
@@ -231,7 +231,7 @@ export function ContentMappingReviewPanel() {
               );
               setOffset(0);
             }}
-            className="rounded-lg border border-black/15 bg-transparent px-3 py-2 text-[13px] text-black dark:border-white/15 dark:text-white"
+            className="rounded-lg border border-black/15 bg-transparent px-3 py-2 text-[13px] text-black"
           >
             <option value="pending_review">Pending review</option>
             <option value="active">Approved</option>
@@ -243,9 +243,9 @@ export function ContentMappingReviewPanel() {
           onSubmit={submitSearch}
           className="flex min-w-64 flex-1 items-end gap-2"
         >
-          <label className="flex flex-1 flex-col gap-1 text-[11px] text-black/60 dark:text-white/60">
+          <label className="flex flex-1 flex-col gap-1 text-[11px] text-black/60">
             Filter mappings
-            <span className="flex rounded-lg border border-black/15 dark:border-white/15">
+            <span className="flex rounded-lg border border-black/15">
               <Search className="ml-3 mt-2.5 size-3.5 shrink-0" />
               <input
                 value={searchInput}
@@ -258,7 +258,7 @@ export function ContentMappingReviewPanel() {
           </label>
           <button
             type="submit"
-            className="rounded-lg border border-black/15 px-3 py-2 text-[12px] dark:border-white/15"
+            className="rounded-lg border border-black/15 px-3 py-2 text-[12px]"
           >
             Filter
           </button>
@@ -270,7 +270,7 @@ export function ContentMappingReviewPanel() {
                 setSearch("");
                 setOffset(0);
               }}
-              className="px-2 py-2 text-[12px] text-black/60 dark:text-white/60"
+              className="px-2 py-2 text-[12px] text-black/60"
             >
               Clear
             </button>
@@ -281,7 +281,7 @@ export function ContentMappingReviewPanel() {
       {error && (
         <p
           role="alert"
-          className="rounded-lg border border-red-500/25 bg-red-500/5 p-3 text-[12px] text-red-700 dark:text-red-300"
+          className="rounded-lg border border-red-500/25 bg-red-500/5 p-3 text-[12px] text-red-700"
         >
           {error}
         </p>
@@ -320,11 +320,11 @@ export function ContentMappingReviewPanel() {
       )}
 
       {isLoading ? (
-        <div className="flex items-center justify-center gap-2 py-10 text-[13px] text-black/55 dark:text-white/55">
+        <div className="flex items-center justify-center gap-2 py-10 text-[13px] text-black/55">
           <Loader2 className="size-4 animate-spin" /> Loading mappings
         </div>
       ) : items.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-black/15 px-4 py-10 text-center text-[13px] text-black/55 dark:border-white/15 dark:text-white/55">
+        <p className="rounded-lg border border-dashed border-black/15 px-4 py-10 text-center text-[13px] text-black/55">
           No mappings match this view.
         </p>
       ) : (
@@ -332,7 +332,7 @@ export function ContentMappingReviewPanel() {
           {items.map((item) => (
             <article
               key={item.id}
-              className="rounded-xl border border-black/10 p-4 dark:border-white/10"
+              className="rounded-xl border border-black/10 p-4"
             >
               <div className="flex flex-wrap items-start justify-between gap-4">
                 {item.status === "pending_review" && (
@@ -346,7 +346,7 @@ export function ContentMappingReviewPanel() {
                   />
                 )}
                 <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-wide text-black/45 dark:text-white/45">
+                  <div className="flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-wide text-black/45">
                     <span>{formatLabel(item.content_type)}</span>
                     <span aria-hidden="true">/</span>
                     <span>{STATUS_LABELS[item.status]}</span>
@@ -355,22 +355,22 @@ export function ContentMappingReviewPanel() {
                     {item.content_name}
                   </p>
                   <p className="mt-1 text-[13px]">
-                    <span className="text-black/50 dark:text-white/50">
+                    <span className="text-black/50">
                       maps to
                     </span>{" "}
                     <strong>{item.subject_name}</strong>
                   </p>
                   <div className="mt-3 flex flex-wrap gap-2 text-[11px]">
-                    <span className="rounded-full bg-black/5 px-2.5 py-1 dark:bg-white/10">
+                    <span className="rounded-full bg-black/5 px-2.5 py-1">
                       {formatLabel(item.role)}
                     </span>
                     {item.lifecycle_focus && (
-                      <span className="rounded-full bg-black/5 px-2.5 py-1 dark:bg-white/10">
+                      <span className="rounded-full bg-black/5 px-2.5 py-1">
                         Lifecycle: {formatLabel(item.lifecycle_focus)}
                       </span>
                     )}
                     {item.evidence_use && (
-                      <span className="rounded-full bg-black/5 px-2.5 py-1 dark:bg-white/10">
+                      <span className="rounded-full bg-black/5 px-2.5 py-1">
                         Evidence: {formatLabel(item.evidence_use)}
                       </span>
                     )}
@@ -382,7 +382,7 @@ export function ContentMappingReviewPanel() {
                       type="button"
                       onClick={() => void review(item, "reject")}
                       disabled={reviewingId !== null || isBulkApproving}
-                      className="flex items-center gap-1.5 rounded-lg border border-black/15 px-3 py-2 text-[12px] disabled:opacity-50 dark:border-white/15"
+                      className="flex items-center gap-1.5 rounded-lg border border-black/15 px-3 py-2 text-[12px] disabled:opacity-50"
                     >
                       <Archive className="size-3.5" /> Reject
                     </button>
@@ -409,7 +409,7 @@ export function ContentMappingReviewPanel() {
                     isBulkApproving ||
                     deletingId !== null
                   }
-                  className="flex items-center gap-1.5 rounded-lg border border-red-500/30 px-3 py-2 text-[12px] text-red-700 disabled:opacity-50 dark:text-red-300"
+                  className="flex items-center gap-1.5 rounded-lg border border-red-500/30 px-3 py-2 text-[12px] text-red-700 disabled:opacity-50"
                 >
                   {deletingId === item.id ? (
                     <Loader2 className="size-3.5 animate-spin" />
@@ -424,7 +424,7 @@ export function ContentMappingReviewPanel() {
         </div>
       )}
 
-      <div className="flex items-center justify-between text-[11px] text-black/55 dark:text-white/55">
+      <div className="flex items-center justify-between text-[11px] text-black/55">
         <span>
           {pageStart}-{pageEnd} of {total}
         </span>
@@ -434,7 +434,7 @@ export function ContentMappingReviewPanel() {
             onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))}
             disabled={offset === 0 || isLoading}
             aria-label="Previous page"
-            className="rounded-lg border border-black/10 p-2 disabled:opacity-30 dark:border-white/10"
+            className="rounded-lg border border-black/10 p-2 disabled:opacity-30"
           >
             <ChevronLeft className="size-3.5" />
           </button>
@@ -443,7 +443,7 @@ export function ContentMappingReviewPanel() {
             onClick={() => setOffset(offset + PAGE_SIZE)}
             disabled={offset + PAGE_SIZE >= total || isLoading}
             aria-label="Next page"
-            className="rounded-lg border border-black/10 p-2 disabled:opacity-30 dark:border-white/10"
+            className="rounded-lg border border-black/10 p-2 disabled:opacity-30"
           >
             <ChevronRight className="size-3.5" />
           </button>

@@ -42,7 +42,7 @@ export function MaterialCard({
       {/* Subtle corner accent background image */}
       {coverImage && (
         <div
-          className="absolute top-0 right-0 w-64 h-64 rounded-2xl opacity-33 dark:opacity-15 pointer-events-none"
+          className="absolute top-0 right-0 w-64 h-64 rounded-2xl opacity-33 pointer-events-none"
           style={{
             backgroundImage: `url(${coverImage})`,
             backgroundSize: "cover",
@@ -58,7 +58,7 @@ export function MaterialCard({
         <div className="material-card-title">
           <button
             onClick={onViewMaterial}
-            className="text-[18px] text-black dark:text-white mb-1 hover:underline cursor-pointer text-left block"
+            className="text-[18px] text-black mb-1 hover:underline cursor-pointer text-left block"
             aria-label={`View details for ${material.name}`}
           >
             {material.name}
@@ -66,7 +66,7 @@ export function MaterialCard({
 
           {/* Writer/Editor Attribution */}
           {(material.writer_name || material.editor_name) && (
-            <div className="mt-1 flex items-center gap-1 flex-wrap text-[8px] text-black/40 dark:text-white/40">
+            <div className="mt-1 flex items-center gap-1 flex-wrap text-[8px] text-black/40">
               {material.writer_name && material.editor_name ? (
                 <>
                   <span>by {material.writer_name}</span>
@@ -127,7 +127,7 @@ export function MaterialCard({
       </div>
 
       {material.description && (
-        <p className="text-[14px] text-black/70 dark:text-white/70 mb-3 line-clamp-2 whitespace-pre-line">
+        <p className="text-[14px] text-black/70 mb-3 line-clamp-2 whitespace-pre-line">
           {material.description}
         </p>
       )}

@@ -36,7 +36,7 @@ export function VideoCard({
 
   return (
     <Card
-      className={`group overflow-hidden border-[1.5px] border-[#211f1c]/25 shadow-none dark:border-white/20 ${
+      className={`group overflow-hidden border-[1.5px] border-[#211f1c]/25 shadow-none ${
         isShortForm ? "w-full max-w-[280px] justify-self-center" : ""
       }`}
     >

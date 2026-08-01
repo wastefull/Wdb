@@ -136,11 +136,11 @@ export function ChartCacheManager() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-              <Image className="h-5 w-5 text-blue-600 dark:text-blue-300" />
+            <div className="p-2 bg-blue-100 rounded-lg">
+              <Image className="h-5 w-5 text-blue-600" />
             </div>
             <div>
-              <p className="text-sm text-black/60 dark:text-white/60">
+              <p className="text-sm text-black/60">
                 Cached Charts
               </p>
               <p className="text-2xl font-bold">{stats?.totalCount || 0}</p>
@@ -150,11 +150,11 @@ export function ChartCacheManager() {
 
         <Card className="p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
-              <HardDrive className="h-5 w-5 text-purple-600 dark:text-purple-300" />
+            <div className="p-2 bg-purple-100 rounded-lg">
+              <HardDrive className="h-5 w-5 text-purple-600" />
             </div>
             <div>
-              <p className="text-sm text-black/60 dark:text-white/60">
+              <p className="text-sm text-black/60">
                 Cache Size
               </p>
               <p className="text-2xl font-bold">
@@ -166,11 +166,11 @@ export function ChartCacheManager() {
 
         <Card className="p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
-              <Clock className="h-5 w-5 text-green-600 dark:text-green-300" />
+            <div className="p-2 bg-green-100 rounded-lg">
+              <Clock className="h-5 w-5 text-green-600" />
             </div>
             <div>
-              <p className="text-sm text-black/60 dark:text-white/60">
+              <p className="text-sm text-black/60">
                 Oldest Cache
               </p>
               <p className="text-xs font-bold">
@@ -182,11 +182,11 @@ export function ChartCacheManager() {
 
         <Card className="p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
-              <Clock className="h-5 w-5 text-orange-600 dark:text-orange-300" />
+            <div className="p-2 bg-orange-100 rounded-lg">
+              <Clock className="h-5 w-5 text-orange-600" />
             </div>
             <div>
-              <p className="text-sm text-black/60 dark:text-white/60">
+              <p className="text-sm text-black/60">
                 Newest Cache
               </p>
               <p className="text-xs font-bold">
@@ -201,10 +201,10 @@ export function ChartCacheManager() {
       <Card className="p-6">
         <h4 className="mb-4">Cache Maintenance</h4>
         <div className="space-y-3">
-          <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
             <div>
               <p className="font-medium">Clear Expired Caches</p>
-              <p className="text-sm text-black/60 dark:text-white/60">
+              <p className="text-sm text-black/60">
                 Remove caches older than 7 days
               </p>
             </div>
@@ -218,10 +218,10 @@ export function ChartCacheManager() {
             </Button>
           </div>
 
-          <div className="flex items-center justify-between p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+          <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
             <div>
               <p className="font-medium">Clear All Caches</p>
-              <p className="text-sm text-black/60 dark:text-white/60">
+              <p className="text-sm text-black/60">
                 Remove all cached charts (they will regenerate on next view)
               </p>
             </div>
@@ -238,9 +238,9 @@ export function ChartCacheManager() {
       </Card>
 
       {/* Information */}
-      <Card className="p-6 bg-blue-50 dark:bg-blue-900/20">
+      <Card className="p-6 bg-blue-50">
         <h4 className="mb-2">About Chart Caching</h4>
-        <div className="text-sm space-y-2 text-black/70 dark:text-white/70">
+        <div className="text-sm space-y-2 text-black/70">
           <p>
             Chart rasterization converts SVG visualizations to cached images,
             improving performance especially when displaying many materials with

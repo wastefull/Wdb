@@ -177,7 +177,7 @@ export function NotificationBell({
             unreadCount > 0 ? `(${unreadCount} unread)` : ""
           }`}
         >
-          <Bell size={14} className="text-black/60 dark:text-white/60" />
+          <Bell size={14} className="text-black/60" />
           {unreadCount > 0 && (
             <span className="absolute -top-0.5 -right-0.5 h-3 w-3 flex items-center justify-center arcade-bg-red arcade-btn-red text-[8px] rounded-full">
               {unreadCount > 9 ? "9+" : unreadCount}
@@ -186,7 +186,7 @@ export function NotificationBell({
         </button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-80 p-0 border-[1.5px] border-[#211f1c] dark:border-white/20 bg-white dark:bg-[#2a2825]"
+        className="w-80 p-0 border-[1.5px] border-[#211f1c] bg-white"
         align="end"
       >
         {/* Header */}
@@ -195,7 +195,7 @@ export function NotificationBell({
           {unreadCount > 0 && (
             <button
               onClick={handleMarkAllAsRead}
-              className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+              className="text-sm text-blue-600 hover:underline"
             >
               Mark all read
             </button>
@@ -206,25 +206,25 @@ export function NotificationBell({
         <ScrollArea className="h-100">
           {loading ? (
             <div className="flex items-center justify-center p-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#211f1c] dark:border-white"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#211f1c]"></div>
             </div>
           ) : notifications.length === 0 ? (
             <div className="p-8 text-center">
               <Bell
                 size={32}
-                className="mx-auto mb-3 text-black/30 dark:text-white/30"
+                className="mx-auto mb-3 text-black/30"
               />
-              <p className="text-[13px] text-black/60 dark:text-white/60">
+              <p className="text-[13px] text-black/60">
                 No notifications yet
               </p>
             </div>
           ) : (
-            <div className="divide-y divide-[#211f1c]/10 dark:divide-white/10">
+            <div className="divide-y divide-[#211f1c]/10">
               {notifications.map((notification) => (
                 <div
                   key={notification.id}
-                  className={`p-4 hover:bg-[#e5e4dc] dark:hover:bg-[#3a3835] transition-colors cursor-pointer ${
-                    !notification.read ? "bg-blue-50 dark:bg-blue-900/10" : ""
+                  className={`p-4 hover:bg-[#e5e4dc] transition-colors cursor-pointer ${
+                    !notification.read ? "bg-blue-50" : ""
                   }`}
                   onClick={() => handleNotificationClick(notification)}
                 >
@@ -236,12 +236,12 @@ export function NotificationBell({
                       <p className="text-[12px] normal mb-1">
                         {notification.message}
                       </p>
-                      <p className="text-xs text-black/50 dark:text-white/50">
+                      <p className="text-xs text-black/50">
                         {formatTimeAgo(notification.created_at)}
                       </p>
                     </div>
                     {!notification.read && (
-                      <div className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400 shrink-0 mt-1"></div>
+                      <div className="w-2 h-2 rounded-full bg-blue-600 shrink-0 mt-1"></div>
                     )}
                   </div>
                 </div>

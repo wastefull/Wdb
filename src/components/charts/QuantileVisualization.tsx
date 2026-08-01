@@ -136,9 +136,7 @@ export function QuantileVisualization({
           >
             <span className="text-sm normal">{label}</span>
             {articleCount !== undefined && articleCount > 0 && (
-              <span className="text-[9px] text-black/60 dark:text-white/60">
-                ({articleCount})
-              </span>
+              <span className="text-[9px] text-black/60">({articleCount})</span>
             )}
           </button>
           <span className="text-sm normal">{displayScore}</span>
@@ -280,24 +278,18 @@ function SimpleBar({
       }}
     >
       <div className="flex items-center justify-between mb-1">
-        <span className="text-xs text-black/70 dark:text-white/70">
-          {label}
-        </span>
+        <span className="text-xs text-black/70">{label}</span>
         <div className="flex items-center gap-2">
           {articleCount !== undefined && articleCount > 0 && (
-            <span className="text-[9px] text-black/50 dark:text-white/50 bg-white/50 dark:bg-black/20 px-1.5 py-0.5 rounded border border-black/10 dark:border-white/10">
+            <span className="text-[9px] text-black/50 bg-white/50 px-1.5 py-0.5 rounded border border-black/10">
               {articleCount} article{articleCount !== 1 ? "s" : ""}
             </span>
           )}
-          {showScores && (
-            <span className="text-xs text-black/70 dark:text-white/70">
-              {score}
-            </span>
-          )}
+          {showScores && <span className="text-xs text-black/70">{score}</span>}
         </div>
       </div>
       {showScores && (
-        <div className="h-2 bg-black/10 dark:bg-white/10 rounded-full overflow-hidden border border-[#211f1c] dark:border-white/20">
+        <div className="h-2 bg-black/10 rounded-full overflow-hidden border border-[#211f1c]">
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${score}%` }}
@@ -410,7 +402,7 @@ function OverlapMode({
         x={theoMean * width}
         y={centerY + 18}
         textAnchor="middle"
-        className="text-[8px] fill-black/50 dark:fill-white/50"
+        className="text-[8px] fill-black/50"
       >
         future
       </text>
@@ -522,7 +514,7 @@ function NearOverlapMode({
           x={pracMean * width}
           y={centerY + 18}
           textAnchor="middle"
-          className="text-[8px] fill-black/50 dark:fill-white/50"
+          className="text-[8px] fill-black/50"
         >
           today
         </text>
@@ -531,7 +523,7 @@ function NearOverlapMode({
         x={theoMean * width}
         y={centerY + 18}
         textAnchor="middle"
-        className="text-[8px] fill-black/50 dark:fill-white/50"
+        className="text-[8px] fill-black/50"
       >
         future
       </text>
@@ -650,7 +642,7 @@ function GapMode({
         x={((pracMean + theoMean) * width) / 2}
         y={centerY - 15}
         textAnchor="middle"
-        className="text-[8px] fill-black/70 dark:fill-white/70"
+        className="text-[8px] fill-black/70"
       >
         Gap: {Math.round(gap * 100)}%
       </text>
@@ -661,7 +653,7 @@ function GapMode({
           x={pracMean * width}
           y={centerY + 18}
           textAnchor="middle"
-          className="text-[8px] fill-black/50 dark:fill-white/50"
+          className="text-[8px] fill-black/50"
         >
           today
         </text>
@@ -670,7 +662,7 @@ function GapMode({
         x={theoMean * width}
         y={centerY + 18}
         textAnchor="middle"
-        className="text-[8px] fill-black/50 dark:fill-white/50"
+        className="text-[8px] fill-black/50"
       >
         future
       </text>
@@ -769,32 +761,28 @@ function TooltipContent({
 }: any) {
   return (
     <div className="absolute left-0 right-0 -top-2 transform -translate-y-full z-10 pointer-events-none">
-      <div className="bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-md p-2 shadow-lg">
+      <div className="bg-white border-[1.5px] border-[#211f1c] rounded-md p-2 shadow-lg">
         <div className="text-[9px] normal space-y-0.5">
           <div className="flex justify-between gap-3">
-            <span className="text-black/60 dark:text-white/60">Practical:</span>
+            <span className="text-black/60">Practical:</span>
             <span>
               {Math.round(pracMean * 100)} ±{" "}
               {Math.round((pracCI.upper - pracCI.lower) * 50)}%
             </span>
           </div>
           <div className="flex justify-between gap-3">
-            <span className="text-black/60 dark:text-white/60">
-              Theoretical:
-            </span>
+            <span className="text-black/60">Theoretical:</span>
             <span>
               {Math.round(theoMean * 100)} ±{" "}
               {Math.round((theoCI.upper - theoCI.lower) * 50)}%
             </span>
           </div>
           <div className="flex justify-between gap-3">
-            <span className="text-black/60 dark:text-white/60">Gap:</span>
+            <span className="text-black/60">Gap:</span>
             <span>{Math.round(gap * 100)} pts</span>
           </div>
           <div className="flex justify-between gap-3">
-            <span className="text-black/60 dark:text-white/60">
-              Confidence:
-            </span>
+            <span className="text-black/60">Confidence:</span>
             <span>{confidence || "Unknown"}</span>
           </div>
         </div>

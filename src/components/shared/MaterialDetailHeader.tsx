@@ -39,7 +39,7 @@ export function MaterialDetailHeader({
               backgroundPosition: "center",
             }}
           />
-          <div className="absolute inset-0 bg-linear-to-b from-transparent via-white/70 to-white dark:via-[#1a1917]/70 dark:to-[#1a1917]" />
+          <div className="absolute inset-0 bg-linear-to-b from-transparent via-white/70 to-white" />
         </div>
       )}
       <div className="mx-auto mb-10 max-w-7xl">
@@ -51,14 +51,14 @@ export function MaterialDetailHeader({
         >
           <ArrowLeft
             size={16}
-            className="text-black dark:text-white"
+            className="text-black"
             aria-hidden="true"
           />
         </button>
 
         <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
           <div className="min-w-0">
-            <h1 className="text-4xl leading-tight text-black text-shadow-lg dark:text-white md:text-[42px]">
+            <h1 className="text-4xl leading-tight text-black text-shadow-lg md:text-[42px]">
               {materialName}
             </h1>
             {/* <AliasDisplay aliases={aliases} /> */}

@@ -218,7 +218,7 @@ export function OneTimeActionsPanel({ onBack }: OneTimeActionsPanelProps) {
   return (
     <div className="flex h-full">
       {/* Sidebar */}
-      <aside className="w-72 border-r border-[#211f1c]/10 dark:border-white/10 p-6 shrink-0">
+      <aside className="w-72 border-r border-[#211f1c]/10 p-6 shrink-0">
         <div className="mb-6">
           <button
             onClick={onBack}
@@ -234,7 +234,7 @@ export function OneTimeActionsPanel({ onBack }: OneTimeActionsPanelProps) {
           <h2 className="font-display text-[22px] normal">One-Time Actions</h2>
         </div>
 
-        <p className="text-[12px] text-black/60 dark:text-white/60 leading-relaxed">
+        <p className="text-[12px] text-black/60 leading-relaxed">
           Administrative scripts and migration utilities. Each action is safe to
           re-run unless noted otherwise.
         </p>
@@ -254,7 +254,7 @@ export function OneTimeActionsPanel({ onBack }: OneTimeActionsPanelProps) {
                           .getElementById(`action-${action.id}`)
                           ?.scrollIntoView({ behavior: "smooth" })
                 }
-                className="w-full text-left px-3 py-2 rounded-lg text-[13px] hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex items-center gap-2"
+                className="w-full text-left px-3 py-2 rounded-lg text-[13px] hover:bg-black/5 transition-colors flex items-center gap-2"
               >
                 {state.status === "running" && (
                   <Loader2
@@ -272,15 +272,15 @@ export function OneTimeActionsPanel({ onBack }: OneTimeActionsPanelProps) {
                   <XCircle size={12} className="shrink-0 text-red-500" />
                 )}
                 {state.status === "idle" && (
-                  <span className="w-3 h-3 shrink-0 rounded-full border border-black/20 dark:border-white/20" />
+                  <span className="w-3 h-3 shrink-0 rounded-full border border-black/20" />
                 )}
                 <span className="truncate">{action.title}</span>
               </button>
             );
           })}
 
-          <div className="pt-3 mt-3 border-t border-black/10 dark:border-white/10">
-            <p className="text-[11px] uppercase tracking-wide text-black/40 dark:text-white/40 px-3 pb-2 flex items-center gap-1">
+          <div className="pt-3 mt-3 border-t border-black/10">
+            <p className="text-[11px] uppercase tracking-wide text-black/40 px-3 pb-2 flex items-center gap-1">
               <GitMerge size={10} /> Graph Migration
             </p>
             {GRAPH_MIGRATION_ACTIONS.map((action) => {
@@ -297,7 +297,7 @@ export function OneTimeActionsPanel({ onBack }: OneTimeActionsPanelProps) {
                             .getElementById(`action-${action.id}`)
                             ?.scrollIntoView({ behavior: "smooth" })
                   }
-                  className="w-full text-left px-3 py-2 rounded-lg text-[13px] hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex items-center gap-2"
+                  className="w-full text-left px-3 py-2 rounded-lg text-[13px] hover:bg-black/5 transition-colors flex items-center gap-2"
                 >
                   {state.status === "running" && (
                     <Loader2
@@ -315,7 +315,7 @@ export function OneTimeActionsPanel({ onBack }: OneTimeActionsPanelProps) {
                     <XCircle size={12} className="shrink-0 text-red-500" />
                   )}
                   {state.status === "idle" && (
-                    <span className="w-3 h-3 shrink-0 rounded-full border border-black/20 dark:border-white/20" />
+                    <span className="w-3 h-3 shrink-0 rounded-full border border-black/20" />
                   )}
                   <span className="truncate">{action.title}</span>
                 </button>
@@ -343,11 +343,11 @@ export function OneTimeActionsPanel({ onBack }: OneTimeActionsPanelProps) {
                     <h3 className="font-sniglet text-[16px] normal mb-1">
                       {action.title}
                     </h3>
-                    <p className="text-[13px] text-black/70 dark:text-white/70 leading-relaxed">
+                    <p className="text-[13px] text-black/70 leading-relaxed">
                       {action.description}
                     </p>
                     {action.warning && (
-                      <p className="mt-2 text-[12px] text-amber-600 dark:text-amber-400">
+                      <p className="mt-2 text-[12px] text-amber-600">
                         ⚠ {action.warning}
                       </p>
                     )}
@@ -376,7 +376,7 @@ export function OneTimeActionsPanel({ onBack }: OneTimeActionsPanelProps) {
                       <CheckCircle size={14} />
                       <span>Completed</span>
                     </div>
-                    <pre className="bg-black/5 dark:bg-white/5 rounded-lg p-4 text-[12px] font-mono overflow-x-auto whitespace-pre-wrap break-all border border-[#211f1c]/10 dark:border-white/10">
+                    <pre className="bg-black/5 rounded-lg p-4 text-[12px] font-mono overflow-x-auto whitespace-pre-wrap break-all border border-[#211f1c]/10">
                       {JSON.stringify(state.result, null, 2)}
                     </pre>
                   </div>
@@ -388,7 +388,7 @@ export function OneTimeActionsPanel({ onBack }: OneTimeActionsPanelProps) {
                       <XCircle size={14} />
                       <span>Error</span>
                     </div>
-                    <pre className="bg-red-50 dark:bg-red-950/30 rounded-lg p-4 text-[12px] font-mono text-red-700 dark:text-red-300 overflow-x-auto whitespace-pre-wrap break-all border border-red-200 dark:border-red-800">
+                    <pre className="bg-red-50 rounded-lg p-4 text-[12px] font-mono text-red-700 overflow-x-auto whitespace-pre-wrap break-all border border-red-200">
                       {state.message}
                     </pre>
                   </div>
@@ -402,7 +402,7 @@ export function OneTimeActionsPanel({ onBack }: OneTimeActionsPanelProps) {
             <h2 className="font-display text-[18px] normal mb-1 flex items-center gap-2">
               <GitMerge size={18} /> Graph Migration
             </h2>
-            <p className="text-[12px] text-black/60 dark:text-white/60 mb-4">
+            <p className="text-[12px] text-black/60 mb-4">
               Separately approved migration operations. Each requires explicit
               confirmation and a validated recovery artifact.
             </p>
@@ -424,17 +424,17 @@ export function OneTimeActionsPanel({ onBack }: OneTimeActionsPanelProps) {
               <div
                 key={action.id}
                 id={`action-${action.id}`}
-                className="retro-card p-6 space-y-4 border-2 border-amber-200 dark:border-amber-800/50"
+                className="retro-card p-6 space-y-4 border-2 border-amber-200"
               >
                 <div>
                   <h3 className="font-sniglet text-[16px] normal mb-1">
                     {action.title}
                   </h3>
-                  <p className="text-[13px] text-black/70 dark:text-white/70 leading-relaxed">
+                  <p className="text-[13px] text-black/70 leading-relaxed">
                     {action.description}
                   </p>
                   {action.warning && (
-                    <p className="mt-2 text-[12px] text-amber-600 dark:text-amber-400">
+                    <p className="mt-2 text-[12px] text-amber-600">
                       ⚠ {action.warning}
                     </p>
                   )}
@@ -444,7 +444,7 @@ export function OneTimeActionsPanel({ onBack }: OneTimeActionsPanelProps) {
                 <div className="space-y-3">
                   {action.fields.map((field) => (
                     <div key={field.key}>
-                      <label className="block text-[11px] font-medium text-black/60 dark:text-white/60 mb-1">
+                      <label className="block text-[11px] font-medium text-black/60 mb-1">
                         {field.label}
                       </label>
                       <input
@@ -460,11 +460,11 @@ export function OneTimeActionsPanel({ onBack }: OneTimeActionsPanelProps) {
                             },
                           }))
                         }
-                        className="w-full px-3 py-2 text-[12px] font-mono bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/15 rounded-lg focus:outline-none focus:ring-1 focus:ring-waste-science read-only:opacity-60 read-only:cursor-default"
+                        className="w-full px-3 py-2 text-[12px] font-mono bg-black/5 border border-black/15 rounded-lg focus:outline-none focus:ring-1 focus:ring-waste-science read-only:opacity-60 read-only:cursor-default"
                         spellCheck={false}
                       />
                       {field.hint && (
-                        <p className="mt-1 text-[11px] text-black/40 dark:text-white/40">
+                        <p className="mt-1 text-[11px] text-black/40">
                           {field.hint}
                         </p>
                       )}
@@ -474,9 +474,9 @@ export function OneTimeActionsPanel({ onBack }: OneTimeActionsPanelProps) {
 
                 {/* Confirmation */}
                 <div>
-                  <label className="block text-[11px] font-medium text-black/60 dark:text-white/60 mb-1">
+                  <label className="block text-[11px] font-medium text-black/60 mb-1">
                     Type confirmation to unlock:{" "}
-                    <span className="font-mono text-amber-600 dark:text-amber-400">
+                    <span className="font-mono text-amber-600">
                       {action.requiredConfirmation}
                     </span>
                   </label>
@@ -490,7 +490,7 @@ export function OneTimeActionsPanel({ onBack }: OneTimeActionsPanelProps) {
                       }))
                     }
                     placeholder={action.requiredConfirmation}
-                    className="w-full px-3 py-2 text-[12px] font-mono bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/15 rounded-lg focus:outline-none focus:ring-1 focus:ring-waste-science"
+                    className="w-full px-3 py-2 text-[12px] font-mono bg-black/5 border border-black/15 rounded-lg focus:outline-none focus:ring-1 focus:ring-waste-science"
                     spellCheck={false}
                   />
                 </div>
@@ -520,7 +520,7 @@ export function OneTimeActionsPanel({ onBack }: OneTimeActionsPanelProps) {
                       <CheckCircle size={14} />
                       <span>Completed</span>
                     </div>
-                    <pre className="bg-black/5 dark:bg-white/5 rounded-lg p-4 text-[12px] font-mono overflow-x-auto whitespace-pre-wrap break-all border border-[#211f1c]/10 dark:border-white/10">
+                    <pre className="bg-black/5 rounded-lg p-4 text-[12px] font-mono overflow-x-auto whitespace-pre-wrap break-all border border-[#211f1c]/10">
                       {JSON.stringify(state.result, null, 2)}
                     </pre>
                   </div>
@@ -532,7 +532,7 @@ export function OneTimeActionsPanel({ onBack }: OneTimeActionsPanelProps) {
                       <XCircle size={14} />
                       <span>Error</span>
                     </div>
-                    <pre className="bg-red-50 dark:bg-red-950/30 rounded-lg p-4 text-[12px] font-mono text-red-700 dark:text-red-300 overflow-x-auto whitespace-pre-wrap break-all border border-red-200 dark:border-red-800">
+                    <pre className="bg-red-50 rounded-lg p-4 text-[12px] font-mono text-red-700 overflow-x-auto whitespace-pre-wrap break-all border border-red-200">
                       {state.message}
                     </pre>
                   </div>

@@ -65,7 +65,7 @@ export function UserSelector({
 
   return (
     <div className="relative">
-      <label className="text-[13px] text-black dark:text-white mb-1 flex items-center gap-2">
+      <label className="text-[13px] text-black mb-1 flex items-center gap-2">
         <Users size={14} />
         {label}
       </label>
@@ -75,13 +75,13 @@ export function UserSelector({
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className="w-full px-3 py-2 bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-xl text-[14px] text-left outline-none focus:shadow-[2px_2px_0px_0px_#000000] dark:focus:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all flex items-center justify-between"
+          className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-xl text-[14px] text-left outline-none focus:shadow-[2px_2px_0px_0px_#000000] transition-all flex items-center justify-between"
         >
           <span
             className={
               selectedUser
-                ? "text-black dark:text-white"
-                : "text-black/50 dark:text-white/50"
+                ? "text-black"
+                : "text-black/50"
             }
           >
             {loading
@@ -92,7 +92,7 @@ export function UserSelector({
           </span>
           <ChevronDown
             size={16}
-            className={`text-black/50 dark:text-white/50 transition-transform ${isOpen ? "rotate-180" : ""}`}
+            className={`text-black/50 transition-transform ${isOpen ? "rotate-180" : ""}`}
           />
         </button>
 
@@ -104,25 +104,25 @@ export function UserSelector({
               e.stopPropagation();
               onSelectUser(null);
             }}
-            className="absolute right-10 top-1/2 -translate-y-1/2 p-1 hover:bg-black/10 dark:hover:bg-white/10 rounded"
+            className="absolute right-10 top-1/2 -translate-y-1/2 p-1 hover:bg-black/10 rounded"
             title="Clear selection"
           >
-            <X size={14} className="text-black/50 dark:text-white/50" />
+            <X size={14} className="text-black/50" />
           </button>
         )}
       </div>
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-xl shadow-lg max-h-60 overflow-hidden">
+        <div className="absolute z-50 w-full mt-1 bg-white border-[1.5px] border-[#211f1c] rounded-xl shadow-lg max-h-60 overflow-hidden">
           {/* Search input */}
-          <div className="p-2 border-b border-[#211f1c]/20 dark:border-white/10">
+          <div className="p-2 border-b border-[#211f1c]/20">
             <input
               type="text"
               placeholder="Search by name or email..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-2 py-1 bg-transparent text-[13px] outline-none placeholder:text-black/40 dark:placeholder:text-white/40"
+              className="w-full px-2 py-1 bg-transparent text-[13px] outline-none placeholder:text-black/40"
               autoFocus
             />
           </div>
@@ -137,7 +137,7 @@ export function UserSelector({
                 setIsOpen(false);
                 setSearchQuery("");
               }}
-              className="w-full px-3 py-2 text-left text-[13px] hover:bg-black/5 dark:hover:bg-white/5 text-black/60 dark:text-white/60 italic"
+              className="w-full px-3 py-2 text-left text-[13px] hover:bg-black/5 text-black/60 italic"
             >
               — Post as myself (no attribution) —
             </button>
@@ -151,17 +151,17 @@ export function UserSelector({
                   setIsOpen(false);
                   setSearchQuery("");
                 }}
-                className={`w-full px-3 py-2 text-left text-[13px] hover:bg-black/5 dark:hover:bg-white/5 flex items-center justify-between ${
+                className={`w-full px-3 py-2 text-left text-[13px] hover:bg-black/5 flex items-center justify-between ${
                   user.id === selectedUserId
-                    ? "bg-waste-recycle/20 dark:bg-waste-recycle/10"
+                    ? "bg-waste-recycle/20"
                     : ""
                 }`}
               >
                 <div>
-                  <span className="text-black dark:text-white">
+                  <span className="text-black">
                     {user.name || "Unnamed"}
                   </span>
-                  <span className="text-black/50 dark:text-white/50 ml-2">
+                  <span className="text-black/50 ml-2">
                     {user.email}
                   </span>
                 </div>
@@ -179,7 +179,7 @@ export function UserSelector({
             ))}
 
             {filteredUsers.length === 0 && !loading && (
-              <div className="px-3 py-4 text-center text-[13px] text-black/50 dark:text-white/50">
+              <div className="px-3 py-4 text-center text-[13px] text-black/50">
                 No users found
               </div>
             )}
@@ -188,7 +188,7 @@ export function UserSelector({
       )}
 
       {/* Helper text */}
-      <p className="text-sm text-black/50 dark:text-white/50 mt-1">
+      <p className="text-sm text-black/50 mt-1">
         Optional: Attribute this content to another user. The audit log will
         still record you as the admin who performed the action.
       </p>

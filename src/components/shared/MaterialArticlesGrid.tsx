@@ -58,7 +58,7 @@ export function MaterialArticlesGrid({
       {articles.length > 0 && (
         <>
           {showHeading && (
-            <h3 className="text-[16px] text-black dark:text-white mb-4">
+            <h3 className="text-[16px] text-black mb-4">
               All Articles
             </h3>
           )}
@@ -102,7 +102,7 @@ export function MaterialArticlesGrid({
       {emptyCategories.length > 0 && (
         <div className="pt-6">
           {articles.length > 0 && (
-            <p className="text-[12px] text-black/50 dark:text-white/50 mb-3">
+            <p className="text-[12px] text-black/50 mb-3">
               No articles yet for:
             </p>
           )}
@@ -111,19 +111,19 @@ export function MaterialArticlesGrid({
               <button
                 key={category}
                 onClick={() => onViewArticles?.(category)}
-                className="flex flex-col items-center justify-center gap-2 p-6 rounded-(--retro-rounding) border-[1.5px] border-dashed border-[#211f1c]/40 dark:border-white/20 hover:border-[#211f1c] dark:hover:border-white/50 transition-colors group cursor-pointer"
+                className="flex flex-col items-center justify-center gap-2 p-6 rounded-(--retro-rounding) border-[1.5px] border-dashed border-[#211f1c]/40 hover:border-[#211f1c] transition-colors group cursor-pointer"
                 style={{ backgroundColor: `${categoryColors[category]}33` }}
               >
                 <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center border border-[#211f1c]/30 dark:border-white/20 group-hover:border-[#211f1c] dark:group-hover:border-white/50 transition-colors"
+                  className="w-8 h-8 rounded-full flex items-center justify-center border border-[#211f1c]/30 group-hover:border-[#211f1c] transition-colors"
                   style={{ backgroundColor: categoryColors[category] }}
                 >
                   <Plus
                     size={14}
-                    className={`text-black dark:text-black dark:rounded-full dark:shadow-2xl`}
+                    className={`text-black`}
                   />
                 </div>
-                <span className="text-[12px] text-black/60 dark:text-white/60 dark:shadow-2xl group-hover:text-black dark:group-hover:text-white transition-colors text-center">
+                <span className="text-[12px] text-black/60 group-hover:text-black transition-colors text-center">
                   Submit a {categoryLabels[category]} article
                 </span>
               </button>

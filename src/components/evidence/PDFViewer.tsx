@@ -491,11 +491,11 @@ export function PDFViewer({
   if (loading) {
     return (
       <div
-        className="flex flex-col items-center justify-center bg-[#f5f4f0] dark:bg-[#1a1917] rounded-lg border-2 border-[#211f1c]/20 dark:border-white/20"
+        className="flex flex-col items-center justify-center bg-[#f5f4f0] rounded-lg border-2 border-[#211f1c]/20"
         style={{ height }}
       >
-        <Loader2 className="w-8 h-8 animate-spin text-black/40 dark:text-white/40 mb-2" />
-        <p className="font-['Sniglet'] text-[12px] text-black/60 dark:text-white/60">
+        <Loader2 className="w-8 h-8 animate-spin text-black/40 mb-2" />
+        <p className="font-['Sniglet'] text-[12px] text-black/60">
           Loading PDF...
         </p>
       </div>
@@ -506,14 +506,14 @@ export function PDFViewer({
   if (error) {
     return (
       <div
-        className="flex flex-col items-center justify-center bg-red-50 dark:bg-red-900/20 rounded-lg border-2 border-red-200 dark:border-red-800"
+        className="flex flex-col items-center justify-center bg-red-50 rounded-lg border-2 border-red-200"
         style={{ height }}
       >
         <AlertCircle className="w-8 h-8 text-red-500 mb-2" />
-        <p className="font-['Sniglet'] text-[12px] text-red-600 dark:text-red-400 mb-1">
+        <p className="font-['Sniglet'] text-[12px] text-red-600 mb-1">
           Failed to load PDF
         </p>
-        <p className="font-['Sniglet'] text-xs text-red-500/80 dark:text-red-400/80 max-w-75 text-center">
+        <p className="font-['Sniglet'] text-xs text-red-500/80 max-w-75 text-center">
           {error}
         </p>
       </div>
@@ -523,7 +523,7 @@ export function PDFViewer({
   return (
     <div
       ref={containerRef}
-      className="flex flex-col bg-[#f5f4f0] dark:bg-[#1a1917] rounded-lg border-2 border-[#211f1c]/20 dark:border-white/20 overflow-hidden h-full"
+      className="flex flex-col bg-[#f5f4f0] rounded-lg border-2 border-[#211f1c]/20 overflow-hidden h-full"
       style={{ height: isFullscreen ? "100vh" : height }}
     >
       {/* Highlight animation styles */}
@@ -545,12 +545,12 @@ export function PDFViewer({
       `}</style>
 
       {/* Toolbar */}
-      <div className="flex items-center justify-between gap-2 p-2 border-b border-[#211f1c]/20 dark:border-white/20 bg-white dark:bg-[#2a2825]">
+      <div className="flex items-center justify-between gap-2 p-2 border-b border-[#211f1c]/20 bg-white">
         {/* Left: Document info */}
         <div className="flex items-center gap-2 min-w-0">
-          <FileText className="w-4 h-4 text-black/60 dark:text-white/60 shrink-0" />
+          <FileText className="w-4 h-4 text-black/60 shrink-0" />
           {title && (
-            <span className="font-['Sniglet'] text-sm text-black/80 dark:text-white/80 truncate max-w-37.5">
+            <span className="font-['Sniglet'] text-sm text-black/80 truncate max-w-37.5">
               {title}
             </span>
           )}
@@ -611,7 +611,7 @@ export function PDFViewer({
 
           <button
             onClick={resetZoom}
-            className="font-['Sniglet'] text-xs text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white px-1"
+            className="font-['Sniglet'] text-xs text-black/60 hover:text-black px-1"
             title="Reset zoom"
           >
             {Math.round(scale * 100)}%
@@ -628,14 +628,14 @@ export function PDFViewer({
             <ZoomIn className="w-4 h-4" />
           </Button>
 
-          <div className="w-px h-4 bg-[#211f1c]/20 dark:bg-white/20 mx-1" />
+          <div className="w-px h-4 bg-[#211f1c]/20 mx-1" />
 
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setShowSearch(!showSearch)}
             className={`h-7 w-7 p-0 ${
-              showSearch ? "bg-black/10 dark:bg-white/10" : ""
+              showSearch ? "bg-black/10" : ""
             }`}
             title="Search in PDF"
           >
@@ -660,8 +660,8 @@ export function PDFViewer({
 
       {/* Search bar */}
       {showSearch && (
-        <div className="flex items-center gap-2 p-2 border-b border-[#211f1c]/20 dark:border-white/20 bg-[#e5e4dc] dark:bg-[#3a3835]">
-          <Search className="w-4 h-4 text-black/40 dark:text-white/40" />
+        <div className="flex items-center gap-2 p-2 border-b border-[#211f1c]/20 bg-[#e5e4dc]">
+          <Search className="w-4 h-4 text-black/40" />
           <Input
             type="text"
             placeholder="Search in document..."
@@ -669,7 +669,7 @@ export function PDFViewer({
             onChange={(e) => setSearchQuery(e.target.value)}
             className="flex-1 h-7 text-sm"
           />
-          <span className="font-['Sniglet'] text-[9px] text-black/40 dark:text-white/40">
+          <span className="font-['Sniglet'] text-[9px] text-black/40">
             (Search coming soon)
           </span>
         </div>
@@ -677,12 +677,12 @@ export function PDFViewer({
 
       {/* Selected text toolbar */}
       {selectedText && (
-        <div className="flex items-center justify-between gap-2 p-2 border-b border-[#211f1c]/20 dark:border-white/20 bg-[#a8d5ba]/30 dark:bg-[#a8d5ba]/10">
+        <div className="flex items-center justify-between gap-2 p-2 border-b border-[#211f1c]/20 bg-[#a8d5ba]/30">
           <div className="flex items-center gap-2 min-w-0">
-            <span className="font-['Sniglet'] text-xs text-black/60 dark:text-white/60 shrink-0">
+            <span className="font-['Sniglet'] text-xs text-black/60 shrink-0">
               Selected:
             </span>
-            <span className="font-['Sniglet'] text-sm text-black/80 dark:text-white/80 truncate max-w-75">
+            <span className="font-['Sniglet'] text-sm text-black/80 truncate max-w-75">
               "{selectedText.substring(0, 100)}
               {selectedText.length > 100 ? "..." : ""}"
             </span>
@@ -715,7 +715,7 @@ export function PDFViewer({
       )}
 
       {/* PDF canvas container */}
-      <div className="flex-1 overflow-auto flex justify-center p-4 bg-[#e5e4dc] dark:bg-[#2a2825]">
+      <div className="flex-1 overflow-auto flex justify-center p-4 bg-[#e5e4dc]">
         <div
           className="relative"
           style={{ boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}
@@ -728,8 +728,8 @@ export function PDFViewer({
       </div>
 
       {/* Footer with instructions */}
-      <div className="p-2 border-t border-[#211f1c]/20 dark:border-white/20 bg-white dark:bg-[#2a2825]">
-        <p className="font-['Sniglet'] text-[9px] text-black/50 dark:text-white/50 text-center">
+      <div className="p-2 border-t border-[#211f1c]/20 bg-white">
+        <p className="font-['Sniglet'] text-[9px] text-black/50 text-center">
           💡 Select text in the PDF to copy it to the snippet field. Page number
           will be auto-filled.
         </p>

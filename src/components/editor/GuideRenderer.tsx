@@ -14,7 +14,7 @@ export default function GuideRenderer({ content }: GuideRendererProps) {
     } catch (error) {
       log.error("Error parsing guide content:", error);
       return (
-        <p className="text-black/60 dark:text-white/60 text-[13px]">
+        <p className="text-black/60 text-[13px]">
           Error displaying content.
         </p>
       );
@@ -23,7 +23,7 @@ export default function GuideRenderer({ content }: GuideRendererProps) {
 
   if (!parsedContent?.content) {
     return (
-      <p className="text-black/60 dark:text-white/60 text-[13px]">
+      <p className="text-black/60 text-[13px]">
         No content to display.
       </p>
     );
@@ -54,7 +54,7 @@ export default function GuideRenderer({ content }: GuideRendererProps) {
       case "section":
         return (
           <div key={index} className="retro-card p-4 my-6">
-            <h2 className="text-[18px] font-display mb-4 text-black dark:text-white">
+            <h2 className="text-[18px] font-display mb-4 text-black">
               {node.attrs?.title || "Section"}
             </h2>
             <div className="prose prose-sm max-w-none">
@@ -110,13 +110,13 @@ export default function GuideRenderer({ content }: GuideRendererProps) {
             >
               <ExternalLink
                 size={16}
-                className="text-black dark:text-white shrink-0"
+                className="text-black shrink-0"
               />
               <div className="text-left">
-                <div className="text-[13px] font-medium text-black dark:text-white">
+                <div className="text-[13px] font-medium text-black">
                   {node.attrs?.title || "Resource"}
                 </div>
-                <div className="text-sm text-black/60 dark:text-white/60">
+                <div className="text-sm text-black/60">
                   {node.attrs?.type || "link"}
                 </div>
               </div>
@@ -128,7 +128,7 @@ export default function GuideRenderer({ content }: GuideRendererProps) {
         return (
           <p
             key={index}
-            className="mb-3 text-[13px] text-black dark:text-white"
+            className="mb-3 text-[13px] text-black"
           >
             {node.content?.map((child: any, i: number) =>
               renderInline(child, i),
@@ -138,7 +138,7 @@ export default function GuideRenderer({ content }: GuideRendererProps) {
 
       case "heading":
         const level = node.attrs?.level || 2;
-        const headingClassName = "font-display mb-2 text-black dark:text-white";
+        const headingClassName = "font-display mb-2 text-black";
         const headingStyle = { fontSize: level === 2 ? "16px" : "14px" };
         const children = node.content?.map((child: any, i: number) =>
           renderInline(child, i),
@@ -173,7 +173,7 @@ export default function GuideRenderer({ content }: GuideRendererProps) {
 
       case "listItem":
         return (
-          <li key={index} className="text-[13px] text-black dark:text-white">
+          <li key={index} className="text-[13px] text-black">
             {node.content?.map((child: any, i: number) => {
               if (child.type === "paragraph") {
                 return (
@@ -194,10 +194,10 @@ export default function GuideRenderer({ content }: GuideRendererProps) {
           <ol key={index} className="space-y-2 my-4">
             {node.content?.map((step: any, i: number) => (
               <li key={i} className="flex gap-3">
-                <span className="font-display text-[13px] text-black dark:text-white">
+                <span className="font-display text-[13px] text-black">
                   {i + 1}.
                 </span>
-                <div className="flex-1 text-[13px] text-black dark:text-white">
+                <div className="flex-1 text-[13px] text-black">
                   {step.content?.map((child: any, j: number) => {
                     if (child.type === "paragraph") {
                       return (
@@ -223,13 +223,13 @@ export default function GuideRenderer({ content }: GuideRendererProps) {
             <span
               className={`mt-0.5 shrink-0 text-base ${
                 isCheck
-                  ? "text-green-600 dark:text-green-400"
-                  : "text-red-600 dark:text-red-400"
+                  ? "text-green-600"
+                  : "text-red-600"
               }`}
             >
               {isCheck ? "✓" : "✗"}
             </span>
-            <div className="flex-1 text-[13px] text-black dark:text-white">
+            <div className="flex-1 text-[13px] text-black">
               {node.content?.map((child: any, i: number) => {
                 if (child.type === "paragraph") {
                   return (
@@ -250,7 +250,7 @@ export default function GuideRenderer({ content }: GuideRendererProps) {
         return (
           <blockquote
             key={index}
-            className="border-l-4 border-black/20 dark:border-white/20 pl-4 my-3 text-[13px] text-black/70 dark:text-white/70 italic"
+            className="border-l-4 border-black/20 pl-4 my-3 text-[13px] text-black/70 italic"
           >
             {node.content?.map(renderNode)}
           </blockquote>
@@ -259,7 +259,7 @@ export default function GuideRenderer({ content }: GuideRendererProps) {
       case "table":
         return (
           <div key={index} className="overflow-x-auto my-4">
-            <table className="guide-table w-full text-[13px] border-collapse border border-black/20 dark:border-white/20">
+            <table className="guide-table w-full text-[13px] border-collapse border border-black/20">
               <tbody>{node.content?.map(renderNode)}</tbody>
             </table>
           </div>
@@ -272,7 +272,7 @@ export default function GuideRenderer({ content }: GuideRendererProps) {
         return (
           <th
             key={index}
-            className="border border-black/20 dark:border-white/20 px-3 py-2 bg-black/5 dark:bg-white/5 font-medium text-black dark:text-white text-left"
+            className="border border-black/20 px-3 py-2 bg-black/5 font-medium text-black text-left"
             colSpan={node.attrs?.colspan || 1}
             rowSpan={node.attrs?.rowspan || 1}
           >
@@ -284,7 +284,7 @@ export default function GuideRenderer({ content }: GuideRendererProps) {
         return (
           <td
             key={index}
-            className="border border-black/20 dark:border-white/20 px-3 py-2 text-black dark:text-white"
+            className="border border-black/20 px-3 py-2 text-black"
             colSpan={node.attrs?.colspan || 1}
             rowSpan={node.attrs?.rowspan || 1}
           >
@@ -338,7 +338,7 @@ export default function GuideRenderer({ content }: GuideRendererProps) {
         <sup key={index} className="font-mono text-xs leading-none">
           <a
             href={`#footnote-${fnNum}`}
-            className="text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white no-underline"
+            className="text-black/70 hover:text-black no-underline"
             title={fnText || `Footnote ${fnNum}`}
           >
             [{fnNum}]
@@ -365,7 +365,7 @@ export default function GuideRenderer({ content }: GuideRendererProps) {
                 href={mark.attrs.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="underline text-black dark:text-white hover:opacity-60"
+                className="underline text-black hover:opacity-60"
               >
                 {content}
               </a>
@@ -383,8 +383,8 @@ export default function GuideRenderer({ content }: GuideRendererProps) {
     <div className="guide-renderer">
       {parsedContent.content.map(renderNode)}
       {footnoteRegistry.size > 0 && (
-        <div className="mt-8 pt-4 border-t border-black/10 dark:border-white/10">
-          <h4 className="text-sm text-black/50 dark:text-white/50 uppercase tracking-wider mb-2">
+        <div className="mt-8 pt-4 border-t border-black/10">
+          <h4 className="text-sm text-black/50 uppercase tracking-wider mb-2">
             Footnotes
           </h4>
           <ol className="space-y-1">
@@ -394,7 +394,7 @@ export default function GuideRenderer({ content }: GuideRendererProps) {
                 <li
                   key={num}
                   id={`footnote-${num}`}
-                  className="text-[12px] text-black/70 dark:text-white/70 flex gap-2 scroll-mt-8"
+                  className="text-[12px] text-black/70 flex gap-2 scroll-mt-8"
                 >
                   <sup className="text-xs font-mono mt-0.5 shrink-0">
                     [{num}]

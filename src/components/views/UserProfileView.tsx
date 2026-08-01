@@ -323,7 +323,7 @@ export function UserProfileView({
     return (
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#211f1c] dark:border-white mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#211f1c] mx-auto mb-4"></div>
           <p className="normal">Loading profile...</p>
         </div>
       </div>
@@ -366,11 +366,11 @@ export function UserProfileView({
       </div>
 
       {/* Profile Card */}
-      <Card className="border-[1.5px] border-[#211f1c] dark:border-white/20 bg-white dark:bg-[#2a2825]">
+      <Card className="border-[1.5px] border-[#211f1c] bg-white">
         <CardHeader>
           <div className="flex items-start gap-4">
             {/* Avatar */}
-            <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full border-2 border-[#211f1c] dark:border-white/20 overflow-hidden bg-[#e5e4dc] dark:bg-[#3a3835] flex items-center justify-center shrink-0">
+            <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full border-2 border-[#211f1c] overflow-hidden bg-[#e5e4dc] flex items-center justify-center shrink-0">
               {(editing ? editedAvatarUrl : profile.avatar_url) ? (
                 <img
                   src={editing ? editedAvatarUrl : profile.avatar_url}
@@ -392,7 +392,7 @@ export function UserProfileView({
               <CardTitle className="normal mb-1 wrap-break-word">
                 {profile.name}
                 {profile.role === "admin" && isAdminModeActive && (
-                  <span className="ml-2 px-2 py-0.5 text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded whitespace-nowrap">
+                  <span className="ml-2 px-2 py-0.5 text-xs bg-blue-100 text-blue-700 rounded whitespace-nowrap">
                     Admin
                   </span>
                 )}
@@ -403,11 +403,11 @@ export function UserProfileView({
                 </CardDescription>
               )}
               {profile.org_role && profile.org_role !== "Volunteer" && (
-                <p className="text-sm text-waste-science dark:text-waste-science mt-1">
+                <p className="text-sm text-waste-science mt-1">
                   {profile.org_role}
                 </p>
               )}
-              <p className="text-sm text-black/50 dark:text-white/50 mt-2">
+              <p className="text-sm text-black/50 mt-2">
                 Member since{" "}
                 {new Date(profile.created_at).toLocaleDateString("en-US", {
                   month: "long",
@@ -433,7 +433,7 @@ export function UserProfileView({
                 placeholder="https://example.com/avatar.jpg"
                 className="text-[13px]"
               />
-              <p className="text-sm text-black/60 dark:text-white/60">
+              <p className="text-sm text-black/60">
                 Enter a URL to an image for your profile picture
               </p>
             </div>
@@ -453,7 +453,7 @@ export function UserProfileView({
                 placeholder="contact@example.com"
                 className="text-[13px]"
               />
-              <p className="text-sm text-black/60 dark:text-white/60">
+              <p className="text-sm text-black/60">
                 Public contact email (leave blank to hide)
               </p>
             </div>
@@ -467,7 +467,7 @@ export function UserProfileView({
               </Label>
               <label
                 htmlFor="show_on_leaderboard"
-                className="flex items-start gap-3 p-3 rounded-xl border-[1.5px] border-[#211f1c]/20 dark:border-white/20 bg-black/2 dark:bg-white/2 cursor-pointer"
+                className="flex items-start gap-3 p-3 rounded-xl border-[1.5px] border-[#211f1c]/20 bg-black/2 cursor-pointer"
               >
                 <input
                   id="show_on_leaderboard"
@@ -476,7 +476,7 @@ export function UserProfileView({
                   onChange={(e) => setEditedShowOnLeaderboard(e.target.checked)}
                   className="mt-0.5 h-4 w-4 accent-waste-recycle"
                 />
-                <span className="text-[12px] text-black/80 dark:text-white/80">
+                <span className="text-[12px] text-black/80">
                   Show my profile in the Top Contributors leaderboard
                 </span>
               </label>
@@ -493,7 +493,7 @@ export function UserProfileView({
                 id="org_role"
                 value={editedOrgRole}
                 onChange={(e) => setEditedOrgRole(e.target.value as OrgRole)}
-                className="w-full px-3 py-2 bg-white dark:bg-[#1a1917] border-[1.5px] border-[#211f1c] dark:border-white/20 rounded-xl text-[13px] text-black dark:text-white"
+                className="w-full px-3 py-2 bg-white border-[1.5px] border-[#211f1c] rounded-xl text-[13px] text-black"
               >
                 <option value="Volunteer">Volunteer</option>
                 <option value="Board Member">Board Member</option>
@@ -501,7 +501,7 @@ export function UserProfileView({
                 <option value="Board Treasurer">Board Treasurer</option>
                 <option value="Board President">Board President</option>
               </select>
-              <p className="text-sm text-black/60 dark:text-white/60">
+              <p className="text-sm text-black/60">
                 This user's role in the Wastefull organization
               </p>
             </div>
@@ -524,7 +524,7 @@ export function UserProfileView({
             ) : (
               <p className="text-[13px] normal whitespace-pre-wrap">
                 {profile.bio || (
-                  <span className="text-black/50 dark:text-white/50 italic">
+                  <span className="text-black/50 italic">
                     No bio yet
                   </span>
                 )}
@@ -551,13 +551,13 @@ export function UserProfileView({
                 href={profile.social_link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-[13px] text-blue-600 dark:text-blue-400 hover:underline"
+                className="flex items-center gap-2 text-[13px] text-blue-600 hover:underline"
               >
                 {profile.social_link}
                 <ExternalLink size={12} />
               </a>
             ) : (
-              <p className="text-[13px] text-black/50 dark:text-white/50 italic">
+              <p className="text-[13px] text-black/50 italic">
                 No link added
               </p>
             )}
@@ -565,7 +565,7 @@ export function UserProfileView({
 
           {/* Edit Actions */}
           {editing && (
-            <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-[#211f1c]/20 dark:border-white/20">
+            <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-[#211f1c]/20">
               <button
                 onClick={handleSave}
                 disabled={saving}
@@ -588,7 +588,7 @@ export function UserProfileView({
       </Card>
 
       {/* Contributions Section */}
-      <Card className="mt-6 border-[1.5px] border-[#211f1c] dark:border-white/20 bg-white dark:bg-[#2a2825]">
+      <Card className="mt-6 border-[1.5px] border-[#211f1c] bg-white">
         <CardHeader>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
@@ -609,7 +609,7 @@ export function UserProfileView({
         </CardHeader>
         <CardContent>
           {loadingContributions ? (
-            <p className="text-[13px] text-black/60 dark:text-white/60 italic">
+            <p className="text-[13px] text-black/60 italic">
               Loading contributions...
             </p>
           ) : stats ? (
@@ -626,19 +626,19 @@ export function UserProfileView({
                   className={`retro-card p-4 text-center transition-all ${
                     contributionFilter === "material"
                       ? "ring-2 ring-waste-recycle bg-waste-recycle/10"
-                      : "hover:bg-black/5 dark:hover:bg-white/5"
+                      : "hover:bg-black/5"
                   }`}
                 >
                   <div className="flex items-center justify-center gap-2 mb-2">
                     <Package
                       size={16}
-                      className="text-waste-recycle dark:text-waste-recycle"
+                      className="text-waste-recycle"
                     />
                     <span className="text-2xl font-bold arcade-numbers">
                       {stats.materials}
                     </span>
                   </div>
-                  <p className="text-sm text-black/60 dark:text-white/60 uppercase tracking-wide">
+                  <p className="text-sm text-black/60 uppercase tracking-wide">
                     Materials
                   </p>
                 </button>
@@ -653,19 +653,19 @@ export function UserProfileView({
                   className={`retro-card p-4 text-center transition-all ${
                     contributionFilter === "article"
                       ? "ring-2 ring-waste-reuse bg-waste-reuse/10"
-                      : "hover:bg-black/5 dark:hover:bg-white/5"
+                      : "hover:bg-black/5"
                   }`}
                 >
                   <div className="flex items-center justify-center gap-2 mb-2">
                     <FileText
                       size={16}
-                      className="text-waste-reuse dark:text-waste-reuse"
+                      className="text-waste-reuse"
                     />
                     <span className="text-2xl font-bold arcade-numbers">
                       {stats.articles}
                     </span>
                   </div>
-                  <p className="text-sm text-black/60 dark:text-white/60 uppercase tracking-wide">
+                  <p className="text-sm text-black/60 uppercase tracking-wide">
                     Articles
                   </p>
                 </button>
@@ -680,19 +680,19 @@ export function UserProfileView({
                   className={`retro-card p-4 text-center transition-all ${
                     contributionFilter === "guide"
                       ? "ring-2 ring-waste-compost bg-waste-compost/10"
-                      : "hover:bg-black/5 dark:hover:bg-white/5"
+                      : "hover:bg-black/5"
                   }`}
                 >
                   <div className="flex items-center justify-center gap-2 mb-2">
                     <BookOpen
                       size={16}
-                      className="text-waste-compost dark:text-waste-compost"
+                      className="text-waste-compost"
                     />
                     <span className="text-2xl font-bold arcade-numbers">
                       {stats.guides}
                     </span>
                   </div>
-                  <p className="text-sm text-black/60 dark:text-white/60 uppercase tracking-wide">
+                  <p className="text-sm text-black/60 uppercase tracking-wide">
                     Guides
                   </p>
                 </button>
@@ -707,30 +707,30 @@ export function UserProfileView({
                   className={`retro-card p-4 text-center transition-all ${
                     contributionFilter === "miu"
                       ? "ring-2 ring-waste-science bg-waste-science/10"
-                      : "hover:bg-black/5 dark:hover:bg-white/5"
+                      : "hover:bg-black/5"
                   }`}
                 >
                   <div className="flex items-center justify-center gap-2 mb-2">
                     <Microscope
                       size={16}
-                      className="text-waste-science dark:text-waste-science"
+                      className="text-waste-science"
                     />
                     <span className="text-2xl font-bold arcade-numbers">
                       {stats.mius}
                     </span>
                   </div>
-                  <p className="text-sm text-black/60 dark:text-white/60 uppercase tracking-wide">
+                  <p className="text-sm text-black/60 uppercase tracking-wide">
                     MIUs
                   </p>
                 </button>
 
-                <div className="retro-card p-4 text-center bg-black/5 dark:bg-white/5">
+                <div className="retro-card p-4 text-center bg-black/5">
                   <div className="flex items-center justify-center gap-2 mb-2">
-                    <span className="text-2xl font-bold arcade-numbers text-waste-compost dark:text-waste-compost">
+                    <span className="text-2xl font-bold arcade-numbers text-waste-compost">
                       {stats.total}
                     </span>
                   </div>
-                  <p className="text-sm text-black/60 dark:text-white/60 uppercase tracking-wide">
+                  <p className="text-sm text-black/60 uppercase tracking-wide">
                     Total
                   </p>
                 </div>
@@ -741,7 +741,7 @@ export function UserProfileView({
                 <div>
                   <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
                     Activity
-                    <span className="text-sm font-normal text-black/60 dark:text-white/60">
+                    <span className="text-sm font-normal text-black/60">
                       (Last 12 months)
                     </span>
                   </h4>
@@ -821,7 +821,7 @@ export function UserProfileView({
                           disabled={!isClickable}
                           className={`w-full flex items-start gap-3 p-3 retro-card transition-colors text-left ${
                             isClickable
-                              ? "hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer"
+                              ? "hover:bg-black/5 cursor-pointer"
                               : "cursor-default"
                           }`}
                         >
@@ -829,25 +829,25 @@ export function UserProfileView({
                             {contrib.type === "material" && (
                               <Package
                                 size={16}
-                                className="text-waste-recycle dark:text-waste-recycle"
+                                className="text-waste-recycle"
                               />
                             )}
                             {contrib.type === "article" && (
                               <FileText
                                 size={16}
-                                className="text-waste-reuse dark:text-waste-reuse"
+                                className="text-waste-reuse"
                               />
                             )}
                             {contrib.type === "guide" && (
                               <BookOpen
                                 size={16}
-                                className="text-waste-compost dark:text-waste-compost"
+                                className="text-waste-compost"
                               />
                             )}
                             {contrib.type === "miu" && (
                               <Microscope
                                 size={16}
-                                className="text-waste-science dark:text-waste-science"
+                                className="text-waste-science"
                               />
                             )}
                           </div>
@@ -855,7 +855,7 @@ export function UserProfileView({
                             <p className="text-[13px] font-medium truncate">
                               {contrib.title}
                             </p>
-                            <p className="text-sm text-black/60 dark:text-white/60">
+                            <p className="text-sm text-black/60">
                               {new Date(contrib.timestamp).toLocaleDateString(
                                 "en-US",
                                 {
@@ -876,7 +876,7 @@ export function UserProfileView({
                     <button
                       onClick={loadMoreContributions}
                       disabled={loadingMore}
-                      className="mt-3 w-full flex items-center justify-center gap-2 p-2 text-[13px] text-waste-recycle dark:text-waste-recycle hover:underline disabled:opacity-50"
+                      className="mt-3 w-full flex items-center justify-center gap-2 p-2 text-[13px] text-waste-recycle hover:underline disabled:opacity-50"
                     >
                       {loadingMore ? (
                         "Loading..."
@@ -894,7 +894,7 @@ export function UserProfileView({
               {/* Empty state for filtered results */}
               {recentContributions.length === 0 && contributionFilter && (
                 <div className="text-center py-8">
-                  <p className="text-[13px] text-black/60 dark:text-white/60 italic">
+                  <p className="text-[13px] text-black/60 italic">
                     No{" "}
                     {contributionFilter === "miu"
                       ? "MIUs"
@@ -915,7 +915,7 @@ export function UserProfileView({
 
               {stats.total === 0 && (
                 <div className="text-center py-8">
-                  <p className="text-[13px] text-black/60 dark:text-white/60 italic">
+                  <p className="text-[13px] text-black/60 italic">
                     No contributions yet
                   </p>
                 </div>
@@ -923,14 +923,14 @@ export function UserProfileView({
 
               {/* Admin: fix post-migration article attribution */}
               {/* {isAdminModeActive && (
-                <div className="pt-4 border-t border-[#211f1c]/20 dark:border-white/20">
+                <div className="pt-4 border-t border-[#211f1c]/20">
                   <button
                     onClick={handleBackfillAttribution}
                     className="retro-btn-primary arcade-bg-amber arcade-btn-amber px-4 h-9 text-[13px] w-full sm:w-auto"
                   >
                     Fix Article Attributions (writer_name → UUID)
                   </button>
-                  <p className="text-sm text-black/60 dark:text-white/60 mt-2">
+                  <p className="text-sm text-black/60 mt-2">
                     Post-migration fix: resolves author names to UUIDs so
                     articles appear on contributor profiles.
                   </p>
@@ -938,14 +938,14 @@ export function UserProfileView({
               )} */}
               {/* Admin backfill button - DISABLED (uncomment if needed for data recovery)
               {isAdminModeActive && isOwnProfile && (
-                <div className="pt-4 border-t border-[#211f1c]/20 dark:border-white/20">
+                <div className="pt-4 border-t border-[#211f1c]/20">
                   <button
                     onClick={handleBackfill}
                     className="retro-btn-primary arcade-bg-amber arcade-btn-amber px-4 h-9 text-[13px] w-full sm:w-auto"
                   >
                     Backfill Article Attributions
                   </button>
-                  <p className="text-sm text-black/60 dark:text-white/60 mt-2">
+                  <p className="text-sm text-black/60 mt-2">
                     Sets you as the author for articles without attribution
                   </p>
                 </div>
@@ -953,7 +953,7 @@ export function UserProfileView({
               */}
             </div>
           ) : (
-            <p className="text-[13px] text-black/60 dark:text-white/60 italic">
+            <p className="text-[13px] text-black/60 italic">
               Unable to load contribution data
             </p>
           )}

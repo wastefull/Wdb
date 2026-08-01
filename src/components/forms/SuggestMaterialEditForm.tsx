@@ -234,13 +234,13 @@ export function SuggestMaterialEditForm({
   const content = (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-6">
-        <div className="bg-waste-reuse dark:bg-[#2a3235] border border-[#211f1c] dark:border-white/20 rounded-md p-3">
+        <div className="bg-waste-reuse border border-[#211f1c] rounded-md p-3">
           <p className="text-sm normal">
             ✏️ <strong>{isAdminMode ? "Editing" : "Suggesting edits for"}</strong>{" "}
             {material.name}
           </p>
           {!isAdminMode && (
-            <p className="text-xs text-black/70 dark:text-white/70 mt-1">
+            <p className="text-xs text-black/70 mt-1">
               Your suggested changes will be reviewed by an admin before being
               applied.
             </p>
@@ -286,7 +286,7 @@ export function SuggestMaterialEditForm({
             <div>
               <Label htmlFor="edit-aliases" className="text-[12px] normal">
                 Aliases{" "}
-                <span className="text-black/50 dark:text-white/50">
+                <span className="text-black/50">
                   (comma-separated)
                 </span>
               </Label>
@@ -312,7 +312,7 @@ export function SuggestMaterialEditForm({
                 className="text-[12px] normal cursor-pointer"
               >
                 Hub page{" "}
-                <span className="text-black/50 dark:text-white/50">
+                <span className="text-black/50">
                   (links to related materials)
                 </span>
               </Label>
@@ -333,7 +333,7 @@ export function SuggestMaterialEditForm({
           </div>
 
           <div>
-            <div className="border border-[#211f1c]/20 dark:border-white/10 rounded-md p-3 h-full">
+            <div className="border border-[#211f1c]/20 rounded-md p-3 h-full">
               <div className="flex items-center justify-between gap-2 mb-3">
                 <Label
                   htmlFor="linked-material-search"
@@ -341,13 +341,13 @@ export function SuggestMaterialEditForm({
                 >
                   Linked Materials
                 </Label>
-                <span className="text-xs text-black/50 dark:text-white/50">
+                <span className="text-xs text-black/50">
                   {linkedMaterialIds.length} selected
                 </span>
               </div>
 
               {!isHub && (
-                <p className="text-xs text-black/60 dark:text-white/60 mb-3">
+                <p className="text-xs text-black/60 mb-3">
                   Enable "Hub page" to link related materials.
                 </p>
               )}
@@ -369,7 +369,7 @@ export function SuggestMaterialEditForm({
                       key={candidate.id}
                       className={`flex items-center gap-2 rounded px-2 py-1.5 ${
                         isHub
-                          ? "cursor-pointer hover:bg-black/5 dark:hover:bg-white/5"
+                          ? "cursor-pointer hover:bg-black/5"
                           : "cursor-not-allowed opacity-60"
                       }`}
                     >
@@ -382,7 +382,7 @@ export function SuggestMaterialEditForm({
                       />
                       <span className="text-sm">
                         {candidate.name}
-                        <span className="text-black/50 dark:text-white/50">
+                        <span className="text-black/50">
                           {` (${candidate.category})`}
                         </span>
                       </span>
@@ -392,7 +392,7 @@ export function SuggestMaterialEditForm({
               </div>
 
               {isHub && linkedMaterialIds.length > 0 && (
-                <p className="mt-3 text-xs text-black/60 dark:text-white/60">
+                <p className="mt-3 text-xs text-black/60">
                   Linked:{" "}
                   {linkedMaterialIds
                     .map((id) => linkedMaterialNameById.get(id) || id)
@@ -404,7 +404,7 @@ export function SuggestMaterialEditForm({
         </div>
 
         {!isAdminMode && (
-          <div className="pt-2 border-t border-[#211f1c]/20 dark:border-white/10">
+          <div className="pt-2 border-t border-[#211f1c]/20">
             <Label htmlFor="change-reason" className="text-[12px] normal">
               Reason for Change *
             </Label>
@@ -417,7 +417,7 @@ export function SuggestMaterialEditForm({
               rows={5}
               required
             />
-            <p className="mt-1 text-xs text-black/50 dark:text-white/50">
+            <p className="mt-1 text-xs text-black/50">
               Help reviewers understand the benefit of your changes.
             </p>
           </div>
@@ -428,14 +428,14 @@ export function SuggestMaterialEditForm({
         <button
           type="button"
           onClick={handleRequestClose}
-          className="flex-1 h-10 px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-waste-compost hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[12px] text-black"
+          className="flex-1 h-10 px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] bg-waste-compost hover:shadow-[2px_2px_0px_0px_#000000] transition-all text-[12px] text-black"
           disabled={submitting}
         >
           Cancel
         </button>
         <button
           type="submit"
-          className="flex-1 h-10 px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-waste-reuse hover:shadow-[3px_4px_0px_-1px_#000000] dark:hover:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] transition-all text-[12px] text-black disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-1 h-10 px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] bg-waste-reuse hover:shadow-[3px_4px_0px_-1px_#000000] transition-all text-[12px] text-black disabled:opacity-50 disabled:cursor-not-allowed"
           disabled={submitting || !hasChanges()}
         >
           {submitting

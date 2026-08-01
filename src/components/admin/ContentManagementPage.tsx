@@ -68,7 +68,7 @@ export function ContentManagementPage({ onBack }: ContentManagementPageProps) {
 
   return (
     <div className="flex h-full">
-      <aside className="w-72 shrink-0 overflow-y-auto border-r border-[#211f1c]/10 p-6 dark:border-white/10">
+      <aside className="w-72 shrink-0 overflow-y-auto border-r border-[#211f1c]/10 p-6">
         <button
           type="button"
           onClick={onBack}
@@ -85,7 +85,7 @@ export function ContentManagementPage({ onBack }: ContentManagementPageProps) {
           </h2>
         </div>
 
-        <p className="text-[12px] leading-relaxed text-black/60 dark:text-white/60">
+        <p className="text-[12px] leading-relaxed text-black/60">
           Preview incoming content, review private video candidates, and manage
           graph content mappings.
         </p>
@@ -99,8 +99,8 @@ export function ContentManagementPage({ onBack }: ContentManagementPageProps) {
               aria-pressed={activeSection === id}
               className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[13px] transition-colors ${
                 activeSection === id
-                  ? "bg-black/5 font-medium dark:bg-white/10"
-                  : "hover:bg-black/5 dark:hover:bg-white/5"
+                  ? "bg-black/5 font-medium"
+                  : "hover:bg-black/5"
               }`}
             >
               <Icon size={13} className="shrink-0" />
@@ -113,8 +113,8 @@ export function ContentManagementPage({ onBack }: ContentManagementPageProps) {
             aria-pressed={activeSection === "advanced"}
             className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[13px] transition-colors ${
               activeSection === "advanced"
-                ? "bg-black/5 font-medium dark:bg-white/10"
-                : "hover:bg-black/5 dark:hover:bg-white/5"
+                ? "bg-black/5 font-medium"
+                : "hover:bg-black/5"
             }`}
           >
             <GitMerge size={13} className="shrink-0" />
@@ -140,8 +140,8 @@ export function ContentManagementPage({ onBack }: ContentManagementPageProps) {
             )}
             {activeSection === "video-triage-review" && <VideoTriageReviewPanel />}
             {activeSection === "advanced" && (
-              <section className="rounded-xl border border-black/10 p-4 dark:border-white/10">
-                <p className="mb-4 text-[11px] text-black/50 dark:text-white/50">
+              <section className="rounded-xl border border-black/10 p-4">
+                <p className="mb-4 text-[11px] text-black/50">
                   Bulk preview, quarantine, and checksum-bound apply tools. These
                   are not required for normal manual content mapping.
                 </p>

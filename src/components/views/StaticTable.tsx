@@ -56,11 +56,11 @@ export function StaticTable({
   onDeleteMaterial,
 }: StaticTableProps) {
   return (
-    <div className="bg-white dark:bg-[#2a2825] rounded-(--retro-rounding) border-[1.5px] border-[#211f1c] dark:border-white/20 overflow-hidden">
+    <div className="bg-white rounded-(--retro-rounding) border-[1.5px] border-[#211f1c] overflow-hidden">
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
-            <TableRow className="border-b border-[#211f1c] dark:border-white/20 bg-waste-recycle">
+            <TableRow className="border-b border-[#211f1c] bg-waste-recycle">
               <TableHead className="text-[12px] text-black">Name</TableHead>
               <TableHead className="text-[12px] text-black">Category</TableHead>
               <TableHead className="text-[12px] text-black">
@@ -91,7 +91,7 @@ export function StaticTable({
               return (
                 <TableRow
                   key={material.id}
-                  className="border-b border-[#211f1c]/20 dark:border-white/10 hover:bg-[#211f1c]/5 dark:hover:bg-white/5"
+                  className="border-b border-[#211f1c]/20 hover:bg-[#211f1c]/5"
                 >
                   <TableCell className="text-sm">
                     {isEditing ? (
@@ -103,12 +103,12 @@ export function StaticTable({
                             name: e.target.value,
                           })
                         }
-                        className="h-7 text-sm border-[#211f1c] dark:border-white/20"
+                        className="h-7 text-sm border-[#211f1c]"
                       />
                     ) : (
                       <button
                         onClick={() => onViewMaterial(material.id)}
-                        className="text-blue-600 dark:text-blue-400 hover:underline text-left flex items-center gap-1.5 group"
+                        className="text-blue-600 hover:underline text-left flex items-center gap-1.5 group"
                       >
                         <Eye
                           size={12}
@@ -129,10 +129,10 @@ export function StaticTable({
                           })
                         }
                       >
-                        <SelectTrigger className="h-7 text-[9px] border-[#211f1c] dark:border-white/20">
+                        <SelectTrigger className="h-7 text-[9px] border-[#211f1c]">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent className="bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
+                        <SelectContent className="bg-white border-[#211f1c]">
                           {categoryOptions.map((cat: string) => (
                             <SelectItem
                               key={cat}
@@ -168,14 +168,14 @@ export function StaticTable({
                                   ),
                                 })
                               }
-                              className="h-7 w-16 text-sm border-[#211f1c] dark:border-white/20 text-center"
+                              className="h-7 w-16 text-sm border-[#211f1c] text-center"
                             />
                           ) : (
                             <div className="inline-flex items-center gap-1">
                               <span className="text-sm normal">
                                 {material.compostability}
                               </span>
-                              <div className="w-12 h-1.5 bg-[#211f1c]/10 dark:bg-white/10 rounded-full overflow-hidden">
+                              <div className="w-12 h-1.5 bg-[#211f1c]/10 rounded-full overflow-hidden">
                                 <div
                                   className="h-full bg-waste-compost rounded-full"
                                   style={{
@@ -204,14 +204,14 @@ export function StaticTable({
                                   ),
                                 })
                               }
-                              className="h-7 w-16 text-sm border-[#211f1c] dark:border-white/20 text-center"
+                              className="h-7 w-16 text-sm border-[#211f1c] text-center"
                             />
                           ) : (
                             <div className="inline-flex items-center gap-1">
                               <span className="text-sm normal">
                                 {material.recyclability}
                               </span>
-                              <div className="w-12 h-1.5 bg-[#211f1c]/10 dark:bg-white/10 rounded-full overflow-hidden">
+                              <div className="w-12 h-1.5 bg-[#211f1c]/10 rounded-full overflow-hidden">
                                 <div
                                   className="h-full bg-waste-recycle rounded-full"
                                   style={{
@@ -240,14 +240,14 @@ export function StaticTable({
                                   ),
                                 })
                               }
-                              className="h-7 w-16 text-sm border-[#211f1c] dark:border-white/20 text-center"
+                              className="h-7 w-16 text-sm border-[#211f1c] text-center"
                             />
                           ) : (
                             <div className="inline-flex items-center gap-1">
                               <span className="text-sm normal">
                                 {material.reusability}
                               </span>
-                              <div className="w-12 h-1.5 bg-[#211f1c]/10 dark:bg-white/10 rounded-full overflow-hidden">
+                              <div className="w-12 h-1.5 bg-[#211f1c]/10 rounded-full overflow-hidden">
                                 <div
                                   className="h-full bg-waste-reuse rounded-full"
                                   style={{ width: `${material.reusability}%` }}
@@ -264,7 +264,7 @@ export function StaticTable({
                             {getArticleCount(material, "reusability")}
                           </span>
                         </TableCell> */}
-                  <TableCell className="text-sm text-black/70 dark:text-white/70 max-w-xs">
+                  <TableCell className="text-sm text-black/70 max-w-xs">
                     {isEditing ? (
                       <Input
                         value={editData.description || ""}
@@ -274,7 +274,7 @@ export function StaticTable({
                             description: e.target.value,
                           })
                         }
-                        className="h-7 text-sm border-[#211f1c] dark:border-white/20"
+                        className="h-7 text-sm border-[#211f1c]"
                       />
                     ) : (
                       <span className="truncate block">
@@ -288,13 +288,13 @@ export function StaticTable({
                         <div className="flex gap-1 justify-center">
                           <button
                             onClick={onSave}
-                            className="p-1.5 bg-waste-reuse rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                            className="p-1.5 bg-waste-reuse rounded-md border border-[#211f1c] hover:shadow-[1px_1px_0px_0px_#000000] transition-all"
                           >
                             <Save size={12} className="text-black" />
                           </button>
                           <button
                             onClick={onCancel}
-                            className="p-1.5 bg-waste-compost rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                            className="p-1.5 bg-waste-compost rounded-md border border-[#211f1c] hover:shadow-[1px_1px_0px_0px_#000000] transition-all"
                           >
                             <X size={12} className="text-black" />
                           </button>
@@ -303,7 +303,7 @@ export function StaticTable({
                         <div className="flex gap-1 justify-center">
                           <button
                             onClick={() => onEditMaterial(material)}
-                            className="p-1.5 bg-waste-recycle rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                            className="p-1.5 bg-waste-recycle rounded-md border border-[#211f1c] hover:shadow-[1px_1px_0px_0px_#000000] transition-all"
                             title="Edit material"
                           >
                             <Edit2 size={12} className="text-black" />
@@ -311,18 +311,18 @@ export function StaticTable({
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
                               <button
-                                className="p-1.5 bg-waste-compost rounded-md border border-[#211f1c] dark:border-white/20 hover:shadow-[1px_1px_0px_0px_#000000] dark:hover:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                                className="p-1.5 bg-waste-compost rounded-md border border-[#211f1c] hover:shadow-[1px_1px_0px_0px_#000000] transition-all"
                                 title="Delete material"
                               >
                                 <Trash2 size={12} className="text-black" />
                               </button>
                             </AlertDialogTrigger>
-                            <AlertDialogContent className="bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20">
+                            <AlertDialogContent className="bg-white border-[1.5px] border-[#211f1c]">
                               <AlertDialogHeader>
                                 <AlertDialogTitle className="normal">
                                   Delete Material?
                                 </AlertDialogTitle>
-                                <AlertDialogDescription className="text-black/70 dark:text-white/70">
+                                <AlertDialogDescription className="text-black/70">
                                   Are you sure you want to delete "
                                   {material.name}"? This will permanently remove
                                   the material and all its associated articles.
@@ -330,12 +330,12 @@ export function StaticTable({
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
-                                <AlertDialogCancel className="bg-waste-reuse border-[#211f1c] dark:border-white/20">
+                                <AlertDialogCancel className="bg-waste-reuse border-[#211f1c]">
                                   Cancel
                                 </AlertDialogCancel>
                                 <AlertDialogAction
                                   onClick={() => onDeleteMaterial(material.id)}
-                                  className="bg-waste-compost text-black border-[1.5px] border-[#211f1c] dark:border-white/20 hover:bg-waste-compost/80"
+                                  className="bg-waste-compost text-black border-[1.5px] border-[#211f1c] hover:bg-waste-compost/80"
                                 >
                                   Delete
                                 </AlertDialogAction>
@@ -355,7 +355,7 @@ export function StaticTable({
 
       {materials.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-[16px] text-black/50 dark:text-white/50">
+          <p className="text-[16px] text-black/50">
             No materials in database yet.
           </p>
         </div>

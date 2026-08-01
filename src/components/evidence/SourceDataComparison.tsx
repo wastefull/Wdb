@@ -266,7 +266,7 @@ export function SourceDataComparison({
         <Button
           onClick={onBack}
           variant="outline"
-          className="border-[#211f1c] dark:border-white/20 text-sm md:text-sm mb-4"
+          className="border-[#211f1c] text-sm md:text-sm mb-4"
         >
           <ArrowLeft className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
           Back
@@ -275,7 +275,7 @@ export function SourceDataComparison({
         <div className="flex items-start justify-between">
           <div>
             <h1 className="text-[16px] normal">Source Data Comparison</h1>
-            <p className="text-[12px] text-black/60 dark:text-white/60">
+            <p className="text-[12px] text-black/60">
               Compare how different sources contribute to parameter values
             </p>
           </div>
@@ -283,7 +283,7 @@ export function SourceDataComparison({
       </div>
 
       {/* Selection Controls */}
-      <Card className="p-4 mb-6 bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
+      <Card className="p-4 mb-6 bg-white border-[#211f1c]">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Material Selection */}
           <div>
@@ -352,27 +352,27 @@ export function SourceDataComparison({
 
       {/* Comparison Results */}
       {!selectedMaterial && (
-        <Card className="p-12 text-center bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
-          <AlertCircle className="w-12 h-12 mx-auto mb-3 text-black/20 dark:text-white/20" />
-          <p className="text-[14px] text-black/50 dark:text-white/50">
+        <Card className="p-12 text-center bg-white border-[#211f1c]">
+          <AlertCircle className="w-12 h-12 mx-auto mb-3 text-black/20" />
+          <p className="text-[14px] text-black/50">
             Select a material to begin comparison
           </p>
         </Card>
       )}
 
       {selectedMaterial && !selectedParameter && (
-        <Card className="p-12 text-center bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
-          <AlertCircle className="w-12 h-12 mx-auto mb-3 text-black/20 dark:text-white/20" />
-          <p className="text-[14px] text-black/50 dark:text-white/50">
+        <Card className="p-12 text-center bg-white border-[#211f1c]">
+          <AlertCircle className="w-12 h-12 mx-auto mb-3 text-black/20" />
+          <p className="text-[14px] text-black/50">
             Select a parameter to compare
           </p>
         </Card>
       )}
 
       {selectedMaterial && selectedParameter && !comparisonData && (
-        <Alert className="bg-amber-50 dark:bg-amber-900/20 border-amber-300 dark:border-amber-700">
-          <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-          <AlertDescription className="text-sm text-amber-800 dark:text-amber-200">
+        <Alert className="bg-amber-50 border-amber-300">
+          <AlertCircle className="h-4 w-4 text-amber-600" />
+          <AlertDescription className="text-sm text-amber-800">
             No sources are tagged for this parameter. Sources must explicitly
             cite which parameters they support.
           </AlertDescription>
@@ -388,7 +388,7 @@ export function SourceDataComparison({
                 <h2 className="text-[14px] normal mb-1">
                   {material.name} - {PARAMETER_INFO[selectedParameter].name}
                 </h2>
-                <p className="text-sm text-black/60 dark:text-white/60">
+                <p className="text-sm text-black/60">
                   {PARAMETER_INFO[selectedParameter].description}
                 </p>
               </div>
@@ -396,7 +396,7 @@ export function SourceDataComparison({
                 onClick={handleExport}
                 variant="outline"
                 size="sm"
-                className="border-[#211f1c] dark:border-white/20"
+                className="border-[#211f1c]"
               >
                 <Download className="w-3 h-3 mr-2" />
                 Export
@@ -404,8 +404,8 @@ export function SourceDataComparison({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="p-3 bg-white dark:bg-[#2a2825] rounded-lg border border-[#211f1c] dark:border-white/20">
-                <p className="text-[9px] text-black/60 dark:text-white/60 mb-1">
+              <div className="p-3 bg-white rounded-lg border border-[#211f1c]">
+                <p className="text-[9px] text-black/60 mb-1">
                   Weighted Value
                 </p>
                 <p className="text-[18px] normal">
@@ -416,8 +416,8 @@ export function SourceDataComparison({
                 </p>
               </div>
 
-              <div className="p-3 bg-white dark:bg-[#2a2825] rounded-lg border border-[#211f1c] dark:border-white/20">
-                <p className="text-[9px] text-black/60 dark:text-white/60 mb-1">
+              <div className="p-3 bg-white rounded-lg border border-[#211f1c]">
+                <p className="text-[9px] text-black/60 mb-1">
                   Contributing Sources
                 </p>
                 <p className="text-[18px] normal">
@@ -425,8 +425,8 @@ export function SourceDataComparison({
                 </p>
               </div>
 
-              <div className="p-3 bg-white dark:bg-[#2a2825] rounded-lg border border-[#211f1c] dark:border-white/20">
-                <p className="text-[9px] text-black/60 dark:text-white/60 mb-1">
+              <div className="p-3 bg-white rounded-lg border border-[#211f1c]">
+                <p className="text-[9px] text-black/60 mb-1">
                   Total Weight
                 </p>
                 <p className="text-[18px] normal">
@@ -434,8 +434,8 @@ export function SourceDataComparison({
                 </p>
               </div>
 
-              <div className="p-3 bg-white dark:bg-[#2a2825] rounded-lg border border-[#211f1c] dark:border-white/20">
-                <p className="text-[9px] text-black/60 dark:text-white/60 mb-1">
+              <div className="p-3 bg-white rounded-lg border border-[#211f1c]">
+                <p className="text-[9px] text-black/60 mb-1">
                   Dimension
                 </p>
                 <Badge className="text-[9px] mt-1">
@@ -446,10 +446,10 @@ export function SourceDataComparison({
           </Card>
 
           {/* Source Breakdown */}
-          <Card className="bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
-            <div className="p-4 border-b border-[#211f1c] dark:border-white/20">
+          <Card className="bg-white border-[#211f1c]">
+            <div className="p-4 border-b border-[#211f1c]">
               <h3 className="text-[14px] normal">Source Contributions</h3>
-              <p className="text-sm text-black/60 dark:text-white/60">
+              <p className="text-sm text-black/60">
                 How each source contributes to the final weighted value
               </p>
             </div>
@@ -476,7 +476,7 @@ export function SourceDataComparison({
                             {sc.source.title}
                           </p>
                           {sc.source.authors && (
-                            <p className="text-[9px] text-black/60 dark:text-white/60">
+                            <p className="text-[9px] text-black/60">
                               {sc.source.authors}
                             </p>
                           )}
@@ -495,10 +495,10 @@ export function SourceDataComparison({
                           variant="outline"
                           className={`text-[8px] ${
                             sc.weight >= 1.0
-                              ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
+                              ? "bg-green-100 text-green-800"
                               : sc.weight >= 0.7
-                                ? "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300"
-                                : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300"
+                                ? "bg-blue-100 text-blue-800"
+                                : "bg-yellow-100 text-yellow-800"
                           }`}
                         >
                           {sc.weight >= 1.0
@@ -519,9 +519,9 @@ export function SourceDataComparison({
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <div className="w-24 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                          <div className="w-24 bg-gray-200 rounded-full h-2">
                             <div
-                              className="bg-blue-600 dark:bg-blue-400 h-2 rounded-full"
+                              className="bg-blue-600 h-2 rounded-full"
                               style={{ width: `${sc.contribution}%` }}
                             />
                           </div>
@@ -537,7 +537,7 @@ export function SourceDataComparison({
                               href={`https://doi.org/${sc.source.doi}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-[9px] text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+                              className="text-[9px] text-blue-600 hover:underline flex items-center gap-1"
                             >
                               DOI <ExternalLink className="w-2 h-2" />
                             </a>
@@ -548,7 +548,7 @@ export function SourceDataComparison({
                               )}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-[9px] text-green-600 dark:text-green-400 hover:underline flex items-center gap-1 cursor-pointer"
+                              className="text-[9px] text-green-600 hover:underline flex items-center gap-1 cursor-pointer"
                               title="View uploaded PDF"
                             >
                               <BookOpen className="w-2 h-2" /> View PDF
@@ -561,7 +561,7 @@ export function SourceDataComparison({
                               )}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-[9px] text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-1"
+                              className="text-[9px] text-purple-600 hover:underline flex items-center gap-1"
                               title="Search on Google Scholar"
                             >
                               <GraduationCap className="w-2 h-2" /> Scholar
@@ -577,9 +577,9 @@ export function SourceDataComparison({
           </Card>
 
           {/* Methodology Note */}
-          <Alert className="bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-700">
-            <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-            <AlertDescription className="text-sm text-blue-800 dark:text-blue-200">
+          <Alert className="bg-blue-50 border-blue-300">
+            <AlertCircle className="h-4 w-4 text-blue-600" />
+            <AlertDescription className="text-sm text-blue-800">
               <strong>How weighting works:</strong> Each source is assigned a
               weight based on its type (peer-reviewed = 1.0, government = 0.9,
               industrial = 0.7, etc.). The final parameter value is calculated

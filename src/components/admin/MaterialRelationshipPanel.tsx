@@ -284,7 +284,7 @@ export function MaterialRelationshipPanel() {
             >
               Material Relationship Management
             </h3>
-            <p className="mt-1 max-w-xl text-[13px] leading-relaxed text-black/70 dark:text-white/70">
+            <p className="mt-1 max-w-xl text-[13px] leading-relaxed text-black/70">
               Create pending material-to-material links, review them to active
               or archived, and remove incorrect records with transactional audit
               and outbox compatibility.
@@ -299,7 +299,7 @@ export function MaterialRelationshipPanel() {
               void loadRelationships();
             }}
             disabled={isOptionsLoading || isReviewLoading}
-            className="flex items-center gap-2 rounded-lg border border-black/15 px-3 py-2 text-[12px] disabled:opacity-50 dark:border-white/15"
+            className="flex items-center gap-2 rounded-lg border border-black/15 px-3 py-2 text-[12px] disabled:opacity-50"
           >
             <RefreshCw
               className={`size-3.5 ${
@@ -314,7 +314,7 @@ export function MaterialRelationshipPanel() {
       {error && (
         <p
           role="alert"
-          className="rounded-lg border border-red-500/25 bg-red-500/5 p-3 text-[12px] text-red-700 dark:text-red-300"
+          className="rounded-lg border border-red-500/25 bg-red-500/5 p-3 text-[12px] text-red-700"
         >
           {error}
         </p>
@@ -322,7 +322,7 @@ export function MaterialRelationshipPanel() {
 
       <form
         onSubmit={submitCreate}
-        className="space-y-4 rounded-xl border border-black/10 p-4 dark:border-white/10"
+        className="space-y-4 rounded-xl border border-black/10 p-4"
       >
         <h4 className="font-sniglet text-[14px] normal">Create relationship</h4>
 
@@ -338,17 +338,17 @@ export function MaterialRelationshipPanel() {
           value={materialSearch}
           onChange={(event) => setMaterialSearch(event.target.value)}
           placeholder="Search material names..."
-          className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] dark:border-white/15"
+          className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
         />
 
         <div className="grid gap-4 md:grid-cols-3">
-          <label className="flex flex-col gap-1 text-[11px] text-black/60 dark:text-white/60">
+          <label className="flex flex-col gap-1 text-[11px] text-black/60">
             Source material
             <select
               value={sourceEntityId}
               onChange={(event) => setSourceEntityId(event.target.value)}
               disabled={isOptionsLoading}
-              className="rounded-lg border border-black/15 bg-transparent px-3 py-2 text-[13px] text-black dark:border-white/15 dark:text-white"
+              className="rounded-lg border border-black/15 bg-transparent px-3 py-2 text-[13px] text-black"
             >
               <option value="">Choose source...</option>
               {filteredMaterials.map((candidate) => (
@@ -359,13 +359,13 @@ export function MaterialRelationshipPanel() {
             </select>
           </label>
 
-          <label className="flex flex-col gap-1 text-[11px] text-black/60 dark:text-white/60">
+          <label className="flex flex-col gap-1 text-[11px] text-black/60">
             Target material
             <select
               value={targetEntityId}
               onChange={(event) => setTargetEntityId(event.target.value)}
               disabled={isOptionsLoading}
-              className="rounded-lg border border-black/15 bg-transparent px-3 py-2 text-[13px] text-black dark:border-white/15 dark:text-white"
+              className="rounded-lg border border-black/15 bg-transparent px-3 py-2 text-[13px] text-black"
             >
               <option value="">Choose target...</option>
               {filteredMaterials.map((candidate) => (
@@ -376,13 +376,13 @@ export function MaterialRelationshipPanel() {
             </select>
           </label>
 
-          <label className="flex flex-col gap-1 text-[11px] text-black/60 dark:text-white/60">
+          <label className="flex flex-col gap-1 text-[11px] text-black/60">
             Relationship type
             <select
               value={relationshipType}
               onChange={(event) => setRelationshipType(event.target.value)}
               disabled={isOptionsLoading}
-              className="rounded-lg border border-black/15 bg-transparent px-3 py-2 text-[13px] text-black dark:border-white/15 dark:text-white"
+              className="rounded-lg border border-black/15 bg-transparent px-3 py-2 text-[13px] text-black"
             >
               {options.relationship_types.map((candidate) => (
                 <option key={candidate.slug} value={candidate.slug}>
@@ -391,8 +391,8 @@ export function MaterialRelationshipPanel() {
                 ))}
               </select>
             {relationshipGuidance && (
-              <div className="mt-2 rounded-lg border border-waste-science/20 bg-waste-science/5 p-3 text-[12px] text-black/70 dark:text-white/70">
-                <p className="font-medium text-black dark:text-white">
+              <div className="mt-2 rounded-lg border border-waste-science/20 bg-waste-science/5 p-3 text-[12px] text-black/70">
+                <p className="font-medium text-black">
                   {selectedRelationshipType?.label ??
                     formatUnderscoredLabel(relationshipType)}
                 </p>
@@ -401,13 +401,13 @@ export function MaterialRelationshipPanel() {
                 </p>
                 <dl className="mt-3 grid gap-2">
                   <div>
-                    <dt className="text-[10px] uppercase tracking-wide text-black/45 dark:text-white/45">
+                    <dt className="text-[10px] uppercase tracking-wide text-black/45">
                       Best fit
                     </dt>
                     <dd>{relationshipGuidance.bestFit}</dd>
                   </div>
                   <div>
-                    <dt className="text-[10px] uppercase tracking-wide text-black/45 dark:text-white/45">
+                    <dt className="text-[10px] uppercase tracking-wide text-black/45">
                       Example
                     </dt>
                     <dd className="font-mono text-[11px]">
@@ -415,7 +415,7 @@ export function MaterialRelationshipPanel() {
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-[10px] uppercase tracking-wide text-black/45 dark:text-white/45">
+                    <dt className="text-[10px] uppercase tracking-wide text-black/45">
                       Avoid
                     </dt>
                     <dd>{relationshipGuidance.avoid}</dd>
@@ -442,7 +442,7 @@ export function MaterialRelationshipPanel() {
         </button>
 
         {createResult && (
-          <p className="text-[12px] text-black/65 dark:text-white/65">
+          <p className="text-[12px] text-black/65">
             {createResult.created
               ? `Created pending relationship: ${sourceMaterial?.name ?? "Source"} -> ${targetMaterial?.name ?? "Target"}.`
               : `Relationship already exists with status ${formatUnderscoredLabel(createResult.status)}.`}
@@ -450,13 +450,13 @@ export function MaterialRelationshipPanel() {
         )}
       </form>
 
-      <div className="space-y-3 rounded-xl border border-black/10 p-4 dark:border-white/10">
+      <div className="space-y-3 rounded-xl border border-black/10 p-4">
         <h4 className="font-sniglet text-[14px] normal">
           Review relationships
         </h4>
 
         <div className="flex flex-wrap gap-3">
-          <label className="flex flex-col gap-1 text-[11px] text-black/60 dark:text-white/60">
+          <label className="flex flex-col gap-1 text-[11px] text-black/60">
             Status
             <select
               value={status}
@@ -468,7 +468,7 @@ export function MaterialRelationshipPanel() {
                 );
                 setOffset(0);
               }}
-              className="rounded-lg border border-black/15 bg-transparent px-3 py-2 text-[13px] text-black dark:border-white/15 dark:text-white"
+              className="rounded-lg border border-black/15 bg-transparent px-3 py-2 text-[13px] text-black"
             >
               <option value="pending_review">Pending review</option>
               <option value="active">Approved</option>
@@ -481,9 +481,9 @@ export function MaterialRelationshipPanel() {
             onSubmit={submitSearch}
             className="flex min-w-64 flex-1 items-end gap-2"
           >
-            <label className="flex flex-1 flex-col gap-1 text-[11px] text-black/60 dark:text-white/60">
+            <label className="flex flex-1 flex-col gap-1 text-[11px] text-black/60">
               Filter relationships
-              <span className="flex rounded-lg border border-black/15 dark:border-white/15">
+              <span className="flex rounded-lg border border-black/15">
                 <Search className="ml-3 mt-2.5 size-3.5 shrink-0" />
                 <input
                   value={searchInput}
@@ -496,7 +496,7 @@ export function MaterialRelationshipPanel() {
             </label>
             <button
               type="submit"
-              className="rounded-lg border border-black/15 px-3 py-2 text-[12px] dark:border-white/15"
+              className="rounded-lg border border-black/15 px-3 py-2 text-[12px]"
             >
               Filter
             </button>
@@ -504,11 +504,11 @@ export function MaterialRelationshipPanel() {
         </div>
 
         {isReviewLoading ? (
-          <div className="flex items-center justify-center gap-2 py-10 text-[13px] text-black/55 dark:text-white/55">
+          <div className="flex items-center justify-center gap-2 py-10 text-[13px] text-black/55">
             <Loader2 className="size-4 animate-spin" /> Loading relationships
           </div>
         ) : items.length === 0 ? (
-          <p className="rounded-lg border border-dashed border-black/15 px-4 py-10 text-center text-[13px] text-black/55 dark:border-white/15 dark:text-white/55">
+          <p className="rounded-lg border border-dashed border-black/15 px-4 py-10 text-center text-[13px] text-black/55">
             No relationships match this view.
           </p>
         ) : (
@@ -516,11 +516,11 @@ export function MaterialRelationshipPanel() {
             {items.map((item) => (
               <article
                 key={item.id}
-                className="rounded-xl border border-black/10 p-4 dark:border-white/10"
+                className="rounded-xl border border-black/10 p-4"
               >
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-wide text-black/45 dark:text-white/45">
+                    <div className="flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-wide text-black/45">
                       <span>{formatUnderscoredLabel(item.relationship_type)}</span>
                       <span aria-hidden="true">/</span>
                       <span>{STATUS_LABELS[item.status]}</span>
@@ -540,7 +540,7 @@ export function MaterialRelationshipPanel() {
                             void reviewRelationship(item, "reject")
                           }
                           disabled={reviewingId !== null || deletingId !== null}
-                          className="flex items-center gap-1.5 rounded-lg border border-black/15 px-3 py-2 text-[12px] disabled:opacity-50 dark:border-white/15"
+                          className="flex items-center gap-1.5 rounded-lg border border-black/15 px-3 py-2 text-[12px] disabled:opacity-50"
                         >
                           <Archive className="size-3.5" /> Archive
                         </button>
@@ -565,7 +565,7 @@ export function MaterialRelationshipPanel() {
                       type="button"
                       onClick={() => void deleteRelationship(item)}
                       disabled={reviewingId !== null || deletingId !== null}
-                      className="flex items-center gap-1.5 rounded-lg border border-red-500/30 px-3 py-2 text-[12px] text-red-700 disabled:opacity-50 dark:text-red-300"
+                      className="flex items-center gap-1.5 rounded-lg border border-red-500/30 px-3 py-2 text-[12px] text-red-700 disabled:opacity-50"
                     >
                       {deletingId === item.id ? (
                         <Loader2 className="size-3.5 animate-spin" />
@@ -581,7 +581,7 @@ export function MaterialRelationshipPanel() {
           </div>
         )}
 
-        <div className="flex items-center justify-between text-[11px] text-black/55 dark:text-white/55">
+        <div className="flex items-center justify-between text-[11px] text-black/55">
           <span>
             {pageStart}-{pageEnd} of {total}
           </span>
@@ -591,7 +591,7 @@ export function MaterialRelationshipPanel() {
               onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))}
               disabled={offset === 0 || isReviewLoading}
               aria-label="Previous page"
-              className="rounded-lg border border-black/10 p-2 disabled:opacity-30 dark:border-white/10"
+              className="rounded-lg border border-black/10 p-2 disabled:opacity-30"
             >
               <ChevronLeft className="size-3.5" />
             </button>
@@ -600,7 +600,7 @@ export function MaterialRelationshipPanel() {
               onClick={() => setOffset(offset + PAGE_SIZE)}
               disabled={offset + PAGE_SIZE >= total || isReviewLoading}
               aria-label="Next page"
-              className="rounded-lg border border-black/10 p-2 disabled:opacity-30 dark:border-white/10"
+              className="rounded-lg border border-black/10 p-2 disabled:opacity-30"
             >
               <ChevronRight className="size-3.5" />
             </button>

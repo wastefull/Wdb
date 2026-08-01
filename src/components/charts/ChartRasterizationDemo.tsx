@@ -78,7 +78,7 @@ export function ChartRasterizationDemo() {
           <h2 className="text-xl md:text-2xl font-['Tilt_Warp',cursive]">
             Chart Rasterization Demo
           </h2>
-          <p className="text-xs md:text-sm text-black/60 dark:text-white/60 mt-1">
+          <p className="text-xs md:text-sm text-black/60 mt-1">
             Test and compare rasterized vs. live SVG chart performance
           </p>
         </div>
@@ -112,7 +112,7 @@ export function ChartRasterizationDemo() {
         <TabsContent value="comparison" className="space-y-6">
           <Card className="p-6">
             <h3 className="text-lg mb-4">Visual Comparison</h3>
-            <p className="text-sm text-black/60 dark:text-white/60 mb-6">
+            <p className="text-sm text-black/60 mb-6">
               Compare live SVG rendering (left) with rasterized cached version
               (right). On first load, both should look identical. On refresh,
               the rasterized version loads from cache instantly.
@@ -120,14 +120,14 @@ export function ChartRasterizationDemo() {
 
             {Object.entries(TEST_DATA).map(([key, test]) => (
               <div key={key} className="mb-8 last:mb-0">
-                <h4 className="mb-4 text-sm text-black/70 dark:text-white/70">
+                <h4 className="mb-4 text-sm text-black/70">
                   {test.name}
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Live SVG */}
-                  <Card className="p-4 bg-blue-50 dark:bg-blue-900/20">
+                  <Card className="p-4 bg-blue-50">
                     <div className="flex items-center gap-2 mb-3">
-                      <Activity className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                      <Activity className="h-4 w-4 text-blue-600" />
                       <span className="text-sm">Live SVG</span>
                     </div>
                     <QuantileVisualization
@@ -143,9 +143,9 @@ export function ChartRasterizationDemo() {
                   </Card>
 
                   {/* Rasterized */}
-                  <Card className="p-4 bg-green-50 dark:bg-green-900/20">
+                  <Card className="p-4 bg-green-50">
                     <div className="flex items-center gap-2 mb-3">
-                      <ImageIcon className="h-4 w-4 text-green-600 dark:text-green-400" />
+                      <ImageIcon className="h-4 w-4 text-green-600" />
                       <span className="text-sm">Rasterized (Cached)</span>
                     </div>
                     <RasterizedQuantileVisualization
@@ -166,9 +166,9 @@ export function ChartRasterizationDemo() {
             ))}
           </Card>
 
-          <Card className="p-6 bg-yellow-50 dark:bg-yellow-900/20">
+          <Card className="p-6 bg-yellow-50">
             <h4 className="mb-2">Testing Instructions</h4>
-            <ol className="text-sm space-y-2 list-decimal list-inside text-black/70 dark:text-white/70">
+            <ol className="text-sm space-y-2 list-decimal list-inside text-black/70">
               <li>
                 <strong>First Load:</strong> Both columns render fresh.
                 Rasterized charts convert SVG to PNG and cache.
@@ -278,7 +278,7 @@ function PerformanceTest() {
               type="number"
               value={testCount}
               onChange={(e) => setTestCount(parseInt(e.target.value) || 10)}
-              className="w-32 px-3 py-2 border border-black/20 dark:border-white/20 rounded-md"
+              className="w-32 px-3 py-2 border border-black/20 rounded-md"
               min="1"
               max="100"
             />
@@ -301,17 +301,17 @@ function PerformanceTest() {
       </Card>
 
       {results && (
-        <Card className="p-6 bg-green-50 dark:bg-green-900/20">
+        <Card className="p-6 bg-green-50">
           <h4 className="mb-4">Test Results</h4>
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <p className="text-sm text-black/60 dark:text-white/60 mb-1">
+              <p className="text-sm text-black/60 mb-1">
                 Live SVG
               </p>
               <p className="text-2xl font-bold">{results.svg.toFixed(2)}ms</p>
             </div>
             <div>
-              <p className="text-sm text-black/60 dark:text-white/60 mb-1">
+              <p className="text-sm text-black/60 mb-1">
                 Rasterized
               </p>
               <p className="text-2xl font-bold">
@@ -319,10 +319,10 @@ function PerformanceTest() {
               </p>
             </div>
             <div>
-              <p className="text-sm text-black/60 dark:text-white/60 mb-1">
+              <p className="text-sm text-black/60 mb-1">
                 Improvement
               </p>
-              <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+              <p className="text-2xl font-bold text-green-600">
                 {results.improvement.toFixed(1)}%
               </p>
             </div>
@@ -330,9 +330,9 @@ function PerformanceTest() {
         </Card>
       )}
 
-      <Card className="p-6 bg-blue-50 dark:bg-blue-900/20">
+      <Card className="p-6 bg-blue-50">
         <h4 className="mb-2">About This Test</h4>
-        <p className="text-sm text-black/70 dark:text-white/70">
+        <p className="text-sm text-black/70">
           This simulated test demonstrates the performance difference between
           rendering live SVG charts and displaying cached rasterized images. In
           real-world usage with complex visualizations, the improvement can be
@@ -376,7 +376,7 @@ function StressTest() {
     <div className="space-y-6">
       <Card className="p-6">
         <h3 className="text-lg mb-4">Stress Test</h3>
-        <p className="text-sm text-black/60 dark:text-white/60 mb-4">
+        <p className="text-sm text-black/60 mb-4">
           Render many charts simultaneously to test performance under load.
         </p>
 
@@ -387,7 +387,7 @@ function StressTest() {
               type="number"
               value={chartCount}
               onChange={(e) => setChartCount(parseInt(e.target.value) || 20)}
-              className="w-32 px-3 py-2 border border-black/20 dark:border-white/20 rounded-md"
+              className="w-32 px-3 py-2 border border-black/20 rounded-md"
               min="1"
               max="100"
             />
@@ -430,7 +430,7 @@ function StressTest() {
               Rendering {chartCount} Charts (
               {useRasterization ? "Rasterized" : "Live SVG"})
             </h4>
-            <span className="text-sm text-black/60 dark:text-white/60">
+            <span className="text-sm text-black/60">
               Watch performance in DevTools
             </span>
           </div>
@@ -439,7 +439,7 @@ function StressTest() {
             {charts.map((chart, i) => (
               <div
                 key={i}
-                className="p-3 bg-white dark:bg-gray-800 rounded-lg border border-black/10 dark:border-white/10"
+                className="p-3 bg-white rounded-lg border border-black/10"
               >
                 {useRasterization ? (
                   <RasterizedQuantileVisualization
@@ -464,9 +464,9 @@ function StressTest() {
         </Card>
       )}
 
-      <Card className="p-6 bg-yellow-50 dark:bg-yellow-900/20">
+      <Card className="p-6 bg-yellow-50">
         <h4 className="mb-2">Performance Tips</h4>
-        <ul className="text-sm space-y-1 list-disc list-inside text-black/70 dark:text-white/70">
+        <ul className="text-sm space-y-1 list-disc list-inside text-black/70">
           <li>Open DevTools → Performance to see frame rate</li>
           <li>Open DevTools → Rendering → Paint flashing to see repaints</li>
           <li>Check DevTools → Memory to monitor usage</li>

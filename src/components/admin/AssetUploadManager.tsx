@@ -298,7 +298,7 @@ export function AssetUploadManager({ accessToken }: AssetUploadManagerProps) {
               value={uploadDestination}
               onChange={(event) => setUploadDestination(event.target.value)}
               disabled={uploading}
-              className="mt-2 w-full rounded-md border border-[#211f1c]/20 bg-white px-3 py-2 text-sm text-black dark:border-white/20 dark:bg-[#2a2825] dark:text-white"
+              className="mt-2 w-full rounded-md border border-[#211f1c]/20 bg-white px-3 py-2 text-sm text-black"
             >
               <option value="root">General assets</option>
               <option value="material-doodles">Material doodles</option>

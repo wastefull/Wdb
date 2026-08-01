@@ -14,7 +14,7 @@ export function MaterialName({ materialId, mode }: MaterialNameProps) {
 
   if (mode === "hero") {
     return (
-      <h1 className="text-[42px] mouse-pointer text-shadow-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors rounded-md px-2 py-1">
+      <h1 className="text-[42px] mouse-pointer text-shadow-lg hover:bg-black/5 transition-colors rounded-md px-2 py-1">
         <a href="#" onClick={() => navigateToMaterialDetail(materialId)}>
           {name}
         </a>
@@ -24,7 +24,7 @@ export function MaterialName({ materialId, mode }: MaterialNameProps) {
 
   return (
     <button
-      className="text-[18px] text-black dark:text-white mb-1 hover:underline cursor-pointer text-left block"
+      className="text-[18px] text-black mb-1 hover:underline cursor-pointer text-left block"
       aria-label={`View details for ${name}`}
       onClick={() => navigateToMaterialDetail(materialId)}
     >

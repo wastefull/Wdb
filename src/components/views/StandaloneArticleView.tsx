@@ -121,11 +121,11 @@ export function StandaloneArticleView({
         <BackArrow onBack={onBack} className="mt-0.5" />
 
         <div className="flex-1 min-w-0">
-          <h2 className="text-[20px] leading-snug text-black dark:text-white">
+          <h2 className="text-[20px] leading-snug text-black">
             {article.title}
           </h2>
           {writerName && (
-            <p className="text-[13px] text-black/60 dark:text-white/60 mt-0.5">
+            <p className="text-[13px] text-black/60 mt-0.5">
               by{" "}
               {article.created_by || article.author_id ? (
                 <button
@@ -176,7 +176,7 @@ export function StandaloneArticleView({
             {sustainabilityCategory && (
               <button
                 onClick={handleCategoryClick}
-                className="inline-block px-2 py-0.5 rounded-md border border-[#211f1c] dark:border-white/20 text-[9px] text-black cursor-pointer hover:opacity-80 transition-opacity"
+                className="inline-block px-2 py-0.5 rounded-md border border-[#211f1c] text-[9px] text-black cursor-pointer hover:opacity-80 transition-opacity"
                 style={{ backgroundColor: sustainabilityCategory.color }}
                 title={`View all ${sustainabilityCategory.label} articles`}
               >
@@ -242,11 +242,11 @@ export function StandaloneArticleView({
         <div className="space-y-6 md:space-y-0 md:flex md:items-stretch md:justify-center md:gap-4">
           {/* Cover Image */}
           {hasCoverImage && (
-            <div className="w-full max-w-3xl mx-auto md:mx-0 md:max-w-none md:w-2/5 md:relative md:overflow-hidden md:rounded-lg md:border md:border-[#211f1c] md:dark:border-white/20">
+            <div className="w-full max-w-3xl mx-auto md:mx-0 md:max-w-none md:w-2/5 md:relative md:overflow-hidden md:rounded-lg md:border md:border-[#211f1c]">
               <img
                 src={article.cover_image_url}
                 alt={article.title}
-                className="w-full h-auto rounded-lg border border-[#211f1c] dark:border-white/20 md:absolute md:inset-0 md:h-full md:w-full md:rounded-none md:border-0 md:object-cover"
+                className="w-full h-auto rounded-lg border border-[#211f1c] md:absolute md:inset-0 md:h-full md:w-full md:rounded-none md:border-0 md:object-cover"
               />
             </div>
           )}
@@ -258,25 +258,25 @@ export function StandaloneArticleView({
             <div className="retro-card h-full">
               {/* Rich Content (TiptapContent) */}
               {hasRichContent && (
-                <div className="prose prose-sm max-w-none dark:prose-invert">
+                <div className="prose prose-sm max-w-none">
                   <GuideRenderer content={article.content} />
                 </div>
               )}
 
               {/* No content message */}
               {!hasRichContent && (
-                <p className="text-[13px] text-black/60 dark:text-white/60 italic">
+                <p className="text-[13px] text-black/60 italic">
                   No content available for this article.
                 </p>
               )}
 
               {/* Footer: date, editor credit, permalink */}
-              <div className="pt-4 border-t border-[#211f1c]/20 dark:border-white/20 space-y-1">
-                <p className="text-sm text-black/50 dark:text-white/50">
+              <div className="pt-4 border-t border-[#211f1c]/20 space-y-1">
+                <p className="text-sm text-black/50">
                   Added: {new Date(article.dateAdded).toLocaleDateString()}
                 </p>
                 {editorName && (
-                  <p className="text-sm text-black/40 dark:text-white/40 italic">
+                  <p className="text-sm text-black/40 italic">
                     Edited by {editorName}
                   </p>
                 )}
@@ -287,12 +287,12 @@ export function StandaloneArticleView({
       )}
 
       <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
-        <AlertDialogContent className="bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
+        <AlertDialogContent className="bg-white border-[#211f1c]">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-black dark:text-white">
+            <AlertDialogTitle className="text-black">
               Delete article?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-black/70 dark:text-white/70">
+            <AlertDialogDescription className="text-black/70">
               This will permanently remove "{article.title}".
             </AlertDialogDescription>
           </AlertDialogHeader>

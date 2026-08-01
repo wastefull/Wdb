@@ -118,7 +118,7 @@ export function SourceSearchPanel({
     if (searching) {
       return (
         <div className="text-center py-12">
-          <Loader2 size={32} className="mx-auto mb-3 animate-spin text-black/40 dark:text-white/40" />
+          <Loader2 size={32} className="mx-auto mb-3 animate-spin text-black/40" />
           <p className="label-muted">Searching CrossRef...</p>
         </div>
       );
@@ -128,7 +128,7 @@ export function SourceSearchPanel({
       if (filterOpenAccess && results.length > 0) {
         return (
           <div className="text-center py-12">
-            <CheckCircle size={48} className="mx-auto mb-4 text-black/20 dark:text-white/20" />
+            <CheckCircle size={48} className="mx-auto mb-4 text-black/20" />
             <h4 className="font-['Tilt_Warp'] text-[14px] normal mb-2">
               {checkingOABatch ? "Checking Open Access..." : "No Open Access Results"}
             </h4>
@@ -143,7 +143,7 @@ export function SourceSearchPanel({
 
       return (
         <div className="text-center py-12">
-          <Globe size={48} className="mx-auto mb-4 text-black/20 dark:text-white/20" />
+          <Globe size={48} className="mx-auto mb-4 text-black/20" />
           <h4 className="font-['Tilt_Warp'] text-[14px] normal mb-2">{emptyStateTitle}</h4>
           <p className="label-muted-sm max-w-xs mx-auto">{emptyStateDescription}</p>
         </div>
@@ -168,10 +168,10 @@ export function SourceSearchPanel({
           }}
           className={`w-full p-3 rounded-lg border transition-all text-left cursor-pointer ${
             isSelected
-              ? "border-[#211f1c] dark:border-white bg-[#e5e4dc] dark:bg-[#3a3835] shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]"
+              ? "border-[#211f1c] bg-[#e5e4dc] shadow-[2px_2px_0px_0px_#000000]"
               : isInLibrary
-                ? "border-[#a8d5ba] dark:border-[#a8d5ba]/60 bg-[#a8d5ba]/10 dark:bg-[#a8d5ba]/5"
-                : "border-[#211f1c]/20 dark:border-white/20 hover:border-[#211f1c]/40 dark:hover:border-white/40"
+                ? "border-[#a8d5ba] bg-[#a8d5ba]/10"
+                : "border-[#211f1c]/20 hover:border-[#211f1c]/40"
           }`}
         >
           <div className="flex items-start justify-between gap-2 mb-1">
@@ -180,7 +180,7 @@ export function SourceSearchPanel({
             </h4>
             <div className="flex gap-1 shrink-0">
               {oaStatusCache?.get(result.doi.toLowerCase()) === true && (
-                <Badge className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-[8px]">
+                <Badge className="bg-green-100 text-green-700 text-[8px]">
                   <CheckCircle size={10} className="mr-0.5" />
                   OA
                 </Badge>
@@ -241,7 +241,7 @@ export function SourceSearchPanel({
     if (!existingSources || existingSources.length === 0) {
       return (
         <div className="text-center py-12">
-          <FileText size={48} className="mx-auto mb-4 text-black/20 dark:text-white/20" />
+          <FileText size={48} className="mx-auto mb-4 text-black/20" />
           <h4 className="font-['Tilt_Warp'] text-[14px] normal mb-2">
             No Existing Sources
           </h4>
@@ -255,7 +255,7 @@ export function SourceSearchPanel({
     if (filteredExistingSources.length === 0) {
       return (
         <div className="text-center py-12">
-          <Search size={48} className="mx-auto mb-4 text-black/20 dark:text-white/20" />
+          <Search size={48} className="mx-auto mb-4 text-black/20" />
           <h4 className="font-['Tilt_Warp'] text-[14px] normal mb-2">
             No Matching Library Sources
           </h4>
@@ -283,8 +283,8 @@ export function SourceSearchPanel({
           }}
           className={`w-full p-3 rounded-lg border transition-all text-left cursor-pointer ${
             isSelected
-              ? "border-[#211f1c] dark:border-white bg-[#e5e4dc] dark:bg-[#3a3835] shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]"
-              : "border-[#211f1c]/20 dark:border-white/20 hover:border-[#211f1c]/40 dark:hover:border-white/40"
+              ? "border-[#211f1c] bg-[#e5e4dc] shadow-[2px_2px_0px_0px_#000000]"
+              : "border-[#211f1c]/20 hover:border-[#211f1c]/40"
           }`}
         >
           <div className="flex items-start justify-between gap-2 mb-1">
@@ -293,13 +293,13 @@ export function SourceSearchPanel({
             </h4>
             <div className="flex gap-1 shrink-0">
               {source.is_open_access === true && (
-                <Badge className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-[8px]">
+                <Badge className="bg-green-100 text-green-700 text-[8px]">
                   <Unlock size={10} className="mr-0.5" />
                   OA
                 </Badge>
               )}
               {source.is_open_access === false && (
-                <Badge className="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-[8px]">
+                <Badge className="bg-red-100 text-red-700 text-[8px]">
                   <Lock size={10} className="mr-0.5" />
                   Closed
                 </Badge>
@@ -344,14 +344,14 @@ export function SourceSearchPanel({
   };
 
   return (
-    <div className="flex h-full flex-col bg-white dark:bg-[#2a2825]">
-      <div className="p-4 border-b border-[#211f1c]/20 dark:border-white/20">
-        <div className="mb-4 rounded-xl border border-[#211f1c]/10 bg-[#e5e4dc] p-3 dark:border-white/10 dark:bg-[#1a1917]">
+    <div className="flex h-full flex-col bg-white">
+      <div className="p-4 border-b border-[#211f1c]/20">
+        <div className="mb-4 rounded-xl border border-[#211f1c]/10 bg-[#e5e4dc] p-3">
           <div className="flex items-center gap-2">
             <Globe size={14} />
             <h3 className="font-['Tilt_Warp'] text-[14px] normal">{title}</h3>
           </div>
-          <p className="mt-2 text-[12px] leading-relaxed text-black/60 dark:text-white/60">
+          <p className="mt-2 text-[12px] leading-relaxed text-black/60">
             {description}
           </p>
         </div>
@@ -407,7 +407,7 @@ export function SourceSearchPanel({
               </Label>
               <div className="flex items-center gap-2">
                 {checkingOABatch && (
-                  <Loader2 size={12} className="animate-spin text-black/40 dark:text-white/40" />
+                  <Loader2 size={12} className="animate-spin text-black/40" />
                 )}
                 <Switch
                   checked={filterOpenAccess}
@@ -426,7 +426,7 @@ export function SourceSearchPanel({
                     <button
                       key={material.id}
                       onClick={() => onQuickSearch(material.name)}
-                      className="px-2 py-1 text-xs font-['Sniglet'] bg-[#e5e4dc] dark:bg-[#1a1917] border border-[#211f1c]/20 dark:border-white/20 rounded-md hover:border-[#211f1c]/40 dark:hover:border-white/40 transition-colors"
+                      className="px-2 py-1 text-xs font-['Sniglet'] bg-[#e5e4dc] border border-[#211f1c]/20 rounded-md hover:border-[#211f1c]/40 transition-colors"
                     >
                       {material.name}
                     </button>
@@ -434,7 +434,7 @@ export function SourceSearchPanel({
                   {materials.length > 5 && onToggleShowAllMaterials && (
                     <button
                       onClick={onToggleShowAllMaterials}
-                      className="px-2 py-1 text-xs font-['Sniglet'] bg-waste-reuse dark:bg-[#3a3835] border border-[#211f1c]/20 dark:border-white/20 rounded-md hover:border-[#211f1c]/40 dark:hover:border-white/40 transition-colors"
+                      className="px-2 py-1 text-xs font-['Sniglet'] bg-waste-reuse border border-[#211f1c]/20 rounded-md hover:border-[#211f1c]/40 transition-colors"
                     >
                       {showAllMaterials ? "Show less" : `+${materials.length - 5} more`}
                     </button>

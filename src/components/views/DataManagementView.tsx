@@ -424,7 +424,7 @@ export function DataManagementView({
         </button>
         <div className="flex-1">
           <h2 className="text-[18px] normal">Database Management</h2>
-          <p className="text-[12px] text-black/60 dark:text-white/60">
+          <p className="text-[12px] text-black/60">
             Manage materials and scientific operations
           </p>
         </div>
@@ -432,13 +432,13 @@ export function DataManagementView({
 
       {/* Tabs for Material Management and Source Library */}
       <div className="mb-6">
-        <div className="flex gap-1 md:gap-2 border-b border-[#211f1c]/20 dark:border-white/20 flex-wrap overflow-x-auto">
+        <div className="flex gap-1 md:gap-2 border-b border-[#211f1c]/20 flex-wrap overflow-x-auto">
           <button
             onClick={() => setActiveTab("materials")}
             className={`px-2 md:px-4 py-2 text-xs md:text-[12px] transition-colors whitespace-nowrap ${
               activeTab === "materials"
-                ? "normal border-b-2 border-[#211f1c] dark:border-white"
-                : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
+                ? "normal border-b-2 border-[#211f1c]"
+                : "text-black/50 hover:text-black"
             }`}
           >
             Materials
@@ -447,8 +447,8 @@ export function DataManagementView({
             onClick={() => setActiveTab("sources")}
             className={`px-2 md:px-4 py-2 text-xs md:text-[12px] transition-colors whitespace-nowrap ${
               activeTab === "sources" || activeTab === "comparison"
-                ? "normal border-b-2 border-[#211f1c] dark:border-white"
-                : "text-black/50 dark:text-white/50 hover:text-black dark:hover:text-white"
+                ? "normal border-b-2 border-[#211f1c]"
+                : "text-black/50 hover:text-black"
             }`}
           >
             Sources
@@ -460,7 +460,7 @@ export function DataManagementView({
         <div>
           <div className="flex items-center gap-4 mb-4">
             <div className="flex-1">
-              <p className="text-[12px] text-black/60 dark:text-white/60">
+              <p className="text-[12px] text-black/60">
                 {visibleMaterials.length} material
                 {visibleMaterials.length !== 1 ? "s" : ""} shown
                 {nameFilter.trim().length > 0
@@ -472,7 +472,7 @@ export function DataManagementView({
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={handleExportCSV}
-                className="bg-waste-reuse h-9 px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] text-sm md:text-[12px] text-black hover:translate-y-px hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-1 md:gap-2"
+                className="bg-waste-reuse h-9 px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[2px_3px_0px_-1px_#000000] text-sm md:text-[12px] text-black hover:translate-y-px hover:shadow-[1px_2px_0px_-1px_#000000] transition-all flex items-center gap-1 md:gap-2"
               >
                 <Download size={14} className="text-black" />
                 <span className="whitespace-nowrap">Export CSV</span>
@@ -481,7 +481,7 @@ export function DataManagementView({
               {isAdmin && (
                 <button
                   onClick={() => setShowImportOptions(!showImportOptions)}
-                  className={`bg-waste-recycle h-9 px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] text-sm md:text-[12px] text-black hover:translate-y-px hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-1 md:gap-2 ${
+                  className={`bg-waste-recycle h-9 px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[2px_3px_0px_-1px_#000000] text-sm md:text-[12px] text-black hover:translate-y-px hover:shadow-[1px_2px_0px_-1px_#000000] transition-all flex items-center gap-1 md:gap-2 ${
                     showImportOptions
                       ? "translate-y-px shadow-[1px_2px_0px_-1px_#000000]"
                       : ""
@@ -501,29 +501,29 @@ export function DataManagementView({
               {isAdmin && (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <button className="bg-waste-compost h-9 px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] text-sm md:text-[12px] text-black hover:translate-y-px hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-1 md:gap-2">
+                    <button className="bg-waste-compost h-9 px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[2px_3px_0px_-1px_#000000] text-sm md:text-[12px] text-black hover:translate-y-px hover:shadow-[1px_2px_0px_-1px_#000000] transition-all flex items-center gap-1 md:gap-2">
                       <Trash2 size={14} className="text-black" />
                       <span className="whitespace-nowrap">Delete All</span>
                     </button>
                   </AlertDialogTrigger>
-                  <AlertDialogContent className="bg-white dark:bg-[#2a2825] border-[1.5px] border-[#211f1c] dark:border-white/20">
+                  <AlertDialogContent className="bg-white border-[1.5px] border-[#211f1c]">
                     <AlertDialogHeader>
                       <AlertDialogTitle className="normal">
                         Delete All Data?
                       </AlertDialogTitle>
-                      <AlertDialogDescription className="text-black/70 dark:text-white/70">
+                      <AlertDialogDescription className="text-black/70">
                         This will permanently delete all {materials.length}{" "}
                         material{materials.length !== 1 ? "s" : ""} and their
                         associated articles. This action cannot be undone.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel className="bg-waste-reuse border-[#211f1c] dark:border-white/20">
+                      <AlertDialogCancel className="bg-waste-reuse border-[#211f1c]">
                         Cancel
                       </AlertDialogCancel>
                       <AlertDialogAction
                         onClick={onDeleteAllData}
-                        className="bg-waste-compost text-black border-[1.5px] border-[#211f1c] dark:border-white/20 hover:bg-waste-compost/80"
+                        className="bg-waste-compost text-black border-[1.5px] border-[#211f1c] hover:bg-waste-compost/80"
                       >
                         Delete All
                       </AlertDialogAction>
@@ -539,7 +539,7 @@ export function DataManagementView({
               value={nameFilter}
               onChange={(e) => setNameFilter(e.target.value)}
               placeholder="Filter by material name..."
-              className="h-9 text-[12px] border-[#211f1c] dark:border-white/20 bg-white dark:bg-[#1a1917]"
+              className="h-9 text-[12px] border-[#211f1c] bg-white"
             />
           </div>
 
@@ -549,7 +549,7 @@ export function DataManagementView({
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <h3 className="text-[14px] normal">Full Site Backup</h3>
-                  <p className="text-sm text-black/60 dark:text-white/60">
+                  <p className="text-sm text-black/60">
                     Export application tables, raw KV data, Auth metadata, and
                     audit trails with a validated manifest
                   </p>
@@ -557,7 +557,7 @@ export function DataManagementView({
                 <button
                   onClick={handleFullSiteBackup}
                   disabled={isFullBackupLoading}
-                  className="bg-waste-science h-9 px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] text-sm md:text-[12px] text-black hover:translate-y-px hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-1 md:gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-waste-science h-9 px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[2px_3px_0px_-1px_#000000] text-sm md:text-[12px] text-black hover:translate-y-px hover:shadow-[1px_2px_0px_-1px_#000000] transition-all flex items-center gap-1 md:gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Database size={14} className="text-black" />
                   <span className="whitespace-nowrap">
@@ -567,7 +567,7 @@ export function DataManagementView({
                   </span>
                 </button>
               </div>
-              <p className="text-xs text-black/50 dark:text-white/50">
+              <p className="text-xs text-black/50">
                 Storage binaries require a separate provider-level backup. Use
                 both before migrations that could affect stored files.
               </p>
@@ -580,20 +580,20 @@ export function DataManagementView({
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <h3 className="text-[14px] normal">Materials Backup</h3>
-                  <p className="text-sm text-black/60 dark:text-white/60">
+                  <p className="text-sm text-black/60">
                     Export/import materials with complete scientific data
                   </p>
                 </div>
                 <div className="flex gap-2">
                   <button
                     onClick={handleExportBackup}
-                    className="bg-waste-science h-9 px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] text-sm md:text-[12px] text-black hover:translate-y-px hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-1 md:gap-2"
+                    className="bg-waste-science h-9 px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[2px_3px_0px_-1px_#000000] text-sm md:text-[12px] text-black hover:translate-y-px hover:shadow-[1px_2px_0px_-1px_#000000] transition-all flex items-center gap-1 md:gap-2"
                   >
                     <Database size={14} className="text-black" />
                     <span className="whitespace-nowrap">Download Backup</span>
                   </button>
                   {isAdmin && (
-                    <label className="bg-waste-recycle h-9 px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] text-sm md:text-[12px] text-black hover:translate-y-px hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center gap-1 md:gap-2 cursor-pointer">
+                    <label className="bg-waste-recycle h-9 px-3 md:px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[2px_3px_0px_-1px_#000000] text-sm md:text-[12px] text-black hover:translate-y-px hover:shadow-[1px_2px_0px_-1px_#000000] transition-all flex items-center gap-1 md:gap-2 cursor-pointer">
                       <UploadCloud size={14} className="text-black" />
                       <span className="whitespace-nowrap">Restore Backup</span>
                       <input
@@ -606,7 +606,7 @@ export function DataManagementView({
                   )}
                 </div>
               </div>
-              <p className="text-xs text-black/50 dark:text-white/50">
+              <p className="text-xs text-black/50">
                 Materials-only backup. Includes all scientific parameters (CR,
                 CC, RU values), sources, and articles. Compatible with the
                 Restore Backup import.
@@ -626,11 +626,11 @@ export function DataManagementView({
                     value={pasteData}
                     onChange={(e) => setPasteData(e.target.value)}
                     placeholder="name,category,description,compostability,recyclability,reusability&#10;PET Plastic,Plastics,Clear plastic bottles,0,85,40&#10;Aluminum Can,Metals,Beverage container,0,95,75"
-                    className="text-sm min-h-30 border-[#211f1c] dark:border-white/20 dark:bg-[#1a1917] dark:text-white"
+                    className="text-sm min-h-30 border-[#211f1c]"
                   />
                   <button
                     onClick={handlePasteImport}
-                    className="w-full bg-waste-reuse h-9 px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] text-[12px] text-black hover:translate-y-px hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all"
+                    className="w-full bg-waste-reuse h-9 px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[2px_3px_0px_-1px_#000000] text-[12px] text-black hover:translate-y-px hover:shadow-[1px_2px_0px_-1px_#000000] transition-all"
                   >
                     Import from Paste
                   </button>
@@ -638,10 +638,10 @@ export function DataManagementView({
 
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-[#211f1c]/20 dark:border-white/20"></div>
+                    <div className="w-full border-t border-[#211f1c]/20"></div>
                   </div>
                   <div className="relative flex justify-center">
-                    <span className="bg-white dark:bg-[#2a2825] px-2 text-sm text-black/60 dark:text-white/60">
+                    <span className="bg-white px-2 text-sm text-black/60">
                       OR
                     </span>
                   </div>
@@ -650,7 +650,7 @@ export function DataManagementView({
                 {/* Upload File Option */}
                 <div className="space-y-2">
                   <label className="text-[12px] normal">Upload CSV File</label>
-                  <label className="w-full bg-waste-recycle h-9 px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-[2px_3px_0px_-1px_#000000] dark:shadow-[2px_3px_0px_-1px_rgba(255,255,255,0.2)] text-[12px] text-black hover:translate-y-px hover:shadow-[1px_2px_0px_-1px_#000000] dark:hover:shadow-[1px_2px_0px_-1px_rgba(255,255,255,0.2)] transition-all flex items-center justify-center gap-2 cursor-pointer">
+                  <label className="w-full bg-waste-recycle h-9 px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] shadow-[2px_3px_0px_-1px_#000000] text-[12px] text-black hover:translate-y-px hover:shadow-[1px_2px_0px_-1px_#000000] transition-all flex items-center justify-center gap-2 cursor-pointer">
                     <Upload size={14} className="text-black" />
                     Choose File
                     <input

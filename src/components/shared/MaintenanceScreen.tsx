@@ -38,12 +38,12 @@ export function MaintenanceScreen({
   );
 
   return (
-    <div className="min-h-screen bg-[#faf7f2] dark:bg-[#1a1917] flex items-center justify-center p-6">
+    <div className="min-h-screen bg-[#faf7f2] flex items-center justify-center p-6">
       <div className="max-w-md w-full text-center">
         {/* Animated icon */}
         <div className="mb-8 flex justify-center">
           <div
-            className="w-24 h-24 rounded-full border-4 border-[#211f1c] dark:border-white/30 bg-[--waste-compost] flex items-center justify-center"
+            className="w-24 h-24 rounded-full border-4 border-[#211f1c] bg-[--waste-compost] flex items-center justify-center"
             style={{ animation: "spin 6s linear infinite" }}
           >
             <Wrench size={40} className="text-[#211f1c]" />
@@ -59,7 +59,7 @@ export function MaintenanceScreen({
 
           {/* Timer */}
           {startedAt && (
-            <div className="bg-[#211f1c] dark:bg-white/10 rounded-lg px-6 py-4 mb-6 inline-block">
+            <div className="bg-[#211f1c] rounded-lg px-6 py-4 mb-6 inline-block">
               <p className="text-sm uppercase tracking-widest opacity-50 text-white mb-1">
                 Down for
               </p>

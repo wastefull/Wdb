@@ -71,13 +71,13 @@ export default function ResourceComponent({
           <div className="flex items-center gap-3">
             <ExternalLink
               size={16}
-              className="text-black dark:text-white shrink-0"
+              className="text-black shrink-0"
             />
             <div className="text-left">
-              <div className="text-[13px] font-medium text-black dark:text-white">
+              <div className="text-[13px] font-medium text-black">
                 {node.attrs.title || "Untitled Resource"}
               </div>
-              <div className="text-sm text-black/60 dark:text-white/60">
+              <div className="text-sm text-black/60">
                 {node.attrs.type}
               </div>
             </div>
@@ -87,7 +87,7 @@ export default function ResourceComponent({
               e.stopPropagation();
               deleteNode();
             }}
-            className="text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white transition-colors"
+            className="text-black/40 hover:text-black transition-colors"
           >
             <X size={16} />
           </button>

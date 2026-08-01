@@ -66,7 +66,7 @@ export function ScienceHubView({
                 </div>
                 <div className="flex-1">
                   <h3 className="text-[16px] normal mb-2">{resource.title}</h3>
-                  <p className="text-[12px] text-black/60 dark:text-white/60 mb-2">
+                  <p className="text-[12px] text-black/60 mb-2">
                     {resource.description}
                   </p>
                   <span className="tag-yellow">{resource.label}</span>

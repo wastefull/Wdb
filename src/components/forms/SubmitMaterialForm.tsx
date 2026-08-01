@@ -581,21 +581,21 @@ export function SubmitMaterialForm({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/30 dark:bg-black/60 flex items-center justify-center p-4 z-50">
-      <div className="bg-white dark:bg-[#2a2825] rounded-(--retro-rounding) border-[1.5px] border-[#211f1c] dark:border-white/20 w-full max-w-md shadow-[4px_4px_0px_0px_#000000] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]">
-        <div className="flex items-center justify-between p-4 border-b border-[#211f1c] dark:border-white/20">
+    <div className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-(--retro-rounding) border-[1.5px] border-[#211f1c] w-full max-w-md shadow-[4px_4px_0px_0px_#000000]">
+        <div className="flex items-center justify-between p-4 border-b border-[#211f1c]">
           <h3 className="normal">Submit New Material</h3>
           <button
             onClick={handleRequestClose}
-            className="p-1.5 rounded-md hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+            className="p-1.5 rounded-md hover:bg-black/5 transition-colors"
           >
             <X size={16} className="normal" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div className="bg-waste-recycle dark:bg-[#3a3825] border border-[#211f1c] dark:border-white/20 rounded-md p-3 mb-4">
-            <p className="text-sm text-black dark:text-white leading-relaxed">
+          <div className="bg-waste-recycle border border-[#211f1c] rounded-md p-3 mb-4">
+            <p className="text-sm text-black leading-relaxed">
               💡{" "}
               <strong className="font-sans font-semibold">
                 Material pages
@@ -624,7 +624,7 @@ export function SubmitMaterialForm({
               placeholder="Comma-separated, e.g., Al, Aluminium"
               className="mt-1"
             />
-            <p className="mt-1 text-xs text-black/50 dark:text-white/50">
+            <p className="mt-1 text-xs text-black/50">
               Alternate names that should also match this material page.
             </p>
           </div>
@@ -653,12 +653,12 @@ export function SubmitMaterialForm({
                 onClick={() => handleWikiSearch("initial")}
                 disabled={wikiSearching || !name.trim()}
                 title="Look up on Wikipedia / Wikidata"
-                className="shrink-0 h-10 w-10 flex items-center justify-center rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-white dark:bg-[#2a2825] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                className="shrink-0 h-10 w-10 flex items-center justify-center rounded-[11.46px] border-[1.5px] border-[#211f1c] bg-white hover:shadow-[2px_2px_0px_0px_#000000] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {wikiSearching ? (
                   <Loader2
                     size={14}
-                    className="animate-spin text-black/60 dark:text-white/60"
+                    className="animate-spin text-black/60"
                   />
                 ) : (
                   // Wikipedia "W" glyph — inline SVG avoids external logo assets
@@ -667,7 +667,7 @@ export function SubmitMaterialForm({
                     width="17"
                     height="17"
                     aria-label="Wikipedia"
-                    className="fill-black/70 dark:fill-white/70"
+                    className="fill-black/70"
                   >
                     <path d="M0 8.28h26.91v3.19h-7.9L40.55 69.3l14.7-36.48-8.37-20.97-6.73-.57V8.28h28.2v3.19l-7.9.57 21.35 57.48L95.65 26.4c1.33-3.61 2-6.65 2-9.13 0-4.18-2.13-6.27-6.4-6.27h-3.33V7.81h23.96v3.19l-3.71.47c-3.42.57-5.93 3.7-7.53 9.42L76.38 108.21h-3.71L54.28 55.08 35.4 108.21h-3.71L5.22 11.47H0V8.28z" />
                   </svg>
@@ -679,7 +679,7 @@ export function SubmitMaterialForm({
                   onClick={() => handleWikiSearch("more")}
                   disabled={wikiSearching || !name.trim()}
                   title="Show different matches"
-                  className="shrink-0 h-10 w-10 flex items-center justify-center rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-white dark:bg-[#2a2825] hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="shrink-0 h-10 w-10 flex items-center justify-center rounded-[11.46px] border-[1.5px] border-[#211f1c] bg-white hover:shadow-[2px_2px_0px_0px_#000000] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <RefreshCw
                     size={14}
@@ -691,8 +691,8 @@ export function SubmitMaterialForm({
 
             {/* Disambiguation card */}
             {wikiCandidates.length > 0 && (
-              <div className="mt-2 rounded-md border border-[#211f1c]/20 dark:border-white/20 bg-white dark:bg-[#1f1e1c] overflow-hidden">
-                <p className="px-3 py-1.5 text-xs text-black/50 dark:text-white/50 border-b border-[#211f1c]/10 dark:border-white/10">
+              <div className="mt-2 rounded-md border border-[#211f1c]/20 bg-white overflow-hidden">
+                <p className="px-3 py-1.5 text-xs text-black/50 border-b border-[#211f1c]/10">
                   Select the correct Wikidata entry:
                 </p>
                 {wikiCandidates.map((c) => (
@@ -700,11 +700,11 @@ export function SubmitMaterialForm({
                     key={c.qid}
                     type="button"
                     onClick={() => handleWikiSelect(c)}
-                    className="w-full text-left px-3 py-2 hover:bg-black/5 dark:hover:bg-white/5 transition-colors border-b last:border-b-0 border-[#211f1c]/10 dark:border-white/10"
+                    className="w-full text-left px-3 py-2 hover:bg-black/5 transition-colors border-b last:border-b-0 border-[#211f1c]/10"
                   >
                     <span className="block text-[12px] normal">{c.label}</span>
                     {c.description && (
-                      <span className="block text-xs text-black/50 dark:text-white/50 mt-0.5">
+                      <span className="block text-xs text-black/50 mt-0.5">
                         {c.description}
                       </span>
                     )}
@@ -713,7 +713,7 @@ export function SubmitMaterialForm({
                 <button
                   type="button"
                   onClick={() => setWikiCandidates([])}
-                  className="w-full px-3 py-1.5 text-xs text-black/40 dark:text-white/40 hover:text-black/70 dark:hover:text-white/70 transition-colors text-center"
+                  className="w-full px-3 py-1.5 text-xs text-black/40 hover:text-black/70 transition-colors text-center"
                 >
                   Dismiss
                 </button>
@@ -739,7 +739,7 @@ export function SubmitMaterialForm({
             </Select>
           </div>
 
-          <div className="rounded-md border border-[#211f1c]/20 dark:border-white/20 px-3 py-2">
+          <div className="rounded-md border border-[#211f1c]/20 px-3 py-2">
             <label className="flex items-center gap-2 text-[12px] normal cursor-pointer">
               <input
                 type="checkbox"
@@ -749,7 +749,7 @@ export function SubmitMaterialForm({
               />
               Mark as hub page
             </label>
-            <p className="mt-1 text-xs text-black/50 dark:text-white/50">
+            <p className="mt-1 text-xs text-black/50">
               Hub pages can link to related materials (configured in admin data
               table).
             </p>
@@ -762,7 +762,7 @@ export function SubmitMaterialForm({
             >
               Description (optional)
               {wikiSource && (
-                <span className="ml-2 inline-flex items-center gap-1 text-xs text-emerald-700 dark:text-emerald-400 font-normal">
+                <span className="ml-2 inline-flex items-center gap-1 text-xs text-emerald-700 font-normal">
                   <CheckCircle2 size={10} />
                   from Wikipedia
                   {wikiSource.sourceUrl && (
@@ -798,13 +798,13 @@ export function SubmitMaterialForm({
               className="mt-1 min-h-20"
               rows={3}
             />
-            <p className="mt-1 text-xs text-black/50 dark:text-white/50">
+            <p className="mt-1 text-xs text-black/50">
               Examples: composition, common uses, special properties, etc.
             </p>
           </div>
 
           {duplicateMatch && duplicateLink && (
-            <div className="rounded-md border border-amber-700/30 bg-amber-100/60 dark:bg-amber-900/20 px-3 py-2 text-sm text-amber-900 dark:text-amber-100">
+            <div className="rounded-md border border-amber-700/30 bg-amber-100/60 px-3 py-2 text-sm text-amber-900">
               Possible duplicate detected:{" "}
               <a
                 href={duplicateLink}
@@ -822,14 +822,14 @@ export function SubmitMaterialForm({
             <button
               type="button"
               onClick={handleRequestClose}
-              className="flex-1 h-10 px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-waste-compost hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-[12px] text-black"
+              className="flex-1 h-10 px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] bg-waste-compost hover:shadow-[2px_2px_0px_0px_#000000] transition-all text-[12px] text-black"
               disabled={submitting}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 h-10 px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] dark:border-white/20 bg-[#c8e5c8] hover:shadow-[3px_4px_0px_-1px_#000000] dark:hover:shadow-[3px_4px_0px_-1px_rgba(255,255,255,0.2)] transition-all text-[12px] text-black disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 h-10 px-4 rounded-[11.46px] border-[1.5px] border-[#211f1c] bg-[#c8e5c8] hover:shadow-[3px_4px_0px_-1px_#000000] transition-all text-[12px] text-black disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={submitting}
             >
               {submitting

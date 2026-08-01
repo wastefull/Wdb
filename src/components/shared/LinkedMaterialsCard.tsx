@@ -19,7 +19,7 @@ function formatRelationshipType(relationshipType: string): string {
 }
 
 const relationshipPillClassName =
-  "mx-1 inline-flex items-center rounded-full border border-waste-science/50 bg-waste-science px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-black shadow-sm dark:border-waste-science/40 dark:bg-waste-science dark:text-black";
+  "mx-1 inline-flex items-center rounded-full border border-waste-science/50 bg-waste-science px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-black shadow-sm";
 
 export function LinkedMaterialsCard({
   linkedRelationships,
@@ -40,7 +40,7 @@ export function LinkedMaterialsCard({
             key={relationship.id}
             type="button"
             onClick={() => navigateToMaterialDetail(relationship.materialId)}
-            className="retro-btn-primary inline-flex w-fit max-w-full items-center rounded-full border border-[#211f1c] bg-white px-3 py-1.5 text-left text-sm text-black/80 transition-colors hover:bg-black/5 dark:border-white/20 dark:bg-[#2a2825] dark:text-white/80 dark:hover:bg-white/10 cursor-pointer"
+            className="retro-btn-primary inline-flex w-fit max-w-full items-center rounded-full border border-[#211f1c] bg-white px-3 py-1.5 text-left text-sm text-black/80 transition-colors hover:bg-black/5 cursor-pointer"
           >
             <span className="whitespace-normal leading-snug">
               {(() => {

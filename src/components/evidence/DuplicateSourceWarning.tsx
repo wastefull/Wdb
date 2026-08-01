@@ -50,8 +50,8 @@ export function DuplicateSourceWarning({
       <DialogContent className="sm:max-w-150">
         <DialogHeader>
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-yellow-100 dark:bg-yellow-900/20 rounded-full">
-              <AlertTriangle className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+            <div className="p-2 bg-yellow-100 rounded-full">
+              <AlertTriangle className="h-5 w-5 text-yellow-600" />
             </div>
             <DialogTitle className="font-['Tilt_Warp'] text-[18px]">
               Potential Duplicate Detected
@@ -74,20 +74,20 @@ export function DuplicateSourceWarning({
                 : `${confidence}% Title Match`}
             </Badge>
             {matchType === "title" && (
-              <span className="font-['Sniglet'] text-xs text-gray-500 dark:text-gray-400">
+              <span className="font-['Sniglet'] text-xs text-gray-500">
                 Fuzzy match using Levenshtein distance
               </span>
             )}
           </div>
 
           {/* Existing Source Details */}
-          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 space-y-3 border border-gray-200 dark:border-gray-700">
-            <h4 className="font-['Sniglet'] text-[12px] text-gray-700 dark:text-gray-300 mb-2">
+          <div className="bg-gray-50 rounded-lg p-4 space-y-3 border border-gray-200">
+            <h4 className="font-['Sniglet'] text-[12px] text-gray-700 mb-2">
               Existing Source in Library:
             </h4>
 
             <div className="flex items-start gap-2">
-              <FileText className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
+              <FileText className="h-4 w-4 text-gray-500 mt-0.5 shrink-0" />
               <div className="flex-1">
                 <p className="font-['Sniglet'] text-[13px] normal">
                   {existingSource.title}
@@ -97,8 +97,8 @@ export function DuplicateSourceWarning({
 
             {existingSource.authors && existingSource.authors.length > 0 && (
               <div className="flex items-start gap-2">
-                <Users className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
-                <p className="font-['Sniglet'] text-sm text-gray-600 dark:text-gray-400">
+                <Users className="h-4 w-4 text-gray-500 mt-0.5 shrink-0" />
+                <p className="font-['Sniglet'] text-sm text-gray-600">
                   {existingSource.authors.slice(0, 3).join(", ")}
                   {existingSource.authors.length > 3 &&
                     ` +${existingSource.authors.length - 3} more`}
@@ -108,8 +108,8 @@ export function DuplicateSourceWarning({
 
             {existingSource.year && (
               <div className="flex items-start gap-2">
-                <Calendar className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
-                <p className="font-['Sniglet'] text-sm text-gray-600 dark:text-gray-400">
+                <Calendar className="h-4 w-4 text-gray-500 mt-0.5 shrink-0" />
+                <p className="font-['Sniglet'] text-sm text-gray-600">
                   {existingSource.year}
                 </p>
               </div>
@@ -117,8 +117,8 @@ export function DuplicateSourceWarning({
 
             {existingSource.doi && (
               <div className="flex items-start gap-2">
-                <Link2 className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 shrink-0" />
-                <p className="font-['Sniglet'] text-sm text-gray-600 dark:text-gray-400 break-all">
+                <Link2 className="h-4 w-4 text-gray-500 mt-0.5 shrink-0" />
+                <p className="font-['Sniglet'] text-sm text-gray-600 break-all">
                   {existingSource.doi}
                 </p>
               </div>
@@ -126,8 +126,8 @@ export function DuplicateSourceWarning({
           </div>
 
           {/* Explanation */}
-          <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
-            <p className="font-['Sniglet'] text-sm text-blue-900 dark:text-blue-200">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <p className="font-['Sniglet'] text-sm text-blue-900">
               {matchType === "doi"
                 ? "🔍 DOI matches are 100% accurate. This is very likely the same publication."
                 : `🔍 This title is ${confidence}% similar to an existing source. Review carefully before adding.`}

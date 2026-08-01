@@ -70,8 +70,8 @@ export class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-[#f5ede1] dark:bg-[#1a1917] flex items-center justify-center p-4">
-          <div className="max-w-md w-full bg-white dark:bg-[#2a2825] rounded-(--retro-rounding) border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] p-6">
+        <div className="min-h-screen bg-[#f5ede1] flex items-center justify-center p-4">
+          <div className="max-w-md w-full bg-white rounded-(--retro-rounding) border-[1.5px] border-[#211f1c] shadow-[3px_4px_0px_-1px_#000000] p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-full bg-waste-compost flex items-center justify-center">
                 <AlertCircle className="w-5 h-5 text-[#c74444]" />
@@ -79,7 +79,7 @@ export class ErrorBoundary extends Component<Props, State> {
               <h1 className="text-[20px] normal">Something went wrong</h1>
             </div>
 
-            <p className="text-[12px] text-black/70 dark:text-white/70 mb-6">
+            <p className="text-[12px] text-black/70 mb-6">
               {this.state.error?.message?.includes("session") ||
               this.state.error?.message?.includes("authentication")
                 ? "Your session may have expired. Please try signing in again."
@@ -87,7 +87,7 @@ export class ErrorBoundary extends Component<Props, State> {
             </p>
 
             {import.meta.env.DEV && this.state.error && (
-              <details className="mb-6 p-3 bg-[#f5ede1] dark:bg-[#1a1917] rounded border border-[#211f1c]/20">
+              <details className="mb-6 p-3 bg-[#f5ede1] rounded border border-[#211f1c]/20">
                 <summary className="text-sm cursor-pointer mb-2">
                   Error Details (Development Only)
                 </summary>

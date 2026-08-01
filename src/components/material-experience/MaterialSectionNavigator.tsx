@@ -119,12 +119,11 @@ export function MaterialSectionNavigator() {
           }
         });
 
-        const visibleEntry = Array.from(visibleSections.current.values())
-          .sort(
-            (left, right) =>
-              Math.abs(left.boundingClientRect.top) -
-              Math.abs(right.boundingClientRect.top),
-          )[0];
+        const visibleEntry = Array.from(visibleSections.current.values()).sort(
+          (left, right) =>
+            Math.abs(left.boundingClientRect.top) -
+            Math.abs(right.boundingClientRect.top),
+        )[0];
 
         if (visibleEntry) {
           setActiveSection(
@@ -168,7 +167,7 @@ export function MaterialSectionNavigator() {
           <nav
             ref={navRef}
             aria-label="Material page sections"
-            className="sticky top-0 z-20 rounded-(--retro-rounding) border-[1.5px] border-[#211f1c]/20 bg-white/90 p-2 shadow-sm backdrop-blur dark:border-white/20 dark:bg-[#1a1917]/90"
+            className="sticky top-0 z-20 rounded-(--retro-rounding) border-[1.5px] border-[#211f1c]/20 bg-white/90 p-2 shadow-sm backdrop-blur"
           >
             <div className="flex gap-1 overflow-x-auto">
               {getVisibleMaterialExperienceSections({
@@ -203,7 +202,7 @@ export function MaterialSectionNavigator() {
           <nav
             ref={navRef}
             aria-label="Material page sections"
-            className="fixed top-0 z-30 rounded-(--retro-rounding) border-[1.5px] border-[#211f1c]/20 bg-white/90 p-2 shadow-sm backdrop-blur dark:border-white/20 dark:bg-[#1a1917]/90"
+            className="fixed top-0 z-30 rounded-(--retro-rounding) border-[1.5px] border-[#211f1c]/20 bg-white/90 p-2 shadow-sm backdrop-blur"
             style={{
               left: `${navMetrics.left}px`,
               width: `${navMetrics.width}px`,

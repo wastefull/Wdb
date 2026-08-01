@@ -238,7 +238,7 @@ export default function ContentEditor({
           <Eraser size={16} />
         </button>
 
-        <div className="w-px h-6 bg-black/10 dark:bg-white/10 mx-1" />
+        <div className="w-px h-6 bg-black/10 mx-1" />
 
         {/* Headings */}
         <button
@@ -254,7 +254,7 @@ export default function ContentEditor({
           <Heading2 size={16} />
         </button>
 
-        <div className="w-px h-6 bg-black/10 dark:bg-white/10 mx-1" />
+        <div className="w-px h-6 bg-black/10 mx-1" />
 
         {/* Lists */}
         <button
@@ -278,7 +278,7 @@ export default function ContentEditor({
           <ListOrdered size={16} />
         </button>
 
-        <div className="w-px h-6 bg-black/10 dark:bg-white/10 mx-1" />
+        <div className="w-px h-6 bg-black/10 mx-1" />
 
         {/* Custom Blocks */}
         <button
@@ -338,7 +338,7 @@ export default function ContentEditor({
         >
           <CheckCircle
             size={16}
-            className="text-green-600 dark:text-green-400"
+            className="text-green-600"
           />
         </button>
         <button
@@ -347,7 +347,7 @@ export default function ContentEditor({
           className="retro-icon-button"
           title="Add Cross Item (❌) - or convert selected list"
         >
-          <XCircle size={16} className="text-red-600 dark:text-red-400" />
+          <XCircle size={16} className="text-red-600" />
         </button>
         <button
           type="button"
@@ -367,7 +367,7 @@ export default function ContentEditor({
           <ExternalLink size={16} />
         </button>
 
-        <div className="w-px h-6 bg-black/10 dark:bg-white/10 mx-1" />
+        <div className="w-px h-6 bg-black/10 mx-1" />
 
         {/* Table */}
         <button
@@ -425,7 +425,7 @@ export default function ContentEditor({
         </button>
 
         {/* Source toggle */}
-        <div className="hidden -px h-6 bg-black/10 dark:bg-white/10 mx-1" />
+        <div className="hidden -px h-6 bg-black/10 mx-1" />
         <button
           type="button"
           onClick={() => {
@@ -459,7 +459,7 @@ export default function ContentEditor({
         <textarea
           value={sourceText}
           onChange={(e) => setSourceText(e.target.value)}
-          className="retro-card p-4 w-full font-mono text-[12px] text-black dark:text-white bg-transparent min-h-125 resize-y outline-none"
+          className="retro-card p-4 w-full font-mono text-[12px] text-black bg-transparent min-h-125 resize-y outline-none"
           spellCheck={false}
         />
       ) : (

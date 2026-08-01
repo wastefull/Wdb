@@ -55,7 +55,7 @@ export function LazyVisualization({
       {isVisible
         ? children
         : placeholder || (
-            <div className="h-64 bg-[#e5e4dc] dark:bg-[#3a3835] animate-pulse rounded-(--retro-rounding)" />
+            <div className="h-64 bg-[#e5e4dc] animate-pulse rounded-(--retro-rounding)" />
           )}
     </div>
   );
@@ -69,12 +69,12 @@ export function VisualizationPlaceholder({
 }) {
   return (
     <div
-      className="bg-[#e5e4dc] dark:bg-[#3a3835] rounded-(--retro-rounding) border-[1.5px] border-[#211f1c]/20 dark:border-white/20 flex items-center justify-center"
+      className="bg-[#e5e4dc] rounded-(--retro-rounding) border-[1.5px] border-[#211f1c]/20 flex items-center justify-center"
       style={{ height: `${height}px` }}
     >
       <div className="text-center">
-        <div className="w-16 h-16 border-4 border-[#211f1c]/20 dark:border-white/20 border-t-[#211f1c] dark:border-t-white rounded-full animate-spin mx-auto mb-3" />
-        <p className="text-[13px] text-black/50 dark:text-white/50">
+        <div className="w-16 h-16 border-4 border-[#211f1c]/20 border-t-[#211f1c] rounded-full animate-spin mx-auto mb-3" />
+        <p className="text-[13px] text-black/50">
           Loading visualization...
         </p>
       </div>

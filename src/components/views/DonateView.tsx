@@ -37,10 +37,10 @@ export function DonateView({ onBack }: DonateViewProps) {
                 <div className={`icon-box mb-4 ${project.iconClass}`}>
                   <Icon size={32} />
                 </div>
-                <h3 className="text-[16px] font-display text-black dark:text-white mb-3">
+                <h3 className="text-[16px] font-display text-black mb-3">
                   {project.title}
                 </h3>
-                <p className="text-[12px] text-black/60 dark:text-white/60 leading-relaxed mb-4 flex-1">
+                <p className="text-[12px] text-black/60 leading-relaxed mb-4 flex-1">
                   {project.description}
                 </p>
                 <a

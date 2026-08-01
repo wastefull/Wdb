@@ -20,7 +20,7 @@ export function ScrollHintArrow({ cta }: ScrollHintArrowProps) {
           repeat: 10,
           ease: "easeInOut",
         }}
-        className="flex flex-col items-center gap-1 text-black/30 dark:text-white/30"
+        className="flex flex-col items-center gap-1 text-black/30"
       >
         <span className="text-xs uppercase tracking-wider">{cta}</span>
         <ChevronDown size={16} />

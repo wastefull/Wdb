@@ -76,7 +76,7 @@ export const StatusBar = memo(function StatusBar({
   // Mini variant for modals - simplified with just close button and title
   if (variant === "mini") {
     return (
-      <div className="h-9 bg-[#faf7f2] dark:bg-[#2a2825] border-b-[1.5px] border-[#211f1c] dark:border-white/20 flex items-center justify-center relative">
+      <div className="h-9 bg-[#faf7f2] border-b-[1.5px] border-[#211f1c] flex items-center justify-center relative">
         {/* Close Button - Red circle on left */}
         {onClose && (
           <button
@@ -125,7 +125,7 @@ export const StatusBar = memo(function StatusBar({
     >
       <div
         aria-hidden="true"
-        className="absolute border-[#211f1c] dark:border-white/20 border-[0px_0px_1.5px] border-solid inset-0 pointer-events-none"
+        className="absolute border-[#211f1c] border-[0px_0px_1.5px] border-solid inset-0 pointer-events-none"
       />
       <div className="size-full">
         <div className="status-bar-layout">
@@ -136,7 +136,7 @@ export const StatusBar = memo(function StatusBar({
             {!user && onSignIn && (
               <button
                 onClick={onSignIn}
-                className="px-2 md:px-3 py-1 md:py-1.5 rounded-md border border-[#211f1c] dark:border-white/20 arcade-bg-cyan arcade-btn-cyan hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all text-xs md:text-sm"
+                className="px-2 md:px-3 py-1 md:py-1.5 rounded-md border border-[#211f1c] arcade-bg-cyan arcade-btn-cyan hover:shadow-[2px_2px_0px_0px_#000000] transition-all text-xs md:text-sm"
               >
                 Sign In
               </button>
@@ -172,7 +172,7 @@ export const StatusBar = memo(function StatusBar({
                             userId: user.id,
                           })
                         }
-                        className="flex items-center gap-1 px-2 py-1 bg-white/50 dark:bg-black/20 rounded-md border border-[#211f1c]/20 dark:border-white/20 hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all cursor-pointer"
+                        className="flex items-center gap-1 px-2 py-1 bg-white/50 rounded-md border border-[#211f1c]/20 hover:shadow-[2px_2px_0px_0px_#000000] transition-all cursor-pointer"
                       >
                         <User className="w-3 h-3 normal" />
                         <span className="text-xs normal max-w-25 truncate">
@@ -209,7 +209,7 @@ export const StatusBar = memo(function StatusBar({
                             onClick={() =>
                               onViewChange({ type: "staff-dashboard" })
                             }
-                            className="flex items-center gap-1 px-2 py-1 rounded-md border border-[#211f1c] dark:border-white/20 arcade-bg-cyan hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                            className="flex items-center gap-1 px-2 py-1 rounded-md border border-[#211f1c] arcade-bg-cyan hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
                           >
                             <Briefcase className="w-3 h-3" />
                             <span className="text-xs uppercase arcade-btn-cyan">
@@ -232,10 +232,10 @@ export const StatusBar = memo(function StatusBar({
                       <TooltipTrigger asChild>
                         <button
                           onClick={onLogout}
-                          className="p-1.5 rounded-md border border-[#211f1c] text-black  dark:border-white/20 arcade-bg-red hover:shadow-[2px_2px_0px_0px_#000000] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] transition-all"
+                          className="p-1.5 rounded-md border border-[#211f1c] text-black arcade-bg-red hover:shadow-[2px_2px_0px_0px_#000000] transition-all"
                           aria-label="Sign out"
                         >
-                          <LogOut className="w-3 h-3 dark:text-black text-black" />
+                          <LogOut className="w-3 h-3 text-black" />
                         </button>
                       </TooltipTrigger>
                       <TooltipContent
@@ -268,25 +268,25 @@ export const StatusBar = memo(function StatusBar({
                   >
                     {syncStatus === "synced" && (
                       <Cloud
-                        className="w-3 h-3 md:w-3.5 md:h-3.5 text-[#4a90a4] dark:text-[#6bb6d0]"
+                        className="w-3 h-3 md:w-3.5 md:h-3.5 text-[#4a90a4]"
                         aria-hidden="true"
                       />
                     )}
                     {syncStatus === "syncing" && (
                       <Cloud
-                        className="w-3 h-3 md:w-3.5 md:h-3.5 text-[#d4b400] dark:text-[#ffd700] animate-pulse"
+                        className="w-3 h-3 md:w-3.5 md:h-3.5 text-[#d4b400] animate-pulse"
                         aria-hidden="true"
                       />
                     )}
                     {syncStatus === "offline" && (
                       <CloudOff
-                        className="w-3 h-3 md:w-3.5 md:h-3.5 text-black/40 dark:text-white/40"
+                        className="w-3 h-3 md:w-3.5 md:h-3.5 text-black/40"
                         aria-hidden="true"
                       />
                     )}
                     {syncStatus === "error" && (
                       <CloudOff
-                        className="w-3 h-3 md:w-3.5 md:h-3.5 text-[#c74444] dark:text-[#ff6b6b]"
+                        className="w-3 h-3 md:w-3.5 md:h-3.5 text-[#c74444]"
                         aria-hidden="true"
                       />
                     )}

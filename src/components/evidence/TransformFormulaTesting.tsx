@@ -258,9 +258,9 @@ export function TransformFormulaTesting({
   };
 
   return (
-    <div className="h-full flex flex-col bg-[#e5e4dc] dark:bg-[#1a1917]">
+    <div className="h-full flex flex-col bg-[#e5e4dc]">
       {/* Header */}
-      <div className="flex items-center gap-4 p-6 border-b border-[#211f1c]/20 dark:border-white/20 bg-white dark:bg-[#2a2825]">
+      <div className="flex items-center gap-4 p-6 border-b border-[#211f1c]/20 bg-white">
         <button onClick={onBack} className="card-interactive">
           <ArrowLeft size={16} className="text-black" />
         </button>
@@ -277,47 +277,47 @@ export function TransformFormulaTesting({
       </div>
 
       {/* Overall Statistics */}
-      <div className="p-6 bg-white dark:bg-[#2a2825] border-b border-[#211f1c]/20 dark:border-white/20">
+      <div className="p-6 bg-white border-b border-[#211f1c]/20">
         <div className="grid grid-cols-4 gap-4">
-          <div className="p-4 rounded-lg bg-[#e5e4dc] dark:bg-[#1a1917] border border-[#211f1c]/20 dark:border-white/20">
+          <div className="p-4 rounded-lg bg-[#e5e4dc] border border-[#211f1c]/20">
             <div className="flex items-center gap-2 mb-2">
               <BarChart3
                 size={16}
-                className="text-black/60 dark:text-white/60"
+                className="text-black/60"
               />
               <span className="label-muted-sm">Total Tests</span>
             </div>
             <div className="heading-xl">{overallStats.total}</div>
           </div>
 
-          <div className="p-4 rounded-lg bg-[#e5e4dc] dark:bg-[#1a1917] border border-[#211f1c]/20 dark:border-white/20">
+          <div className="p-4 rounded-lg bg-[#e5e4dc] border border-[#211f1c]/20">
             <div className="flex items-center gap-2 mb-2">
               <CheckCircle
                 size={16}
-                className="text-green-600 dark:text-green-400"
+                className="text-green-600"
               />
               <span className="label-muted-sm">Successful</span>
             </div>
-            <div className="font-['Tilt_Warp'] text-[24px] text-green-600 dark:text-green-400">
+            <div className="font-['Tilt_Warp'] text-[24px] text-green-600">
               {overallStats.success}
             </div>
           </div>
 
-          <div className="p-4 rounded-lg bg-[#e5e4dc] dark:bg-[#1a1917] border border-[#211f1c]/20 dark:border-white/20">
+          <div className="p-4 rounded-lg bg-[#e5e4dc] border border-[#211f1c]/20">
             <div className="flex items-center gap-2 mb-2">
-              <XCircle size={16} className="text-red-600 dark:text-red-400" />
+              <XCircle size={16} className="text-red-600" />
               <span className="label-muted-sm">Errors</span>
             </div>
-            <div className="font-['Tilt_Warp'] text-[24px] text-red-600 dark:text-red-400">
+            <div className="font-['Tilt_Warp'] text-[24px] text-red-600">
               {overallStats.errors}
             </div>
           </div>
 
-          <div className="p-4 rounded-lg bg-[#e5e4dc] dark:bg-[#1a1917] border border-[#211f1c]/20 dark:border-white/20">
+          <div className="p-4 rounded-lg bg-[#e5e4dc] border border-[#211f1c]/20">
             <div className="flex items-center gap-2 mb-2">
               <TrendingUp
                 size={16}
-                className="text-black/60 dark:text-white/60"
+                className="text-black/60"
               />
               <span className="label-muted-sm">Success Rate</span>
             </div>
@@ -330,7 +330,7 @@ export function TransformFormulaTesting({
       </div>
 
       {/* Parameter Statistics */}
-      <div className="p-6 bg-white dark:bg-[#2a2825] border-b border-[#211f1c]/20 dark:border-white/20">
+      <div className="p-6 bg-white border-b border-[#211f1c]/20">
         <h3 className="font-['Tilt_Warp'] text-[16px] normal mb-4">
           Parameter Statistics
         </h3>
@@ -347,8 +347,8 @@ export function TransformFormulaTesting({
                 onClick={() => setSelectedParameter(transform.parameter)}
                 className={`p-3 rounded-lg border transition-all text-left ${
                   selectedParameter === transform.parameter
-                    ? "border-[#211f1c] dark:border-white shadow-[2px_2px_0px_0px_#000000] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]"
-                    : "border-[#211f1c]/20 dark:border-white/20 hover:border-[#211f1c]/40 dark:hover:border-white/40"
+                    ? "border-[#211f1c] shadow-[2px_2px_0px_0px_#000000]"
+                    : "border-[#211f1c]/20 hover:border-[#211f1c]/40"
                 }`}
                 style={{
                   backgroundColor: getParameterColor(transform.parameter),
@@ -371,7 +371,7 @@ export function TransformFormulaTesting({
       </div>
 
       {/* Controls */}
-      <div className="p-4 bg-white dark:bg-[#2a2825] border-b border-[#211f1c]/20 dark:border-white/20 flex items-center gap-4">
+      <div className="p-4 bg-white border-b border-[#211f1c]/20 flex items-center gap-4">
         <Select value={selectedParameter} onValueChange={setSelectedParameter}>
           <SelectTrigger className="w-48 h-9">
             <SelectValue />
@@ -403,9 +403,9 @@ export function TransformFormulaTesting({
       {/* Results Table */}
       <ScrollArea className="flex-1">
         <div className="p-6">
-          <div className="bg-white dark:bg-[#2a2825] rounded-lg border border-[#211f1c]/20 dark:border-white/20 overflow-hidden">
+          <div className="bg-white rounded-lg border border-[#211f1c]/20 overflow-hidden">
             <table className="w-full">
-              <thead className="bg-[#e5e4dc] dark:bg-[#1a1917] border-b border-[#211f1c]/20 dark:border-white/20">
+              <thead className="bg-[#e5e4dc] border-b border-[#211f1c]/20">
                 <tr>
                   <th className="px-4 py-3 text-left heading-sm">Parameter</th>
                   <th className="px-4 py-3 text-left heading-sm">Material</th>
@@ -422,11 +422,11 @@ export function TransformFormulaTesting({
                 {filteredResults.map((result, index) => (
                   <tr
                     key={`${result.parameter}-${result.materialId}-${index}`}
-                    className="border-b border-[#211f1c]/10 dark:border-white/10 hover:bg-[#e5e4dc]/50 dark:hover:bg-[#1a1917]/50"
+                    className="border-b border-[#211f1c]/10 hover:bg-[#e5e4dc]/50"
                   >
                     <td className="px-4 py-3">
                       <div
-                        className="inline-flex items-center justify-center w-8 h-8 rounded-md border border-[#211f1c] dark:border-white/20 font-['Tilt_Warp'] text-sm"
+                        className="inline-flex items-center justify-center w-8 h-8 rounded-md border border-[#211f1c] font-['Tilt_Warp'] text-sm"
                         style={{
                           backgroundColor: getParameterColor(result.parameter),
                         }}
@@ -462,8 +462,8 @@ export function TransformFormulaTesting({
                       <span
                         className={`font-['Sniglet'] text-[12px] ${
                           result.difference != null && result.difference > 5
-                            ? "text-red-600 dark:text-red-400"
-                            : "text-green-600 dark:text-green-400"
+                            ? "text-red-600"
+                            : "text-green-600"
                         }`}
                       >
                         {result.difference != null
@@ -499,7 +499,7 @@ export function TransformFormulaTesting({
               <div className="p-8 text-center">
                 <AlertCircle
                   size={48}
-                  className="mx-auto mb-4 text-black/20 dark:text-white/20"
+                  className="mx-auto mb-4 text-black/20"
                 />
                 <p className="label-muted">No results to display</p>
               </div>

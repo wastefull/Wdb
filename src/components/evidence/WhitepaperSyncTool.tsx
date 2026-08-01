@@ -231,7 +231,7 @@ export function WhitepaperSyncTool({
 
   return (
     <div
-      className={`min-h-screen bg-[#f5f3ed] dark:bg-[#1a1817] p-6 ${
+      className={`min-h-screen bg-[#f5f3ed] p-6 ${
         className || ""
       }`}
     >
@@ -243,25 +243,25 @@ export function WhitepaperSyncTool({
           </button>
           <div className="flex-1">
             <h1 className="text-[24px] normal mb-1">Whitepaper Sync Tool</h1>
-            <p className="text-[12px] text-black/60 dark:text-white/60">
+            <p className="text-[12px] text-black/60">
               Upload whitepaper markdown files to Supabase
             </p>
           </div>
         </div>
 
         {/* Info Card */}
-        <Card className="mb-6 p-6 bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
+        <Card className="mb-6 p-6 bg-white border-[#211f1c]">
           <h2 className="text-[16px] normal mb-3">About This Tool</h2>
-          <p className="text-[12px] text-black/70 dark:text-white/70 mb-3">
+          <p className="text-[12px] text-black/70 mb-3">
             Upload whitepaper markdown files from your computer to sync them to
             the Supabase KV store, making them available in the Methodology &
             Whitepapers section.
           </p>
-          <div className="bg-waste-recycle dark:bg-[#211f1c] p-3 rounded-md mb-3">
-            <p className="text-sm text-black/80 dark:text-white/80 mb-2">
+          <div className="bg-waste-recycle p-3 rounded-md mb-3">
+            <p className="text-sm text-black/80 mb-2">
               <strong>Expected files:</strong>
             </p>
-            <ul className="text-xs text-black/70 dark:text-white/70 space-y-1 list-disc list-inside">
+            <ul className="text-xs text-black/70 space-y-1 list-disc list-inside">
               <li>Recyclability.md</li>
               <li>CC-v1.md (Compostability)</li>
               <li>RU-v1.md (Reusability)</li>
@@ -269,19 +269,19 @@ export function WhitepaperSyncTool({
               <li>Calculation_Methodology.md</li>
             </ul>
           </div>
-          <p className="text-sm text-black/60 dark:text-white/60">
+          <p className="text-sm text-black/60">
             <strong>Admin only:</strong> This operation requires admin
             privileges.
           </p>
         </Card>
 
         {/* File Upload */}
-        <Card className="mb-6 p-6 bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
+        <Card className="mb-6 p-6 bg-white border-[#211f1c]">
           <h2 className="text-[16px] normal mb-4">Upload Files</h2>
 
-          <div className="flex flex-col items-center justify-center py-8 border-2 border-dashed border-[#211f1c] dark:border-white/20 rounded-md bg-[#faf9f6] dark:bg-[#1a1918]">
-            <FolderOpen className="w-12 h-12 text-black/30 dark:text-white/30 mb-4" />
-            <p className="text-[12px] text-black/60 dark:text-white/60 mb-4">
+          <div className="flex flex-col items-center justify-center py-8 border-2 border-dashed border-[#211f1c] rounded-md bg-[#faf9f6]">
+            <FolderOpen className="w-12 h-12 text-black/30 mb-4" />
+            <p className="text-[12px] text-black/60 mb-4">
               Select markdown files from your /whitepapers folder
             </p>
             <input
@@ -304,7 +304,7 @@ export function WhitepaperSyncTool({
                 Choose Files
               </Button>
             </label>
-            <p className="text-xs text-black/50 dark:text-white/50 mt-2">
+            <p className="text-xs text-black/50 mt-2">
               You can select multiple .md files at once
             </p>
           </div>
@@ -312,7 +312,7 @@ export function WhitepaperSyncTool({
 
         {/* Loaded Whitepapers List */}
         {whitepapers.length > 0 && (
-          <Card className="mb-6 p-6 bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
+          <Card className="mb-6 p-6 bg-white border-[#211f1c]">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-[16px] normal">
                 Loaded Whitepapers ({whitepapers.length})
@@ -323,14 +323,14 @@ export function WhitepaperSyncTool({
               {whitepapers.map((wp) => (
                 <div
                   key={wp.slug}
-                  className="flex items-center gap-4 p-4 bg-[#faf9f6] dark:bg-[#1a1918] rounded-md border border-[#211f1c] dark:border-white/20"
+                  className="flex items-center gap-4 p-4 bg-[#faf9f6] rounded-md border border-[#211f1c]"
                 >
                   <div className="shrink-0">
                     {getStatusIcon(syncResults[wp.slug])}
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="text-[14px] normal truncate">{wp.title}</h3>
-                    <p className="text-xs text-black/60 dark:text-white/60">
+                    <p className="text-xs text-black/60">
                       {wp.filename} → whitepaper:{wp.slug} (
                       {(wp.size / 1024).toFixed(1)} KB)
                     </p>
@@ -371,36 +371,36 @@ export function WhitepaperSyncTool({
 
         {/* Results Summary */}
         {Object.keys(syncResults).length > 0 && !syncing && (
-          <Card className="mt-6 p-6 bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
+          <Card className="mt-6 p-6 bg-white border-[#211f1c]">
             <h2 className="text-[16px] normal mb-3">Sync Results</h2>
             <div className="grid grid-cols-3 gap-4">
-              <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-md border border-green-200 dark:border-green-800">
-                <div className="text-[24px] font-bold text-green-600 dark:text-green-400">
+              <div className="text-center p-4 bg-green-50 rounded-md border border-green-200">
+                <div className="text-[24px] font-bold text-green-600">
                   {
                     Object.values(syncResults).filter((r) => r === "success")
                       .length
                   }
                 </div>
-                <div className="text-sm text-green-700 dark:text-green-300">
+                <div className="text-sm text-green-700">
                   Success
                 </div>
               </div>
-              <div className="text-center p-4 bg-red-50 dark:bg-red-900/20 rounded-md border border-red-200 dark:border-red-800">
-                <div className="text-[24px] font-bold text-red-600 dark:text-red-400">
+              <div className="text-center p-4 bg-red-50 rounded-md border border-red-200">
+                <div className="text-[24px] font-bold text-red-600">
                   {
                     Object.values(syncResults).filter((r) => r === "error")
                       .length
                   }
                 </div>
-                <div className="text-sm text-red-700 dark:text-red-300">
+                <div className="text-sm text-red-700">
                   Failed
                 </div>
               </div>
-              <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-md border border-blue-200 dark:border-blue-800">
-                <div className="text-[24px] font-bold text-blue-600 dark:text-blue-400">
+              <div className="text-center p-4 bg-blue-50 rounded-md border border-blue-200">
+                <div className="text-[24px] font-bold text-blue-600">
                   {whitepapers.length}
                 </div>
-                <div className="text-sm text-blue-700 dark:text-blue-300">
+                <div className="text-sm text-blue-700">
                   Total
                 </div>
               </div>

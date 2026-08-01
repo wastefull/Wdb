@@ -362,7 +362,7 @@ export function EvidenceListViewer({
   return (
     <div className="space-y-4">
       {/* Filters and Search */}
-      <Card className="border-2 border-[#211f1c] dark:border-white/20 shadow-[4px_4px_0px_0px_#000000] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)]">
+      <Card className="border-2 border-[#211f1c] shadow-[4px_4px_0px_0px_#000000]">
         <CardHeader>
           <CardTitle className="font-['Tilt_Warp'] text-[18px] flex items-center gap-2">
             <Filter className="size-5" />
@@ -380,7 +380,7 @@ export function EvidenceListViewer({
                   placeholder="Search snippets or citations..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 font-['Sniglet'] text-[12px] border-2 border-[#211f1c] dark:border-white/20"
+                  className="pl-10 font-['Sniglet'] text-[12px] border-2 border-[#211f1c]"
                 />
               </div>
             </div>
@@ -392,7 +392,7 @@ export function EvidenceListViewer({
                 value={selectedMaterial}
                 onValueChange={setSelectedMaterial}
               >
-                <SelectTrigger className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c] dark:border-white/20">
+                <SelectTrigger className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c]">
                   <SelectValue placeholder="Select material" />
                 </SelectTrigger>
                 <SelectContent>
@@ -436,7 +436,7 @@ export function EvidenceListViewer({
                 value={selectedParameter}
                 onValueChange={setSelectedParameter}
               >
-                <SelectTrigger className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c] dark:border-white/20">
+                <SelectTrigger className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c]">
                   <SelectValue placeholder="Select parameter" />
                 </SelectTrigger>
                 <SelectContent>
@@ -466,7 +466,7 @@ export function EvidenceListViewer({
               onClick={() => setShowBulkDeleteConfirm(true)}
               variant="outline"
               size="sm"
-              className="font-['Sniglet'] text-[12px] border-2 border-red-400 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+              className="font-['Sniglet'] text-[12px] border-2 border-red-400 text-red-600 hover:bg-red-50"
             >
               <Trash2 className="size-3 mr-1" />
               Delete All ({filteredMIUs.length})
@@ -476,7 +476,7 @@ export function EvidenceListViewer({
             onClick={loadMIUs}
             variant="outline"
             size="sm"
-            className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c] dark:border-white/20"
+            className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c]"
           >
             Refresh
           </Button>
@@ -484,7 +484,7 @@ export function EvidenceListViewer({
       </div>
 
       {/* MIU List */}
-      <ScrollArea className="h-150 rounded-md border-2 border-[#211f1c] dark:border-white/20">
+      <ScrollArea className="h-150 rounded-md border-2 border-[#211f1c]">
         <div className="space-y-3 p-4">
           {loading ? (
             <div className="text-center py-12">
@@ -507,7 +507,7 @@ export function EvidenceListViewer({
             filteredMIUs.map((miu) => (
               <Card
                 key={miu.id}
-                className="border-2 border-[#211f1c] dark:border-white/20 hover:shadow-[4px_4px_0px_0px_#000000] dark:hover:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.2)] transition-all cursor-pointer"
+                className="border-2 border-[#211f1c] hover:shadow-[4px_4px_0px_0px_#000000] transition-all cursor-pointer"
               >
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between gap-2">
@@ -518,7 +518,7 @@ export function EvidenceListViewer({
                         </Badge>
                         <Badge
                           variant="outline"
-                          className="border-[#211f1c] dark:border-white/20 font-['Sniglet'] text-xs"
+                          className="border-[#211f1c] font-['Sniglet'] text-xs"
                         >
                           {miu.parameter_code} -{" "}
                           {getParameterName(miu.parameter_code)}
@@ -546,7 +546,7 @@ export function EvidenceListViewer({
                           View Details
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="max-w-3xl border-2 border-[#211f1c] dark:border-white/20">
+                      <DialogContent className="max-w-3xl border-2 border-[#211f1c]">
                         <DialogHeader>
                           <DialogTitle className="font-['Tilt_Warp'] text-[20px]">
                             Evidence Point Details
@@ -600,7 +600,7 @@ export function EvidenceListViewer({
                             <Label className="font-['Sniglet'] text-[12px] text-muted-foreground">
                               Text Snippet
                             </Label>
-                            <div className="mt-1 p-3 bg-muted rounded-md border border-[#211f1c] dark:border-white/20">
+                            <div className="mt-1 p-3 bg-muted rounded-md border border-[#211f1c]">
                               <p className="font-['Sniglet'] text-[12px] italic">
                                 &ldquo;{miu.snippet}&rdquo;
                               </p>
@@ -624,8 +624,8 @@ export function EvidenceListViewer({
                                     <Badge
                                       className={`text-[8px] ${
                                         source.manual_oa_override
-                                          ? "bg-teal-100 text-teal-800 dark:bg-teal-900/20 dark:text-teal-300"
-                                          : "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
+                                          ? "bg-teal-100 text-teal-800"
+                                          : "bg-green-100 text-green-800"
                                       }`}
                                       title={`Open Access${
                                         source.manual_oa_override
@@ -643,8 +643,8 @@ export function EvidenceListViewer({
                                     <Badge
                                       className={`text-[8px] ${
                                         source.manual_oa_override
-                                          ? "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300"
-                                          : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
+                                          ? "bg-orange-100 text-orange-800"
+                                          : "bg-red-100 text-red-800"
                                       }`}
                                       title={`Closed Access${
                                         source.manual_oa_override
@@ -717,7 +717,7 @@ export function EvidenceListViewer({
                             variant="outline"
                             size="sm"
                             onClick={() => startEdit(miu)}
-                            className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c] dark:border-white/20"
+                            className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c]"
                           >
                             <Edit className="size-4 mr-2" />
                             Edit
@@ -771,8 +771,8 @@ export function EvidenceListViewer({
                               <Badge
                                 className={`text-[7px] shrink-0 ${
                                   source.manual_oa_override
-                                    ? "bg-teal-100 text-teal-800 dark:bg-teal-900/20 dark:text-teal-300"
-                                    : "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
+                                    ? "bg-teal-100 text-teal-800"
+                                    : "bg-green-100 text-green-800"
                                 }`}
                                 title="Open Access"
                               >
@@ -786,8 +786,8 @@ export function EvidenceListViewer({
                               <Badge
                                 className={`text-[7px] shrink-0 ${
                                   source.manual_oa_override
-                                    ? "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300"
-                                    : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
+                                    ? "bg-orange-100 text-orange-800"
+                                    : "bg-red-100 text-red-800"
                                 }`}
                                 title="Closed Access"
                               >
@@ -813,7 +813,7 @@ export function EvidenceListViewer({
         open={!!editingMIU}
         onOpenChange={(open: boolean) => !open && setEditingMIU(null)}
       >
-        <DialogContent className="max-w-md border-2 border-[#211f1c] dark:border-white/20">
+        <DialogContent className="max-w-md border-2 border-[#211f1c]">
           <DialogHeader>
             <DialogTitle className="font-['Tilt_Warp'] text-[20px]">
               Edit Evidence Point
@@ -825,7 +825,7 @@ export function EvidenceListViewer({
 
           {editingMIU && (
             <div className="space-y-4">
-              <div className="p-3 bg-muted rounded-md border border-[#211f1c] dark:border-white/20">
+              <div className="p-3 bg-muted rounded-md border border-[#211f1c]">
                 <p className="font-['Sniglet'] text-[12px] text-muted-foreground">
                   <strong>Material:</strong>{" "}
                   {getMaterialName(editingMIU.material_id)} |
@@ -844,7 +844,7 @@ export function EvidenceListViewer({
                       setEditForm({ ...editForm, value: e.target.value })
                     }
                     placeholder="e.g., 75.5"
-                    className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c] dark:border-white/20"
+                    className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c]"
                   />
                 </div>
                 <div className="space-y-2">
@@ -856,7 +856,7 @@ export function EvidenceListViewer({
                       setEditForm({ ...editForm, unit: e.target.value })
                     }
                     placeholder="e.g., %"
-                    className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c] dark:border-white/20"
+                    className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c]"
                   />
                 </div>
               </div>
@@ -869,7 +869,7 @@ export function EvidenceListViewer({
                     setEditForm({ ...editForm, notes: e.target.value })
                   }
                   placeholder="Add curator notes..."
-                  className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c] dark:border-white/20 min-h-20"
+                  className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c] min-h-20"
                 />
               </div>
             </div>
@@ -880,7 +880,7 @@ export function EvidenceListViewer({
               variant="outline"
               onClick={() => setEditingMIU(null)}
               disabled={saving}
-              className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c] dark:border-white/20"
+              className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c]"
             >
               <X className="size-4 mr-2" />
               Cancel
@@ -902,7 +902,7 @@ export function EvidenceListViewer({
         open={!!deletingMIU}
         onOpenChange={(open: boolean) => !open && setDeletingMIU(null)}
       >
-        <DialogContent className="max-w-md border-2 border-[#211f1c] dark:border-white/20">
+        <DialogContent className="max-w-md border-2 border-[#211f1c]">
           <DialogHeader>
             <DialogTitle className="font-['Tilt_Warp'] text-[20px] flex items-center gap-2 text-red-600">
               <AlertTriangle className="size-6" />
@@ -915,7 +915,7 @@ export function EvidenceListViewer({
 
           {deletingMIU && (
             <div className="space-y-4">
-              <div className="p-4 bg-red-50 dark:bg-red-950 rounded-md border-2 border-red-300 dark:border-red-800">
+              <div className="p-4 bg-red-50 rounded-md border-2 border-red-300">
                 <p className="font-['Sniglet'] text-[14px] mb-2">
                   <strong>Material:</strong>{" "}
                   {getMaterialName(deletingMIU.material_id)}
@@ -941,7 +941,7 @@ export function EvidenceListViewer({
               variant="outline"
               onClick={() => setDeletingMIU(null)}
               disabled={deleting}
-              className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c] dark:border-white/20"
+              className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c]"
             >
               Cancel
             </Button>
@@ -963,7 +963,7 @@ export function EvidenceListViewer({
         open={showBulkDeleteConfirm}
         onOpenChange={setShowBulkDeleteConfirm}
       >
-        <DialogContent className="max-w-md border-2 border-[#211f1c] dark:border-white/20">
+        <DialogContent className="max-w-md border-2 border-[#211f1c]">
           <DialogHeader>
             <DialogTitle className="font-['Tilt_Warp'] text-[20px] text-red-600 flex items-center gap-2">
               <AlertTriangle className="size-5" />
@@ -975,14 +975,14 @@ export function EvidenceListViewer({
           </DialogHeader>
 
           <div className="space-y-4 py-4">
-            <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
-              <p className="font-['Sniglet'] text-[14px] text-red-800 dark:text-red-200 font-medium">
+            <div className="p-4 bg-red-50 rounded-lg border border-red-200">
+              <p className="font-['Sniglet'] text-[14px] text-red-800 font-medium">
                 You are about to delete {filteredMIUs.length} evidence points.
               </p>
-              <p className="font-['Sniglet'] text-[12px] text-red-600 dark:text-red-300 mt-2">
+              <p className="font-['Sniglet'] text-[12px] text-red-600 mt-2">
                 Current filters:
               </p>
-              <ul className="font-['Sniglet'] text-sm text-red-600 dark:text-red-300 mt-1 ml-4 list-disc">
+              <ul className="font-['Sniglet'] text-sm text-red-600 mt-1 ml-4 list-disc">
                 <li>
                   Material:{" "}
                   {selectedMaterial === "all" ? "All" : selectedMaterial}
@@ -1006,7 +1006,7 @@ export function EvidenceListViewer({
               variant="outline"
               onClick={() => setShowBulkDeleteConfirm(false)}
               disabled={bulkDeleting}
-              className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c] dark:border-white/20"
+              className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c]"
             >
               Cancel
             </Button>

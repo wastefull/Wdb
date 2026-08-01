@@ -274,7 +274,7 @@ function KeyInsightsSection({
 
   return (
     <>
-      <Card className="border-[1.5px] border-[#211f1c]/25 bg-[linear-gradient(135deg,color-mix(in_oklch,var(--waste-recycle)_22%,transparent),color-mix(in_oklch,var(--waste-reuse)_12%,transparent))] shadow-none dark:border-white/20">
+      <Card className="border-[1.5px] border-[#211f1c]/25 bg-[linear-gradient(135deg,color-mix(in_oklch,var(--waste-recycle)_22%,transparent),color-mix(in_oklch,var(--waste-reuse)_12%,transparent))] shadow-none">
         <CardContent className="pt-6">
           <ul className="grid gap-4 md:grid-cols-3">
             {insights.map((insight) => (
@@ -283,7 +283,7 @@ function KeyInsightsSection({
                 className="flex items-start gap-3 text-sm leading-6"
               >
                 <Sparkles
-                  className="mt-0.5 size-4 shrink-0 text-amber-700 dark:text-amber-300"
+                  className="mt-0.5 size-4 shrink-0 text-amber-700"
                   aria-hidden="true"
                 />
                 <div className="space-y-2">
@@ -391,7 +391,7 @@ function RecommendedLearningSection({
         return (
           <Card
             key={resource.id}
-            className="border-[1.5px] border-[#211f1c]/25 shadow-none dark:border-white/20"
+            className="border-[1.5px] border-[#211f1c]/25 shadow-none"
           >
             <CardHeader>
               <div className="flex items-start gap-3">
@@ -665,7 +665,7 @@ function DeepResearchSection({
                   return (
                     <li
                       key={`${source.title}-${index}`}
-                      className="border-l-2 border-blue-300 pl-3 text-sm dark:border-blue-700"
+                      className="border-l-2 border-blue-300 pl-3 text-sm"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <p className="font-medium">

@@ -86,7 +86,7 @@ function PreviewSummary({ preview }: { preview: VideoPlaylistPreview }) {
           <CheckCircle className="mt-0.5 size-4 shrink-0 text-waste-compost" />
           <div>
             <p className="text-[13px] font-medium">Read-only preview complete</p>
-            <p className="mt-1 text-[12px] text-black/60 dark:text-white/60">
+            <p className="mt-1 text-[12px] text-black/60">
               No videos, entities, bindings, mappings, or triage decisions were
               created.
             </p>
@@ -96,7 +96,7 @@ function PreviewSummary({ preview }: { preview: VideoPlaylistPreview }) {
 
       <div>
         <h4 className="font-sniglet text-[15px]">{preview.source.title}</h4>
-        <p className="text-[12px] text-black/60 dark:text-white/60">
+        <p className="text-[12px] text-black/60">
           {preview.source.channel_name ?? "Unknown channel"} ·{" "}
           {preview.source.privacy_status ?? "Unknown visibility"}
         </p>
@@ -106,9 +106,9 @@ function PreviewSummary({ preview }: { preview: VideoPlaylistPreview }) {
         {summary.map(([label, value]) => (
           <div
             key={label}
-            className="rounded-lg border border-black/10 p-3 dark:border-white/10"
+            className="rounded-lg border border-black/10 p-3"
           >
-            <dt className="text-[11px] text-black/50 dark:text-white/50">
+            <dt className="text-[11px] text-black/50">
               {label}
             </dt>
             <dd className="mt-1 font-mono text-[18px]">{value}</dd>
@@ -116,18 +116,18 @@ function PreviewSummary({ preview }: { preview: VideoPlaylistPreview }) {
         ))}
       </dl>
 
-      <div className="rounded-lg bg-black/5 p-3 text-[11px] dark:bg-white/5">
+      <div className="rounded-lg bg-black/5 p-3 text-[11px]">
         <div className="font-medium">Preview checksum</div>
-        <code className="mt-1 block break-all text-black/60 dark:text-white/60">
+        <code className="mt-1 block break-all text-black/60">
           {preview.preview_checksum}
         </code>
       </div>
 
-      <div className="rounded-lg border border-black/10 p-4 dark:border-white/10">
+      <div className="rounded-lg border border-black/10 p-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-[13px] font-medium">Triage worksheet</p>
-            <p className="mt-1 max-w-xl text-[11px] text-black/60 dark:text-white/60">
+            <p className="mt-1 max-w-xl text-[11px] text-black/60">
               Export all candidates with provider status, issues, suggested 3D
               printing tags, and blank columns for disposition, materials,
               reviewed topics, editorial targets, and notes.
@@ -144,14 +144,14 @@ function PreviewSummary({ preview }: { preview: VideoPlaylistPreview }) {
         </div>
       </div>
 
-      <details className="rounded-lg border border-black/10 dark:border-white/10">
+      <details className="rounded-lg border border-black/10">
         <summary className="cursor-pointer px-4 py-3 text-[13px] font-medium">
           Inspect {preview.candidates.length} candidates
         </summary>
-        <div className="max-h-[34rem] overflow-auto border-t border-black/10 dark:border-white/10">
+        <div className="max-h-[34rem] overflow-auto border-t border-black/10">
           <table className="w-full min-w-[760px] text-left text-[12px]">
             <thead className="sticky top-0 bg-background">
-              <tr className="border-b border-black/10 dark:border-white/10">
+              <tr className="border-b border-black/10">
                 <th scope="col" className="px-3 py-2 font-medium">
                   Position
                 </th>
@@ -173,13 +173,13 @@ function PreviewSummary({ preview }: { preview: VideoPlaylistPreview }) {
               {preview.candidates.map((candidate) => (
                 <tr
                   key={candidate.candidate_key}
-                  className="border-b border-black/5 align-top last:border-b-0 dark:border-white/5"
+                  className="border-b border-black/5 align-top last:border-b-0"
                 >
                   <td className="px-3 py-3 font-mono">
                     {candidate.playlist_positions.join(", ") || "—"}
                   </td>
                   <td className="px-3 py-3">
-                    <span className="rounded-full border border-black/15 px-2 py-1 text-[10px] dark:border-white/15">
+                    <span className="rounded-full border border-black/15 px-2 py-1 text-[10px]">
                       {CLASSIFICATION_LABELS[candidate.classification]}
                     </span>
                   </td>
@@ -187,7 +187,7 @@ function PreviewSummary({ preview }: { preview: VideoPlaylistPreview }) {
                     <div className="font-medium">
                       {candidate.title ?? "Untitled playlist item"}
                     </div>
-                    <div className="mt-1 text-[11px] text-black/50 dark:text-white/50">
+                    <div className="mt-1 text-[11px] text-black/50">
                       {candidate.channel_name ?? "Unknown channel"}
                     </div>
                     {candidate.youtube_url && (
@@ -321,16 +321,16 @@ function TriageCsvValidationPanel({
   };
 
   return (
-    <div className="rounded-lg border border-black/10 p-4 dark:border-white/10">
+    <div className="rounded-lg border border-black/10 p-4">
       <div className="flex items-start gap-3">
         <Upload className="mt-0.5 size-4 shrink-0" />
         <div className="flex-1">
           <p className="text-[13px] font-medium">Validate reviewed worksheet</p>
-          <p className="mt-1 text-[11px] text-black/60 dark:text-white/60">
+          <p className="mt-1 text-[11px] text-black/60">
             Select an exported CSV to check its structure and review state in
             this browser. The file is not uploaded or saved to WasteDB.
           </p>
-          <label className="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-lg border border-black/15 px-3 py-2 text-[12px] hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/5">
+          <label className="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-lg border border-black/15 px-3 py-2 text-[12px] hover:bg-black/5">
             <Upload className="size-3.5" />
             {isReading ? "Reading…" : "Choose triage CSV"}
             <input
@@ -342,7 +342,7 @@ function TriageCsvValidationPanel({
             />
           </label>
           {filename && (
-            <span className="ml-3 text-[11px] text-black/50 dark:text-white/50">
+            <span className="ml-3 text-[11px] text-black/50">
               {filename}
             </span>
           )}
@@ -351,7 +351,7 @@ function TriageCsvValidationPanel({
 
       <div className="mt-4" aria-live="polite">
         {error && (
-          <p className="text-[12px] text-red-600 dark:text-red-300">{error}</p>
+          <p className="text-[12px] text-red-600">{error}</p>
         )}
         {validation && (
           <div className="space-y-3">
@@ -359,7 +359,7 @@ function TriageCsvValidationPanel({
               className={`rounded-lg border p-3 text-[12px] ${
                 validation.validForStaging && matchesCurrentPreview
                   ? "border-waste-compost/30 bg-waste-compost/5"
-                  : "border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30"
+                  : "border-amber-300 bg-amber-50"
               }`}
             >
               <p className="font-medium">
@@ -367,7 +367,7 @@ function TriageCsvValidationPanel({
                   ? "Worksheet is structurally valid"
                   : "Worksheet needs attention"}
               </p>
-              <p className="mt-1 text-[11px] text-black/60 dark:text-white/60">
+              <p className="mt-1 text-[11px] text-black/60">
                 {validation.counts.rows} rows · {validation.counts.errors} errors
                 · {validation.counts.warnings} warnings ·{" "}
                 {validation.counts.reviewed} reviewed ·{" "}
@@ -375,7 +375,7 @@ function TriageCsvValidationPanel({
                 unreviewed
               </p>
               {!matchesCurrentPreview && (
-                <p className="mt-2 text-[11px] font-medium text-amber-700 dark:text-amber-300">
+                <p className="mt-2 text-[11px] font-medium text-amber-700">
                   This worksheet does not match the currently displayed playlist
                   preview and must not be staged from this screen.
                 </p>
@@ -386,11 +386,11 @@ function TriageCsvValidationPanel({
             </div>
 
             {validation.issues.length > 0 && (
-              <details className="rounded-lg border border-black/10 dark:border-white/10">
+              <details className="rounded-lg border border-black/10">
                 <summary className="cursor-pointer px-3 py-2 text-[12px] font-medium">
                   Inspect validation findings ({validation.issues.length})
                 </summary>
-                <ul className="max-h-64 space-y-2 overflow-auto border-t border-black/10 p-3 text-[11px] dark:border-white/10">
+                <ul className="max-h-64 space-y-2 overflow-auto border-t border-black/10 p-3 text-[11px]">
                   {validation.issues.slice(0, 100).map((issue, index) => (
                     <li key={`${issue.row}-${issue.column}-${index}`}>
                       <span className="font-medium uppercase">
@@ -404,18 +404,18 @@ function TriageCsvValidationPanel({
               </details>
             )}
 
-            <div className="rounded-lg border border-black/10 p-3 dark:border-white/10">
-              <p className="text-[11px] text-black/60 dark:text-white/60">
+            <div className="rounded-lg border border-black/10 p-3">
+              <p className="text-[11px] text-black/60">
                 Staging saves private triage records only. It does not create
                 videos, graph relationships, tags, mappings, or public content.
               </p>
               {!currentPreview && (
-                <p className="mt-2 text-[11px] text-amber-700 dark:text-amber-300">
+                <p className="mt-2 text-[11px] text-amber-700">
                   Run the matching playlist preview before staging this worksheet.
                 </p>
               )}
               {capabilities && !capabilities.triage_persistence_enabled && (
-                <p className="mt-2 text-[11px] text-black/50 dark:text-white/50">
+                <p className="mt-2 text-[11px] text-black/50">
                   Worksheet staging is currently disabled by the server safety gate.
                 </p>
               )}
@@ -441,7 +441,7 @@ function TriageCsvValidationPanel({
                     ? "Worksheet staged"
                     : "Worksheet was already staged"}
                 </p>
-                <p className="mt-1 text-[11px] text-black/60 dark:text-white/60">
+                <p className="mt-1 text-[11px] text-black/60">
                   {stageResult.row_count} private records · status {stageResult.status}
                   {" · batch "}
                   <code>{stageResult.batch_id}</code>
@@ -500,7 +500,7 @@ export function VideoPlaylistPreviewPanel() {
           >
             YouTube Playlist Preview
           </h3>
-          <p className="mt-1 text-[13px] leading-relaxed text-black/70 dark:text-white/70">
+          <p className="mt-1 text-[13px] leading-relaxed text-black/70">
             Enumerate, normalize, and compare a playlist without creating or
             changing WasteDB records. A separately gated action can preserve a
             validated worksheet as private triage records.
@@ -512,7 +512,7 @@ export function VideoPlaylistPreviewPanel() {
         <div>
           <label
             htmlFor="youtube-playlist-url"
-            className="mb-1 block text-[11px] font-medium text-black/60 dark:text-white/60"
+            className="mb-1 block text-[11px] font-medium text-black/60"
           >
             YouTube playlist URL
           </label>
@@ -525,7 +525,7 @@ export function VideoPlaylistPreviewPanel() {
             autoComplete="off"
             spellCheck={false}
             disabled={isLoading}
-            className="w-full rounded-lg border border-black/15 bg-black/5 px-3 py-2 font-mono text-[12px] focus:outline-none focus:ring-1 focus:ring-waste-science disabled:opacity-60 dark:border-white/15 dark:bg-white/5"
+            className="w-full rounded-lg border border-black/15 bg-black/5 px-3 py-2 font-mono text-[12px] focus:outline-none focus:ring-1 focus:ring-waste-science disabled:opacity-60"
           />
         </div>
         <button
@@ -544,7 +544,7 @@ export function VideoPlaylistPreviewPanel() {
 
       <div aria-live="polite">
         {error && (
-          <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-4 text-[12px] text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-300">
+          <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-4 text-[12px] text-red-700">
             <XCircle className="mt-0.5 size-4 shrink-0" />
             <span>{error}</span>
           </div>

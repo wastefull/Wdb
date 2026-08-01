@@ -566,12 +566,12 @@ export function MaterialDetailView({
           if (!open) setArticleToDelete(null);
         }}
       >
-        <AlertDialogContent className="bg-white dark:bg-[#2a2825] border-[#211f1c] dark:border-white/20">
+        <AlertDialogContent className="bg-white border-[#211f1c]">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-black dark:text-white">
+            <AlertDialogTitle className="text-black">
               Delete article?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-black/70 dark:text-white/70">
+            <AlertDialogDescription className="text-black/70">
               This will permanently remove
               {articleToDelete
                 ? ` \"${articleToDelete.article.title}\"`

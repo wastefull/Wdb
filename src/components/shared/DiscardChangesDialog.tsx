@@ -16,17 +16,17 @@ export function DiscardChangesDialog({
       overlayClassName="pt-10"
     >
       <div>
-        <h1 className="text-[16px] font-semibold text-black dark:text-white mb-2">
+        <h1 className="text-[16px] font-semibold text-black mb-2">
           Discard changes?
         </h1>
-        <p className="text-[13px] text-black/70 dark:text-white/60 mb-5">
+        <p className="text-[13px] text-black/70 mb-5">
           You have unsaved changes that will be lost.
         </p>
         <div className="flex gap-3">
           <button
             type="button"
             onClick={onKeepEditing}
-            className="flex-1 h-9 rounded-md border border-[#211f1c] dark:border-white/20 text-[13px] text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+            className="flex-1 h-9 rounded-md border border-[#211f1c] text-[13px] text-black hover:bg-black/5 transition-colors"
           >
             Keep editing
           </button>

@@ -12,13 +12,13 @@ export default function SectionComponent({ node, updateAttributes }: any) {
             value={node.attrs.title}
             onChange={(e) => updateAttributes({ title: e.target.value })}
             onBlur={() => setIsEditing(false)}
-            className="text-[18px] font-display w-full bg-transparent border-b-2 border-black/20 dark:border-white/20 pb-2 mb-4 text-black dark:text-white"
+            className="text-[18px] font-display w-full bg-transparent border-b-2 border-black/20 pb-2 mb-4 text-black"
             autoFocus
           />
         ) : (
           <h2
             onClick={() => setIsEditing(true)}
-            className="text-[18px] font-display mb-4 cursor-pointer hover:text-black/60 dark:hover:text-white/60 transition-colors text-black dark:text-white"
+            className="text-[18px] font-display mb-4 cursor-pointer hover:text-black/60 transition-colors text-black"
           >
             {node.attrs.title}
           </h2>

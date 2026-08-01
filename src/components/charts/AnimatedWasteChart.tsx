@@ -123,7 +123,7 @@ export function AnimatedWasteChart({
       )}
 
       <div
-        className="bg-white dark:bg-[#2a2825] rounded-(--retro-rounding) border-[1.5px] border-[#211f1c] dark:border-white/20 shadow-sm overflow-hidden"
+        className="bg-white rounded-(--retro-rounding) border-[1.5px] border-[#211f1c] shadow-sm overflow-hidden"
         style={{ padding: isMobile ? "8px" : "16px" }}
       >
         <div
@@ -174,7 +174,7 @@ export function AnimatedWasteChart({
                 </defs>
 
                 <text
-                  className="normal fill-black dark:fill-white"
+                  className="normal fill-black"
                   fontSize="22"
                   textAnchor="middle"
                 >
@@ -383,11 +383,11 @@ export function AnimatedWasteChart({
                         Reusable: "reuse",
                       };
                       return (
-                        <div className="bg-white dark:bg-[#2a2825] rounded-md border border-[#211f1c] dark:border-white/20 p-2 shadow-md">
+                        <div className="bg-white rounded-md border border-[#211f1c] p-2 shadow-md">
                           <p className="text-[12px] normal">
                             {data.value}% {categoryMap[data.name] || data.name}
                           </p>
-                          <p className="text-xs text-black/60 dark:text-white/60">
+                          <p className="text-xs text-black/60">
                             {articleCount} {articleText}
                           </p>
                         </div>

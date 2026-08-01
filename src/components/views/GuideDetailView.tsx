@@ -114,7 +114,7 @@ export function GuideDetailView({ guideId, onBack }: GuideDetailViewProps) {
     return (
       <PageTemplate title="Loading..." onBack={onBack}>
         <div className="text-center py-12">
-          <p className="text-[13px] text-black/60 dark:text-white/60">
+          <p className="text-[13px] text-black/60">
             Loading guide...
           </p>
         </div>
@@ -126,7 +126,7 @@ export function GuideDetailView({ guideId, onBack }: GuideDetailViewProps) {
     return (
       <PageTemplate title="Guide Not Found" onBack={onBack}>
         <div className="text-center py-12">
-          <p className="text-[13px] text-black/60 dark:text-white/60">
+          <p className="text-[13px] text-black/60">
             Guide not found.
           </p>
         </div>
@@ -153,7 +153,7 @@ export function GuideDetailView({ guideId, onBack }: GuideDetailViewProps) {
             }
           />
           {/* Gradient overlay for readability */}
-          <div className="absolute inset-0 bg-linear-to-b from-black/30 via-transparent to-[#f5f3ed] dark:to-[#1a1817]" />
+          <div className="absolute inset-0 bg-linear-to-b from-black/30 via-transparent to-[#f5f3ed]" />
 
           {/* Back button and title overlay */}
           <div className="absolute top-0 left-0 right-0 p-4 md:p-6">
@@ -161,10 +161,10 @@ export function GuideDetailView({ guideId, onBack }: GuideDetailViewProps) {
               {/* Back Button */}
               <button
                 onClick={onBack}
-                className="card-interactive bg-white dark:bg-[#2a2825]"
+                className="card-interactive bg-white"
                 aria-label="Back"
               >
-                <ArrowLeft size={16} className="text-black dark:text-white" />
+                <ArrowLeft size={16} className="text-black" />
               </button>
 
               {/* Title */}
@@ -212,7 +212,7 @@ export function GuideDetailView({ guideId, onBack }: GuideDetailViewProps) {
             </div>
             <div className="flex-1">
               <div className="flex items-start justify-between gap-4 mb-2">
-                <h1 className="text-[24px] font-display text-black dark:text-white">
+                <h1 className="text-[24px] font-display text-black">
                   {guide.title}
                 </h1>
                 {!guide.cover_image_url && canEdit && (
@@ -234,7 +234,7 @@ export function GuideDetailView({ guideId, onBack }: GuideDetailViewProps) {
                   </div>
                 )}
               </div>
-              <p className="text-[14px] text-black/60 dark:text-white/60 mb-4">
+              <p className="text-[14px] text-black/60 mb-4">
                 {guide.description}
               </p>
 
@@ -277,11 +277,11 @@ export function GuideDetailView({ guideId, onBack }: GuideDetailViewProps) {
           </div>
 
           {/* Author & Stats */}
-          <div className="flex items-center justify-between pt-4 border-t border-[#211f1c]/10 dark:border-white/10">
-            <div className="text-sm text-black/50 dark:text-white/50">
+          <div className="flex items-center justify-between pt-4 border-t border-[#211f1c]/10">
+            <div className="text-sm text-black/50">
               By {guide.author_name || "Anonymous"}
             </div>
-            <div className="flex items-center gap-3 text-sm text-black/50 dark:text-white/50">
+            <div className="flex items-center gap-3 text-sm text-black/50">
               <span className="flex items-center gap-1">
                 <Eye size={12} />
                 {guide.views_count || 0} views
@@ -293,14 +293,14 @@ export function GuideDetailView({ guideId, onBack }: GuideDetailViewProps) {
         {/* Required Materials */}
         {guide.required_materials && guide.required_materials.length > 0 && (
           <div className="retro-card p-4 mb-6">
-            <h2 className="text-[14px] font-display mb-3 text-black dark:text-white">
+            <h2 className="text-[14px] font-display mb-3 text-black">
               Required Materials
             </h2>
             <ul className="list-disc list-inside space-y-1">
               {guide.required_materials.map((material, index) => (
                 <li
                   key={index}
-                  className="text-[13px] text-black/70 dark:text-white/70"
+                  className="text-[13px] text-black/70"
                 >
                   {material}
                 </li>
@@ -317,7 +317,7 @@ export function GuideDetailView({ guideId, onBack }: GuideDetailViewProps) {
         {/* Tags */}
         {guide.tags && guide.tags.length > 0 && (
           <div className="retro-card p-4">
-            <h2 className="text-sm text-black/50 dark:text-white/50 mb-2">
+            <h2 className="text-sm text-black/50 mb-2">
               Tags
             </h2>
             <div className="flex flex-wrap gap-2">
@@ -345,10 +345,10 @@ export function GuideDetailView({ guideId, onBack }: GuideDetailViewProps) {
         {showDeleteConfirm && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
             <div className="retro-card w-full max-w-md p-6">
-              <h2 className="text-[18px] font-display mb-4 text-black dark:text-white">
+              <h2 className="text-[18px] font-display mb-4 text-black">
                 Delete Guide?
               </h2>
-              <p className="text-[13px] text-black/60 dark:text-white/60 mb-6">
+              <p className="text-[13px] text-black/60 mb-6">
                 Are you sure you want to delete "{guide?.title}"? This action
                 cannot be undone.
               </p>

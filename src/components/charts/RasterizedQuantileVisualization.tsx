@@ -246,9 +246,7 @@ function RasterizedDisplay({
         >
           <span className="text-sm normal">{label}</span>
           {articleCount !== undefined && articleCount > 0 && (
-            <span className="text-[9px] text-black/60 dark:text-white/60">
-              ({articleCount})
-            </span>
+            <span className="text-[9px] text-black/60">({articleCount})</span>
           )}
         </button>
         {showScores && <span className="text-sm normal">{displayScore}</span>}

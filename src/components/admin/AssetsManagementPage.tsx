@@ -288,7 +288,7 @@ export function AssetsManagementPage() {
                   value={uploadDestination}
                   onChange={(event) => setUploadDestination(event.target.value)}
                   disabled={uploading || !accessToken}
-                  className="mt-2 w-full rounded-md border border-[#211f1c]/20 bg-white px-3 py-2 text-sm text-black dark:border-white/20 dark:bg-[#2a2825] dark:text-white"
+                  className="mt-2 w-full rounded-md border border-[#211f1c]/20 bg-white px-3 py-2 text-sm text-black"
                 >
                   <option value="root">General assets</option>
                   <option value="material-doodles">Material doodles</option>
@@ -333,7 +333,7 @@ export function AssetsManagementPage() {
                 {assets.map((asset) => (
                   <div
                     key={asset.name}
-                    className="flex items-center gap-4 p-4 border border-[#211f1c]/10 dark:border-white/10 rounded-lg"
+                    className="flex items-center gap-4 p-4 border border-[#211f1c]/10 rounded-lg"
                   >
                     {/* Asset Preview */}
                     <div className="size-16 rounded-md overflow-hidden bg-muted shrink-0">
@@ -349,10 +349,10 @@ export function AssetsManagementPage() {
                       <p className="text-[14px] normal truncate">
                         {asset.name}
                       </p>
-                      <p className="text-sm text-black/50 dark:text-white/50">
+                      <p className="text-sm text-black/50">
                         {formatFileSize(asset.size)}
                       </p>
-                      <p className="text-xs text-black/40 dark:text-white/40 font-mono truncate">
+                      <p className="text-xs text-black/40 font-mono truncate">
                         {asset.publicUrl}
                       </p>
                     </div>

@@ -82,7 +82,7 @@ export function AboutView({ onBack }: AboutViewProps) {
                 information about:
               </p>{" "}
               <p>&nbsp;</p>
-              <ul className="list-disc list-inside space-y-2 text-[13px] text-black/70 dark:text-white/70">
+              <ul className="list-disc list-inside space-y-2 text-[13px] text-black/70">
                 <li>Material recyclability and circularity potential</li>
                 <li>Composting methods and best practices</li>
                 <li>Reuse and upcycling opportunities</li>
@@ -175,14 +175,14 @@ export function AboutView({ onBack }: AboutViewProps) {
         </div>
 
         {/* Contact Info */}
-        <div className="mt-8 p-4 border border-[#211f1c]/20 dark:border-white/20 rounded-lg">
-          <p className="text-[12px] text-black/60 dark:text-white/60 text-center">
+        <div className="mt-8 p-4 border border-[#211f1c]/20 rounded-lg">
+          <p className="text-[12px] text-black/60 text-center">
             Have questions or want to get involved? Check out our{" "}
             <a
               href="https://github.com/wastefull/Wdb"
               target="_blank"
               rel="noopener noreferrer"
-              className="underline hover:text-black dark:hover:text-white"
+              className="underline hover:text-black"
             >
               GitHub repository
             </a>{" "}

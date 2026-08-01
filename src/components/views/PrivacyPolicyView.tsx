@@ -14,7 +14,7 @@ export function PrivacyPolicyView({ onBack }: PrivacyPolicyViewProps) {
       backButtonLabel="Legal"
       maxWidth="3xl"
     >
-      <div className="space-y-8 text-[14px] leading-relaxed text-black/80 dark:text-white/80">
+      <div className="space-y-8 text-[14px] leading-relaxed text-black/80">
         <p>
           This policy explains what personally identifiable information (PII)
           WasteDB receives through Supabase authentication and Google OAuth, and
@@ -23,7 +23,7 @@ export function PrivacyPolicyView({ onBack }: PrivacyPolicyViewProps) {
 
         {/* Scope */}
         <section className="space-y-3">
-          <h2 className="text-[16px] normal text-black dark:text-white">
+          <h2 className="text-[16px] normal text-black">
             Scope
           </h2>
           <p>This document covers:</p>
@@ -33,14 +33,14 @@ export function PrivacyPolicyView({ onBack }: PrivacyPolicyViewProps) {
             <li>Google OAuth data as mediated by Supabase Auth</li>
             <li>First-party cookies and browser storage used by the app</li>
           </ul>
-          <p className="text-[12px] text-black/50 dark:text-white/50">
+          <p className="text-[12px] text-black/50">
             This document does not replace legal advice.
           </p>
         </section>
 
         {/* Data Controller */}
         <section className="space-y-2">
-          <h2 className="text-[16px] normal text-black dark:text-white">
+          <h2 className="text-[16px] normal text-black">
             Data Controller
           </h2>
           <p>Wastefull, Inc. operates WasteDB.</p>
@@ -48,12 +48,12 @@ export function PrivacyPolicyView({ onBack }: PrivacyPolicyViewProps) {
 
         {/* PII We Receive */}
         <section className="space-y-4">
-          <h2 className="text-[16px] normal text-black dark:text-white">
+          <h2 className="text-[16px] normal text-black">
             What PII We Receive
           </h2>
 
           <div className="space-y-2">
-            <h3 className="text-[14px] normal text-black dark:text-white">
+            <h3 className="text-[14px] normal text-black">
               1. Direct auth input
             </h3>
             <p>
@@ -67,7 +67,7 @@ export function PrivacyPolicyView({ onBack }: PrivacyPolicyViewProps) {
           </div>
 
           <div className="space-y-2">
-            <h3 className="text-[14px] normal text-black dark:text-white">
+            <h3 className="text-[14px] normal text-black">
               2. Supabase Auth user data
             </h3>
             <p>
@@ -77,7 +77,7 @@ export function PrivacyPolicyView({ onBack }: PrivacyPolicyViewProps) {
             <div className="retro-card p-0 overflow-hidden">
               <table className="w-full text-[12px]">
                 <thead>
-                  <tr className="border-b border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5">
+                  <tr className="border-b border-black/10 bg-black/5">
                     <th className="text-left p-3 font-normal normal">Field</th>
                     <th className="text-left p-3 font-normal normal">
                       Purpose
@@ -87,7 +87,7 @@ export function PrivacyPolicyView({ onBack }: PrivacyPolicyViewProps) {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-black/10 dark:divide-white/10">
+                <tbody className="divide-y divide-black/10">
                   {[
                     [
                       "user.id",
@@ -123,7 +123,7 @@ export function PrivacyPolicyView({ onBack }: PrivacyPolicyViewProps) {
                     <tr key={field}>
                       <td className="p-3 font-mono text-sm">{field}</td>
                       <td className="p-3">{purpose}</td>
-                      <td className="p-3 hidden md:table-cell text-black/50 dark:text-white/50">
+                      <td className="p-3 hidden md:table-cell text-black/50">
                         {retention}
                       </td>
                     </tr>
@@ -134,7 +134,7 @@ export function PrivacyPolicyView({ onBack }: PrivacyPolicyViewProps) {
           </div>
 
           <div className="space-y-2">
-            <h3 className="text-[14px] normal text-black dark:text-white">
+            <h3 className="text-[14px] normal text-black">
               3. Metadata written by WasteDB
             </h3>
             <p>
@@ -150,7 +150,7 @@ export function PrivacyPolicyView({ onBack }: PrivacyPolicyViewProps) {
           </div>
 
           <div className="space-y-2">
-            <h3 className="text-[14px] normal text-black dark:text-white">
+            <h3 className="text-[14px] normal text-black">
               4. Google OAuth-derived data
             </h3>
             <p>
@@ -174,12 +174,12 @@ export function PrivacyPolicyView({ onBack }: PrivacyPolicyViewProps) {
 
         {/* Cookies and storage */}
         <section className="space-y-4">
-          <h2 className="text-[16px] normal text-black dark:text-white">
+          <h2 className="text-[16px] normal text-black">
             Session Cookie and Browser Storage
           </h2>
 
           <div className="space-y-2">
-            <h3 className="text-[14px] normal text-black dark:text-white">
+            <h3 className="text-[14px] normal text-black">
               Authentication cookie
             </h3>
             <p>
@@ -188,35 +188,35 @@ export function PrivacyPolicyView({ onBack }: PrivacyPolicyViewProps) {
             </p>
             <div className="retro-card p-4 font-mono text-[12px] space-y-1">
               <p>
-                <span className="text-black/50 dark:text-white/50">Name: </span>
+                <span className="text-black/50">Name: </span>
                 wastedb_session
               </p>
               <p>
-                <span className="text-black/50 dark:text-white/50">
+                <span className="text-black/50">
                   Purpose:{" "}
                 </span>
                 persists your signed-in session
               </p>
               <p>
-                <span className="text-black/50 dark:text-white/50">
+                <span className="text-black/50">
                   HttpOnly:{" "}
                 </span>
                 yes — not readable by JavaScript
               </p>
               <p>
-                <span className="text-black/50 dark:text-white/50">
+                <span className="text-black/50">
                   Secure:{" "}
                 </span>
                 yes — HTTPS only
               </p>
               <p>
-                <span className="text-black/50 dark:text-white/50">
+                <span className="text-black/50">
                   SameSite:{" "}
                 </span>
                 None (required for cross-origin API requests)
               </p>
               <p>
-                <span className="text-black/50 dark:text-white/50">
+                <span className="text-black/50">
                   Expires:{" "}
                 </span>
                 7 days, matching server-side session expiry
@@ -226,7 +226,7 @@ export function PrivacyPolicyView({ onBack }: PrivacyPolicyViewProps) {
           </div>
 
           <div className="space-y-2">
-            <h3 className="text-[14px] normal text-black dark:text-white">
+            <h3 className="text-[14px] normal text-black">
               Browser storage
             </h3>
             <ul className="list-disc pl-5 space-y-1">
@@ -254,7 +254,7 @@ export function PrivacyPolicyView({ onBack }: PrivacyPolicyViewProps) {
           </div>
 
           <div className="space-y-2">
-            <h3 className="text-[14px] normal text-black dark:text-white">
+            <h3 className="text-[14px] normal text-black">
               OAuth provider cookies
             </h3>
             <p>
@@ -267,7 +267,7 @@ export function PrivacyPolicyView({ onBack }: PrivacyPolicyViewProps) {
 
         {/* Why */}
         <section className="space-y-4">
-          <h2 className="text-[16px] normal text-black dark:text-white">
+          <h2 className="text-[16px] normal text-black">
             Audit and Activity Logs
           </h2>
           <p>
@@ -295,7 +295,7 @@ export function PrivacyPolicyView({ onBack }: PrivacyPolicyViewProps) {
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-[16px] normal text-black dark:text-white">
+          <h2 className="text-[16px] normal text-black">
             Why We Process This Data
           </h2>
           <ul className="list-disc pl-5 space-y-1">
@@ -309,7 +309,7 @@ export function PrivacyPolicyView({ onBack }: PrivacyPolicyViewProps) {
 
         {/* Sharing */}
         <section className="space-y-3">
-          <h2 className="text-[16px] normal text-black dark:text-white">
+          <h2 className="text-[16px] normal text-black">
             Sharing
           </h2>
           <p>
@@ -331,7 +331,7 @@ export function PrivacyPolicyView({ onBack }: PrivacyPolicyViewProps) {
 
         {/* Your choices */}
         <section className="space-y-3">
-          <h2 className="text-[16px] normal text-black dark:text-white">
+          <h2 className="text-[16px] normal text-black">
             Your Choices
           </h2>
           <ul className="list-disc pl-5 space-y-1">
@@ -349,7 +349,7 @@ export function PrivacyPolicyView({ onBack }: PrivacyPolicyViewProps) {
 
         {/* Contact */}
         <section className="space-y-2">
-          <h2 className="text-[16px] normal text-black dark:text-white">
+          <h2 className="text-[16px] normal text-black">
             Contact
           </h2>
           <p>

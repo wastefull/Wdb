@@ -11,8 +11,8 @@ export default function CheckItemComponent({ node }: { node: any }) {
         <span
           className={`mt-0.5 shrink-0 text-base ${
             isCheck
-              ? "text-green-600 dark:text-green-400"
-              : "text-red-600 dark:text-red-400"
+              ? "text-green-600"
+              : "text-red-600"
           }`}
         >
           {isCheck ? (
@@ -21,7 +21,7 @@ export default function CheckItemComponent({ node }: { node: any }) {
             <X size={18} strokeWidth={3} />
           )}
         </span>
-        <NodeViewContent className="flex-1 text-[13px] text-black dark:text-white" />
+        <NodeViewContent className="flex-1 text-[13px] text-black" />
       </div>
     </NodeViewWrapper>
   );

@@ -190,7 +190,7 @@ export function GuidesView({ onBack }: GuidesViewProps) {
         >
           <Leaf
             size={14}
-            className="inline-block mr-1.5 text-green-600 dark:text-green-400"
+            className="inline-block mr-1.5 text-green-600"
           />
           Composting
         </button>
@@ -204,7 +204,7 @@ export function GuidesView({ onBack }: GuidesViewProps) {
         >
           <Recycle
             size={14}
-            className="inline-block mr-1.5 text-blue-600 dark:text-blue-400"
+            className="inline-block mr-1.5 text-blue-600"
           />
           Recycling
         </button>
@@ -216,7 +216,7 @@ export function GuidesView({ onBack }: GuidesViewProps) {
         >
           <Palette
             size={14}
-            className="inline-block mr-1.5 text-purple-600 dark:text-purple-400"
+            className="inline-block mr-1.5 text-purple-600"
           />
           Creative Reuse & Art
         </button>
@@ -231,9 +231,9 @@ export function GuidesView({ onBack }: GuidesViewProps) {
         </button>
       </div>
 
-      <div className="mt-8 p-4 border border-[#211f1c]/20 dark:border-white/20 rounded-lg mb-2 grid grid-cols-24">
+      <div className="mt-8 p-4 border border-[#211f1c]/20 rounded-lg mb-2 grid grid-cols-24">
         <BookOpen size={16} className="inline-block mr-2 col-span-1" />
-        <p className="text-[12px] text-black/60 dark:text-white/60 col-span-23">
+        <p className="text-[12px] text-black/60 col-span-23">
           Guides are community-contributed resources related to specific
           materials and methods. They differ from articles by providing
           step-by-step instructions and practical advice, rather than
@@ -248,7 +248,7 @@ export function GuidesView({ onBack }: GuidesViewProps) {
       {/* Regular Guides List */}
       {isLoading ? (
         <div className="text-center py-12">
-          <p className="text-[13px] text-black/60 dark:text-white/60">
+          <p className="text-[13px] text-black/60">
             Loading guides...
           </p>
         </div>
@@ -256,9 +256,9 @@ export function GuidesView({ onBack }: GuidesViewProps) {
         <div className="text-center py-12">
           <BookOpen
             size={48}
-            className="mx-auto mb-4 text-black/30 dark:text-white/30"
+            className="mx-auto mb-4 text-black/30"
           />
-          <p className="text-[13px] text-black/60 dark:text-white/60 mb-4">
+          <p className="text-[13px] text-black/60 mb-4">
             {selectedCategory === "all"
               ? "No guides available yet. Be the first to submit one!"
               : `No ${selectedCategory} guides available yet.`}
@@ -311,18 +311,18 @@ export function GuidesView({ onBack }: GuidesViewProps) {
                   </div>
 
                   {/* Title */}
-                  <h3 className="text-[16px] font-display mb-2 text-black dark:text-white">
+                  <h3 className="text-[16px] font-display mb-2 text-black">
                     {guide.title}
                   </h3>
 
                   {/* Description snippet */}
-                  <p className="text-[12px] text-black/60 dark:text-white/60 mb-3 line-clamp-2">
+                  <p className="text-[12px] text-black/60 mb-3 line-clamp-2">
                     {guide.description}
                   </p>
 
                   {/* Time estimate at bottom */}
                   {guide.estimated_time && (
-                    <div className="flex items-center gap-1 text-sm text-black/50 dark:text-white/50">
+                    <div className="flex items-center gap-1 text-sm text-black/50">
                       <Clock size={10} />
                       {guide.estimated_time}
                     </div>

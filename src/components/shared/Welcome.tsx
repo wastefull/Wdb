@@ -18,7 +18,7 @@ export function Welcome({ user, materials, onViewProfile }: WelcomeProps) {
     <div className="text-center py-12 max-w-2xl mx-auto">
       {/* Beta contributor message */}
       <div className="mb-6 px-4">
-        <p className="text-[12px] text-black/60 dark:text-white/60">
+        <p className="text-[12px] text-black/60">
           Hi,{" "}
           {user ? (
             <button
@@ -36,14 +36,14 @@ export function Welcome({ user, materials, onViewProfile }: WelcomeProps) {
         <p className="text-[14px] normal mb-1">
           WasteDB is human-made and needs help from contributors like you.
         </p>
-        <p className="text-[12px] text-black/60 dark:text-white/60">
+        <p className="text-[12px] text-black/60">
           The database currently has {materials.length} materials and{" "}
           {materials.reduce((sum, m) => sum + getTotalArticleCount(m), 0)}{" "}
           articles.
         </p>
       </div>
 
-      <p className="text-sm text-black/50 dark:text-white/50">
+      <p className="text-sm text-black/50">
         Can&apos;t find a material? Type its name to submit it from search
         suggestions.
       </p>

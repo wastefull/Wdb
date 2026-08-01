@@ -126,10 +126,10 @@ export function RolePermissionsView({ onBack }: RolePermissionsViewProps) {
         </div>
 
         {/* Permissions grid */}
-        <div className="border border-[#211f1c]/10 dark:border-white/10 rounded-xl overflow-hidden">
+        <div className="border border-[#211f1c]/10 rounded-xl overflow-hidden">
           <table className="w-full">
             <thead>
-              <tr className="bg-[#211f1c]/5 dark:bg-white/5">
+              <tr className="bg-[#211f1c]/5">
                 <th className="text-left text-[12px] font-sniglet normal px-4 py-3 w-[45%]">
                   Permission
                 </th>
@@ -155,7 +155,7 @@ export function RolePermissionsView({ onBack }: RolePermissionsViewProps) {
                   {/* Category header row */}
                   <tr
                     key={`cat-${category.label}`}
-                    className="bg-[#211f1c]/3 dark:bg-white/3"
+                    className="bg-[#211f1c]/3"
                   >
                     <td
                       colSpan={ALL_ROLES.length + 1}
@@ -169,7 +169,7 @@ export function RolePermissionsView({ onBack }: RolePermissionsViewProps) {
                   {category.permissions.map((permission) => (
                     <tr
                       key={permission}
-                      className="border-t border-[#211f1c]/5 dark:border-white/5 hover:bg-[#211f1c]/2 dark:hover:bg-white/2 transition-colors"
+                      className="border-t border-[#211f1c]/5 hover:bg-[#211f1c]/2 transition-colors"
                     >
                       <td className="px-4 py-2.5 pl-8">
                         <div>
@@ -196,7 +196,7 @@ export function RolePermissionsView({ onBack }: RolePermissionsViewProps) {
                                 ${
                                   role === "admin"
                                     ? "border-waste-science/40 bg-waste-science/20 text-waste-science cursor-not-allowed accent-waste-science"
-                                    : "border-[#211f1c]/20 dark:border-white/20 accent-waste-recycle cursor-pointer"
+                                    : "border-[#211f1c]/20 accent-waste-recycle cursor-pointer"
                                 }
                               `}
                             />
@@ -218,7 +218,7 @@ export function RolePermissionsView({ onBack }: RolePermissionsViewProps) {
             <span>Admin always has all permissions (cannot be modified)</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 border border-[#211f1c]/20 dark:border-white/20 rounded" />
+            <span className="w-3 h-3 border border-[#211f1c]/20 rounded" />
             <span>
               &quot;Own&quot; = only content the user created; &quot;Any&quot; =
               all content regardless of author
@@ -228,7 +228,7 @@ export function RolePermissionsView({ onBack }: RolePermissionsViewProps) {
 
         {/* Unsaved changes warning */}
         {dirty && (
-          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/30 rounded-lg px-4 py-3 text-[12px] text-amber-800 dark:text-amber-200">
+          <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-[12px] text-amber-800">
             You have unsaved changes. Click &quot;Save Changes&quot; to apply.
           </div>
         )}

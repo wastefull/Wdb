@@ -27,15 +27,13 @@ export function ScoreBar({
         >
           <span className="text-sm normal">{label}</span>
           {articleCount !== undefined && articleCount > 0 && (
-            <span className="text-[9px] text-black/60 dark:text-white/60">
-              ({articleCount})
-            </span>
+            <span className="text-[9px] text-black/60">({articleCount})</span>
           )}
         </button>
         <span className="text-sm normal">{score}</span>
       </div>
       <div
-        className="h-2 bg-[#211f1c]/10 dark:bg-white/10 rounded-full overflow-hidden border border-[#211f1c] dark:border-white/20"
+        className="h-2 bg-[#211f1c]/10 rounded-full overflow-hidden border border-[#211f1c]"
         role="progressbar"
         aria-valuenow={score}
         aria-valuemin={0}

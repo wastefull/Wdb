@@ -359,8 +359,8 @@ export function PhaseFilteredTests({
         ))}
 
         {blockedTests > 0 && (
-          <div className="mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-            <p className="text-sm text-yellow-800 dark:text-yellow-200 font-['Sniglet']">
+          <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-sm text-yellow-800 font-['Sniglet']">
               ⚠️ Sign in as admin to run the remaining {blockedTests} test
               {blockedTests === 1 ? "" : "s"}.
             </p>

@@ -86,7 +86,7 @@ export function ActivityCalendar({
   return (
     <div className="activity-calendar overflow-x-auto pb-2">
       {/* Month labels */}
-      <div className="flex gap-0.5 mb-2 text-xs text-black/60 dark:text-white/60">
+      <div className="flex gap-0.5 mb-2 text-xs text-black/60">
         {months.map((month, i) => {
           const nextOffset =
             i < months.length - 1 ? months[i + 1].offset : weeks.length;
@@ -115,7 +115,7 @@ export function ActivityCalendar({
                 key={day.date}
                 className={`
                   w-2.5 h-2.5 rounded-[1px] cursor-pointer
-                  transition-all hover:ring-1 hover:ring-black/20 dark:hover:ring-white/20
+                  transition-all hover:ring-1 hover:ring-black/20
                   ${getLevelColor(day.level)}
                 `}
                 title={`${day.count} ${
@@ -132,7 +132,7 @@ export function ActivityCalendar({
       </div>
 
       {/* Legend */}
-      <div className="flex items-center gap-2 mt-3 text-xs text-black/60 dark:text-white/60">
+      <div className="flex items-center gap-2 mt-3 text-xs text-black/60">
         <span>Less</span>
         <div className="flex gap-0.5">
           {[0, 1, 2, 3, 4].map((level) => (
@@ -160,11 +160,11 @@ function getLevel(count: number): 0 | 1 | 2 | 3 | 4 {
 
 function getLevelColor(level: 0 | 1 | 2 | 3 | 4): string {
   const colors = {
-    0: "bg-[#e5e4dc] dark:bg-[#2a2825] border border-black/10 dark:border-white/10",
-    1: "bg-[#9be9a8] dark:bg-[#0e4429]",
-    2: "bg-[#40c463] dark:bg-[#006d32]",
-    3: "bg-[#30a14e] dark:bg-[#26a641]",
-    4: "bg-[#216e39] dark:bg-[#39d353]",
+    0: "bg-[#e5e4dc] border border-black/10",
+    1: "bg-[#9be9a8]",
+    2: "bg-[#40c463]",
+    3: "bg-[#30a14e]",
+    4: "bg-[#216e39]",
   };
   return colors[level];
 }
