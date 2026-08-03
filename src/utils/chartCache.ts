@@ -15,9 +15,6 @@ export interface CacheKey {
   scoreType: ScoreType;
   width: number;
   height: number;
-  darkMode: boolean;
-  highContrast: boolean;
-  reduceMotion: boolean;
   // Data signature for invalidation
   dataHash: string;
 }
@@ -73,9 +70,6 @@ function generateCacheId(key: CacheKey): string {
     key.scoreType,
     key.width,
     key.height,
-    key.darkMode ? "dark" : "light",
-    key.highContrast ? "hc" : "normal",
-    key.reduceMotion ? "rm" : "motion",
     key.dataHash,
   ];
   return parts.join("|");
@@ -155,7 +149,7 @@ export async function getCachedChart(key: CacheKey): Promise<string | null> {
  */
 export async function setCachedChart(
   key: CacheKey,
-  dataUrl: string
+  dataUrl: string,
 ): Promise<void> {
   try {
     const db = await initDB();
@@ -208,7 +202,7 @@ export async function deleteCache(key: CacheKey): Promise<void> {
  * Invalidate all caches for a specific material
  */
 export async function invalidateMaterialCache(
-  materialId: string
+  materialId: string,
 ): Promise<void> {
   try {
     const db = await initDB();
@@ -321,7 +315,7 @@ export async function getCacheStats(): Promise<{
 
         const totalSize = all.reduce(
           (sum, item) => sum + item.dataUrl.length,
-          0
+          0,
         );
         const timestamps = all.map((item) => item.timestamp);
 

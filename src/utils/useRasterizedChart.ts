@@ -23,9 +23,6 @@ interface UseRasterizedChartOptions {
   data: any;
   width: number;
   height: number;
-  darkMode: boolean;
-  highContrast: boolean;
-  reduceMotion: boolean;
   enabled?: boolean; // Whether to use rasterization (default: true)
 }
 
@@ -46,9 +43,6 @@ export function useRasterizedChart({
   data,
   width,
   height,
-  darkMode,
-  highContrast,
-  reduceMotion,
   enabled = true,
 }: UseRasterizedChartOptions): RasterizedChartResult {
   const [dataUrl, setDataUrl] = useState<string | null>(null);
@@ -63,9 +57,6 @@ export function useRasterizedChart({
     scoreType,
     width,
     height,
-    darkMode,
-    highContrast,
-    reduceMotion,
     dataHash: generateDataHash(data),
   };
 
@@ -84,12 +75,13 @@ export function useRasterizedChart({
 
             // Verify Sniglet is loaded
             const snigletLoaded = Array.from(document.fonts).some(
-              (font) => font.family === "Sniglet" || font.family === '"Sniglet"'
+              (font) =>
+                font.family === "Sniglet" || font.family === '"Sniglet"',
             );
 
             if (!snigletLoaded) {
               logger.warn(
-                "Sniglet font not found in document.fonts after loading attempt"
+                "Sniglet font not found in document.fonts after loading attempt",
               );
             }
 
@@ -99,7 +91,7 @@ export function useRasterizedChart({
           } catch (fontErr) {
             logger.warn(
               "Font loading check failed, continuing anyway:",
-              fontErr
+              fontErr,
             );
           }
 
@@ -144,7 +136,7 @@ export function useRasterizedChart({
             // Also set as inline style for maximum compatibility
             textEl.setAttribute(
               "style",
-              `font-family: 'Sniglet', sans-serif; font-size: ${fontSize}; font-weight: 400; fill: ${fill};`
+              `font-family: 'Sniglet', sans-serif; font-size: ${fontSize}; font-weight: 400; fill: ${fill};`,
             );
           });
 
@@ -156,7 +148,7 @@ export function useRasterizedChart({
           if (!svgString.includes("xmlns")) {
             svgString = svgString.replace(
               "<svg",
-              '<svg xmlns="http://www.w3.org/2000/svg"'
+              '<svg xmlns="http://www.w3.org/2000/svg"',
             );
           }
 
@@ -229,7 +221,7 @@ export function useRasterizedChart({
         }
       });
     },
-    [width, height]
+    [width, height],
   );
 
   /**
@@ -311,17 +303,7 @@ export function useRasterizedChart({
     return () => {
       mounted = false;
     };
-  }, [
-    enabled,
-    materialId,
-    scoreType,
-    cacheKey.dataHash,
-    width,
-    height,
-    darkMode,
-    highContrast,
-    reduceMotion,
-  ]);
+  }, [enabled, materialId, scoreType, cacheKey.dataHash, width, height]);
 
   return {
     dataUrl,

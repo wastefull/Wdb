@@ -61,8 +61,6 @@ export function QuantileVisualization({
   hideHeader = false,
   showScores = true,
 }: QuantileVisualizationProps) {
-  const reduceMotion = false;
-  const highContrast = false;
   const [isHovered, setIsHovered] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -73,9 +71,7 @@ export function QuantileVisualization({
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  const color = highContrast
-    ? SCORE_COLORS[scoreType].highContrast
-    : SCORE_COLORS[scoreType].pastel;
+  const color = SCORE_COLORS[scoreType].pastel;
   const label = SCORE_LABELS[scoreType];
 
   // If simplified or missing scientific data, show simple bar

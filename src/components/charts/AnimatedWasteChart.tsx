@@ -7,14 +7,10 @@ import {
   Tooltip,
   PolarAngleAxis,
 } from "recharts";
-// Accessibility tooling (dark mode, high contrast, no-pastel, reduce motion,
-// font scaling) has been removed for now; these are the fixed defaults.
+// The chart now uses fixed defaults and no longer branches on theme toggles.
 const settings = {
   fontSize: "normal" as "normal" | "large" | "xlarge",
-  highContrast: false,
-  noPastel: false,
   reduceMotion: false,
-  darkMode: false,
 };
 
 interface ChartData {
@@ -71,31 +67,6 @@ export function AnimatedWasteChart({
   if (settings.reduceMotion) {
     return null;
   }
-
-  // Map pastel colors to high-contrast colors
-  const getHighContrastColor = (originalColor: string): string => {
-    const isDark = settings.darkMode;
-    const colorMap: { [key: string]: { light: string; dark: string } } = {
-      "#e8a593": { light: "#c74444", dark: "#ff6b6b" }, // Compostability
-      "#f0e68c": { light: "#d4b400", dark: "#ffd700" }, // Recyclability
-      "#a8c5d8": { light: "#4a90a4", dark: "#6bb6d0" }, // Reusability
-    };
-
-    const mapping = colorMap[originalColor.toLowerCase()];
-    if (mapping) {
-      return isDark ? mapping.dark : mapping.light;
-    }
-    return originalColor;
-  };
-
-  // Apply high-contrast colors if high contrast or no pastel mode is enabled
-  const adjustedChartData =
-    settings.highContrast || settings.noPastel
-      ? chartData.map((item) => ({
-          ...item,
-          fill: getHighContrastColor(item.fill),
-        }))
-      : chartData;
 
   const centerX = 250;
   const centerY = 120;
@@ -210,7 +181,7 @@ export function AnimatedWasteChart({
                 cy="50%"
                 innerRadius="20%"
                 outerRadius="90%"
-                data={adjustedChartData}
+                data={chartData}
                 startAngle={90}
                 endAngle={-270}
               >

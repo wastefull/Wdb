@@ -44,8 +44,6 @@ export function RasterizedQuantileVisualization({
   enableRasterization = true,
   showScores = true,
 }: RasterizedQuantileVisualizationProps) {
-  const reduceMotion = false;
-  const highContrast = false;
   const [shouldRasterize, setShouldRasterize] = useState(enableRasterization);
   const [isMobile, setIsMobile] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -65,9 +63,6 @@ export function RasterizedQuantileVisualization({
     data,
     width,
     height,
-    darkMode: false,
-    highContrast,
-    reduceMotion,
     enabled: shouldRasterize && !simplified && enableRasterization,
   });
 

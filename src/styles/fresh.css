@@ -532,33 +532,17 @@ html {
   background-color: var(--waste-compost);
 }
 
-/* .dark .arcade-bg-red {
-  background-color: #3a1a1a;
-} */
-
 .arcade-bg-green {
   background-color: var(--waste-science);
 }
-/* 
-.dark .arcade-bg-green {
-  background-color: #1a3a1a;
-} */
 
 .arcade-bg-cyan {
   background-color: var(--waste-reuse);
 }
 
-/* .dark .arcade-bg-cyan {
-  background-color: #1a2a3a;
-} */
-
 .arcade-bg-amber {
   background-color: var(--waste-recycle);
 }
-/* 
-.dark .arcade-bg-amber {
-  background-color: #3a3a1a;
-} */
 
 /* Arcade SVG fills - for circle buttons like status bar */
 .arcade-fill-red {
@@ -757,13 +741,6 @@ html {
     var(--background) 1px 0.5px 0px,
     var(--background) 1px 0px 0px,
     var(--background) 1px 0px 0px;
-}
-.dark .title-pop {
-  color: var(--earth);
-  text-shadow:
-    var(--background) 1px 1px 0px,
-    var(--background) 2px 2px 0px,
-    var(--background) 3px 3px 0px;
 }
 .color-pop {
   color: color-mix(in oklch, var(--stem) 90%, var(--background));
