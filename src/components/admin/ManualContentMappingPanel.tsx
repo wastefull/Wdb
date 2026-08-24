@@ -188,7 +188,7 @@ export function ManualContentMappingPanel() {
                   setContentType(event.target.value as typeof contentType);
                   setContentEntityId("");
                 }}
-                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
+                className="form-input-sm"
               >
                 <option value="all">All content</option>
                 {Object.entries(CONTENT_TYPE_LABELS).map(([value, label]) => (
@@ -211,7 +211,7 @@ export function ManualContentMappingPanel() {
                   setResult(null);
                 }}
                 placeholder="Search titles…"
-                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
+                className="form-input-sm"
               />
               <div
                 role="listbox"
@@ -270,7 +270,7 @@ export function ManualContentMappingPanel() {
                   setResult(null);
                 }}
                 placeholder="Search materials…"
-                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
+                className="form-input-sm"
               />
               <div
                 role="listbox"
@@ -322,7 +322,7 @@ export function ManualContentMappingPanel() {
                   setRole(event.target.value);
                   if (event.target.value !== "evidence") setEvidenceUse("");
                 }}
-                className="mt-1 w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
+                className="mt-1 form-input-sm"
               >
                 {options.roles.map((candidate) => (
                   <option key={candidate.slug} value={candidate.slug}>
@@ -342,7 +342,7 @@ export function ManualContentMappingPanel() {
               <select
                 value={lifecycleFocus}
                 onChange={(event) => setLifecycleFocus(event.target.value)}
-                className="mt-1 w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
+                className="mt-1 form-input-sm"
               >
                 <option value="">None</option>
                 {options.lifecycle_focuses.map((candidate) => (
@@ -400,7 +400,7 @@ export function ManualContentMappingPanel() {
             <button
               type="submit"
               disabled={isSaving || isLoading}
-              className="retro-btn-primary flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-50"
+              className="btn-primary-icon"
             >
               {isSaving ? <Loader2 className="size-4 animate-spin" /> : <Link2 className="size-4" />}
               {isSaving ? "Creating mapping…" : "Create pending mapping"}

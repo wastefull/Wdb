@@ -338,7 +338,7 @@ export function MaterialRelationshipPanel() {
           value={materialSearch}
           onChange={(event) => setMaterialSearch(event.target.value)}
           placeholder="Search material names..."
-          className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
+          className="form-input-sm"
         />
 
         <div className="grid gap-4 md:grid-cols-3">
@@ -431,7 +431,7 @@ export function MaterialRelationshipPanel() {
           disabled={
             isSaving || !sourceEntityId || !targetEntityId || !relationshipType
           }
-          className="retro-btn-primary flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-50"
+          className="btn-primary-icon"
         >
           {isSaving ? (
             <Loader2 className="size-4 animate-spin" />

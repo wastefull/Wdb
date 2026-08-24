@@ -531,7 +531,7 @@ export function VideoPlaylistPreviewPanel() {
         <button
           type="submit"
           disabled={isLoading || playlistUrl.trim().length === 0}
-          className="retro-btn-primary flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-50"
+          className="btn-primary-icon"
         >
           {isLoading ? (
             <Loader2 className="size-4 animate-spin" />

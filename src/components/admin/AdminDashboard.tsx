@@ -420,7 +420,7 @@ export function AdminDashboard({
                   <Package size={20} className="text-waste-recycle" />
                 </div>
                 <div>
-                  <p className="text-sm text-black/60 uppercase tracking-wide">
+                  <p className="section-label">
                     Materials
                   </p>
                   <p className="text-sm lg:text-xl font-bold arcade-numbers">
@@ -436,7 +436,7 @@ export function AdminDashboard({
                   <FileText size={20} className="text-waste-reuse" />
                 </div>
                 <div>
-                  <p className="text-sm text-black/60 uppercase tracking-wide">
+                  <p className="section-label">
                     Articles
                   </p>
                   <p className="text-xl font-bold arcade-numbers">
@@ -452,7 +452,7 @@ export function AdminDashboard({
                   <BookOpen size={20} className="text-waste-compost" />
                 </div>
                 <div>
-                  <p className="text-sm text-black/60 uppercase tracking-wide">
+                  <p className="section-label">
                     Guides
                   </p>
                   <p className="text-xl font-bold arcade-numbers">
@@ -468,7 +468,7 @@ export function AdminDashboard({
                   <Users size={20} className="text-waste-science" />
                 </div>
                 <div>
-                  <p className="text-sm text-black/60 uppercase tracking-wide">
+                  <p className="section-label">
                     Users
                   </p>
                   <p className="text-xl font-bold arcade-numbers">
@@ -490,7 +490,7 @@ export function AdminDashboard({
               {onNavigateToReviewCenter && (
                 <button
                   onClick={onNavigateToReviewCenter}
-                  className="retro-card p-5 text-left hover:bg-black/5 transition-colors group"
+                  className="dashboard-card-link group"
                 >
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center shrink-0">
@@ -500,7 +500,7 @@ export function AdminDashboard({
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-sniglet text-[14px] normal mb-1 group-hover:text-waste-recycle transition-colors">
+                      <h3 className="dashboard-card-title">
                         Review Center
                       </h3>
                       <p className="text-[12px] text-black/60">
@@ -515,7 +515,7 @@ export function AdminDashboard({
               {onNavigateToUserManagement && (
                 <button
                   onClick={onNavigateToUserManagement}
-                  className="retro-card p-5 text-left hover:bg-black/5 transition-colors group"
+                  className="dashboard-card-link group"
                 >
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center shrink-0">
@@ -525,7 +525,7 @@ export function AdminDashboard({
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-sniglet text-[14px] normal mb-1 group-hover:text-waste-recycle transition-colors">
+                      <h3 className="dashboard-card-title">
                         User Management
                       </h3>
                       <p className="text-[12px] text-black/60">
@@ -540,7 +540,7 @@ export function AdminDashboard({
               {onNavigateToDataManagement && (
                 <button
                   onClick={onNavigateToDataManagement}
-                  className="retro-card p-5 text-left hover:bg-black/5 transition-colors group"
+                  className="dashboard-card-link group"
                 >
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center shrink-0">
@@ -550,7 +550,7 @@ export function AdminDashboard({
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-sniglet text-[14px] normal mb-1 group-hover:text-waste-recycle transition-colors">
+                      <h3 className="dashboard-card-title">
                         Materials Database
                       </h3>
                       <p className="text-[12px] text-black/60">
@@ -565,7 +565,7 @@ export function AdminDashboard({
               {onNavigateToSourceLibrary && (
                 <button
                   onClick={onNavigateToSourceLibrary}
-                  className="retro-card p-5 text-left hover:bg-black/5 transition-colors group"
+                  className="dashboard-card-link group"
                 >
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center shrink-0">
@@ -575,7 +575,7 @@ export function AdminDashboard({
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-sniglet text-[14px] normal mb-1 group-hover:text-waste-recycle transition-colors">
+                      <h3 className="dashboard-card-title">
                         Source Library
                       </h3>
                       <p className="text-[12px] text-black/60">
@@ -590,14 +590,14 @@ export function AdminDashboard({
               {onNavigateToEvidenceScoring && (
                 <button
                   onClick={onNavigateToEvidenceScoring}
-                  className="retro-card p-5 text-left hover:bg-black/5 transition-colors group"
+                  className="dashboard-card-link group"
                 >
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center shrink-0">
                       <Shield size={24} className="text-blue-600" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-sniglet text-[14px] normal mb-1 group-hover:text-waste-recycle transition-colors">
+                      <h3 className="dashboard-card-title">
                         Evidence Scoring
                       </h3>
                       <p className="text-[12px] text-black/60">
@@ -613,14 +613,14 @@ export function AdminDashboard({
               {onNavigateToContentManagement && (
                 <button
                   onClick={onNavigateToContentManagement}
-                  className="retro-card p-5 text-left hover:bg-black/5 transition-colors group"
+                  className="dashboard-card-link group"
                 >
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-xl bg-waste-science/20 flex items-center justify-center shrink-0">
                       <Microscope size={24} className="text-waste-science" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-sniglet text-[14px] normal mb-1 group-hover:text-waste-recycle transition-colors">
+                      <h3 className="dashboard-card-title">
                         Content Management
                       </h3>
                       <p className="text-[12px] text-black/60">
@@ -635,7 +635,7 @@ export function AdminDashboard({
               {onNavigateToRoadmapOverview && (
                 <button
                   onClick={() => onNavigateToRoadmapOverview()}
-                  className="retro-card p-5 text-left hover:bg-black/5 transition-colors group"
+                  className="dashboard-card-link group"
                 >
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-xl bg-cyan-500/20 flex items-center justify-center shrink-0">
@@ -645,7 +645,7 @@ export function AdminDashboard({
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-sniglet text-[14px] normal mb-1 group-hover:text-waste-recycle transition-colors">
+                      <h3 className="dashboard-card-title">
                         Roadmap
                       </h3>
                       <p className="text-[12px] text-black/60">
@@ -713,7 +713,7 @@ export function AdminDashboard({
               {onNavigateToTransformTesting && (
                 <button
                   onClick={onNavigateToTransformTesting}
-                  className="retro-card p-4 text-center hover:bg-black/5 transition-colors"
+                  className="dashboard-card-link-center"
                 >
                   <TestTube
                     size={20}
@@ -726,7 +726,7 @@ export function AdminDashboard({
               {onNavigateToCharts && (
                 <button
                   onClick={onNavigateToCharts}
-                  className="retro-card p-4 text-center hover:bg-black/5 transition-colors"
+                  className="dashboard-card-link-center"
                 >
                   <LineChart
                     size={20}
@@ -739,7 +739,7 @@ export function AdminDashboard({
               {onNavigateToAuditLog && (
                 <button
                   onClick={onNavigateToAuditLog}
-                  className="retro-card p-4 text-center hover:bg-black/5 transition-colors"
+                  className="dashboard-card-link-center"
                 >
                   <Clock
                     size={20}
@@ -752,7 +752,7 @@ export function AdminDashboard({
               {onNavigateToWhitepapers && (
                 <button
                   onClick={onNavigateToWhitepapers}
-                  className="retro-card p-4 text-center hover:bg-black/5 transition-colors"
+                  className="dashboard-card-link-center"
                 >
                   <FileText
                     size={20}

@@ -392,7 +392,7 @@ export function VideoMaterialLinkPanel() {
                   setQuickPublishResult(null);
                 }}
                 placeholder="https://www.youtube.com/shorts/dQw4w9WgXcQ"
-                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
+                className="form-input-sm"
               />
             </label>
             <label className="space-y-2 text-[11px] font-medium">
@@ -404,7 +404,7 @@ export function VideoMaterialLinkPanel() {
                   setQuickPublishResult(null);
                 }}
                 placeholder="Leave blank to use the YouTube title"
-                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
+                className="form-input-sm"
               />
             </label>
           </div>
@@ -426,7 +426,7 @@ export function VideoMaterialLinkPanel() {
                   setQuickPublishResult(null);
                 }}
                 placeholder="Search materials…"
-                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
+                className="form-input-sm"
               />
               <div className="h-32 overflow-y-auto rounded-lg border border-black/15 bg-background p-1 text-[12px]">
                 {quickVideoMaterialOptions.length === 0 ? (
@@ -472,7 +472,7 @@ export function VideoMaterialLinkPanel() {
                   setQuickVideoLifecycleFocus(event.target.value);
                   setQuickPublishResult(null);
                 }}
-                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
+                className="form-input-sm"
               >
                 <option value="">None</option>
                 {options.lifecycle_focuses.map((candidate) => (
@@ -493,7 +493,7 @@ export function VideoMaterialLinkPanel() {
             <button
               type="submit"
               disabled={isQuickPublishingVideo || !quickVideoUrl.trim() || !quickVideoMaterialId}
-              className="retro-btn-primary flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-50"
+              className="btn-primary-icon"
             >
               {isQuickPublishingVideo ? (
                 <Loader2 className="size-4 animate-spin" />
@@ -579,7 +579,7 @@ export function VideoMaterialLinkPanel() {
                 isApplying ||
                 previewReport.mode === "apply"
               }
-              className="retro-btn-primary flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-50"
+              className="btn-primary-icon"
             >
               {isApplying ? (
                 <Loader2 className="size-4 animate-spin" />
@@ -617,7 +617,7 @@ export function VideoMaterialLinkPanel() {
                   setCreateVideoResult(null);
                 }}
                 placeholder="https://www.youtube.com/shorts/dQw4w9WgXcQ"
-                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
+                className="form-input-sm"
               />
             </label>
             <label className="space-y-2 text-[11px] font-medium">
@@ -626,7 +626,7 @@ export function VideoMaterialLinkPanel() {
                 value={newVideoTitle}
                 onChange={(event) => setNewVideoTitle(event.target.value)}
                 placeholder="Leave blank to use the YouTube title"
-                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
+                className="form-input-sm"
               />
             </label>
           </div>
@@ -645,7 +645,7 @@ export function VideoMaterialLinkPanel() {
                 value={newVideoMaterialSearch}
                 onChange={(event) => setNewVideoMaterialSearch(event.target.value)}
                 placeholder="Search materials…"
-                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
+                className="form-input-sm"
               />
               <div className="h-32 overflow-y-auto rounded-lg border border-black/15 bg-background p-1 text-[12px]">
                 {newVideoMaterialOptions.length === 0 ? (
@@ -689,7 +689,7 @@ export function VideoMaterialLinkPanel() {
                   id="new-video-role"
                   value={newVideoRole}
                   onChange={(event) => setNewVideoRole(event.target.value)}
-                  className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
+                  className="form-input-sm"
                 >
                   {options.roles.map((candidate) => (
                     <option key={candidate.slug} value={candidate.slug}>
@@ -717,7 +717,7 @@ export function VideoMaterialLinkPanel() {
                   onChange={(event) =>
                     setNewVideoLifecycleFocus(event.target.value)
                   }
-                  className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
+                  className="form-input-sm"
                 >
                   <option value="">None</option>
                   {options.lifecycle_focuses.map((candidate) => (
@@ -739,7 +739,7 @@ export function VideoMaterialLinkPanel() {
                   id="new-video-evidence-use"
                   value={newVideoEvidenceUse}
                   onChange={(event) => setNewVideoEvidenceUse(event.target.value)}
-                  className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
+                  className="form-input-sm"
                   disabled={!newVideoMaterialId || !isNewVideoEvidence}
                 >
                   <option value="">Choose evidence use</option>
@@ -757,7 +757,7 @@ export function VideoMaterialLinkPanel() {
             <button
               type="submit"
               disabled={isCreatingVideo || !newVideoUrl.trim()}
-              className="retro-btn-primary flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-50"
+              className="btn-primary-icon"
             >
               {isCreatingVideo ? (
                 <Loader2 className="size-4 animate-spin" />
@@ -806,7 +806,7 @@ export function VideoMaterialLinkPanel() {
                   setResult(null);
                 }}
                 placeholder="Search video titles…"
-                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
+                className="form-input-sm"
               />
               <div
                 role="listbox"
@@ -865,7 +865,7 @@ export function VideoMaterialLinkPanel() {
                   setResult(null);
                 }}
                 placeholder="Search materials…"
-                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
+                className="form-input-sm"
               />
               <div
                 role="listbox"
@@ -920,7 +920,7 @@ export function VideoMaterialLinkPanel() {
                 id="video-link-role"
                 value={role}
                 onChange={(event) => setRole(event.target.value)}
-                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
+                className="form-input-sm"
               >
                 {options.roles.map((candidate) => (
                   <option key={candidate.slug} value={candidate.slug}>
@@ -946,7 +946,7 @@ export function VideoMaterialLinkPanel() {
                 id="video-link-lifecycle"
                 value={lifecycleFocus}
                 onChange={(event) => setLifecycleFocus(event.target.value)}
-                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
+                className="form-input-sm"
               >
                 <option value="">None</option>
                 {options.lifecycle_focuses.map((candidate) => (
@@ -970,7 +970,7 @@ export function VideoMaterialLinkPanel() {
                 id="video-link-evidence-use"
                 value={evidenceUse}
                 onChange={(event) => setEvidenceUse(event.target.value)}
-                className="w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
+                className="form-input-sm"
               >
                 <option value="">Choose evidence use</option>
                 {options.evidence_uses.map((candidate) => (
@@ -986,7 +986,7 @@ export function VideoMaterialLinkPanel() {
             <button
               type="submit"
               disabled={isSaving || !contentEntityId || !subjectEntityId}
-              className="retro-btn-primary flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-50"
+              className="btn-primary-icon"
             >
               {isSaving ? (
                 <Loader2 className="size-4 animate-spin" />

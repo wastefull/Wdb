@@ -524,7 +524,7 @@ export function ContentMappingPreviewPanel() {
           type="button"
           onClick={runPreview}
           disabled={isLoading}
-          className="retro-btn-primary flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-50"
+          className="btn-primary-icon"
         >
           {isLoading ? (
             <Loader2 className="size-4 animate-spin" />
@@ -575,7 +575,7 @@ export function ContentMappingPreviewPanel() {
               type="button"
               onClick={runQuarantine}
               disabled={isQuarantining}
-              className="retro-btn-primary flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-50"
+              className="btn-primary-icon"
             >
               {isQuarantining ? (
                 <Loader2 className="size-4 animate-spin" />
@@ -646,7 +646,7 @@ export function ContentMappingPreviewPanel() {
                 selectedCount === 0 ||
                 !capabilities?.apply_enabled
               }
-              className="retro-btn-primary flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-50"
+              className="btn-primary-icon"
             >
               {isApplying ? (
                 <Loader2 className="size-4 animate-spin" />

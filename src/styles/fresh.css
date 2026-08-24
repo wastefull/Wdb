@@ -1014,6 +1014,48 @@ html {
   }
 }
 
+/* Dashboard tile: clickable retro-card link, left-aligned content.
+   Note: also add the literal `group` className alongside this class,
+   since `group` is a marker class and can't be applied via @apply. */
+.dashboard-card-link {
+  @apply retro-card p-5 text-left hover:bg-black/5 transition-colors;
+}
+
+/* Dashboard tile: clickable retro-card link, centered content (stat tiles) */
+.dashboard-card-link-center {
+  @apply retro-card p-4 text-center hover:bg-black/5 transition-colors;
+}
+
+/* Dashboard tile title, tints on hover */
+.dashboard-card-title {
+  @apply font-sniglet text-[14px] normal mb-1 group-hover:text-waste-recycle transition-colors;
+}
+
+/* Uppercase section label used above groups of stats/fields */
+.section-label {
+  @apply text-sm text-black/60 uppercase tracking-wide;
+}
+
+/* Compact text input used in admin panels */
+.form-input-sm {
+  @apply w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px];
+}
+
+/* Primary action button with icon + disabled state */
+.btn-primary-icon {
+  @apply retro-btn-primary flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+/* Evidence list: muted Sniglet label text */
+.evidence-muted-label {
+  @apply font-['Sniglet'] text-[12px] text-muted-foreground;
+}
+
+/* Evidence list: bordered Sniglet chip/badge */
+.evidence-bordered-chip {
+  @apply font-['Sniglet'] text-[12px] border-2 border-[#211f1c];
+}
+
 /* ==========================================================================
    Form Inputs (retro style)
    ========================================================================== */

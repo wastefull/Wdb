@@ -129,7 +129,7 @@ function ReviewEditor({
             onChange={(event) =>
               setDisposition(event.target.value as VideoTriageDisposition | "")
             }
-            className="mt-1 w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
+            className="mt-1 form-input-sm"
           >
             <option value="">Unreviewed</option>
             {!unavailable && (
@@ -150,7 +150,7 @@ function ReviewEditor({
             onChange={(event) => setMaterials(event.target.value)}
             placeholder="aluminum; pet"
             disabled={!disposition || disposition === "ignore"}
-            className="mt-1 w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] disabled:opacity-50"
+            className="mt-1 form-input-sm disabled:opacity-50"
           />
         </label>
 
@@ -161,7 +161,7 @@ function ReviewEditor({
             onChange={(event) => setTopics(event.target.value)}
             placeholder="3d_printing"
             disabled={!disposition || disposition === "ignore"}
-            className="mt-1 w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px] disabled:opacity-50"
+            className="mt-1 form-input-sm disabled:opacity-50"
           />
         </label>
 
@@ -191,7 +191,7 @@ function ReviewEditor({
           value={notes}
           onChange={(event) => setNotes(event.target.value)}
           rows={2}
-          className="mt-1 w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
+          className="mt-1 form-input-sm"
         />
       </label>
 
@@ -385,7 +385,7 @@ export function VideoTriageReviewPanel() {
                 setBatchId(event.target.value);
                 setOffset(0);
               }}
-              className="mt-1 w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
+              className="mt-1 form-input-sm"
             >
               {batches.map((entry) => (
                 <option key={entry.id} value={entry.id}>
@@ -403,7 +403,7 @@ export function VideoTriageReviewPanel() {
                 setReviewStatus(event.target.value);
                 setOffset(0);
               }}
-              className="mt-1 w-full rounded-lg border border-black/15 bg-background px-3 py-2 text-[12px]"
+              className="mt-1 form-input-sm"
             >
               <option value="unreviewed">Unreviewed</option>
               <option value="reviewed">Reviewed</option>

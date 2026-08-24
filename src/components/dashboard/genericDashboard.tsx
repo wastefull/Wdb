@@ -99,7 +99,7 @@ export function GenericDashboard({
               {onNavigateToReviewCenter && (
                 <button
                   onClick={onNavigateToReviewCenter}
-                  className="retro-card p-5 text-left hover:bg-black/5 transition-colors group"
+                  className="dashboard-card-link group"
                 >
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center shrink-0">
@@ -109,7 +109,7 @@ export function GenericDashboard({
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-sniglet text-[14px] normal mb-1 group-hover:text-waste-recycle transition-colors">
+                      <h3 className="dashboard-card-title">
                         Review Center
                       </h3>
                       <p className="text-[12px] text-black/60">
@@ -124,7 +124,7 @@ export function GenericDashboard({
               {onNavigateToUserManagement && (
                 <button
                   onClick={onNavigateToUserManagement}
-                  className="retro-card p-5 text-left hover:bg-black/5 transition-colors group"
+                  className="dashboard-card-link group"
                 >
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center shrink-0">
@@ -134,7 +134,7 @@ export function GenericDashboard({
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-sniglet text-[14px] normal mb-1 group-hover:text-waste-recycle transition-colors">
+                      <h3 className="dashboard-card-title">
                         User Management
                       </h3>
                       <p className="text-[12px] text-black/60">
@@ -149,7 +149,7 @@ export function GenericDashboard({
               {onNavigateToDataManagement && (
                 <button
                   onClick={onNavigateToDataManagement}
-                  className="retro-card p-5 text-left hover:bg-black/5 transition-colors group"
+                  className="dashboard-card-link group"
                 >
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center shrink-0">
@@ -159,7 +159,7 @@ export function GenericDashboard({
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-sniglet text-[14px] normal mb-1 group-hover:text-waste-recycle transition-colors">
+                      <h3 className="dashboard-card-title">
                         Materials Database
                       </h3>
                       <p className="text-[12px] text-black/60">
@@ -174,7 +174,7 @@ export function GenericDashboard({
               {onNavigateToSourceLibrary && (
                 <button
                   onClick={onNavigateToSourceLibrary}
-                  className="retro-card p-5 text-left hover:bg-black/5 transition-colors group"
+                  className="dashboard-card-link group"
                 >
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center shrink-0">
@@ -184,7 +184,7 @@ export function GenericDashboard({
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-sniglet text-[14px] normal mb-1 group-hover:text-waste-recycle transition-colors">
+                      <h3 className="dashboard-card-title">
                         Source Library
                       </h3>
                       <p className="text-[12px] text-black/60">
@@ -198,14 +198,14 @@ export function GenericDashboard({
               {type === "admin" && onNavigateToEvidenceScoring && (
                 <button
                   onClick={onNavigateToEvidenceScoring}
-                  className="retro-card p-5 text-left hover:bg-black/5 transition-colors group"
+                  className="dashboard-card-link group"
                 >
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center shrink-0">
                       <Shield size={24} className="text-blue-600" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-sniglet text-[14px] normal mb-1 group-hover:text-waste-recycle transition-colors">
+                      <h3 className="dashboard-card-title">
                         Evidence Scoring
                       </h3>
                       <p className="text-[12px] text-black/60">
@@ -220,14 +220,14 @@ export function GenericDashboard({
               {type === "admin" && onNavigateToContentManagement && (
                 <button
                   onClick={onNavigateToContentManagement}
-                  className="retro-card p-5 text-left hover:bg-black/5 transition-colors group"
+                  className="dashboard-card-link group"
                 >
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-xl bg-waste-science/20 flex items-center justify-center shrink-0">
                       <Microscope size={24} className="text-waste-science" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-sniglet text-[14px] normal mb-1 group-hover:text-waste-recycle transition-colors">
+                      <h3 className="dashboard-card-title">
                         Content Management
                       </h3>
                       <p className="text-[12px] text-black/60">
@@ -242,7 +242,7 @@ export function GenericDashboard({
               {onNavigateToRoadmapOverview && (
                 <button
                   onClick={() => onNavigateToRoadmapOverview()}
-                  className="retro-card p-5 text-left hover:bg-black/5 transition-colors group"
+                  className="dashboard-card-link group"
                 >
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-xl bg-cyan-500/20 flex items-center justify-center shrink-0">
@@ -252,7 +252,7 @@ export function GenericDashboard({
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-sniglet text-[14px] normal mb-1 group-hover:text-waste-recycle transition-colors">
+                      <h3 className="dashboard-card-title">
                         Roadmap
                       </h3>
                       <p className="text-[12px] text-black/60">
@@ -320,7 +320,7 @@ export function GenericDashboard({
               {onNavigateToTransformTesting && (
                 <button
                   onClick={onNavigateToTransformTesting}
-                  className="retro-card p-4 text-center hover:bg-black/5 transition-colors"
+                  className="dashboard-card-link-center"
                 >
                   <TestTube
                     size={20}
@@ -333,7 +333,7 @@ export function GenericDashboard({
               {onNavigateToCharts && (
                 <button
                   onClick={onNavigateToCharts}
-                  className="retro-card p-4 text-center hover:bg-black/5 transition-colors"
+                  className="dashboard-card-link-center"
                 >
                   <LineChart
                     size={20}
@@ -346,7 +346,7 @@ export function GenericDashboard({
               {onNavigateToAuditLog && (
                 <button
                   onClick={onNavigateToAuditLog}
-                  className="retro-card p-4 text-center hover:bg-black/5 transition-colors"
+                  className="dashboard-card-link-center"
                 >
                   <Clock
                     size={20}
@@ -359,7 +359,7 @@ export function GenericDashboard({
               {onNavigateToWhitepapers && (
                 <button
                   onClick={onNavigateToWhitepapers}
-                  className="retro-card p-4 text-center hover:bg-black/5 transition-colors"
+                  className="dashboard-card-link-center"
                 >
                   <FileText
                     size={20}

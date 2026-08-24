@@ -380,7 +380,7 @@ export function EvidenceListViewer({
                   placeholder="Search snippets or citations..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 font-['Sniglet'] text-[12px] border-2 border-[#211f1c]"
+                  className="pl-10 evidence-bordered-chip"
                 />
               </div>
             </div>
@@ -392,7 +392,7 @@ export function EvidenceListViewer({
                 value={selectedMaterial}
                 onValueChange={setSelectedMaterial}
               >
-                <SelectTrigger className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c]">
+                <SelectTrigger className="evidence-bordered-chip">
                   <SelectValue placeholder="Select material" />
                 </SelectTrigger>
                 <SelectContent>
@@ -436,7 +436,7 @@ export function EvidenceListViewer({
                 value={selectedParameter}
                 onValueChange={setSelectedParameter}
               >
-                <SelectTrigger className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c]">
+                <SelectTrigger className="evidence-bordered-chip">
                   <SelectValue placeholder="Select parameter" />
                 </SelectTrigger>
                 <SelectContent>
@@ -457,7 +457,7 @@ export function EvidenceListViewer({
 
       {/* Results Summary */}
       <div className="flex items-center justify-between px-2">
-        <p className="font-['Sniglet'] text-[12px] text-muted-foreground">
+        <p className="evidence-muted-label">
           Showing {filteredMIUs.length} of {mius.length} evidence points
         </p>
         <div className="flex gap-2">
@@ -476,7 +476,7 @@ export function EvidenceListViewer({
             onClick={loadMIUs}
             variant="outline"
             size="sm"
-            className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c]"
+            className="evidence-bordered-chip"
           >
             Refresh
           </Button>
@@ -498,7 +498,7 @@ export function EvidenceListViewer({
               <p className="font-['Sniglet'] text-[14px] text-muted-foreground">
                 No evidence points found
               </p>
-              <p className="font-['Sniglet'] text-[12px] text-muted-foreground mt-2">
+              <p className="evidence-muted-label mt-2">
                 Try adjusting your filters or create new MIUs in the Curation
                 Workbench
               </p>
@@ -558,7 +558,7 @@ export function EvidenceListViewer({
                         <div className="space-y-4">
                           <div className="grid grid-cols-2 gap-4">
                             <div>
-                              <Label className="font-['Sniglet'] text-[12px] text-muted-foreground">
+                              <Label className="evidence-muted-label">
                                 Material
                               </Label>
                               <p className="font-['Sniglet'] text-[14px]">
@@ -566,7 +566,7 @@ export function EvidenceListViewer({
                               </p>
                             </div>
                             <div>
-                              <Label className="font-['Sniglet'] text-[12px] text-muted-foreground">
+                              <Label className="evidence-muted-label">
                                 Parameter
                               </Label>
                               <p className="font-['Sniglet'] text-[14px]">
@@ -575,7 +575,7 @@ export function EvidenceListViewer({
                               </p>
                             </div>
                             <div>
-                              <Label className="font-['Sniglet'] text-[12px] text-muted-foreground">
+                              <Label className="evidence-muted-label">
                                 Value
                               </Label>
                               <p className="font-['Sniglet'] text-[14px]">
@@ -583,7 +583,7 @@ export function EvidenceListViewer({
                               </p>
                             </div>
                             <div>
-                              <Label className="font-['Sniglet'] text-[12px] text-muted-foreground">
+                              <Label className="evidence-muted-label">
                                 Confidence
                               </Label>
                               <Badge
@@ -597,7 +597,7 @@ export function EvidenceListViewer({
                           </div>
 
                           <div>
-                            <Label className="font-['Sniglet'] text-[12px] text-muted-foreground">
+                            <Label className="evidence-muted-label">
                               Text Snippet
                             </Label>
                             <div className="mt-1 p-3 bg-muted rounded-md border border-[#211f1c]">
@@ -608,7 +608,7 @@ export function EvidenceListViewer({
                           </div>
 
                           <div>
-                            <Label className="font-['Sniglet'] text-[12px] text-muted-foreground">
+                            <Label className="evidence-muted-label">
                               Citation
                             </Label>
                             <div className="flex items-center gap-2 mt-1">
@@ -665,7 +665,7 @@ export function EvidenceListViewer({
                           <div className="grid grid-cols-3 gap-4">
                             {miu.page_number && (
                               <div>
-                                <Label className="font-['Sniglet'] text-[12px] text-muted-foreground">
+                                <Label className="evidence-muted-label">
                                   Page
                                 </Label>
                                 <p className="font-['Sniglet'] text-[14px]">
@@ -675,7 +675,7 @@ export function EvidenceListViewer({
                             )}
                             {miu.figure_number && (
                               <div>
-                                <Label className="font-['Sniglet'] text-[12px] text-muted-foreground">
+                                <Label className="evidence-muted-label">
                                   Figure
                                 </Label>
                                 <p className="font-['Sniglet'] text-[14px]">
@@ -685,7 +685,7 @@ export function EvidenceListViewer({
                             )}
                             {miu.table_number && (
                               <div>
-                                <Label className="font-['Sniglet'] text-[12px] text-muted-foreground">
+                                <Label className="evidence-muted-label">
                                   Table
                                 </Label>
                                 <p className="font-['Sniglet'] text-[14px]">
@@ -697,7 +697,7 @@ export function EvidenceListViewer({
 
                           {miu.notes && (
                             <div>
-                              <Label className="font-['Sniglet'] text-[12px] text-muted-foreground">
+                              <Label className="evidence-muted-label">
                                 Curator Notes
                               </Label>
                               <p className="font-['Sniglet'] text-[12px] mt-1">
@@ -717,7 +717,7 @@ export function EvidenceListViewer({
                             variant="outline"
                             size="sm"
                             onClick={() => startEdit(miu)}
-                            className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c]"
+                            className="evidence-bordered-chip"
                           >
                             <Edit className="size-4 mr-2" />
                             Edit
@@ -750,7 +750,7 @@ export function EvidenceListViewer({
                       <span className="font-['Sniglet'] text-[12px] font-semibold min-w-15">
                         Snippet:
                       </span>
-                      <p className="font-['Sniglet'] text-[12px] text-muted-foreground line-clamp-2">
+                      <p className="evidence-muted-label line-clamp-2">
                         &ldquo;{miu.snippet}&rdquo;
                       </p>
                     </div>
@@ -759,7 +759,7 @@ export function EvidenceListViewer({
                         Source:
                       </span>
                       <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                        <p className="font-['Sniglet'] text-[12px] text-muted-foreground line-clamp-1 flex-1">
+                        <p className="evidence-muted-label line-clamp-1 flex-1">
                           {miu.citation}
                         </p>
                         {/* OA Status Badge */}
@@ -826,7 +826,7 @@ export function EvidenceListViewer({
           {editingMIU && (
             <div className="space-y-4">
               <div className="p-3 bg-muted rounded-md border border-[#211f1c]">
-                <p className="font-['Sniglet'] text-[12px] text-muted-foreground">
+                <p className="evidence-muted-label">
                   <strong>Material:</strong>{" "}
                   {getMaterialName(editingMIU.material_id)} |
                   <strong> Parameter:</strong> {editingMIU.parameter_code}
@@ -844,7 +844,7 @@ export function EvidenceListViewer({
                       setEditForm({ ...editForm, value: e.target.value })
                     }
                     placeholder="e.g., 75.5"
-                    className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c]"
+                    className="evidence-bordered-chip"
                   />
                 </div>
                 <div className="space-y-2">
@@ -856,7 +856,7 @@ export function EvidenceListViewer({
                       setEditForm({ ...editForm, unit: e.target.value })
                     }
                     placeholder="e.g., %"
-                    className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c]"
+                    className="evidence-bordered-chip"
                   />
                 </div>
               </div>
@@ -869,7 +869,7 @@ export function EvidenceListViewer({
                     setEditForm({ ...editForm, notes: e.target.value })
                   }
                   placeholder="Add curator notes..."
-                  className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c] min-h-20"
+                  className="evidence-bordered-chip min-h-20"
                 />
               </div>
             </div>
@@ -880,7 +880,7 @@ export function EvidenceListViewer({
               variant="outline"
               onClick={() => setEditingMIU(null)}
               disabled={saving}
-              className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c]"
+              className="evidence-bordered-chip"
             >
               <X className="size-4 mr-2" />
               Cancel
@@ -924,13 +924,13 @@ export function EvidenceListViewer({
                   <strong>Parameter:</strong> {deletingMIU.parameter_code} -{" "}
                   {getParameterName(deletingMIU.parameter_code)}
                 </p>
-                <p className="font-['Sniglet'] text-[12px] text-muted-foreground">
+                <p className="evidence-muted-label">
                   <strong>Value:</strong> {deletingMIU.raw_value}{" "}
                   {deletingMIU.raw_unit}
                 </p>
               </div>
 
-              <p className="font-['Sniglet'] text-[12px] text-muted-foreground">
+              <p className="evidence-muted-label">
                 Are you sure you want to permanently delete this evidence point?
               </p>
             </div>
@@ -941,7 +941,7 @@ export function EvidenceListViewer({
               variant="outline"
               onClick={() => setDeletingMIU(null)}
               disabled={deleting}
-              className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c]"
+              className="evidence-bordered-chip"
             >
               Cancel
             </Button>
@@ -995,7 +995,7 @@ export function EvidenceListViewer({
               </ul>
             </div>
 
-            <p className="font-['Sniglet'] text-[12px] text-muted-foreground">
+            <p className="evidence-muted-label">
               This will send one consolidated audit notification instead of{" "}
               {filteredMIUs.length} individual emails.
             </p>
@@ -1006,7 +1006,7 @@ export function EvidenceListViewer({
               variant="outline"
               onClick={() => setShowBulkDeleteConfirm(false)}
               disabled={bulkDeleting}
-              className="font-['Sniglet'] text-[12px] border-2 border-[#211f1c]"
+              className="evidence-bordered-chip"
             >
               Cancel
             </Button>
