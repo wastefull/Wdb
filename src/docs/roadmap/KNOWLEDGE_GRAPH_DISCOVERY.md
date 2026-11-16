@@ -26,34 +26,35 @@ supports a score or validates a claim.
 Do not build a graph for spectacle. Use graph visualization only when it
 clarifies a user task, and do not expose raw graph complexity merely because
 the backend is graph-shaped. The product should use the graph to help people
-understand systems while preserving human review anywhere a claim could
-mislead.
+understand systems while requiring explicit publication and supporting
+provenance anywhere a claim could mislead.
 
 ## Stage Boundaries
 
 - **Stage 5:** Ship the redesigned material-page hierarchy using current data,
   stable contracts, and explicit empty states for graph-dependent sections.
-- **Stage 7:** Complete reviewed material-to-material and educational
-  content-to-material workflows, including admin CRUD, review state, duplicate
-  protection, and public material-page presentation.
-- **Stage 8:** Establish evidence-based scoring methodology and provenance;
-  discovery relationships remain separate from evidentiary support. The first
-  slice should center on reviewed source observations, an admin-backed review
-  workflow, and audit-log-safe publication of scored outcomes rather than
-  discovery-first graph reads.
-- Stage 8 implementation has started with an admin evidence-scoring panel,
-  methodology/version storage, public approved-evidence score summaries, and
-  roadmap tests that smoke the approval boundary.
-- **Stage 9:** Expose public source browsing and citation links with strict
-  public/restricted field boundaries.
+- **Stage 7:** Complete a material-centered solo-admin workflow for canonical
+  source capture, evidence linking, content authoring, duplicate-safe
+  relationships, direct publication, coverage tracking, and practical
+  recovery.
+- **Stage 8:** Establish evidence provenance and scoring. Source-centric
+  extraction retains complete scientific provenance, and only observations the
+  admin explicitly publishes can affect public scores. Discovery relationships
+  remain separate from evidentiary support.
+- The existing Stage 8 panel and backend validation states remain compatible,
+  but the UI presents a direct draft/publish/exclude workflow rather than a
+  multi-person approval queue.
+- **Stage 9:** Expose public source browsing and structured citation links with
+  strict public/restricted field boundaries.
 - **Stage 10:** Enable verified discovery reads, taxonomy governance, related
-  materials, and curated learning paths.
+  materials, and curated learning paths after priority-material coverage and
+  canonical-identifier gates pass.
 
 Existing material metrics, evidence, attribution, exports, and contribution
 workflows must remain available throughout the redesign.
 
 Stage 8 companion plan:
-[Evidence-Based Sustainability Scoring Plan](./guides/KNOWLEDGE_GRAPH_EVIDENCE_BASED_SCORING_PLAN.md).
+[Evidence Provenance and Scoring Plan](./guides/KNOWLEDGE_GRAPH_EVIDENCE_BASED_SCORING_PLAN.md).
 
 ## Stage 5 UI Contract
 

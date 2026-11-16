@@ -144,7 +144,7 @@ export function getStage8Tests(): Test[] {
   return [
     {
       id: "stage-8-evidence-provenance",
-      name: "Approved observations retain provenance",
+      name: "Evidence observations retain provenance",
       description:
         "Creates a draft evidence row with source and location context and verifies the stored record keeps methodology metadata.",
       phase: "stage-8",
@@ -250,10 +250,10 @@ export function getStage8Tests(): Test[] {
       },
     },
     {
-      id: "stage-8-approval-boundary",
+      id: "stage-8-publication-boundary",
       name: "Draft observations stay out of public scores",
       description:
-        "Shows that a pending observation does not affect the public score summary until staff validation happens.",
+        "Shows that a draft observation does not affect the public score summary until the admin explicitly publishes it.",
       phase: "stage-8",
       stage: 8,
       category: "Evidence Scoring",
@@ -283,7 +283,7 @@ export function getStage8Tests(): Test[] {
         if (pendingCount !== beforeCount) {
           return {
             success: false,
-            message: `Pending evidence leaked into public scores: ${beforeCount} -> ${pendingCount}`,
+            message: `Draft evidence leaked into public scores: ${beforeCount} -> ${pendingCount}`,
           };
         }
 
@@ -299,16 +299,16 @@ export function getStage8Tests(): Test[] {
         return {
           success: valid,
           message: valid
-            ? "Pending observations stay hidden until staff validation makes them public."
-            : `Approval boundary failed: ${beforeCount} -> ${afterCount}`,
+            ? "Draft observations stay hidden until the admin publishes them."
+            : `Publication boundary failed: ${beforeCount} -> ${afterCount}`,
         };
       },
     },
     {
       id: "stage-8-score-calculation",
-      name: "Approved evidence drives public score summaries",
+      name: "Published evidence drives public score summaries",
       description:
-        "Validates that the score summary reflects only approved observations and reports explainable dimension counts.",
+        "Validates that the score summary reflects only published observations and reports explainable dimension counts.",
       phase: "stage-8",
       stage: 8,
       category: "Evidence Scoring",
@@ -329,7 +329,7 @@ export function getStage8Tests(): Test[] {
             rawValue: suffix === "a" ? 0.72 : 0.78,
             rawUnit: "%",
             citation: `Stage 8 score calc ${suffix} ${Date.now()}`,
-            snippet: `Approved score calculation evidence ${suffix}.`,
+            snippet: `Published score calculation evidence ${suffix}.`,
           });
           if (!createResult.success) {
             return { success: false, message: createResult.message };
@@ -357,16 +357,16 @@ export function getStage8Tests(): Test[] {
         return {
           success: valid,
           message: valid
-            ? "Approved observations are reflected in the public score summary."
+            ? "Published observations are reflected in the public score summary."
             : `Score calculation summary was incomplete: ${JSON.stringify(summary)}`,
         };
       },
     },
     {
-      id: "stage-8-volunteer-workflow",
-      name: "Review queue keeps volunteer workflow constrained",
+      id: "stage-8-admin-publication-workflow",
+      name: "Admin publication view keeps provenance visible",
       description:
-        "Creates a draft observation and confirms the review queue exposes the expected constrained metadata for staff approval.",
+        "Creates a draft observation and confirms the publication view exposes its material, parameter, snippet, and methodology metadata.",
       phase: "stage-8",
       stage: 8,
       category: "Evidence Scoring",
@@ -377,14 +377,14 @@ export function getStage8Tests(): Test[] {
           return { success: false, message: materialResult.message };
         }
 
-        const citation = `Stage 8 volunteer ${Date.now()}`;
+        const citation = `Stage 8 admin publication ${Date.now()}`;
         const createResult = await createEvidence({
           materialId: materialResult.material.id,
           parameterCode: "Y",
           rawValue: 0.61,
           rawUnit: "%",
           citation,
-          snippet: "Volunteer workflow queue item.",
+          snippet: "Admin publication view item.",
         });
         if (!createResult.success) {
           return { success: false, message: createResult.message };
@@ -394,7 +394,7 @@ export function getStage8Tests(): Test[] {
         if (!accessToken) {
           return {
             success: false,
-            message: "Must be authenticated as admin to inspect the review queue.",
+            message: "Must be authenticated as admin to inspect evidence publication.",
           };
         }
 
@@ -413,14 +413,14 @@ export function getStage8Tests(): Test[] {
           Boolean(item) &&
           item.material_id === materialResult.material.id &&
           item.parameter_code === "Y" &&
-          item.snippet === "Volunteer workflow queue item." &&
+          item.snippet === "Admin publication view item." &&
           item.methodology_version;
 
         return {
           success: valid,
           message: valid
-            ? "The review queue exposes constrained, approval-ready evidence metadata."
-            : `Review queue payload was incomplete: ${JSON.stringify(queuePayload)}`,
+            ? "The publication view exposes complete evidence provenance for the admin."
+            : `Publication view payload was incomplete: ${JSON.stringify(queuePayload)}`,
         };
       },
     },

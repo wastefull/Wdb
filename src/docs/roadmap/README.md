@@ -12,14 +12,27 @@ test mapping, and backlog items.
 4. Data Migration - Complete
 5. Material Experience Redesign - Complete
 6. Knowledge Graph Foundation - Complete
-7. Material Relationships & Educational Content - Active
-8. Evidence-Based Sustainability Scoring - In Progress
-9. Public Source Library & Citations - Planned
+7. Solo-Admin Content Curation - Active
+8. Evidence Provenance & Scoring - Planned next
+9. Public Sources & Structured Citations - Planned
 10. Taxonomy, Discovery & Learning Paths - Planned
-11. Privacy, Audit & Revision History - Planned
-12. Scale - Planned
+11. Revision Recovery & Multi-User Readiness - Trigger-gated
+12. Scale & Community Workflows - Trigger-gated
 
-Stages 11 and 12 must remain the final sequence.
+Stages 11 and 12 remain the final sequence and begin only when their activation
+criteria are met.
+
+## Current Operating Assumption
+
+WasteDB currently has one administrator and no interns, reviewers, or other
+contributors. The critical path should make that administrator faster at
+fleshing out material pages with canonical sources, traceable evidence, and
+useful educational content.
+
+Scientific provenance, authorization, backups, and practical recovery remain
+required. Actor-level audit history, reviewer routing, assignments,
+notifications, retention dashboards, and outbox consumers are deferred until a
+second contributor or a concrete compliance requirement creates a need.
 
 ## TDD Workflow
 
@@ -30,22 +43,23 @@ Stages 11 and 12 must remain the final sequence.
 - Stage 5 avoids known accessibility regressions through semantic structure,
   visible focus, keyboard reachability, reduced-motion compatibility, and
   non-color-only state communication.
-- Stage 7 completion is defined by reviewed educational-content and
-  material-relationship outcomes, including focused authorization, duplicate
-  protection, public reads, and focused audit behavior.
-- Stage 7 wrap-up work now prioritizes admin-first video-by-URL intake,
-  single-section content management, shared Source Search entrypoints in the
-  Curation Workbench, and browser smoke tests that mirror the actual curation
-  workflow.
-- Stage 8 planning starts from reviewed source observations, methodology
-  versioning, and audit-backed publication of scored outcomes rather than
-  discovery-first graph reads.
-- Stage 8 now has an initial admin-facing evidence scoring panel, public
-  approved-evidence score summaries, and roadmap smoke tests wired to the new
-  workflow.
+- Stage 7 completion is defined by a material-centered solo-admin workflow,
+  canonical source identity, fast source linking, actionable coverage gaps,
+  material-page provenance, duplicate protection, direct publication, and a
+  lightweight recovery baseline.
+- Existing video intake, triage, relationship, and mapping work is retained as
+  implementation history, but no longer defines the active completion gate.
+- Stage 8 starts after the Stage 7 source workflow is coherent. It centers on
+  source-centric observation capture, methodology versioning, complete
+  scientific provenance, and direct admin publication.
+- The existing evidence scoring panel and backend validation states remain
+  compatible; the admin-facing workflow presents them as draft, published,
+  excluded, or duplicate.
 - Generalized taxonomy governance and broad discovery read cutover move to
   Stage 10.
-- Do not duplicate current stage status in Markdown.
+- Multi-user approval and actor-level audit infrastructure move to triggered
+  Stage 11.
+- Treat `src/config/roadmap.ts` as authoritative if narrative documents drift.
 
 ## Migration Standard
 
@@ -54,7 +68,7 @@ practical, and backed by verified recovery procedures. See
 [Knowledge Graph Migration](./KNOWLEDGE_GRAPH_MIGRATION.md).
 
 Active Stage 7 implementation contract:
-[Material Relationships and Educational Content](./KNOWLEDGE_GRAPH_CURATION.md).
+[Solo-Admin Graph Content and Curation](./KNOWLEDGE_GRAPH_CURATION.md).
 
 Stage 8 planning guide:
-[Evidence-Based Sustainability Scoring Plan](./guides/KNOWLEDGE_GRAPH_EVIDENCE_BASED_SCORING_PLAN.md).
+[Evidence Provenance and Scoring Plan](./guides/KNOWLEDGE_GRAPH_EVIDENCE_BASED_SCORING_PLAN.md).

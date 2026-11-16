@@ -601,7 +601,7 @@ export function AdminDashboard({
                         Evidence Scoring
                       </h3>
                       <p className="text-[12px] text-black/60">
-                        Approve observations, manage methodology versions, and
+                        Publish observations, manage methodology versions, and
                         preview public scores.
                       </p>
                     </div>
@@ -624,7 +624,7 @@ export function AdminDashboard({
                         Content Management
                       </h3>
                       <p className="text-[12px] text-black/60">
-                        Preview, triage, and map graph content
+                        Curate sources, content, and material links
                       </p>
                     </div>
                   </div>
@@ -649,7 +649,7 @@ export function AdminDashboard({
                         Roadmap
                       </h3>
                       <p className="text-[12px] text-black/60">
-                        View development stages, tests, and progress
+                        Track solo-admin priorities and activation triggers
                       </p>
                     </div>
                   </div>

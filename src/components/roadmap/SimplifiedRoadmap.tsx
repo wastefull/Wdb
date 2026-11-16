@@ -35,6 +35,9 @@ function StageStatusIcon({ status }: { status: RoadmapStageStatus }) {
   if (status === "active") {
     return <Clock className="size-5 text-blue-600" />;
   }
+  if (status === "triggered") {
+    return <Circle className="size-5 text-amber-600" />;
+  }
   return <Circle className="size-5 text-gray-400" />;
 }
 
@@ -44,6 +47,13 @@ function StageStatusBadge({ status }: { status: RoadmapStageStatus }) {
   }
   if (status === "active") {
     return <Badge className="bg-blue-600 hover:bg-blue-700">Active</Badge>;
+  }
+  if (status === "triggered") {
+    return (
+      <Badge className="bg-amber-100 text-amber-900 hover:bg-amber-200">
+        Trigger-gated
+      </Badge>
+    );
   }
   return <Badge variant="outline">Planned</Badge>;
 }
@@ -104,10 +114,14 @@ function RoadmapOverview({
               {ROADMAP_PROGRESS.active} Active
             </Badge>
             <Badge variant="outline">{ROADMAP_PROGRESS.planned} Planned</Badge>
+            <Badge className="bg-amber-100 text-amber-900 hover:bg-amber-200">
+              {ROADMAP_PROGRESS.triggered} Trigger-gated
+            </Badge>
           </div>
           <p className="text-sm text-muted-foreground">
-            Stages 11 and 12 are intentionally the final sequence: Privacy,
-            Audit & Revision History, followed by Scale.
+            Stage 7 is the sole active priority. Trigger-gated stages begin
+            only when their collaboration, compliance, corpus-size, or
+            performance criteria are met.
           </p>
         </CardContent>
       </Card>
@@ -165,7 +179,7 @@ function RoadmapOverview({
 }
 
 function StageDetail({ stage }: { stage: RoadmapStage }) {
-  const hasRunnableTests = stage.number >= 2 && stage.number <= 7;
+  const hasRunnableTests = stage.number >= 2 && stage.number <= 8;
 
   return (
     <div className="space-y-6">
@@ -193,6 +207,25 @@ function StageDetail({ stage }: { stage: RoadmapStage }) {
           </CardContent>
         )}
       </Card>
+
+      {stage.activationCriteria?.length ? (
+        <Card className="border-amber-200 bg-amber-50/50 shadow-none">
+          <CardHeader>
+            <CardTitle className="text-base">Activation criteria</CardTitle>
+            <CardDescription>
+              This stage begins when at least one concrete trigger applies; it
+              is not part of the current critical path by default.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ul className="list-disc space-y-2 pl-5 text-sm text-muted-foreground">
+              {stage.activationCriteria.map((criterion) => (
+                <li key={criterion}>{criterion}</li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      ) : null}
 
       <Card>
         <CardHeader>
@@ -265,8 +298,10 @@ function StageDetail({ stage }: { stage: RoadmapStage }) {
               : stage.number === 6
                 ? "Executable checks for graph schema, RLS, compatibility, and backup coverage"
                 : stage.number === 7
-                  ? "Executable checks for reviewed relationships, content mappings, and the pre-cutover boundary"
-                  : "Executable tests mapped from legacy phase identifiers"
+                  ? "Existing regression checks retained while solo-admin curation becomes the active completion gate"
+                  : stage.number === 8
+                    ? "Executable checks for evidence provenance, publication boundaries, and reproducible scoring"
+                    : "Executable tests mapped from legacy phase identifiers"
           }
         />
       )}
@@ -378,7 +413,7 @@ export function SimplifiedRoadmap({
   return (
     <PageTemplate
       title="WasteDB Development Roadmap"
-      description="The operational source of truth for development stages and acceptance tests"
+      description="Solo-admin development priorities, activation triggers, and acceptance tests"
       onBack={onBack}
       maxWidth="5xl"
     >

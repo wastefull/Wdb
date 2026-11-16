@@ -385,17 +385,17 @@ export function getStage7Tests(): Test[] {
       },
     },
     {
-      id: "stage-7-manual-video-url-audit",
-      name: "Video-by-URL admin saves reuse existing videos and write audit logs",
+      id: "stage-7-manual-video-url-reuse",
+      name: "Video-by-URL admin saves reuse existing videos",
       description:
-        "Finds an already published linked video, reuses it through the manual URL flow without creating a duplicate video, and verifies the existing audit trail records the action.",
+        "Finds an already published linked video and reuses it through the direct admin flow without creating a duplicate video.",
       phase: "stage-7",
       stage: 7,
       category: "Video Curation",
       requiresAuth: true,
       testFn: async () => {
-        const { accessToken, userId } = getAdminSession();
-        if (!accessToken || !userId) {
+        const { accessToken } = getAdminSession();
+        if (!accessToken) {
           return {
             success: false,
             message:
@@ -432,38 +432,22 @@ export function getStage7Tests(): Test[] {
           youtube_url?: string;
           title?: string;
         };
-        const auditResponse = await fetchJson(
-          `${EDGE_URL}/audit/logs?entityType=video&entityId=${encodeURIComponent(
-            String(created.video_id ?? ""),
-          )}&userId=${encodeURIComponent(userId)}&action=${
-            created.existing ? "update" : "create"
-          }&limit=1`,
-          {
-            headers: {
-              Authorization: `Bearer ${publicAnonKey}`,
-              "X-Session-Token": accessToken,
-            },
-          },
-        );
-        const audit = auditResponse.json as { logs?: Array<{ id?: string }> };
         const valid =
           created.success === true &&
           created.existing === true &&
           typeof created.video_id === "string" &&
-          created.youtube_url === fixture.youtubeUrl &&
-          Array.isArray(audit.logs) &&
-          audit.logs.length > 0;
+          created.youtube_url === fixture.youtubeUrl;
         return {
           success: valid,
           message: valid
-            ? `Manual video URL reuse succeeded and the audit log recorded video ${created.video_id}.`
-            : `Manual video URL audit contract failed: ${JSON.stringify({ created, audit: audit.logs ?? [] })}`,
+            ? `Manual video URL reuse returned existing video ${created.video_id}.`
+            : `Manual video URL reuse contract failed: ${JSON.stringify(created)}`,
         };
       },
     },
     {
       id: "stage-7-manual-content-mapping-duplicate-safe",
-      name: "Manual content mapping reuses existing reviewed mappings",
+      name: "Manual content mapping reuses existing mappings",
       description:
         "Uses the existing admin options to re-submit an already-mapped content-to-material pair and verifies the service returns the existing mapping instead of creating a duplicate.",
       phase: "stage-7",
@@ -552,7 +536,7 @@ export function getStage7Tests(): Test[] {
       id: "stage-7-manual-material-relationship-duplicate-safe",
       name: "Manual material relationships reuse existing records",
       description:
-        "Re-submits an already-reviewed material relationship and verifies the admin RPC returns the existing row instead of creating a duplicate.",
+        "Re-submits an existing material relationship and verifies the admin RPC returns the existing row instead of creating a duplicate.",
       phase: "stage-7",
       stage: 7,
       category: "Knowledge Governance",

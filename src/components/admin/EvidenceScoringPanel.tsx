@@ -21,6 +21,13 @@ import { Textarea } from "../ui/textarea";
 
 type ReviewStatus = "pending" | "validated" | "flagged" | "duplicate";
 
+const publicationLabel = (status?: string | null) => {
+  if (status === "validated") return "published";
+  if (status === "flagged") return "excluded";
+  if (status === "duplicate") return "duplicate";
+  return "draft";
+};
+
 interface EvidenceScoringPanelProps {
   onBack?: () => void;
 }
@@ -74,7 +81,7 @@ export function EvidenceScoringPanel({ onBack }: EvidenceScoringPanelProps) {
       setReviewItems(reviewData.items ?? []);
     } catch (error) {
       logger.error("Failed to refresh evidence review items:", error);
-      toast.error("Failed to refresh review queue");
+      toast.error("Failed to refresh evidence records");
     }
   };
 
@@ -113,17 +120,17 @@ export function EvidenceScoringPanel({ onBack }: EvidenceScoringPanelProps) {
       await api.reviewEvidenceValidation(id, status);
       toast.success(
         status === "validated"
-          ? "Evidence approved"
+          ? "Evidence published"
           : status === "flagged"
-            ? "Evidence flagged"
+            ? "Evidence excluded"
             : status === "duplicate"
               ? "Evidence marked duplicate"
-              : "Evidence returned to pending",
+              : "Evidence returned to draft",
       );
       await refreshReviewItems();
     } catch (error) {
-      logger.error("Failed to review evidence:", error);
-      toast.error("Failed to update evidence review");
+      logger.error("Failed to update evidence publication:", error);
+      toast.error("Failed to update evidence publication");
     } finally {
       setReviewingId(null);
     }
@@ -142,7 +149,7 @@ export function EvidenceScoringPanel({ onBack }: EvidenceScoringPanelProps) {
       );
       setPreviewSummary(summary);
       if (!summary) {
-        toast.info("No approved evidence summary is available yet");
+        toast.info("No published evidence summary is available yet");
       }
     } catch (error) {
       logger.error("Failed to load scoring summary:", error);
@@ -167,11 +174,12 @@ export function EvidenceScoringPanel({ onBack }: EvidenceScoringPanelProps) {
       <div className="space-y-2">
         <p className="eyebrow">Stage 8</p>
         <h1 className="font-display text-[28px] normal">
-          Evidence-Based Scoring
+          Evidence Provenance &amp; Scoring
         </h1>
         <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
-          Review structured observations, keep methodology versions explicit,
-          and promote only approved evidence into public scoring summaries.
+          Capture traceable observations, keep methodology versions explicit,
+          and directly publish only the evidence that should affect public
+          scoring summaries.
         </p>
       </div>
 
@@ -243,10 +251,11 @@ export function EvidenceScoringPanel({ onBack }: EvidenceScoringPanelProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Clock3 className="size-4" aria-hidden="true" />
-            Review queue
+            Evidence publication
           </CardTitle>
           <CardDescription>
-            Approve, flag, or reset observations without extra ceremony.
+            Keep observations as drafts, publish them directly, or exclude
+            them from scoring.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -264,7 +273,7 @@ export function EvidenceScoringPanel({ onBack }: EvidenceScoringPanelProps) {
               }
               className="rounded-md border bg-background px-3 py-2 text-sm"
             >
-              <option value="pending">Pending review</option>
+              <option value="pending">Draft</option>
               <option value="all">All statuses</option>
             </select>
             <Button onClick={loadPanel} variant="outline">
@@ -291,7 +300,7 @@ export function EvidenceScoringPanel({ onBack }: EvidenceScoringPanelProps) {
                       <div className="flex flex-wrap items-center gap-2">
                         <Badge variant="outline">{item.parameter_code}</Badge>
                         <Badge variant="secondary">
-                          {item.validation_status ?? "pending"}
+                          {publicationLabel(item.validation_status)}
                         </Badge>
                         <span className="text-sm font-medium">
                           {item.citation}
@@ -318,7 +327,7 @@ export function EvidenceScoringPanel({ onBack }: EvidenceScoringPanelProps) {
                         disabled={reviewingId === item.id}
                       >
                         <CheckCircle2 className="mr-2 size-4" />
-                        Approve
+                        Publish
                       </Button>
                       <Button
                         size="sm"
@@ -327,7 +336,7 @@ export function EvidenceScoringPanel({ onBack }: EvidenceScoringPanelProps) {
                         disabled={reviewingId === item.id}
                       >
                         <AlertTriangle className="mr-2 size-4" />
-                        Flag
+                        Exclude
                       </Button>
                       <Button
                         size="sm"
@@ -353,8 +362,8 @@ export function EvidenceScoringPanel({ onBack }: EvidenceScoringPanelProps) {
             Score preview
           </CardTitle>
           <CardDescription>
-            Smoke-test a material and confirm only approved evidence contributes
-            to the public summary.
+            Smoke-test a material and confirm only published evidence
+            contributes to the public summary.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -384,7 +393,7 @@ export function EvidenceScoringPanel({ onBack }: EvidenceScoringPanelProps) {
                     {Math.round(dimension.score)}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {dimension.observationCount} approved observation
+                    {dimension.observationCount} published observation
                     {dimension.observationCount === 1 ? "" : "s"}
                   </p>
                 </div>
@@ -397,16 +406,16 @@ export function EvidenceScoringPanel({ onBack }: EvidenceScoringPanelProps) {
                   Version {previewSummary.methodologyVersion}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  {previewSummary.approvedObservationCount} approved observation
+                  {previewSummary.approvedObservationCount} published observation
                   {previewSummary.approvedObservationCount === 1 ? "" : "s"} ·{" "}
-                  {previewSummary.validatedParameterCount} validated parameter
+                  {previewSummary.validatedParameterCount} published parameter
                   {previewSummary.validatedParameterCount === 1 ? "" : "s"}
                 </p>
               </div>
             </div>
           ) : (
             <div className="rounded-lg border border-dashed p-6 text-sm text-muted-foreground">
-              Load a material ID to check the approved-evidence score summary.
+              Load a material ID to check the published-evidence score summary.
             </div>
           )}
         </CardContent>

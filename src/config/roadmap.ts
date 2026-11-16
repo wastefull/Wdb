@@ -1,4 +1,8 @@
-export type RoadmapStageStatus = "complete" | "active" | "planned";
+export type RoadmapStageStatus =
+  | "complete"
+  | "active"
+  | "planned"
+  | "triggered";
 export type DeliverableStatus = "complete" | "active" | "planned" | "deferred";
 export type AcceptanceTestStatus = "automated" | "planned";
 
@@ -23,6 +27,7 @@ export interface RoadmapStage {
   status: RoadmapStageStatus;
   completedDate?: string;
   summary: string;
+  activationCriteria?: string[];
   legacyPhases?: string[];
   deliverables: RoadmapDeliverable[];
   acceptanceTests: RoadmapAcceptanceTest[];
@@ -63,6 +68,12 @@ const planned = (title: string, description?: string): RoadmapDeliverable => ({
   title,
   description,
   status: "planned",
+});
+
+const deferred = (title: string, description?: string): RoadmapDeliverable => ({
+  title,
+  description,
+  status: "deferred",
 });
 
 const acceptance = (
@@ -353,26 +364,42 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
   {
     number: 7,
     slug: "stage-7",
-    title: "Material Relationships & Educational Content",
+    title: "Solo-Admin Content Curation",
     status: "active",
     summary:
-      "Complete reviewed material-to-material and content-to-material relationship workflows with focused audit coverage and public material-page presentation.",
+      "Make one administrator fast at turning incomplete material records into well-sourced, publishable pages while consolidating source and evidence storage.",
     deliverables: [
       active(
-        "Reviewed educational content-to-material relationships",
-        "Admins can create, review, and manage explicit content-to-material mappings that are presented on public material pages through governed relationship roles.",
+        "Canonical source and evidence authority",
+        "Reconcile KV and Postgres records without data loss, then use stable Postgres source, material-source, and evidence identifiers for all new work.",
       ),
       active(
-        "Reviewed material-to-material relationships",
-        "Admins can create, review, and manage explicit material relationships with duplicate protection, explicit review state, and public material-page presentation.",
+        "Material-centered curation workspace",
+        "Keep the current material in context while the admin links sources, captures evidence, drafts content, previews provenance, and publishes.",
       ),
       active(
-        "Focused relationship audit coverage",
-        "Relationship and mapping mutations record transactional audit summaries for create, review, state-transition, and delete operations required by Stage 7.",
+        "Fast source capture and linking",
+        "Support DOI, URL, and manual source intake with duplicate detection, immediate material linking, and optional PDF attachment in one flow.",
       ),
       active(
-        "Outbox retained as inactive durable ledger",
-        "Current relationship and mapping writes keep idempotent outbox records in the same transaction, but downstream outbox consumers are out of Stage 7 scope until a concrete consumer is approved.",
+        "Material-page source and provenance links",
+        "Published material pages expose canonical sources and evidence locations for supported claims without waiting for the full public Source Library in Stage 9.",
+      ),
+      planned(
+        "Actionable content coverage dashboard",
+        "Show missing descriptions, sources, evidence, article categories, and stale records with a direct next action for each material.",
+      ),
+      planned(
+        "Faster article authoring",
+        "Provide material-aware templates, Markdown or plain-text import, automatic slugs, source selection, and public-page preview.",
+      ),
+      planned(
+        "Solo-admin recovery baseline",
+        "Protect work with autosaved drafts, verified backups, simple trash or restore, and a revision snapshot before overwriting published content.",
+      ),
+      active(
+        "Direct relationship and content management",
+        "Admins can create, manage, and publish duplicate-safe material and educational-content relationships without a mandatory self-review pass.",
       ),
       complete(
         "Bulk YouTube playlist intake and four-way triage",
@@ -407,71 +434,90 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
         "Global CRUD for tag vocabularies, relationship vocabularies, and lifecycle taxonomy moves to Stage 10.",
       ),
       planned(
-        "Key Insight review and evidence-claim workflows",
-        "Structured Key Insight and scoring-evidence editorial workflows move to Stage 8.",
+        "Evidence provenance and scoring",
+        "Source observation sessions, score publication, and score-to-evidence traceability move to Stage 8.",
       ),
       planned(
         "General discovery graph surfaces",
         "Knowledge Feed, generalized related-entity feeds, and discovery path cutover move to Stage 10.",
       ),
-      planned(
-        "Audit-system redesign",
-        "Broad audit and revision-model redesign is Stage 11 work; Stage 7 requires only focused mutation coverage.",
+      deferred(
+        "Multi-user review, audit, and outbox expansion",
+        "Actor-level audit history, approval routing, reviewer attribution, assignments, and outbox consumers wait until another contributor or an external compliance requirement exists.",
       ),
     ],
     acceptanceTests: [
       acceptance(
-        "stage-7-content-material-create-review",
-        "Educational content links are created and reviewed",
-        "Admins can create pending educational content-to-material mappings, review them to active or archived, and preserve reviewer metadata across transitions.",
+        "stage-7-canonical-source-identity",
+        "Source identity is consistent across the product",
+        "A source created from a material workspace appears under the same stable identifier in the Source Library, material page, evidence records, and content citations.",
       ),
       acceptance(
-        "stage-7-material-relationship-create-review",
-        "Material relationships are created and reviewed",
-        "Admins can create pending material-to-material relationships, review them to active or archived, and preserve reviewer metadata across transitions.",
+        "stage-7-material-context-workflow",
+        "Curation preserves material context",
+        "An admin can link a source, capture evidence, preview the public result, and return to the same material without restarting navigation.",
+      ),
+      acceptance(
+        "stage-7-material-source-provenance",
+        "Material pages expose source provenance",
+        "Published material claims link to their canonical source and preserve an evidence page, location, or snippet when one is available.",
+      ),
+      acceptance(
+        "stage-7-direct-admin-publish",
+        "Admin publication does not require self-review",
+        "The sole admin can save a draft or publish directly; no second approval action or reviewer identity is required.",
+      ),
+      acceptance(
+        "stage-7-content-coverage",
+        "Coverage gaps are actionable",
+        "The admin dashboard accurately identifies missing descriptions, sources, evidence, and article categories and deep-links to the relevant task.",
       ),
       acceptance(
         "stage-7-duplicate-protection",
         "Duplicate relationship claims are prevented",
-        "Exact duplicate content-to-material and material-to-material records return existing reviewed state or deterministic conflict responses without creating additional rows.",
+        "Exact duplicate content-to-material and material-to-material records return the existing published state or deterministic conflict responses without creating additional rows.",
       ),
       acceptance(
         "stage-7-relationship-authorization",
         "Relationship mutation authorization is explicit",
-        "Anonymous and untrusted authenticated users cannot create, review, or delete relationship/mapping records; authorized admins can execute those mutations.",
+        "Anonymous and untrusted authenticated users cannot create, publish, or delete relationship/mapping records; authorized admins can execute those mutations.",
       ),
       acceptance(
         "stage-7-public-material-reads",
-        "Public material pages present reviewed relationships",
-        "Public material-page surfaces show only active reviewed educational content links and material relationships, excluding pending or archived records.",
+        "Public material pages present published relationships",
+        "Public material-page surfaces show only published educational content links and material relationships, excluding drafts and archived records.",
       ),
       acceptance(
-        "stage-7-focused-audit",
-        "Stage 7 mutations retain focused transactional audit coverage",
-        "Create, review-state transition, and delete mutations for Stage 7 relationship domains write compatible audit summaries in the same transaction as the data change.",
+        "stage-7-recovery-baseline",
+        "Content work is recoverable",
+        "Autosaved drafts, verified backups, and trash or revision recovery protect against accidental loss without requiring actor-level audit infrastructure.",
       ),
     ],
   },
   {
     number: 8,
     slug: "stage-8",
-    title: "Evidence-Based Sustainability Scoring",
-    status: "active",
+    title: "Evidence Provenance & Scoring",
+    status: "planned",
     summary:
-      "Define authoritative scoring methodology and convert reviewed source observations into published sustainability dimensions with strict provenance and approval boundaries.",
+      "Capture reproducible source observations efficiently and calculate published sustainability dimensions from explicitly published evidence.",
     deliverables: [
       planned("Authoritative scoring methodology and parameter governance"),
       planned(
-        "Reviewer workflow for structured source-PDF observations",
-        "Reviewers can capture parameter observations with source, page, snippet/quote, reviewer identity, confidence, and methodology version.",
+        "Source-centric extraction sessions",
+        "Keep source, PDF, and material context pinned while the admin captures multiple observations with save-and-add-another behavior.",
       ),
       planned(
-        "Volunteer-safe guided review workflow",
-        "Trainable high-school volunteer flow includes instructions, constrained input, and mandatory staff approval before score impact.",
+        "Complete scientific provenance",
+        "Published observations retain source, page or location, quote or snippet, material, parameter, unit, confidence, and methodology version.",
       ),
       planned(
-        "Score calculation and publication from approved observations",
-        "Material sustainability dimensions are calculated only from approved observations under a named methodology version.",
+        "Direct admin evidence publication",
+        "The admin can keep observations as drafts, publish them directly, or exclude them without a separate self-approval queue.",
+      ),
+      planned(
+        "Score calculation from published observations",
+        "Material sustainability dimensions are calculated only from published observations under a named methodology version.",
       ),
       planned(
         "Separation between discovery relationships and evidentiary support",
@@ -482,7 +528,7 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
       acceptance(
         "stage-8-evidence-provenance",
         "Every scoring input preserves provenance",
-        "Each approved observation records source record, page/location, quoted snippet, reviewer, confidence, and methodology version.",
+        "Each published observation records its source, page or location, quoted snippet, material, parameter, unit, confidence, and methodology version.",
       ),
       acceptance(
         "stage-8-methodology-versioning",
@@ -490,29 +536,29 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
         "Score outputs can be recalculated by methodology version and retain explainable parameter lineage.",
       ),
       acceptance(
-        "stage-8-approval-boundary",
-        "Unapproved observations cannot affect public scores",
-        "Volunteer and reviewer draft observations remain non-authoritative until explicit staff approval is recorded.",
+        "stage-8-publication-boundary",
+        "Draft observations cannot affect public scores",
+        "Draft and excluded observations remain non-authoritative until the admin explicitly publishes them.",
       ),
       acceptance(
         "stage-8-score-calculation",
-        "Published sustainability dimensions come from approved evidence",
-        "Public dimensions are computed from approved observations only and expose methodology metadata for traceability.",
+        "Published sustainability dimensions come from published evidence",
+        "Public dimensions are computed from published observations only and expose methodology metadata for traceability.",
       ),
       acceptance(
-        "stage-8-volunteer-workflow",
-        "Guided workflows are safe for trained high-school volunteers",
-        "Review UI provides clear instructions, constrained forms, and safe escalation paths suitable for supervised volunteer use.",
+        "stage-8-admin-publication-workflow",
+        "Admin evidence publication is direct and recoverable",
+        "The admin can create a draft, inspect its complete provenance, publish it in one action, and exclude or revise it without a separate reviewer workflow.",
       ),
     ],
   },
   {
     number: 9,
     slug: "stage-9",
-    title: "Public Source Library & Citations",
+    title: "Public Sources & Structured Citations",
     status: "planned",
     summary:
-      "Expose a safe public source library with citations and reviewed source-material links while keeping restricted operational fields private.",
+      "Expose public source records, structured content citations, and clearly labeled material-source relationships while keeping restricted files and notes private.",
     deliverables: [
       planned("Public source browsing, search, and source detail pages"),
       planned(
@@ -520,12 +566,12 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
         "Public users can view bibliographic metadata and open-access or PDF availability without exposing restricted notes or review internals.",
       ),
       planned(
-        "Reviewed material-to-source relationship presentation",
-        "Materials show explicit source relationships without implying every linked source contributes to scoring.",
+        "Published material-to-source relationship presentation",
+        "Materials show explicit, labeled source relationships without implying every linked source contributes to scoring.",
       ),
       planned(
-        "Content citation integration via existing footnotes",
-        "Articles, guides, and future content types can cite source-library records through current citation/footnote experiences.",
+        "Structured content citation integration",
+        "Articles, guides, and future content types cite canonical source-library records while retaining free-text footnotes for commentary.",
       ),
       planned(
         "Public/restricted field boundary model",
@@ -540,8 +586,8 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
       ),
       acceptance(
         "stage-9-material-source-links",
-        "Material and source links are explicit and reviewed",
-        "Material pages display reviewed source relationships with clear relationship meaning and without automatic evidentiary claims.",
+        "Material and source links are explicit and published",
+        "Material pages display published source relationships with clear relationship meaning and without automatic evidentiary claims.",
       ),
       acceptance(
         "stage-9-content-citations",
@@ -562,15 +608,19 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
     status: "planned",
     summary:
       "Make taxonomy governance configurable, then power verified discovery reads, related-material experiences, and curated learning paths.",
+    activationCriteria: [
+      "A meaningful share of priority materials meets the minimum content-coverage standard.",
+      "Source, evidence, and citation relationships use canonical identifiers.",
+    ],
     deliverables: [
       planned("Admin CRUD for taxonomy and governed vocabulary"),
       planned(
         "Assignment governance with merge and deprecation workflows",
-        "Reviewed assignment workflows prevent duplicate taxonomy values and support controlled merges/deprecations.",
+        "Admin assignment workflows prevent duplicate taxonomy values and support controlled merges/deprecations.",
       ),
       planned(
-        "Verified discovery reads from active reviewed graph data",
-        "Related materials, feed surfaces, search, and learning paths read only active reviewed relationships and mappings.",
+        "Verified discovery reads from published graph data",
+        "Related materials, feed surfaces, search, and learning paths read only active published relationships and mappings.",
       ),
       planned(
         "Curated discovery paths and topic browsing",
@@ -586,49 +636,55 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
       acceptance(
         "stage-10-assignment-governance",
         "Assignment workflows prevent duplicate taxonomy drift",
-        "Reviewed assignment and merge/deprecation workflows prevent duplicate active values and preserve auditability of vocabulary changes.",
+        "Admin assignment and merge/deprecation workflows prevent duplicate active values and preserve canonical vocabulary history.",
       ),
       acceptance(
         "stage-10-verified-discovery-reads",
-        "Discovery uses active reviewed graph data only",
-        "Related materials, feed, search, and learning-path reads exclude pending, archived, and unreviewed records.",
+        "Discovery uses active published graph data only",
+        "Related materials, feed, search, and learning-path reads exclude drafts, archived records, and unpublished mappings.",
       ),
       acceptance(
         "stage-10-related-materials-learning-paths",
         "Related-material and learning-path experiences are governed",
-        "Public discovery surfaces show reviewed relationship semantics and curated pathway sequencing without exposing raw graph internals.",
+        "Public discovery surfaces show published relationship semantics and curated pathway sequencing without exposing raw graph internals.",
       ),
     ],
   },
   {
     number: 11,
     slug: "stage-11",
-    title: "Privacy, Audit & Revision History",
-    status: "planned",
+    title: "Revision Recovery & Multi-User Readiness",
+    status: "triggered",
     summary:
-      "Separate revision history, restricted admin audit, and security telemetry while preserving historical records and API compatibility.",
+      "Add actor-level governance only when collaboration or compliance requires it, while strengthening practical revision and restore workflows.",
+    activationCriteria: [
+      "A non-admin editor, curator, or reviewer is invited.",
+      "An external partner or compliance requirement needs actor-level history or retention controls.",
+    ],
     deliverables: [
-      planned("Layered revision, admin-audit, and security telemetry models"),
       planned(
-        "Versioned audit migration with reconciliation and rollback instructions",
+        "Content revision comparison and restore",
+        "Provide understandable revisions and recovery beyond the lightweight Stage 7 snapshot baseline.",
       ),
       planned(
-        "Compatibility adapters for existing audit endpoints and consumers",
+        "Multi-user approval and assignment workflows",
+        "Add reviewer identity, approval routing, assignments, and notifications when multiple contributors exist.",
       ),
       planned(
-        "Documented retention, incompatibilities, and manual recovery paths",
+        "Actor-level audit and security telemetry",
+        "Introduce searchable administrative history, retention controls, and security telemetry only when required by collaboration or compliance.",
       ),
     ],
     acceptanceTests: [
       acceptance(
-        "stage-11-history",
-        "Historical audit records are preserved",
-        "Audit migration accounts for every existing record and retains original payloads where automated conversion is impossible.",
+        "stage-11-revision-restore",
+        "Published content revisions can be restored",
+        "An authorized operator can compare and restore a prior published revision without losing the current version.",
       ),
       acceptance(
-        "stage-11-api-compatibility",
-        "Existing audit interfaces remain functional",
-        "Audit list, detail, statistics, filtering, and export response shapes remain compatible or have documented adapters.",
+        "stage-11-collaboration-boundary",
+        "Multi-user actions carry accountable identity",
+        "When contributor roles are enabled, publication, review, assignment, and destructive actions retain the responsible actor and decision.",
       ),
       acceptance(
         "stage-11-restore",
@@ -640,15 +696,19 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
   {
     number: 12,
     slug: "stage-12",
-    title: "Scale",
-    status: "planned",
+    title: "Scale & Community Workflows",
+    status: "triggered",
     summary:
-      "Scale evidence curation, aggregation, public traceability, and community workflows after migration safety gates pass.",
+      "Scale performance and community curation only after the corpus or contributor activity demonstrates a concrete need.",
+    activationCriteria: [
+      "Measured corpus size or query latency requires pagination, caching, or aggregation work.",
+      "Active non-admin contributors require onboarding, assignments, sampling, and quality workflows.",
+    ],
     deliverables: [
       planned("Aggregation engine and evidence quality metrics"),
       planned("Evidence curation across materials and dimensions"),
       planned("Public evidence traceability"),
-      planned("Community curator onboarding and quality workflows"),
+      planned("Triggered community curator onboarding and quality workflows"),
     ],
     acceptanceTests: [
       acceptance(
@@ -658,8 +718,8 @@ export const ROADMAP_STAGES: RoadmapStage[] = [
       ),
       acceptance(
         "stage-12-backup-scale",
-        "Backup and audit systems remain functional at scale",
-        "Full backup, validation, restore, audit filtering, and audit statistics remain usable at target data volumes.",
+        "Backup and recovery remain functional at scale",
+        "Full backup, validation, and restore remain usable at target data volumes; multi-user audit checks apply only after Stage 11 is activated.",
       ),
     ],
   },
@@ -677,6 +737,8 @@ export const ROADMAP_PROGRESS = {
     .length,
   active: ROADMAP_STAGES.filter((stage) => stage.status === "active").length,
   planned: ROADMAP_STAGES.filter((stage) => stage.status === "planned").length,
+  triggered: ROADMAP_STAGES.filter((stage) => stage.status === "triggered")
+    .length,
   percentComplete: Math.round(
     (ROADMAP_STAGES.filter((stage) => stage.status === "complete").length /
       ROADMAP_STAGES.length) *
@@ -701,28 +763,22 @@ export const ROADMAP_BACKLOG: RoadmapBacklogCategory[] = [
           "Extend the proven dry-run, checkpoint, quarantine, and reconciliation pattern to Stage 7 relationship and content population while deferring generalized taxonomy governance to Stage 10.",
         origin: "Stage 7",
       },
-      {
-        title: "Retention dashboard enhancements",
-        description:
-          "Add previews, exports, date filters, storage indicators, and scheduling without weakening audit retention guarantees.",
-        origin: "Legacy backlog",
-      },
     ],
   },
   {
     title: "Evidence & Source Management",
-    priority: "medium",
+    priority: "high",
     items: [
       {
         title: "Bulk source deletion with integrity checks",
         description:
-          "Support reviewed bulk deletion with dependency checks, dry runs, and rollback-aware reporting.",
+          "Support confirmed bulk deletion with dependency checks, dry runs, and rollback-aware reporting.",
         origin: "Legacy backlog",
       },
       {
         title: "DOI and CrossRef import",
         description:
-          "Populate source metadata from DOI/CrossRef with duplicate detection and manual review.",
+          "Populate canonical source metadata from DOI, URL, or CrossRef with duplicate detection and immediate material linking.",
         origin: "Legacy backlog",
       },
       {
@@ -730,6 +786,24 @@ export const ROADMAP_BACKLOG: RoadmapBacklogCategory[] = [
         description:
           "Track source metadata revisions and generate BibTeX and formatted citations.",
         origin: "Legacy backlog",
+      },
+    ],
+  },
+  {
+    title: "Multi-User Governance",
+    priority: "low",
+    items: [
+      {
+        title: "Approval routing and reviewer attribution",
+        description:
+          "Add assignments, reviewer identity, approval queues, and contributor notifications when a non-admin contributor is invited.",
+        origin: "Triggered Stage 11",
+      },
+      {
+        title: "Operational audit and retention controls",
+        description:
+          "Expand searchable actor history, retention rules, and security telemetry only for a concrete collaboration or compliance need.",
+        origin: "Triggered Stage 11",
       },
     ],
   },

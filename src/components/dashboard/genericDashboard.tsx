@@ -209,7 +209,7 @@ export function GenericDashboard({
                         Evidence Scoring
                       </h3>
                       <p className="text-[12px] text-black/60">
-                        Approve observations and keep public scoring honest.
+                        Publish traceable observations into public scoring.
                       </p>
                     </div>
                   </div>
@@ -231,7 +231,7 @@ export function GenericDashboard({
                         Content Management
                       </h3>
                       <p className="text-[12px] text-black/60">
-                        Preview, triage, and map graph content
+                        Curate sources, content, and material links
                       </p>
                     </div>
                   </div>
@@ -256,7 +256,7 @@ export function GenericDashboard({
                         Roadmap
                       </h3>
                       <p className="text-[12px] text-black/60">
-                        View development stages, tests, and progress
+                        Track solo-admin priorities and activation triggers
                       </p>
                     </div>
                   </div>

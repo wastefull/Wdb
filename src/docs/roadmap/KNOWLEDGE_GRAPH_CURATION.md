@@ -1,10 +1,44 @@
 # Graph Content and Curation Plan
 
-Stage 7 turns the reconciled canonical entity layer into governed knowledge.
-It does not enable graph-powered discovery reads; that remains a Stage 10
-gate.
+Stage 7 makes a sole administrator fast at turning incomplete material records
+into well-sourced, publishable pages. It consolidates canonical source and
+evidence identity, keeps the material in context during curation, and removes
+mandatory self-review from ordinary publication. Graph-powered discovery reads
+remain a Stage 10 gate.
 
-## Stage 7 Wrap-Up Progress — July 13, 2026
+## Priority Update — November 16, 2026
+
+This section supersedes the earlier review- and audit-heavy completion language
+below while retaining it as implementation history.
+
+The current Stage 7 completion gate is:
+
+- one canonical source identity across Source Library, material links,
+  evidence observations, and content citations
+- a material-centered workspace for source linking, evidence capture, content
+  drafting, provenance preview, and direct publication
+- DOI, URL, and manual source intake with duplicate detection and immediate
+  material linking
+- canonical source links and evidence locations on published material pages,
+  without waiting for the full public Source Library in Stage 9
+- an actionable coverage view for missing descriptions, sources, evidence,
+  article categories, and stale records
+- faster material-aware authoring with source selection and public-page preview
+- autosaved drafts, verified backups, trash or restore, and a lightweight
+  revision snapshot before published content is overwritten
+
+The system may continue compatibility writes to existing audit or outbox tables
+where they are already embedded and harmless. New actor-level audit views,
+approval routing, reviewer attribution, assignments, notifications, and outbox
+consumers are not Stage 7 work. They move to Stage 11 and activate only when a
+second contributor or a concrete compliance requirement exists.
+
+Stage 8 follows with source-centric evidence extraction, full scientific
+provenance, direct admin publication, and reproducible scoring from published
+observations. Stage 10 remains gated on adequate content coverage and canonical
+identifiers.
+
+## Historical Stage 7 Wrap-Up — July 13, 2026
 
 - The Content Management admin area now keeps one section visible at a time,
   with video links, content mappings, relationship review, and preview tools
@@ -17,18 +51,17 @@ gate.
 - Stage 7 smoke coverage now includes video-by-URL reuse, duplicate-safe
   manual mappings and material relationships, and read-only material resource
   checks so progress can be verified incrementally.
-- The remaining Stage 7 work should stay low-friction for human-reviewed
-  inputs and continue to use the existing audit-log system for every mutation.
-- Stage 8 planning now follows this wrap-up and centers on evidence-based
-  scoring methodology, provenance, and reviewed observation workflows.
+- The source and content work that remains is now captured in the November
+  2026 priority update above.
+- Stage 8 follows this work and centers on evidence-scoring methodology,
+  provenance, and direct admin publication.
 - The first Stage 8 slice is now implemented in the admin UI: evidence
-  methodology can be updated, review-queue observations can be approved or
-  flagged, and public material pages surface approved-evidence score
-  summaries.
+  methodology can be updated, observations can be published or excluded, and
+  public material pages surface published-evidence score summaries.
 
-## Supersession Note — July 8, 2026
+## Historical Supersession Note — July 8, 2026
 
-The roadmap now defines Stage 7 completion around two outcomes:
+At that checkpoint, the roadmap defined Stage 7 completion around two outcomes:
 
 - reviewed educational content linked to materials with admin CRUD/review and
   public material-page presentation
@@ -39,12 +72,12 @@ Completed video intake, triage, mapping, publication, and content-review work
 in this document remains valid implementation history. Those workstreams are no
 longer Stage 7 completion blockers.
 
-Stage 7 no longer requires outbox processing workers, generalized taxonomy
+That revision removed outbox processing workers, generalized taxonomy
 management, Key Insight and scoring-evidence workflows, broad graph discovery
-surfaces, or broad audit-system redesign to close. Stage 7 continues to write
-transactional audit summaries and outbox records for its own mutations. The
-outbox is treated as an inactive durable ledger until an approved downstream
-consumer exists.
+surfaces, and broad audit-system redesign from the completion gate. The
+implementation continued to write transactional audit summaries and outbox
+records for its own mutations. The outbox is treated as an inactive durable
+ledger until an approved downstream consumer exists.
 
 ## Implementation Checkpoint — June 29, 2026
 
@@ -247,7 +280,7 @@ consumer exists.
 - Anonymous graph mutations are denied.
 - `discusses` remains a discovery relationship and does not imply evidence.
 
-## Implementation Order
+## Historical Implementation Order
 
 1. Build a non-mutating YouTube playlist preview with pagination,
    normalization, duplicate detection, unavailable-item reporting, and durable
@@ -255,8 +288,7 @@ consumer exists.
 2. Add four-way playlist triage: material video, editorial lead, both, or
    ignore. Preserve triage decisions so an idempotent rerun does not recreate
    dismissed candidates. Transactional private worksheet staging is deployed;
-   completing dispositions remains active work, and the private review queue
-   backend is deployed for reviewed decision capture.
+   the private queue backend supports disposition capture.
 3. Create accepted videos as drafts through a transactional video, entity, and
    canonical-binding workflow. Add reviewed material mappings separately.
 4. **[Deployed — production reconciliation pending]** Build non-mutating relationship and
@@ -270,15 +302,14 @@ consumer exists.
    to `graph_migration_issues` via a new `graph_migration_runs` entry.
    Admin panel offers a confirmed quarantine action after a preview run.
    Route: `POST /graph/content-mappings/quarantine`.
-6. **[Active]** Add reviewed relationship, tag, entity, and video curation APIs
-   and admin interfaces. Manual content-to-material creation and approval or
-   rejection are implemented; bulk migration review remains checksum-bound,
-   and the other curation domains remain planned.
-7. Preserve transactional compatibility writes with idempotent outbox entries
-   for Stage 7 relationship and content-mapping mutations. Treat the outbox as
-   an inactive durable ledger until a downstream consumer is approved.
-8. Preserve summary audit compatibility for Stage 7 relationship and
-   content-mapping mutations.
+6. **[Implemented at the historical scope]** Add relationship, tag, entity,
+   and video curation APIs and admin interfaces. Manual content-to-material
+   creation and approval or rejection were implemented; bulk migration review
+   remains checksum-bound.
+7. Retain existing transactional compatibility writes while they remain
+   harmless. Do not build new outbox consumers on the current critical path.
+8. Do not expand summary audit or reviewer infrastructure until the Stage 11
+   activation criteria are met.
 9. Defer generalized taxonomy administration to Stage 10.
 10. Defer Key Insight and scoring-evidence review workflows to Stage 8.
 
@@ -441,5 +472,6 @@ Do not enable graph reads or apply relationship/content population when:
 - playlist enumeration is incomplete or its reviewed checksum has changed
 - a rerun would duplicate or silently delete a prior video or triage decision
 - an editorial lead would become public content or a graph claim implicitly
-- review, audit, authorization, or rollback behavior is incomplete
+- publication, authorization, data-integrity, backup, or rollback behavior is
+  incomplete
 - Stage 7 relationship and content-mapping acceptance tests do not pass

@@ -86,8 +86,8 @@ export function ContentManagementPage({ onBack }: ContentManagementPageProps) {
         </div>
 
         <p className="text-[12px] leading-relaxed text-black/60">
-          Preview incoming content, review private video candidates, and manage
-          graph content mappings.
+          Curate educational content and material links, with existing video
+          intake and mapping tools kept in focused sections.
         </p>
 
         <nav className="mt-6 space-y-1" aria-label="Content management tools">
